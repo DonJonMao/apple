@@ -13,6 +13,12 @@
 - 力量页增加手机快速逐组记录模式；同一快速训练可以保留相同重量 / 次数的重复组，并按 set number 幂等重试。
 - REST 仍要求电脑运行并与手机处于可达网络；iOS 原生 companion App、后台守护安装脚本和跨网络同步尚未实现。
 
+## 一键入口与使用手册（2026-11-08）
+
+- 根目录 `healthzip` 统一封装 `setup / import / start / sync / status / report / token / doctor / serve`，默认数据库、同步目录、端口和 token 文件集中保存，日常不再重复输入 `--db-path`。
+- `start` 同时启动 REST 接收器和 Streamlit；REST 默认允许可信局域网，网页默认只监听本机，使用 `start --lan` 才让手机打开网页；服务退出时两个进程一起停止。
+- 新增 `docs/HealthZIP_使用手册.md` 和 `output/pdf/HealthZIP_使用手册.pdf`，覆盖完整 ZIP 回填、Health Auto Export 每日推送、力量快速记录、文件夹同步、备份和故障排查。
+
 ## 已完成
 
 - ZIP 结构预检查、成员路径 / 符号链接 / 压缩比 / 大小限制与 `export.xml` 发现。
@@ -34,7 +40,7 @@
 ## 已验证
 
 ```text
-pytest -q                     17 passed
+pytest -q                     25 passed
 ruff check src app.py tests   All checks passed
 合成 ZIP 流式导入             785 个节点，784 个写入，未知类型登记，24 个 Workout
 大 fixture 流式导入           171,774 个节点，Python tracemalloc 峰值约 2.0 MB

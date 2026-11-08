@@ -1,0 +1,332 @@
+#!/usr/bin/env python3
+"""Small, cross-platform launcher for the Health ZIP workbench.
+
+The project CLI remains available for advanced use.  This launcher keeps the
+common workflow to one short command and stores machine-specific settings in
+``.local/healthzip.json`` (which is ignored by Git).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import secrets
+import socket
+import subprocess
+import sys
+import time
+import webbrowser
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+ROOT = Path(__file__).resolve().parent
+LOCAL = ROOT / ".local"
+VENV = ROOT / ".venv"
+CONFIG_PATH = LOCAL / "healthzip.json"
+TOKEN_PATH = LOCAL / "sync_token"
+
+DEFAULT_CONFIG: Dict[str, Any] = {
+    "db_path": ".local/healthzip.sqlite3",
+    "sync_dir": ".local/phone-sync",
+    "rest_bind": "0.0.0.0",
+    "rest_port": 8765,
+    "ui_bind": "127.0.0.1",
+    "ui_port": 8501,
+}
+
+
+def _python_path() -> Path:
+    candidate = VENV / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    return candidate if candidate.exists() else Path(sys.executable)
+
+
+def _streamlit_path() -> Optional[Path]:
+    candidate = VENV / ("Scripts/streamlit.exe" if os.name == "nt" else "bin/streamlit")
+    return candidate if candidate.exists() else None
+
+
+def _load_config() -> Dict[str, Any]:
+    LOCAL.mkdir(parents=True, exist_ok=True)
+    config = dict(DEFAULT_CONFIG)
+    if CONFIG_PATH.exists():
+        try:
+            loaded = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                config.update(loaded)
+        except (OSError, ValueError) as exc:
+            print(f"无法读取 {CONFIG_PATH}: {exc}; 将使用默认配置", file=sys.stderr)
+    return config
+
+
+def _save_config(config: Dict[str, Any]) -> None:
+    LOCAL.mkdir(parents=True, exist_ok=True)
+    CONFIG_PATH.write_text(
+        json.dumps(config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _token() -> str:
+    LOCAL.mkdir(parents=True, exist_ok=True)
+    if TOKEN_PATH.exists():
+        value = TOKEN_PATH.read_text(encoding="utf-8").strip()
+        if value:
+            return value
+    value = secrets.token_urlsafe(32)
+    TOKEN_PATH.write_text(value + "\n", encoding="utf-8")
+    try:
+        TOKEN_PATH.chmod(0o600)
+    except OSError:
+        pass
+    return value
+
+
+def _lan_ip() -> str:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.connect(("8.8.8.8", 80))
+        return sock.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        sock.close()
+
+
+def _run(cmd: List[str], *, check: bool = True) -> int:
+    print("$ " + " ".join(str(part) for part in cmd), flush=True)
+    result = subprocess.run(cmd, cwd=ROOT)
+    if check and result.returncode:
+        raise SystemExit(result.returncode)
+    return result.returncode
+
+
+def _ensure_pip(python: Path) -> None:
+    probe = subprocess.run(
+        [str(python), "-m", "pip", "--version"], cwd=ROOT, stdout=subprocess.DEVNULL
+    )
+    if probe.returncode:
+        _run([str(python), "-m", "ensurepip", "--upgrade"])
+
+
+def _ensure_environment(*, install: bool = True) -> Path:
+    LOCAL.mkdir(parents=True, exist_ok=True)
+    python = _python_path()
+    expected = VENV / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    if not expected.exists():
+        print("正在创建 .venv …")
+        _run([sys.executable, "-m", "venv", str(VENV)])
+        python = _python_path()
+    _ensure_pip(python)
+    dependency_probe = subprocess.run(
+        [str(python), "-c", "import lxml, streamlit, healthzip"], cwd=ROOT
+    )
+    if install or dependency_probe.returncode:
+        # Older macOS-created virtual environments may contain pip 21 and no
+        # wheel.  Updating these build tools avoids editable-install failures
+        # during the first setup while remaining a no-op on current envs.
+        _run([str(python), "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+        # Editable installation makes both `healthzip.cli` and the Streamlit UI
+        # importable regardless of the directory from which the launcher runs.
+        _run([str(python), "-m", "pip", "install", "-e", ".[ui]"])
+    return python
+
+
+def _cli(python: Path, config: Dict[str, Any], *args: str) -> List[str]:
+    return [str(python), "-m", "healthzip.cli", "--db-path", str(config["db_path"]), *args]
+
+
+def setup() -> int:
+    config = _load_config()
+    _save_config(config)
+    _ensure_environment(install=True)
+    token = _token()
+    print("\n设置完成。")
+    print(f"数据库：{ROOT / config['db_path']}")
+    print(f"同步目录：{ROOT / config['sync_dir']}")
+    print(f"同步 token 已保存：{TOKEN_PATH}")
+    print(f"局域网地址：{_lan_ip()}")
+    print("下一步：./healthzip import /path/to/AppleHealthExport.zip")
+    print("日常启动：./healthzip start")
+    print(f"本次 token 长度：{len(token)}（完整 token 请运行 ./healthzip token）")
+    return 0
+
+
+def _start(config: Dict[str, Any], *, lan: bool = False, local_only: bool = False) -> int:
+    python = _ensure_environment(install=False)
+    token = _token()
+    rest_bind = "127.0.0.1" if local_only else str(config["rest_bind"])
+    ui_bind = "127.0.0.1" if local_only or not lan else "0.0.0.0"
+    rest = _cli(
+        python,
+        config,
+        "serve",
+        "--bind",
+        rest_bind,
+        "--port",
+        str(config["rest_port"]),
+    )
+    env = os.environ.copy()
+    env["HEALTHZIP_SYNC_TOKEN"] = token
+    ui = [
+        str(python),
+        "-m",
+        "streamlit",
+        "run",
+        str(ROOT / "app.py"),
+        "--server.address",
+        ui_bind,
+        "--server.port",
+        str(config["ui_port"]),
+        "--server.headless",
+        "true",
+    ]
+    print("REST 接收器和本地 UI 正在启动；按 Ctrl-C 同时停止。")
+    print(f"REST 健康检查：http://{_lan_ip() if not local_only else '127.0.0.1'}:{config['rest_port']}/health")
+    ui_host = _lan_ip() if lan and not local_only else "127.0.0.1"
+    print(f"浏览器地址：http://{ui_host}:{config['ui_port']}")
+    print(f"Health Auto Export token：保存在 {TOKEN_PATH}")
+    processes = [
+        subprocess.Popen(rest, cwd=ROOT, env=env),
+        subprocess.Popen(ui, cwd=ROOT, env=env),
+    ]
+    # Opening the local UI removes one more copy/paste step.  The REST URL is
+    # printed separately because Health Auto Export needs the Mac's LAN IP.
+    webbrowser.open(f"http://127.0.0.1:{config['ui_port']}")
+    try:
+        while True:
+            finished = next((p for p in processes if p.poll() is not None), None)
+            if finished is not None:
+                return int(finished.returncode or 0)
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print("\n正在停止服务…")
+        return 0
+    finally:
+        for process in processes:
+            if process.poll() is None:
+                process.terminate()
+        for process in processes:
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+
+
+def _action_import(config: Dict[str, Any], zip_path: str) -> int:
+    python = _ensure_environment(install=False)
+    _run(_cli(python, config, "inspect", zip_path))
+    _run(_cli(python, config, "import-apple", zip_path))
+    return _run(_cli(python, config, "inventory"), check=False)
+
+
+def _action_sync(config: Dict[str, Any], directory: Optional[str]) -> int:
+    python = _ensure_environment(install=False)
+    sync_dir = Path(directory or str(config["sync_dir"]))
+    if not sync_dir.is_absolute():
+        sync_dir = ROOT / sync_dir
+    sync_dir.mkdir(parents=True, exist_ok=True)
+    return _run(_cli(python, config, "sync-folder", str(sync_dir), "--source", "phone_export"))
+
+
+def _action_status(config: Dict[str, Any]) -> int:
+    python = _ensure_environment(install=False)
+    status = _run(_cli(python, config, "sync-status"), check=False)
+    inventory_status = _run(_cli(python, config, "inventory"), check=False)
+    return status or inventory_status
+
+
+def _action_report(config: Dict[str, Any]) -> int:
+    python = _ensure_environment(install=False)
+    Path(ROOT / "reports").mkdir(exist_ok=True)
+    return _run(_cli(python, config, "report", "--window-days", "30", "--output", "reports/latest.md"))
+
+
+def doctor(config: Dict[str, Any]) -> int:
+    print(f"项目目录：{ROOT}")
+    print(f"Python：{sys.version.split()[0]}（执行器：{_python_path()}）")
+    checks = {".venv": VENV.exists(), "token": TOKEN_PATH.exists(), "配置": CONFIG_PATH.exists()}
+    python = _python_path()
+    for name, ok in checks.items():
+        print(f"{'✓' if ok else '✗'} {name}")
+    for module in ("lxml", "streamlit"):
+        probe = subprocess.run([str(python), "-c", f"import {module}"], cwd=ROOT)
+        print(f"{'✓' if probe.returncode == 0 else '✗'} {module}")
+    db = ROOT / str(config["db_path"])
+    print(f"数据库：{db} {'(存在)' if db.exists() else '(尚未创建)'}")
+    print(f"局域网 IP：{_lan_ip()}")
+    return 0 if all(checks.values()) else 1
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="./healthzip",
+        description="Health ZIP Workbench 一键入口；高级参数仍可使用 python -m healthzip.cli。",
+    )
+    sub = parser.add_subparsers(dest="command")
+    sub.add_parser("setup", help="创建环境、安装依赖并生成同步 token")
+    start = sub.add_parser("start", help="启动 REST 接收器和 Streamlit UI")
+    start_mode = start.add_mutually_exclusive_group()
+    start_mode.add_argument("--lan", action="store_true", help="同时允许同一局域网手机打开网页 UI")
+    start_mode.add_argument("--local", action="store_true", help="只监听本机，不允许手机访问")
+    imp = sub.add_parser("import", help="检查并导入 Apple Health ZIP")
+    imp.add_argument("zip_path")
+    imp.add_argument("--include-cycle", action="store_true", help="同时导入周期字段")
+    imp.add_argument("--recheck", action="store_true", help="重新扫描已导入过的 ZIP")
+    sync = sub.add_parser("sync", help="导入同步目录中的 JSON/JSONL 增量文件")
+    sync.add_argument("directory", nargs="?", help="默认使用 .local/phone-sync")
+    sub.add_parser("status", help="查看增量同步状态和数据盘点")
+    sub.add_parser("report", help="生成 reports/latest.md")
+    sub.add_parser("token", help="显示 Health Auto Export 请求 token")
+    sub.add_parser("doctor", help="检查环境、依赖、数据库和局域网地址")
+    serve = sub.add_parser("serve", help="只启动 REST 接收器（高级用法）")
+    serve.add_argument("--local", action="store_true", help="只监听本机")
+    return parser
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    args = build_parser().parse_args(argv)
+    if not args.command:
+        build_parser().print_help()
+        return 0
+    config = _load_config()
+    if args.command == "setup":
+        return setup()
+    if args.command == "token":
+        print(_token())
+        return 0
+    if args.command == "doctor":
+        return doctor(config)
+    if args.command == "start":
+        return _start(config, lan=args.lan, local_only=args.local)
+    if args.command == "serve":
+        python = _ensure_environment(install=False)
+        token = _token()
+        bind = "127.0.0.1" if args.local else str(config["rest_bind"])
+        env = os.environ.copy()
+        env["HEALTHZIP_SYNC_TOKEN"] = token
+        return subprocess.run(
+            _cli(python, config, "serve", "--bind", bind, "--port", str(config["rest_port"])),
+            cwd=ROOT,
+            env=env,
+        ).returncode
+    if args.command == "import":
+        python = _ensure_environment(install=False)
+        _run(_cli(python, config, "inspect", args.zip_path))
+        import_args = ["import-apple", args.zip_path]
+        if args.include_cycle:
+            import_args.append("--include-cycle")
+        if args.recheck:
+            import_args.append("--recheck")
+        _run(_cli(python, config, *import_args))
+        return _run(_cli(python, config, "inventory"), check=False)
+    if args.command == "sync":
+        return _action_sync(config, args.directory)
+    if args.command == "status":
+        return _action_status(config)
+    if args.command == "report":
+        return _action_report(config)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

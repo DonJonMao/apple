@@ -4,7 +4,28 @@
 
 它不接入 HealthKit、不开发 iPhone / Watch App，也不需要账号或云服务。默认情况下健康数据、周期记录、ZIP 和报告不会被上传；AI 解释是可选功能，只有用户明确勾选或使用 `--allow-network` 时才发送已经汇总的 Evidence Cards。
 
-## 安装与启动
+## 最简单的使用方式
+
+项目根目录的 `healthzip` 是一键入口。macOS / Linux 首次只需要：
+
+```bash
+./healthzip setup
+```
+
+它会创建 `.venv`、安装核心和 UI 依赖、创建 `.local`、生成本机保存的 REST token，并显示局域网地址。之后的常用操作只有：
+
+```bash
+./healthzip import /path/to/AppleHealthExport.zip  # 第一次历史回填
+./healthzip start                                 # 启动手机增量接收器和网页界面
+./healthzip status                                # 查看新增/更新/删除和数据盘点
+./healthzip report                                # 生成 reports/latest.md
+```
+
+`start` 会同时启动 REST 接收器和 Streamlit，并自动打开电脑上的网页。REST 默认监听可信局域网，网页默认只监听本机；需要用 iPhone Safari 打开网页时使用 `./healthzip start --lan`。按 `Ctrl-C` 会一起停止；电脑需要保持开机并运行它，Health Auto Export 才能每日推送。只想在电脑本机使用时可执行 `./healthzip start --local`。`./healthzip doctor` 检查环境，`./healthzip token` 显示应填入手机导出器的 token。文件夹同步备用方式使用 `./healthzip sync`，默认扫描 `.local/phone-sync`。
+
+Windows 可用 `py healthzip setup`、`py healthzip start` 等同样的子命令；也可以在 PowerShell 中把 `./healthzip` 换成 `py healthzip`。
+
+## 安装与启动（高级方式）
 
 需要 Python 3.9+。核心导入和 CLI 只使用标准库与 `lxml`；Streamlit 仅用于本地 UI。
 
