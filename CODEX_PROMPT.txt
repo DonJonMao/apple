@@ -1,0 +1,5 @@
+请先完整阅读项目根目录中的 CODEX_GOAL.md、DESIGN_SPEC.md、AGENTS.md 和 reference_product_design_v1.0.pdf。你的任务不是再写方案，而是按 CODEX_GOAL.md 和 DESIGN_SPEC.md 真正实现一个本地运行的 Apple Health ZIP 离线整理与分析工具。
+
+当前阶段只处理用户从 iPhone 健康 App 导出的 ZIP：安全检查 ZIP、流式解析 export.xml、规范化数据、写入 SQLite、生成数据质量报告、导入力量训练和饮食 CSV、完成心率/HRV/睡眠/运动/体重/力量/营养/可选周期分析，并用简单 Streamlit 页面展示。不要实现 HealthKit、iOS、watchOS、账号、云端、AI API 或精美前端。
+
+先检查现有仓库并写实施计划，然后自主推进实现，不要停在计划。严格遵守数据缺失不等于零、来源可追溯、原始与派生分离、流式解析大 XML、本地隐私优先和科学边界。使用合成 fixture 测试，不要把真实健康数据提交到 Git。完成后运行 pytest 和 Ruff，交付 README、实现状态报告和可运行的代码。详细要求与验收标准以 CODEX_GOAL.md、DESIGN_SPEC.md 为准。

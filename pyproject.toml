@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "health-zip-workbench"
+version = "0.1.0"
+description = "Local Apple Health ZIP analysis workbench"
+requires-python = ">=3.9"
+dependencies = ["lxml>=4.9"]
+
+[project.optional-dependencies]
+ui = ["streamlit>=1.35", "plotly>=5.20"]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+healthzip = "healthzip.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"healthzip.db" = ["schema.sql"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
