@@ -250,7 +250,7 @@ def body_state(
     by_day: dict[str, dict[str, Any]] = defaultdict(dict)
     for row in repo.rows(
         "SELECT id,local_date,canonical_type,normalized_value FROM health_sample "
-        "WHERE normalized_value IS NOT NULL ORDER BY local_date"
+        "WHERE normalized_value IS NOT NULL AND record_status='active' ORDER BY local_date"
     ):
         day = _day(row["local_date"])
         if day is None or (start and day < start) or (end and day > end):
@@ -282,7 +282,7 @@ def body_state(
     # Sleep duration is calculated from asleep/in-bed intervals conservatively.
     for row in repo.rows(
         "SELECT id,local_date,start_utc,end_utc,category_value FROM health_sample "
-        "WHERE canonical_type='sleep_stage'"
+        "WHERE canonical_type='sleep_stage' AND record_status='active'"
     ):
         d = _day(row["local_date"])
         if d is None or not row["start_utc"] or not row["end_utc"]:

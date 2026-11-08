@@ -35,6 +35,35 @@ python -m healthzip.cli --db-path .local/healthzip.sqlite3 report --window-days 
 python -m healthzip.cli --db-path .local/healthzip.sqlite3 ai-explain --question "请解释最近的身体状态和训练趋势"
 ```
 
+### 手机增量同步（当前增量版本）
+
+全量 ZIP 仍用于第一次历史回填；日常数据可以由手机导出器写入一个本地 JSON/JSONL 同步目录，再按游标导入。当前适配 Health Auto Export 风格的
+`{"data":{"metrics":[...],"workouts":[...]}}` 结构，并保留来源、上游记录 ID、批次和新增 / 重复 / 更新 / 删除计数：
+
+```bash
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 \
+  sync-folder /path/to/phone-sync --source phone_export
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 sync-status
+```
+
+JSONL 会保存上次读取位置；文件追加、重启和离线补传不会重复导入。JSON 文件按内容 hash 跳过未改变的文件；覆盖式滚动窗口重新扫描时依靠上游 ID 或逻辑 fingerprint 幂等。修改记录会保留旧版本并标记为 `superseded`，删除事件会标记为 `deleted`，默认分析只使用 `active` 记录。
+
+手机导出器的心率和 HRV 必须选择逐样本或高粒度格式。只有每日 `Min/Avg/Max` 汇总时，系统会拒绝将它伪装成原始心率样本，并在批次错误中说明原因。
+
+Streamlit 侧栏提供「手机增量同步目录」和「扫描增量数据」按钮。本机 REST 接收器已经可用；手机原生 companion App 属于后续迭代。同步目录和 REST inbox 里的原始健康数据不会提交到 Git。
+
+本机 REST 接收器也已提供，默认仅监听本机：
+
+```bash
+export HEALTHZIP_SYNC_TOKEN="请在本机保存的随机长 token"
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 serve \
+  --bind 127.0.0.1 --port 8765
+```
+
+需要手机通过同一局域网访问时才显式使用 `--bind 0.0.0.0`，并在导出器中配置
+`http://电脑局域网IP:8765/v1/ingest/health-auto-export`、请求头
+`X-HealthZip-Token` 和可选的 `X-HealthZip-Source`。接收器会先将原始 JSON 保存到数据库目录的 `inbox/`，再事务导入；不要把端口转发到公网。未设置环境变量时会临时生成 token，每次重启都会变化，正式使用应显式设置 `HEALTHZIP_SYNC_TOKEN`。
+
 周期数据默认关闭；只有用户明确选择时才导入：
 
 ```bash
@@ -68,6 +97,14 @@ AI 只接收本地计算后的 Evidence Cards（摘要、事实、窗口、限�
 ```bash
 streamlit run app.py --server.address 127.0.0.1
 ```
+
+同一局域网内要用手机快速记录力量组时，可以显式监听局域网地址：
+
+```bash
+streamlit run app.py --server.address 0.0.0.0
+```
+
+手机访问电脑的局域网 IP；该模式只适用于可信局域网，不应直接暴露到公网。
 
 在侧栏输入本地 ZIP 路径和 SQLite 路径，先检查再点击「流式导入」。页面包含导入、总览、质量、心率 / HRV、睡眠、运动、体重 / 有氧、力量、营养、周期和报告页。大型 ZIP 使用路径输入，不通过内存型上传控件读取。
 

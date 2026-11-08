@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS import_batch (
  exported_at TEXT, imported_at TEXT NOT NULL, status TEXT NOT NULL, xml_member_path TEXT,
  records_seen INTEGER DEFAULT 0, records_inserted INTEGER DEFAULT 0, records_deduplicated INTEGER DEFAULT 0,
  records_skipped INTEGER DEFAULT 0, errors_count INTEGER DEFAULT 0, date_min TEXT, date_max TEXT,
- unknown_type_counts_json TEXT DEFAULT '{}', error_samples_json TEXT DEFAULT '[]'
+ unknown_type_counts_json TEXT DEFAULT '{}', error_samples_json TEXT DEFAULT '[]',
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_ref TEXT, received_at TEXT,
+ records_new INTEGER DEFAULT 0, records_duplicate INTEGER DEFAULT 0,
+ records_updated INTEGER DEFAULT 0, records_deleted INTEGER DEFAULT 0, records_invalid INTEGER DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_batch_hash ON import_batch(file_sha256);
 CREATE TABLE IF NOT EXISTS health_sample (
@@ -28,7 +31,9 @@ CREATE TABLE IF NOT EXISTS health_sample (
  raw_type TEXT NOT NULL, canonical_type TEXT, raw_value TEXT, raw_unit TEXT, normalized_value REAL,
  normalized_unit TEXT, unit_status TEXT, category_value TEXT, start_utc TEXT, end_utc TEXT, creation_utc TEXT,
  local_datetime TEXT, local_date TEXT, utc_offset_minutes INTEGER, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', quality_flags_json TEXT DEFAULT '{}', created_at TEXT NOT NULL
+ device TEXT, metadata_json TEXT DEFAULT '{}', quality_flags_json TEXT DEFAULT '{}', created_at TEXT NOT NULL,
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
+ record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_sample_type_date ON health_sample(canonical_type, local_date);
 CREATE INDEX IF NOT EXISTS idx_sample_start ON health_sample(start_utc);
@@ -36,7 +41,9 @@ CREATE TABLE IF NOT EXISTS workout (
  id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id),
  activity_type TEXT, start_utc TEXT, end_utc TEXT, local_date TEXT, duration_seconds REAL,
  distance_value REAL, distance_unit TEXT, energy_value REAL, energy_unit TEXT, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', suspected_duplicate INTEGER DEFAULT 0
+ device TEXT, metadata_json TEXT DEFAULT '{}', suspected_duplicate INTEGER DEFAULT 0,
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
+ record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_workout_date ON workout(local_date);
 CREATE TABLE IF NOT EXISTS workout_statistic (
@@ -93,7 +100,29 @@ CREATE TABLE IF NOT EXISTS insight (
  facts_json TEXT, limitations_json TEXT, allowed_actions_json TEXT, source_feature_ids_json TEXT,
  algorithm_version TEXT, created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS sync_source (
+ id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, kind TEXT NOT NULL,
+ config_json TEXT NOT NULL DEFAULT '{}', enabled INTEGER NOT NULL DEFAULT 1,
+ last_cursor TEXT, last_success_at TEXT, last_error TEXT, created_at TEXT NOT NULL,
+ updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sync_file (
+ id INTEGER PRIMARY KEY, source_id INTEGER NOT NULL REFERENCES sync_source(id) ON DELETE CASCADE,
+ path TEXT NOT NULL, inode INTEGER, size_bytes INTEGER, mtime_ns INTEGER, content_hash TEXT,
+ format TEXT NOT NULL, last_offset INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending',
+ last_error TEXT, first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
+ UNIQUE(source_id, path)
+);
+CREATE INDEX IF NOT EXISTS idx_sync_file_source ON sync_file(source_id, status);
+CREATE TABLE IF NOT EXISTS ingest_event (
+ id INTEGER PRIMARY KEY, source_id INTEGER REFERENCES sync_source(id), batch_id INTEGER REFERENCES import_batch(id),
+ upstream_id TEXT, event_kind TEXT NOT NULL, payload_hash TEXT, received_at TEXT NOT NULL,
+ status TEXT NOT NULL, error TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ingest_event_upstream ON ingest_event(source_id, upstream_id);
 """
+
+CURRENT_SCHEMA_VERSION = 2
 
 
 def _json(value: Any) -> str:
@@ -110,7 +139,90 @@ class Repository:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.executescript(SCHEMA)
+        self._migrate_schema()
         self.conn.commit()
+
+    def _migrate_schema(self) -> None:
+        """Upgrade v1 databases without replacing user data.
+
+        The original prototype executed a CREATE-only schema on every open.
+        Incremental sync adds columns to existing tables, so migrations must be
+        explicit and idempotent.  SQLite has no ``ADD COLUMN IF NOT EXISTS``;
+        inspect the current columns before applying each addition.
+        """
+        row = self.conn.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()
+        version = int(row[0]) if row and str(row[0]).isdigit() else 1
+
+        additions = {
+            "import_batch": {
+                "source_kind": "TEXT NOT NULL DEFAULT 'apple_zip'",
+                "source_ref": "TEXT",
+                "received_at": "TEXT",
+                "records_new": "INTEGER DEFAULT 0",
+                "records_duplicate": "INTEGER DEFAULT 0",
+                "records_updated": "INTEGER DEFAULT 0",
+                "records_deleted": "INTEGER DEFAULT 0",
+                "records_invalid": "INTEGER DEFAULT 0",
+            },
+            "health_sample": {
+                "source_kind": "TEXT NOT NULL DEFAULT 'apple_zip'",
+                "source_record_id": "TEXT",
+                "logical_key": "TEXT",
+                "record_status": "TEXT NOT NULL DEFAULT 'active'",
+                "supersedes_id": "INTEGER",
+            },
+            "workout": {
+                "source_kind": "TEXT NOT NULL DEFAULT 'apple_zip'",
+                "source_record_id": "TEXT",
+                "logical_key": "TEXT",
+                "record_status": "TEXT NOT NULL DEFAULT 'active'",
+                "supersedes_id": "INTEGER",
+            },
+        }
+        for table, columns in additions.items():
+            existing = {
+                str(row[1]) for row in self.conn.execute(f"PRAGMA table_info({table})")
+            }
+            for name, declaration in columns.items():
+                if name not in existing:
+                    self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
+
+        self.conn.executescript(
+            """
+            CREATE INDEX IF NOT EXISTS idx_sample_source_record ON health_sample(source_kind, source_record_id);
+            CREATE INDEX IF NOT EXISTS idx_sample_logical_key ON health_sample(source_kind, logical_key);
+            CREATE INDEX IF NOT EXISTS idx_workout_source_record ON workout(source_kind, source_record_id);
+            CREATE INDEX IF NOT EXISTS idx_workout_logical_key ON workout(source_kind, logical_key);
+            CREATE TABLE IF NOT EXISTS sync_source (
+                id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, kind TEXT NOT NULL,
+                config_json TEXT NOT NULL DEFAULT '{}', enabled INTEGER NOT NULL DEFAULT 1,
+                last_cursor TEXT, last_success_at TEXT, last_error TEXT, created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS sync_file (
+                id INTEGER PRIMARY KEY, source_id INTEGER NOT NULL REFERENCES sync_source(id) ON DELETE CASCADE,
+                path TEXT NOT NULL, inode INTEGER, size_bytes INTEGER, mtime_ns INTEGER, content_hash TEXT,
+                format TEXT NOT NULL, last_offset INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending',
+                last_error TEXT, first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
+                UNIQUE(source_id, path)
+            );
+            CREATE INDEX IF NOT EXISTS idx_sync_file_source ON sync_file(source_id, status);
+            CREATE TABLE IF NOT EXISTS ingest_event (
+                id INTEGER PRIMARY KEY, source_id INTEGER REFERENCES sync_source(id), batch_id INTEGER REFERENCES import_batch(id),
+                upstream_id TEXT, event_kind TEXT NOT NULL, payload_hash TEXT, received_at TEXT NOT NULL,
+                status TEXT NOT NULL, error TEXT
+            );
+            CREATE INDEX IF NOT EXISTS idx_ingest_event_upstream ON ingest_event(source_id, upstream_id);
+            """
+        )
+        if version < CURRENT_SCHEMA_VERSION:
+            self.conn.execute(
+                "INSERT INTO schema_meta(key,value) VALUES('schema_version',?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (str(CURRENT_SCHEMA_VERSION),),
+            )
 
     def close(self) -> None:
         self.conn.close()
@@ -125,10 +237,18 @@ class Repository:
             raise
 
     def create_batch(
-        self, *, file_sha256: str, file_name: str, file_size: int, xml_member_path: str
+        self,
+        *,
+        file_sha256: str,
+        file_name: str,
+        file_size: int,
+        xml_member_path: str,
+        source_kind: str = "apple_zip",
+        source_ref: Optional[str] = None,
+        received_at: Optional[str] = None,
     ) -> int:
         cur = self.conn.execute(
-            "INSERT INTO import_batch(file_sha256,file_name,file_size_bytes,imported_at,status,xml_member_path) VALUES(?,?,?,?,?,?)",
+            "INSERT INTO import_batch(file_sha256,file_name,file_size_bytes,imported_at,status,xml_member_path,source_kind,source_ref,received_at) VALUES(?,?,?,?,?,?,?,?,?)",
             (
                 file_sha256,
                 file_name,
@@ -136,6 +256,9 @@ class Repository:
                 datetime.now(timezone.utc).isoformat(),
                 "running",
                 xml_member_path,
+                source_kind,
+                source_ref,
+                received_at or datetime.now(timezone.utc).isoformat(),
             ),
         )
         self.conn.commit()
@@ -160,6 +283,14 @@ class Repository:
             "date_max",
             "unknown_type_counts_json",
             "error_samples_json",
+            "source_kind",
+            "source_ref",
+            "received_at",
+            "records_new",
+            "records_duplicate",
+            "records_updated",
+            "records_deleted",
+            "records_invalid",
         }
         fields = {k: v for k, v in fields.items() if k in allowed}
         if not fields:
@@ -169,6 +300,9 @@ class Repository:
         self.conn.commit()
 
     def insert_sample(self, batch_id: int, data: dict[str, Any]) -> bool:
+        data = dict(data)
+        data.setdefault("source_kind", "apple_zip")
+        data.setdefault("record_status", "active")
         cols = [
             "fingerprint",
             "import_batch_id",
@@ -192,6 +326,11 @@ class Repository:
             "metadata_json",
             "quality_flags_json",
             "created_at",
+            "source_kind",
+            "source_record_id",
+            "logical_key",
+            "record_status",
+            "supersedes_id",
         ]
         vals = [data.get(c) if c != "import_batch_id" else batch_id for c in cols]
         cur = self.conn.execute(
@@ -200,7 +339,78 @@ class Repository:
         )
         return cur.rowcount == 1
 
+    def insert_incremental_sample(self, batch_id: int, data: dict[str, Any]) -> str:
+        """Insert one sample and classify its idempotency outcome.
+
+        A source record ID identifies the logical object when an exporter
+        provides one.  A changed object is retained for provenance while the
+        previous version becomes ``superseded``; analytics only use active rows.
+        """
+        data = dict(data)
+        data.setdefault("source_kind", "incremental")
+        data.setdefault("record_status", "active")
+        source_kind = data.get("source_kind") or "incremental"
+        source_record_id = data.get("source_record_id")
+        logical_key = data.get("logical_key")
+        existing = None
+        if source_record_id:
+            existing = self.one(
+                "SELECT * FROM health_sample WHERE source_kind=? AND source_record_id=? "
+                "AND record_status='active' ORDER BY id DESC LIMIT 1",
+                (source_kind, str(source_record_id)),
+            )
+        elif logical_key:
+            existing = self.one(
+                "SELECT * FROM health_sample WHERE source_kind=? AND logical_key=? "
+                "AND record_status='active' ORDER BY id DESC LIMIT 1",
+                (source_kind, str(logical_key)),
+            )
+        if existing is not None:
+            if existing["fingerprint"] == data.get("fingerprint"):
+                return "duplicate"
+            collision = self.one(
+                "SELECT * FROM health_sample WHERE fingerprint=?", (data.get("fingerprint"),)
+            )
+            if collision is not None:
+                if collision["record_status"] == "superseded":
+                    self.conn.execute(
+                        "UPDATE health_sample SET record_status='superseded' WHERE id=?",
+                        (int(existing["id"]),),
+                    )
+                    self.conn.execute(
+                        "UPDATE health_sample SET record_status='active',import_batch_id=?,supersedes_id=NULL WHERE id=?",
+                        (batch_id, int(collision["id"])),
+                    )
+                    return "updated"
+                return "duplicate"
+            previous = self.one(
+                "SELECT * FROM health_sample WHERE source_kind=? AND fingerprint=? "
+                "AND record_status='superseded' ORDER BY id DESC LIMIT 1",
+                (source_kind, data.get("fingerprint")),
+            )
+            if previous is not None:
+                self.conn.execute(
+                    "UPDATE health_sample SET record_status='superseded' WHERE id=?",
+                    (int(existing["id"]),),
+                )
+                self.conn.execute(
+                    "UPDATE health_sample SET record_status='active',import_batch_id=?,supersedes_id=NULL WHERE id=?",
+                    (batch_id, int(previous["id"])),
+                )
+                return "updated"
+            data["supersedes_id"] = int(existing["id"])
+            self.conn.execute(
+                "UPDATE health_sample SET record_status='superseded' WHERE id=?", (int(existing["id"]),)
+            )
+            if self.insert_sample(batch_id, data):
+                return "updated"
+            return "duplicate"
+        return "new" if self.insert_sample(batch_id, data) else "duplicate"
+
     def insert_workout(self, batch_id: int, data: dict[str, Any]) -> tuple[Optional[int], bool]:
+        data = dict(data)
+        data.setdefault("source_kind", "apple_zip")
+        data.setdefault("record_status", "active")
         cols = [
             "fingerprint",
             "import_batch_id",
@@ -218,6 +428,11 @@ class Repository:
             "device",
             "metadata_json",
             "suspected_duplicate",
+            "source_kind",
+            "source_record_id",
+            "logical_key",
+            "record_status",
+            "supersedes_id",
         ]
         # Preserve overlapping sessions from different sources, but mark them for review.
         overlap = self.conn.execute(
@@ -242,6 +457,201 @@ class Repository:
             "SELECT id FROM workout WHERE fingerprint=?", (data["fingerprint"],)
         ).fetchone()
         return (int(row[0]) if row else None), self.conn.total_changes > before
+
+    def insert_incremental_workout(self, batch_id: int, data: dict[str, Any]) -> str:
+        data = dict(data)
+        data.setdefault("source_kind", "incremental")
+        data.setdefault("record_status", "active")
+        source_kind = data.get("source_kind") or "incremental"
+        source_record_id = data.get("source_record_id")
+        logical_key = data.get("logical_key")
+        existing = None
+        if source_record_id:
+            existing = self.one(
+                "SELECT * FROM workout WHERE source_kind=? AND source_record_id=? "
+                "AND record_status='active' ORDER BY id DESC LIMIT 1",
+                (source_kind, str(source_record_id)),
+            )
+        elif logical_key:
+            existing = self.one(
+                "SELECT * FROM workout WHERE source_kind=? AND logical_key=? "
+                "AND record_status='active' ORDER BY id DESC LIMIT 1",
+                (source_kind, str(logical_key)),
+            )
+        if existing is not None:
+            if existing["fingerprint"] == data.get("fingerprint"):
+                return "duplicate"
+            collision = self.one("SELECT * FROM workout WHERE fingerprint=?", (data.get("fingerprint"),))
+            if collision is not None:
+                if collision["record_status"] == "superseded":
+                    self.conn.execute(
+                        "UPDATE workout SET record_status='superseded' WHERE id=?", (int(existing["id"]),)
+                    )
+                    self.conn.execute(
+                        "UPDATE workout SET record_status='active',import_batch_id=?,supersedes_id=NULL WHERE id=?",
+                        (batch_id, int(collision["id"])),
+                    )
+                    return "updated"
+                return "duplicate"
+            previous = self.one(
+                "SELECT * FROM workout WHERE source_kind=? AND fingerprint=? "
+                "AND record_status='superseded' ORDER BY id DESC LIMIT 1",
+                (source_kind, data.get("fingerprint")),
+            )
+            if previous is not None:
+                self.conn.execute(
+                    "UPDATE workout SET record_status='superseded' WHERE id=?", (int(existing["id"]),)
+                )
+                self.conn.execute(
+                    "UPDATE workout SET record_status='active',import_batch_id=?,supersedes_id=NULL WHERE id=?",
+                    (batch_id, int(previous["id"])),
+                )
+                return "updated"
+            data["supersedes_id"] = int(existing["id"])
+            self.conn.execute(
+                "UPDATE workout SET record_status='superseded' WHERE id=?", (int(existing["id"]),)
+            )
+            workout_id, inserted = self.insert_workout(batch_id, data)
+            if inserted and workout_id:
+                for stat in data.get("statistics", []):
+                    self.insert_workout_stat(workout_id, stat)
+                for event in data.get("events", []):
+                    self.insert_workout_event(workout_id, event)
+                return "updated"
+            return "duplicate"
+        workout_id, inserted = self.insert_workout(batch_id, data)
+        if inserted and workout_id:
+            for stat in data.get("statistics", []):
+                self.insert_workout_stat(workout_id, stat)
+            for event in data.get("events", []):
+                self.insert_workout_event(workout_id, event)
+        return "new" if inserted else "duplicate"
+
+    def get_or_create_sync_source(
+        self, name: str, kind: str, config: Optional[dict[str, Any]] = None
+    ) -> sqlite3.Row:
+        now = datetime.now(timezone.utc).isoformat()
+        self.conn.execute(
+            "INSERT OR IGNORE INTO sync_source(name,kind,config_json,created_at,updated_at) "
+            "VALUES(?,?,?,?,?)",
+            (name, kind, _json(config or {}), now, now),
+        )
+        self.conn.execute(
+            "UPDATE sync_source SET kind=?,config_json=?,updated_at=? WHERE name=?",
+            (kind, _json(config or {}), now, name),
+        )
+        self.conn.commit()
+        row = self.one("SELECT * FROM sync_source WHERE name=?", (name,))
+        if row is None:
+            raise RuntimeError(f"sync source was not created: {name}")
+        return row
+
+    def get_sync_file(self, source_id: int, path: str) -> Optional[sqlite3.Row]:
+        return self.one("SELECT * FROM sync_file WHERE source_id=? AND path=?", (source_id, path))
+
+    def upsert_sync_file(self, source_id: int, path: str, fields: dict[str, Any]) -> sqlite3.Row:
+        now = datetime.now(timezone.utc).isoformat()
+        current = self.get_sync_file(source_id, path)
+        if current is None:
+            self.conn.execute(
+                "INSERT INTO sync_file(source_id,path,inode,size_bytes,mtime_ns,content_hash,format,last_offset,status,last_error,first_seen_at,last_seen_at) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    source_id,
+                    path,
+                    fields.get("inode"),
+                    fields.get("size_bytes"),
+                    fields.get("mtime_ns"),
+                    fields.get("content_hash"),
+                    fields.get("format", "auto"),
+                    int(fields.get("last_offset", 0)),
+                    fields.get("status", "pending"),
+                    fields.get("last_error"),
+                    now,
+                    now,
+                ),
+            )
+        else:
+            updates = {
+                k: fields[k]
+                for k in (
+                    "inode",
+                    "size_bytes",
+                    "mtime_ns",
+                    "content_hash",
+                    "format",
+                    "last_offset",
+                    "status",
+                    "last_error",
+                )
+                if k in fields
+            }
+            updates["last_seen_at"] = now
+            if updates:
+                sql = ",".join(f"{k}=?" for k in updates)
+                self.conn.execute(
+                    f"UPDATE sync_file SET {sql} WHERE source_id=? AND path=?",
+                    (*updates.values(), source_id, path),
+                )
+        self.conn.commit()
+        row = self.get_sync_file(source_id, path)
+        if row is None:
+            raise RuntimeError(f"sync file was not created: {path}")
+        return row
+
+    def record_ingest_event(
+        self,
+        *,
+        source_id: Optional[int],
+        batch_id: Optional[int],
+        upstream_id: Optional[str],
+        event_kind: str,
+        payload_hash: Optional[str],
+        status: str,
+        error: Optional[str] = None,
+    ) -> int:
+        cur = self.conn.execute(
+            "INSERT INTO ingest_event(source_id,batch_id,upstream_id,event_kind,payload_hash,received_at,status,error) "
+            "VALUES(?,?,?,?,?,?,?,?)",
+            (
+                source_id,
+                batch_id,
+                upstream_id,
+                event_kind,
+                payload_hash,
+                datetime.now(timezone.utc).isoformat(),
+                status,
+                error,
+            ),
+        )
+        return int(cur.lastrowid)
+
+    def sync_status(self) -> dict[str, Any]:
+        return {
+            "sources": [dict(row) for row in self.rows("SELECT * FROM sync_source ORDER BY name")],
+            "files": [dict(row) for row in self.rows("SELECT * FROM sync_file ORDER BY source_id,path")],
+            "recent_batches": [
+                dict(row)
+                for row in self.rows(
+                    "SELECT * FROM import_batch WHERE source_kind<>'apple_zip' ORDER BY id DESC LIMIT 20"
+                )
+            ],
+        }
+
+    def update_sync_source_status(
+        self, source_id: int, *, success: bool, error: Optional[str] = None, cursor: Optional[str] = None
+    ) -> None:
+        now = datetime.now(timezone.utc).isoformat()
+        if success:
+            self.conn.execute(
+                "UPDATE sync_source SET last_success_at=?,last_error=NULL,last_cursor=?,updated_at=? WHERE id=?",
+                (now, cursor, now, source_id),
+            )
+        else:
+            self.conn.execute(
+                "UPDATE sync_source SET last_error=?,updated_at=? WHERE id=?",
+                (error, now, source_id),
+            )
 
     def insert_workout_stat(self, workout_id: int, data: dict[str, Any]) -> None:
         self.conn.execute(
@@ -382,6 +792,9 @@ class Repository:
         fingerprint: Optional[str] = None,
         commit: bool = True,
     ) -> tuple[int, bool]:
+        def _float_or_none(value: Any) -> Optional[float]:
+            return None if value is None or value == "" else float(value)
+
         fields = {
             "set_date": data.get("set_date"),
             "started_at": data.get("started_at") or data.get("set_date"),
@@ -390,11 +803,11 @@ class Repository:
             "equipment": data.get("equipment") or "",
             "variation": data.get("variation") or "",
             "side": data.get("side") or "",
-            "set_number": data.get("set_number"),
-            "weight_kg": data.get("weight_kg"),
-            "reps": data.get("reps"),
-            "rir": data.get("rir"),
-            "rpe": data.get("rpe"),
+            "set_number": int(data["set_number"]) if data.get("set_number") is not None else None,
+            "weight_kg": _float_or_none(data.get("weight_kg")),
+            "reps": int(data["reps"]) if data.get("reps") is not None else None,
+            "rir": _float_or_none(data.get("rir")),
+            "rpe": _float_or_none(data.get("rpe")),
             "warmup": int(bool(data.get("warmup"))),
             "range_of_motion": data.get("range_of_motion") or "",
             "notes": data.get("notes") or "",
@@ -499,6 +912,44 @@ class Repository:
             "session_inserted": session_inserted,
             "sets_inserted": inserted,
             "set_ids": set_ids,
+        }
+
+    def append_strength_set(
+        self,
+        *,
+        session_key: str,
+        session_date: str,
+        started_at: str = "",
+        name: str = "手机快速记录",
+        notes: str = "",
+        data: dict[str, Any],
+        force_next: bool = True,
+    ) -> dict[str, Any]:
+        """Append one mobile set to a stable session, idempotently."""
+        session_fingerprint = stable_fingerprint(["quick_strength_session", session_key])
+        with self.transaction():
+            session_id, session_inserted = self.create_strength_session(
+                session_date=session_date,
+                started_at=started_at or session_date,
+                name=name,
+                source="mobile_quick",
+                notes=notes,
+                fingerprint=session_fingerprint,
+                commit=False,
+            )
+            next_number = self.one(
+                "SELECT COALESCE(MAX(set_number),0)+1 AS next_number FROM strength_set WHERE session_id=?",
+                (session_id,),
+            )["next_number"]
+            item = dict(data)
+            item["set_number"] = int(next_number if force_next else (item.get("set_number") or next_number))
+            set_id, inserted = self.insert_strength_set(session_id, item, commit=False)
+        return {
+            "session_id": session_id,
+            "session_inserted": session_inserted,
+            "set_id": set_id,
+            "set_inserted": inserted,
+            "set_number": item["set_number"],
         }
 
     def list_strength_sessions(self, limit: int = 30) -> list[sqlite3.Row]:

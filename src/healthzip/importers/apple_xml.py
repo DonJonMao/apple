@@ -130,6 +130,12 @@ def _record_data(
     )
     return {
         "fingerprint": fp,
+        "source_kind": "apple_zip",
+        "source_record_id": attrs.get("uuid") or attrs.get("id"),
+        "logical_key": stable_fingerprint(
+            [raw_type, start_utc, end_utc, creation_utc, attrs.get("sourceName"), attrs.get("device")]
+        ),
+        "record_status": "active",
         "raw_type": raw_type,
         "canonical_type": canonical_tuple[0],
         "raw_value": attrs.get("value"),
@@ -187,6 +193,18 @@ def _workout_data(attrs: dict[str, str]) -> dict[str, Any]:
     )
     return {
         "fingerprint": fp,
+        "source_kind": "apple_zip",
+        "source_record_id": attrs.get("uuid") or attrs.get("id"),
+        "logical_key": stable_fingerprint(
+            [
+                attrs.get("workoutActivityType"),
+                start_utc,
+                end_utc,
+                attrs.get("sourceName"),
+                attrs.get("device"),
+            ]
+        ),
+        "record_status": "active",
         "activity_type": attrs.get("workoutActivityType"),
         "start_utc": start_utc,
         "end_utc": end_utc,

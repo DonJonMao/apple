@@ -1,6 +1,17 @@
 # 实现状态
 
-更新时间：2026-11-05
+更新时间：2026-11-08
+
+## 增量同步迭代（2026-11-08）
+
+- SQLite schema v2 已增加同步来源、文件游标、导入事件和批次增量计数。
+- 支持 Health Auto Export 风格 JSON 与追加式 JSONL；CLI 提供 `import-json`、`sync-folder`、`sync-status`。
+- JSONL 记录文件 offset，JSON 文件按内容 hash 跳过未改变文件；重叠窗口按上游 ID / 逻辑 fingerprint 幂等。
+- 增量记录区分 `new / duplicate / updated / deleted / invalid`；更新保留旧版本为 `superseded`，默认分析过滤非 active 记录。
+- Streamlit 导入页增加同步目录扫描入口。
+- 已增加 token 保护的本机 REST 接收器（`healthzip serve`），接收前先保存原始 inbox，再事务导入；支持 Health Auto Export 风格健康 JSON 和力量 session JSON。
+- 力量页增加手机快速逐组记录模式；同一快速训练可以保留相同重量 / 次数的重复组，并按 set number 幂等重试。
+- REST 仍要求电脑运行并与手机处于可达网络；iOS 原生 companion App、后台守护安装脚本和跨网络同步尚未实现。
 
 ## 已完成
 

@@ -23,11 +23,11 @@ def _date_span(values: list[str]) -> tuple[Optional[str], Optional[str], int]:
 def inventory(repo: Repository) -> dict[str, Any]:
     result: dict[str, Any] = {"sample_types": [], "workouts": {}, "external": {}, "batches": []}
     for row in repo.rows(
-        "SELECT canonical_type,raw_type,COUNT(*) n,MIN(local_date) first_date,MAX(local_date) last_date,COUNT(DISTINCT local_date) observed_days,COUNT(DISTINCT source_name) source_count FROM health_sample GROUP BY canonical_type,raw_type ORDER BY canonical_type"
+        "SELECT canonical_type,raw_type,COUNT(*) n,MIN(local_date) first_date,MAX(local_date) last_date,COUNT(DISTINCT local_date) observed_days,COUNT(DISTINCT source_name) source_count FROM health_sample WHERE record_status='active' GROUP BY canonical_type,raw_type ORDER BY canonical_type"
     ):
         result["sample_types"].append(dict(row))
     for row in repo.rows(
-        "SELECT activity_type,COUNT(*) n,MIN(local_date) first_date,MAX(local_date) last_date FROM workout GROUP BY activity_type ORDER BY activity_type"
+        "SELECT activity_type,COUNT(*) n,MIN(local_date) first_date,MAX(local_date) last_date FROM workout WHERE record_status='active' GROUP BY activity_type ORDER BY activity_type"
     ):
         result["workouts"][row["activity_type"]] = dict(row)
     for table in (
@@ -51,7 +51,7 @@ def sample_coverage(
     as_of: Optional[str] = None,
 ) -> dict[str, Any]:
     args: list[Any] = [canonical_type]
-    where = "canonical_type=?"
+    where = "canonical_type=? AND record_status='active'"
     if window_days and as_of:
         where += " AND local_date >= date(?, ?)"
         args.extend([as_of[:10], f"-{window_days - 1} day"])
@@ -83,7 +83,7 @@ def readiness(
     out: dict[str, dict[str, Any]] = {}
     if as_of is None:
         latest = repo.one(
-            "SELECT MAX(local_date) AS latest FROM health_sample WHERE local_date IS NOT NULL"
+            "SELECT MAX(local_date) AS latest FROM health_sample WHERE local_date IS NOT NULL AND record_status='active'"
         )
         as_of = latest["latest"] if latest and latest["latest"] else None
 
@@ -181,7 +181,7 @@ def readiness(
         else None,
     }
     workouts = repo.rows(
-        "SELECT COUNT(*) n,COUNT(DISTINCT local_date) days,MIN(local_date) first_date,MAX(local_date) last_date FROM workout"
+        "SELECT COUNT(*) n,COUNT(DISTINCT local_date) days,MIN(local_date) first_date,MAX(local_date) last_date FROM workout WHERE record_status='active'"
     )
     w = dict(workouts[0])
     out["workouts"] = {

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from uuid import uuid4
 
 import streamlit as st
 
@@ -24,9 +25,14 @@ from healthzip.config import DEFAULT_DB_PATH
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
 from healthzip.importers.apple_zip import inspect_zip
+from healthzip.importers.incremental import sync_folder
 from healthzip.quality import inventory
 from healthzip.reporting import render_report
-from healthzip.strength_log import StrengthLogError, save_strength_log
+from healthzip.strength_log import (
+    StrengthLogError,
+    append_quick_strength_set,
+    save_strength_log,
+)
 
 
 def render_evidence_card(card: dict) -> None:
@@ -59,6 +65,46 @@ def render_strength_tab(repo: Repository, value: dict) -> None:
     st.caption("手动记录按组保存到本地 SQLite；重量统一使用 kg。空字段会保留为未知。")
     if notice := st.session_state.pop("strength_notice", None):
         st.success(notice)
+    with st.expander("手机快速记录一组", expanded=False):
+        st.caption("在同一局域网打开本地 Streamlit 页面时，可用这个窄表单快速追加一组。")
+        if "quick_strength_session_key" not in st.session_state:
+            st.session_state["quick_strength_session_key"] = uuid4().hex
+        if st.button("开始新的快速训练", key="quick_strength_new_session"):
+            st.session_state["quick_strength_session_key"] = uuid4().hex
+        with st.form("strength_quick_form", clear_on_submit=False):
+            quick_date = st.date_input("训练日期", value=date.today(), key="quick_strength_date")
+            quick_exercise = st.text_input("动作", key="quick_strength_exercise")
+            quick_equipment = st.text_input("器械（可选）", key="quick_strength_equipment")
+            quick_variation = st.text_input("变式（可选）", key="quick_strength_variation")
+            quick_weight = st.number_input(
+                "重量 kg", min_value=0.0, value=0.0, step=0.5, key="quick_strength_weight"
+            )
+            quick_reps = st.number_input(
+                "次数", min_value=1, value=1, step=1, key="quick_strength_reps"
+            )
+            quick_rir = st.text_input("RIR（可选）", key="quick_strength_rir")
+            quick_rpe = st.text_input("RPE（可选）", key="quick_strength_rpe")
+            quick_warmup = st.checkbox("热身组", key="quick_strength_warmup")
+            quick_submit = st.form_submit_button("保存这一组", type="primary")
+        if quick_submit:
+            try:
+                result = append_quick_strength_set(
+                    repo,
+                    session_key=st.session_state["quick_strength_session_key"],
+                    session_date=quick_date.isoformat(),
+                    started_at="",
+                    exercise_name=quick_exercise,
+                    equipment=quick_equipment,
+                    variation=quick_variation,
+                    weight_kg=quick_weight,
+                    reps=quick_reps,
+                    rir=quick_rir,
+                    rpe=quick_rpe,
+                    warmup=quick_warmup,
+                )
+                st.success(f"已保存第 {result['set_number']} 组。")
+            except StrengthLogError as exc:
+                st.error(str(exc))
     with st.form("strength_log_form", clear_on_submit=False):
         meta = st.columns([1, 1, 2, 2])
         session_date = meta[0].date_input("训练日期", value=date.today())
@@ -386,6 +432,8 @@ st.caption("本地 Apple Health ZIP 整理与分析；不上传原始健康数�
 
 db_path = st.sidebar.text_input("SQLite 路径", str(DEFAULT_DB_PATH))
 zip_path = st.sidebar.text_input("Apple Health ZIP 路径", "")
+sync_path = st.sidebar.text_input("手机增量同步目录（JSON/JSONL）", "")
+sync_source = st.sidebar.text_input("同步来源名称", "phone_export")
 include_cycle = st.sidebar.checkbox("启用周期数据导入（可选）", value=False)
 window_days = st.sidebar.number_input("分析窗口（天）", min_value=7, max_value=3650, value=30)
 
@@ -405,6 +453,18 @@ if zip_path:
     except Exception as exc:
         st.sidebar.error(f"ZIP 检查失败：{exc}")
 
+if sync_path:
+    if st.sidebar.button("扫描增量数据"):
+        repo = Repository(db_path)
+        try:
+            st.session_state["last_sync"] = sync_folder(
+                sync_path, repo, source_name=sync_source or "phone_export"
+            )
+        except Exception as exc:
+            st.session_state["last_sync"] = {"errors": [str(exc)]}
+        finally:
+            repo.close()
+
 repo = Repository(db_path)
 try:
     inv = inventory(repo)
@@ -413,6 +473,9 @@ try:
     if st.session_state.get("last_import"):
         st.subheader("最近导入")
         st.json(st.session_state["last_import"])
+    if st.session_state.get("last_sync"):
+        st.subheader("最近增量同步")
+        st.json(st.session_state["last_sync"])
     tabs = st.tabs(
         [
             "导入与总览",
@@ -432,6 +495,8 @@ try:
         st.dataframe(inv.get("sample_types", []), use_container_width=True)
         st.write("Workout 类型")
         st.json(inv.get("workouts", {}))
+        with st.expander("同步来源与游标", expanded=False):
+            st.json(repo.sync_status())
     with tabs[1]:
         st.caption("状态是产品数据质量门槛，不是医学阈值。")
         st.dataframe(

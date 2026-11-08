@@ -7,7 +7,10 @@ CREATE TABLE IF NOT EXISTS import_batch (
  exported_at TEXT, imported_at TEXT NOT NULL, status TEXT NOT NULL, xml_member_path TEXT,
  records_seen INTEGER DEFAULT 0, records_inserted INTEGER DEFAULT 0, records_deduplicated INTEGER DEFAULT 0,
  records_skipped INTEGER DEFAULT 0, errors_count INTEGER DEFAULT 0, date_min TEXT, date_max TEXT,
- unknown_type_counts_json TEXT DEFAULT '{}', error_samples_json TEXT DEFAULT '[]'
+ unknown_type_counts_json TEXT DEFAULT '{}', error_samples_json TEXT DEFAULT '[]',
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_ref TEXT, received_at TEXT,
+ records_new INTEGER DEFAULT 0, records_duplicate INTEGER DEFAULT 0,
+ records_updated INTEGER DEFAULT 0, records_deleted INTEGER DEFAULT 0, records_invalid INTEGER DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_batch_hash ON import_batch(file_sha256);
 CREATE TABLE IF NOT EXISTS health_sample (
@@ -15,17 +18,25 @@ CREATE TABLE IF NOT EXISTS health_sample (
  raw_type TEXT NOT NULL, canonical_type TEXT, raw_value TEXT, raw_unit TEXT, normalized_value REAL,
  normalized_unit TEXT, unit_status TEXT, category_value TEXT, start_utc TEXT, end_utc TEXT, creation_utc TEXT,
  local_datetime TEXT, local_date TEXT, utc_offset_minutes INTEGER, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', quality_flags_json TEXT DEFAULT '{}', created_at TEXT NOT NULL
+ device TEXT, metadata_json TEXT DEFAULT '{}', quality_flags_json TEXT DEFAULT '{}', created_at TEXT NOT NULL,
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
+ record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_sample_type_date ON health_sample(canonical_type, local_date);
 CREATE INDEX IF NOT EXISTS idx_sample_start ON health_sample(start_utc);
+CREATE INDEX IF NOT EXISTS idx_sample_source_record ON health_sample(source_kind, source_record_id);
+CREATE INDEX IF NOT EXISTS idx_sample_logical_key ON health_sample(source_kind, logical_key);
 CREATE TABLE IF NOT EXISTS workout (
  id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id),
  activity_type TEXT, start_utc TEXT, end_utc TEXT, local_date TEXT, duration_seconds REAL,
  distance_value REAL, distance_unit TEXT, energy_value REAL, energy_unit TEXT, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', suspected_duplicate INTEGER DEFAULT 0
+ device TEXT, metadata_json TEXT DEFAULT '{}', suspected_duplicate INTEGER DEFAULT 0,
+ source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
+ record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_workout_date ON workout(local_date);
+CREATE INDEX IF NOT EXISTS idx_workout_source_record ON workout(source_kind, source_record_id);
+CREATE INDEX IF NOT EXISTS idx_workout_logical_key ON workout(source_kind, logical_key);
 CREATE TABLE IF NOT EXISTS workout_statistic (
  id INTEGER PRIMARY KEY, workout_id INTEGER NOT NULL REFERENCES workout(id) ON DELETE CASCADE,
  raw_type TEXT, statistic_start TEXT, statistic_end TEXT, average_value REAL, minimum_value REAL,
@@ -80,3 +91,23 @@ CREATE TABLE IF NOT EXISTS insight (
  facts_json TEXT, limitations_json TEXT, allowed_actions_json TEXT, source_feature_ids_json TEXT,
  algorithm_version TEXT, created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS sync_source (
+ id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, kind TEXT NOT NULL,
+ config_json TEXT NOT NULL DEFAULT '{}', enabled INTEGER NOT NULL DEFAULT 1,
+ last_cursor TEXT, last_success_at TEXT, last_error TEXT, created_at TEXT NOT NULL,
+ updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sync_file (
+ id INTEGER PRIMARY KEY, source_id INTEGER NOT NULL REFERENCES sync_source(id) ON DELETE CASCADE,
+ path TEXT NOT NULL, inode INTEGER, size_bytes INTEGER, mtime_ns INTEGER, content_hash TEXT,
+ format TEXT NOT NULL, last_offset INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending',
+ last_error TEXT, first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
+ UNIQUE(source_id, path)
+);
+CREATE INDEX IF NOT EXISTS idx_sync_file_source ON sync_file(source_id, status);
+CREATE TABLE IF NOT EXISTS ingest_event (
+ id INTEGER PRIMARY KEY, source_id INTEGER REFERENCES sync_source(id), batch_id INTEGER REFERENCES import_batch(id),
+ upstream_id TEXT, event_kind TEXT NOT NULL, payload_hash TEXT, received_at TEXT NOT NULL,
+ status TEXT NOT NULL, error TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_ingest_event_upstream ON ingest_event(source_id, upstream_id);

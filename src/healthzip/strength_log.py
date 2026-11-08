@@ -110,4 +110,52 @@ def save_strength_log(
     return repo.save_strength_session(session, normalized_sets)
 
 
-__all__ = ["StrengthLogError", "save_strength_log", "validate_strength_session"]
+def append_quick_strength_set(
+    repo: Repository,
+    *,
+    session_key: str,
+    session_date: str,
+    started_at: str,
+    exercise_name: str,
+    equipment: str = "",
+    variation: str = "",
+    weight_kg: Any = None,
+    reps: Any = None,
+    rir: Any = None,
+    rpe: Any = None,
+    warmup: bool = False,
+) -> dict[str, Any]:
+    """Validate and append one mobile set to a stable quick-log session."""
+    _, normalized = validate_strength_session(
+        session_date=session_date,
+        started_at=started_at,
+        name="手机快速记录",
+        notes="",
+        sets=[
+            {
+                "exercise_name": exercise_name,
+                "equipment": equipment,
+                "variation": variation,
+                "weight_kg": weight_kg,
+                "reps": reps,
+                "rir": rir,
+                "rpe": rpe,
+                "warmup": warmup,
+                "set_number": 0,
+            }
+        ],
+    )
+    return repo.append_strength_set(
+        session_key=session_key,
+        session_date=session_date,
+        started_at=started_at,
+        data=normalized[0],
+    )
+
+
+__all__ = [
+    "StrengthLogError",
+    "append_quick_strength_set",
+    "save_strength_log",
+    "validate_strength_session",
+]

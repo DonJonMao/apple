@@ -48,7 +48,8 @@ def _values(repo: Repository, canonical: str, window_days: int = 30) -> list[dic
     return [
         dict(r)
         for r in repo.rows(
-            "SELECT * FROM health_sample WHERE canonical_type=? AND normalized_value IS NOT NULL ORDER BY local_date,start_utc",
+            "SELECT * FROM health_sample WHERE canonical_type=? AND normalized_value IS NOT NULL "
+            "AND record_status='active' ORDER BY local_date,start_utc",
             (canonical,),
         )
     ]
@@ -133,7 +134,8 @@ def sleep_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     rows = [
         dict(r)
         for r in repo.rows(
-            "SELECT * FROM health_sample WHERE canonical_type='sleep_stage' ORDER BY start_utc"
+            "SELECT * FROM health_sample WHERE canonical_type='sleep_stage' "
+            "AND record_status='active' ORDER BY start_utc"
         )
     ]
     nights: dict[str, list[tuple[datetime, datetime, str]]] = {}
@@ -201,7 +203,10 @@ def sleep_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
 
 
 def workout_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
-    rows = [dict(r) for r in repo.rows("SELECT * FROM workout ORDER BY local_date")]
+    rows = [
+        dict(r)
+        for r in repo.rows("SELECT * FROM workout WHERE record_status='active' ORDER BY local_date")
+    ]
     by_week: dict[str, dict[str, Any]] = {}
     for r in rows:
         try:
@@ -254,7 +259,7 @@ def weight_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     rows = [
         dict(r)
         for r in repo.rows(
-            "SELECT local_date,normalized_value,source_name FROM health_sample WHERE canonical_type='body_mass_kg' AND normalized_value IS NOT NULL ORDER BY local_date"
+            "SELECT local_date,normalized_value,source_name FROM health_sample WHERE canonical_type='body_mass_kg' AND normalized_value IS NOT NULL AND record_status='active' ORDER BY local_date"
         )
     ]
     rows.extend(
@@ -314,7 +319,7 @@ def vo2_analysis(repo: Repository) -> dict[str, Any]:
     rows = [
         dict(r)
         for r in repo.rows(
-            "SELECT local_date,normalized_value,source_name FROM health_sample WHERE canonical_type='vo2_max_ml_kg_min' AND normalized_value IS NOT NULL ORDER BY local_date"
+            "SELECT local_date,normalized_value,source_name FROM health_sample WHERE canonical_type='vo2_max_ml_kg_min' AND normalized_value IS NOT NULL AND record_status='active' ORDER BY local_date"
         )
     ]
     status = (
@@ -417,7 +422,7 @@ def nutrition_analysis(repo: Repository) -> dict[str, Any]:
         }
         by_day: dict[str, dict[str, Any]] = {}
         for r in repo.rows(
-            "SELECT local_date,canonical_type,normalized_value FROM health_sample WHERE canonical_type IN ('dietary_energy_kcal','dietary_protein_g','dietary_carbohydrates_g','dietary_fat_g') AND normalized_value IS NOT NULL ORDER BY local_date"
+            "SELECT local_date,canonical_type,normalized_value FROM health_sample WHERE canonical_type IN ('dietary_energy_kcal','dietary_protein_g','dietary_carbohydrates_g','dietary_fat_g') AND normalized_value IS NOT NULL AND record_status='active' ORDER BY local_date"
         ):
             item = by_day.setdefault(
                 r["local_date"],
