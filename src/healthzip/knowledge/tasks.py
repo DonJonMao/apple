@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 import re
 
+from .question_parts import lexical_concepts, requested_parts
+
 CONCEPTS = {
     "resistance_training": ["力量", "抗阻", "练", "训练", "重复", "次数", "负重", "重量", "方案", "rir", "resistance", "repetition", "lifting", "training"],
     "device_measurement": ["设备", "温度计", "手表", "传感器", "组均", "device", "thermometer"],
@@ -17,7 +19,7 @@ CONCEPTS = {
     "progression_options": ["进阶", "渐进", "加重", "增加重量", "增重", "多做", "加次数", "增加次数", "增加重复", "提高次数", "progression", "more reps", "more repetitions", "increase repetitions", "heavier"],
     "failure_necessity": ["力竭", "失败", "做不动", "failure", "exhaustion"],
     "effort_precision": ["rir", "余力", "剩余次数", "repetitions in reserve"],
-    "volume": ["组量", "组数", "几组", "多少组", "volume", "sets"],
+    "volume": ["组量", "组数", "几组", "多少组", "volume"],
     "frequency": ["频率", "几天", "多少天", "frequency"],
     "rest": ["组间", "休息", "rest"],
     "capability_change": ["没进步", "没有进步", "不进步", "停滞", "平台", "没变", "一样", "相同次数", "plateau", "unchanged", "same reps"],
@@ -58,14 +60,52 @@ def request_constraints(question, context):
                     or re.search(r"(?:根据|依据|按照|按|according to)\s*(?:[A-Za-z][\w-]*|《[^》]+》)", question, re.IGNORECASE))
     numeric = bool(re.search(r"(?:我|个人|my|individual).*(?:多少|几公斤|精确|calculate|exact)", text)
                    and re.search(r"公斤|千克|重量|负荷|\bkg\b|\bload\b", text))
+    numeric = numeric or bool(re.search(
+        r"(?:应该|该用|能否|可不可以|可以|建议|\bshould\b|\bcan i\b).{0,20}\d+(?:\.\d+)?\s*(?:公斤|千克|磅|kg|lbs?)(?![a-z])", text))
+    personal = bool(re.search(r"我|个人|\bi\b|\bmy\b|\bme\b|\bindividual\b", text))
+    training_quantity = bool(re.search(r"次数|组数|组量|余力|休息|间歇|频率|天数|公斤|重量|负荷|\b(?:reps?|repetitions?|sets?|rir|rest|interval|frequency|load|weight)\b", text))
+    choose_quantity = bool(re.search(r"多少|几次|几组|几天|多久|多长|最优|最好|精确|\b(?:how (?:much|many|long)|optimal|best|exact(?:ly)?)\b|\bwhich\b.{0,30}\b(?:rest|interval|duration|load|weight)\b", text))
+    numeric = numeric or (personal and training_quantity and choose_quantity)
     compound = bool(re.search(r"两件事|分别|一方面.*另一方面|再.*(?:算|计算)|\band\s+then\b", text))
+    comparison = bool(re.search(r"比较|对比|对照|区别|差异|变化|变了|\b(?:compar\w*|difference\w*|changed|versus|vs)\b", text)
+                      and (len(set(re.findall(r"\b(?:19|20)\d{2}\b", text))) > 1
+                           or re.search(r"(?:不同|两|各|旧|新).{0,5}(?:来源|版本|指南|版次)|(?:source|edition|guideline|paper)s\b", text)))
     population = context.get("population")
     if re.search(r"儿童|孩子|未成年|children|child", text) or (isinstance(context.get("age"), (int, float)) and context["age"] < 18):
         population = "children"
     elif re.search(r"患者|疾病|衰弱|康复|clinical|patient", text):
         population = "clinical"
     return {"source_constraints": source, "specific_source_unresolved": specific and not source.get("source_ids"),
-            "personal_numeric_request": numeric, "compound_request": compound, "requested_population": population}
+            "personal_numeric_request": numeric, "compound_request": compound, "requested_population": population,
+            "source_comparison_request": comparison}
+
+
+def resolve_named_sources(w, question, context):
+    """Resolve only actual registered names/identifiers, never infer an edition."""
+    if context.get("source_constraints", {}).get("source_ids"):
+        return context
+    matches = set()
+    name_sources = {}
+    text = question.casefold()
+    for row in w.lib.sources.execute("SELECT source_id,manifest_json FROM source"):
+        manifest = json.loads(row["manifest_json"])
+        identifiers = manifest.get("identifiers", {})
+        names = [manifest.get("title"), *manifest.get("query_names", []),
+                 manifest.get("doi"), identifiers.get("doi"), identifiers.get("pmcid")]
+        for name in names:
+            if not name:
+                continue
+            pattern = re.escape(str(name).casefold())
+            if str(name).isascii():
+                pattern = r"(?<![a-z0-9])" + pattern + r"(?![a-z0-9])"
+            if re.search(pattern, text):
+                matches.add(row["source_id"])
+                name_sources.setdefault(str(name).casefold(), set()).add(row["source_id"])
+    if matches:
+        ambiguous = any(len(ids) > 1 for ids in name_sources.values())
+        return {**context, "source_constraints": {**context.get("source_constraints", {}),
+            "source_ids": sorted(matches), **({"unresolved_named_source": True} if ambiguous else {})}}
+    return context
 
 
 def source_constraints_match(w, evidence, constraints):
@@ -96,31 +136,35 @@ def parse_task(question, context=None):
             raise ValueError("question contract requires subject, outcome and requested relation")
         if contract.get("user_confirmed") is True:
             constraints.update(personal_numeric_request=False, compound_request=False)
-        return {**contract, **constraints, "resolution": "explicit_structured_task", "issues": []}
-    text = re.sub(r"\bincreas(?:e|es|ed|ing)\b", "increase", question.lower())
-    found = {key for key, terms in CONCEPTS.items() if any(term in text for term in terms)}
-    if re.search(r"(?:每周|一周|weekly).*(?:几天|多少天|至少.*天|最低.*天)|how many days", text):
-        found.add("frequency")
-    subjects = found & {"resistance_training", "device_measurement"}
-    # Outcomes asked about override incidental intervention words. This does not
-    # infer a support relation; a matching reviewed scope/answer part is required.
-    priority = ["longevity", "personal_temperature", "individual_error_bound", "capability_change",
-                "failure_necessity", "effort_precision", "rest", "volume", "frequency", "progression_options"]
-    outcomes = found & set(priority)
-    # Intervention mentions may accompany an explicit measurement/inference
-    # target. Otherwise never use an arbitrary priority to answer only one of
-    # several recognized requested quantities.
-    primary = outcomes & {"longevity", "personal_temperature", "individual_error_bound", "capability_change"}
-    resolved = primary if primary else outcomes
-    outcome = next(iter(resolved)) if len(resolved) == 1 else None
-    subject = "device_measurement" if "device_measurement" in subjects else "resistance_training" if subjects else None
-    issues = (["subject_unresolved"] if subject is None else []) + (["multiple_possible_outcomes"] if len(resolved) > 1 else ["outcome_unresolved"] if not resolved else [])
-    relation = ("individual_inference" if outcome in {"longevity", "personal_temperature", "individual_error_bound"}
-                else "inference" if outcome == "capability_change" else "necessity" if outcome == "failure_necessity"
-                else "precision" if outcome == "effort_precision" else "options")
+        part = {**contract, "part_id": contract["outcome"], "label": contract["outcome"]}
+        scoped = requested_parts(question, {contract["subject"], contract["outcome"]}, context)
+        parts = [{**part, **{k: v for k, v in p.items() if k in {"part_id", "label", "requested_goal"}}}
+                 for p in scoped if p["outcome"] == contract["outcome"]] or [part]
+        if constraints["personal_numeric_request"]:
+            parts.append({"part_id": "personal_numeric_request", "label": "个人具体训练参数", "reason": "personal_numeric_authority_unavailable"})
+        elif constraints["compound_request"]:
+            parts.append({"part_id": "unresolved_compound_request", "label": "复合问题的其他目标", "reason": "additional_target_unresolved"})
+        if constraints["source_comparison_request"]:
+            parts.append({"part_id": "source_comparison", "label": "指定来源或版本之间的比较", "reason": "cross_source_comparison_not_reviewed"})
+        return {**contract, **constraints, "required_answer_parts": parts, "resolution": "explicit_structured_task", "issues": []}
+    found = lexical_concepts(question, CONCEPTS)
+    parts = requested_parts(question, found, context)
+    outcomes = {p["outcome"] for p in parts}
+    subject = parts[0]["subject"] if parts else None
+    outcome = parts[0]["outcome"] if len(parts) == 1 else None
+    relation = parts[0]["requested_relation"] if len(parts) == 1 else None
+    issues = (["subject_unresolved"] if subject is None else []) + (["multiple_possible_outcomes"] if len(parts) > 1 else ["outcome_unresolved"] if not parts else [])
+    if constraints["personal_numeric_request"]:
+        parts.append({"part_id": "personal_numeric_request", "label": "个人具体训练参数", "reason": "personal_numeric_authority_unavailable"})
+    elif constraints["compound_request"] and len(parts) < 2:
+        parts.append({"part_id": "unresolved_compound_request", "label": "复合问题的其他目标", "reason": "additional_target_unresolved"})
+    if re.search(r"完整.*(?:计划|方案)|(?:full|complete|entire)\s+(?:training\s+)?(?:plan|program)", question.lower()):
+        parts.append({"part_id": "entire_plan", "label": "完整个人训练计划", "reason": "entire_plan_not_authorized"})
+    if constraints["source_comparison_request"]:
+        parts.append({"part_id": "source_comparison", "label": "指定来源或版本之间的比较", "reason": "cross_source_comparison_not_reviewed"})
     return {"subject": subject, "outcome": outcome, "requested_relation": relation, **constraints,
-            "possible_outcomes": sorted(outcomes), "issues": issues,
-            "resolution": "unresolved_or_ambiguous_task" if issues else "compositional_concept_contract_v1.4.1"}
+            "possible_outcomes": sorted(outcomes), "issues": issues, "required_answer_parts": parts,
+            "resolution": "compositional_answer_parts_v1.4.2" if parts else "unresolved_or_ambiguous_task"}
 
 
 def core_candidates(w, question, context, roles):
@@ -139,7 +183,14 @@ def core_candidates(w, question, context, roles):
             continue
         if any(not set(s["corpus_roles"]) & roles for s in evidence):
             continue
-        matches = not task["issues"] and all(task.get(k) == definition.get(k) for k in ("subject", "outcome", "requested_relation"))
+        goals = set(claim["scope"].get("applicable_goals", []))
+        if claim["scope"].get("goal"):
+            goals.add(claim["scope"]["goal"])
+        matching_parts = [part for part in task["required_answer_parts"]
+                          if all(part.get(k) is not None and part.get(k) == definition.get(k)
+                                 for k in ("subject", "outcome", "requested_relation"))
+                          and (not part.get("requested_goal") or part["requested_goal"] in goals)]
+        matches = bool(matching_parts)
         if task["specific_source_unresolved"] or not source_constraints_match(w, evidence, task["source_constraints"]):
             excluded.append({"theory_id": row["claim_id"], "reason": "requested_source_or_edition_unavailable"})
             matches = False
@@ -154,8 +205,9 @@ def core_candidates(w, question, context, roles):
         if matches:
             bindings = [{"question": question, "target_claim": target,
                          "relation": definition.get("evidence_relation", "supports"),
-                         "answer_complete": definition.get("answer_complete", True) and not task["personal_numeric_request"] and not task["compound_request"],
-                         "target_coverage_complete": not task["personal_numeric_request"] and not task["compound_request"],
+                         "answer_complete": definition.get("answer_complete", True),
+                         "target_coverage_complete": definition.get("answer_complete", True),
+                         "requested_part_ids": [p["part_id"] for p in matching_parts],
                          "rationale": review["rationale"], "target_resolution": task["resolution"]}]
         parts = [{"text": p["text"], "span_ids": p["span_ids"], "support_rationale": review["rationale"],
                   "limitations": claim["limitations"], "answer_bindings": bindings} for p in definition["answer_parts"]]

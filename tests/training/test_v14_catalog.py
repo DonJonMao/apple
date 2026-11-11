@@ -274,6 +274,55 @@ def test_corrupt_media_is_failed_and_no_media_is_distinct(repo, tmp_path):
     assert svc.exercise_details("psa.ex.plank")["media_availability"] == "none_in_source"
 
 
+def test_catalog_ui_pages_show_local_previews_and_distinct_media_states(repo, tmp_path):
+    from streamlit.testing.v1 import AppTest
+
+    rows = [source(101 + i, name=f"Synthetic Row {i:03}", uuid=f"ui-{i:03}") for i in range(51)]
+    images = [
+        {
+            **picture(uuid=f"ui-{i:03}", license=None if i == 3 else 1),
+            "id": i + 1,
+            "exercise": 101 + i,
+        }
+        for i in range(4)
+    ]
+    publish_snapshot(repo, snapshot(tmp_path, rows, images=images))
+    fetch_media(
+        repo,
+        tmp_path / "blobs",
+        downloader=lambda _: (png(), "image/png"),
+        media_ids={"wger.image.1"},
+    )
+    repo.conn.execute(
+        "UPDATE catalog_media SET fetch_status='failed' WHERE media_id='wger.image.3'"
+    )
+    repo.conn.commit()
+    script = (
+        "from healthzip.db.repository import Repository\n"
+        "from healthzip.training.service import TrainingService\n"
+        "from healthzip.ui.training_page import _selector\n"
+        f"repo=Repository({str(repo.path)!r})\n"
+        "_selector(TrainingService(repo),'catalog')\nrepo.close()"
+    )
+    app = AppTest.from_string(script).run(timeout=30)
+    app.text_input(key="catalog_query").set_value("catalog.wger.ui-").run(timeout=30)
+    assert not app.exception
+    preview = app.dataframe(key="catalog_results").value
+    assert len(preview) == 50
+    assert any(str(x).startswith("data:image/jpeg;base64,") for x in preview["缩略图"])
+    assert set(preview["器械"]) == {"哑铃"} and set(preview["部位"]) == {"背"}
+    assert {"暂无动作示范", "尚未下载", "下载失败，暂不可用", "媒体许可不明，暂不可用"} <= set(
+        preview["示范状态"]
+    )
+    selected_id = TrainingService(repo).search_exercises("catalog.wger.ui-")[3]["exercise_id"]
+    app.session_state["catalog_results"] = {"selection": {"rows": [3], "columns": [], "cells": []}}
+    app.run(timeout=30)
+    assert app.selectbox(key="catalog_choice").value == selected_id and not app.exception
+    app.number_input(key="catalog_page").set_value(2).run(timeout=30)
+    assert not app.exception
+    assert len(app.dataframe(key="catalog_results").value) == 1
+
+
 def test_media_interruption_resumes_with_origin_validator(tmp_path):
     from email.message import Message
 

@@ -30,7 +30,7 @@ def target_key(target):
     return dumps({"proposition": normalized_question(target["proposition"]), "scope": target["scope"]})
 
 
-def assess_support(question, context, candidates):
+def assess_support(question, context, candidates, *, required_parts=(), displayed=None):
     from .retrieval import _context_match
 
     supplied = context.get("target_claims")
@@ -75,8 +75,32 @@ def assess_support(question, context, candidates):
             selected.extend(matches)
     complete = bool(judgments) and all(x["verdict"] == "supported_answer_relation" for x in judgments)
     conflict = any(x["verdict"] == "conflicting_relations" for x in judgments)
+    all_selected = selected
+    if displayed is not None:
+        selected = [s for s in selected if (s[0]["theory_id"], s[0]["theory_version"]) in displayed]
+    covered, uncovered = [], []
+    # Legacy exact-question reviews explicitly bind the whole question. Core
+    # semantic tasks bind individual requested parts; absent parts must stay in
+    # the denominator even if no source claim exists for them.
+    composition = supplied is None and (not targets or any(b.get("requested_part_ids") for _, _, b in all_selected))
+    if composition:
+        for part in required_parts:
+            matches = [b for _, _, b in selected if part["part_id"] in b.get("requested_part_ids", [])
+                       and b.get("answer_complete") is True and b.get("target_coverage_complete") is not False]
+            if matches:
+                covered.append(part)
+            else:
+                omitted = any(part["part_id"] in b.get("requested_part_ids", []) for _, _, b in all_selected)
+                uncovered.append({**part, "reason": part.get("reason") or (
+                    "display_budget_omitted_supported_part" if omitted else "no_eligible_complete_answer_relation")})
+        complete = complete and bool(covered) and not uncovered
+    # A display resource budget cannot turn an unseen supported target into a
+    # complete rendered answer, including legacy explicitly reviewed targets.
+    rendered_keys = {target_key(b["target_claim"]) for _, _, b in selected}
+    complete = complete and all(target_key(x["target_claim"]) in rendered_keys for x in judgments)
     status = ("conflicting_evidence" if conflict else "evidence_supported" if complete
               else "partial_answer_support" if selected else "related_material_only" if candidates else "insufficient_evidence")
     return {"status": status, "target_resolution": origin, "targets": judgments,
+            "covered_parts": covered, "uncovered_parts": uncovered,
             "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
             "contract_sha256": digest(dumps(list(targets.values())).encode())}, selected

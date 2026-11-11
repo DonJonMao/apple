@@ -49,6 +49,10 @@ def _decode(row) -> Optional[dict]:
     for key, value in list(result.items()):
         if key.endswith("_json"):
             result[key[:-5]] = json.loads(value) if value is not None else None
+    if "condition" in result:
+        result["reviewed_anatomy_snapshot"] = (result["condition"] or {}).get(
+            "reviewed_anatomy_snapshot"
+        )
     return result
 
 
@@ -638,6 +642,25 @@ class TrainingService:
             condition = self._condition(
                 item["exercise_id"], item.get("condition") or {}, item.get("definition_version")
             )
+            from .anatomy import freeze_mapping
+
+            original_mapping = (item.get("condition") or {}).get("reviewed_anatomy_snapshot")
+            has_frozen_time = isinstance(original_mapping, dict) and bool(
+                original_mapping.get("frozen_at")
+            )
+            mapping = freeze_mapping(
+                original_mapping,
+                item["exercise_id"],
+                exercise["definition_version"],
+                timestamp(),
+                preserve_time=has_frozen_time,
+            )
+            if mapping is not None:
+                if not has_frozen_time:
+                    # A template is a plan. Binding time belongs to its future
+                    # training instance and must not alter an idempotent request.
+                    mapping.pop("frozen_at")
+                condition["reviewed_anatomy_snapshot"] = mapping
             targets = self._targets(item.get("targets") or {})
             self._validate_target_mode(targets, exercise["recording_mode"])
             result.append(
@@ -871,6 +894,7 @@ class TrainingService:
                     position,
                     item["definition_version"],
                     exercise_snapshot=item.get("exercise_snapshot"),
+                    bound_at=now,
                 )
                 for number, target in enumerate(item["targets"].get("sets", [])):
                     self._insert_set(
@@ -900,8 +924,26 @@ class TrainingService:
         replaced_from=None,
         reason=None,
         exercise_snapshot=None,
+        reviewed_anatomy_snapshot=None,
+        bound_at=None,
+        preserve_anatomy_time=False,
     ):
+        from .anatomy import assert_mapping_version, freeze_mapping
+
         snapshot = self._condition(exercise_id, condition, version)
+        mapping = reviewed_anatomy_snapshot
+        if mapping is None:
+            mapping = condition.get("reviewed_anatomy_snapshot")
+        frozen_mapping = freeze_mapping(
+            mapping,
+            exercise_id,
+            snapshot["definition_version"],
+            bound_at or timestamp(),
+            preserve_time=preserve_anatomy_time,
+        )
+        assert_mapping_version(self.conn, self.user_id, frozen_mapping)
+        if frozen_mapping is not None:
+            snapshot["reviewed_anatomy_snapshot"] = frozen_mapping
         exercise_snapshot = exercise_snapshot or self.get_exercise(exercise_id, version)
         if (
             exercise_snapshot["exercise_id"] != exercise_id
@@ -949,6 +991,7 @@ class TrainingService:
         session_exercise_id=None,
         populate_sets=True,
         definition_version=None,
+        reviewed_anatomy_snapshot=None,
     ) -> dict:
         session = self._session(session_id)
         event_id = event_id or str(uuid4())
@@ -957,6 +1000,8 @@ class TrainingService:
             self._condition(exercise_id, condition, definition_version),
             self._targets(targets or {}),
         )
+        if reviewed_anatomy_snapshot is None:
+            reviewed_anatomy_snapshot = condition.get("reviewed_anatomy_snapshot")
         payload = {
             "session_id": session["id"],
             "exercise_id": exercise_id,
@@ -968,6 +1013,8 @@ class TrainingService:
             "populate_sets": populate_sets,
             "definition_version": definition_version,
         }
+        if reviewed_anatomy_snapshot is not None:
+            payload["reviewed_anatomy_snapshot"] = reviewed_anatomy_snapshot
 
         def apply(current, eid, now):
             if session.get("deleted_at") or session.get("session_status") not in {
@@ -992,6 +1039,8 @@ class TrainingService:
                 version=definition_version,
                 replaced_from=replaced_from_exercise_id,
                 reason=replacement_reason,
+                reviewed_anatomy_snapshot=reviewed_anatomy_snapshot,
+                bound_at=now,
             )
             for number, target in enumerate(targets.get("sets", []) if populate_sets else []):
                 self._insert_set(identity, _uuid(eid, f"set:{number}"), {}, target, now)
@@ -2519,6 +2568,8 @@ class TrainingService:
         normalized = self._condition(
             instance["catalog_id"], condition, instance["definition_version"]
         )
+        if instance.get("reviewed_anatomy_snapshot") is not None:
+            normalized["reviewed_anatomy_snapshot"] = instance["reviewed_anatomy_snapshot"]
 
         def apply(old, eid, now):
             if any(

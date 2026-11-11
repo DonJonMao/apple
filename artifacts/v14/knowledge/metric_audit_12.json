@@ -2,11 +2,11 @@
   "review_baseline": "912aefc93b9bd9c1cebf297a10728c69c827e266",
   "metric_count": 12,
   "algorithm_version": "healthzip-science-1.4",
-  "verification_test_cases": 119,
+  "verification_test_cases": 128,
   "all_verification_cases_passed": true,
   "new_human_or_expert_approvals_created": 0,
   "independent_ai_semantic_reviews": 18,
-  "scope": "12 QAL unified executors plus actual source/annotation adapter; original 3/18 independent result retained.",
+  "scope": "12 QAL unified executors and current bounded source/record contract accounting; original 18-question actual_trace fields are preserved unchanged.",
   "metrics": [
     {
       "metric_id": "QAL-01",
@@ -1294,7 +1294,58 @@
       ],
       "actual_trace_artifact": "artifacts/v14/knowledge/independent_frozen_public.json#quality_metrics",
       "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。",
-      "coverage_limit": "18 purposively selected actual-source questions, independently authored and AI reviewed; not population accuracy or human/expert validation. Missing numerical/access references remain empty denominators."
+      "coverage_limit": "18 purposively selected actual-source questions, independently authored and AI reviewed; not population accuracy or human/expert validation. Missing numerical/access references remain empty denominators.",
+      "current_runtime_data_status": "valid",
+      "current_runtime_value": {
+        "overall_fulltext_acquisition": {
+          "numerator": 16,
+          "denominator": 50,
+          "rate": 0.32
+        },
+        "content_review_completion": {
+          "numerator": 35,
+          "denominator": 44,
+          "rate": 0.7954545454545454
+        },
+        "reviewer_kind_counts": {
+          "AI_assisted_explicit_source_reading_not_independent_expert": 11,
+          "unknown": 9,
+          "ai_assisted": 24
+        },
+        "licensed_retrievable_fetch": {
+          "numerator": 16,
+          "denominator": 16,
+          "rate": 1.0
+        },
+        "theory_review_completion": {
+          "numerator": 0,
+          "denominator": 44,
+          "rate": 0.0
+        },
+        "theory_activation_ready": {
+          "numerator": 17,
+          "denominator": 44,
+          "rate": 0.38636363636363635
+        },
+        "feature_claim_coverage": {
+          "numerator": 12,
+          "denominator": 16,
+          "rate": 0.75
+        },
+        "feature_claim_coverage_scope": "Active bounded source/application contracts, not proof all scientific subtopics are complete.",
+        "record_contract_coverage": {
+          "numerator": 5,
+          "denominator": 5,
+          "rate": 1.0
+        },
+        "source_states": {
+          "not_fetched": 32,
+          "fulltext_saved": 18
+        }
+      },
+      "current_runtime_artifact": "artifacts/v14/knowledge/coverage_qal09_round2.json#metric",
+      "current_runtime_scope": "Acquisition and contracts now; source/application requirements 12/16 and record contracts 5/5 are distinct denominators; active bounded contracts do not establish all scientific subtopics.",
+      "actual_trace_scope": "Historical source snapshot accompanying the original frozen 18-answer evaluation, retained without recalculation."
     },
     {
       "metric_id": "QAL-10",
@@ -1440,5 +1491,56 @@
       "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。",
       "coverage_limit": "18 purposively selected actual-source questions, independently authored and AI reviewed; not population accuracy or human/expert validation. Missing numerical/access references remain empty denominators."
     }
-  ]
+  ],
+  "verification_test_artifact": "artifacts/v14/knowledge/coverage-round2-tests.xml",
+  "verification_scope": "Five targeted knowledge/quality test files only; this is not a full repository test result.",
+  "independent_ai_semantic_reviews_scope": "Original frozen 18-question batch only; fresh round2 evaluation is separately reported by the root evaluator.",
+  "current_core_release_id": "core-personal-trial-1.4.3",
+  "current_contract_counts": {
+    "candidate_rules": 4,
+    "source_explanation_rules": 8,
+    "record_contract_rules": 5,
+    "unactivated_method_topics": 4
+  },
+  "semantic_evaluation_batches": [
+    {
+      "batch": "original_independent_18",
+      "reviewer_kind": "independent_ai",
+      "passed": 3,
+      "total": 18,
+      "artifact": "artifacts/v14/knowledge/independent_frozen_public.json",
+      "immutable": true
+    },
+    {
+      "batch": "independent_round2",
+      "status": "frozen_independent_ai_evaluation_published",
+      "passed": 4,
+      "total": 20,
+      "partial": 5,
+      "failed": 11,
+      "artifact": "artifacts/v14/knowledge/independent_round2_results.json",
+      "immutable": true,
+      "reviewer_kind": "independent_ai"
+    }
+  ],
+  "no_cross_batch_denominator_pooling": true,
+  "independent_ai_semantic_review_batches": [
+    {
+      "artifact": "artifacts/v14/knowledge/independent_new_summary.json",
+      "cases": 18,
+      "pass": 3,
+      "fail": 15,
+      "verdicts_preserved": true
+    },
+    {
+      "artifact": "artifacts/v14/knowledge/independent_round2_results.json",
+      "cases": 20,
+      "pass": 4,
+      "partial": 5,
+      "fail": 11,
+      "verdicts_preserved": true
+    }
+  ],
+  "new_round2_evaluation": "published_frozen_separate_batch_not_merged_with_original_actual_trace",
+  "post_evaluation_guard_replay": "artifacts/v14/knowledge/independent_round2_guard_replay.json; development only, no new independent semantic score"
 }

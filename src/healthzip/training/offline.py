@@ -99,7 +99,7 @@ def apply_event_batch(repo, events: list, *, device_id: str = "browser-local") -
 def recorder_html(repo=None) -> bytes:
     """Embed installed public catalog; seed fallback only before any installation."""
     from .catalog_import import public_catalog
-    from .catalog_media import media_for
+    from .catalog_media import MEDIA_STATUS_LABELS, media_for
 
     template = Path(__file__).parents[1] / "ui" / "offline_recorder.html"
     seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
@@ -142,5 +142,8 @@ def recorder_html(repo=None) -> bytes:
         template.read_text()
         .replace("__PUBLIC_CATALOG_JSON__", payload)
         .replace("__CATALOG_SNAPSHOT_JSON__", json.dumps(public_data["snapshot_id"]))
+        .replace(
+            "__MEDIA_STATUS_LABELS_JSON__", json.dumps(MEDIA_STATUS_LABELS, ensure_ascii=False)
+        )
         .encode("utf-8")
     )

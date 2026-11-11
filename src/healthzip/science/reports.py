@@ -85,17 +85,25 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
         facts = context.get("daily_metric_facts", [])
         domain = local_date_domain(instant(window.start), min(instant(window.end), instant(window.cutoff_time)), window.timezone)
         groups = defaultdict(set)
+        streams = defaultdict(set)
         for fact in facts:
             if fact.get("value") is not None:
-                groups[fact["metric_id"]].update(set(fact.get("support_local_dates", [fact["date"]])) & domain)
+                dates = set(fact.get("support_local_dates", [fact["date"]])) & domain
+                groups[fact["metric_id"]].update(dates)
+                streams[(fact["metric_id"], fact.get("source_id"), fact.get("protocol_id"))].update(dates)
         values = [{"kind": key, "metric_id": key, "numerator": len(dates), "denominator": denominator,
                    "definition": "valid local dates / elapsed target dates"} for key, dates in groups.items()]
+        stream_values = [{"metric_id": key[0], "source_id": key[1], "protocol_id": key[2],
+                          "numerator": len(dates), "denominator": denominator, "recorded_local_dates": sorted(dates),
+                          "definition": "valid local dates for this source and protocol / elapsed target dates"}
+                         for key, dates in streams.items()]
         session_coverage = []
         for identity in ("LOAD-SRPE", "LOAD-DURATION", "LOAD-SRPE-AU"):
             metric = state_metric(identity, rows, window, context)
             session_coverage.append({"kind": identity, "numerator": metric["valid_n"], "denominator": metric["total_n"],
                                      "definition": "known measurements / eligible completed sessions in the window"})
-        return emit({"daily_coverage": values, "session_coverage": session_coverage,
+        return emit({"daily_coverage": values, "daily_stream_coverage": stream_values, "session_coverage": session_coverage,
+                     "missing_date_interpretation": "no_valid_record_not_absence_of_event",
                      "complete_previous_period_comparable": not partial}, coverage=values)
     if metric_id == "REPORT-STATE-SUMMARY":
         chart_fields = {"metric_id", "series_id", "series_label", "date", "value", "unit", "source_id", "protocol_id", "measurement_scale",

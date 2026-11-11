@@ -47,11 +47,11 @@ def test_metric_catalog(case, tmp_path):
             s.test_muscle_mapping_requires_review_and_direct_indirect_stay_separate()
             if code == 6:
                 records = [s.row(i, exercise_id="press" if i < 6 else "other") for i in range(10)]
-                mappings = {"press": {"review_status": "approved", "version": "1", "direct": ["chest"], "indirect": []},
-                            "other": {"review_status": "approved", "version": "1", "direct": [], "indirect": ["chest"]}}
-                context = {"muscle_mappings": mappings}
-                assert s.run("STR-05", records, context)["value"]["groups"][0]["sets"] == 6
-                assert s.run("STR-06", records, context)["value"]["groups"][0]["sets"] == 4
+                mappings = {"press": s.reviewed_muscle_mapping("press", direct=["chest"], indirect=[]),
+                            "other": s.reviewed_muscle_mapping("other", direct=[], indirect=["chest"])}
+                records = [{**r, "reviewed_anatomy_snapshot": mappings[r["exercise_id"]]} for r in records]
+                assert s.run("STR-05", records)["value"]["groups"][0]["sets"] == 6
+                assert s.run("STR-06", records)["value"]["groups"][0]["sets"] == 4
         elif code == 7:
             origin = datetime(2026, 8, 1, tzinfo=timezone.utc)
             records = [s.row(i, event_end=(origin + timedelta(days=d)).isoformat(), available_at=(origin + timedelta(days=d)).isoformat()) for i, d in enumerate((0, 45, 90))]

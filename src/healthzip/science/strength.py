@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 
 from healthzip.normalize import quantity_value
 
@@ -103,6 +104,33 @@ def _plan_equipment_steps(plan):
     return values
 
 
+def _frozen_muscle_mapping(row):
+    mapping = row.get("reviewed_anatomy_snapshot")
+    if not isinstance(mapping, dict):
+        return None, "frozen_muscle_mapping_required"
+    if (mapping.get("review_status") != "approved"
+            or any(not isinstance(mapping.get(k), str) or not mapping[k].strip() for k in ("mapping_id", "reviewer"))
+            or not mapping.get("version") or isinstance(mapping["version"], bool)
+            or not isinstance(mapping.get("evidence_refs"), list) or not mapping["evidence_refs"]
+            or any(not isinstance(ref, (str, dict)) or not ref for ref in mapping["evidence_refs"])):
+        return None, "frozen_mapping_review_or_evidence_incomplete"
+    if (not mapping.get("exercise_id") or mapping.get("definition_version") is None
+            or mapping.get("exercise_id") != row.get("exercise_id")
+            or str(mapping.get("definition_version")) != str(row.get("definition_version"))):
+        return None, "frozen_mapping_exercise_version_mismatch"
+    if any(not isinstance(mapping.get(role), list) or any(not isinstance(name, str) or not name.strip() for name in mapping[role])
+           for role in ("direct", "indirect")):
+        return None, "frozen_mapping_roles_invalid"
+    try:
+        reviewed, frozen, available = (instant(mapping.get("reviewed_at")), instant(mapping.get("frozen_at")),
+                                       instant(row.get("available_at") or row.get("ingested_at")))
+    except ValueError:
+        return None, "frozen_mapping_time_or_availability_unknown"
+    if not reviewed <= frozen <= available:
+        return None, "frozen_mapping_review_or_binding_after_record_availability"
+    return mapping, None
+
+
 def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
     code = int(metric_id.split("-")[1])
     total = len(rows)
@@ -164,19 +192,36 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                     valid_n=sum(len(v["set_ids"]) for v in groups.values()), reasons=["bookkeeping_not_mechanical_work_or_stimulus"])
     if code in {5, 6}:
         role = "direct" if code == 5 else "indirect"
-        mappings = context.get("muscle_mappings", {})
-        grouped, unknown = defaultdict(set), []
+        grouped, unknown, reasons, valid, versions = {}, [], [], [], defaultdict(set)
         for row in work:
-            mapping = mappings.get(row.get("exercise_id"), {})
-            if mapping.get("review_status") != "approved" or not mapping.get("version"):
+            mapping, reason = _frozen_muscle_mapping(row)
+            if reason:
                 unknown.append(row.get("id"))
+                reasons.append(reason)
                 continue
-            for muscle in mapping.get(role, []):
-                grouped[(muscle, row.get("side"), mapping["version"])].add(row.get("parent_set_id") or row.get("id"))
-        if not grouped:
-            return emit(None, "insufficient", reasons=["muscle_mapping_unreviewed"], valid_n=0)
-        return emit({"groups": [{"muscle": k[0], "side": k[1], "mapping_version": k[2], "sets": len(v)} for k, v in grouped.items()],
-                     "unknown_set_ids": unknown}, "partial" if unknown else "valid", valid_n=len(work) - len(unknown))
+            identity = (mapping["mapping_id"], str(mapping["version"]))
+            versions[identity].add(canonical_hash({k: v for k, v in mapping.items() if k != "frozen_at"}))
+            valid.append((row, mapping, identity))
+        bindings = []
+        for row, mapping, identity in valid:
+            if len(versions[identity]) > 1:
+                unknown.append(row.get("id"))
+                reasons.append("frozen_mapping_version_content_conflict")
+                continue
+            source_id = row.get("_source_id", row.get("id"))
+            bindings.append({"source_record_id": source_id, "mapping_id": identity[0], "mapping_version": identity[1],
+                             "frozen_at": mapping["frozen_at"], "snapshot_sha256": canonical_hash(mapping)})
+            for muscle in mapping[role]:
+                group = grouped.setdefault((muscle, row.get("side"), *identity), {
+                    "muscle": muscle, "side": row.get("side"), "mapping_id": identity[0], "mapping_version": identity[1],
+                    "reviewer": mapping["reviewer"], "reviewed_at": mapping["reviewed_at"], "evidence_refs": mapping["evidence_refs"],
+                    "source_record_ids": set()})
+                group["source_record_ids"].add(source_id)
+        if not bindings:
+            return emit(None, "insufficient", reasons=sorted(set(reasons or ["frozen_muscle_mapping_required"])), valid_n=0)
+        values = [{**g, "source_record_ids": sorted(g["source_record_ids"]), "sets": len(g["source_record_ids"])} for g in grouped.values()]
+        return emit({"groups": values, "unknown_set_ids": unknown, "mapping_bindings": bindings},
+                    "partial" if unknown else "valid", valid_n=len(bindings), reasons=sorted(set(reasons)))
     if code in {7, 8}:
         known = [r for r in refs if condition_key(r) is not None]
         times = sorted({(r["session_id"], r["_event_end"]) for r in known}, key=lambda p: p[1])
@@ -197,7 +242,9 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                               "first_observed_at": endpoints[0].isoformat(), "last_observed_at": endpoints[-1].isoformat(),
                               "source_record_ids": [r.get("_source_id") for r in group]})
         frequency_n = len(recorded) if code == 8 else len(times)
-        frequency_dates = {instant(r["_event_end"]).date() for r in recorded.values()} if code == 8 else {d.date() for d in dates}
+        zone = ZoneInfo(window.timezone)
+        frequency_dates = ({instant(r["_event_end"]).astimezone(zone).date() for r in recorded.values()}
+                           if code == 8 else {d.astimezone(zone).date() for d in dates})
         value = {"sessions": frequency_n, "observed_dates": len(frequency_dates),
                  "span_days": (dates[-1] - dates[0]).total_seconds() / 86400 if dates else None,
                  "recorded_frequency_per_week": frequency_n / elapsed * 7 if elapsed > 0 and len(frequency_dates) > 1 else None,
@@ -295,20 +342,25 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         for row in rows:
             if _completed(row):
                 groups[(row.get("session_id"), condition_key(row))].append(row)
-        series = []
+        series, comparison_exclusions = [], []
         for (session, key), group in groups.items():
             group.sort(key=lambda r: r.get("set_position", r.get("set_number", 0)))
             first = group[0]
             if key is None or not first.get("reps"):
                 continue
             for row in group:
-                if row.get("set_structure") not in {None, "straight"} or row.get("entered_load") != first.get("entered_load"):
+                if row.get("set_structure") not in {None, "straight"}:
+                    comparison_exclusions.append({"set_id": row.get("id"), "reason": "within_session_set_structure_changed"})
+                    continue
+                if load_change(first, row)["entered_change"] != 0:
+                    comparison_exclusions.append({"set_id": row.get("id"), "reason": "within_session_load_changed_or_unknown"})
                     continue
                 if finite(row.get("reps")) is not None:
                     series.append({"session_id": session, "set_id": row.get("id"),
                                    "delta_reps": row["reps"] - first["reps"],
                                    "fraction_decrease": (first["reps"] - row["reps"]) / first["reps"]})
-        return emit(series or None, "valid" if series else "insufficient", valid_n=len(series), evidence_status="descriptive")
+        return emit(series or None, "partial" if series and comparison_exclusions else "valid" if series else "insufficient",
+                    valid_n=len(series), evidence_status="descriptive", comparison_exclusions=comparison_exclusions)
     if code in {16, 17}:
         estimates = []
         for row in refs or work:
@@ -345,7 +397,9 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if code == 20:
             return emit(trend["interval"], "valid" if trend["interval"] else "insufficient",
                         uncertainty=trend["interval"], evidence_status="research_only", valid_n=len(refs),
-                        reasons=trend["reason_codes"], parameter_set_id=context.get("parameter_set_id"), look_allocation=allocation)
+                        reasons=trend["reason_codes"], parameter_set_id=context.get("parameter_set_id"), look_allocation=allocation,
+                        point_estimate={**{key: trend.get(key) for key in ("slope_per_day", "change", "span_days", "horizon_days", "n")},
+                                        "unit": "repetitions", "slope_unit": "repetitions/day", "evidence_status": "descriptive"})
         calibration = context.get("calibration")
         scope_check = calibration_scope_check(calibration, metric_id=metric_id,
             scope=task_calibration_scope(refs[-1] if refs else None, context), model_version=trend["model_version"])

@@ -31,18 +31,30 @@ STR28 `strata` 按 strategy/task_id/rule_versions 保存分母与未知；缺元
 
 STR25 在数值比较前验证完整目标：次数上沿与下一任务次数须为正整数，下一次数不高于上沿，RIR 两端须完整、有限、有序且位于 0–10，器械档位须为有限非负数列表。部分目标正常冻结为 `insufficient`，不崩溃、不生成缺次数终点的负荷任务。STR26 的用户试验可明确只指定负荷与次数；两端 RIR 均缺失时保留 `target_rir_range=null`、`effort_target_status=unspecified` 并说明不属于已匹配努力目标。只填一个 RIR 端点或范围非法则阻止数值试验；不从历史 RIR 猜测用户目标。SQLite 文本数值经验证后作为数值输出，原始记录不改写。
 
+周/月入口使用各自 `period_result.strength_tasks` 的负荷层显示来源数、有效参考、实际起止时间、kg 或器械单位、点趋势及未确认的停滞状态。`test_v14_period_review.py` 通过真实 TrainingService 和页面周期按钮检查：同月每层 3 条、当周每层 2 条，月外历史与截止后记录不进入本周期，界面数值与持久化报告来源集合一致。
+
+补充矩阵复核修复：STR07/08 的观察日期按所选时区计数，同一个当地日跨 UTC 午夜的两场不能伪装为多日频率；STR20 缺少正式 look 时仍在 `point_estimate` 保留描述斜率、变化、观察跨度和单位，区间保持未知；STR15 使用规范负荷变化比较同场任务，30 kg 与 30 lb 不当作同负荷，而已知精确等价 kg/lb 可以描述。周期覆盖同时提供去重的 `daily_coverage` 和各来源/协议独立的 `daily_stream_coverage`，未记录日期不等于事件未发生。
+
+STR05/06 的历史映射要求改为实际逐组合同：只消费 `reviewed_anatomy_snapshot`，不再把当前 `context.muscle_mappings` 应用到旧记录。快照保存 mapping_id/version、动作 ID/定义版本、direct/indirect 标签、已记录的审阅人与来源引用，以及带时区的 reviewed_at/frozen_at；校验 `reviewed_at ≤ frozen_at ≤ available_at`。不同版本分别汇总，输出逐组绑定哈希及来源；同版本内容冲突拒绝。没有快照的旧记录保持未知。来源导航标签和批准的分析映射仍分开，软件仅校验输入合同，不声称自动认证审阅人身份或创造真实批准。
+
+实际服务将映射作为 `condition_json` 的独立冻结注释保存，不改变物理条件键。历史版本回归见 `test_v14_anatomy_history.py`：直接创建并持久化两个版本、较早 cutoff 回放、未知旧记录、另存模板及导出/导入后保留原快照。参数接口可显式采用已有审阅事实，没有自动批准生产肌肉映射。
+
 ## 可复现证据与限制
 
 首次反例为 `failing_before.xml`（29 failed / 5 passed），随后新增矩阵与单位注册表反例分别保存在 `extended_before.xml`、`registry_before.xml`、`matrix_gaps_before.xml`、`followup_before.xml`。最终结果见 `verification.xml`；环境路径与主机元数据已脱敏，失败结果未改成通过。
 
 候选目标补充审计先记录 `failing_before_plan_validation.xml` 的 35 个失败，再在 `plan_validation.xml` 验证全部通过；包含真实页面依次清空次数上沿、RIR、次数下限并保存缺项的回归。
 
+周期与矩阵补充反例分别见 `failing_before_period_review.xml`（4 个失败）、`failing_before_period_streams.xml`（1 个失败）和 `failing_before_within_session_units.xml`（2 个失败）；修复后纳入同一 `verification.xml`。
+
+历史肌肉映射先行反例见 `failing_before_mapping_snapshots.xml`（2 个失败、9 个未知输入用例已通过）。它揭示当前 context 可覆盖历史标签，以及同一映射版本内容缺少冲突检查。修复后的正例与拒绝例同时验证逐组快照消费。
+
 使用项目虚拟环境运行：
 
 ```sh
-.venv/bin/python -m pytest -q tests/science tests/integration/test_v14_science_import.py tests/unit/test_normalize.py tests/integration/test_review_analysis.py tests/integration/test_v14_advice_flow.py tests/integration/test_v14_choice_validation.py -k 'not actual_analysis_view' --junitxml=artifacts/v14/science/verification.xml
+.venv/bin/python -m pytest -q tests/science tests/integration/test_v14_science_import.py tests/unit/test_normalize.py tests/integration/test_review_analysis.py tests/integration/test_v14_advice_flow.py tests/integration/test_v14_choice_validation.py tests/integration/test_v14_period_review.py tests/integration/test_v14_anatomy_history.py --junitxml=artifacts/v14/science/verification.xml
 .venv/bin/python -m ruff check src/healthzip/science src/healthzip/normalize tests/science tests/integration/test_v14_science_import.py artifacts/v14/science/build_audit.py
 .venv/bin/python artifacts/v14/science/build_audit.py
 ```
 
-排除的一个既有页面测试交由根集成与完整 UI 验收执行。这里的 ZIP 与 TrainingService 都走实际入口，但内容均为合成数据；没有读取、发布真实个人健康导出，没有创建真人校准制品，没有伪造人工或专家审阅。测试通过证明已指定输入下的软件行为，不证明个体生理效度、预测校准或训练因果收益。
+组合回归包含既有正式区间登记页面用例。这里的 ZIP 与 TrainingService 都走实际入口，但内容均为合成数据；没有读取、发布真实个人健康导出，没有创建真人校准制品，没有伪造人工或专家审阅。测试通过证明已指定输入下的软件行为，不证明个体生理效度、预测校准或训练因果收益。

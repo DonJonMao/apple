@@ -344,3 +344,77 @@ def test_optional_trial_rir_preserves_unknown_and_blocks_invalid_effort_target(a
         assert trial["effort_target_status"] == "user_specified"
     else:
         assert trial is None and metric["data_status"] == "insufficient"
+
+
+def test_period_coverage_preserves_source_protocol_denominators_without_double_counting_dates():
+    records = []
+    for day, sources in ((1, ["watch-A"]), (2, ["watch-B"]), (3, ["watch-A", "watch-B"])):
+        for source in sources:
+            records.append({"id": f"{day}-{source}", "canonical_type": "resting_heart_rate_bpm",
+                "raw_value": "55", "raw_unit": "count/min", "source_name": source, "protocol_id": "resting-v1",
+                "event_end": f"2026-11-{day:02}T08:00:00Z", "available_at": f"2026-11-{day:02}T08:01:00Z"})
+    metric = run("REPORT-PERIOD-COVERAGE", records, window_start="2026-11-01T00:00:00Z", window_end="2026-11-04T00:00:00Z")
+    total = metric["value"]["daily_coverage"]
+    assert total[0]["numerator"] == total[0]["denominator"] == 3
+    streams = metric["value"]["daily_stream_coverage"]
+    assert len(streams) == 2
+    assert {s["numerator"] for s in streams} == {2}
+    assert {s["denominator"] for s in streams} == {3}
+    assert len({s["source_id"] for s in streams}) == 2
+    assert all(s["protocol_id"] and len(s["recorded_local_dates"]) == 2 for s in streams)
+    assert metric["value"]["missing_date_interpretation"] == "no_valid_record_not_absence_of_event"
+
+
+@pytest.mark.parametrize("first_load,second_load,expected_n", [(30, 30, 1), (45.359237, 100, 2)])
+def test_within_session_repetition_change_uses_actual_mass_not_equal_unit_labels(first_load, second_load, expected_n):
+    metric = run("STR-15", [row(1, session_id="one", set_position=1, load_value=first_load, load_unit="kg", reps=10),
+                           row(2, session_id="one", set_position=2, load_value=second_load, load_unit="lb", reps=8)])
+    assert len(metric["value"]) == expected_n
+    if expected_n == 1:
+        assert metric["value"][0]["delta_reps"] == 0
+        assert metric["comparison_exclusions"] == [{"set_id": "set-2", "reason": "within_session_load_changed_or_unknown"}]
+    else:
+        assert metric["value"][1]["delta_reps"] == -2
+        assert metric["comparison_exclusions"] == []
+
+
+def frozen_mapping(version="1", direct=None, indirect=None, **changes):
+    return {"mapping_id": "synthetic-bench-map", "version": version, "review_status": "approved",
+            "exercise_id": "bench", "definition_version": 1,
+            "direct": ["chest"] if direct is None else direct,
+            "indirect": ["triceps"] if indirect is None else indirect,
+            "reviewer": "SYNTHETIC reviewer for software checks", "reviewed_at": START, "frozen_at": START,
+            "evidence_refs": ["synthetic-mapping-span"], **changes}
+
+
+def test_muscle_counts_consume_frozen_mapping_versions_and_ignore_live_context():
+    old = row(1, reviewed_anatomy_snapshot=frozen_mapping())
+    current = row(2, reviewed_anatomy_snapshot=frozen_mapping("2", direct=["triceps"], indirect=[]))
+    context = {"muscle_mappings": {"bench": frozen_mapping("99", direct=["unsupported-live-change"])}}
+    result = run("STR-05", [old, current], context)
+    groups = result["value"]["groups"]
+    assert {(g["muscle"], g["mapping_version"], g["sets"]) for g in groups} == {("chest", "1", 1), ("triceps", "2", 1)}
+    assert all(g["mapping_id"] == "synthetic-bench-map" and g["evidence_refs"] for g in groups)
+    assert len(result["value"]["mapping_bindings"]) == 2
+    assert run("STR-06", [old, current], context)["value"]["groups"][0]["sets"] == 1
+    missing = run("STR-05", [row()], context)
+    assert missing["value"] is None
+    assert "frozen_muscle_mapping_required" in missing["reason_codes"]
+
+
+@pytest.mark.parametrize("changes", [
+    {"review_status": "pending"}, {"exercise_id": "squat"}, {"definition_version": 99},
+    {"evidence_refs": []}, {"evidence_refs": [1]}, {"reviewer": None}, {"direct": "chest"},
+    {"reviewed_at": "2026-08-01"}, {"reviewed_at": "2026-08-02T00:00:00Z"},
+    {"frozen_at": "2027-01-01T00:00:00Z"},
+])
+def test_invalid_or_late_mapping_snapshot_stays_unknown(changes):
+    metric = run("STR-05", [row(reviewed_anatomy_snapshot=frozen_mapping(**changes))])
+    assert metric["value"] is None and metric["valid_n"] == 0
+
+
+def test_same_mapping_version_cannot_have_contradictory_frozen_content():
+    metric = run("STR-05", [row(1, reviewed_anatomy_snapshot=frozen_mapping()),
+                           row(2, reviewed_anatomy_snapshot=frozen_mapping(direct=["triceps"]))])
+    assert metric["value"] is None
+    assert "frozen_mapping_version_content_conflict" in metric["reason_codes"]

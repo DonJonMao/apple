@@ -1,0 +1,488 @@
+{
+  "baseline": "dd8e2e1",
+  "reviewed_at": "2026-11-11T11:54:38.538895+00:00",
+  "rule_inventory": 21,
+  "effective_candidate_rules": 4,
+  "effective_explanation_rules": 8,
+  "effective_record_rules": 5,
+  "remaining_method_rules": 4,
+  "source_claim_count": 17,
+  "rules": [
+    {
+      "rule_id": "CORE-F23-COMPARABILITY",
+      "topic": "动作、器械、负荷与测量任务可比性",
+      "planned_capability": "description",
+      "reviewed_capability": "description",
+      "version": "1.4.3",
+      "status": "reviewed_with_explicit_remaining_scope",
+      "claim_refs": [],
+      "remaining_gaps": [
+        "Specific joint actions and biomechanical relationships still need authorized NSCA/Neumann chapter evidence; record grouping does not establish these."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values",
+        "tests/training/test_v14_catalog.py::test_f06_history_template_keeps_actual_definition",
+        "tests/unit/test_v14_knowledge_coverage.py::test_record_policy_does_not_require_unread_scientific_claim_or_grant_actions"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-GOAL-SCOPE",
+      "topic": "目标和用户适用范围",
+      "planned_capability": "source_explanation",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-GOAL-SCOPE",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-ADULT-SCOPE",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-PLAN-CHECK",
+      "topic": "核对当前有效计划与实际完成",
+      "planned_capability": "description",
+      "reviewed_capability": "description",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/integration/test_review_candidate_flow.py::test_visible_candidate_task_end_to_end",
+        "tests/integration/test_v14_advice_flow.py::test_modified_choice_checks_equipment_and_preserves_original_task",
+        "tests/unit/test_v14_knowledge_coverage.py::test_record_policy_does_not_require_unread_scientific_claim_or_grant_actions"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-EFFORT",
+      "topic": "RIR、RPE、停止原因的语义与误差",
+      "planned_capability": "source_explanation",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_with_explicit_remaining_scope",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-FAILURE",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-RIR",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-ADULT-SCOPE",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [
+        "Original RIR-scale validation/measurement-error fulltexts S3/S4 are not held; no numerical accuracy or cross-scale conversion validated."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+      "topic": "按用户计划上沿核对进阶候选",
+      "planned_capability": "plan_candidate",
+      "reviewed_capability": "plan_candidate",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge.py::test_core_rule_requires_real_claim_context_and_truthful_review",
+        "tests/integration/test_review_candidate_flow.py",
+        "science.strength shared candidate applicability"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-REPETITION-TRIAL",
+      "topic": "增加次数的可选任务",
+      "planned_capability": "trial_candidate",
+      "reviewed_capability": "trial_candidate",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge.py::test_core_rule_requires_real_claim_context_and_truthful_review",
+        "tests/integration/test_review_candidate_flow.py",
+        "science.strength shared candidate applicability"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+      "topic": "更难档位、降低次数的可选任务",
+      "planned_capability": "trial_candidate",
+      "reviewed_capability": "trial_candidate",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge.py::test_core_rule_requires_real_claim_context_and_truthful_review",
+        "tests/integration/test_review_candidate_flow.py",
+        "science.strength shared candidate applicability"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-VOLUME-OPTIONS",
+      "topic": "讨论组数与训练量调整",
+      "planned_capability": "trial_discussion",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-VOLUME",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GOAL-SCOPE",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-REST-OPTIONS",
+      "topic": "讨论组间休息与任务表现",
+      "planned_capability": "trial_discussion",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-REST",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-REST-HYPERTROPHY",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GOAL-SCOPE",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-FREQUENCY-OPTIONS",
+      "topic": "讨论训练频率和间隔",
+      "planned_capability": "trial_discussion",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+          "version": "1.4.3"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GOAL-SCOPE",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F2-STATE-CONTEXT",
+      "topic": "结合睡眠、主观状态和心率指标作情境解释",
+      "planned_capability": "source_explanation",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_with_explicit_remaining_scope",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-SYMPTOM-SCOPE",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GRADUAL-PROGRESSION",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [
+        "Specific sleep/HRV/fatigue-to-performance mechanisms and individualized recovery schedules require their own original evidence; not established by HHS general guidance."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F23-EXECUTION-FEEDBACK",
+      "topic": "建议选择、执行与目标达成复核",
+      "planned_capability": "task_followup",
+      "reviewed_capability": "task_followup",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/integration/test_review_candidate_flow.py::test_r08_feedback_remains_after_finishing_session",
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators",
+        "tests/unit/test_v14_knowledge_coverage.py::test_record_policy_does_not_require_unread_scientific_claim_or_grant_actions"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-DESCRIPTIVE-TREND",
+      "topic": "每动作描述性表现趋势",
+      "planned_capability": "description",
+      "reviewed_capability": "description",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/science/test_v14_science.py::test_f07_intervening_load_does_not_hide_same_load_raw_change",
+        "tests/integration/test_v14_query_planning.py::test_f13_window_filter_cannot_revive_moved_or_deleted_revision",
+        "tests/unit/test_v14_knowledge_coverage.py::test_record_policy_does_not_require_unread_scientific_claim_or_grant_actions"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-OPPORTUNITY",
+      "topic": "计划停止与能力观察机会",
+      "planned_capability": "source_explanation",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_with_explicit_remaining_scope",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-LOAD-REPETITION",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-SPECIFICITY",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [
+        "RIR error magnitude and exact latent-capacity estimates require original validation and task-specific calibration."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+      "topic": "测量误差、变化区间与模型适用性",
+      "planned_capability": "model_conditional_inference",
+      "reviewed_capability": null,
+      "version": "draft-1",
+      "status": "method_originals_and_calibration_gap",
+      "claim_refs": [],
+      "remaining_gaps": [
+        "M1 original reliability/SEM fulltext not acquired; a task/protocol-specific empirical error model and calibration are distinct requirements."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-PRACTICAL-EQUIVALENCE",
+      "topic": "有用变化范围与统计不确定性分开",
+      "planned_capability": "model_conditional_inference",
+      "reviewed_capability": null,
+      "version": "draft-1",
+      "status": "method_originals_and_calibration_gap",
+      "claim_refs": [],
+      "remaining_gaps": [
+        "M2 original equivalence-method fulltext not acquired; user-relevant equivalence bounds and matched measurement/model scale remain required."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-REPEATED-LOOKS",
+      "topic": "重复查看与多任务误报控制",
+      "planned_capability": "model_conditional_inference",
+      "reviewed_capability": null,
+      "version": "draft-1",
+      "status": "method_originals_and_calibration_gap",
+      "claim_refs": [],
+      "remaining_gaps": [
+        "N2 original time-uniform method fulltext not acquired; a predeclared validated sequential protocol cannot be inferred from ordinary repeated intervals."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+      "topic": "区分表现未变、信息不足与停滞候选",
+      "planned_capability": "model_conditional_inference",
+      "reviewed_capability": null,
+      "version": "draft-1",
+      "status": "method_originals_and_calibration_gap",
+      "claim_refs": [],
+      "remaining_gaps": [
+        "Combines the unresolved measurement-error/equivalence/repeated-look source requirements; no group-level training guideline validates an individual's plateau inference."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-EXPLANATION-HYPOTHESES",
+      "topic": "表现变化的候选解释",
+      "planned_capability": "source_explanation",
+      "reviewed_capability": "source_explanation",
+      "version": "1.4.3",
+      "status": "reviewed_with_explicit_remaining_scope",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-GRADUAL-PROGRESSION",
+          "version": "1.4.2"
+        },
+        {
+          "claim_id": "CORE-CLAIM-VARIATION",
+          "version": "1.4.2"
+        }
+      ],
+      "remaining_gaps": [
+        "Detailed physiological mechanisms, nutrition and individual sleep/recovery causation remain outside these sources and require specific original evidence."
+      ],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge_coverage.py::test_explanation_rule_never_becomes_candidate_authority",
+        "src/healthzip/knowledge/tasks.py",
+        "src/healthzip/knowledge/core.py::core_principles"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-STRATEGY-REVIEW",
+      "topic": "从长期分析转入用户可选调整与复核",
+      "planned_capability": "trial_candidate",
+      "reviewed_capability": "trial_candidate",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/unit/test_v14_knowledge.py::test_core_rule_requires_real_claim_context_and_truthful_review",
+        "tests/integration/test_review_candidate_flow.py",
+        "science.strength shared candidate applicability"
+      ],
+      "independent_human_review": false
+    },
+    {
+      "rule_id": "CORE-F3-WEEK-MONTH-REPORT",
+      "topic": "周月训练与调整复盘",
+      "planned_capability": "report",
+      "reviewed_capability": "report",
+      "version": "1.4.3",
+      "status": "reviewed_bounded_contract",
+      "claim_refs": [],
+      "remaining_gaps": [],
+      "external_textbook_dependency": "Specific biomechanics/advanced explanatory scope may still require authorized chapters; record contracts and stated S1/HHS claims do not wait for them.",
+      "implementation_refs": [
+        "tests/science/test_state_energy_prediction.py::test_report_context_is_not_future_or_unknown_availability_backdoor",
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators",
+        "tests/unit/test_v14_knowledge_coverage.py::test_record_policy_does_not_require_unread_scientific_claim_or_grant_actions"
+      ],
+      "independent_human_review": false
+    }
+  ],
+  "limit": "Active records/explanations/candidates are different capabilities; remaining topic gaps are not erased by activation. No unread textbook, independent human review or individual causal validation is claimed."
+}

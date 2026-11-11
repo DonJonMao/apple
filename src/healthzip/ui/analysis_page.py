@@ -130,6 +130,27 @@ def render_analysis(repo, value):
                                                                                   timezone_name=result["timezone"])
             persist(repo, period_result)
             st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
+            period_layers = []
+            for task in period_result.get("strength_tasks", []):
+                classifications = {s["outcome_series_id"]: (s["metric"].get("value") or {}).get("classification")
+                                   for s in task["metrics"]["STR-22"].get("series_results", [])}
+                for series in task["metrics"]["STR-19"].get("series_results", []):
+                    point = series["metric"].get("value") or {}
+                    interpretation = {"material_progress": "模型条件下实质进步", "decline": "模型条件下下降",
+                                      "no_material_change_candidate": "模型条件下无实质变化候选"}.get(
+                                          classifications.get(series["outcome_series_id"]), "尚不能确认")
+                    period_layers.append({"动作": task["exercise_name"], "负荷": series["normalized_load"],
+                        "单位": series["normalized_unit"], "负荷口径": series["load_basis"],
+                        "有效参考": series["metric"]["valid_n"], "来源记录数": len(set(series["source_record_ids"])),
+                        "观察起点": series["first_observed_at"], "观察终点": series["last_observed_at"],
+                        "每日变化": point.get("slope_per_day"), "变化单位": series["outcome_unit"] + "/day",
+                        "停滞判断": interpretation})
+            if period_layers:
+                st.write("本周期各负荷可比表现")
+                st.dataframe(period_layers, use_container_width=True)
+                st.caption("各负荷分别描述本周期的记录；计划次数未变不代表能力停滞。缺少适用校准时不能确认停滞，完整来源和协议保留在本周期下载结果中。")
+            else:
+                st.info("本周期尚无可比负荷序列；可能缺少参考组、测量协议或有效观察，不代表没有训练或已经停滞。")
             for mid, metric in period_result["metrics"].items():
                 if mid.startswith("REPORT-"):
                     st.write(names[mid]["title"], metric["value"])

@@ -14,6 +14,14 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from .catalog_import import encoded, now
 
+MEDIA_STATUS_LABELS = {
+    "ready": "文件已下载并校验",
+    "pending": "尚未下载",
+    "failed": "下载失败，暂不可用",
+    "license_unknown": "媒体许可不明，暂不可用",
+    "withdrawn": "来源或许可已撤回，暂不可用",
+}
+
 
 def media_metadata(raw, kind, licenses):
     license_value = next((x for x in licenses if x["id"] == raw.get("license")), {})

@@ -168,6 +168,10 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
           release_id: str | None = None) -> dict:
     routes = route_question(question, route)
     context = dict(context)
+    from .tasks import resolve_named_sources
+    context = resolve_named_sources(workbench, question, context)
+    if route:
+        context["query_route_explicit"] = route
     if "rmssd" in question.lower() and context.get("HRV_metric") == "SDNN":
         context.setdefault("requested_metric", "RMSSD")
     guard, guard_text = _guard(context)
@@ -179,11 +183,11 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
             observations.append(metric)
     claims, citations, related = [], [], []
     support_candidates = retrieval.pop("_support_candidates")
-    assessment, supported = assess_support(question, context, support_candidates)
+    displayed = {(c["theory_id"], c["theory_version"]) for c in retrieval["candidates"]}
+    assessment, supported = assess_support(question, context, support_candidates,
+        required_parts=retrieval["question_contract"]["required_answer_parts"], displayed=displayed)
     assessment["conflict_screen"] = {"complete": True, "eligible_theories_checked": len(support_candidates),
                                       "scope": "all eligible route and applicability matches before display budget"}
-    displayed = {(c["theory_id"], c["theory_version"]) for c in retrieval["candidates"]}
-    supported = [s for s in supported if (s[0]["theory_id"], s[0]["theory_version"]) in displayed]
     if not guard:
         for candidate in retrieval["candidates"]:
             related.append({"theory_id": candidate["theory_id"], "theory_version": candidate["theory_version"],
@@ -225,6 +229,14 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
     if assessment["status"] == "partial_answer_support" and not guard:
         limits.append("仅部分目标或限定条件有已审关系；未覆盖的目标保持未知，当前不是完整回答。")
         sentences.append("以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。")
+    if assessment["uncovered_parts"] and not guard:
+        reasons = {"display_budget_omitted_supported_part": "已有匹配依据，但未纳入本次展示；可提高展示条数后核对",
+            "personal_numeric_authority_unavailable": "通用来源不能单独确定个人具体训练参数",
+            "additional_target_unresolved": "尚未明确复合问题的这一目标",
+            "entire_plan_not_authorized": "当前问答不生成完整个人训练计划",
+            "cross_source_comparison_not_reviewed": "尚未核对指定来源或版本的完整对应比较；单篇材料不能替代对照",
+            "no_eligible_complete_answer_relation": "尚无满足来源、范围与关系要求的完整依据"}
+        sentences.extend(f"尚未回答：{p['label']}（{reasons[p['reason']]}）。" for p in assessment["uncovered_parts"])
     if not claims and not guard:
         limits.append("来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。")
     output = {"observations": observations, "answer": "\n".join(sentences), "claims": claims,

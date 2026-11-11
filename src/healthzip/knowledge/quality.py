@@ -120,10 +120,14 @@ def quality_context(w, cases, annotations=None):
             "review_reason": review.get("rationale"), "reviewer_kind": review["reviewer_kind"], "independent_reviewer": None,
             "content_reviewed": review.get("content_checked"), "evidence_links_valid": active, "rights_valid": active,
             "scope_valid": active, "validation_gate_passed": active, "capability": "source_explanation_only"})
+    from .core import RECORD_POLICY
     by_rule = {}
+    record_rules = {}
     for rule in w.core_status()["rules"]:
-        by_rule[rule["rule_id"]] = by_rule.get(rule["rule_id"], False) or rule["effective"]
+        target = record_rules if rule["capability"] in RECORD_POLICY["capabilities"] else by_rule
+        target[rule["rule_id"]] = target.get(rule["rule_id"], False) or rule["effective"]
     context["feature_claim_requirements"] = [{"rule_id": key, "satisfied_by_active_card": value} for key, value in by_rule.items()]
+    context["feature_record_requirements"] = [{"rule_id": key, "satisfied_by_record_contract": value} for key, value in record_rules.items()]
     context["semantic_adjudications"] = adjudications
     context["intent_coverage"] = {"independently_reviewed": sum(x["accepted"] for x in adjudications), "total": len(cases)}
     return context

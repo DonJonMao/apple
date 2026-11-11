@@ -447,6 +447,10 @@ def _apply_source_revision(svc, source_uuid, payload, *, base_revision, event_id
                 event_id=_id(eid, "restore"),
             )
         incoming_condition = payload["condition"]
+        if current["condition"].get("reviewed_anatomy_snapshot") != incoming_condition.get(
+            "reviewed_anatomy_snapshot"
+        ):
+            raise TrainingError("历史组的肌肉关系审核快照不可通过来源修订追溯替换")
         if current["condition"] != incoming_condition:
             instance = svc.get_session_exercise(current["session_exercise_id"])
             svc.update_condition(
@@ -602,19 +606,37 @@ def import_training(repo, path, *, source_name="training_file") -> dict:
                         (instance_id, svc.user_id),
                     ).fetchone()
                     if not current:
+                        source_condition = instance.get("condition") or json.loads(
+                            instance["condition_json"]
+                        )
+                        anatomy = source_condition.get("reviewed_anatomy_snapshot")
+                        if anatomy is not None:
+                            from .anatomy import freeze_mapping
+
+                            for source_row in instance.get("sets", []):
+                                if not source_row.get("available_at"):
+                                    raise TrainingError("历史肌肉关系缺少原组可见时间")
+                                freeze_mapping(
+                                    anatomy,
+                                    instance["catalog_id"],
+                                    instance["definition_version"],
+                                    source_row["available_at"],
+                                    preserve_time=True,
+                                )
                         # Import into an ended session is a historical correction,
                         # represented explicitly, rather than reopening the UI session.
                         svc._insert_exercise(
                             session["id"],
                             instance_id,
                             instance["catalog_id"],
-                            instance.get("condition") or json.loads(instance["condition_json"]),
+                            source_condition,
                             instance.get("planned")
                             or json.loads(instance.get("planned_json") or "{}"),
                             instance.get("position", 0),
                             instance["definition_version"],
                             instance.get("replaced_from_exercise_id"),
                             instance.get("replacement_reason"),
+                            preserve_anatomy_time=True,
                         )
                         frozen_definition = instance.get("definition_snapshot") or instance.get(
                             "exercise"

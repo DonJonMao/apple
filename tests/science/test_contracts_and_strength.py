@@ -129,11 +129,19 @@ def test_volume_is_exact_bookkeeping_and_missing_part_is_visible():
     assert result["valid_n"] == 2 and result["total_n"] == 3
 
 
+def reviewed_muscle_mapping(exercise_id="bench", *, version="1", direct=None, indirect=None):
+    return {"mapping_id": "synthetic-" + exercise_id, "version": version, "review_status": "approved",
+            "exercise_id": exercise_id, "definition_version": 1,
+            "direct": ["chest"] if direct is None else direct, "indirect": ["triceps"] if indirect is None else indirect,
+            "reviewer": "SYNTHETIC software reviewer", "reviewed_at": START, "frozen_at": START,
+            "evidence_refs": ["synthetic-anatomy-span"]}
+
+
 def test_muscle_mapping_requires_review_and_direct_indirect_stay_separate():
     assert run("STR-05", [row()])["value"] is None
-    context = {"muscle_mappings": {"bench": {"review_status": "approved", "version": "1", "direct": ["chest"], "indirect": ["triceps"]}}}
-    assert run("STR-05", [row()], context)["value"]["groups"][0]["muscle"] == "chest"
-    assert run("STR-06", [row()], context)["value"]["groups"][0]["muscle"] == "triceps"
+    record = row(reviewed_anatomy_snapshot=reviewed_muscle_mapping())
+    assert run("STR-05", [record])["value"]["groups"][0]["muscle"] == "chest"
+    assert run("STR-06", [record])["value"]["groups"][0]["muscle"] == "triceps"
 
 
 def test_plan_unknown_denominator_and_extra_sets():

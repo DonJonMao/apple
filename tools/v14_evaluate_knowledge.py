@@ -180,7 +180,7 @@ def audit_public(w):
                 value = getattr(node, field)
                 if value:
                     setattr(node, field, projection.redact_local_paths(value))
-        path.write_bytes(ET.tostring(tree, encoding="utf-8", xml_declaration=True))
+        path.write_bytes(ET.tostring(tree, encoding="utf-8", xml_declaration=True) + b"\n")
     span_count, projected_files = 0, []
     files = [p for p in PUBLIC.iterdir() if p.suffix in {".json", ".jsonl", ".xml", ".csv"} and p.name != "publication_audit.json"]
     for path in files:

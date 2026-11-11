@@ -145,12 +145,15 @@ def quality_metric(metric_id: str, rows: list[dict], window: Window, context: di
         reviewed = [c for c in cards if c.get("review_decision") in {"approved", "rejected"} and c.get("review_reason") and c.get("independent_reviewer")]
         ready = [c for c in cards if c.get("review_decision") == "approved" and c.get("evidence_links_valid") and c.get("rights_valid") and c.get("scope_valid") and c.get("validation_gate_passed")]
         claims = context.get("feature_claim_requirements", [])
+        record_contracts = context.get("feature_record_requirements", [])
         return emit({"overall_fulltext_acquisition": ratio(sum(bool(fetched(s)) for s in targets), len(targets)),
                      "content_review_completion": ratio(sum(bool(c.get("content_reviewed")) for c in cards), len(cards)),
                      "reviewer_kind_counts": dict(Counter(c.get("reviewer_kind") or "unknown" for c in cards)),
                      "licensed_retrievable_fetch": ratio(sum(bool(fetched(s)) for s in retrievable), len(retrievable)),
                      "theory_review_completion": ratio(len(reviewed), len(cards)), "theory_activation_ready": ratio(len(ready), len(cards)),
                      "feature_claim_coverage": ratio(sum(c.get("satisfied_by_active_card") is True for c in claims), len(claims)),
+                     "feature_claim_coverage_scope": "Active bounded source/application contracts, not proof all scientific subtopics are complete.",
+                     "record_contract_coverage": ratio(sum(c.get("satisfied_by_record_contract") is True for c in record_contracts), len(record_contracts)),
                      "source_states": dict(Counter(s.get("fetch_status", "not_fetched") for s in targets))}, len(sources) + len(cards) + len(claims))
     if code == 10:
         requests = context.get("access_requests", [])

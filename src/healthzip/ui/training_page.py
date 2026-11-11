@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import base64
+import io
 import json
 from datetime import datetime, timezone
+from functools import lru_cache
 from uuid import uuid4
 
 import streamlit as st
@@ -276,6 +279,9 @@ def _selector(svc, key):
         + EQUIPMENT_LABELS.get(x["equipment_type"], x["equipment_type"])
         for x in matches
     }
+    preview_selection = _catalog_results(svc, matches, key)
+    if preview_selection is not None:
+        st.session_state[key + "_choice"] = preview_selection
     selected = st.selectbox("选择动作", ids, format_func=names.get, key=key + "_choice")
     item = next(x for x in matches if x["exercise_id"] == selected)
     if st.button("取消收藏" if item["favorite"] else "收藏动作", key=key + "_favorite"):
@@ -331,7 +337,76 @@ def _selector(svc, key):
     return item
 
 
+@lru_cache(maxsize=512)
+def _catalog_thumbnail(path, blob_hash):
+    from PIL import Image
+
+    try:
+        with Image.open(path) as original:
+            thumbnail = original.convert("RGB")
+            thumbnail.thumbnail((96, 72))
+            output = io.BytesIO()
+            thumbnail.save(output, format="JPEG", quality=75)
+        return "data:image/jpeg;base64," + base64.b64encode(output.getvalue()).decode("ascii")
+    except (OSError, ValueError):
+        return None
+
+
+def _catalog_results(svc, items, key):
+    from healthzip.training.catalog_media import MEDIA_STATUS_LABELS, media_for
+    from healthzip.training.catalog_terms import EQUIPMENT_LABELS
+
+    rows = []
+    for item in items:
+        media = media_for(svc.repo.conn, item["exercise_id"])
+        image = next((x for x in media if x["media_type"] == "image" and x["local_path"]), None)
+        thumbnail = _catalog_thumbnail(image["local_path"], image["blob_hash"]) if image else None
+        status = (
+            "；".join(
+                dict.fromkeys(
+                    MEDIA_STATUS_LABELS.get(x["fetch_status"], "媒体状态未知") for x in media
+                )
+            )
+            if media
+            else "暂无动作示范"
+        )
+        rows.append(
+            {
+                "动作": item["name"],
+                "器械": EQUIPMENT_LABELS.get(item["equipment_type"], item["equipment_type"]),
+                "部位": "、".join(REGIONS.get(x, x) for x in item.get("display_regions", []))
+                or "部位待确认",
+                "缩略图": thumbnail,
+                "示范状态": status,
+            }
+        )
+    identities = tuple(x["exercise_id"] for x in items)
+    selection = st.dataframe(
+        rows,
+        hide_index=True,
+        height=360,
+        use_container_width=True,
+        column_config={"缩略图": st.column_config.ImageColumn("缩略图", width="small")},
+        key=key + "_results",
+        on_select="rerun",
+        selection_mode="single-row",
+    )
+    previous = st.session_state.get(key + "_preview_selection")
+    current = (identities, tuple(selection.selection.rows))
+    st.session_state[key + "_preview_selection"] = current
+    if previous == current or not current[1]:
+        return None
+    # A page/search change is not a new row selection. Keep the ordinary
+    # selector's identity handling when old table state is still present.
+    if previous and previous[0] != identities:
+        return None
+    index = current[1][0]
+    return identities[index] if 0 <= index < len(identities) else None
+
+
 def _exercise_detail(svc, item, key):
+    from healthzip.training.catalog_media import MEDIA_STATUS_LABELS
+
     details = svc.exercise_details(item["exercise_id"], item["definition_version"])
     media = details["media"]
     images = [x for x in media if x["media_type"] == "image" and x["local_path"]]
@@ -371,11 +446,11 @@ def _exercise_detail(svc, item, key):
             st.caption(video["attribution_text"])
         if not media:
             st.info("暂无动作示范：来源没有此动作的图片或视频。")
-        elif not any(x["local_path"] for x in media):
-            st.info("示范尚未本地下载，或因下载失败／许可未知而暂不可用。")
         for entry in media:
             st.caption(
-                f"{entry['media_type']} · {entry['fetch_status']} · {entry['attribution_text']}"
+                f"{'图片' if entry['media_type'] == 'image' else '视频'} · "
+                f"{MEDIA_STATUS_LABELS.get(entry['fetch_status'], '媒体状态未知')} · "
+                f"{entry['attribution_text']}"
             )
             license_url = (entry.get("license") or {}).get("url")
             if license_url:

@@ -95,14 +95,14 @@ def test_f12_identical_provider_notice_is_idempotent_but_changed_content_invalid
     assert not kb.lib.eligible(kb.lib.span(sid))[0]
 
 
-def core_claim(w, outcome="progression_options", text="合成成人方案允许增加次数；没有个人效果保证。", relation="supports"):
+def core_claim(w, outcome="progression_options", text="合成成人方案允许增加次数；没有个人效果保证。", relation="supports", *, scope=None, claim_id=None):
     raw = text.encode()
     vid = w.lib.record_version("S5", raw, "fulltext", {}, {}, {"index_allowed": True, "license_id": "CC0"}, "matched",
         [{"text": text, "locator": {"synthetic_line": 1}}], "synthetic-core-v14")
     sid = vid + ":s00000"
     requested = "individual_inference" if outcome in {"longevity", "personal_temperature"} else "options"
-    claim = {"claim_id": "CLAIM-" + outcome, "version": "1", "statement": text,
-        "scope": {"population": "synthetic_adults", "time_scale": "protocol"}, "limitations": ["Synthetic only"],
+    claim = {"claim_id": claim_id or "CLAIM-" + outcome, "version": "1", "statement": text,
+        "scope": scope or {"population": "synthetic_adults", "time_scale": "protocol"}, "limitations": ["Synthetic only"],
         "evidence_links": [{"source_id": "S5", "source_version_id": vid, "span_ids": [sid]}],
         "answer_task": {"subject": "device_measurement" if outcome == "personal_temperature" else "resistance_training",
             "outcome": outcome, "requested_relation": requested, "evidence_relation": relation, "answer_complete": True,
@@ -299,6 +299,88 @@ def test_compound_personal_numeric_request_cannot_be_declared_fully_answered(kb)
     assert answer["answer_status"] == "partially_answered"
     assert answer["claims"] and not answer["numeric_actions"]
     assert "复合目标" in answer["answer"]
+
+
+def test_composed_answer_requires_every_requested_part_and_every_rendered_part(kb):
+    core_claim(kb, "volume", "合成组量取决于任务，没有个人最优组数。")
+    question = "请分别说明训练组数与频率的依据。"
+    partial = kb.query(question, "progression")
+    assert partial["answer_status"] == "partially_answered"
+    assert partial["claims"]
+    assert {p["part_id"] for p in partial["support_assessment"]["uncovered_parts"]} == {"frequency"}
+    core_claim(kb, "frequency", "合成频率取决于任务，没有个人最优天数。")
+    complete = kb.query(question, "progression")
+    assert complete["answer_status"] == "answered_with_support"
+    assert {p["part_id"] for p in complete["support_assessment"]["covered_parts"]} == {"volume", "frequency"}
+    limited = kb.query(question, "progression", k=1)
+    assert limited["answer_status"] == "partially_answered"
+    assert len(limited["support_assessment"]["uncovered_parts"]) == 1
+    assert limited["support_assessment"]["uncovered_parts"][0]["reason"] == "display_budget_omitted_supported_part"
+
+
+def test_domain_route_and_word_boundaries_do_not_invent_answer_targets(kb):
+    core_claim(kb, "frequency", "合成频率说明。")
+    assert kb.query("How often?", "strength")["answer_status"] == "answered_with_support"
+    core_claim(kb, "volume", "合成组数说明。")
+    unrelated = kb.query("Are training datasets anonymized?", "strength")
+    assert not unrelated["claims"]
+    assert unrelated["retrieval"]["question_contract"]["outcome"] is None
+
+
+def test_question_goal_requires_matching_reviewed_goal_and_combination_is_complete(kb):
+    core_claim(kb, "rest", "合成力量任务的休息说明。", scope={"population": "synthetic", "goal": "strength"})
+    question = "组间休息对力量收益与肌肥大有什么依据？"
+    partial = kb.query(question, "strength")
+    assert partial["answer_status"] == "partially_answered"
+    assert [p["part_id"] for p in partial["support_assessment"]["uncovered_parts"]] == ["rest:hypertrophy"]
+    assert not kb.query("增肌的组间休息有什么依据？", "strength")["claims"]
+    narrowed = kb.query("增肌的组间休息有什么依据？", "strength", context={"question_contract": {
+        "subject": "resistance_training", "outcome": "rest", "requested_relation": "options", "user_confirmed": True}})
+    assert not narrowed["claims"]
+    core_claim(kb, "rest", "合成肌肥大任务的休息证据不足。", scope={"population": "synthetic", "goal": "hypertrophy"}, claim_id="CLAIM-REST-GROWTH")
+    complete = kb.query(question, "strength")
+    assert complete["answer_status"] == "answered_with_support"
+    assert len(complete["claims"]) == 2
+    ordinary_comparison = kb.query("力量与增肌的休息依据有何不同？", "strength")
+    assert {p["requested_goal"] for p in ordinary_comparison["support_assessment"]["covered_parts"]} == {"strength", "hypertrophy"}
+
+
+def test_registered_source_title_is_resolved_without_substituting_another_work(kb):
+    core_claim(kb)
+    title = kb.lib.source("S5")["manifest"]["title"]
+    answer = kb.query(f"根据《{title}》，方案能增加次数吗？", "progression")
+    assert answer["answer_status"] == "answered_with_support"
+    assert answer["retrieval"]["question_contract"]["source_constraints"]["source_ids"] == ["S5"]
+
+
+def test_unconfirmed_structured_target_does_not_remove_personal_numeric_request(kb):
+    core_claim(kb)
+    result = kb.query("可以增加次数吗，再计算我该加多少公斤？", "progression", context={"question_contract": {
+        "subject": "resistance_training", "outcome": "progression_options", "requested_relation": "options"}})
+    assert result["answer_status"] == "partially_answered"
+    assert result["support_assessment"]["uncovered_parts"][0]["part_id"] == "personal_numeric_request"
+
+
+@pytest.mark.parametrize("question,outcome,missing", [
+    ("我的训练休息多久最好？", "rest", "personal_numeric_request"),
+    ("How many sets should I do?", "volume", "personal_numeric_request"),
+    ("Compare the 2011 and 2024 guidelines on training volume.", "volume", "source_comparison"),
+    ("两个版本的训练组数建议有哪些区别？", "volume", "source_comparison"),
+])
+def test_unreviewed_personal_parameter_or_source_comparison_cannot_be_complete(kb, question, outcome, missing):
+    core_claim(kb, outcome, "合成一般解释；不提供个人最优参数或两个版本对照。")
+    result = kb.query(question, "strength")
+    assert result["answer_status"] == "partially_answered"
+    assert missing in {p["part_id"] for p in result["support_assessment"]["uncovered_parts"]}
+
+
+def test_between_sets_is_a_rest_modifier_not_a_request_for_training_volume(kb):
+    core_claim(kb, "rest", "合成休息解释。")
+    core_claim(kb, "volume", "合成组量解释。")
+    result = kb.query("Explain rest between sets, then choose exactly 90 seconds for my session.", "strength")
+    assert result["answer_status"] == "partially_answered"
+    assert {c["theory_id"] for c in result["claims"]} == {"CLAIM-rest"}
+    assert result["retrieval"]["question_contract"]["possible_outcomes"] == ["rest"]
 
 
 @pytest.mark.parametrize("relations,scopes,accepted", [

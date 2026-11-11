@@ -109,6 +109,8 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
                      "temporal_provenance": "legacy_current_inventory_not_asof"} for r in legacy)
     for row in sets:
         row = dict(row)
+        frozen_condition = row.get("condition") or json.loads(row.get("condition_json") or "{}")
+        row["reviewed_anatomy_snapshot"] = frozen_condition.get("reviewed_anatomy_snapshot")
         row.update(record_kind="strength_set", raw_id=row["id"], id=f"strength_set:{row.get('set_uuid') or row['id']}")
         row["event_end"] = row.get("ended_at")
         row["event_start"] = row.get("started_at")

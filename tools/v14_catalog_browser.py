@@ -129,6 +129,25 @@ def main():
                 video_fact = video.evaluate(
                     "v=>({width:v.videoWidth,height:v.videoHeight,duration:v.duration,current_time:v.currentTime})"
                 )
+                media_states = page.evaluate("""async()=>{
+                    const result={};
+                    for(const status of ['none','pending','failed','license_unknown','withdrawn']){
+                        const panel=document.createElement('section');
+                        await showCatalogDetail(panel,{name_en:'Synthetic media state',media:status==='none'?[]:[
+                            {media_type:'image',fetch_status:status,attribution_text:'Synthetic Test Author'}
+                        ]});
+                        result[status]=panel.textContent;
+                    }
+                    return result;
+                }""")
+                for state, message in {
+                    "none": "暂无动作示范",
+                    "pending": "尚未下载",
+                    "failed": "下载失败",
+                    "license_unknown": "媒体许可不明",
+                    "withdrawn": "来源或许可已撤回",
+                }.items():
+                    assert message in media_states[state]
                 report = {
                     "status": "passed",
                     "public_exercises": public_count,
@@ -142,6 +161,7 @@ def main():
                     "local_storage_bytes": page.evaluate("localStorage.getItem(KEY).length*2"),
                     "page_errors": errors,
                     "synthetic_training_only": True,
+                    "distinct_chinese_media_states": media_states,
                 }
                 assert not errors
                 (output / "offline-browser.json").write_text(

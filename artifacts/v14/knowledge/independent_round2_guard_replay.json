@@ -1,0 +1,308 @@
+{
+  "run_at": "2026-11-11T12:09:55.066821+00:00",
+  "evaluation_kind": "development_guard_replay_not_new_independent_evaluation",
+  "original_cases_sha256": "b48abe152744af1034a6548c6df32feda672d8a39a3c289842f8f38a4c9d78ac",
+  "original_outputs_sha256": "1b8418519eace21f2b545e495be49a07ba3726e02a32f58ee8690a29f97eab3c",
+  "private_replay_sha256": "37b43f5f93f7021ceb80b36c28bc7ac5d668556cb79c65257be4f7a5bc4e7505",
+  "original_annotations_sha256": "5a1adcbb77bf552ee5a4dc95f94ecdd9beab2285ea1d20d764f4040f7389966f",
+  "original_semantic_verdicts_changed": false,
+  "new_independent_semantic_pass_rate": null,
+  "code_sha256": {
+    "src/healthzip/knowledge/__init__.py": "0b4db7313543e4546dcbf2a12844ba5b2c91f34177af89e65a8df5487fb5cf0d",
+    "src/healthzip/knowledge/store.py": "ba010fd04281236b88a6df97d038c88041c6ac58cf9dcf604573a067a0f8717e",
+    "src/healthzip/knowledge/acquisition.py": "a96dbf53b05213fad0a04ab0c5514e6cc9965f8db8b4a4bafe812dda16fd6513",
+    "src/healthzip/knowledge/workbench.py": "a30660dc36a3883b62e76c6e964b0f12434f9b3c3180934d8b774ab217c1f35c",
+    "src/healthzip/knowledge/retrieval.py": "6489d17323bc4d811a077aba3064dc9e6f17b26fdc096a0105157a6a67d3fdfe",
+    "src/healthzip/knowledge/evaluation.py": "926b616e91f6a8775f424dc4da5472787e9dcf8aae547759e1251386dcb57470",
+    "src/healthzip/knowledge/__main__.py": "0b2ba36644613f835d6257b85bf029b4206da14f5335c9ba3c61104550e5ce1a",
+    "src/healthzip/knowledge/documents.py": "16f47dfe038c7f554edc6a7e51cb5c936497eaef75377ec1141a7b746f9bbe33",
+    "src/healthzip/knowledge/rights.py": "11034d26820e995813733d653784bce5d51003b92a0313dd51eb0f6176ef16bb",
+    "src/healthzip/knowledge/support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+    "src/healthzip/knowledge/adjudication.py": "4650512f47e8cf48d114d387b4f4cc8396829d570a8b558386a2f046f5ce67ca",
+    "src/healthzip/knowledge/applicability.py": "613562f7e89c4eb8739916212a6a7d764447d35e2107a8d677a7fd866bb76931",
+    "src/healthzip/knowledge/core.py": "92b1b9a714565aeb158c1fe3ae6c416e324eb3e2b558bc4c99c2b340ada12ad6",
+    "src/healthzip/knowledge/tasks.py": "911ae5990c2376c1cd8612f29fd89cc2e4a58aaf0f2c16608c9d0006382f2888",
+    "src/healthzip/knowledge/quality.py": "30233865caf0a8cef930e9d779d78ba2e6d29acb6afa6d6a7f19597560d3ec98",
+    "src/healthzip/knowledge/question_parts.py": "c252315cb715b342f923dcc1fc9628d39a3af16122e4114d83235b056caa3877"
+  },
+  "cases": [
+    {
+      "id": "R2-01",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：是否必须达到力竭（力量目标）（尚无满足来源、范围与关系要求的完整依据）。\n尚未回答：复合问题的其他目标（尚未明确复合问题的这一目标）。",
+      "claim_ids": [],
+      "uncovered_parts": [
+        {
+          "part_id": "failure_necessity:strength",
+          "label": "是否必须达到力竭（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "failure_necessity",
+          "requested_relation": "necessity",
+          "requested_goal": "strength",
+          "reason": "no_eligible_complete_answer_relation"
+        },
+        {
+          "part_id": "unresolved_compound_request",
+          "label": "复合问题的其他目标",
+          "reason": "additional_target_unresolved"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-02",
+      "original_status": "evidence_supported",
+      "replay_status": "partial_answer_support",
+      "answer": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。\n原文讨论足够努力及一般RIR建议，同时明确现有证据不足以量化精确RIR或主观用力目标。不能据此给每个人指定精确余力，也不能把其他RPE量表直接换成RIR。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：个人具体训练参数（通用来源不能单独确定个人具体训练参数）。",
+      "claim_ids": [
+        "CORE-CLAIM-FAILURE",
+        "CORE-CLAIM-RIR"
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-03",
+      "original_status": "evidence_supported",
+      "replay_status": "evidence_supported",
+      "answer": "S1在肌肥大结果中将组间休息列为资料不足、不能确定其影响的变量；不能把力量结果中所比较休息间隔的结论直接当作肌肥大结论。\n因此这份来源不能给出所有人的唯一最优休息时长；讨论休息应明确目标、任务和所比较的方案。\n该综述的健康成人力量结果未显示所比较短长组间休息的一致差别；这是所纳入方案的群体结果，不能证明休息对所有任务都无效，或给每个人确定最佳间歇。",
+      "claim_ids": [
+        "CORE-CLAIM-REST-HYPERTROPHY",
+        "CORE-CLAIM-REST-HYPERTROPHY",
+        "CORE-CLAIM-REST"
+      ],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-04",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-05",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-06",
+      "original_status": "insufficient_evidence",
+      "replay_status": "insufficient_evidence",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-07",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-08",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-09",
+      "original_status": "evidence_supported",
+      "replay_status": "evidence_supported",
+      "answer": "该综述中较高组量与部分力量和肌肥大收益有关，但精确最优组数仍不能确定，额外收益可能递减。讨论组量须结合目标与当前计划，不能由总吨位直接推算肌肉刺激或统一加组。",
+      "claim_ids": [
+        "CORE-CLAIM-VOLUME"
+      ],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-10",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-11",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：渐进训练的任务选择（总体健康目标）（尚无满足来源、范围与关系要求的完整依据）。\n尚未回答：症状及活动范围（尚无满足来源、范围与关系要求的完整依据）。",
+      "claim_ids": [],
+      "uncovered_parts": [
+        {
+          "part_id": "progression_options:public_health",
+          "label": "渐进训练的任务选择（总体健康目标）",
+          "subject": "resistance_training",
+          "outcome": "progression_options",
+          "requested_relation": "options",
+          "requested_goal": "public_health",
+          "reason": "no_eligible_complete_answer_relation"
+        },
+        {
+          "part_id": "symptoms",
+          "label": "症状及活动范围",
+          "subject": "resistance_training",
+          "outcome": "symptoms",
+          "requested_relation": "scope",
+          "reason": "no_eligible_complete_answer_relation"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-12",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-13",
+      "original_status": "insufficient_evidence",
+      "replay_status": "insufficient_evidence",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-14",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。\n尚未回答：完整个人训练计划（当前问答不生成完整个人训练计划）。",
+      "claim_ids": [],
+      "uncovered_parts": [
+        {
+          "part_id": "entire_plan",
+          "label": "完整个人训练计划",
+          "reason": "entire_plan_not_authorized"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-15",
+      "original_status": "partial_answer_support",
+      "replay_status": "partial_answer_support",
+      "answer": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：复合问题的其他目标（尚未明确复合问题的这一目标）。",
+      "claim_ids": [
+        "CORE-CLAIM-PROGRESSION"
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "unresolved_compound_request",
+          "label": "复合问题的其他目标",
+          "reason": "additional_target_unresolved"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-16",
+      "original_status": "evidence_supported",
+      "replay_status": "partial_answer_support",
+      "answer": "S1在肌肥大结果中将组间休息列为资料不足、不能确定其影响的变量；不能把力量结果中所比较休息间隔的结论直接当作肌肥大结论。\n因此这份来源不能给出所有人的唯一最优休息时长；讨论休息应明确目标、任务和所比较的方案。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：个人具体训练参数（通用来源不能单独确定个人具体训练参数）。",
+      "claim_ids": [
+        "CORE-CLAIM-REST-HYPERTROPHY",
+        "CORE-CLAIM-REST-HYPERTROPHY"
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-17",
+      "original_status": "insufficient_evidence",
+      "replay_status": "insufficient_evidence",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "claim_ids": [],
+      "uncovered_parts": [],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-18",
+      "original_status": "evidence_supported",
+      "replay_status": "partial_answer_support",
+      "answer": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：指定来源或版本之间的比较（尚未核对指定来源或版本的完整对应比较；单篇材料不能替代对照）。",
+      "claim_ids": [
+        "CORE-CLAIM-FAILURE"
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "source_comparison",
+          "label": "指定来源或版本之间的比较",
+          "reason": "cross_source_comparison_not_reviewed"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-19",
+      "original_status": "related_material_only",
+      "replay_status": "related_material_only",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：训练频次及其适用目标（尚无满足来源、范围与关系要求的完整依据）。",
+      "claim_ids": [],
+      "uncovered_parts": [
+        {
+          "part_id": "frequency",
+          "label": "训练频次及其适用目标",
+          "subject": null,
+          "outcome": "frequency",
+          "requested_relation": "options",
+          "reason": "no_eligible_complete_answer_relation"
+        }
+      ],
+      "numeric_actions": []
+    },
+    {
+      "id": "R2-20",
+      "original_status": "insufficient_evidence",
+      "replay_status": "insufficient_evidence",
+      "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。\n尚未回答：组间休息及其适用边界（肌肥大目标）（尚无满足来源、范围与关系要求的完整依据）。",
+      "claim_ids": [],
+      "uncovered_parts": [
+        {
+          "part_id": "rest:hypertrophy",
+          "label": "组间休息及其适用边界（肌肥大目标）",
+          "subject": null,
+          "outcome": "rest",
+          "requested_relation": "options",
+          "requested_goal": "hypertrophy",
+          "reason": "no_eligible_complete_answer_relation"
+        }
+      ],
+      "numeric_actions": []
+    }
+  ]
+}

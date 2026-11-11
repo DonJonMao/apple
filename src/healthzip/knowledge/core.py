@@ -22,6 +22,17 @@ POLICY = {
     "limit": "Personal fitness trial policy, not an independent expert endorsement or proof of individual effect.",
 }
 
+RECORD_POLICY = {
+    "version": "record-description-policy-1.4.0",
+    "allowed_reviewers": POLICY["allowed_reviewers"],
+    "capabilities": ["description", "task_followup", "report"],
+    "requirements": ["explicit_record_contract", "implementation_tests", "application_review", "explicit_context"],
+    "evidence_basis": "product_record_contract",
+    "forbidden": ["scientific_source_authority", "numeric_training_candidate", "individual_prediction", "causal_effect", "diagnosis"],
+    "limit": "Records may be compared, counted or linked under explicit software contracts; this supplies no scientific or candidate authority.",
+}
+POLICIES = {p["version"]: p for p in (POLICY, RECORD_POLICY)}
+
 
 def ensure_schema(w):
     w.lib.sources.executescript("""
@@ -162,11 +173,15 @@ def _claim(w, reference):
 def review_rule(w, rule, review):
     _review(review, application=True)
     capability = rule.get("requested_capability")
-    if capability not in POLICY["capabilities"]:
-        raise ValueError("unsupported capability; source authority cannot grant personal inference")
-    if rule.get("capability_policy_version") != POLICY["version"]:
+    policy = POLICIES.get(rule.get("capability_policy_version"))
+    if policy is None:
         raise ValueError("explicit capability policy required")
-    if not rule.get("claim_refs") or not rule.get("implementation_validation_refs") or not rule.get("conditions"):
+    if capability not in policy["capabilities"]:
+        raise ValueError("unsupported capability; source authority cannot grant personal inference")
+    record_only = policy["version"] == RECORD_POLICY["version"]
+    if record_only and (rule.get("evidence_basis") != "product_record_contract" or not rule.get("record_contract") or rule.get("permitted_actions")):
+        raise ValueError("record rule requires an explicit record contract and cannot grant candidate actions")
+    if (not record_only and not rule.get("claim_refs")) or not rule.get("implementation_validation_refs") or not rule.get("conditions"):
         raise ValueError("claims, implementation references and applicability conditions required")
     if not rule.get("application_logic") or not rule.get("limits"):
         raise ValueError("product application logic and extrapolation limits required")
@@ -175,7 +190,7 @@ def review_rule(w, rule, review):
     if capability in {"plan_candidate", "trial_candidate"} and not rule.get("permitted_actions"):
         raise ValueError("candidate requires explicit permitted_actions")
     check_conditions(rule["conditions"], {})  # validate condition syntax; unknown is expected here
-    for reference in rule["claim_refs"]:
+    for reference in rule.get("claim_refs", []):
         _claim(w, reference)
     if review["reviewer_kind"] == "synthetic_fixture" and w.environment_kind != "synthetic_test":
         raise ValueError("synthetic_rule_not_production_authority")
@@ -190,7 +205,7 @@ def review_rule(w, rule, review):
             w.lib.theories.execute("INSERT INTO core_lifecycle(object_type,object_id,version,action,actor,rationale,created_at) VALUES('rule',?,?,'superseded',?,?,?)",
                 (rule["rule_id"], rule["supersedes"], review["reviewer"], "Explicit reviewed replacement: " + rule["rule_version"], now()))
         w.lib.theories.execute("INSERT OR REPLACE INTO application_rule VALUES(?,?,'active',?,?)", (rule["rule_id"], rule["rule_version"], dumps(rule), dumps(review)))
-    return {"rule_id": rule["rule_id"], "version": rule["rule_version"], "status": "active", "policy": POLICY["version"]}
+    return {"rule_id": rule["rule_id"], "version": rule["rule_version"], "status": "active", "policy": policy["version"]}
 
 
 def core_principles(w, route, context, release_id=None):
@@ -256,10 +271,15 @@ def core_status(w):
         effective = row["status"] == "active" and not issues
         rules.append({"rule_id": row["rule_id"], "version": row["version"], "status": row["status"], "effective": effective,
                       "capability": payload["requested_capability"], "dependency_issues": issues,
-                      "source_gaps": payload.get("claim_topics_to_verify", []) if not effective else []})
-    return {"policy": POLICY, "claims": claims, "rules": rules,
+                      "source_gaps": payload.get("remaining_source_gaps", payload.get("claim_topics_to_verify", []) if not effective else []),
+                      "coverage_scope": payload.get("coverage_scope", "declared_rule_scope"),
+                      "capability_policy_version": payload.get("capability_policy_version")})
+    return {"policy": POLICY, "policies": POLICIES, "claims": claims, "rules": rules,
             "distinct_rule_count": len({r["rule_id"] for r in rules}),
             "effective_rule_count": len({r["rule_id"] for r in rules if r["effective"]}),
+            "effective_candidate_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] in {"plan_candidate", "trial_candidate"}}),
+            "effective_explanation_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] == "source_explanation"}),
+            "effective_record_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] in RECORD_POLICY["capabilities"]}),
             "chapter_coverage": [dict(r) for r in w.lib.sources.execute("SELECT * FROM chapter_coverage")],
             "independent_human_review_count": 0}
 
@@ -267,9 +287,12 @@ def core_status(w):
 def release_core(w, release_id):
     rules = [dict(r) for r in w.lib.theories.execute("SELECT * FROM application_rule WHERE status='active' ORDER BY rule_id,version")]
     for row in rules:
-        for reference in json.loads(row["payload_json"])["claim_refs"]:
+        for reference in json.loads(row["payload_json"]).get("claim_refs", []):
             _claim(w, reference)
+    used_policies = {json.loads(r["payload_json"])["capability_policy_version"] for r in rules}
     manifest = {"rules": rules, "claims": [dict(r) for r in w.lib.theories.execute("SELECT * FROM source_claim WHERE status='verified' ORDER BY claim_id,version")], "policy": POLICY}
+    if used_policies - {POLICY["version"]}:
+        manifest["additional_policies"] = {key: POLICIES[key] for key in sorted(used_policies - {POLICY["version"]})}
     encoded = dumps(manifest)
     old = w.lib.theories.execute("SELECT sha256 FROM core_release WHERE release_id=?", (release_id,)).fetchone()
     if old and old[0] != digest(encoded.encode()):

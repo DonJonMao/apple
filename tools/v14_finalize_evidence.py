@@ -94,7 +94,7 @@ def main():
         limits = "See item-level evidence; software checks do not establish professional review or scientific efficacy."
         if identifier in {"KB-05", "E2E-09"}:
             state = "partial_semantic_coverage_independent_review_failed"
-            limits = "Original frozen independent AI review 3/18; generic wrong-target guards repaired separately. No new independent pass rate."
+            limits = "Original frozen independent AI review 3/18 retained. Fresh round-2 questions/outputs/AI judgments have separate frozen artifacts; subsequent guard replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
         elif identifier in {"KB-01", "KB-02", "KB-03"}:
             state = "software_contract_verified_actual_textbook_body_gaps"
             limits = "Edition/chapter/rights gates work; paid source chapters not acquired."
@@ -140,7 +140,8 @@ def main():
     assert not totals["errors"] and not totals["failures"] and not totals["skipped"], totals
     totals["seconds"] = sum(float(s.get("time", 0)) for s in suites)
     assert (OUT / "ruff.txt").read_text().strip() == "All checks passed!"
-    source_paths = [*ROOT.glob("src/**/*.py"), *ROOT.glob("src/**/*.json"), *ROOT.glob("tests/**/*.py"),
+    source_paths = [*ROOT.glob("src/**/*.py"), *ROOT.glob("src/**/*.json"), *ROOT.glob("src/**/*.html"),
+                    *ROOT.glob("src/**/*.js"), *ROOT.glob("tools/*.py"), *ROOT.glob("tests/**/*.py"),
                     ROOT / "app.py", ROOT / "pyproject.toml", ROOT / "uv.lock"]
     manifest = {
         "run_at": datetime.now(timezone.utc).isoformat(), "version": "1.4.0",
@@ -152,7 +153,7 @@ def main():
                             if p.is_file() and p.name != "final-manifest.json"},
         "scope_limits": ["Synthetic health and training inputs; no private full ZIP benchmark",
                          "Real public-source acquisition and truthful AI-assisted reviews; no independent expert approval",
-                         "Paid textbook bodies, 17 rule topics and free-question semantics remain partial",
+                         "Paid textbook bodies, four method/calibration rule topics and parts of explanatory scope/free-question semantics remain partial; record rules are not scientific evidence",
                          "Video cache partial; ready objects only in offline package"],
     }
     write(OUT / "final-manifest.json", manifest)

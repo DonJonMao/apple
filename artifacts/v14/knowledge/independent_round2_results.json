@@ -1,0 +1,1085 @@
+{
+  "schema": "public_independent_semantic_evaluation_round2_v1",
+  "evaluator_kind": "independent_ai",
+  "human_or_expert_validation": false,
+  "synthetic_evaluation_cases": true,
+  "release_id": "core-personal-trial-1.4.3",
+  "release_sha256": "6c8568af25192c3d8391614916c54a0db24629f3e9019d8d7a21eb62963d2abd",
+  "frozen_input_sha256": {
+    "cases": "b48abe152744af1034a6548c6df32feda672d8a39a3c289842f8f38a4c9d78ac",
+    "outputs": "1b8418519eace21f2b545e495be49a07ba3726e02a32f58ee8690a29f97eab3c",
+    "source_packet": "f5f8fc6395ab5e73c2a9dfba081d0eb95d604e74e9d09a21eb1b2d87029b3fd8"
+  },
+  "annotations_sha256": "5a1adcbb77bf552ee5a4dc95f94ecdd9beab2285ea1d20d764f4040f7389966f",
+  "code_identity_sha256": {
+    "tasks.py": "9463f2e8ce0f53281514c67fdaca9353f257a3c3355f5a1d30c4dbdf36311e31",
+    "question_parts.py": "7c512f024043adb8d2f7f4d5e74daaaaab92c2eede268279455cc5895e49c7f4",
+    "retrieval.py": "c14a3c94127a1598872f1ade84b05d5dfc1f90317673b7b6eb00dc53194c5600",
+    "support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+    "core.py": "92b1b9a714565aeb158c1fe3ae6c416e324eb3e2b558bc4c99c2b340ada12ad6"
+  },
+  "statistics": {
+    "total": 20,
+    "verdicts": {
+      "fail": 11,
+      "pass": 4,
+      "partial": 5
+    },
+    "strict_pass_rate": 0.2,
+    "by_gold_sufficiency": {
+      "sufficient": {
+        "fail": 11,
+        "pass": 2,
+        "partial": 1
+      },
+      "partial": {
+        "pass": 1,
+        "partial": 2
+      },
+      "insufficient": {
+        "partial": 2,
+        "pass": 1
+      }
+    },
+    "sufficient_questions_fully_passed": 2,
+    "sufficient_questions_count": 14,
+    "sufficient_question_pass_rate": 0.14285714285714285,
+    "sufficient_questions_wholly_unanswered": 11,
+    "production_status_counts": {
+      "related_material_only": 10,
+      "evidence_supported": 5,
+      "insufficient_evidence": 4,
+      "partial_answer_support": 1
+    },
+    "production_evidence_supported_count": 5,
+    "inappropriate_evidence_supported_count": 3,
+    "inappropriate_evidence_supported_cases": [
+      "R2-03",
+      "R2-16",
+      "R2-18"
+    ],
+    "actual_citation_entries": 8,
+    "cited_case_count": 6,
+    "span_citation_occurrences": 28,
+    "unique_cited_spans": 10,
+    "citation_bundle_target_labels": {
+      "supports": 7,
+      "does_not_support": 1
+    },
+    "span_relation_labels": {
+      "limits": 16,
+      "supports": 11,
+      "does_not_support": 1
+    },
+    "all_actual_cited_text_matches_frozen_source": true,
+    "unsupported_affirmative_or_fabricated_numeric_results": 0,
+    "semantic_dimension_counts": {
+      "addresses_target": {
+        "false": 16,
+        "true": 4
+      },
+      "scope_correct": {
+        "false": 7,
+        "true": 13
+      },
+      "relation_supported": {
+        "false": 11,
+        "true": 9
+      },
+      "status_appropriate": {
+        "false": 14,
+        "true": 6
+      }
+    }
+  },
+  "independence_statement": "Only the frozen source packet was read before independently authoring and freezing questions, gold and rubric. Production outputs were first read after freeze. No implementation, tests, prior questions or prior outputs were read. The parent supplied only the declared training_goal field and allowed values. No implementation changed and no candidate authorized.",
+  "public_boundary": "Questions, generated summaries, reference-answer points, evaluation judgments, locators, hashes and statistics only. No original source prose, local absolute paths or user data.",
+  "results": [
+    {
+      "id": "R2-01",
+      "question": "我只想把力量练上去。按 ACSM 2026 那份健康成人综述，每组非得做到再也举不起来才算有用吗？",
+      "route": "strength",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "不必把每组做到瞬时肌肉力竭才有力量收益。",
+        "仍需足够努力或刺激；不力竭不等于随意轻松做，也不提供个人最佳余力。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：是否必须达到力竭（力量目标）（尚无满足来源、范围与关系要求的完整依据）。\n尚未回答：复合问题的其他目标（尚未明确复合问题的这一目标）。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "正文足够却完全拒答",
+      "rationale": "未回答力量收益是否必须力竭，也未说明足够努力。S1 的当前原文在包内，声称没有所要求来源的可核验依据不符合已冻结材料。输出额外称有未识别复合目标，不能弥补单个明确目标的遗漏。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-02",
+      "question": "For building muscle, does the 2026 ACSM review say I must take every set to failure? Does its discussion of reps left in the tank establish one exact target that works for everyone?",
+      "route": "progression",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "肌肥大收益不必以每组力竭为前提，但足够努力仍有必要。",
+        "文中有一般余力建议，但明确不足以量化精确 RIR 或主观用力目标，不能宣布所有人的唯一精确值。"
+      ],
+      "actual_status": "evidence_supported",
+      "actual_answer": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。\n原文讨论足够努力及一般RIR建议，同时明确现有证据不足以量化精确RIR或主观用力目标。不能据此给每个人指定精确余力，也不能把其他RPE量表直接换成RIR。",
+      "addresses_target": true,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "pass",
+      "judgment_summary": "完整回答两个目标",
+      "rationale": "明确回答肌肥大收益不要求每组力竭、仍需努力，并保留精确 RIR 证据不足。没有把一般建议变成人人适用的精确余力；额外量表不可换算是来源未建立转换的边界，不是新的定量结论。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-FAILURE",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持第一目标：肌肥大力竭并非必要且需努力；与RIR引用共同覆盖整句。",
+          "contributes_to_complete_answerable_bundle": true,
+          "does_not_establish": [],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "label": "supports",
+              "explanation": "直接支持力竭并非力量、肌肥大或功率收益必要条件，并保留足够努力；一般RIR讨论不等于精确个人目标。",
+              "text_sha256": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "label": "supports",
+              "explanation": "直接说明不必力竭以及精确RIR/主观用力目标证据不足；不建立其他量表与RIR的直接换算。",
+              "text_sha256": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-RIR",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持第二目标：一般余力讨论不建立人人适用的精确目标；与力竭引用共同覆盖整句。",
+          "contributes_to_complete_answerable_bundle": true,
+          "does_not_establish": [],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "label": "supports",
+              "explanation": "直接支持力竭并非力量、肌肥大或功率收益必要条件，并保留足够努力；一般RIR讨论不等于精确个人目标。",
+              "text_sha256": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "label": "supports",
+              "explanation": "直接说明不必力竭以及精确RIR/主观用力目标证据不足；不建立其他量表与RIR的直接换算。",
+              "text_sha256": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-03",
+      "question": "有人把“短休息和长休息差不多”同时用来解释力量和增肌。ACSM 2026 的正文对这两个目标真能给出同一个结论吗？",
+      "route": "recovery",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "力量结果中，所比较的短与长组间休息未显示一致差别。",
+        "肌肥大方面是资料不足以确定组间休息影响，不能把力量结果移用为增肌无差别。",
+        "结论限于纳入方案的群体证据，不是任意休息时长都相同或个人最优秒数。"
+      ],
+      "actual_status": "evidence_supported",
+      "actual_answer": "S1在肌肥大结果中将组间休息列为资料不足、不能确定其影响的变量；不能把力量结果中所比较休息间隔的结论直接当作肌肥大结论。\n因此这份来源不能给出所有人的唯一最优休息时长；讨论休息应明确目标、任务和所比较的方案。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": false,
+      "verdict": "partial",
+      "judgment_summary": "只回答肌肥大，力量部分缺失",
+      "rationale": "肌肥大休息证据不足及不能套用力量结果均正确，但未说明力量比较实际发现了什么。没有引用或呈现 S1 第24段的短长休息比较；正文足够支持双目标回答，evidence_supported 对整句完成度过度标记。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-REST-HYPERTROPHY",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持肌肥大证据不足与个体时长限制；不能代替第24段的力量比较，整句双目标仍不完整。",
+          "contributes_to_complete_answerable_bundle": false,
+          "does_not_establish": [
+            "strength_rest_comparison"
+          ],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+              "label": "supports",
+              "explanation": "直接把肌肥大组间休息列为数据不足，支持无法确定影响；没有证明休息无效，也没有给出个人秒数。",
+              "text_sha256": "6c8e7ec98383fad93a8951f975fc381f396c932ab2c04e545e15d58eb75fb66f",
+              "locator": {
+                "end_offset": 1692,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 25,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[4]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+              "label": "limits",
+              "explanation": "说明变量层汇总不能给精细比较/剂量反应；本段具体示例是频次，不是力量或肌肥大的休息比较，不能补足缺失休息目标。",
+              "text_sha256": "b44052a993e19ea726b467062e86ba67a0373cecc9f7e2b344904436a0b76684",
+              "locator": {
+                "end_offset": 617,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 69,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[12]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "label": "limits",
+              "explanation": "明确是群体汇总且需按个人目标需要调整；限制统一最优数值或个人保证，不单独提供具体训练变量结果。",
+              "text_sha256": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-04",
+      "question": "If the weekly amount of work stays the same, is spreading it over more gym days an established advantage for both strength and muscle size in the 2026 ACSM review?",
+      "route": "strength",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "力量结果受频次影响，但总量相等时影响减弱，完整剂量反应不能确定。",
+        "等总量的肌肥大比较没有显示更高频次的额外优势。",
+        "不可得出对两个目标都确定更优，或所有人的唯一最佳每周天数。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "等总量双目标频次问题未回答",
+      "rationale": "问题明确比较等周量条件下增加训练天数对力量和肌肉大小的作用。答案只说目标未识别，既未给出力量效应减弱及剂量反应限制，也未给出肌肥大等量比较。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-05",
+      "question": "我暂时想把同一套动作和重量练熟，不准备每次都加码。依照 ACSM 2026，这样就注定白练吗？如果以后追求长期不断进步，又有什么区别？",
+      "route": "progression",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "不能把没有不断进阶等同于不可能有收益。",
+        "追求持续长期进展时可能需要增加或改变刺激；负荷、量、频次等均是可调整变量。",
+        "何时怎样调整需结合个人目标与经历，不承诺下次必定提高。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "未区分有收益与持续长期进展",
+      "rationale": "源包第61段足够回答不每次加码并非白练，以及长期持续进展可能需改变刺激。输出仅让用户重新确认目标，两个明确问题均未回答。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-06",
+      "question": "Do healthy recreational lifters have to use a periodized schedule to benefit, according to the 2026 ACSM review? I am asking whether it is indispensable, not for a calendar to follow.",
+      "route": "personalization",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "周期组织是有意随时间修改负荷、组量、频次等变量。",
+        "现有证据不支持把周期组织当成获得收益不可缺少的条件；适当渐进负荷下未显示普遍显著优于非周期安排。",
+        "目标相关变量顺序、疲劳管理等未充分研究，不能扩大为任何周期安排都毫无价值。"
+      ],
+      "actual_status": "insufficient_evidence",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "周期安排必要性被错误当成材料不足",
+      "rationale": "第63段已讨论周期组织、适当渐进负荷下比较结果和限制。输出未回答是否不可或缺，并称缺所要求来源。用户已明确只问必要性，未要求生成日历。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-07",
+      "question": "同一台推胸器械，我轻一档能做十二下，重一档只做八下，两组都很吃力。根据 ACSM 2026 的解释，光看次数变少就能说力量退步了吗？",
+      "route": "strength",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "不能仅凭负荷增加后次数减少断言力量退步。",
+        "在动作条件和接近疲劳的努力条件下，单组重复次数与负荷反向相关。",
+        "两次负荷不同，不是同一个测试任务；应保留负荷与次数并在可比条件下评价，不能做个人确定换算。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "负荷变化后的次数解释未回答",
+      "rationale": "已提供的第70段足够支持不能仅从加重后少做几次断言力量退步。泛泛保留可比条件的 limits 没有回答该关系，声称没有对应来源也不符合材料。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-08",
+      "question": "The 2026 ACSM paper reports strength gains. What was normally measured, and does that let me treat the number on a cable machine as interchangeable with a barbell result?",
+      "route": "personalization",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "通常的力量结局是与训练模式相同的随意等张 1RM，除非另行说明。",
+        "适应具有刺激特异性；此定义和一般原则不能建立任意器械与杠铃数字的直接换算。",
+        "保留动作、器械或模式及测量方法，不能说所有力量测量可互换。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "测量定义与器械互换两个目标未回答",
+      "rationale": "未说明通常力量结局为同训练模式的随意等张1RM，也未说明为何不建立器械与杠铃结果直接换算。记录可比条件的通用提示不能代替这两个答案。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-09",
+      "question": "如果把训练组数翻倍，力量和肌肉增长就应当一起翻倍吗？ACSM 2026 对加组收益和“最佳组数”到底能说明到什么程度？",
+      "route": "plateau",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "较高组量与力量和肌肥大的一些收益有关。",
+        "不能推断组数翻倍会使两种收益同比例翻倍；额外收益可能递减。",
+        "精确最优组数不能确定，不能给每个人统一加组或从总吨位确定刺激。"
+      ],
+      "actual_status": "evidence_supported",
+      "actual_answer": "该综述中较高组量与部分力量和肌肥大收益有关，但精确最优组数仍不能确定，额外收益可能递减。讨论组量须结合目标与当前计划，不能由总吨位直接推算肌肉刺激或统一加组。",
+      "addresses_target": true,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "pass",
+      "judgment_summary": "组量收益及递减边界完整",
+      "rationale": "回答较高组量与两类收益有关，同时明确精确最优组数未知、额外收益可能递减。虽未逐字说翻倍不等于翻倍，内容已直接否定恒定比例的必要推断；群体边界由 claims/limits 保留。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持两个目标的组量收益及递减/最优组数未知；足以否定必然同比例翻倍。",
+          "contributes_to_complete_answerable_bundle": true,
+          "does_not_establish": [],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+              "label": "supports",
+              "explanation": "支持较高组量与力量、肌肥大收益、精确最优组数未知和收益递减；周负荷量少有研究，不能推导确定刺激或个人处方。",
+              "text_sha256": "9d04bd8effe7cf7af1c0924f5cb01ee02c84b68454ff9dff2b9e768484862018",
+              "locator": {
+                "end_offset": 1178,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 71,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[14]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "label": "limits",
+              "explanation": "明确是群体汇总且需按个人目标需要调整；限制统一最优数值或个人保证，不单独提供具体训练变量结果。",
+              "text_sha256": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-10",
+      "question": "美国 HHS 第二版身体活动指南给十八到六十四岁成人的肌力活动建议是什么？这条建议能直接当作增肌最快的每周安排吗？",
+      "route": "strength",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "HHS 第二版成人章节建议每周至少两天、中等或更高强度、涉及所有主要肌群的肌力活动。",
+        "这是总体健康建议，不是个人肌肥大最优频率或增肌速度保证。",
+        "应区分健康收益、力量和肌肥大等目标，最优安排需目标与个体情况。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "第二版成人肌力建议与增肌边界均缺失",
+      "rationale": "源包包含 HHS 第二版第4章第56页，但输出声称没有所要求来源或版次依据。未给至少两天、中等以上强度和主要肌群，也未解释总体健康与个人增肌最快安排不同。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-11",
+      "question": "我加了活动量以后刚出现膝关节疼痛。按 HHS 第二版的安全活动章节，还能把一般健康成人的进阶原则直接照搬过来吗？",
+      "route": "recovery",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "增加活动时出现新症状应咨询健康服务提供者。",
+        "症状或慢性情况会影响合适的活动种类与数量，不能直接用无症状健康成人原则忽略新症状。",
+        "这不诊断膝痛病因，也不提供自动减重比例。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：渐进训练的任务选择（总体健康目标）（尚无满足来源、范围与关系要求的完整依据）。\n尚未回答：症状及活动范围（尚无满足来源、范围与关系要求的完整依据）。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "有新症状的适用边界未回答",
+      "rationale": "第93页直接说明增加活动时出现新症状应咨询提供者，且症状影响合适种类与数量。答案没有这项说明，只列出两个未答目标和通用限制；并错误指向来源未匹配。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-12",
+      "question": "In the second edition of the US activity guidelines, what should an adult consider when building activity up from a low starting level? Is one identical weekly increase intended for everyone?",
+      "route": "progression",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "逐步增加，按当前体能和健康目标选活动；低基础者从较低强度开始并逐步增加频次和时长。",
+        "应考虑新旧活动量差距，给适应与恢复留时间。",
+        "年龄、体能、既往经验影响增加速度，不是所有人同一每周增量；示例不是通用器械加重公式。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "已有逐步增加指导仍整题拒答",
+      "rationale": "第88、90、91页足够说明逐渐增加、新旧活动量差距、适应恢复及年龄体能经验。输出没有这些内容，而将明确指定的第二版说成没有匹配依据。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-13",
+      "question": "ACSM 2026 说“健康成人”时，研究里的边界究竟是什么？能否因为一个人没交病历，就把未成年人或已经衰弱的人也算进它验证过的范围？",
+      "route": "personalization",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "研究对象至少18岁，按其定义没有疾病，包括排除其定义的肥胖、肌少症及身体衰弱。",
+        "不能把未成年人或已衰弱人群自动当成已验证适用对象，也不能把没有病历当作健康已知。",
+        "不同训练经历均有纳入，但大量证据来自经验较少者，不能把训练史未知当作经验已知。"
+      ],
+      "actual_status": "insufficient_evidence",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "人群范围问题未回答",
+      "rationale": "正文已定义至少18岁及疾病、肥胖、肌少症、衰弱排除范围，并交代训练经历。输出仅称未识别目标，未纠正没有病历等于健康或把未成年人、衰弱者纳入的错误推断。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-14",
+      "question": "Can the 2026 ACSM overview rank two complete training plans for me and prove that my better result after a single workout was caused by that workout? What do its evidence limits allow me to say?",
+      "route": "strength",
+      "expected_evidence_sufficiency": "sufficient",
+      "reference_answer_points": [
+        "综述汇总的是群体、多周证据，需按个人目标和情况调整。",
+        "这种综述不能直接排列不同完整方案的相对效果。",
+        "一次训练完成和随后改善可记为执行与观察事实，但这些群体结果不证明那次训练对个人的因果获益，也不给个人成功概率。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。\n尚未回答：完整个人训练计划（当前问答不生成完整个人训练计划）。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": false,
+      "status_appropriate": false,
+      "verdict": "fail",
+      "judgment_summary": "把证据可否推断误当成要求生成计划",
+      "rationale": "问题问综述能否排列完整方案及证明单次训练个人因果；并非请求生成完整计划。输出没有解释群体多周证据或整套干预比较限制，却列出完整个人训练计划未答。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-15",
+      "question": "我现在哑铃卧推每边十二公斤做十次，目标是变强。ACSM 2026 有哪些进阶方向可考虑？再按它算出我下次该用十五还是十八公斤，以及成功做完十次的概率。",
+      "route": "progression",
+      "expected_evidence_sufficiency": "partial",
+      "reference_answer_points": [
+        "可以说明进阶可改变负荷、组量、频次等，并结合个人目标；加次数与加重量是不同任务。",
+        "这些原则不能从现有的一次记录确定下次应选15或18公斤，更不能计算完成十次的个人概率。",
+        "应明确第一部分可回答、精确选择与概率依据不足，不能用一般原则冒充个人算法。"
+      ],
+      "actual_status": "partial_answer_support",
+      "actual_answer": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：复合问题的其他目标（尚未明确复合问题的这一目标）。",
+      "addresses_target": true,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "pass",
+      "judgment_summary": "合理部分回答与个人数字边界",
+      "rationale": "正确回答负荷、训练量等进阶方向，并明确原则不能给个人下次精确重量或保证完成；后续明确个人精确数字请求未获支持，涵盖所问成功概率。标签为部分支持合理。末句未识别其他目标较笼统，但没有妨碍必要边界，也没有给出重量或概率。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持一般进阶方向及群体到个人的限制；不支持指定15或18公斤，也不支持成功概率。答案保留了这些不足。",
+          "contributes_to_complete_answerable_bundle": true,
+          "does_not_establish": [
+            "personal_numeric_predictions_not_established"
+          ],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "label": "supports",
+              "explanation": "列出可调整负荷、量、频次、动作或时长等刺激，支持一般进阶方向；不提供个人下次负重或概率。",
+              "text_sha256": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "label": "limits",
+              "explanation": "要求按独特目标、需要、经历与水平个体化，限制把一般进阶原则变成个人确定选择。",
+              "text_sha256": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+              "label": "supports",
+              "explanation": "说明给定动作与接近疲劳条件下负荷和重复次数的反向关系，支持加次数与加重量不是同一任务；没有给出此人的换算或成功率。",
+              "text_sha256": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+              "locator": {
+                "end_offset": 795,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 70,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "label": "limits",
+              "explanation": "明确是群体汇总且需按个人目标需要调整；限制统一最优数值或个人保证，不单独提供具体训练变量结果。",
+              "text_sha256": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-16",
+      "question": "For hypertrophy, what does the 2026 ACSM review actually know about rest between sets? Then choose exactly 75 or 120 seconds for my next session and tell me which will grow more muscle.",
+      "route": "plateau",
+      "expected_evidence_sufficiency": "partial",
+      "reference_answer_points": [
+        "可以回答该综述肌肥大组间休息资料不足以确定影响。",
+        "不能从该来源确定个人75或120秒哪一个增肌更多。",
+        "不能用力量的短长休息结果代替肌肥大证据，也不能虚构精确选择。"
+      ],
+      "actual_status": "evidence_supported",
+      "actual_answer": "S1在肌肥大结果中将组间休息列为资料不足、不能确定其影响的变量；不能把力量结果中所比较休息间隔的结论直接当作肌肥大结论。\n因此这份来源不能给出所有人的唯一最优休息时长；讨论休息应明确目标、任务和所比较的方案。\n该综述中较高组量与部分力量和肌肥大收益有关，但精确最优组数仍不能确定，额外收益可能递减。讨论组量须结合目标与当前计划，不能由总吨位直接推算肌肉刺激或统一加组。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": false,
+      "verdict": "partial",
+      "judgment_summary": "正确休息不确定性，却未清晰处理指定个人比较",
+      "rationale": "肌肥大休息证据不足是正确答案片段，limits 也说不给个人精确间歇。正文没有明确将75与120秒的个人效果比较列为无法判断；不能给所有人唯一最优时长不等于已回答个人两选一。另加组量段落不回答这项关系，evidence_supported 未保留应有的部分支持状态。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-REST-HYPERTROPHY",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "支持肌肥大休息影响未定及不给个人精确间歇；不能给75与120秒排出个人效果优劣。",
+          "contributes_to_complete_answerable_bundle": false,
+          "does_not_establish": [
+            "personal_75_vs_120_effect_comparison"
+          ],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+              "label": "supports",
+              "explanation": "直接把肌肥大组间休息列为数据不足，支持无法确定影响；没有证明休息无效，也没有给出个人秒数。",
+              "text_sha256": "6c8e7ec98383fad93a8951f975fc381f396c932ab2c04e545e15d58eb75fb66f",
+              "locator": {
+                "end_offset": 1692,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 25,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[4]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+              "label": "limits",
+              "explanation": "说明变量层汇总不能给精细比较/剂量反应；本段具体示例是频次，不是力量或肌肥大的休息比较，不能补足缺失休息目标。",
+              "text_sha256": "b44052a993e19ea726b467062e86ba67a0373cecc9f7e2b344904436a0b76684",
+              "locator": {
+                "end_offset": 617,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 69,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[12]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "label": "limits",
+              "explanation": "明确是群体汇总且需按个人目标需要调整；限制统一最优数值或个人保证，不单独提供具体训练变量结果。",
+              "text_sha256": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "does_not_support",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "组量结论本身有依据，但本题要求的是休息时长及个人75/120秒比较；组量不是其回答关系，不能用该引用补齐整句或增加已覆盖目标。",
+          "contributes_to_complete_answerable_bundle": false,
+          "does_not_establish": [
+            "rest_duration_comparison"
+          ],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。 这种范围限定不能把组量引用变成休息效果证据。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+              "label": "does_not_support",
+              "explanation": "原文支持所生成的组量概述，但不支持问题所要的休息时长比较；这是目标关系不匹配，不是正文不真实。",
+              "text_sha256": "9d04bd8effe7cf7af1c0924f5cb01ee02c84b68454ff9dff2b9e768484862018",
+              "locator": {
+                "end_offset": 1178,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 71,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[14]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "label": "limits",
+              "explanation": "明确是群体汇总且需按个人目标需要调整；限制统一最优数值或个人保证，不单独提供具体训练变量结果。 这种范围限定不能把组量引用变成休息效果证据。",
+              "text_sha256": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-17",
+      "question": "训练日我应该吃多少热量、蛋白质和脂肪才最利于增肌？请只依据现在这批 ACSM 2026 与 HHS 第二版的正文，给我三个精确的每日数字。",
+      "route": "energy",
+      "expected_evidence_sufficiency": "insufficient",
+      "reference_answer_points": [
+        "这批正文没有足以给出个人每日热量、蛋白质、脂肪精确值的营养依据。",
+        "应明确缺少相关来源和个人信息，不能从训练组数、频次或一般健康建议推导营养数字。"
+      ],
+      "actual_status": "insufficient_evidence",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "partial",
+      "judgment_summary": "拒绝数字合理，但没有解释营养材料边界",
+      "rationale": "没有编造热量、蛋白质、脂肪数字，拒绝请求方向正确。回答仅用未匹配来源模板，没有说明现有正文缺少这些营养处方内容及个人能量依据；要求重新明确已给出的来源并不能解释实际缺口。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-18",
+      "question": "请对照 ACSM 2009 原文和 2026 原文，解释为什么每组练到力竭的要求变了，并列出两版各自直接支持这点的段落。",
+      "route": "strength",
+      "expected_evidence_sufficiency": "partial",
+      "reference_answer_points": [
+        "可以按2026正文说明力竭不是收益必要条件，足够努力仍重要。",
+        "当前源包未提供2009原文，不能确认旧版是否存在题目预设的要求，也不能解释两版变更或编造旧版段落。",
+        "应明确只回答2026部分，不把2026对过去立场的其他讨论当作2009力竭原文。"
+      ],
+      "actual_status": "evidence_supported",
+      "actual_answer": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。",
+      "addresses_target": false,
+      "scope_correct": false,
+      "relation_supported": true,
+      "status_appropriate": false,
+      "verdict": "partial",
+      "judgment_summary": "只给当前版结论，未界定2009原文缺失",
+      "rationale": "当前2026力竭结论有引用支持，但答案没有标清只覆盖2026，也未说明2009原文缺失、不能核实要求发生变化的预设。没有提供跨版因果解释或两版段落。没有编造旧版内容，因此保留正确部分；evidence_supported 对整句版本对照不合理。",
+      "citation_annotations": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-FAILURE",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "label_for_requested_target": "supports",
+          "supports_its_emitted_summary": true,
+          "target_relation_explanation": "仅支持2026当前版力竭结论；不支持2009版本说了什么、变化为何发生或两版段落比较。",
+          "contributes_to_complete_answerable_bundle": false,
+          "does_not_establish": [
+            "2009_text",
+            "edition_change_comparison"
+          ],
+          "span_annotations": [
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "label": "limits",
+              "explanation": "限定为至少六周健康成人群体研究，并交代多为经验较少者；不单独证明本题训练变量的效果关系。 这份2026文本不能充当缺失的2009原文或证明两版要求的变化。",
+              "text_sha256": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "label": "supports",
+              "explanation": "直接支持力竭并非力量、肌肥大或功率收益必要条件，并保留足够努力；一般RIR讨论不等于精确个人目标。 这份2026文本不能充当缺失的2009原文或证明两版要求的变化。",
+              "text_sha256": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              },
+              "matches_frozen_source_text": true
+            },
+            {
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "label": "supports",
+              "explanation": "直接说明不必力竭以及精确RIR/主观用力目标证据不足；不建立其他量表与RIR的直接换算。 这份2026文本不能充当缺失的2009原文或证明两版要求的变化。",
+              "text_sha256": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              },
+              "matches_frozen_source_text": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R2-19",
+      "question": "请按美国身体活动指南第三版告诉我，普通成人每周应做几天肌力活动，并指出第三版所在页码。",
+      "route": "recovery",
+      "expected_evidence_sufficiency": "insufficient",
+      "reference_answer_points": [
+        "当前提供的美国指南是第二版，不能冒称第三版内容或第三版页码。",
+        "如补充第二版建议，必须明确标为第二版且不能当成已回答指定第三版。",
+        "不可凭空声称第三版存在、已获取或内容与第二版相同。"
+      ],
+      "actual_status": "related_material_only",
+      "actual_answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。\n尚未回答：训练频次及其适用目标（尚无满足来源、范围与关系要求的完整依据）。",
+      "addresses_target": true,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "pass",
+      "judgment_summary": "指定第三版材料不足的边界正确",
+      "rationale": "明确没有符合指定来源或版次的可核验依据，并说明其他正文不能代替指定正文或页码；没有把第二版建议冒称第三版，也没有虚构页码。related_material_only 与整句材料不足兼容；不要求必须额外展示第二版。",
+      "citation_annotations": []
+    },
+    {
+      "id": "R2-20",
+      "question": "The ACSM 2026 text points to Supplemental Appendix 12. Please list every original trial behind its between-set-rest hypertrophy result, with each trial’s sample size and effect estimate.",
+      "route": "personalization",
+      "expected_evidence_sufficiency": "insufficient",
+      "reference_answer_points": [
+        "现有正文说明肌肥大组间休息资料不足，并指向附录12，但并未提供所请求的逐试验样本量和效应值。",
+        "不能把正文参考编号当成原始试验数据，也不能编造附录内容。",
+        "需明确材料不足；可给出当前正文层面的不确定结论，但这不完成逐试验列表。"
+      ],
+      "actual_status": "insufficient_evidence",
+      "actual_answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。\n尚未回答：组间休息及其适用边界（肌肥大目标）（尚无满足来源、范围与关系要求的完整依据）。",
+      "addresses_target": false,
+      "scope_correct": true,
+      "relation_supported": true,
+      "status_appropriate": true,
+      "verdict": "partial",
+      "judgment_summary": "不编造试验数据，但没有指出缺附录",
+      "rationale": "拒答避免虚构逐试验样本量和效应值；然而答案把请求描述成目标不可靠识别或一般组间休息问题，没有说明实际缺少附录12正文/逐试验数据。只改变目标选择不能补足未提供材料，故没有完整解释正确不足原因。",
+      "citation_annotations": []
+    }
+  ]
+}

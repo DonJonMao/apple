@@ -36,7 +36,13 @@ def _render(workbench):
         if use_target:
             choices = {"渐进训练有哪些任务选择": ("progression_options", "options"),
                 "是否必须训练至力竭": ("failure_necessity", "necessity"), "能否确定精确余力目标": ("effort_precision", "precision"),
-                "训练组量及其边界": ("volume", "options"), "公共健康活动频次": ("frequency", "options"), "组间休息及其边界": ("rest", "options")}
+                "训练组量及其边界": ("volume", "options"), "训练频次及其目标范围": ("frequency", "options"), "组间休息及其边界": ("rest", "options"),
+                "持续进阶与初始收益": ("progression_necessity", "necessity"),
+                "负荷和次数的关系": ("load_repetition_relation", "explanation"),
+                "测量任务的可比范围": ("comparability", "scope"), "来源适用的人群": ("population_scope", "scope"),
+                "逐步增加身体活动": ("gradual_progression", "options"), "症状与活动边界": ("symptoms", "scope"),
+                "个人效果与因果边界": ("individual_effect", "inference"), "不同训练目标": ("goal_scope", "scope"),
+                "周期组织是否必要": ("variation", "necessity")}
             chosen = st.selectbox("本次要回答", list(choices))
             confirmed = st.checkbox("我确认本次只查询所选目标；原问题中的其他目标需要另查", key="knowledge_target_confirmed")
             if confirmed:

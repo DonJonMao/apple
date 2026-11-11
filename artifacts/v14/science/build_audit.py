@@ -28,6 +28,9 @@ link("STATE-RHR STATE-SDNN STATE-REFERENCE-MEDIAN STATE-REFERENCE-MAD STATE-DEVI
 link("STATE-SLEEP-MAIN STATE-SLEEP-24H STATE-SLEEP-STAGE REPORT-STATE-SUMMARY", "test_f09_irrelevant_inbed_source_does_not_block_asleep_observation")
 link("STATE-SLEEP-COVERAGE REPORT-PERIOD-COVERAGE ENERGY-RECORD-COVERAGE", "test_f02_sleep_coverage_uses_clipped_half_open_local_dates", "test_f02_one_metric_failure_does_not_abort_independent_analysis")
 link("STR-07 STR-08 STR-29", "test_f07_exposure_layers_and_training_frequency_include_ordinary_sessions")
+link("STR-05 STR-06", "test_muscle_counts_consume_frozen_mapping_versions_and_ignore_live_context",
+     "test_invalid_or_late_mapping_snapshot_stays_unknown", "test_same_mapping_version_cannot_have_contradictory_frozen_content")
+link("STR-15", "test_within_session_repetition_change_uses_actual_mass_not_equal_unit_labels")
 link("STR-12 STR-14", "test_f07_intervening_load_does_not_hide_same_load_raw_change")
 link("STR-03 STR-13 STR-19 STR-20 STR-22 STR-24", "test_f07_multiple_loads_preserve_separate_descriptive_series", "test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values")
 link("STR-20 STR-24", "test_f07_series_receipt_cannot_be_reused_for_another_load_or_cutoff")
@@ -43,6 +46,7 @@ link("ENERGY-BASAL ENERGY-ACTIVE ENERGY-DEVICE-TOTAL REPORT-ENERGY-SUMMARY", "te
 link("ENERGY-IDENTIFIABILITY", "test_metric_matrix_independent_flags_do_not_establish_energy_identifiability")
 link("ENERGY-ABSOLUTE-INTAKE", "test_metric_matrix_each_energy_scenario_bound_must_be_ordered")
 link("LOAD-DURATION LOAD-SRPE-AU", "test_metric_matrix_elapsed_and_pause_adjusted_duration_are_distinct")
+link("REPORT-PERIOD-COVERAGE", "test_period_coverage_preserves_source_protocol_denominators_without_double_counting_dates")
 link("STR-27 STR-28 REPORT-RECOMMENDATION-FOLLOWUP", "test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators")
 for identity in "ENERGY-BASAL ENERGY-ACTIVE ENERGY-DEVICE-TOTAL STATE-SDNN BODY-MASS-DAILY REPORT-ENERGY-SUMMARY".split():
     extra.setdefault(identity, []).append("tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology")
@@ -51,6 +55,13 @@ for identity in "STATE-SLEEP-MAIN STATE-SLEEP-24H REPORT-STATE-SUMMARY".split():
 extra.setdefault("STR-19", []).append("tests/integration/test_v14_science_import.py::test_f07_real_training_service_preserves_load_layers_in_analysis")
 extra.setdefault("STR-25", []).append("tests/integration/test_v14_advice_flow.py::test_partial_visible_targets_freeze_missing_conditions_without_crashing")
 extra.setdefault("STR-26", []).append("tests/integration/test_v14_choice_validation.py::test_repetition_choice_cannot_silently_change_load")
+for identity in ("STR-07", "STR-08"):
+    extra.setdefault(identity, []).append("tests/integration/test_v14_period_review.py::test_recorded_frequency_counts_local_observation_dates")
+extra.setdefault("STR-20", []).append("tests/integration/test_v14_period_review.py::test_interval_without_look_keeps_observed_point_estimate")
+for identity in ("STR-19", "STR-22", "REPORT-PERIOD-COVERAGE"):
+    extra.setdefault(identity, []).append("tests/integration/test_v14_period_review.py::test_e2e06_visible_period_report_shows_its_own_load_layers")
+for identity in ("STR-05", "STR-06"):
+    extra.setdefault(identity, []).append("tests/integration/test_v14_anatomy_history.py::test_str05_06_real_history_keeps_mapping_versions_and_unknown_legacy")
 
 # JUnit can embed local usernames/absolute paths in failures and metadata.
 for path in OUT.glob("*.xml"):
