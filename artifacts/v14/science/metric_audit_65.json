@@ -1,7 +1,7 @@
 {
   "review_baseline": "912aefc93b9bd9c1cebf297a10728c69c827e266",
   "metric_count": 65,
-  "algorithm_version": "healthzip-science-1.4",
+  "algorithm_version": "healthzip-science-1.4.1",
   "verification_test_cases": 447,
   "all_verification_cases_passed": true,
   "new_real_calibration_artifacts_created": 0,
@@ -225,7 +225,7 @@
     },
     {
       "metric_id": "STR-09",
-      "revision_action": "集成与保持",
+      "revision_action": "补全原计划负荷/次数/RIR分项达成合同，并接通明确原计划窗口内的无实际端点执行状态",
       "planned_behavior_reviewed": [
         "计划版本、执行 session 与模板原动作版本一致",
         "保持未知分母和额外执行独立"
@@ -239,18 +239,30 @@
       "runtime_unit": "比例",
       "empty_input_data_status": "not_applicable",
       "implementation_paths": [
-        "src/healthzip/science/strength.py"
+        "src/healthzip/science/strength.py",
+        "src/healthzip/science/engine.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T01]",
-        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T02]"
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T02]",
+        "tests/integration/test_v14_plan_target_attainment.py::test_service_snapshot_separates_original_completion_and_three_target_denominators",
+        "tests/integration/test_v14_plan_target_attainment.py::test_current_target_and_template_edits_do_not_replace_original_endpoint_goals",
+        "tests/integration/test_v14_plan_target_attainment.py::test_load_targets_keep_entered_basis_and_assistance_direction",
+        "tests/integration/test_v14_plan_target_attainment.py::test_rir_interval_only_decides_a_target_when_logically_determined",
+        "tests/integration/test_v14_plan_target_attainment.py::test_unknown_target_fields_are_not_inferred_from_actual_values",
+        "tests/integration/test_v14_plan_target_attainment.py::test_service_undated_skip_is_known_plan_nonexecution_without_a_fake_endpoint",
+        "tests/integration/test_v14_plan_target_attainment.py::test_ui_skip_retains_known_nonexecution_in_analysis",
+        "tests/integration/test_v14_plan_target_attainment.py::test_recorded_endpoint_match_does_not_imply_group_completion",
+        "tests/integration/test_v14_plan_target_attainment.py::test_undated_plan_states_require_window_membership_and_latest_visible_revision",
+        "tests/integration/test_v14_plan_target_attainment.py::test_original_plan_completion_includes_warmup_while_work_counts_stay_separate"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. The original group-completion fields remain compatible; separate load/repetition/RIR endpoints report known, unknown and no-target denominators, raw goals/observations and reasons. Load matching requires explicit original target units and basis; kg/lb use existing conversions, and assistance direction is preserved without treating harder as goal success. RIR intervals are decided only when logically determined. Current target/template edits do not replace the original start-session goals. Undated nonexecution states require an explicit in-window original plan session and latest state availability at cutoff; no execution timestamp is inferred. Draft/in-progress comparisons are provisional, and aborted endpoint matches do not imply group completion. Service/snapshot and actual UI-skip tests use synthetic data only. Evidence: str09-targets-before.xml, str09-plan-status-before.xml, str09-targets-verification.xml, str09-targets-evidence.json. Final mixed warmup/work regression also verifies STR09 includes completed prescribed warmups and counts extra completed groups consistently, while STR01 work-only counts stay unchanged. Evidence: str09-warmup-before.xml, str09-warmup-verification.xml, str09-warmup-evidence.json."
     },
     {
       "metric_id": "STR-10",
-      "revision_action": "保持并回归",
+      "revision_action": "修复区间RIR被RPE回退覆为精确值，并通过持久记录与实际分析页面回归",
       "planned_behavior_reviewed": [
         "保留量表、采集时间、是否估计及限定语",
         "不从普通 RPE 或组间下降反推 RIR"
@@ -268,10 +280,14 @@
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T01]",
-        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T02]"
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T02]",
+        "tests/integration/test_str10_interval_rir.py::test_service_snapshot_preserves_interval_rir_over_conflicting_rpe",
+        "tests/integration/test_str10_interval_rir.py::test_service_keeps_direct_rir_and_only_maps_declared_scale_when_absent",
+        "tests/integration/test_str10_interval_rir.py::test_existing_interval_or_invalid_direct_rir_is_not_missing",
+        "tests/integration/test_str10_interval_rir.py::test_actual_analysis_page_keeps_reported_interval_and_original_rpe"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. STR-10 interval regression additionally exercises real TrainingService persistence, snapshot/evaluate and the actual analysis-page dataframe/JSON. Conversion requires both direct RIR and interval RIR to be absent; original RPE remains separate, including disagreement with reported RIR. This verifies preservation of reported semantics, not subjective-estimate accuracy or a resolution of disagreement. Before/after evidence: str10-interval-failing-before.xml, str10-interval-verification.xml, str10-interval-review.json."
     },
     {
       "metric_id": "STR-11",
@@ -910,7 +926,7 @@
     },
     {
       "metric_id": "STATE-SLEEP-STAGE",
-      "revision_action": "修复共享源选择并保持",
+      "revision_action": "修复来源选择并将分期支持裁剪到显式主睡眠会话，使覆盖分子与分母同域",
       "planned_behavior_reviewed": [
         "复用正确 asleep 源选择",
         "重叠冲突不能消失成精确阶段比例",
@@ -930,14 +946,15 @@
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T02]",
-        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation"
+        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
+        "tests/science/test_v14_sleep_context_time.py::test_sleep_stage_annotations_use_the_declared_episode_support"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. An explicit main episode now bounds the stage-annotation numerator; two nights cannot be divided by one night to produce annotation coverage greater than one. This validates interval bookkeeping, not device stage accuracy. Before/after: sleep-context-before.xml and sleep-context-regressions.xml."
     },
     {
       "metric_id": "STATE-SLEEP-TIMING",
-      "revision_action": "保持并回归",
+      "revision_action": "修复显式睡眠会话的窗口/可用时间/修订筛选，保留原始端点及真实时间中点",
       "planned_behavior_reviewed": [
         "与主睡眠 episode/来源选择共用",
         "timestamp 与 clock_min 明确区分"
@@ -951,14 +968,21 @@
       "runtime_unit": "timestamp; clock_min",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/state.py"
+        "src/healthzip/science/state.py",
+        "src/healthzip/science/engine.py",
+        "src/healthzip/science/contracts.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T01]",
-        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T02]"
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T02]",
+        "tests/science/test_v14_sleep_context_time.py::test_timing_rejects_unavailable_or_outside_episodes",
+        "tests/science/test_v14_sleep_context_time.py::test_timing_unknown_availability_requires_explicit_retrospective_mode",
+        "tests/science/test_v14_sleep_context_time.py::test_timing_keeps_original_endpoints_and_actual_time_midpoint",
+        "tests/science/test_v14_sleep_context_time.py::test_timing_revisions_do_not_revive_an_old_in_window_episode",
+        "tests/science/test_v14_sleep_context_time.py::test_visible_revision_invalidates_older_record_before_event_filter"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. Explicit sleep_episodes are currently a science-API context, not automatically derived or confirmed by the Repository/UI. Episode end determines half-open window membership. Unknown availability is retrospective-only and labelled; original offset-bearing endpoints, source identity, availability and timezone are preserved. No clinical sleep-episode identification is claimed. Before/after: sleep-context-before.xml and sleep-context-regressions.xml."
     },
     {
       "metric_id": "STATE-RHR",
@@ -1782,5 +1806,7 @@
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
       "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
     }
-  ]
+  ],
+  "verification_test_cases_scope": "Original scoped science run; subsequent item-level regression evidence is listed per metric. Final unique repository test count is separate.",
+  "final_repository_verification_ref": "artifacts/v14/final-manifest.json"
 }

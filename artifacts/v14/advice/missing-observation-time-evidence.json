@@ -1,0 +1,79 @@
+{
+  "scope": [
+    "F03",
+    "E2E-05",
+    "STR-25",
+    "STR-26"
+  ],
+  "data_kind": "synthetic_isolated_software_verification",
+  "production_health_data_read": false,
+  "production_knowledge_modified": false,
+  "frozen_evaluations_modified": false,
+  "projection": "remove_hostname_and_local_paths_preserve_test_outcomes",
+  "findings": [
+    "current_missing_endpoints_were_dropped_before_science_gate",
+    "historical_start_only_completed_record_crashed_baseline_sort"
+  ],
+  "implementation": "retain undated current facts separately as audit evidence; strict timed source checks unchanged; exclude historical results without completion endpoint",
+  "files": [
+    {
+      "path": "artifacts/v14/advice/missing-observation-time-before.xml",
+      "raw_sha256": "0ac639704505350f4804deb7ed8c760c68589def8155b8a92cc7db9cf48a6190",
+      "public_sha256": "3fc25a049dc97e23b96ff4c212951ee437419ab78715412255a47c072efb28f7",
+      "tests": 8,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 7.025
+    },
+    {
+      "path": "artifacts/v14/advice/missing-reference-time-before.xml",
+      "raw_sha256": "c3c5d218d1d258a5b8356f6636d6cf2c070502399348938563bcf32a45fb8edb",
+      "public_sha256": "78a233c9511a400eb74584da7109f697684fd5655ae0313862fd22da160cbf3a",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.422,
+      "pre_finalization_public_sha256": "cc5e87d87552f281e54a6f2325e074472acdd76553869cab0f7919263ca3b179",
+      "publication_normalization": "Trailing diagnostic whitespace removed; test outcomes unchanged."
+    },
+    {
+      "path": "artifacts/v14/advice/missing-observation-time-wiring-before.xml",
+      "raw_sha256": "ba7eabc8005fb59f886d9b00b7644e527e74bf036725d8764685c0b7f3cf5d16",
+      "public_sha256": "4939588343bc8ca94cb39708dfaeeb0a61d37637a8f97664615023bf14d420c7",
+      "tests": 27,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 167.394,
+      "pre_finalization_public_sha256": "33d6798bb43d01813b2befb355c47ead279bc0cbc40d1135cb09a80b6fb25737",
+      "publication_normalization": "Trailing diagnostic whitespace removed; test outcomes unchanged."
+    },
+    {
+      "path": "artifacts/v14/advice/missing-observation-time-fixed.xml",
+      "raw_sha256": "0b42ce2c901e47ad1bdeafe7e2b65ad06959034cab8a16b8de50c62c74661c7b",
+      "public_sha256": "ca34a69fcc99685af19bd44d9f8d2885b14f12e31afa8e7af3d493d08302abd0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 7.719
+    },
+    {
+      "path": "artifacts/v14/advice/missing-observation-time-regressions.xml",
+      "raw_sha256": "c6ec10614aa8c787803e169628a344c6e82234c973ea7ccc3514fb411e8a1240",
+      "public_sha256": "7e68a6e3383d1853d494aefd7d5343d0221fd59de312f995eb120eae2aced9d1",
+      "tests": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 94.995
+    }
+  ],
+  "regression_deselection": "test_multiaction_ui_history_reaches_default_analysis is unrelated to current-observation time gating; other advice/choice/UI and science tests selected",
+  "changed_code_sha256": {
+    "src/healthzip/advice.py": "1107764d7fb7d3196df56855fff07086917307cfe8080f117744735471e23a45",
+    "tests/integration/test_v14_current_observation_time.py": "d2ba340089481ec6b7806c8b7349e024f43d6813ff575a0fb4629a0dada790a5"
+  }
+}

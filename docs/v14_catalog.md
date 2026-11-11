@@ -26,9 +26,13 @@ F06 原基线中，次数 v1 更改为时长 v2 后，历史另存模板意外�
 
 每个媒体对象单独核对 Creative Commons 许可 URL、作者、原作链接和作用域，代码许可证不授予媒体使用权。未知许可不下载；原图经过解码验证，视频检查实际 ISO BMFF/QuickTime 容器块完整性；损坏文件标记 failed。每份文件以内容 SHA256 保存，重复运行校验并复用缓存。当前实际状态、字节数和失败原因以 [coverage](../artifacts/v14/catalog/coverage.json) 与 [逐项媒体清单](../artifacts/v14/catalog/media-manifest.json) 为准，不能把计划下载数量当已下载数量。源视频合计约 3.57 GB。
 
-**本次交付快照的媒体状态：389/389 图片已缓存（覆盖 282 动作），4/78 视频已缓存（覆盖 3 动作），74 视频继续后台下载。** 78 个视频的实际 HEAD `Content-Length` 合计 3,570,623,823 bytes，与 API size 逐项一致；见 [HEAD 核验](../artifacts/v14/catalog/video-head-verification.json)。后台已写入但尚无成功回执的文件不算 ready。现有完整可用离线包包含所有已验收媒体：393 个媒体对象、360 个去重文件，315,109,677 bytes；纯文本包 794,755 bytes。两包均含 1004 个公共动作，ZIP 校验与所有包内媒体引用检查通过；hash 与精确分母见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。
+**2026-11-11 13:44:57 UTC 冻结交付快照：389/389 图片已缓存（覆盖282动作），61/78 视频 ready（覆盖35动作），17视频 pending。** 后台下载继续运行，后续成功回执不改变本包冻结分母。78个视频的实际 HEAD `Content-Length` 合计3,570,623,823 bytes，与API size逐项一致；见 [HEAD核验](../artifacts/v14/catalog/video-head-verification.json)。尚无成功回执的片段不计ready。正式离线包包含450个媒体对象、417个去重文件，1,712,936,494 bytes；纯文本包805,024 bytes。两包均含1004个公共动作，全部ZIP CRC、媒体引用路径和每个包内媒体SHA256检查通过；精确hash与分母见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。默认安装、覆盖清单、逐项媒体清单与离线包均使用同一冻结公共快照，计数一致性见 [本轮交付刷新](../artifacts/v14/catalog/media-delivery-refresh.json)。
+
+61 个 ready 视频中，40 个来自此前缺少成功回执的本地完整 blob。恢复逐项验证唯一来源文件大小、本地全文件 SHA256 与完整容器，并在同一强 ETag 下比较来源首/中/尾各 64KiB 与完整 `moov`。**来源没有提供可核验的全文件 checksum；ETag 是不透明验证标记，所比较区间之外的远端字节未逐字节核对。** 不能把本地完整 hash 与范围一致冒充远端全文件 checksum 证明。40 项精确范围、来源身份、时间和限制见 [恢复回执](../artifacts/v14/catalog/cache-recovery.json)，媒体清单对应项也保留这一限制。
 
 视频保持来源原始编码，没有把转码说成原始字节。上游 54 个视频为 HEVC，24 个为 H.264；HEVC 需要支持该编码的浏览器或播放器。本次真实浏览器播放验收使用 `wger.video.21` 的 H.264 文件，已缓存后断网播放，实际解码为 640×352、时长约 15.93 秒。
+
+正式 ZIP 另经全新 Chromium 上下文直接验收：完整解压，导航前断网，从包内 `file:` 路径读取图片与 H.264 视频，未使用 IndexedDB 媒体副本，HTTP 请求为 0；1004 项目录、6000×2188 图片与实际视频播放通过。包 hash、解码尺寸、播放进度和边界见 [离线包浏览器回执](../artifacts/v14/catalog/offline-package-browser.json)。这项验收不证明 HEVC 兼容性。
 
 ```bash
 # 只有显式 fetch/media 命令联网；页面和服务初始化不联网。
@@ -52,7 +56,7 @@ F06 原基线中，次数 v1 更改为时长 v2 后，历史另存模板意外�
 
 Repository 统一执行 schema v4 事务；目录模块没有独立的全局版本号，也不自行提交迁移。新增公共目录表和历史定义快照列采用增量迁移，源事实、旧 ID、数值与单位不重算。只有所有分页、唯一 ID、外键和页哈希通过的快照才能在事务内发布；失败快照保持失败，不把缺页当删除。
 
-默认本地数据库安装前已用 SQLite backup API 备份已提交 WAL 到 `.local/backups/v14-before-catalog-*.sqlite3`。安装后逐表比较 34 张原始私人表的原始列元组、数量和 SHA256，结果一致。公开 [安装验收](../artifacts/v14/catalog/default-install.json) 只保存通过状态与分母，不含私人值或机器绝对路径。恢复时关闭应用，将备份恢复到**新数据库路径**，核对后再在侧栏切换；不要覆盖正在运行的库。
+首次默认数据库安装前已用 SQLite backup API 备份已提交 WAL 到 `.local/backups/v14-before-catalog-*.sqlite3`；当时逐表比较 34 张原始私人表的原始列元组、数量和 SHA256，结果一致。这是历史安装证据。本轮媒体更新再次通过 SQLite backup API 新建 `.local/backups/v14-before-media-cache-*.sqlite3`，直接 SQLite 连接设置授权器，仅允许公共目录/schema 表读取及 `catalog_media`、`schema_meta` 写入，拒绝私人 SQL 读取/写入及 DDL；本次没有读取或重新哈希私人记录。五张公共身份、定义、翻译和快照表更新前后 hash 不变。公开 [安装验收](../artifacts/v14/catalog/default-install.json) 保留历史结果并追加本次 `media_cache_update`，不含私人值或机器绝对路径。恢复时关闭应用，将备份恢复到**新数据库路径**，核对后再在侧栏切换；不要覆盖正在运行的库。
 
 ## CAT-01 至 CAT-18 对照
 
@@ -81,23 +85,23 @@ Repository 统一执行 schema v4 事务；目录模块没有独立的全局版�
 
 ## 后台媒体完成后的本地更新
 
-本轮后台下载写入独立公共目录库；默认健康库当前已挂载389图和4视频。下载完成后，可先复用已校验文件，不重复联网下载：
+后台下载写入独立公共目录库，每完成一个文件就提交成功回执；队列按来源体积从小到大调度。已验收完整文件直接复用，未完成文件保留 URL、来源验证标记和总长度。续传要求精确 Range、同一 ETag/Last-Modified 及总长度，响应不符时拒绝拼接。4 份既有片段共 40,370,176 bytes 已重新核对末尾 64KiB 与同一强 ETag，见 [片段核验](../artifacts/v14/catalog/partial-resume-verification.json)，不计入 ready。
+
+本轮13:44:57 UTC快照的默认健康库安装已挂载389图和61视频。后续复用新完成文件时运行专用工具；它先备份默认库，再通过 SQL 授权器限制访问范围：
 
 ```bash
-.venv/bin/python - <<'PY'
-from healthzip.db.repository import Repository
-from healthzip.training.catalog_media import reuse_media_cache
-source = Repository('.local/catalog/catalog.sqlite3')
-target = Repository('.local/healthzip.sqlite3')
-try:
-    print(reuse_media_cache(target, source))
-finally:
-    target.close()
-    source.close()
-PY
+PYTHONPATH=src .venv/bin/python tools/v14_download_catalog_media.py --workers 4
+PYTHONPATH=src .venv/bin/python tools/v14_install_media_cache.py
+PYTHONPATH=src .venv/bin/python tools/v14_package_catalog_media.py
+PYTHONPATH=src .venv/bin/python tools/v14_catalog_evidence.py --snapshot <完整快照目录>
+PYTHONPATH=src .venv/bin/python tools/v14_package_browser.py
 ```
 
-随后运行上方的离线包导出命令。新的ready数量应从当前回执重新统计；本次提交的覆盖工件是冻结交付快照，不把仍在下载的74个视频算作已经可用。
+下载工具使用文件锁阻止重复进程，逐文件成功后写日志；锁文件与 PID 记录本身不证明进程仍在运行，须用操作系统进程状态核实。
+
+冻结前的13:42:37 UTC实时观察见 [媒体进度历史回执](../artifacts/v14/catalog/media-live-progress.json)：当时已ready的389图和61视频随后在13:44:57 UTC进入本次新冻结包。下载进程经操作系统核实持续运行，未重启；17个pending视频的来源完整文件大小合计2,040,624,226 bytes，片段不计ready。新包再次通过全新Chromium上下文的断网file路径加载和实际H.264播放，HTTP请求为0。后续live缓存可继续增长；交付计数以本次冻结包、默认安装与对应浏览器回执为准。离线包工具先冻结公共 SQLite 快照，再验证全部 ZIP CRC、媒体路径和每个包内媒体 SHA256，通过后替换正式包。本次提交的覆盖工件是带时间的冻结交付快照；后续新增 ready 以本地成功回执为准，不能把 pending 或片段计为可用。
+
+本轮目录/续传及安装授权器共 24 项测试通过，见 [媒体回归](../artifacts/v14/catalog/media-cache-final-pytest.xml)。合成反例覆盖来源标记变化、范围/总长度不符时保留原片段、私人 SQL 读写拒绝和 WAL 备份；真实浏览器播放另见前述回执。
 
 ## 列表与媒体状态补充验收
 

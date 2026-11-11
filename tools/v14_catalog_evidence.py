@@ -7,7 +7,13 @@ from pathlib import Path
 from jsonschema import validate
 
 from healthzip.db.repository import Repository
-from healthzip.training.catalog_import import coverage, digest, public_catalog, validate_snapshot
+from healthzip.training.catalog_import import (
+    coverage,
+    digest,
+    now,
+    public_catalog,
+    validate_snapshot,
+)
 
 
 def main():
@@ -29,8 +35,23 @@ def main():
             validate(item, schema)
             checked += 1
     media = []
+    recovery_path = output / "cache-recovery.json"
+    recovered = {
+        row["media_id"]: row
+        for row in (json.loads(recovery_path.read_text()).get("recovered_receipts", [])
+                    if recovery_path.exists() else [])
+    }
     for row in repo.conn.execute("SELECT * FROM catalog_media ORDER BY media_id"):
         meta = json.loads(row["metadata_json"])
+        receipt = recovered.get(row["media_id"])
+        if receipt and receipt["local_sha256"] == row["blob_hash"]:
+            meta["cache_recovery"] = {
+                "evidence": "cache-recovery.json",
+                "local_sha256_verified": True,
+                "origin_ranges_and_complete_moov_verified": True,
+                "remote_whole_file_checksum_verified": False,
+                "limitation": receipt["limitation"],
+            }
         media.append(
             {
                 **meta,
@@ -52,6 +73,12 @@ def main():
     report["downloaded_bytes"] = sum(
         x.get("verified_file", {}).get("size", 0) for x in media if x["fetch_status"] == "ready"
     )
+    report["checked_at"] = now()
+    report["cache_recovered_video_objects"] = sum(
+        bool(x.get("cache_recovery")) for x in media if x["fetch_status"] == "ready"
+    )
+    report["recovery_evidence"] = "cache-recovery.json"
+    report["remote_whole_file_checksum_verified_for_recovered_blobs"] = False
     products = {
         "manifest.json": manifest,
         "coverage.json": report,

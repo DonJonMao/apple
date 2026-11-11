@@ -1,0 +1,83 @@
+{
+  "requirements": [
+    "STR-09",
+    "original frozen plan identity and actual-state availability"
+  ],
+  "data_kind": "synthetic_software_verification",
+  "production_health_data_read": false,
+  "production_knowledge_modified": false,
+  "prior_frozen_evaluations_modified": false,
+  "projection": "remove_hostname_and_local_paths_preserve_test_outcomes",
+  "new_cases_verified": 28,
+  "compatible_group_fields": [
+    "completed",
+    "skipped",
+    "unknown",
+    "planned",
+    "completed_fraction_of_plan",
+    "extra_sets"
+  ],
+  "new_endpoints": [
+    "load",
+    "reps",
+    "rir"
+  ],
+  "denominators": [
+    "planned_n",
+    "target_n",
+    "known_n",
+    "unknown_n",
+    "no_target_n"
+  ],
+  "numeric_interpretation": "Separate recorded plan endpoint matches; not a composite success, stimulus or adaptation score. A heavier load does not automatically match a specified load.",
+  "state_interpretation": "Skipped is explicit nonexecution. Draft/in_progress may show recorded observed_match but final target status remains unknown. Aborted recorded endpoints may match without increasing completed group count. Undated states require explicit original plan session/window membership and latest available revision, with no inferred actual endpoint.",
+  "source_scope": "Only original start_session targets; no inferred target unit/basis from actual values or equipment. Unknown actual RIR stays unknown; reported RIR intervals are compared by logical containment/disjointness.",
+  "files": [
+    {
+      "path": "artifacts/v14/science/str09-targets-before.xml",
+      "raw_sha256": "cce175cf4252fcce59aa059f21a6ea64312d5953332274c7f0ef7fbf8417b345",
+      "public_sha256": "575293838589213cba544591aa535a92a1982b25664ebcfef98bc8c1203284fe",
+      "tests": 13,
+      "failures": 13,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.334
+    },
+    {
+      "path": "artifacts/v14/science/str09-plan-status-before.xml",
+      "raw_sha256": "20b61b3a94c82c8e12e5f04cbf881a834eaedb6b0cf0ccab00f5671cd057012d",
+      "public_sha256": "bfe0ae87b33be3fd3270817eb902f4e4998c4f7c0d7839883285c50c0e664b89",
+      "tests": 8,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.59
+    },
+    {
+      "path": "artifacts/v14/science/str09-targets-fixed.xml",
+      "raw_sha256": "2dd450a3f61181ada6f78478087649f4ac8d5abd32b5956ea224d1bba0d6bca8",
+      "public_sha256": "72638bff3877862bcd61c06d8d838ee29162717c782b170838c295dff26e26c0",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.545
+    },
+    {
+      "path": "artifacts/v14/science/str09-targets-verification.xml",
+      "raw_sha256": "90773e4e21ff992f25565171f31de460d8637b1d7323e762d4eedecc1a1c17d7",
+      "public_sha256": "fd75797b85bb8db05dd653decb0527b5d665a0f7ef96e5fd0431e07ee9dfb630",
+      "tests": 281,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 25.73
+    }
+  ],
+  "source_sha256": {
+    "src/healthzip/science/strength.py": "f1b40cd56b628a1aa928a64e47e89bbbe8358ca84dbd31bcbb2fda2fc095c6b6",
+    "src/healthzip/science/engine.py": "1bd097d8630cb7ebd7dc679bbce5b4cd739cd106f19bf8f201aacc1f116b6408",
+    "tests/integration/test_v14_plan_target_attainment.py": "d8de7c85bccba4955d8d87b80ec250bf158a24ac9fea3aa66161aef4de0dbfdd"
+  },
+  "version_followup": "Parent bumped science/analysis/cache to 1.4.1 after these targeted tests; final whole-repository verification separately records the new versions. These targeted artifacts retain their execution identity."
+}

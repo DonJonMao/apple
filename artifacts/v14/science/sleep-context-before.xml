@@ -1,0 +1,172 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="12" time="0.252" timestamp="2026-11-11T21:47:54.514843+08:00"><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_rejects_unavailable_or_outside_episodes[changes0-outside_window]" time="0.006"><failure message="AssertionError: assert {'episodes': [{'start': '2020-01-01T23:00:00+00:00', 'end': '2020-01-02T07:00:00+00:00', 'midpoint': '2020-01-02T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None">changes = {'start': '2020-01-01T23:00:00+00:00', 'end': '2020-01-02T07:00:00+00:00'}
+reason = 'outside_window'
+
+    @pytest.mark.parametrize("changes,reason", [
+        ({"start": "2020-01-01T23:00:00+00:00", "end": "2020-01-02T07:00:00+00:00"}, "outside_window"),
+        ({"start": "2026-11-07T23:00:00+00:00", "end": END}, "outside_window"),
+        ({"available_at": "2027-01-01T00:00:00+00:00"}, "available_after_cutoff"),
+        ({"available_at": None}, "available_at_unknown"),
+    ])
+    def test_timing_rejects_unavailable_or_outside_episodes(changes, reason):
+        result = timing([episode(**changes)])
+&gt;       assert result["value"] is None
+E       AssertionError: assert {'episodes': [{'start': '2020-01-01T23:00:00+00:00', 'end': '2020-01-02T07:00:00+00:00', 'midpoint': '2020-01-02T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None
+
+tests/science/test_v14_sleep_context_time.py:32: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_rejects_unavailable_or_outside_episodes[changes1-outside_window]" time="0.004"><failure message="AssertionError: assert {'episodes': [{'start': '2026-11-07T23:00:00+00:00', 'end': '2026-11-08T00:00:00+00:00', 'midpoint': '2026-11-07T23:30...esultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 23.5, 'resultant_length': 1.0}}} is None">changes = {'start': '2026-11-07T23:00:00+00:00', 'end': '2026-11-08T00:00:00+00:00'}
+reason = 'outside_window'
+
+    @pytest.mark.parametrize("changes,reason", [
+        ({"start": "2020-01-01T23:00:00+00:00", "end": "2020-01-02T07:00:00+00:00"}, "outside_window"),
+        ({"start": "2026-11-07T23:00:00+00:00", "end": END}, "outside_window"),
+        ({"available_at": "2027-01-01T00:00:00+00:00"}, "available_after_cutoff"),
+        ({"available_at": None}, "available_at_unknown"),
+    ])
+    def test_timing_rejects_unavailable_or_outside_episodes(changes, reason):
+        result = timing([episode(**changes)])
+&gt;       assert result["value"] is None
+E       AssertionError: assert {'episodes': [{'start': '2026-11-07T23:00:00+00:00', 'end': '2026-11-08T00:00:00+00:00', 'midpoint': '2026-11-07T23:30...esultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 23.5, 'resultant_length': 1.0}}} is None
+
+tests/science/test_v14_sleep_context_time.py:32: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_rejects_unavailable_or_outside_episodes[changes2-available_after_cutoff]" time="0.004"><failure message="AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None">changes = {'available_at': '2027-01-01T00:00:00+00:00'}
+reason = 'available_after_cutoff'
+
+    @pytest.mark.parametrize("changes,reason", [
+        ({"start": "2020-01-01T23:00:00+00:00", "end": "2020-01-02T07:00:00+00:00"}, "outside_window"),
+        ({"start": "2026-11-07T23:00:00+00:00", "end": END}, "outside_window"),
+        ({"available_at": "2027-01-01T00:00:00+00:00"}, "available_after_cutoff"),
+        ({"available_at": None}, "available_at_unknown"),
+    ])
+    def test_timing_rejects_unavailable_or_outside_episodes(changes, reason):
+        result = timing([episode(**changes)])
+&gt;       assert result["value"] is None
+E       AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None
+
+tests/science/test_v14_sleep_context_time.py:32: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_rejects_unavailable_or_outside_episodes[changes3-available_at_unknown]" time="0.004"><failure message="AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None">changes = {'available_at': None}, reason = 'available_at_unknown'
+
+    @pytest.mark.parametrize("changes,reason", [
+        ({"start": "2020-01-01T23:00:00+00:00", "end": "2020-01-02T07:00:00+00:00"}, "outside_window"),
+        ({"start": "2026-11-07T23:00:00+00:00", "end": END}, "outside_window"),
+        ({"available_at": "2027-01-01T00:00:00+00:00"}, "available_after_cutoff"),
+        ({"available_at": None}, "available_at_unknown"),
+    ])
+    def test_timing_rejects_unavailable_or_outside_episodes(changes, reason):
+        result = timing([episode(**changes)])
+&gt;       assert result["value"] is None
+E       AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 1, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None
+
+tests/science/test_v14_sleep_context_time.py:32: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_unknown_availability_requires_explicit_retrospective_mode" time="0.004"><failure message="AssertionError: assert 'retrospective_snapshot_not_prospective' in []">def test_timing_unknown_availability_requires_explicit_retrospective_mode():
+        result = timing([episode(available_at=None)], retrospective=True)
+        assert result["value"]["circular_midpoint_hour"] == 3
+&gt;       assert "retrospective_snapshot_not_prospective" in result["reason_codes"]
+E       AssertionError: assert 'retrospective_snapshot_not_prospective' in []
+
+tests/science/test_v14_sleep_context_time.py:41: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_keeps_original_endpoints_and_actual_time_midpoint[2026-11-01T00:00:00-04:00-2026-11-01T08:00:00-05:00-America/New_York-3.5]" time="0.004"><failure message="KeyError: 'recorded_start'">start = '2026-11-01T00:00:00-04:00', end = '2026-11-01T08:00:00-05:00'
+zone = 'America/New_York', midpoint = 3.5
+
+    @pytest.mark.parametrize("start,end,zone,midpoint", [
+        ("2026-11-01T00:00:00-04:00", "2026-11-01T08:00:00-05:00", "America/New_York", 3.5),
+        ("2026-11-02T23:30:00+08:00", "2026-11-03T07:30:00+08:00", "Asia/Shanghai", 3.5),
+    ])
+    def test_timing_keeps_original_endpoints_and_actual_time_midpoint(start, end, zone, midpoint):
+        result = timing([episode(start=start, end=end, timezone=zone)])
+        point = result["value"]["episodes"][0]
+        assert point["local_hour"] == midpoint
+&gt;       assert point["recorded_start"] == start and point["recorded_end"] == end
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'recorded_start'
+
+tests/science/test_v14_sleep_context_time.py:55: KeyError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_keeps_original_endpoints_and_actual_time_midpoint[2026-11-02T23:30:00+08:00-2026-11-03T07:30:00+08:00-Asia/Shanghai-3.5]" time="0.004"><failure message="KeyError: 'recorded_start'">start = '2026-11-02T23:30:00+08:00', end = '2026-11-03T07:30:00+08:00'
+zone = 'Asia/Shanghai', midpoint = 3.5
+
+    @pytest.mark.parametrize("start,end,zone,midpoint", [
+        ("2026-11-01T00:00:00-04:00", "2026-11-01T08:00:00-05:00", "America/New_York", 3.5),
+        ("2026-11-02T23:30:00+08:00", "2026-11-03T07:30:00+08:00", "Asia/Shanghai", 3.5),
+    ])
+    def test_timing_keeps_original_endpoints_and_actual_time_midpoint(start, end, zone, midpoint):
+        result = timing([episode(start=start, end=end, timezone=zone)])
+        point = result["value"]["episodes"][0]
+        assert point["local_hour"] == midpoint
+&gt;       assert point["recorded_start"] == start and point["recorded_end"] == end
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'recorded_start'
+
+tests/science/test_v14_sleep_context_time.py:55: KeyError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_timing_revisions_do_not_revive_an_old_in_window_episode" time="0.004"><failure message="AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 2, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None">def test_timing_revisions_do_not_revive_an_old_in_window_episode():
+        original = episode()
+        moved = episode(id="revision-2", start="2026-10-30T23:00:00+00:00",
+                        end="2026-10-31T07:00:00+00:00", available_at="2026-11-04T00:00:00+00:00")
+&gt;       assert timing([original, moved])["value"] is None
+E       AssertionError: assert {'episodes': [{'start': '2026-11-02T23:00:00+00:00', 'end': '2026-11-03T07:00:00+00:00', 'midpoint': '2026-11-03T03:00...resultant_length': 1.0, 'timezone_segments': {'UTC': {'n': 2, 'circular_midpoint_hour': 3.0, 'resultant_length': 1.0}}} is None
+
+tests/science/test_v14_sleep_context_time.py:65: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_sleep_stage_annotations_use_the_declared_episode_support" time="0.004"><failure message="AssertionError: assert {'deep': 960.0} == {'deep': 480}&#10;  &#10;  Differing items:&#10;  {'deep': 960.0} != {'deep': 480}&#10;  Use -v to get more diff">def test_sleep_stage_annotations_use_the_declared_episode_support():
+        rows = []
+        for day in (2, 3):
+            rows.append({"id": f"synthetic-stage-{day}", "canonical_type": "sleep_stage",
+                         "stage": "deep", "source_name": "synthetic-watch",
+                         "event_start": f"2026-11-0{day}T00:00:00+00:00",
+                         "event_end": f"2026-11-0{day}T08:00:00+00:00",
+                         "available_at": f"2026-11-0{day}T08:01:00+00:00"})
+        result = evaluate("STATE-SLEEP-STAGE", rows, cutoff_time=END, window_start=START,
+                          window_end=END, context={"main_sleep_episode": {
+                              "start": rows[1]["event_start"], "end": rows[1]["event_end"],
+                              "available_at": rows[1]["available_at"], "complete": True}})
+&gt;       assert result["value"]["stage_minutes"] == {"deep": 480}
+E       AssertionError: assert {'deep': 960.0} == {'deep': 480}
+E
+E         Differing items:
+E         {'deep': 960.0} != {'deep': 480}
+E         Use -v to get more diff
+
+tests/science/test_v14_sleep_context_time.py:80: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_visible_revision_invalidates_older_record_before_event_filter[revision0]" time="0.001"><failure message="AssertionError: assert [{'id': 'orig...+00:00', ...}] == []&#10;  &#10;  Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}&#10;  Use -v to get more diff">revision = {'event_end': '2027-01-01T00:00:00+00:00'}
+
+    @pytest.mark.parametrize("revision", [
+        {"event_end": "2027-01-01T00:00:00+00:00"},
+        {"event_end": None},
+        {"record_status": "deleted", "event_end": None},
+    ])
+    def test_visible_revision_invalidates_older_record_before_event_filter(revision):
+        original = {"id": "original", "source_record_id": "logical-sample",
+                    "event_end": "2026-11-03T07:00:00+00:00", "available_at": "2026-11-03T08:00:00+00:00"}
+        changed = {**original, "id": "revision", "available_at": "2026-11-04T08:00:00+00:00", **revision}
+        selected, _ = select_as_of([original, changed], Window(START, END, END))
+&gt;       assert selected == []
+E       AssertionError: assert [{'id': 'orig...+00:00', ...}] == []
+E
+E         Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/science/test_v14_sleep_context_time.py:95: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_visible_revision_invalidates_older_record_before_event_filter[revision1]" time="0.001"><failure message="AssertionError: assert [{'id': 'orig...+00:00', ...}] == []&#10;  &#10;  Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}&#10;  Use -v to get more diff">revision = {'event_end': None}
+
+    @pytest.mark.parametrize("revision", [
+        {"event_end": "2027-01-01T00:00:00+00:00"},
+        {"event_end": None},
+        {"record_status": "deleted", "event_end": None},
+    ])
+    def test_visible_revision_invalidates_older_record_before_event_filter(revision):
+        original = {"id": "original", "source_record_id": "logical-sample",
+                    "event_end": "2026-11-03T07:00:00+00:00", "available_at": "2026-11-03T08:00:00+00:00"}
+        changed = {**original, "id": "revision", "available_at": "2026-11-04T08:00:00+00:00", **revision}
+        selected, _ = select_as_of([original, changed], Window(START, END, END))
+&gt;       assert selected == []
+E       AssertionError: assert [{'id': 'orig...+00:00', ...}] == []
+E
+E         Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/science/test_v14_sleep_context_time.py:95: AssertionError</failure></testcase><testcase classname="tests.science.test_v14_sleep_context_time" name="test_visible_revision_invalidates_older_record_before_event_filter[revision2]" time="0.001"><failure message="AssertionError: assert [{'id': 'orig...+00:00', ...}] == []&#10;  &#10;  Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}&#10;  Use -v to get more diff">revision = {'record_status': 'deleted', 'event_end': None}
+
+    @pytest.mark.parametrize("revision", [
+        {"event_end": "2027-01-01T00:00:00+00:00"},
+        {"event_end": None},
+        {"record_status": "deleted", "event_end": None},
+    ])
+    def test_visible_revision_invalidates_older_record_before_event_filter(revision):
+        original = {"id": "original", "source_record_id": "logical-sample",
+                    "event_end": "2026-11-03T07:00:00+00:00", "available_at": "2026-11-03T08:00:00+00:00"}
+        changed = {**original, "id": "revision", "available_at": "2026-11-04T08:00:00+00:00", **revision}
+        selected, _ = select_as_of([original, changed], Window(START, END, END))
+&gt;       assert selected == []
+E       AssertionError: assert [{'id': 'orig...+00:00', ...}] == []
+E
+E         Left contains one more item: {'id': 'original', 'source_record_id': 'logical-sample', 'event_end': '2026-11-03T07:00:00+00:00', 'available_at': '2026-11-03T08:00:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/science/test_v14_sleep_context_time.py:95: AssertionError</failure></testcase></testsuite></testsuites>

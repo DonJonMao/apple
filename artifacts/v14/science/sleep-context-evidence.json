@@ -1,0 +1,74 @@
+{
+  "requirements": [
+    "STATE-SLEEP-TIMING",
+    "STATE-SLEEP-STAGE",
+    "F13",
+    "77-metric common time/revision invariants"
+  ],
+  "data_kind": "synthetic_software_verification",
+  "production_health_data_read": false,
+  "production_knowledge_modified": false,
+  "prior_frozen_evaluations_modified": false,
+  "projection": "remove_hostname_and_local_paths_preserve_test_outcomes",
+  "changes": [
+    "sleep episode contexts use explicit availability, latest visible revision and half-open end-event window",
+    "stage annotation numerator clipped to explicit main episode support",
+    "latest visible corrections resolved before event timestamp checks, including future/unknown endpoints and tombstones"
+  ],
+  "fixture_migration": "Existing circular-midpoint and timezone-separation expectations unchanged. Synthetic episode IDs and explicit availability timestamps added; missing availability has separate prospective rejection and labelled retrospective tests. Initial regression result retained.",
+  "adapter_boundary": "Repository and UI currently do not auto-generate sleep_episodes or infer a confirmed main sleep episode; these declarations are explicit science API context.",
+  "files": [
+    {
+      "path": "artifacts/v14/science/sleep-context-before.xml",
+      "raw_sha256": "b30aec730f0adc10ffba7ba0548be7e1dcb8852cf2422cc1265ff0b77ac0fc94",
+      "public_sha256": "075f0390fe227b99deed742733c4c9815c2ff0d57528db8a5a35c83672d0f1ed",
+      "tests": 12,
+      "failures": 12,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.252,
+      "pre_finalization_public_sha256": "26a7f910cf7b91a77dd351c1394cdc7f69897619f0fa4e8595385c0e2f0b00d2",
+      "publication_normalization": "Trailing diagnostic whitespace removed; test outcomes unchanged."
+    },
+    {
+      "path": "artifacts/v14/science/sleep-context-fixed.xml",
+      "raw_sha256": "7e5bbdd5cb969b6e5c5fb35e492fc8b9082560e24502fd79b1d89a3072842144",
+      "public_sha256": "a594089c43594697c07bc3aaf3fbee72ccd6ec971333b2a2aa5b67a6c8547a2e",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.145
+    },
+    {
+      "path": "artifacts/v14/science/sleep-context-regressions-initial.xml",
+      "raw_sha256": "6db8d71bb1a3a67dfe9d29fea56b34c87066aebdddc33e9fcb2af4989ed1c44d",
+      "public_sha256": "ed36af64f0c3a3841be0ab82c99518ad22a1cfcc9f09b022f4fecd66f428c7b4",
+      "tests": 262,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 23.263,
+      "pre_finalization_public_sha256": "2715f69cf89d0c6d2bf5fa04a2e999a5ae9dbe60a0018367abb36385a703fd37",
+      "publication_normalization": "Trailing diagnostic whitespace removed; test outcomes unchanged."
+    },
+    {
+      "path": "artifacts/v14/science/sleep-context-regressions.xml",
+      "raw_sha256": "e4dc92529ba402d46eea25dc67997492dd849b9e27f0fdd2cd11d49d9a561314",
+      "public_sha256": "58a6119a677f30099ac705d370a2f611b406bfd68ba1efab824f539f8af64f42",
+      "tests": 274,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 23.442
+    }
+  ],
+  "source_sha256": {
+    "src/healthzip/science/contracts.py": "a190d7c9c80812b5fbdf53a3c8a65a50d8cdacebe2702160fed7c036e191612d",
+    "src/healthzip/science/engine.py": "49f72310c45d2087fdee422472ba96d8c54dc908c7765d25b9b8a6e6c8e08b74",
+    "src/healthzip/science/state.py": "7b441ff47e4cc9317efb834abb4e15e8c877c331b267b3b85e7004307331bb8b",
+    "tests/science/test_v14_sleep_context_time.py": "40406ccadf4585e5ef1f4ebca98f6f1f2172804b9539fd9385b7491fd0d43971",
+    "tests/science/test_state_energy_prediction.py": "1c78aa85af418214c185a05dd576853226616d53ca566924d742f766abdbc850",
+    "tests/science/test_metric_acceptance.py": "ef1ab1211cba1110f8dde67c52df5828c202af6f4bae1ca0794eed7230857c03"
+  }
+}

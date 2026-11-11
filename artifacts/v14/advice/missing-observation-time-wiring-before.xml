@@ -1,0 +1,499 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="27" time="167.394" timestamp="2026-11-11T21:37:36.778040+08:00"><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[True-double_progression-in_progress]" time="0.257"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff80a80410&gt;
+strategy = 'double_progression', state = 'in_progress', pain = True
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff80a91b50&gt;
+candidate = {'candidate_id': 'ebbbc36c-c68a-49cd-b30f-21b01e066fe5', 'target_session': '1e177415-8f6b-5593-9686-80fae84fee9c', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['8128d632-fbe0-57ed-92ff-3b80007f0b93', '88a13576-777d-5f4d-ab1e-e3a0db85024b'], 'metric_result...-3e2350e86f8c', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 8, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:37.120429+00:00'
+theory_version = '05ffa1e7aadefba0ee7b902b4cd36bbdb31a9329bdc5228bccb3e871c488554b'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[True-heavier_lower_reps-completed]" time="0.198"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7db28e90&gt;
+strategy = 'heavier_lower_reps', state = 'completed', pain = True
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff7db3b290&gt;
+candidate = {'candidate_id': 'aa97602d-289b-4ab7-aa95-2ae4ef862a8b', 'target_session': 'c1bfc522-17a6-5f1b-b606-fd977670a848', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['4d2ce8a5-54e2-5bd1-9027-9b8ed94e9b14', 'c221e493-3894-5c0f-8203-451bb8202745'], 'metric_result...-56f93890de07', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 8, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:37.473296+00:00'
+theory_version = 'b9995572d3889d8af5946e782bf83cefeabe28bb91dcff3f75f89ec1743fb014'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[True-repetition_progression-aborted]" time="0.200"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7da1e950&gt;
+strategy = 'repetition_progression', state = 'aborted', pain = True
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff7da1dc10&gt;
+candidate = {'candidate_id': '14ad92f8-76f6-48b5-93f4-48542494bc3d', 'target_session': 'c70efd98-2637-54bd-8b8b-75167c0543ed', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['84937ae3-d3c1-5f5b-989b-24d2b42f3816', 'baa1d976-90d6-56bb-b1fe-b76434a4af43'], 'metric_result...e3b90ec53639', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 16, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:37.766295+00:00'
+theory_version = '9004c0aceb050e88ccf7e9de131d3c058983117978189549dfe85c40ae288075'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[False-double_progression-in_progress]" time="0.199"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7d9f2ed0&gt;
+strategy = 'double_progression', state = 'in_progress', pain = False
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff7d9f3990&gt;
+candidate = {'candidate_id': 'c41bbe90-9912-4ade-a00a-c3d381d646dc', 'target_session': '4ed777b0-3bea-5ade-b3a4-557969309f37', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['bb6a86a4-afcd-580d-be16-fa6d50af7e06', '29d913a6-7fa6-57c2-8a78-53108c0d5e39'], 'metric_result...-d446ca36f91e', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 8, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:38.081771+00:00'
+theory_version = '60109763889de4f993d4308f4e5f9c97eccf1a791d66794a6b2a14b75c70028f'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[False-heavier_lower_reps-completed]" time="0.198"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7db62310&gt;
+strategy = 'heavier_lower_reps', state = 'completed', pain = False
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff7db62b50&gt;
+candidate = {'candidate_id': '5490c389-739d-4e6a-b8f7-79f31a550cfe', 'target_session': 'a638e9bd-0cfe-5e9f-ab28-67b1eacaba3b', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['98d0e319-0b50-539e-8f54-10bd3eb12066', '42ee23e3-59fa-5f76-bded-1eea394c9f15'], 'metric_result...-3ea76aa3ac87', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 8, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:38.374278+00:00'
+theory_version = 'eaa5e71f981b8279c12abd671ea6ba328baa6512cf083b48d47f1543cd339787'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_current_times_are_not_an_empty_observation_set[False-repetition_progression-aborted]" time="0.218"><failure message="healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_missing_current_times_are5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7db1c310&gt;
+strategy = 'repetition_progression', state = 'aborted', pain = False
+
+    @pytest.mark.parametrize("strategy,state", [
+        ("double_progression", "in_progress"),
+        ("heavier_lower_reps", "completed"),
+        ("repetition_progression", "aborted"),
+    ])
+    @pytest.mark.parametrize("pain", [True, False])
+    def test_missing_current_times_are_not_an_empty_observation_set(tmp_path, monkeypatch, strategy, state, pain):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch, strategy)
+        try:
+            observation = svc.add_set(instance["id"], {
+                "completion_state": state, "reps": 4,
+                "started_at": None, "ended_at": None, "pain_flag": pain,
+                "quality_status": "technique_limited" if pain else "acceptable",
+                "stop_reason": "pain" if pain else "target_rir",
+            })
+            # Adding a completed row normally leaves missing endpoints unknown;
+            # the adapter must not invent a set time from its enclosing session.
+            assert observation["started_at"] is None and observation["ended_at"] is None
+            advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], strategy)
+            assert observation["set_uuid"] in advice["context"]["current_session_record_ids"]
+            assert advice["context"]["current_session_observations"][0]["event_end"] is None
+            # Select the original planned target, not the extra actual observation.
+            effective = svc.current_targets(instance["id"])
+&gt;           saved = freeze_candidate(repo, svc, advice["session"], advice["instance"], effective,
+                                     effective["sets"][0], [50, 52.5, 55], strategy)
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/src/healthzip/advice.py:333: in freeze_candidate
+    return svc.record_recommendation(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.training.service.TrainingService object at 0xffff7db1fa50&gt;
+candidate = {'candidate_id': '6b2b1289-08df-4687-838a-fbb2c2602fc6', 'target_session': '880f3bf7-3675-5924-adcc-56f0fb103f05', 'ac...idence', 'proposed_change': {'load': None, 'load_unit': None, 'load_basis': 'external_total_kg', 'changes': None}, ...}
+input_snapshot = {'source_record_ids': ['cbb1c50a-8bef-5fbe-94f4-f6b3270ae122', '62bc2abf-ad9f-5750-8bf7-5251f7dbee5c'], 'metric_result...d11f02de1c81', 'revision': 1, 'completion_state': 'draft', 'target': {'reps_max': 16, 'reps_min': 6, 'rir': 2}}}], ...}
+cutoff_time = '2026-11-11T13:37:38.685025+00:00'
+theory_version = '875bd475e3e3f1040228e04c746d51165e18a547d134179570690cb2cfb60c58'
+data_version = None
+
+    def record_recommendation(
+        self,
+        candidate: dict,
+        input_snapshot: dict,
+        *,
+        cutoff_time: str,
+        theory_version: str,
+        data_version=None,
+    ) -&gt; dict:
+        required = {
+            "candidate_id",
+            "target_session",
+            "action_kind",
+            "proposed_change",
+            "target_range",
+            "reason_evidence_ids",
+            "eligibility",
+            "uncertainty",
+            "verification_protocol",
+            "followup_window",
+            "rule_version",
+            "user_choice",
+        }
+        missing = required - set(candidate)
+        if missing:
+            raise TrainingError("候选缺少字段: " + ",".join(sorted(missing)))
+        cutoff = timestamp(cutoff_time)
+        if not theory_version:
+            raise TrainingError("必须记录理论版本或明确 none_reviewed")
+        for identity in input_snapshot.get("source_record_ids", []):
+            row = self.get_set(identity)
+            actual_time = row.get("ended_at") or row.get("started_at")
+            if not actual_time or not row.get("available_at"):
+&gt;               raise TrainingError("来源记录缺少事件时间或可用时间")
+E               healthzip.training.semantics.TrainingError: 来源记录缺少事件时间或可用时间
+
+&lt;repo&gt;/src/healthzip/training/service.py:2295: TrainingError</failure></testcase><testcase classname="tests.integration.test_v14_current_observation_time" name="test_explicit_future_current_observation_does_not_enter_present_candidate" time="0.184" /><testcase classname="tests.integration.test_v14_current_observation_time" name="test_ui_cleared_time_keeps_current_pain_in_frozen_candidate_evidence" time="5.444"><failure message="AssertionError: assert (not ElementList() and not ElementList(_list=[Error()]))&#10; +  where ElementList() = AppTest(\n    _script_path='/tmp/tmp5tlhbym2/e0f245785d79d2497fc7bcf835c6c7a1',\n    default_timeout=3,\n    _session_sta...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception&#10;[+1 more line; full report in element text]">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-252/test_ui_cleared_time_keeps_cur0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff80aa2cd0&gt;
+
+    def test_ui_cleared_time_keeps_current_pain_in_frozen_candidate_evidence(tmp_path, monkeypatch):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch)
+        row = svc.get_session_exercise(instance["id"])["sets"][0]
+        path = repo.path
+        repo.close()
+        app = HELPERS["HELPERS"]["open_app"](path)
+        key = "set_" + row["set_uuid"]
+        app.button(key=key + "_in_progress").click().run(timeout=30)
+        app.selectbox(key=key + "_pain").set_value(True)
+        app.selectbox(key=key + "_quality").set_value("technique_limited")
+        app.selectbox(key=key + "_stop").set_value("pain")
+        app.text_input(key=key + "_start").set_value("")
+        app.button(key=key + "_save_fields").click().run(timeout=30)
+        app.selectbox(key="candidate_target_" + instance["id"]).set_value(row["set_uuid"])
+        app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
+        app.button(key="candidate_" + instance["id"]).click().run(timeout=30)
+&gt;       assert not app.exception and not app.error
+E       AssertionError: assert (not ElementList() and not ElementList(_list=[Error()]))
+E        +  where ElementList() = AppTest(\n    _script_path='/tmp/tmp5tlhbym2/e0f245785d79d2497fc7bcf835c6c7a1',\n    default_timeout=3,\n    _session_sta...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+E        +  and   ElementList(_list=[Error()]) = AppTest(\n    _script_path='/tmp/tmp5tlhbym2/e0f245785d79d2497fc7bcf835c6c7a1',\n    default_timeout=3,\n    _session_sta...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).error
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:94: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_advice_flow" name="test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade" time="2.212" /><testcase classname="tests.integration.test_v14_advice_flow" name="test_new_symptom_changes_current_use_without_rewriting_frozen_task" time="0.258" /><testcase classname="tests.integration.test_v14_advice_flow" name="test_modified_choice_checks_equipment_and_preserves_original_task" time="0.248" /><testcase classname="tests.integration.test_v14_advice_flow" name="test_partial_visible_targets_freeze_missing_conditions_without_crashing" time="6.934" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_old_candidate_handle_cannot_bypass_corrected_reference" time="0.226" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_profile_revision_is_selected_at_actual_cutoff" time="0.184" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_modification_preserves_endpoint_plan_and_strategy[55-target0]" time="0.195" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_modification_preserves_endpoint_plan_and_strategy[55-target1]" time="0.194" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_modification_preserves_endpoint_plan_and_strategy[55-target2]" time="0.198" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_modification_preserves_endpoint_plan_and_strategy[55-target3]" time="0.194" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_modification_preserves_endpoint_plan_and_strategy[50-target4]" time="0.218" /><testcase classname="tests.integration.test_v14_choice_validation" name="test_repetition_choice_cannot_silently_change_load" time="0.265" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_r03_visible_strategy_choice" time="2.083" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_r08_feedback_remains_after_finishing_session" time="3.301" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[template-heavier_lower_reps-10-True-True]" time="25.635" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[temporary-double_progression-12-True-True]" time="20.794" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[temporary-heavier_lower_reps-10-False-True]" time="11.508" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[template-heavier_lower_reps-10-True-False]" time="9.391" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_multiaction_ui_history_reaches_default_analysis" time="75.662" /></testsuite></testsuites>

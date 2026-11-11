@@ -51,6 +51,10 @@
 
 逐场景并不意味着自由问答和全部知识主题都已通过。动作目录CAT-01–18见 [目录验收](v14_catalog.md)，KB-01–20见 [知识验收](v14_knowledge.md)，77指标追踪见 `artifacts/v14/metric-audit-77.json`。
 
+STR09补齐注册合同中的负荷、次数和RIR三项原计划目标达成统计，原组完成率保持兼容；各自已知/未知/无目标分母、原始目标、实际观测及理由分开保存。真实UI跳过即使没有实际执行端点也按原计划窗口中的可见状态报告明确未执行；进行中数字不作为最终达成，已中止组的单字段匹配不等于整组完成。已确认kg/lb换算、助力方向、RIR区间、后续降低目标不改原计划均有真实Service→snapshot回归，详见 [科学合同](v14_science.md) 与 `artifacts/v14/science/str09-targets-evidence.json`。
+
+补充入口审计发现F03/E2E-05仍有一个接线缺口：当前组记录疼痛/技术受限后，在真实页面清空实际开始时间并保存，缺端点观察被建议适配器提前丢弃，仍能冻结增重任务。现在缺时间的当前观察保留给科学门控；不推断组端点，数值任务转为缺项，当前使用状态转待复核。原始观察和 `unknown_current_observation_ids` 单独冻结为审计证据，已知时间的 `source_record_ids` 继续通过原持久化时间校验；旧候选快照不改。另一个可复现分支是历史完成组保留开始时间但清空结束时间，原先排序抛出 `timestamp_required`；现在该记录不冒充有时间的历史表现参考。`test_v14_current_observation_time.py` 覆盖真实AppTest、三种策略、进行中/完成/中止状态、无痛但时间未知、历史端点缺失以及明确未来记录排除。当前观察修前7失败/1通过、历史端点修前1失败与修后9通过分别见 `artifacts/v14/advice/missing-observation-time-before.xml`、`missing-reference-time-before.xml`、`missing-observation-time-fixed.xml`；相关建议/修改/UI/科学门控回归129通过另见 `missing-observation-time-regressions.xml`，该定点命令未选择一个无关的多动作页面历史汇总用例。所有输入和知识权限均为隔离合成夹具。
+
 ## 性能与迁移
 
 补充核对还修复了当地日期频率、STR20无有效推断预算时保留独立点趋势、STR15同场kg/lb物理等价比较，以及周期覆盖按来源分别保留分母。STR05/06仅消费训练创建时冻结的经审阅肌肉关系快照；新映射版本不能更改历史，旧记录无快照保持未知。真实训练服务、模板、离线重放和JSON往返测试见 `test_v14_anatomy_history.py`；没有向生产库填入虚构肌肉关系批准。

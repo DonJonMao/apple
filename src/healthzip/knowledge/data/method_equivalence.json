@@ -1,0 +1,52 @@
+{
+  "contract_version": "method-equivalence-explanation-1.4.4",
+  "source_id": "M2",
+  "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+  "raw_sha256": "0a7abf1ff40f4fad98efe97afa42b7187a7d893ac55847596403999afdb857e0",
+  "claim_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+  "version": "1.4.4",
+  "subject": "statistical_inference",
+  "outcome": "practical_equivalence",
+  "requested_relation": "explanation",
+  "scope": {
+    "topic": "general_practical_equivalence_method_explanation",
+    "study_design": "parallel_group_studies_with_two_independent_random_samples_of_normally_distributed_observations",
+    "individual_inference": "not_authorized"
+  },
+  "limitations": [
+    "仅解释统计方法概念，不返回个人等效结论、个人阈值或停滞标签。",
+    "M2未提供本产品个人训练任务的重测误差、实用等效界值、时序依赖模型或真实个人时间外校准。",
+    "未核准PDF公式转录或数值表格；不从示例中抽取个人训练参数。",
+    "审核身份是AI辅助，不是独立人工或专家验证。"
+  ],
+  "answer_parts": [
+    {
+      "part_id": "non_significance",
+      "text": "传统差异检验没有达到统计显著，不能据此断言没有效应，也不能把它当作两种干预实用等效的证据。",
+      "span_indices": [1],
+      "evidence_relation": "supports"
+    },
+    {
+      "part_id": "contextual_bounds_tost",
+      "text": "实用等效需要为具体研究问题说明有依据的下界和上界；不能直接把通用标准化效应量标准当作运动科学中的最小重要效应。TOST通过两个单侧检验，分别排除达到或超出两侧界值的效应；两项检验都满足要求，才可在相应方法条件下判定实用等效。文中的对应置信区间须完整落在等效界值内。",
+      "span_indices": [0, 2, 3],
+      "evidence_relation": "supports"
+    },
+    {
+      "part_id": "design_scope",
+      "text": "本文集中讨论两组独立随机样本、正态观测的平行组研究，并明确其他设计或分布可能需要不同分析。因此本文方法示例不能直接充当个人训练时序的已验证模型；用于具体个人判断仍需核对任务界值、误差与时序条件。",
+      "span_indices": [4, 5],
+      "evidence_relation": "qualifies"
+    }
+  ],
+  "rule_id": "RULE-PRACTICAL-EQUIVALENCE-EXPLANATION",
+  "release_id": "core-method-explanation-1.4.4",
+  "routes": ["strength", "progression", "plateau", "personalization"],
+  "remaining_personal_inference_gaps": [
+    "M1可靠性/SEM原始方法全文及同任务重测误差",
+    "目标训练任务有依据的实用等效界值",
+    "个人时序模型与任务适用性核对",
+    "真实个人时间外覆盖率和校准",
+    "拟用重复查看程序的独立数学与实现核对"
+  ]
+}

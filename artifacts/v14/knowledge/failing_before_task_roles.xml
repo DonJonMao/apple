@@ -1,0 +1,45 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="6" time="0.578" timestamp="2026-11-11T21:01:40.757133+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_generic_evidence_intro_does_not_invent_an_unavailable_named_source" time="0.081"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9dd30b50&gt;
+
+    def test_generic_evidence_intro_does_not_invent_an_unavailable_named_source(kb):
+        core_claim(kb, "volume", "合成组量解释。")
+        result = kb.query("According to available evidence, how should training volume be organized?", "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:390: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_spelled_ordinal_editions_are_actual_source_constraints[second]" time="0.032"><failure message="KeyError: 'requested_edition_number'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9d42a610&gt;
+edition = 'second'
+
+    @pytest.mark.parametrize("edition", ["second", "2nd", "第二"])
+    def test_spelled_ordinal_editions_are_actual_source_constraints(kb, edition):
+        from healthzip.knowledge.tasks import request_constraints
+        phrase = edition + ("版" if edition == "第二" else " edition")
+&gt;       assert request_constraints("According to S5 " + phrase + ", explain training volume.", {})["source_constraints"]["requested_edition_number"] == "2"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'requested_edition_number'
+
+tests/unit/test_v14_knowledge.py:398: KeyError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_spelled_ordinal_editions_are_actual_source_constraints[2nd]" time="0.032" /><testcase classname="tests.unit.test_v14_knowledge" name="test_spelled_ordinal_editions_are_actual_source_constraints[\u7b2c\u4e8c]" time="0.031" /><testcase classname="tests.unit.test_v14_knowledge" name="test_source_population_boundary_is_not_an_application_to_an_excluded_population" time="0.039"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9d3e3b90&gt;
+
+    def test_source_population_boundary_is_not_an_application_to_an_excluded_population(kb):
+        core_claim(kb, "population_scope", "合成来源仅纳入成人；这不能证明儿童适用。", scope={"population": "adults"})
+        result = kb.query("研究纳入的人群包括儿童吗？", "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:404: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_asking_about_plan_effects_is_not_requesting_plan_generation" time="0.039"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9d37eb10&gt;
+
+    def test_asking_about_plan_effects_is_not_requesting_plan_generation(kb):
+        core_claim(kb, "individual_effect", "合成群体结果不能保证个人训练效果。")
+        result = kb.query("Can these group results guarantee that a complete training program benefits me?", "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_v14_knowledge.py:412: AssertionError</failure></testcase></testsuite></testsuites>

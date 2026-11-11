@@ -118,7 +118,7 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
         main = context.get("main_sleep_episode")
         if metric_id == "STATE-SLEEP-MAIN" and not main:
             return emit(None, "insufficient", reasons=["main_sleep_episode_not_declared"], valid_n=0)
-        if metric_id == "STATE-SLEEP-MAIN" and main:
+        if metric_id in {"STATE-SLEEP-MAIN", "STATE-SLEEP-STAGE"} and main:
             if not main.get("start") or not main.get("end") or not instant(main["start"]) < instant(main["end"]) <= instant(window.cutoff_time):
                 return emit(None, "insufficient", reasons=["main_sleep_episode_boundary_invalid_or_future"], valid_n=0)
             start, end = max(start, instant(main["start"])), min(end, instant(main["end"]))
@@ -167,15 +167,21 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
         episodes = context.get("sleep_episodes", [])
         points = []
         for episode in episodes:
-            a, b = instant(episode["start"]), instant(episode["end"])
+            try:
+                a, b = instant(episode.get("start")), instant(episode.get("end"))
+            except ValueError:
+                continue
             if a < b <= instant(window.cutoff_time):
                 episode_zone = episode.get("timezone", window.timezone)
                 mid = (a + (b - a) / 2).astimezone(ZoneInfo(episode_zone))
                 points.append({"start": a.isoformat(), "end": b.isoformat(), "midpoint": mid.isoformat(),
+                               "recorded_start": episode["start"], "recorded_end": episode["end"],
+                               "available_at": episode.get("available_at"), "source_record_id": episode.get("_source_id"),
                                "timezone": episode_zone,
                                "local_hour": mid.hour + mid.minute / 60 + mid.second / 3600})
         if not points:
-            return emit(None, "insufficient", reasons=["explicit_sleep_episode_boundaries_required"])
+            return emit(None, "insufficient", reasons=["explicit_sleep_episode_boundaries_required"],
+                        records=episodes, valid_n=0, count_domain="sleep_episodes")
         sine = sum(math.sin(2 * math.pi * p["local_hour"] / 24) for p in points) / len(points)
         cosine = sum(math.cos(2 * math.pi * p["local_hour"] / 24) for p in points) / len(points)
         concentration = math.hypot(sine, cosine)
@@ -188,8 +194,10 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             groups[name] = {"n": len(items), "circular_midpoint_hour": (math.atan2(ss, cc) * 24 / (2 * math.pi)) % 24,
                             "resultant_length": math.hypot(ss, cc)}
         return emit({"episodes": points, "circular_midpoint_hour": mean if len(groups) == 1 else None,
-                     "resultant_length": concentration if len(groups) == 1 else None, "timezone_segments": groups},
-                    "valid", evidence_status="descriptive", reasons=["timezone_changes_not_pooled"] if len(groups) > 1 else [])
+                     "resultant_length": concentration if len(groups) == 1 else None, "timezone_segments": groups,
+                     "window_membership": "episode_end_in_half_open_window"},
+                    "valid", evidence_status="descriptive", reasons=["timezone_changes_not_pooled"] if len(groups) > 1 else [],
+                    records=episodes, valid_n=len(points), count_domain="sleep_episodes")
     if metric_id in {"STATE-RHR", "STATE-SDNN"}:
         canonical = "resting_heart_rate_bpm" if metric_id == "STATE-RHR" else "hrv_sdnn_ms"
         values = daily_values(rows, canonical, window.timezone)

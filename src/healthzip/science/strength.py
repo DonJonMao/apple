@@ -131,6 +131,111 @@ def _frozen_muscle_mapping(row):
     return mapping, None
 
 
+def _plan_target_observation(endpoint, target, row, planned_id):
+    """Compare one original target with one recorded endpoint, never a score."""
+    from healthzip.training.semantics import TrainingError, load_semantics
+    from healthzip.training.semantics import load_change as recorded_load_change
+
+    row = row or {}
+    state = row.get("status")
+    out = {"planned_set_id": planned_id, "actual_record_id": row.get("_source_id", row.get("id")),
+           "execution_state": state, "status": "unknown", "observed_match": None, "reason_codes": []}
+    if endpoint == "load":
+        spec = {key: target.get(key) for key in ("load_value", "load_unit", "load_basis")}
+        observed = {key: row.get(key) for key in spec}
+        present = spec["load_value"] is not None
+    else:
+        exact = target.get("rir") if endpoint == "rir" else None
+        spec = {"min": exact if exact is not None else target.get(endpoint + "_min"),
+                "max": exact if exact is not None else target.get(endpoint + "_max")}
+        present = any(value is not None for value in spec.values())
+        observed = row.get("rir_interval") if endpoint == "rir" else None
+        if observed is None:
+            observed = {"lower": row.get(endpoint), "upper": row.get(endpoint)}
+    out.update(target=spec, actual=observed)
+    if not present:
+        out.update(status="no_target", reason_codes=["original_plan_has_no_endpoint_target"])
+        return out
+    if state == "skipped":
+        out.update(status="not_met", reason_codes=["explicitly_skipped_not_executed"])
+        return out
+    if not row:
+        out["reason_codes"] = ["actual_record_missing_or_unavailable"]
+        return out
+    if endpoint == "load":
+        basis = spec["load_basis"]
+        if basis in (None, "", "unknown", "band_configuration") or not spec["load_unit"]:
+            out["reason_codes"] = ["original_target_load_unit_and_basis_required"]
+            return out
+        if observed["load_basis"] != basis:
+            out["reason_codes"] = ["actual_and_target_load_basis_incompatible_or_unknown"]
+            return out
+        try:
+            goal = load_semantics(spec["load_value"], spec["load_unit"], basis)
+            actual = load_semantics(observed["load_value"], observed["load_unit"], basis)
+            comparable_units = (goal["normalized_recorded_kg"] is not None and actual["normalized_recorded_kg"] is not None
+                                or spec["load_unit"] == observed["load_unit"])
+            comparison = recorded_load_change(spec, observed, {"load_basis": basis})
+        except TrainingError:
+            out["reason_codes"] = ["finite_load_and_explicit_compatible_units_required"]
+            return out
+        if not comparable_units or comparison["recorded_change"] is None:
+            out["reason_codes"] = ["observed_load_or_compatible_unit_missing"]
+            return out
+        out["comparison"] = comparison
+        matched = comparison["recorded_change"] == 0
+        out["comparison_definition"] = "recorded_plan_load_match_not_harder_is_better"
+    else:
+        low, high = finite(spec["min"]), finite(spec["max"])
+        if (low is None or high is None or low < 0 or low > high
+                or endpoint == "reps" and (int(low) != low or int(high) != high)
+                or endpoint == "rir" and high > 10):
+            out["reason_codes"] = ["complete_valid_original_target_range_required"]
+            return out
+        if not isinstance(observed, dict):
+            out["reason_codes"] = ["observed_endpoint_unknown"]
+            return out
+        lower, upper = finite(observed.get("lower")), finite(observed.get("upper"))
+        if (lower is None and upper is None or lower is not None and lower < 0
+                or upper is not None and upper < 0 or lower is not None and upper is not None and lower > upper
+                or observed.get("lower") is not None and lower is None
+                or observed.get("upper") is not None and upper is None):
+            out["reason_codes"] = ["observed_endpoint_unknown_or_invalid"]
+            return out
+        if lower is not None and upper is not None and low <= lower <= upper <= high:
+            matched = True
+        elif lower is not None and lower > high or upper is not None and upper < low:
+            matched = False
+        else:
+            matched = None
+            out["reason_codes"] = ["reported_interval_does_not_determine_target_match"]
+    out["observed_match"] = matched
+    if state not in {"completed", "aborted"}:
+        out["reason_codes"].append("execution_not_final_observation_is_provisional")
+    elif matched is not None:
+        out["status"] = "met" if matched else "not_met"
+    return out
+
+
+def _plan_target_attainment(planned, actual):
+    # Preserve each original plan identity even when its endpoint is absent.
+    unique = {str(entry["id"]): entry for entry in planned}
+    output = {}
+    for endpoint in ("load", "reps", "rir"):
+        observations = [_plan_target_observation(endpoint, entry.get("targets") or {}, actual.get(identity), identity)
+                        for identity, entry in unique.items()]
+        counts = {state: sum(row["status"] == state for row in observations)
+                  for state in ("met", "not_met", "unknown", "no_target")}
+        known = counts["met"] + counts["not_met"]
+        targeted = len(unique) - counts["no_target"]
+        output[endpoint] = {"planned_n": len(unique), "target_n": targeted, "known_n": known,
+                            **{key + "_n": value for key, value in counts.items()},
+                            "fraction_of_known_targets": counts["met"] / known if known else None,
+                            "observed_met_fraction_of_targets": counts["met"] / targeted if targeted else None,
+                            "observations": observations}
+    return output
+
+
 def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
     code = int(metric_id.split("-")[1])
     total = len(rows)
@@ -256,25 +361,40 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         return emit(value, "valid" if known or code == 8 and recorded else "insufficient", valid_n=len(known) if code == 7 else len(recorded),
                     reasons=["recorded_frequency_not_actual_training_or_recovery"])
     if code == 9:
+        def plan_group_completed(row):
+            # The plan denominator includes prescribed warmups as well as work.
+            # Other strength metrics retain the work-only _completed contract.
+            field = {"repetitions": "reps", "duration": "duration_s", "distance": "distance_m"}.get(row.get("measurement_mode"))
+            value = finite(row.get(field)) if field else None
+            return row.get("status") == "completed" and value is not None and value > 0
+
         plan = context.get("plan_snapshot")
         if not plan:
             return emit(None, "not_applicable", reasons=["unplanned_session"])
         planned = plan.get("sets", [])
         planned_ids = {str(s["id"]) for s in planned}
         actual = {str(r.get("planned_set_id")): r for r in rows if str(r.get("planned_set_id")) in planned_ids}
-        done = sum(_completed(r) for r in actual.values())
+        done = sum(plan_group_completed(r) for r in actual.values())
         skipped = sum(r.get("status") == "skipped" for r in actual.values())
         unknown = len(planned_ids) - done - skipped
+        attainment = _plan_target_attainment(planned, actual)
         return emit({"completed": done, "skipped": skipped, "unknown": unknown, "planned": len(planned_ids),
                      "completed_fraction_of_plan": done / len(planned_ids) if planned_ids else None,
-                     "extra_sets": sum(str(r.get("planned_set_id")) not in planned_ids and _completed(r) for r in rows)},
-                    "partial" if unknown else "valid", valid_n=done + skipped, total_n=len(planned_ids), count_domain="planned_sets")
+                     "extra_sets": sum(str(r.get("planned_set_id")) not in planned_ids and plan_group_completed(r) for r in rows),
+                     "target_attainment": attainment, "target_attainment_version": "original-plan-endpoints-1.4.0",
+                     "target_attainment_definition": "separate_recorded_endpoint_matches_not_group_completion_or_training_benefit"},
+                    "partial" if unknown or any(item["unknown_n"] for item in attainment.values()) else "valid",
+                    valid_n=done + skipped, total_n=len(planned_ids), count_domain="planned_sets")
     if code == 10:
         values = []
         for row in rows:
             reserve = finite(row.get("rir"))
             conversion = False
-            if reserve is None and row.get("scale_type") == "rir_based_rpe_6_10" and finite(row.get("rpe")) is not None and 6 <= row["rpe"] <= 10:
+            # An interval (for example 3+) is a reported RIR observation, not a
+            # missing value to replace with a potentially conflicting RPE map.
+            if (row.get("rir") is None and row.get("rir_interval") is None
+                    and row.get("scale_type") == "rir_based_rpe_6_10"
+                    and finite(row.get("rpe")) is not None and 6 <= row["rpe"] <= 10):
                 reserve, conversion = 10 - row["rpe"], True
             values.append({"id": row.get("id"), "rir": reserve, "rir_interval": row.get("rir_interval"),
                            "original_rpe": row.get("rpe"), "scale_type": row.get("scale_type"),

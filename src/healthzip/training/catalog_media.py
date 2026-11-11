@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import re
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -95,7 +96,16 @@ def resumable_download(url, root, *, opener=urllib.request.urlopen):
     key = hashlib.sha256(url.encode()).hexdigest()
     part, info = folder / (key + ".partial"), folder / (key + ".json")
     prior = json.loads(info.read_text()) if info.exists() else {}
-    offset = part.stat().st_size if part.exists() and prior.get("validator") else 0
+    offset = (
+        part.stat().st_size
+        if part.exists()
+        and prior.get("url") == url
+        and prior.get("validator")
+        and not prior["validator"].startswith("W/")
+        else 0
+    )
+    if offset and prior.get("expected_total") is not None and offset > prior["expected_total"]:
+        raise ValueError("本地续传文件超过来源总长度")
     if offset and offset == prior.get("expected_total"):
         return part.read_bytes(), prior["mime"], part, info
     headers = {"User-Agent": "HealthZIP-public-catalog/1.4"}
@@ -103,23 +113,38 @@ def resumable_download(url, root, *, opener=urllib.request.urlopen):
         headers.update({"Range": f"bytes={offset}-", "If-Range": prior["validator"]})
     request = urllib.request.Request(url, headers=headers)
     with opener(request, timeout=90) as response:
+        etag = response.headers.get("ETag")
+        validator = (
+            etag if etag and not etag.startswith("W/") else response.headers.get("Last-Modified")
+        )
+        length = response.headers.get("Content-Length")
         if response.status == 206 and offset:
-            if not response.headers.get("Content-Range", "").startswith(f"bytes {offset}-"):
-                raise ValueError("断点响应偏移不符")
+            match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)", response.headers.get("Content-Range", ""))
+            if not match:
+                raise ValueError("断点响应范围格式不符")
+            start, end, total = map(int, match.groups())
+            if (
+                start != offset
+                or end != total - 1
+                or (length is not None and int(length) != end - start + 1)
+                or (prior.get("expected_total") is not None and total != prior["expected_total"])
+            ):
+                raise ValueError("断点响应范围或总长度不符")
+            if validator != prior["validator"]:
+                raise ValueError("断点响应来源验证标记已变化")
             mode = "ab"
         elif response.status == 200:
             offset, mode = 0, "wb"
+            total = int(length) if length else None
         else:
             raise ValueError("媒体HTTP状态不支持安全续传")
-        validator = response.headers.get("ETag") or response.headers.get("Last-Modified")
-        length = response.headers.get("Content-Length")
         info.write_text(
             encoded(
                 {
                     "url": url,
                     "validator": validator,
                     "received_at": now(),
-                    "expected_total": offset + int(length) if length else None,
+                    "expected_total": total,
                     "mime": response.headers.get_content_type(),
                 }
             )
@@ -137,6 +162,8 @@ def resumable_download(url, root, *, opener=urllib.request.urlopen):
                 handle.write(chunk)
         if expected is not None and count - offset != int(expected):
             raise ValueError("媒体响应被截断，保留待续传文件")
+        if total is not None and count != total:
+            raise ValueError("媒体响应未达到来源总长度，保留待续传文件")
         return part.read_bytes(), response.headers.get_content_type(), part, info
 
 
@@ -181,7 +208,9 @@ def validate_bytes(raw, kind, mime):
     return {"mime": "video/quicktime" if raw[8:12] == b"qt  " else "video/mp4", "size": len(raw)}
 
 
-def fetch_media(repo, root, *, downloader=download, workers=4, limit=None, media_ids=None):
+def fetch_media(
+    repo, root, *, downloader=download, workers=4, limit=None, media_ids=None, progress=None
+):
     root = Path(root).resolve()
     root.mkdir(parents=True, exist_ok=True)
     rows = [
@@ -192,6 +221,8 @@ def fetch_media(repo, root, *, downloader=download, workers=4, limit=None, media
     ]
     if media_ids is not None:
         rows = [row for row in rows if row["media_id"] in media_ids]
+    # Finish smaller source objects first so long transfers do not block all progress.
+    rows.sort(key=lambda row: (json.loads(row["metadata_json"]).get("upstream_size") or 0))
     if limit is not None:
         rows = rows[:limit]
 
@@ -269,13 +300,14 @@ def fetch_media(repo, root, *, downloader=download, workers=4, limit=None, media
                         "UPDATE catalog_media SET fetch_status='failed',error=?,verified_at=? WHERE media_id=?",
                         (result["error"], now(), mid),
                     )
+                repo.conn.execute(
+                    "INSERT INTO schema_meta(key,value) VALUES('catalog_data_version','1') "
+                    "ON CONFLICT(key) DO UPDATE SET value=CAST(value AS INTEGER)+1"
+                )
                 repo.conn.commit()
                 results.append({"media_id": mid, **result})
-    if results:
-        repo.conn.execute(
-            "INSERT INTO schema_meta(key,value) VALUES('catalog_data_version','1') ON CONFLICT(key) DO UPDATE SET value=CAST(value AS INTEGER)+1"
-        )
-        repo.conn.commit()
+                if progress:
+                    progress({"media_id": mid, **result})
     return {
         "checked": len(rows),
         "updated": len(results),

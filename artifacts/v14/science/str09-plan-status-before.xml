@@ -1,0 +1,82 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="8" time="0.590" timestamp="2026-11-11T22:03:05.893015+08:00"><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_service_undated_skip_is_known_plan_nonexecution_without_a_fake_endpoint" time="0.371"><failure message="assert (0 == 1)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-278/test_service_undated_skip_is_k0')
+
+    def test_service_undated_skip_is_known_plan_nonexecution_without_a_fake_endpoint(tmp_path):
+        with closing(Repository(tmp_path / "synthetic-skipped-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target()])
+            original = session["sets"][0]
+            skipped = svc.edit_set(original["set_uuid"], {"completion_state": "skipped"}, base_revision=original["revision"])
+            value = _metric(repo)["value"]
+&gt;           assert value["skipped"] == 1 and value["unknown"] == 0
+E           assert (0 == 1)
+
+tests/integration/test_v14_plan_target_attainment.py:145: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[in_window-1-skipped]" time="0.005"><failure message="assert 0 == 1">variant = 'in_window', expected_skip = 1, expected_state = 'skipped'
+
+    @pytest.mark.parametrize("variant,expected_skip,expected_state", [
+        ("in_window", 1, "skipped"),
+        ("plan_outside_window", 0, None),
+        ("future_availability", 0, None),
+        ("no_explicit_plan_session", 0, None),
+        ("wrong_session", 0, None),
+        ("corrected_to_draft", 0, "draft"),
+        ("deleted_revision", 0, None),
+    ])
+    def test_undated_plan_states_require_window_membership_and_latest_visible_revision(variant, expected_skip, expected_state):
+        row = {"id": "synthetic-set", "source_record_id": "synthetic-set", "planned_set_id": "plan-slot",
+               "session_id": "planned-session", "completion_state": "skipped", "record_kind": "strength_set",
+               "available_at": "2026-11-03T09:00:00Z"}
+        plan = {"session_id": "planned-session", "event_end": "2026-11-03T08:00:00Z",
+                "available_at": "2026-11-03T08:01:00Z",
+                "sets": [{"id": "plan-slot", "session_id": "planned-session", "targets": _target()}]}
+        rows = [row]
+        if variant == "plan_outside_window":
+            plan["event_end"] = "2020-01-01T00:00:00Z"
+        elif variant == "future_availability":
+            row["available_at"] = "2027-01-01T00:00:00Z"
+        elif variant == "wrong_session":
+            row["session_id"] = "different-session"
+        elif variant in {"corrected_to_draft", "deleted_revision"}:
+            rows.append({**row, "id": "synthetic-revision", "available_at": "2026-11-03T10:00:00Z",
+                         **({"completion_state": "draft"} if variant == "corrected_to_draft" else {"record_status": "deleted"})})
+        context = {"plan_snapshot": {"sets": plan["sets"]}, "session_plans": [] if variant == "no_explicit_plan_session" else [plan]}
+        result = evaluate("STR-09", rows, cutoff_time="2026-11-04T00:00:00Z", window_start="2026-11-01T00:00:00Z",
+                          window_end="2026-11-04T00:00:00Z", context=context)
+&gt;       assert result["value"]["skipped"] == expected_skip
+E       assert 0 == 1
+
+tests/integration/test_v14_plan_target_attainment.py:180: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[plan_outside_window-0-None]" time="0.004" /><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[future_availability-0-None]" time="0.004" /><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[no_explicit_plan_session-0-None]" time="0.004" /><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[wrong_session-0-None]" time="0.004" /><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[corrected_to_draft-0-draft]" time="0.004"><failure message="AssertionError: assert None == 'draft'">variant = 'corrected_to_draft', expected_skip = 0, expected_state = 'draft'
+
+    @pytest.mark.parametrize("variant,expected_skip,expected_state", [
+        ("in_window", 1, "skipped"),
+        ("plan_outside_window", 0, None),
+        ("future_availability", 0, None),
+        ("no_explicit_plan_session", 0, None),
+        ("wrong_session", 0, None),
+        ("corrected_to_draft", 0, "draft"),
+        ("deleted_revision", 0, None),
+    ])
+    def test_undated_plan_states_require_window_membership_and_latest_visible_revision(variant, expected_skip, expected_state):
+        row = {"id": "synthetic-set", "source_record_id": "synthetic-set", "planned_set_id": "plan-slot",
+               "session_id": "planned-session", "completion_state": "skipped", "record_kind": "strength_set",
+               "available_at": "2026-11-03T09:00:00Z"}
+        plan = {"session_id": "planned-session", "event_end": "2026-11-03T08:00:00Z",
+                "available_at": "2026-11-03T08:01:00Z",
+                "sets": [{"id": "plan-slot", "session_id": "planned-session", "targets": _target()}]}
+        rows = [row]
+        if variant == "plan_outside_window":
+            plan["event_end"] = "2020-01-01T00:00:00Z"
+        elif variant == "future_availability":
+            row["available_at"] = "2027-01-01T00:00:00Z"
+        elif variant == "wrong_session":
+            row["session_id"] = "different-session"
+        elif variant in {"corrected_to_draft", "deleted_revision"}:
+            rows.append({**row, "id": "synthetic-revision", "available_at": "2026-11-03T10:00:00Z",
+                         **({"completion_state": "draft"} if variant == "corrected_to_draft" else {"record_status": "deleted"})})
+        context = {"plan_snapshot": {"sets": plan["sets"]}, "session_plans": [] if variant == "no_explicit_plan_session" else [plan]}
+        result = evaluate("STR-09", rows, cutoff_time="2026-11-04T00:00:00Z", window_start="2026-11-01T00:00:00Z",
+                          window_end="2026-11-04T00:00:00Z", context=context)
+        assert result["value"]["skipped"] == expected_skip
+        observation = result["value"]["target_attainment"]["reps"]["observations"][0]
+&gt;       assert observation["execution_state"] == expected_state
+E       AssertionError: assert None == 'draft'
+
+tests/integration/test_v14_plan_target_attainment.py:182: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_undated_plan_states_require_window_membership_and_latest_visible_revision[deleted_revision-0-None]" time="0.004" /></testsuite></testsuites>

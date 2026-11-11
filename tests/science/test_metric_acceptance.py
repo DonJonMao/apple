@@ -158,8 +158,13 @@ def test_metric_catalog(case, tmp_path):
     elif metric_id == "STATE-SLEEP-TIMING":
         h.test_circular_midpoint_and_no_future_sleep()
         if number == 2:
-            episodes = [{"start": "2026-11-01T22:00:00+00:00", "end": "2026-11-02T06:00:00+00:00", "timezone": "Europe/London"},
-                        {"start": "2026-11-03T22:00:00+08:00", "end": "2026-11-04T06:00:00+08:00", "timezone": "Asia/Shanghai"}]
+            # Both synthetic declarations were explicitly available by cutoff.
+            episodes = [{"id": "synthetic-london", "start": "2026-11-01T22:00:00+00:00",
+                         "end": "2026-11-02T06:00:00+00:00", "timezone": "Europe/London",
+                         "available_at": "2026-11-02T07:00:00+00:00"},
+                        {"id": "synthetic-shanghai", "start": "2026-11-03T22:00:00+08:00",
+                         "end": "2026-11-04T06:00:00+08:00", "timezone": "Asia/Shanghai",
+                         "available_at": "2026-11-04T07:00:00+08:00"}]
             value = h.run(metric_id, context={"sleep_episodes": episodes})["value"]
             assert len(value["timezone_segments"]) == 2 and value["circular_midpoint_hour"] is None
     elif metric_id == "STATE-RHR":

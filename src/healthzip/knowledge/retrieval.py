@@ -64,7 +64,30 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
     roles = set(context.get("corpus_roles", ["core", "research"]))
     if not roles or not roles <= {"core", "research", "interface", "catalog"}:
         raise ValueError("unknown corpus partition")
-    rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+    allowed_core_refs = None
+    release_scope = {"selection_version": "frozen-membership-1.4.4",
+                     "core_claims": "current", "legacy_theories": "current",
+                     "current_validity_checks": True}
+    if release_id is not None:
+        core_release = workbench.lib.theories.execute(
+            "SELECT manifest_json,sha256 FROM core_release WHERE release_id=?", (release_id,)
+        ).fetchone()
+        legacy_release = workbench.lib.theories.execute(
+            "SELECT sha256 FROM theory_release WHERE release_id=?", (release_id,)
+        ).fetchone()
+        if core_release is None and legacy_release is None:
+            raise ValueError("unknown release")
+        allowed_core_refs = {(c["claim_id"], c["version"])
+                             for c in json.loads(core_release["manifest_json"])["claims"]} if core_release else set()
+        rows = workbench.lib.released_theories(release_id) if legacy_release else []
+        release_scope.update(
+            core_claims="frozen_snapshot" if core_release else "excluded_no_snapshot",
+            legacy_theories="frozen_snapshot" if legacy_release else "excluded_no_snapshot",
+            core_release_sha256=core_release["sha256"] if core_release else None,
+            legacy_release_sha256=legacy_release["sha256"] if legacy_release else None,
+        )
+    else:
+        rows = workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
     for row in rows:
         card, review = json.loads(row["card_json"]), json.loads(row["review_json"])
         if not route_ids.intersection(card.get("domains", [])):
@@ -103,7 +126,7 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
         candidates.append({"theory_id": row["theory_id"], "theory_version": row["version"], "card": card,
                            "review": review, "spans": spans, "terms": Counter(tokens(text)), "exact_reviewed_question": exact_binding})
     from .tasks import core_candidates, parse_task, source_constraints_match
-    core, core_excluded = core_candidates(workbench, question, context, roles)
+    core, core_excluded = core_candidates(workbench, question, context, roles, allowed_refs=allowed_core_refs)
     excluded.extend(core_excluded)
     for candidate in core:
         matched, reason = _context_match(candidate["review"]["applicability"]["required"], context)
@@ -135,7 +158,8 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
     chosen = [{k: v for k, v in c.items() if k != "terms"} for c in candidates if c["score"] > 0 or c["exact_reviewed_question"]][:k]
     return {"retriever_version": "lexical-1.4.1", "question_contract": task, "k": k, "candidates": chosen, "excluded": excluded,
             "_support_candidates": [{k: v for k, v in c.items() if k != "terms"} for c in candidates],
-            "eligible_candidate_count": len(candidates), "numeric_action_authority": "none", "release_id": release_id}
+            "eligible_candidate_count": len(candidates), "numeric_action_authority": "none", "release_id": release_id,
+            "release_scope": release_scope}
 
 
 def _guard(context: dict) -> tuple[str | None, str | None]:
@@ -169,7 +193,7 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
     routes = route_question(question, route)
     context = dict(context)
     from .tasks import resolve_named_sources
-    context = resolve_named_sources(workbench, question, context)
+    context = resolve_named_sources(workbench, question, context, release_id)
     if route:
         context["query_route_explicit"] = route
     if "rmssd" in question.lower() and context.get("HRV_metric") == "SDNN":
@@ -216,8 +240,10 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
     if not sentences:
         sentences = ["已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。" if related else "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。"]
         task = retrieval["question_contract"]
-        if task["specific_source_unresolved"] or any(x["reason"] == "requested_source_or_edition_unavailable" for x in retrieval["excluded"]):
-            sentences.append("尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。")
+        if task["source_constraints"].get("unresolved_named_source"):
+            sentences.append("已识别机构或来源名称，但尚未确定所指的具体文件；请使用完整书名、指南名称、版次或来源ID。其他来源不能替代所问文件。")
+        elif task["specific_source_unresolved"] or any(x["reason"] == "requested_source_or_edition_unavailable" for x in retrieval["excluded"]):
+            sentences.append("尚无与所要求来源、版次、章节、附录或表格一致的可核验依据；主文提及附件不等于已取得附件，其他文献不能替代指定正文或提供它的页码。")
         elif task["issues"]:
             sentences.append("尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。")
         elif any("population_scope_mismatch" in x["reason"] for x in retrieval["excluded"]):
@@ -235,6 +261,10 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
             "additional_target_unresolved": "尚未明确复合问题的这一目标",
             "entire_plan_not_authorized": "当前问答不生成完整个人训练计划",
             "cross_source_comparison_not_reviewed": "尚未核对指定来源或版本的完整对应比较；单篇材料不能替代对照",
+            "statistical_data_and_model_required": "方法解释不能替代实际数据、预设界值和模型条件下的统计计算",
+            "study_level_extraction_unreviewed": "尚未核对指定附录或表格的逐项试验、样本量和效应，通用说明不能替代原始数据",
+            "nutrition_prescription_unreviewed": "当前没有核对足以支持个人营养摄入参数的来源与适用条件",
+            "personal_forecast_authority_unavailable": "一般来源解释不能替代适用的个人预测模型、前瞻数据和校准",
             "no_eligible_complete_answer_relation": "尚无满足来源、范围与关系要求的完整依据"}
         sentences.extend(f"尚未回答：{p['label']}（{reasons[p['reason']]}）。" for p in assessment["uncovered_parts"])
     if not claims and not guard:

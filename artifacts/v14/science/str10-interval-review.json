@@ -1,0 +1,62 @@
+{
+  "verification_kind": "synthetic_software_regression_not_scientific_validation",
+  "input": {
+    "rir": 3.0,
+    "rir_qualifier": "at_least",
+    "rpe": 9.0,
+    "rpe_scale": "rir_rpe10"
+  },
+  "failing_before": {
+    "value": [
+      {
+        "id": "strength_set:fdcbe3d4-5ff9-5475-a661-5bc5a6a8b0f4",
+        "rir": 1.0,
+        "rir_interval": {
+          "lower": 3.0,
+          "upper": null
+        },
+        "original_rpe": 9.0,
+        "scale_type": "rir_based_rpe_6_10",
+        "converted": true,
+        "stop_reason": null
+      }
+    ],
+    "valid_n": 1,
+    "data_status": "valid",
+    "strength_py_sha256": "72ab31cd9b5bfb249c25db74ddb3982e0535e50dcebec739ced44d572ee6c113"
+  },
+  "before_test_result": {
+    "failed": 2,
+    "artifact": "str10-interval-failing-before.xml"
+  },
+  "fixed": {
+    "value": [
+      {
+        "id": "strength_set:6960609b-9581-5b7c-adf3-0cf3fded590c",
+        "rir": null,
+        "rir_interval": {
+          "lower": 3.0,
+          "upper": null
+        },
+        "original_rpe": 9.0,
+        "scale_type": "rir_based_rpe_6_10",
+        "converted": false,
+        "stop_reason": null
+      }
+    ],
+    "valid_n": 0,
+    "data_status": "valid",
+    "strength_py_sha256": "01b580183c89853b2ce97c68a0d0f80309c435e9e04197b13f4b8288750c24ec"
+  },
+  "fixed_test_result": {
+    "passed": 216,
+    "failed": 0,
+    "artifact": "str10-interval-verification.xml"
+  },
+  "ruff": "passed",
+  "ui_checks": [
+    "real render_analysis dataframe preserves interval without an exact RIR",
+    "real render_analysis JSON matches the displayed metric"
+  ],
+  "boundary": "The interval and original RPE remain separate reported observations. data_status describes record availability; valid_n counts exact RIR values. No RIR/RPE disagreement is resolved and no personal correction or calibration is introduced."
+}

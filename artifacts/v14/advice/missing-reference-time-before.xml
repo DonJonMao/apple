@@ -1,0 +1,36 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.422" timestamp="2026-11-11T21:41:08.055092+08:00"><testcase classname="tests.integration.test_v14_current_observation_time" name="test_missing_historical_end_time_cannot_crash_or_supply_a_reference" time="0.234"><failure message="ValueError: timestamp_required">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-258/test_missing_historical_end_ti0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffb9f53dd0&gt;
+
+    def test_missing_historical_end_time_cannot_crash_or_supply_a_reference(tmp_path, monkeypatch):
+        repo, svc, instance, original = HELPERS["_clean_candidate"](tmp_path, monkeypatch)
+        try:
+            reference = svc.get_set(original["input_snapshot"]["reference_set_id"])
+            svc.edit_set(reference["id"], {"ended_at": None}, base_revision=reference["revision"])
+&gt;           result = _freeze(repo, svc, instance, "double_progression")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:85:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/tests/integration/test_v14_current_observation_time.py:17: in _freeze
+    return freeze_candidate(
+&lt;repo&gt;/src/healthzip/advice.py:282: in freeze_candidate
+    advice = build_advice_context(repo, session["id"], instance["id"],
+&lt;repo&gt;/src/healthzip/advice.py:92: in build_advice_context
+    baseline.sort(key=lambda r: instant(r["ended_at"]))
+&lt;repo&gt;/src/healthzip/advice.py:92: in &lt;lambda&gt;
+    baseline.sort(key=lambda r: instant(r["ended_at"]))
+                                ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = None
+
+    def instant(value: Any) -&gt; datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+&gt;           raise ValueError("timestamp_required")
+E           ValueError: timestamp_required
+
+&lt;repo&gt;/src/healthzip/science/contracts.py:39: ValueError</failure></testcase></testsuite></testsuites>

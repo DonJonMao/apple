@@ -22,7 +22,7 @@ EVIDENCE_STATES = {
     "observed", "definition_based", "descriptive", "model_conditional", "research_only",
     "predictive_validated_for_scope", "intervention_validated_for_scope",
 }
-ALGORITHM_VERSION = "healthzip-science-1.4"
+ALGORITHM_VERSION = "healthzip-science-1.4.1"
 
 
 def definitions() -> dict[str, dict[str, Any]]:
@@ -87,14 +87,8 @@ def select_as_of(records: list[dict], window: Window, *, retrospective: bool = F
         row = dict(original)
         key = str(row.get("record_id", row.get("id", position)))
         row["_source_id"] = key
-        event = row.get("event_end") or row.get("end_at_utc") or row.get("end_utc")
-        event = event or row.get("performed_at") or row.get("timestamp")
         available = row.get("available_at") or row.get("ingested_at")
         try:
-            end = instant(event)
-            if end > cutoff:
-                exclusions.append({"id": key, "reason": "event_after_cutoff"})
-                continue
             if available is None:
                 if not retrospective:
                     exclusions.append({"id": key, "reason": "available_at_unknown"})
@@ -106,7 +100,6 @@ def select_as_of(records: list[dict], window: Window, *, retrospective: bool = F
         except ValueError as exc:
             exclusions.append({"id": key, "reason": str(exc)})
             continue
-        row["_event_end"] = end.isoformat()
         eligible.append(row)
     # A source's stable UUID identifies revisions. Distinct real sets keep IDs.
     latest: dict[tuple, dict] = {}
@@ -133,7 +126,20 @@ def select_as_of(records: list[dict], window: Window, *, retrospective: bool = F
         if row.get("record_status") == "deleted" or (deleted_at and instant(deleted_at) <= cutoff):
             exclusions.append({"id": row["_source_id"], "reason": "deleted_as_of"})
             continue
-        end = instant(row["_event_end"])
+        # An already-visible correction invalidates its predecessor even if its
+        # corrected event is future/unknown. Event filtering before revision
+        # resolution would resurrect that predecessor (including tombstones).
+        event = row.get("event_end") or row.get("end_at_utc") or row.get("end_utc")
+        event = event or row.get("performed_at") or row.get("timestamp")
+        try:
+            end = instant(event)
+        except ValueError as exc:
+            exclusions.append({"id": row["_source_id"], "reason": str(exc)})
+            continue
+        if end > cutoff:
+            exclusions.append({"id": row["_source_id"], "reason": "event_after_cutoff"})
+            continue
+        row["_event_end"] = end.isoformat()
         if overlap:
             start = instant(row.get("event_start") or row.get("start_at_utc")
                             or row.get("start_utc") or row["_event_end"])

@@ -1,0 +1,48 @@
+{
+  "scope": "developer_defined_language_recognition_only",
+  "verification_kind": "software_verification",
+  "frozen_files": {
+    "src/healthzip/knowledge/question_parts.py": "7a7d89bbb4c78c3752678f53b303ccd02d05e0c05ea5a5c3c29e6c08e7848401",
+    "tests/unit/test_v14_question_language.py": "6738136cae6b94d2364d6e7ae9b9367a7ee88a4923934bd7cf8f300b4d1f5bef"
+  },
+  "failures_before": [
+    {
+      "artifact": "language-development-failing-before.xml",
+      "failed": 37,
+      "passed": 17
+    },
+    {
+      "artifact": "language-context-failing-before.xml",
+      "failed": 6,
+      "passed": 57
+    },
+    {
+      "artifact": "language-modality-failing-before.xml",
+      "failed": 1,
+      "passed": 63
+    }
+  ],
+  "final": {
+    "artifact": "language-development-verification.xml",
+    "passed": 115,
+    "failed": 0,
+    "language_examples": 64,
+    "pytest_files": [
+      "tests/unit/test_v14_question_language.py",
+      "tests/unit/test_v14_knowledge.py",
+      "tests/unit/test_method_equivalence_contract.py"
+    ],
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "source_contracts_read": [
+    "src/healthzip/knowledge/data/core_extension.json",
+    "src/healthzip/knowledge/data/method_equivalence.json"
+  ],
+  "independent_held_out_questions_or_outputs_read": false,
+  "boundaries": [
+    "Recognition only; source, edition, chapter, applicability and capability checks remain separate.",
+    "Generic measurement does not imply equipment comparability; no global prohibition on explicit future measurement task definitions.",
+    "No whole-question allowlist, similarity threshold, personal inference authority, or scientific validation claim."
+  ]
+}

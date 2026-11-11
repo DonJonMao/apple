@@ -26,7 +26,7 @@ def main():
     assert version("health-zip-workbench") == "1.4.0"
     for name in ("catalog.schema.json", "catalog_terms.py", "catalog_legacy_mapping.json", "catalog_name_drafts.json"):
         assert files("healthzip.training").joinpath(name).is_file(), name
-    for name in ("core_sources.json", "core_rules.json"):
+    for name in ("core_sources.json", "core_rules.json", "method_equivalence.json", "hhs_goal_scope.json"):
         assert files("healthzip.knowledge").joinpath("data", name).is_file(), name
     with tempfile.TemporaryDirectory(prefix="healthzip-v14-wheel-synthetic-") as folder:
         repo = Repository(Path(folder) / "synthetic.sqlite3")

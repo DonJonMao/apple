@@ -172,15 +172,27 @@ def audit_public(w):
     """Scrub only this workstream's JUnit and verify all published projections."""
     for path in PUBLIC.glob("*.xml"):
         tree = ET.fromstring(path.read_bytes())
+        changed = False
         for node in tree.iter():
-            node.attrib.pop("hostname", None)
+            if "hostname" in node.attrib:
+                del node.attrib["hostname"]
+                changed = True
             for key, value in list(node.attrib.items()):
-                node.set(key, projection.redact_local_paths(value))
+                clean = projection.redact_local_paths(value)
+                if clean != value:
+                    node.set(key, clean)
+                    changed = True
             for field in ("text", "tail"):
                 value = getattr(node, field)
                 if value:
-                    setattr(node, field, projection.redact_local_paths(value))
-        path.write_bytes(ET.tostring(tree, encoding="utf-8", xml_declaration=True) + b"\n")
+                    clean = projection.redact_local_paths(value)
+                    if clean != value:
+                        setattr(node, field, clean)
+                        changed = True
+        # Already projected diagnostics are immutable evidence, including their
+        # serialization. Re-encoding clean XML would invalidate recorded hashes.
+        if changed:
+            path.write_bytes(ET.tostring(tree, encoding="utf-8", xml_declaration=True) + b"\n")
     span_count, projected_files = 0, []
     files = [p for p in PUBLIC.iterdir() if p.suffix in {".json", ".jsonl", ".xml", ".csv"} and p.name != "publication_audit.json"]
     for path in files:

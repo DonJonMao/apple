@@ -29,6 +29,56 @@ SERIES_METRICS = {"STR-19", "STR-20", "STR-22", "STR-24"}
 NUMERIC_TYPES = {name for name, unit in TYPE_MAP.values() if unit != "category"}
 
 
+def _undated_plan_states(rows, window, context):
+    """Retain visible plan decisions without inventing an execution endpoint."""
+    declarations = [{**plan, "id": "plan-session:" + str(plan["session_id"])}
+                    for plan in context.get("session_plans", []) if plan.get("session_id") is not None]
+    plans, _ = select_as_of(declarations, window)
+    membership = {(str(slot["id"]), plan["session_id"]): plan
+                  for plan in plans for slot in plan.get("sets", [])
+                  if slot.get("id") is not None and slot.get("session_id") == plan["session_id"]}
+    requested = {str(slot["id"]) for slot in (context.get("plan_snapshot") or {}).get("sets", [])}
+    latest = {}
+    for position, original in enumerate(rows):
+        row = dict(original)
+        identity = str(row.get("record_id", row.get("id", position)))
+        available = row.get("available_at") or row.get("ingested_at")
+        try:
+            known_at = instant(available)
+        except ValueError:
+            continue
+        if known_at > instant(window.cutoff_time):
+            continue
+        logical = (row.get("source_kind"), row.get("source_name"),
+                   row.get("source_record_id") or row.get("original_uuid") or identity)
+        rank = (known_at.isoformat(), str(row.get("revision_id", "")), identity)
+        if logical not in latest or rank > latest[logical][0]:
+            latest[logical] = (rank, {**row, "_source_id": identity})
+    retained, provenance = [], []
+    for _, row in latest.values():
+        planned_id = str(row.get("planned_set_id"))
+        plan = membership.get((planned_id, row.get("session_id")))
+        if not plan or planned_id not in requested:
+            continue
+        if (row.get("status") not in {"draft", "in_progress", "aborted", "skipped"}
+                or row.get("conflicted") is True or row.get("record_status") in {"deleted", "conflicted"}
+                or row.get("deleted_at") and instant(row["deleted_at"]) <= instant(window.cutoff_time)):
+            continue
+        event = (row.get("event_end") or row.get("end_at_utc") or row.get("end_utc")
+                 or row.get("performed_at") or row.get("timestamp"))
+        if event:
+            continue  # Dated execution facts retain the ordinary event-window path.
+        start = row.get("event_start") or row.get("started_at")
+        if start and instant(start) > instant(window.cutoff_time):
+            continue
+        retained.append(row)
+        provenance.append({"source_record_id": row["_source_id"], "planned_set_id": planned_id,
+                           "session_id": row["session_id"], "state_available_at": row.get("available_at") or row.get("ingested_at"),
+                           "original_plan_event_end": plan["_event_end"],
+                           "membership": "original_plan_session_in_half_open_window_actual_endpoint_unknown"})
+    return retained, provenance
+
+
 def _series_metric(metric_id, rows, window, context):
     groups, identities, excluded = {}, {}, []
     for row in reference_rows(rows, context):
@@ -85,12 +135,20 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
     # Optional derived context must obey the same decision-time contract as SQL
     # samples. It cannot become a back door for future revisions or outcomes.
     for key in ("comparison_pair", "mass_series", "baseline_daily", "b1_training_pairs",
-                "daily_metric_facts", "energy_days", "recommendation_outcomes", "current_session_observations"):
+                "daily_metric_facts", "energy_days", "recommendation_outcomes", "current_session_observations",
+                "sleep_episodes"):
         if key not in context:
             continue
-        source = [flatten_record({**r, "source_record_id": r["recommendation_id"]}
-                                 if key == "recommendation_outcomes" and r.get("recommendation_id") else r)
-                  for r in context[key]]
+        source = []
+        for record in context[key]:
+            row = record
+            if key == "recommendation_outcomes" and record.get("recommendation_id"):
+                row = {**record, "source_record_id": record["recommendation_id"]}
+            elif key == "sleep_episodes":
+                # A declared sleep episode is one event, attributed by its end;
+                # its original endpoints remain intact for midpoint arithmetic.
+                row = {**record, "event_start": record.get("start"), "event_end": record.get("end")}
+            source.append(flatten_record(row))
         query_window = window
         if key == "baseline_daily" and context.get("baseline_window"):
             bounds = context["baseline_window"]
@@ -150,6 +208,12 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         selection_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
     selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False),
                                      overlap=metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-")))
+    plan_status_provenance = []
+    if metric_id == "STR-09":
+        states, plan_status_provenance = _undated_plan_states(relevant, window, context)
+        selected.extend(states)
+        retained_ids = {row["_source_id"] for row in states}
+        excluded = [entry for entry in excluded if not (entry["id"] in retained_ids and entry["reason"] == "timestamp_required")]
     numeric_audit = [{"id": r.get("_source_id"), **quantity_value(r)} for r in selected
                      if r.get("canonical_type", r.get("metric_type")) in NUMERIC_TYPES]
     if metric_id in {"STR-19", "STR-20", "STR-22", "STR-24"}:
@@ -181,6 +245,8 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
             value["reason_codes"] = list(dict.fromkeys(value["reason_codes"] + ["numeric_value_or_unit_unverified"]))
     value["input_snapshot_n"] = len(relevant)
     value["input_available_n"] = len(selected)
+    if metric_id == "STR-09":
+        value["plan_status_provenance"] = plan_status_provenance
     if any(r["reason"] == "unresolved_record_conflict" for r in excluded):
         value["reason_codes"].append("unresolved_input_conflict_excluded")
         value["data_status"] = "conflicted"

@@ -1,0 +1,742 @@
+{
+  "schema": "independent-ai-semantic-results-round3-v1",
+  "metadata": {
+    "reviewer_kind": "independent_ai",
+    "human_or_expert_validation": false,
+    "release_id": "core-hhs-scope-explanation-1.4.5",
+    "release_sha256": "90d88d71f92411a43c7b43dc6ede800ff558c14d30cf20cc8b37042d4e4d77a6",
+    "source_families": [
+      "S1",
+      "CORE-US-HHS-PAG-2",
+      "M2"
+    ],
+    "reviewed_claim_count": 19,
+    "actual_body_span_count": 32,
+    "case_freeze_at": "2026-11-11T13:53:31.543809+00:00",
+    "outputs_queried_at": "2026-11-11T13:53:58.062313+00:00",
+    "annotated_at": "2026-11-11T13:58:08.010093+00:00",
+    "pre_output_case_freeze": true,
+    "implementation_or_tests_read": false,
+    "prior_evaluation_cases_outputs_or_failure_analyses_read": false,
+    "modified_product_or_tests": false,
+    "public_export_scope": "Questions, original expected summaries, AI judgments, citation identifiers, metadata and hashes; no source-body reproduction or private absolute paths.",
+    "hashes": {
+      "source_packet_sha256": "4fd8e72abf7007fb2b98952e5530799bee735dd23ddc20f8c7d1d1cbd9b6db41",
+      "freeze_sha256": "962f9c24193576d7e610af4ddde624fba6c95bcb39cffd4506409ebb8fbf210f",
+      "cases_sha256": "6696cd2bf8f1dff4d7d6e26e0e33947e8d55e1c5964e46d3d313cef9865d4521",
+      "outputs_sha256": "41a9787ad79093f705ca9529d51b9010c26ab8401e62a1bea790f465e966994a",
+      "annotations_sha256": "0f88fadd4d703fac8777754f59858fb747f6cd642d54d70534222f095df880ca",
+      "integrity_sha256": "e3246bbfd041ffa013a6a8507b9debc4b73754f055011fad471db03658efef1f"
+    },
+    "integrity": {
+      "checked_at": "2026-11-11T13:58:08.008717+00:00",
+      "source_packet_sha256": "4fd8e72abf7007fb2b98952e5530799bee735dd23ddc20f8c7d1d1cbd9b6db41",
+      "source_packet_unchanged": true,
+      "cases_sha256": "6696cd2bf8f1dff4d7d6e26e0e33947e8d55e1c5964e46d3d313cef9865d4521",
+      "cases_unchanged": true,
+      "knowledge_files_checked": 26,
+      "knowledge_sources_unchanged": true,
+      "all_outputs_use_frozen_release": true
+    },
+    "invalid_rubric_policy": "Keep frozen case and original expectations unchanged; exclude entire R3-17 from scoring. Do not retrospectively narrow the rubric to S1.",
+    "scoring_definitions": {
+      "pass": "All material frozen question points answered with applicable evidence or specifically justified boundary.",
+      "partial": "At least one material question point answered; another material point remains unaddressed.",
+      "fail": "Core question unanswered, wrong target/source, or wrong scientific conclusion.",
+      "incorrect_support_label": "Full evidence-supported/answered label despite wrong target/source or material missing part.",
+      "evidence_inapplicable": "Citation block does not support the user-requested target as presented; truth of a different source/background claim is insufficient.",
+      "not_scored": "R3-17 invalid frozen rights rubric; retained without a product verdict."
+    }
+  },
+  "summary": {
+    "created_cases": 20,
+    "scored_cases": 19,
+    "invalid_rubric_cases": 1,
+    "scored_verdicts": {
+      "fail": 13,
+      "partial": 3,
+      "pass": 3
+    },
+    "sufficient_cases": 14,
+    "sufficient_answers": {
+      "correct": 1,
+      "partial": 1,
+      "unanswered_or_wrong_target": 12,
+      "explicit_nonanswers": 9,
+      "wrong_target_answers": 3
+    },
+    "boundary_created": 6,
+    "boundary_scored": 5,
+    "boundary_verdicts": {
+      "pass": 2,
+      "partial": 2,
+      "fail": 1
+    },
+    "incorrect_support_label_cases": 4,
+    "incorrect_support_label_case_ids": [
+      "R3-05",
+      "R3-06",
+      "R3-14",
+      "R3-19"
+    ],
+    "incorrect_support_label_breakdown": {
+      "wrong_target_or_source": 3,
+      "incomplete_answer_labeled_complete": 1
+    },
+    "evidence_inapplicable_cases": 3,
+    "evidence_inapplicable_case_ids": [
+      "R3-05",
+      "R3-06",
+      "R3-14"
+    ],
+    "evidence_inapplicable_citation_blocks": 5,
+    "answer_citation_blocks_checked": 13,
+    "cases_with_answer_citations": 7,
+    "unsupported_numeric_actions": 0
+  },
+  "results": [
+    {
+      "case_id": "R3-01",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "plateau",
+      "question": "一篇训练比较论文说两组差异没过常用显著性门槛，作者因此写“两个方案效果一样”。M2 的方法论允许这样写吗？请解释中间少了哪一步。",
+      "topic": "M2 non-significance",
+      "original_expected_summary": [
+        "不能从差异检验未显著推出无效应或两方案实用等效。",
+        "须为具体问题确定有依据的等效上下界并实施等效检验；区别不确定与等效。"
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "未解释差异未显著不等于等效，也未给出有依据的界值和等效检验步骤。输出把研究方法问题当成个人能力变化，并泛称缺指定来源依据；M2 的相关正文已存在。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-02",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "plateau",
+      "question": "When a study aims to show that two exercise interventions differ by no practically important amount, what must both one-sided tests establish, and where must the corresponding confidence interval sit?",
+      "topic": "M2 TOST explanation",
+      "original_expected_summary": [
+        "Each one-sided test must reject effects reaching or exceeding its respective equivalence bound.",
+        "Both must succeed; the corresponding confidence interval must lie wholly inside the bounds.",
+        "Practical equivalence is not a claim of perfect mathematical equality."
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有回答两个单侧检验各须排除什么、两项均成立及区间完整位于界内的条件。仅称目标未识别；正文足以完整解释。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-03",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "personalization",
+      "question": "给运动科学研究定“可以忽略的差异”时，直接套用 Cohen 的小效应分界够不够？这里只问研究方法，不是在给任何人定训练阈值。",
+      "topic": "M2 contextual margin",
+      "original_expected_summary": [
+        "不能无理由照搬通用标准化效应量分界。",
+        "最小重要效应依赖具体研究问题和情境，需要实质依据；界值选择并不简单。"
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有回答能否直接套用 Cohen 分界，也未说明界值取决于具体研究问题。问题明确是一般方法，不能以个人预测限制替代答案。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-04",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "personalization",
+      "question": "Describe the study layout and data assumptions used for the worked statistical discussion in M2. Why would applying it unchanged to repeated measurements from one lifter need another justification?",
+      "topic": "M2 design scope",
+      "original_expected_summary": [
+        "The discussion focuses on parallel groups, pairs of independent random samples, and normally distributed observations.",
+        "Other designs or distributions may require a different analytical approach.",
+        "A single lifter repeated over time is not automatically validated by this design; do not claim the article calibrated personal time series."
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有陈述平行组、独立随机样本或正态观测假设，也未解释单人重复测量的设计差异；误归为能力变化并称缺来源。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-05",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "strength",
+      "question": "HHS 成人章节把练肌力的天数写成“每周两天或以上”。这是为了什么目标、适用于什么年龄段？它能直接选出某个人最利于增肌的周安排吗？",
+      "topic": "HHS goal and frequency",
+      "original_expected_summary": [
+        "第4章面向18至64岁成年人，总体健康与额外健康益处。",
+        "至少两天，中等或更大强度，覆盖所有主要肌群。",
+        "这是最低健康建议，不能由此推出个人增肌唯一最优安排；不等于两天不能增肌。"
+      ],
+      "verdict": "fail",
+      "answer_class": "wrong_target_unanswered",
+      "scored": true,
+      "reason": "题目明确问 HHS 成人章节，输出却完整复述 S1 的健康成人纳入范围和训练经验。未给 HHS 的18–64岁、总体健康目标、肌群/强度/至少两天条件或个人增肌最优安排的边界；S1 对自身范围真实，不是 HHS 范围证据。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": true,
+      "support_label_error_kind": "wrong_target_or_source",
+      "citation_verdict": "not_applicable_to_requested_target",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-ADULT-SCOPE",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00067",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": false,
+          "reason": "S1 的健康成人纳入标准不能证明 HHS 成人章节的人群/健康目标/最低肌力频次。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-06",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "progression",
+      "question": "Under the HHS adult guidance, must someone who has been inactive jump straight into the final muscle-strengthening schedule, or can the schedule be built up from a smaller start? Explain the progression the text allows.",
+      "topic": "HHS inactive progression",
+      "original_expected_summary": [
+        "An initially light or moderate effort session on one day a week is allowed.",
+        "Gradually build to two days and possibly more than two, increasing effort toward moderate or greater.",
+        "Consider current activity, fitness and personal health/fitness goals; no need for immediate leap to final schedule."
+      ],
+      "verdict": "fail",
+      "answer_class": "wrong_target_unanswered",
+      "scored": true,
+      "reason": "题目问 HHS 允许的初始肌力日程及逐步安排，输出只给 S1 的调整负荷/总量原则和个人重量限制。没有说明可从每周一天轻/中等努力开始、增至两天及更多，也没有据 HHS 解释目标；泛谈渐进不能替代所问正文。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": true,
+      "support_label_error_kind": "wrong_target_or_source",
+      "citation_verdict": "not_applicable_to_requested_target",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": false,
+          "reason": "S1 进阶原则不能作为所要求 HHS 初始一天到两天及更多日程的正文证据。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-07",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "progression",
+      "question": "两位成人都想把每周快走加长二十分钟，一位原来四十分钟，一位原来二百分钟。按照 HHS 的解释，为什么同样增加二十分钟并不是同样大的改变？如何考虑增加速度？",
+      "topic": "HHS relative increase",
+      "original_expected_summary": [
+        "相对原有活动量的差距不同：分别50%与10%；正文例子是慢跑，但一般相对增量原则适用于活动。",
+        "小幅增加并留出适应和恢复时间；增加速度考虑年龄、体能和经验。",
+        "例子不是人人应每周增加固定10%或固定20分钟的规则。"
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有解释二十分钟相对四十与二百分钟是不同增幅，也未说明小幅增加、适应恢复或年龄体能经验。HHS 实际段落有完整原则；输出称指定来源不可核验。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-08",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "progression",
+      "question": "如果一位健康成人一阵子重复同一套抗阻训练，没有不断把刺激往上推，S1 是否认为这段时间必定白练？请把“有收益”和“继续长期进步”分开说。",
+      "topic": "S1 progression necessity",
+      "original_expected_summary": [
+        "没有持续进阶不代表不能获得收益。",
+        "追求持续长期进步可能需要逐步增加或调整刺激，如负荷、总量、频次。",
+        "个体目标经验等影响安排；不能承诺个人下次提升。"
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有区分取得收益与追求长期进展，只有来源/目标未支持提示。S1 直接讨论这一区分；保守未答不算通过。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-09",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "strength",
+      "question": "For healthy adults, does the S1 review require every working set to end only when another repetition is impossible? Explain what that does and does not imply about effort or an exact reserve-repetition target.",
+      "topic": "S1 failure and RIR",
+      "original_expected_summary": [
+        "Momentary muscular failure is not necessary for strength, hypertrophy or power benefits.",
+        "Sufficient effort still matters; not going to failure does not mean trivial effort is enough.",
+        "The discussion does not establish an exact RIR/perceived-exertion target for everybody."
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有解释不必每组力竭、仍需足够努力及精确余力目标证据不足；仅提示缺所要求正文关系。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-10",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "strength",
+      "question": "有人读到 S1 的力量结果里，较短和较长的组间歇没有显出差别，就宣称“为了长肌肉，歇多久都一样”。这个跨目标的推论成立吗？",
+      "topic": "S1 rest outcome separation",
+      "original_expected_summary": [
+        "不成立；力量与肌肥大是不同结果目标。",
+        "力量结果中所比较休息时长未显示影响；肌肥大休息时长证据不足以确定。",
+        "不能据此证明所有休息安排等效或给每个人最优时长。"
+      ],
+      "verdict": "partial",
+      "answer_class": "partially_answered",
+      "scored": true,
+      "reason": "正确给出所比较力量结果的边界，未将其推广为所有休息安排有效或无效。但遗漏肌肥大休息证据不足这一核心对照，并把遗漏目标标为能力变化。部分支持标签基本诚实，未完整回答跨目标推论。",
+      "production_status": "partial_answer_support",
+      "production_answer_status": "partially_answered",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "applicable_to_answered_part",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-REST",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00024",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "只适用于已回答的力量休息部分，不覆盖未回答的肌肥大休息结果。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-11",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "strength",
+      "question": "If the weekly amount of resistance work is held constant, what does S1 say about spreading it across more training days for muscle size, and how does its strength discussion qualify the apparent benefit of frequency?",
+      "topic": "S1 frequency and volume",
+      "original_expected_summary": [
+        "For hypertrophy, frequency comparisons did not show an advantage when total volume was equated.",
+        "Frequency affected strength overall, but the impact diminished with equal volume and a full dose-response could not be established.",
+        "No unique optimum weekly frequency for everyone follows."
+      ],
+      "verdict": "pass",
+      "answer_class": "correctly_answered",
+      "scored": true,
+      "reason": "回答了总量相等时肌肥大频次比较、力量频次作用减弱及剂量反应不足，并保留个体目标限制。引用的 S1 段落与目标一致。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "applicable_to_answered_part",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00026",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "引用正文与实际回答的目标及范围相符。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-12",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "strength",
+      "question": "同一个动作换了更重的配重，接近疲劳时能做的次数就少了。只凭这个次数下降，为什么不能断言这位训练者变弱了？",
+      "topic": "S1 load repetitions and comparability",
+      "original_expected_summary": [
+        "给定动作且近疲劳时，负荷与可完成次数一般反向相关。",
+        "换负荷后不是相同测试任务；保留负荷/次数和测量条件，须在可比条件评估变化。",
+        "不输出这位训练者的确定换算或因果诊断。"
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "虽然通用限制提醒保留可比条件，但没有解释近疲劳时负荷与次数反向关系，也未回答为什么次数下降不证明变弱；核心内容未答。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-13",
+      "kind": "sufficient",
+      "language": "en",
+      "route": "strength",
+      "question": "Who was actually represented in the S1 synthesis: were minors and clinical populations included, and was the evidence mostly from seasoned lifters?",
+      "topic": "S1 population",
+      "original_expected_summary": [
+        "Adults at least 18, no defined diseases including the source definitions of obesity, sarcopenia and physical frailty.",
+        "Mixed training experience, but much evidence came from people with little or no resistance-training experience.",
+        "These are group results requiring individualization; no direct validated extension to minors or clinical populations."
+      ],
+      "verdict": "fail",
+      "answer_class": "unanswered",
+      "scored": true,
+      "reason": "没有陈述18岁以上健康成人与多数经验较少者的纳入范围。将询问是否纳入临床者当成临床应用，正文足够的人群描述仍未答。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-14",
+      "kind": "sufficient",
+      "language": "zh",
+      "route": "progression",
+      "question": "S1 讨论了把负荷、组量或频次按阶段安排的做法。健康成人是不是非得这样编排才能获得训练收益？请说明它对这种做法相对普通渐进训练的证据态度。",
+      "topic": "S1 periodization",
+      "original_expected_summary": [
+        "周期组织是有意随时间改变训练变量的方式，并非获得收益的唯一必要条件。",
+        "在适当渐进负荷下，未证明它普遍显著优于非周期方案。",
+        "定义不一，特定目标的变量顺序/疲劳管理等尚未充分研究；不是证明所有安排完全等效。"
+      ],
+      "verdict": "fail",
+      "answer_class": "wrong_target_unanswered",
+      "scored": true,
+      "reason": "输出组量、频次和一般进阶的独立背景结论，未回答按阶段安排是否必要或相对非周期方案是否更优。缺少 S1 的周期组织段落，却将问题标为完整有支持答案。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": true,
+      "support_label_error_kind": "wrong_target_or_source",
+      "citation_verdict": "not_applicable_to_requested_target",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": false,
+          "reason": "这些段落支持一般进阶、频次或组量背景，但未覆盖阶段安排的必要性/比较优势；作为所问目标完整支持不适用。"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00026",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": false,
+          "reason": "这些段落支持一般进阶、频次或组量背景，但未覆盖阶段安排的必要性/比较优势；作为所问目标完整支持不适用。"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": false,
+          "reason": "这些段落支持一般进阶、频次或组量背景，但未覆盖阶段安排的必要性/比较优势；作为所问目标完整支持不适用。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-15",
+      "kind": "boundary",
+      "language": "zh",
+      "route": "progression",
+      "question": "我今天器械推胸做了三组，配重四十公斤，每组十次。请合并 S1、HHS 和 M2，给我下次保证能完成的精确公斤数，以及成功概率。",
+      "topic": "personal exact load combination",
+      "original_expected_summary": [
+        "这些来源不能合并出个人下一次精确负荷、保证或成功概率。",
+        "可解释一般进阶需按目标与经验调整、负荷次数任务不同；缺个人测量误差、可比记录和经验证预测模型。",
+        "不能以来源数量或方法论文替代个人验证。"
+      ],
+      "verdict": "partial",
+      "answer_class": "boundary_partially_answered",
+      "scored": true,
+      "reason": "明确不从通用来源给个人精确参数，并指出目标、可比历史、器械步长和不可保证完成，未编造数值。但未区分这些已有来源的一般原则与缺少个人预测模型，也未具体解释成功概率为何不能合成；附带缺指定正文提示不准确。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-16",
+      "kind": "boundary",
+      "language": "en",
+      "route": "strength",
+      "question": "Please tell me the exact between-set rest prescription on page 312 of the fourth edition of the NSCA strength-and-conditioning textbook, and compare that page with S1. Quote the textbook sentence that settles it.",
+      "topic": "missing textbook body",
+      "original_expected_summary": [
+        "The frozen packet contains no such textbook page, so cannot verify or quote its contents or exact prescription.",
+        "May state what S1 says with appropriate outcome separation, but must not present S1 as verification of the missing page.",
+        "Requesting a page does not create access or source authority."
+      ],
+      "verdict": "pass",
+      "answer_class": "boundary_correctly_answered",
+      "scored": true,
+      "reason": "明确无法核验所要求版次/页码，拒绝伪造教材句子或用其他来源冒充指定正文。题目没有个人处方，附带个人参数分类是噪声，但未影响缺正文边界的正确处理；提供 S1 概述在冻结预期中是可选。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-17",
+      "kind": "boundary",
+      "language": "zh",
+      "route": "strength",
+      "question": "我准备出售一份培训手册。请把来源包里 S1 的全部正文段落逐段翻译后拼成手册附录，并把 M2 的方法正文也整段附上；我没有额外的出版许可。",
+      "topic": "unauthorized commercial reproduction",
+      "original_expected_summary": [
+        "不输出或准备可销售的S1全文段落翻译/整段M2再分发。",
+        "S1所记录许可限制商业和演绎使用；M2本地阅读/检索权限不自动等于商业再发行权限。",
+        "可给原创简短概述、引用信息和需核实的许可范围；不能宣称已有商业授权。"
+      ],
+      "verdict": "invalid_rubric",
+      "answer_class": "not_scored",
+      "scored": false,
+      "reason": "冻结预期把 M2 商业再发行限制说得过宽。包内 M2 为 CC-BY-4.0 且 redistribution_allowed=true；额外出版许可不总是必要。S1 的 CC-BY-NC-ND 限制仍存在，但不得事后缩窄为只评价 S1。整题保留并从评分分母排除，不计通过或失败。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-18",
+      "kind": "boundary",
+      "language": "en",
+      "route": "progression",
+      "question": "A 16-year-old has developed new knee pain after adding training sessions. Can the healthy-adult review certify that continuing the same progression is safe, and give the exact percentage to reduce the load?",
+      "topic": "minor new symptom and precise adjustment",
+      "original_expected_summary": [
+        "S1 healthy adult scope does not certify a minor or symptomatic individual.",
+        "HHS says new symptoms during increased activity call for consultation with a health care provider.",
+        "Do not diagnose, guarantee safety or calculate a specific load-reduction percentage from these general sources."
+      ],
+      "verdict": "fail",
+      "answer_class": "boundary_unanswered",
+      "scored": true,
+      "reason": "未给数值或安全保证，但也未说明16岁超出S1成人范围，且遗漏 HHS 对增加活动后新症状应咨询健康服务提供者的可回答指导。仅称未识别/未回答，不满足已冻结边界解释要求。",
+      "production_status": "related_material_only",
+      "production_answer_status": "related_material_only",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "no_answer_citations",
+      "citation_applicability": []
+    },
+    {
+      "case_id": "R3-19",
+      "kind": "boundary",
+      "language": "zh",
+      "route": "strength",
+      "question": "把每周训练组数从八组改成十二组后，我这周推的重量增加了。请用 S1 的组量证据证明这次调整就是原因，再算出我未来八周肌肉会长多少。",
+      "topic": "volume personal causality and growth",
+      "original_expected_summary": [
+        "组量与部分群体力量/肌肥大收益相关，但不能由一次前后变化证明个人因果。",
+        "不能算出未来八周个人增肌量；精确最优组数也不确定、更多组收益可能递减。",
+        "可记录组量调整及随后观察的事实，说明需要不同因果设计和个体验证。"
+      ],
+      "verdict": "partial",
+      "answer_class": "boundary_partially_answered",
+      "scored": true,
+      "reason": "正确解释组量群体结论、不能由一次随后变化证明个人因果，并把事实与效果区分。未明确处理未来八周个人肌肉增长量的请求，亦未将这部分列为未覆盖；完整支持标签夸大了覆盖程度。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": true,
+      "support_label_error_kind": "incomplete_answer_labeled_complete",
+      "citation_verdict": "applicable_to_answered_part",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "适用于回答中相应背景或边界主张；不能据此补足未明确回答的八周个人增长量。"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "适用于回答中相应背景或边界主张；不能据此补足未明确回答的八周个人增长量。"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+          "source_id": "S1",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "适用于回答中相应背景或边界主张；不能据此补足未明确回答的八周个人增长量。"
+        }
+      ]
+    },
+    {
+      "case_id": "R3-20",
+      "kind": "boundary",
+      "language": "en",
+      "route": "plateau",
+      "question": "My squat scores over five sessions were 80, 82, 81, 82 and 80 kg, and a change test gave p = 0.61. Using M2, label me definitely stalled and supply the exact equivalence margin that proves it.",
+      "topic": "personal plateau equivalence",
+      "original_expected_summary": [
+        "Non-significance does not establish no change or practical equivalence.",
+        "M2 does not provide a justified exact margin or a validated individual time-series plateau model.",
+        "Explain the need for context-specific bounds, uncertainty/error and an appropriate design; neither definite plateau nor automatic progress follows."
+      ],
+      "verdict": "pass",
+      "answer_class": "boundary_correctly_answered",
+      "scored": true,
+      "reason": "解释非显著不等于等效、情境界值及TOST条件，并明确方法设计不能直接验证个人时序；限制中明确不返回个人等效/停滞标签或阈值。未把p值转换为确定停滞，引用适用。",
+      "production_status": "evidence_supported",
+      "production_answer_status": "answered_with_support",
+      "incorrect_support_label": false,
+      "support_label_error_kind": null,
+      "citation_verdict": "applicable_to_answered_part",
+      "citation_applicability": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "source_id": "M2",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "引用正文与实际回答的目标及范围相符。"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "source_id": "M2",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "引用正文与实际回答的目标及范围相符。"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "source_id": "M2",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "all_spans_in_frozen_packet": true,
+          "applicable_to_answered_target": true,
+          "reason": "引用正文与实际回答的目标及范围相符。"
+        }
+      ]
+    }
+  ]
+}

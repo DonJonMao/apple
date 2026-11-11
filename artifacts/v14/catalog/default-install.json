@@ -6,5 +6,89 @@
   "tables_checked": 34,
   "snapshot_id": "wger.e9327e0394fd185d41d4b7f929e166a90730521f78b3c06207883d0a3f302414",
   "private_content_not_exported": true,
-  "method": "SQLite backup before migration; compare original column tuples and count per original private table; no raw values exported"
+  "method": "SQLite backup before migration; compare original column tuples and count per original private table; no raw values exported",
+  "media_cache_update": {
+    "status": "passed",
+    "checked_at": "2026-11-11T13:45:14.257342+00:00",
+    "backup_created": true,
+    "backup_method": "SQLite backup API; includes committed WAL pages",
+    "private_SQL_read_denied": true,
+    "private_SQL_write_denied": true,
+    "sql_policy": {
+      "read": [
+        "catalog_*",
+        "schema_meta",
+        "sqlite_master"
+      ],
+      "write": [
+        "catalog_media",
+        "schema_meta"
+      ],
+      "ddl_and_attached_databases_denied": true,
+      "source_connection_read_only": true
+    },
+    "repository_initialization_used": false,
+    "public_definitions_and_translations_unchanged": true,
+    "protected_public_tables_checked": [
+      "catalog_source_record",
+      "catalog_source_mapping",
+      "catalog_localization",
+      "catalog_presentation",
+      "catalog_snapshot"
+    ],
+    "source_media_counts": [
+      {
+        "media_type": "image",
+        "fetch_status": "ready",
+        "count": 389
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "pending",
+        "count": 17
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "ready",
+        "count": 61
+      }
+    ],
+    "target_media_counts_before": [
+      {
+        "media_type": "image",
+        "fetch_status": "ready",
+        "count": 389
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "pending",
+        "count": 30
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "ready",
+        "count": 48
+      }
+    ],
+    "target_media_counts_after": [
+      {
+        "media_type": "image",
+        "fetch_status": "ready",
+        "count": 389
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "pending",
+        "count": 17
+      },
+      {
+        "media_type": "video",
+        "fetch_status": "ready",
+        "count": 61
+      }
+    ],
+    "attached_verified_media": 450,
+    "private_content_not_exported": true,
+    "limitation": "Private rows were not queried or hashed; preservation is enforced by SQL authorization. Existing initial-install evidence is historical."
+  }
 }

@@ -1,0 +1,45 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.934" timestamp="2026-11-11T21:47:14.551899+08:00"><testcase classname="tests.integration.test_str10_interval_rir" name="test_service_snapshot_preserves_interval_rir_over_conflicting_rpe" time="0.116"><failure message="AssertionError: A reported lower bound cannot become an exact RPE-derived RIR.&#10;assert 1.0 is None">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-266/test_service_snapshot_preserve0')
+
+    def test_service_snapshot_preserves_interval_rir_over_conflicting_rpe(tmp_path):
+        repo = Repository(tmp_path / "interval.sqlite3")
+        try:
+            saved = record_effort(repo)
+            records, context = snapshot(repo, CUTOFF)
+            original = next(r for r in records if r.get("set_uuid") == saved["set_uuid"])
+            assert original["rir"] == 3 and original["rir_qualifier"] == "at_least"
+            metric = evaluate("STR-10", records, cutoff_time=CUTOFF, window_start=START,
+                              window_end=CUTOFF, context=context)
+            observed = metric["value"][0]
+            assert observed["rir_interval"] == {"lower": 3, "upper": None}
+            assert observed["original_rpe"] == 9
+            assert observed["scale_type"] == "rir_based_rpe_6_10"
+&gt;           assert observed["rir"] is None, "A reported lower bound cannot become an exact RPE-derived RIR."
+E           AssertionError: A reported lower bound cannot become an exact RPE-derived RIR.
+E           assert 1.0 is None
+
+tests/integration/test_str10_interval_rir.py:53: AssertionError</failure></testcase><testcase classname="tests.integration.test_str10_interval_rir" name="test_actual_analysis_page_keeps_reported_interval_and_original_rpe" time="2.663"><failure message="assert (1.0 is None)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-266/test_actual_analysis_page_keep0')
+
+    def test_actual_analysis_page_keeps_reported_interval_and_original_rpe(tmp_path):
+        from streamlit.testing.v1 import AppTest
+
+        path = tmp_path / "interval-ui.sqlite3"
+        repo = Repository(path)
+        record_effort(repo)
+        repo.close()
+        script = ("from healthzip.db.repository import Repository\n"
+                  "from healthzip.analytics.v13 import analyze\n"
+                  "from healthzip.ui.analysis_page import render_analysis\n"
+                  f"repo=Repository({str(path)!r})\n"
+                  f"render_analysis(repo, {{'v13': analyze(repo, cutoff_time={CUTOFF!r}, timezone_name='UTC', use_cache=False)}})\n"
+                  "repo.close()")
+        app = AppTest.from_string(script).run(timeout=30)
+        assert not app.exception and not app.error
+        table = next(t.value for t in app.dataframe
+                     if "指标" in t.value.columns and "逐组RIR与RPE" in t.value["指标"].values)
+        displayed = ast.literal_eval(table.loc[table["指标"] == "逐组RIR与RPE", "结果"].iloc[0])[0]
+        assert displayed["rir_interval"] == {"lower": 3, "upper": None}
+        assert displayed["original_rpe"] == 9
+&gt;       assert displayed["rir"] is None and displayed["converted"] is False
+E       assert (1.0 is None)
+
+tests/integration/test_str10_interval_rir.py:121: AssertionError</failure></testcase></testsuite></testsuites>

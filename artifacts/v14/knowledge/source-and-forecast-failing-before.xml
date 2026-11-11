@@ -1,0 +1,79 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="7" time="0.941" timestamp="2026-11-11T22:02:02.446804+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_registered_association_year_and_book_edition_resolve_without_guessing_bare_issuer" time="0.119" /><testcase classname="tests.unit.test_v14_knowledge" name="test_issuer_without_a_resolved_document_never_falls_back_to_another_source[HHS\u6210\u4eba\u7ae0\u8282\u7814\u7a76\u7684\u4eba\u7fa4\u5305\u62ec\u54ea\u4e9b\u5e74\u9f84\uff1f]" time="0.109"><failure message="AssertionError: assert not [{'text': '另一来源的合成说明，不能代替指定机构文件。', 'theory_id': 'CLAIM-population_scope', 'theory_version': '1', 'span_ids': ['S5:fulltext:04c334e60e2b1a91723d:synthetic-core-v14:s00000'], ...}]">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa9ad9490&gt;
+question = 'HHS成人章节研究的人群包括哪些年龄？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS成人章节研究的人群包括哪些年龄？",
+        "Under the HHS adult guidance, explain progression of physical activity.",
+        "ACSM的教材如何解释组间休息？",
+    ])
+    def test_issuer_without_a_resolved_document_never_falls_back_to_another_source(kb, question):
+        kb.seed_core()
+        for outcome in ("population_scope", "gradual_progression", "progression_options", "rest"):
+            core_claim(kb, outcome, "另一来源的合成说明，不能代替指定机构文件。")
+        result = kb.query(question, "strength")
+&gt;       assert not result["claims"]
+E       AssertionError: assert not [{'text': '另一来源的合成说明，不能代替指定机构文件。', 'theory_id': 'CLAIM-population_scope', 'theory_version': '1', 'span_ids': ['S5:fulltext:04c334e60e2b1a91723d:synthetic-core-v14:s00000'], ...}]
+
+tests/unit/test_v14_knowledge.py:599: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_issuer_without_a_resolved_document_never_falls_back_to_another_source[Under the HHS adult guidance, explain progression of physical activity.]" time="0.075"><failure message="AssertionError: assert not [{'text': '另一来源的合成说明，不能代替指定机构文件。', 'theory_id': 'CLAIM-progression_options', 'theory_version': '1', 'span_ids': ['S5:fulltext:04c334e60e2b1a91723d:synthetic-core-v14:s00000'], ...}]">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa9a89990&gt;
+question = 'Under the HHS adult guidance, explain progression of physical activity.'
+
+    @pytest.mark.parametrize("question", [
+        "HHS成人章节研究的人群包括哪些年龄？",
+        "Under the HHS adult guidance, explain progression of physical activity.",
+        "ACSM的教材如何解释组间休息？",
+    ])
+    def test_issuer_without_a_resolved_document_never_falls_back_to_another_source(kb, question):
+        kb.seed_core()
+        for outcome in ("population_scope", "gradual_progression", "progression_options", "rest"):
+            core_claim(kb, outcome, "另一来源的合成说明，不能代替指定机构文件。")
+        result = kb.query(question, "strength")
+&gt;       assert not result["claims"]
+E       AssertionError: assert not [{'text': '另一来源的合成说明，不能代替指定机构文件。', 'theory_id': 'CLAIM-progression_options', 'theory_version': '1', 'span_ids': ['S5:fulltext:04c334e60e2b1a91723d:synthetic-core-v14:s00000'], ...}]
+
+tests/unit/test_v14_knowledge.py:599: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_issuer_without_a_resolved_document_never_falls_back_to_another_source[ACSM\u7684\u6559\u6750\u5982\u4f55\u89e3\u91ca\u7ec4\u95f4\u4f11\u606f\uff1f]" time="0.072"><failure message="KeyError: 'unresolved_named_source'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffaa057cd0&gt;
+question = 'ACSM的教材如何解释组间休息？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS成人章节研究的人群包括哪些年龄？",
+        "Under the HHS adult guidance, explain progression of physical activity.",
+        "ACSM的教材如何解释组间休息？",
+    ])
+    def test_issuer_without_a_resolved_document_never_falls_back_to_another_source(kb, question):
+        kb.seed_core()
+        for outcome in ("population_scope", "gradual_progression", "progression_options", "rest"):
+            core_claim(kb, outcome, "另一来源的合成说明，不能代替指定机构文件。")
+        result = kb.query(question, "strength")
+        assert not result["claims"]
+        assert result["answer_status"] != "answered_with_support"
+&gt;       assert result["retrieval"]["question_contract"]["source_constraints"]["unresolved_named_source"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'unresolved_named_source'
+
+tests/unit/test_v14_knowledge.py:601: KeyError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_personal_future_amount_is_separate_from_generic_explanation[\u89e3\u91ca\u8bad\u7ec3\u7ec4\u91cf\uff0c\u518d\u7b97\u51fa\u6211\u672a\u6765\u516d\u5468\u808c\u8089\u4f1a\u957f\u591a\u5c11\u3002]" time="0.040"><failure message="AssertionError: assert 'personal_forecast' in {'unresolved_compound_request'}">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa9b9ef10&gt;
+question = '解释训练组量，再算出我未来六周肌肉会长多少。'
+
+    @pytest.mark.parametrize("question", [
+        "解释训练组量，再算出我未来六周肌肉会长多少。",
+        "Explain training volume; predict how much muscle I will gain next month.",
+    ])
+    def test_personal_future_amount_is_separate_from_generic_explanation(kb, question):
+        core_claim(kb, "volume", "合成组量原则不能预测个人肌肉增长量。")
+        result = kb.query(question, "strength")
+        assert result["answer_status"] != "answered_with_support"
+&gt;       assert "personal_forecast" in {p["part_id"] for p in result["support_assessment"]["uncovered_parts"]}
+E       AssertionError: assert 'personal_forecast' in {'unresolved_compound_request'}
+
+tests/unit/test_v14_knowledge.py:612: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_personal_future_amount_is_separate_from_generic_explanation[Explain training volume; predict how much muscle I will gain next month.]" time="0.040"><failure message="AssertionError: assert 'answered_with_support' != 'answered_with_support'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa9b9ced0&gt;
+question = 'Explain training volume; predict how much muscle I will gain next month.'
+
+    @pytest.mark.parametrize("question", [
+        "解释训练组量，再算出我未来六周肌肉会长多少。",
+        "Explain training volume; predict how much muscle I will gain next month.",
+    ])
+    def test_personal_future_amount_is_separate_from_generic_explanation(kb, question):
+        core_claim(kb, "volume", "合成组量原则不能预测个人肌肉增长量。")
+        result = kb.query(question, "strength")
+&gt;       assert result["answer_status"] != "answered_with_support"
+E       AssertionError: assert 'answered_with_support' != 'answered_with_support'
+
+tests/unit/test_v14_knowledge.py:611: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_full_registered_document_disambiguates_an_issuer" time="0.061" /></testsuite></testsuites>

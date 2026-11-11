@@ -42,12 +42,13 @@ def _render(workbench):
                 "测量任务的可比范围": ("comparability", "scope"), "来源适用的人群": ("population_scope", "scope"),
                 "逐步增加身体活动": ("gradual_progression", "options"), "症状与活动边界": ("symptoms", "scope"),
                 "个人效果与因果边界": ("individual_effect", "inference"), "不同训练目标": ("goal_scope", "scope"),
-                "周期组织是否必要": ("variation", "necessity")}
+                "周期组织是否必要": ("variation", "necessity"),
+                "不显著与实用等效的区别": ("practical_equivalence", "explanation")}
             chosen = st.selectbox("本次要回答", list(choices))
             confirmed = st.checkbox("我确认本次只查询所选目标；原问题中的其他目标需要另查", key="knowledge_target_confirmed")
             if confirmed:
                 outcome, relation = choices[chosen]
-                context["question_contract"] = {"subject": "resistance_training", "outcome": outcome,
+                context["question_contract"] = {"subject": "statistical_inference" if outcome == "practical_equivalence" else "resistance_training", "outcome": outcome,
                     "requested_relation": relation, "user_confirmed": True}
             else:
                 st.caption("确认前按原问题检索，不把尚未确认的选择当作你的目标。")

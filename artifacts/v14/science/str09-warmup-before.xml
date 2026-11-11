@@ -1,0 +1,21 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.586" timestamp="2026-11-11T22:13:07.925702+08:00"><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_original_plan_completion_includes_warmup_while_work_counts_stay_separate" time="0.388"><failure message="assert (1 == 2)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-284/test_original_plan_completion_0')
+
+    def test_original_plan_completion_includes_warmup_while_work_counts_stay_separate(tmp_path):
+        with closing(Repository(tmp_path / "synthetic-warmup-plan.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(set_type="warmup"), _target(set_type="work"),
+                                            _target(set_type="warmup"), _target(set_type="work")])
+            assert session["sets"][0]["set_type"] == "warmup"
+            _record(svc, session["sets"][0])
+            _record(svc, session["sets"][1])
+            _record(svc, session["sets"][2], completion_state="skipped")
+            for role in ("warmup", "work"):
+                extra = svc.add_set(session["exercises"][0]["id"], {"set_type": role})
+                _record(svc, extra)
+            cutoff = datetime.now(timezone.utc).isoformat()
+            metrics = analyze(repo, cutoff_time=cutoff, use_cache=False)["metrics"]
+            value = metrics["STR-09"]["value"]
+            assert value["planned"] == 4
+&gt;           assert value["completed"] == 2 and value["skipped"] == 1 and value["unknown"] == 1
+E           assert (1 == 2)
+
+tests/integration/test_v14_plan_target_attainment.py:89: AssertionError</failure></testcase></testsuite></testsuites>

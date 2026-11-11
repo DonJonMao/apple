@@ -56,8 +56,11 @@ def test_sleep_coverage_elapsed_dates_and_source_choice():
 
 
 def test_circular_midpoint_and_no_future_sleep():
-    episodes = [{"start": "2026-11-01T22:00:00+00:00", "end": "2026-11-02T00:00:00+00:00"},
-                {"start": "2026-11-02T00:00:00+00:00", "end": "2026-11-02T02:00:00+00:00"}]
+    # Explicit synthetic availability, not an inferred event/ingestion equality.
+    episodes = [{"id": "synthetic-early", "start": "2026-11-01T22:00:00+00:00",
+                 "end": "2026-11-02T00:00:00+00:00", "available_at": "2026-11-02T03:00:00+00:00"},
+                {"id": "synthetic-late", "start": "2026-11-02T00:00:00+00:00",
+                 "end": "2026-11-02T02:00:00+00:00", "available_at": "2026-11-02T03:00:00+00:00"}]
     output = run("STATE-SLEEP-TIMING", context={"sleep_episodes": episodes})
     hour = output["value"]["circular_midpoint_hour"]
     assert min(abs(hour), abs(hour - 24)) < 1e-9

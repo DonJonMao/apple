@@ -1,0 +1,185 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="0.692" timestamp="2026-11-11T21:09:00.117040+08:00"><testcase classname="tests.unit.test_v14_release_queries" name="test_core_release_excludes_later_claim_versions_and_all_unfrozen_legacy" time="0.080"><failure message="ValueError: unknown theory release">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9729d850&gt;
+
+    def test_core_release_excludes_later_claim_versions_and_all_unfrozen_legacy(library):
+        add_core(library)
+        library.release_core("core-only")
+        add_core(library, version="2")
+        add_core(library, "SYNTH-LATER-CORE")
+        add_legacy(library)
+        assert len(refs(query(library))) == 4
+&gt;       result = query(library, "core-only")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_v14_release_queries.py:71:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/unit/test_v14_release_queries.py:57: in query
+    return w.query(QUESTION, "progression", CONTEXT, k=20, release_id=release_id)["retrieval"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/workbench.py:112: in query
+    return query(self, question, route=route, context=context or {}, personal_metrics=personal_metrics or [], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:178: in query
+    retrieval = retrieve(workbench, question, routes, context, k, release_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:67: in retrieve
+    rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.knowledge.store.Libraries object at 0xffff9729cdd0&gt;
+release_id = 'core-only'
+
+    def released_theories(self, release_id: str) -&gt; list[dict]:
+        row = self.theories.execute("SELECT manifest_json FROM theory_release WHERE release_id=?", (release_id,)).fetchone()
+        if not row:
+&gt;           raise ValueError("unknown theory release")
+E           ValueError: unknown theory release
+
+src/healthzip/knowledge/store.py:456: ValueError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_legacy_release_excludes_later_core_and_legacy_claims" time="0.044"><failure message="AssertionError: assert {('SYNTH-CORE...LEGACY', '1')} == {('SYNTH-LEGACY', '1')}&#10;  &#10;  Extra items in the left set:&#10;  ('SYNTH-CORE', '1')&#10;  Use -v to get more diff">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff99d5ca10&gt;
+
+    def test_legacy_release_excludes_later_core_and_legacy_claims(library):
+        add_legacy(library)
+        library.release("legacy-only")
+        add_core(library)
+        add_legacy(library, "SYNTH-LATER-LEGACY")
+        result = query(library, "legacy-only")
+&gt;       assert refs(result) == {("SYNTH-LEGACY", "1")}
+E       AssertionError: assert {('SYNTH-CORE...LEGACY', '1')} == {('SYNTH-LEGACY', '1')}
+E
+E         Extra items in the left set:
+E         ('SYNTH-CORE', '1')
+E         Use -v to get more diff
+
+tests/unit/test_v14_release_queries.py:83: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_same_release_id_combines_only_the_two_recorded_snapshots" time="0.046"><failure message="AssertionError: assert {('SYNTH-CORE...LEGACY', '1')} == {('SYNTH-CORE...LEGACY', '1')}&#10;  &#10;  Extra items in the left set:&#10;  ('SYNTH-LATER-CORE', '1')&#10;  Use -v to get more diff">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9729bd90&gt;
+
+    def test_same_release_id_combines_only_the_two_recorded_snapshots(library):
+        add_core(library)
+        add_legacy(library)
+        library.release_core("combined")
+        library.release("combined")
+        add_core(library, "SYNTH-LATER-CORE")
+        add_legacy(library, "SYNTH-LATER-LEGACY")
+        result = query(library, "combined")
+&gt;       assert refs(result) == {("SYNTH-CORE", "1"), ("SYNTH-LEGACY", "1")}
+E       AssertionError: assert {('SYNTH-CORE...LEGACY', '1')} == {('SYNTH-CORE...LEGACY', '1')}
+E
+E         Extra items in the left set:
+E         ('SYNTH-LATER-CORE', '1')
+E         Use -v to get more diff
+
+tests/unit/test_v14_release_queries.py:96: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_frozen_core_membership_cannot_revive_currently_invalid_evidence[claim_revoked]" time="0.035"><failure message="ValueError: unknown theory release">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff972bf990&gt;
+invalidation = 'claim_revoked'
+
+    @pytest.mark.parametrize("invalidation", ["claim_revoked", "source_corrected", "source_withdrawn"])
+    def test_frozen_core_membership_cannot_revive_currently_invalid_evidence(library, invalidation):
+        add_core(library)
+        frozen = library.release_core("before-invalidation")
+&gt;       assert refs(query(library, "before-invalidation")) == {("SYNTH-CORE", "1")}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_v14_release_queries.py:104:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/unit/test_v14_release_queries.py:57: in query
+    return w.query(QUESTION, "progression", CONTEXT, k=20, release_id=release_id)["retrieval"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/workbench.py:112: in query
+    return query(self, question, route=route, context=context or {}, personal_metrics=personal_metrics or [], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:178: in query
+    retrieval = retrieve(workbench, question, routes, context, k, release_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:67: in retrieve
+    rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.knowledge.store.Libraries object at 0xffff972bea50&gt;
+release_id = 'before-invalidation'
+
+    def released_theories(self, release_id: str) -&gt; list[dict]:
+        row = self.theories.execute("SELECT manifest_json FROM theory_release WHERE release_id=?", (release_id,)).fetchone()
+        if not row:
+&gt;           raise ValueError("unknown theory release")
+E           ValueError: unknown theory release
+
+src/healthzip/knowledge/store.py:456: ValueError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_frozen_core_membership_cannot_revive_currently_invalid_evidence[source_corrected]" time="0.036"><failure message="ValueError: unknown theory release">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff96f71cd0&gt;
+invalidation = 'source_corrected'
+
+    @pytest.mark.parametrize("invalidation", ["claim_revoked", "source_corrected", "source_withdrawn"])
+    def test_frozen_core_membership_cannot_revive_currently_invalid_evidence(library, invalidation):
+        add_core(library)
+        frozen = library.release_core("before-invalidation")
+&gt;       assert refs(query(library, "before-invalidation")) == {("SYNTH-CORE", "1")}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_v14_release_queries.py:104:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/unit/test_v14_release_queries.py:57: in query
+    return w.query(QUESTION, "progression", CONTEXT, k=20, release_id=release_id)["retrieval"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/workbench.py:112: in query
+    return query(self, question, route=route, context=context or {}, personal_metrics=personal_metrics or [], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:178: in query
+    retrieval = retrieve(workbench, question, routes, context, k, release_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:67: in retrieve
+    rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.knowledge.store.Libraries object at 0xffff96f71d90&gt;
+release_id = 'before-invalidation'
+
+    def released_theories(self, release_id: str) -&gt; list[dict]:
+        row = self.theories.execute("SELECT manifest_json FROM theory_release WHERE release_id=?", (release_id,)).fetchone()
+        if not row:
+&gt;           raise ValueError("unknown theory release")
+E           ValueError: unknown theory release
+
+src/healthzip/knowledge/store.py:456: ValueError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_frozen_core_membership_cannot_revive_currently_invalid_evidence[source_withdrawn]" time="0.035"><failure message="ValueError: unknown theory release">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff96f26d90&gt;
+invalidation = 'source_withdrawn'
+
+    @pytest.mark.parametrize("invalidation", ["claim_revoked", "source_corrected", "source_withdrawn"])
+    def test_frozen_core_membership_cannot_revive_currently_invalid_evidence(library, invalidation):
+        add_core(library)
+        frozen = library.release_core("before-invalidation")
+&gt;       assert refs(query(library, "before-invalidation")) == {("SYNTH-CORE", "1")}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_v14_release_queries.py:104:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/unit/test_v14_release_queries.py:57: in query
+    return w.query(QUESTION, "progression", CONTEXT, k=20, release_id=release_id)["retrieval"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/workbench.py:112: in query
+    return query(self, question, route=route, context=context or {}, personal_metrics=personal_metrics or [], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:178: in query
+    retrieval = retrieve(workbench, question, routes, context, k, release_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/knowledge/retrieval.py:67: in retrieve
+    rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;healthzip.knowledge.store.Libraries object at 0xffff96f27210&gt;
+release_id = 'before-invalidation'
+
+    def released_theories(self, release_id: str) -&gt; list[dict]:
+        row = self.theories.execute("SELECT manifest_json FROM theory_release WHERE release_id=?", (release_id,)).fetchone()
+        if not row:
+&gt;           raise ValueError("unknown theory release")
+E           ValueError: unknown theory release
+
+src/healthzip/knowledge/store.py:456: ValueError</failure></testcase><testcase classname="tests.unit.test_v14_release_queries" name="test_unknown_release_is_rejected_and_empty_core_filter_means_no_claims" time="0.035"><failure message="AssertionError: &#10;- unknown theory release&#10;?         -------&#10;+ unknown release">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff96f74590&gt;
+
+    def test_unknown_release_is_rejected_and_empty_core_filter_means_no_claims(library):
+        add_core(library)
+&gt;       with pytest.raises(ValueError, match="^unknown release$"):
+E       AssertionError:
+E       - unknown theory release
+E       ?         -------
+E       + unknown release
+
+tests/unit/test_v14_release_queries.py:118: AssertionError</failure></testcase></testsuite></testsuites>

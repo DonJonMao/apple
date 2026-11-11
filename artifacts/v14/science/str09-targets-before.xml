@@ -1,0 +1,254 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="13" skipped="0" tests="13" time="3.334" timestamp="2026-11-11T21:58:21.796157+08:00"><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_service_snapshot_separates_original_completion_and_three_target_denominators" time="0.412"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_service_snapshot_separate0')
+
+    def test_service_snapshot_separates_original_completion_and_three_target_denominators(tmp_path):
+        with closing(Repository(tmp_path / "synthetic-plan-targets.sqlite3")) as repo:
+            svc, _, session = _session(repo, [
+                _target(load_value=45.359237), _target(),
+                _target(load_unit=None, load_basis=None), {}, _target(), _target(),
+            ])
+            rows = session["sets"]
+            _record(svc, rows[0], load_value=100, load_unit="lb")
+            _record(svc, rows[1], reps=6, rir=None)
+            _record(svc, rows[2], reps=9, rir=2, rir_qualifier="at_least")
+            _record(svc, rows[3], reps=9)
+            _record(svc, rows[4], completion_state="skipped", load_value=None, load_unit=None, reps=None, rir=None)
+            extra = svc.add_set(session["exercises"][0]["id"])
+            _record(svc, extra)
+            result = _metric(repo)
+            value = result["value"]
+            assert (value["planned"], value["completed"], value["skipped"], value["unknown"], value["extra_sets"]) == (6, 4, 1, 1, 1)
+            assert value["completed_fraction_of_plan"] == 4 / 6
+&gt;           endpoints = value["target_attainment"]
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:59: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_current_target_and_template_edits_do_not_replace_original_endpoint_goals" time="0.339"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_current_target_and_templa0')
+
+    def test_current_target_and_template_edits_do_not_replace_original_endpoint_goals(tmp_path):
+        with closing(Repository(tmp_path / "synthetic-original-targets.sqlite3")) as repo:
+            svc, template, session = _session(repo, [_target()])
+            row = svc.update_set_target(session["sets"][0]["set_uuid"], _target(reps_min=1, reps_max=3),
+                                        base_revision=session["sets"][0]["revision"])
+            changed_items = [{**template["items"][0], "targets": {"sets": [_target(reps_min=1, reps_max=3)]}}]
+            svc.update_template(template["id"], "Synthetic changed template", changed_items, base_revision=template["revision"])
+            _record(svc, row, reps=3)
+            cutoff = datetime.now(timezone.utc).isoformat()
+            _, context = snapshot(repo, cutoff, include_sources=False)
+            assert context["session_plans"][0]["sets"][0]["targets"]["reps_min"] == 8
+            result = _metric(repo)["value"]
+            assert result["completed_fraction_of_plan"] == 1
+&gt;           repetitions = result["target_attainment"]["reps"]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:87: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[assistance_setting-kg-40-45-not_met-easier]" time="0.330"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered0')
+basis = 'assistance_setting', unit = 'kg', target = 40, actual = 45
+expected = 'not_met', direction = 'easier'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[assistance_setting-kg-40-35-not_met-harder]" time="0.331"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered1')
+basis = 'assistance_setting', unit = 'kg', target = 40, actual = 35
+expected = 'not_met', direction = 'harder'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[assistance_setting-kg-40-40-met-unchanged]" time="0.327"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered2')
+basis = 'assistance_setting', unit = 'kg', target = 40, actual = 40
+expected = 'met', direction = 'unchanged'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[plates_per_side_kg-kg-30-30-met-not_inferred]" time="0.330"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered3')
+basis = 'plates_per_side_kg', unit = 'kg', target = 30, actual = 30
+expected = 'met', direction = 'not_inferred'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[per_dumbbell_kg-kg-30-30-met-not_inferred]" time="0.330"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered4')
+basis = 'per_dumbbell_kg', unit = 'kg', target = 30, actual = 30
+expected = 'met', direction = 'not_inferred'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_load_targets_keep_entered_basis_and_assistance_direction[machine_setting-level-7-7-met-not_inferred]" time="0.329"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_load_targets_keep_entered5')
+basis = 'machine_setting', unit = 'level', target = 7, actual = 7
+expected = 'met', direction = 'not_inferred'
+
+    @pytest.mark.parametrize("basis,unit,target,actual,expected,direction", [
+        ("assistance_setting", "kg", 40, 45, "not_met", "easier"),
+        ("assistance_setting", "kg", 40, 35, "not_met", "harder"),
+        ("assistance_setting", "kg", 40, 40, "met", "unchanged"),
+        ("plates_per_side_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("per_dumbbell_kg", "kg", 30, 30, "met", "not_inferred"),
+        ("machine_setting", "level", 7, 7, "met", "not_inferred"),
+    ])
+    def test_load_targets_keep_entered_basis_and_assistance_direction(tmp_path, basis, unit, target, actual, expected, direction):
+        with closing(Repository(tmp_path / "synthetic-load-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_value=target, load_unit=unit, load_basis=basis)], basis=basis)
+            _record(svc, session["sets"][0], load_value=actual, load_unit=unit)
+&gt;           observation = _metric(repo)["value"]["target_attainment"]["load"]["observations"][0]
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:104: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_rir_interval_only_decides_a_target_when_logically_determined[interval0-met]" time="0.004"><failure message="KeyError: 'target_attainment'">interval = {'lower': 2, 'upper': 3}, expected = 'met'
+
+    @pytest.mark.parametrize("interval,expected", [
+        ({"lower": 2, "upper": 3}, "met"),
+        ({"lower": 1, "upper": 3}, "unknown"),
+        ({"lower": 5, "upper": None}, "not_met"),
+        ({"lower": 3, "upper": None}, "unknown"),
+    ])
+    def test_rir_interval_only_decides_a_target_when_logically_determined(interval, expected):
+        row = {"id": "synthetic-actual", "planned_set_id": "synthetic-plan", "record_kind": "strength_set",
+               "completion_state": "completed", "set_type": "work", "measurement_mode": "repetitions",
+               "reps": 8, "rir_interval": interval, "event_end": "2026-11-03T08:00:00Z",
+               "available_at": "2026-11-03T09:00:00Z"}
+        metric = evaluate("STR-09", [row], cutoff_time="2026-11-04T00:00:00Z",
+                          window_start="2026-11-01T00:00:00Z", window_end="2026-11-04T00:00:00Z",
+                          context={"plan_snapshot": {"sets": [{"id": "synthetic-plan", "targets": {"rir_min": 2, "rir_max": 4}}]}})
+&gt;       result = metric["value"]["target_attainment"]["rir"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:123: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_rir_interval_only_decides_a_target_when_logically_determined[interval1-unknown]" time="0.004"><failure message="KeyError: 'target_attainment'">interval = {'lower': 1, 'upper': 3}, expected = 'unknown'
+
+    @pytest.mark.parametrize("interval,expected", [
+        ({"lower": 2, "upper": 3}, "met"),
+        ({"lower": 1, "upper": 3}, "unknown"),
+        ({"lower": 5, "upper": None}, "not_met"),
+        ({"lower": 3, "upper": None}, "unknown"),
+    ])
+    def test_rir_interval_only_decides_a_target_when_logically_determined(interval, expected):
+        row = {"id": "synthetic-actual", "planned_set_id": "synthetic-plan", "record_kind": "strength_set",
+               "completion_state": "completed", "set_type": "work", "measurement_mode": "repetitions",
+               "reps": 8, "rir_interval": interval, "event_end": "2026-11-03T08:00:00Z",
+               "available_at": "2026-11-03T09:00:00Z"}
+        metric = evaluate("STR-09", [row], cutoff_time="2026-11-04T00:00:00Z",
+                          window_start="2026-11-01T00:00:00Z", window_end="2026-11-04T00:00:00Z",
+                          context={"plan_snapshot": {"sets": [{"id": "synthetic-plan", "targets": {"rir_min": 2, "rir_max": 4}}]}})
+&gt;       result = metric["value"]["target_attainment"]["rir"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:123: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_rir_interval_only_decides_a_target_when_logically_determined[interval2-not_met]" time="0.004"><failure message="KeyError: 'target_attainment'">interval = {'lower': 5, 'upper': None}, expected = 'not_met'
+
+    @pytest.mark.parametrize("interval,expected", [
+        ({"lower": 2, "upper": 3}, "met"),
+        ({"lower": 1, "upper": 3}, "unknown"),
+        ({"lower": 5, "upper": None}, "not_met"),
+        ({"lower": 3, "upper": None}, "unknown"),
+    ])
+    def test_rir_interval_only_decides_a_target_when_logically_determined(interval, expected):
+        row = {"id": "synthetic-actual", "planned_set_id": "synthetic-plan", "record_kind": "strength_set",
+               "completion_state": "completed", "set_type": "work", "measurement_mode": "repetitions",
+               "reps": 8, "rir_interval": interval, "event_end": "2026-11-03T08:00:00Z",
+               "available_at": "2026-11-03T09:00:00Z"}
+        metric = evaluate("STR-09", [row], cutoff_time="2026-11-04T00:00:00Z",
+                          window_start="2026-11-01T00:00:00Z", window_end="2026-11-04T00:00:00Z",
+                          context={"plan_snapshot": {"sets": [{"id": "synthetic-plan", "targets": {"rir_min": 2, "rir_max": 4}}]}})
+&gt;       result = metric["value"]["target_attainment"]["rir"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:123: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_rir_interval_only_decides_a_target_when_logically_determined[interval3-unknown]" time="0.004"><failure message="KeyError: 'target_attainment'">interval = {'lower': 3, 'upper': None}, expected = 'unknown'
+
+    @pytest.mark.parametrize("interval,expected", [
+        ({"lower": 2, "upper": 3}, "met"),
+        ({"lower": 1, "upper": 3}, "unknown"),
+        ({"lower": 5, "upper": None}, "not_met"),
+        ({"lower": 3, "upper": None}, "unknown"),
+    ])
+    def test_rir_interval_only_decides_a_target_when_logically_determined(interval, expected):
+        row = {"id": "synthetic-actual", "planned_set_id": "synthetic-plan", "record_kind": "strength_set",
+               "completion_state": "completed", "set_type": "work", "measurement_mode": "repetitions",
+               "reps": 8, "rir_interval": interval, "event_end": "2026-11-03T08:00:00Z",
+               "available_at": "2026-11-03T09:00:00Z"}
+        metric = evaluate("STR-09", [row], cutoff_time="2026-11-04T00:00:00Z",
+                          window_start="2026-11-01T00:00:00Z", window_end="2026-11-04T00:00:00Z",
+                          context={"plan_snapshot": {"sets": [{"id": "synthetic-plan", "targets": {"rir_min": 2, "rir_max": 4}}]}})
+&gt;       result = metric["value"]["target_attainment"]["rir"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:123: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_plan_target_attainment" name="test_unknown_target_fields_are_not_inferred_from_actual_values" time="0.329"><failure message="KeyError: 'target_attainment'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-273/test_unknown_target_fields_are0')
+
+    def test_unknown_target_fields_are_not_inferred_from_actual_values(tmp_path):
+        with closing(Repository(tmp_path / "synthetic-unknown-target.sqlite3")) as repo:
+            svc, _, session = _session(repo, [_target(load_unit=None, load_basis=None, reps_max=None, rir=None)])
+            _record(svc, session["sets"][0])
+&gt;           value = _metric(repo)["value"]["target_attainment"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'target_attainment'
+
+tests/integration/test_v14_plan_target_attainment.py:132: KeyError</failure></testcase></testsuite></testsuites>

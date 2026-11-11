@@ -11,7 +11,7 @@ from threading import RLock
 _RESULTS = OrderedDict()
 _LOCK = RLock()
 CACHE_LIMIT = 16  # product memory budget, unrelated to scientific eligibility
-CACHE_VERSION = "analysis-cache-v1.4.0"
+CACHE_VERSION = "analysis-cache-v1.4.1"
 
 
 def revision_identity(repo, knowledge_root=".local/knowledge"):

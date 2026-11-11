@@ -1,0 +1,127 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="11" time="1.069" timestamp="2026-11-11T21:42:41.893153+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_request_roles_do_not_invent_a_second_calculation_or_personal_prescription[\u8bad\u7ec3\u5fc5\u987b\u6bcf\u7ec4\u505a\u5230\u518d\u4e5f\u4e3e\u4e0d\u8d77\u6765\u624d\u7b97\u6709\u6548\u5417\uff1f]" time="0.097"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e5ea4d0&gt;
+question = '训练必须每组做到再也举不起来才算有效吗？'
+
+    @pytest.mark.parametrize("question", [
+        "训练必须每组做到再也举不起来才算有效吗？",
+        "Must I train to failure? Does the evidence establish an exact RIR for everybody?",
+    ])
+    def test_request_roles_do_not_invent_a_second_calculation_or_personal_prescription(kb, question):
+        core_claim(kb, "failure_necessity", "合成来源不要求每组力竭。")
+        core_claim(kb, "effort_precision", "合成来源没有建立人人相同的精确RIR。")
+        answer = kb.query(question, "strength")
+&gt;       assert answer["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_v14_knowledge.py:504: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_request_roles_do_not_invent_a_second_calculation_or_personal_prescription[Must I train to failure? Does the evidence establish an exact RIR for everybody?]" time="0.045"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e7090d0&gt;
+question = 'Must I train to failure? Does the evidence establish an exact RIR for everybody?'
+
+    @pytest.mark.parametrize("question", [
+        "训练必须每组做到再也举不起来才算有效吗？",
+        "Must I train to failure? Does the evidence establish an exact RIR for everybody?",
+    ])
+    def test_request_roles_do_not_invent_a_second_calculation_or_personal_prescription(kb, question):
+        core_claim(kb, "failure_necessity", "合成来源不要求每组力竭。")
+        core_claim(kb, "effort_precision", "合成来源没有建立人人相同的精确RIR。")
+        answer = kb.query(question, "strength")
+&gt;       assert answer["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_v14_knowledge.py:504: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_real_sequential_personal_number_requests_remain_unanswered[Explain rest between training sets. Then choose exactly 110 seconds for my next workout.]" time="0.043" /><testcase classname="tests.unit.test_v14_knowledge" name="test_real_sequential_personal_number_requests_remain_unanswered[\u89e3\u91ca\u7ec4\u95f4\u4f11\u606f\uff0c\u518d\u7ed9\u6211\u7b97\u51fa\u7cbe\u786e\u7684\u4f11\u606f\u79d2\u6570\u3002]" time="0.041" /><testcase classname="tests.unit.test_v14_knowledge" name="test_main_text_explanations_never_answer_component_level_extractions[question0]" time="0.041"><failure message="AssertionError: assert 'answered_with_support' != 'answered_with_support'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e69a190&gt;
+question = 'List every original rest-interval trial in Supplemental Appendix 9, including sample sizes and effects.'
+
+    @pytest.mark.parametrize("question", [
+        "List every original rest-interval trial in Supplemental Appendix 9, including sample sizes and effects.",
+        "逐项列出附录六的所有组间休息原始试验，以及每项样本量和效应。",
+        "Extract all training rest results from Table 3 with sample sizes.",
+    ])
+    def test_main_text_explanations_never_answer_component_level_extractions(kb, question):
+        core_claim(kb, "rest", "合成主文提及补充材料，但这里只解释休息。")
+        answer = kb.query(question, "strength")
+&gt;       assert answer["answer_status"] != "answered_with_support"
+E       AssertionError: assert 'answered_with_support' != 'answered_with_support'
+
+tests/unit/test_v14_knowledge.py:526: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_main_text_explanations_never_answer_component_level_extractions[\u9010\u9879\u5217\u51fa\u9644\u5f55\u516d\u7684\u6240\u6709\u7ec4\u95f4\u4f11\u606f\u539f\u59cb\u8bd5\u9a8c\uff0c\u4ee5\u53ca\u6bcf\u9879\u6837\u672c\u91cf\u548c\u6548\u5e94\u3002]" time="0.040"><failure message="AssertionError: assert 'answered_with_support' != 'answered_with_support'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e6d68d0&gt;
+question = '逐项列出附录六的所有组间休息原始试验，以及每项样本量和效应。'
+
+    @pytest.mark.parametrize("question", [
+        "List every original rest-interval trial in Supplemental Appendix 9, including sample sizes and effects.",
+        "逐项列出附录六的所有组间休息原始试验，以及每项样本量和效应。",
+        "Extract all training rest results from Table 3 with sample sizes.",
+    ])
+    def test_main_text_explanations_never_answer_component_level_extractions(kb, question):
+        core_claim(kb, "rest", "合成主文提及补充材料，但这里只解释休息。")
+        answer = kb.query(question, "strength")
+&gt;       assert answer["answer_status"] != "answered_with_support"
+E       AssertionError: assert 'answered_with_support' != 'answered_with_support'
+
+tests/unit/test_v14_knowledge.py:526: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_main_text_explanations_never_answer_component_level_extractions[Extract all training rest results from Table 3 with sample sizes.]" time="0.041"><failure message="AssertionError: assert 'answered_with_support' != 'answered_with_support'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e80c950&gt;
+question = 'Extract all training rest results from Table 3 with sample sizes.'
+
+    @pytest.mark.parametrize("question", [
+        "List every original rest-interval trial in Supplemental Appendix 9, including sample sizes and effects.",
+        "逐项列出附录六的所有组间休息原始试验，以及每项样本量和效应。",
+        "Extract all training rest results from Table 3 with sample sizes.",
+    ])
+    def test_main_text_explanations_never_answer_component_level_extractions(kb, question):
+        core_claim(kb, "rest", "合成主文提及补充材料，但这里只解释休息。")
+        answer = kb.query(question, "strength")
+&gt;       assert answer["answer_status"] != "answered_with_support"
+E       AssertionError: assert 'answered_with_support' != 'answered_with_support'
+
+tests/unit/test_v14_knowledge.py:526: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_edition_does_not_create_a_crossing_chapter_and_alias_spacing_is_grammatical" time="0.068"><failure message="AssertionError: assert not True&#10; +  where True = &lt;built-in method get of dict object at 0xffff9e773b00&gt;('unresolved_chapter')&#10; +    where &lt;built-in method get of dict object at 0xffff9e773b00&gt; = {'source_ids': ['CORE-US-HHS-PAG-2'], 'requested_edition_number': '2', 'unresolved_chapter': True}.get">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e6592d0&gt;
+
+    def test_edition_does_not_create_a_crossing_chapter_and_alias_spacing_is_grammatical(kb):
+        from healthzip.knowledge.tasks import parse_task, resolve_named_sources
+        kb.seed_core()
+        for question in ("HHS第二版的安全活动章节怎么说？", "HHS 第二版的安全活动章节怎么说？"):
+            context = resolve_named_sources(kb, question, {})
+            task = parse_task(question, context)
+            assert task["source_constraints"]["source_ids"] == ["CORE-US-HHS-PAG-2"]
+&gt;           assert not task["source_constraints"].get("unresolved_chapter")
+E           AssertionError: assert not True
+E            +  where True = &lt;built-in method get of dict object at 0xffff9e773b00&gt;('unresolved_chapter')
+E            +    where &lt;built-in method get of dict object at 0xffff9e773b00&gt; = {'source_ids': ['CORE-US-HHS-PAG-2'], 'requested_edition_number': '2', 'unresolved_chapter': True}.get
+
+tests/unit/test_v14_knowledge.py:538: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_bibliographic_title_does_not_invent_answer_goals" time="0.042"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e6c7050&gt;
+
+    def test_bibliographic_title_does_not_invent_answer_goals(kb):
+        core_claim(kb, "rest", "合成来源只回答力量目标的休息边界。", scope={"population": "adults", "goal": "strength"})
+        with kb.lib.sources:
+            manifest = kb.lib.source("S5")["manifest"]
+            manifest["title"] = "Resistance Training for Strength and Hypertrophy"
+            kb.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id='S5'", (json.dumps(manifest),))
+        result = kb.query('According to "Resistance Training for Strength and Hypertrophy", explain rest for strength.', "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_v14_knowledge.py:549: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_unreviewed_nutrition_request_is_a_visible_missing_part" time="0.040"><failure message="AssertionError: assert '营养' in '合成组间休息说明。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：个人具体训练参数（通用来源不能单独确定个人具体训练参数）。'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e900210&gt;
+
+    def test_unreviewed_nutrition_request_is_a_visible_missing_part(kb):
+        core_claim(kb, "rest", "合成组间休息说明。")
+        answer = kb.query("解释组间休息，并告诉我每天应吃多少蛋白质。", "strength")
+        assert answer["answer_status"] != "answered_with_support"
+&gt;       assert "营养" in answer["answer"]
+E       AssertionError: assert '营养' in '合成组间休息说明。\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：个人具体训练参数（通用来源不能单独确定个人具体训练参数）。'
+
+tests/unit/test_v14_knowledge.py:557: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_public_health_frequency_boundary_is_not_a_hypertrophy_prescription" time="0.043"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9e916b10&gt;
+
+    def test_public_health_frequency_boundary_is_not_a_hypertrophy_prescription(kb):
+        core_claim(kb, "frequency", "合成公共健康建议每周至少两天。", scope={"population": "adults", "goal": "public_health"})
+        core_claim(kb, "goal_scope", "合成最低健康建议不能确定个人增肌最优安排。", scope={"population": "adults", "goal": "public_health"})
+        result = kb.query("一般健康指南建议每周练几天？这能证明增肌的最优频率吗？", "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_v14_knowledge.py:564: AssertionError</failure></testcase></testsuite></testsuites>

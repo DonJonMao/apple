@@ -78,16 +78,20 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
             continue
         row = flatten_record(raw)
         end = row.get("ended_at") or row.get("started_at")
-        if not end or instant(end) > cutoff:
+        if end and instant(end) > cutoff:
             continue
         if row.get("session_id") == session["id"]:
             if (row.get("session_exercise_id") == instance["id"]
                     and row.get("completion_state") in {"completed", "aborted", "in_progress"}):
+                # Preserve observed symptoms even when their set endpoints are
+                # unknown. The science gate must see that missing time; neither
+                # dropping this row nor borrowing the session time is valid.
                 current.append(raw)
-        elif key and row.get("condition_key") == key and row.get("completion_state") == "completed":
+        elif row.get("ended_at") and key and row.get("condition_key") == key and row.get("completion_state") == "completed":
             baseline.append(raw)
     baseline.sort(key=lambda r: instant(r["ended_at"]))
-    current.sort(key=lambda r: instant(r.get("ended_at") or r["started_at"]))
+    current.sort(key=lambda r: instant(r.get("ended_at") or r["started_at"]).isoformat()
+                 if r.get("ended_at") or r.get("started_at") else "")
     task_row = {**instance["condition"], "exercise_id": instance["catalog_id"],
                 "definition_version": instance["definition_version"], "user_id": svc.user_id,
                 "set_number": next((s["set_number"] for s in instance["sets"] if selected and s["set_uuid"] == selected["set_uuid"]), None)}
@@ -108,6 +112,8 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
                "profile_revision": personal["revision"], "profile_provenance": personal["provenance"],
                "baseline_record_ids": [r["set_uuid"] for r in baseline],
                "current_session_record_ids": [r["set_uuid"] for r in current],
+               "unknown_current_observation_ids": [r["set_uuid"] for r in current
+                   if not (r.get("ended_at") or r.get("started_at"))],
                "current_session_observations": current,
                "user_choice": "requested_strategy_review", "protocol": task["protocol"]}
     return {"records": baseline, "context": context, "session": session, "instance": instance,
@@ -130,6 +136,11 @@ def current_use_status(repo, record):
     reference = next((r for r in advice["records"] if r.get("set_uuid") == reference_id), None)
     check = candidate_applicability(reference, advice["context"]["current_session_observations"])
     reasons = list(check["reason_codes"]) if check["applicable"] is not True else []
+    if advice["context"]["unknown_current_observation_ids"]:
+        reasons.append("current_observation_time_or_availability_unknown")
+        check["reason_codes"].append("current_observation_time_or_availability_unknown")
+        if check["applicable"] is not False:
+            check.update(applicable=None, status="unknown")
     workbench = KnowledgeWorkbench(".local/knowledge")
     try:
         authority = workbench.reviewed_principles("progression", advice["context"])
@@ -314,7 +325,12 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         "rule_version": metric["algorithm_version"], "user_choice": None,
     }
     frozen = {
-        "source_record_ids": context["baseline_record_ids"] + context["current_session_record_ids"], "metric_result": metric,
+        # Known-time numerical sources retain the persistence time checks.
+        # Undated current facts are separately identified audit evidence, with
+        # original fields preserved in advice_context, never dated by inference.
+        "source_record_ids": context["baseline_record_ids"] + [identity for identity in context["current_session_record_ids"]
+            if identity not in context["unknown_current_observation_ids"]],
+        "unknown_current_observation_ids": context["unknown_current_observation_ids"], "metric_result": metric,
         "advice_context": context, "numeric_provenance": [
             {"field": "proposed_change.load", "kind": "observed" if strategy == "repetition_progression" else "equipment_step",
              "value": load, "unit": reference.get("load_unit"),

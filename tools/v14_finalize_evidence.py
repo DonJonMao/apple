@@ -94,7 +94,7 @@ def main():
         limits = "See item-level evidence; software checks do not establish professional review or scientific efficacy."
         if identifier in {"KB-05", "E2E-09"}:
             state = "partial_semantic_coverage_independent_review_failed"
-            limits = "Original frozen independent AI review 3/18 retained. Fresh round-2 questions/outputs/AI judgments have separate frozen artifacts; subsequent guard replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
+            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric. Subsequent guard replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
         elif identifier in {"KB-01", "KB-02", "KB-03"}:
             state = "software_contract_verified_actual_textbook_body_gaps"
             limits = "Edition/chapter/rights gates work; paid source chapters not acquired."

@@ -370,6 +370,53 @@ def test_media_interruption_resumes_with_origin_validator(tmp_path):
     assert requests[1]["Range"] == "bytes=10-" and requests[1]["If-range"] == '"synthetic-etag"'
 
 
+@pytest.mark.parametrize("changed", ["ETag", "Content-Range", "Content-Length"])
+def test_resume_rejects_changed_origin_without_touching_partial(tmp_path, changed):
+    import hashlib
+    from email.message import Message
+
+    from healthzip.training.catalog_media import resumable_download
+
+    url = "https://wger.de/media/synthetic.png"
+    body = png()
+    folder = tmp_path / "partial"
+    folder.mkdir()
+    key = hashlib.sha256(url.encode()).hexdigest()
+    part, info = folder / (key + ".partial"), folder / (key + ".json")
+    part.write_bytes(body[:10])
+    receipt = {"url": url, "validator": '"original"', "expected_total": len(body),
+               "mime": "image/png"}
+    info.write_text(json.dumps(receipt))
+
+    class Response:
+        status = 206
+        headers = Message()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self, amount):
+            pytest.fail("Invalid origin response must be rejected before reading bytes")
+
+    response = Response()
+    response.headers["ETag"] = '"original"'
+    response.headers["Content-Type"] = "image/png"
+    response.headers["Content-Length"] = str(len(body) - 10)
+    response.headers["Content-Range"] = f"bytes 10-{len(body) - 1}/{len(body)}"
+    response.headers.replace_header(changed, {
+        "ETag": '"changed"',
+        "Content-Range": f"bytes 10-{len(body)}/{len(body) + 1}",
+        "Content-Length": str(len(body) - 9),
+    }[changed])
+    with pytest.raises(ValueError):
+        resumable_download(url, tmp_path, opener=lambda *args, **kwargs: response)
+    assert part.read_bytes() == body[:10]
+    assert json.loads(info.read_text()) == receipt
+
+
 def test_license_revoked_during_download_cannot_publish_blob(repo, tmp_path):
     import sqlite3
 
