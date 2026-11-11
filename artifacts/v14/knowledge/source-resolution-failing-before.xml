@@ -1,0 +1,74 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.716" timestamp="2026-11-11T22:30:37.693781+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_issuer_scope_retrieves_its_available_work_without_inventing_book_identity" time="0.111"><failure message="AssertionError: assert 'related_material_only' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + related_material_only">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff91542c10&gt;
+
+    def test_issuer_scope_retrieves_its_available_work_without_inventing_book_identity(kb):
+        core_claim(kb, "progression_options", "合成机构公开指导允许渐进调整。")
+        with kb.lib.sources:
+            manifest = kb.lib.source("S5")["manifest"]
+            manifest.update(issuing_body="Synthetic Activity Institute", query_issuer_names=["SAI"], document_kind="guideline")
+            kb.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id='S5'", (json.dumps(manifest),))
+        kb.lib.seed({"sources": [{"source_id": "SYNTH-SAI-BOOK", "manifestation_id": "synthetic-sai-ed5",
+            "edition": 5, "title": "Synthetic activity textbook", "issuing_body": "Synthetic Activity Institute",
+            "query_issuer_names": ["SAI"], "document_kind": "textbook", "corpus_roles": ["core"]}]}, {"cards": []})
+        result = kb.query("Under SAI guidance, explain training progression.", "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'related_material_only' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + related_material_only
+
+tests/unit/test_v14_knowledge.py:648: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage[\u6839\u636eS5\u7b2c312\u9875\u89e3\u91ca\u7ec4\u95f4\u4f11\u606f\u3002]" time="0.044"><failure message="AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff917a04d0&gt;
+question = '根据S5第312页解释组间休息。'
+
+    @pytest.mark.parametrize("question", [
+        "根据S5第312页解释组间休息。",
+        "According to S5 page 312, explain rest between sets.",
+        "根据S5的PDF第15页解释组间休息。",
+    ])
+    def test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage(kb, question):
+        core_claim(kb, "rest", "合成已审说明，但没有所要求的页码。")
+        answer = kb.query(question, "strength")
+&gt;       assert not answer["claims"]
+E       AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]
+
+tests/unit/test_v14_knowledge.py:668: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage[According to S5 page 312, explain rest between sets.]" time="0.042"><failure message="AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff919242d0&gt;
+question = 'According to S5 page 312, explain rest between sets.'
+
+    @pytest.mark.parametrize("question", [
+        "根据S5第312页解释组间休息。",
+        "According to S5 page 312, explain rest between sets.",
+        "根据S5的PDF第15页解释组间休息。",
+    ])
+    def test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage(kb, question):
+        core_claim(kb, "rest", "合成已审说明，但没有所要求的页码。")
+        answer = kb.query(question, "strength")
+&gt;       assert not answer["claims"]
+E       AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]
+
+tests/unit/test_v14_knowledge.py:668: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage[\u6839\u636eS5\u7684PDF\u7b2c15\u9875\u89e3\u91ca\u7ec4\u95f4\u4f11\u606f\u3002]" time="0.041"><failure message="AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff918bc290&gt;
+question = '根据S5的PDF第15页解释组间休息。'
+
+    @pytest.mark.parametrize("question", [
+        "根据S5第312页解释组间休息。",
+        "According to S5 page 312, explain rest between sets.",
+        "根据S5的PDF第15页解释组间休息。",
+    ])
+    def test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage(kb, question):
+        core_claim(kb, "rest", "合成已审说明，但没有所要求的页码。")
+        answer = kb.query(question, "strength")
+&gt;       assert not answer["claims"]
+E       AssertionError: assert not [{'text': '合成已审说明，但没有所要求的页码。', 'theory_id': 'CLAIM-rest', 'theory_version': '1', 'span_ids': ['S5:fulltext:db221fc1d2687b541260:synthetic-core-v14:s00000'], ...}]
+
+tests/unit/test_v14_knowledge.py:668: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_printed_page_and_file_page_are_distinct_constraints" time="0.033"><failure message="AssertionError: assert not True&#10; +  where True = &lt;function source_constraints_match at 0xffff91708540&gt;(&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff91dde550&gt;, [{'locator': {'printed_page_label': '12', 'file_page_index': 14}}], {})">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff91dde550&gt;
+
+    def test_printed_page_and_file_page_are_distinct_constraints(kb):
+        from healthzip.knowledge.tasks import parse_task, source_constraints_match
+        evidence = [{"locator": {"printed_page_label": "12", "file_page_index": 14}}]
+        printed = parse_task("解释第12页的训练频率。")['source_constraints']
+        file_page = parse_task("Explain training frequency on PDF page 15.")['source_constraints']
+        assert source_constraints_match(kb, evidence, printed)
+        assert source_constraints_match(kb, evidence, file_page)
+&gt;       assert not source_constraints_match(kb, evidence, parse_task("解释第15页的训练频率。")['source_constraints'])
+E       AssertionError: assert not True
+E        +  where True = &lt;function source_constraints_match at 0xffff91708540&gt;(&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff91dde550&gt;, [{'locator': {'printed_page_label': '12', 'file_page_index': 14}}], {})
+
+tests/unit/test_v14_knowledge.py:679: AssertionError</failure></testcase></testsuite></testsuites>

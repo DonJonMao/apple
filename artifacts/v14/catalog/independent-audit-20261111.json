@@ -1,0 +1,129 @@
+{
+  "observed_at": "2026-11-11T14:31:55.063941+00:00",
+  "head_audited": "95c8472",
+  "scope": "Read-only public catalog tables, downloader process and public media log; no private health rows",
+  "live_counts": {
+    "image:ready": 389,
+    "video:ready": 71,
+    "video:pending": 7
+  },
+  "live_ready_exercise_coverage": {
+    "image": 282,
+    "video": 44
+  },
+  "license_allowed_objects": 467,
+  "pending": [
+    {
+      "media_id": "wger.video.4",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 390563423,
+      "local_partial_bytes": 11010048,
+      "partial_mtime": "2026-11-11T12:54:42.549246+00:00"
+    },
+    {
+      "media_id": "wger.video.37",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 72266814,
+      "local_partial_bytes": 50593792,
+      "partial_mtime": "2026-11-11T14:31:54.721937+00:00"
+    },
+    {
+      "media_id": "wger.video.41",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 423240483,
+      "local_partial_bytes": 10485760,
+      "partial_mtime": "2026-11-11T12:54:47.001308+00:00"
+    },
+    {
+      "media_id": "wger.video.45",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 349345994,
+      "local_partial_bytes": 9699328,
+      "partial_mtime": "2026-11-11T12:54:43.529260+00:00"
+    },
+    {
+      "media_id": "wger.video.46",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 121381974,
+      "local_partial_bytes": 38010880,
+      "partial_mtime": "2026-11-11T14:31:52.185902+00:00"
+    },
+    {
+      "media_id": "wger.video.72",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 87548125,
+      "local_partial_bytes": 36962304,
+      "partial_mtime": "2026-11-11T14:31:52.229902+00:00"
+    },
+    {
+      "media_id": "wger.video.73",
+      "status": "pending",
+      "error": null,
+      "source_bytes": 157313324,
+      "local_partial_bytes": 1835008,
+      "partial_mtime": "2026-11-11T14:31:53.617921+00:00"
+    }
+  ],
+  "active_pid": 680165,
+  "pid_exists": true,
+  "process_restarted": false,
+  "log_results": {
+    "ready": 27
+  },
+  "progress_sample": {
+    "start": "2026-11-11T14:25:28.155168+00:00",
+    "end": "2026-11-11T14:26:30.429819+00:00",
+    "growing_partial_bytes": {
+      "wger.video.37": [
+        23330816,
+        27525120
+      ],
+      "wger.video.46": [
+        10223616,
+        15204352
+      ],
+      "wger.video.72": [
+        10747904,
+        15466496
+      ],
+      "wger.video.74": [
+        34340864,
+        39059456
+      ]
+    },
+    "interpretation": "Four worker fragments grew; larger queued fragments with older mtimes are not stalled-worker evidence"
+  },
+  "frozen_delivery_at_audit_start": {
+    "checked_at": "2026-11-11T13:44:57+00:00",
+    "images_ready": 389,
+    "videos_ready": 61,
+    "video_exercises": 35,
+    "separate_from_live": true
+  },
+  "concrete_CAT09_defect": {
+    "before": "offline-name-status-before.json",
+    "after": "offline-name-status-after.json",
+    "fix": "Shared distinct provenance labels; retain names through compact local cache and standalone export"
+  },
+  "verification": "provenance-regression-pytest.xml",
+  "remaining": {
+    "download": "Allow current queue to complete; no current failed rows or repeated failures",
+    "chinese": "AI drafts and upstream labels remain unreviewed; source descriptions retain source languages",
+    "video_playback": "54 source HEVC files are not all-browser playback verified; original bytes retained and readable fallback provided",
+    "historical_acceptance": "acceptance.json remains old 4-ready/74-pending evidence; current frozen delivery is media-delivery-refresh.json",
+    "package": "Completed one aligned batch freeze after the CAT-09 fix; ongoing later downloads do not change its counts"
+  },
+  "completed_delivery_refresh": {
+    "frozen_at": "2026-11-11T14:32:35.012214+00:00",
+    "images_ready": 389,
+    "videos_ready": 71,
+    "pending": 7,
+    "evidence": "media-delivery-refresh.json"
+  }
+}

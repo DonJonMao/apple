@@ -2,6 +2,13 @@
 
 import re
 
+CHINESE_NAME_STATUS_LABELS = {
+    "draft": "项目 AI 译稿，尚未人工核对",
+    "upstream_unreviewed": "上游翻译，未作专业审定",
+    "existing_project_label": "沿用历史目录名称，未作新增专业审定",
+    "unknown": "名称审核状态未记录",
+}
+
 EQUIPMENT_LABELS = {
     "barbell": "杠铃",
     "dumbbell": "哑铃",

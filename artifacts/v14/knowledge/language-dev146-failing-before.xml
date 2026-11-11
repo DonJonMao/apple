@@ -1,0 +1,129 @@
+<testsuites><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="12" time="0.358" timestamp="2026-11-11T22:48:40.893184"><testcase classname="tests.unit.test_v14_question_language" name="test_two_one_sided_tests_accept_chinese_classifiers[\u5728M2\u4ecb\u7ecd\u7684\u7b49\u6548\u5206\u6790\u4e2d\uff0c\u4e24\u4e2a\u5355\u4fa7\u68c0\u9a8c\u8981\u600e\u6837\u540c\u65f6\u6ee1\u8db3\u8981\u6c42\uff0c\u624d\u4e0e\u7f6e\u4fe1\u533a\u95f4\u7684\u5224\u65ad\u76f8\u5bf9\u5e94\uff1f]" time="0.049"><failure message="AssertionError: assert {'practical_equivalence'} == {'equivalence_test_logic'}&#10;  Extra items in the left set:&#10;  'practical_equivalence'&#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = '在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？'
+
+    @pytest.mark.parametrize("question", [
+        "在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？",
+        "两个单侧检验的判断如何对应置信区间？",
+        "两项单侧检验为什么都要满足条件？",
+    ])
+    def test_two_one_sided_tests_accept_chinese_classifiers(question):
+        task = parse_task(question)
+&gt;       assert outcomes(question) == {"equivalence_test_logic"}
+E       AssertionError: assert {'practical_equivalence'} == {'equivalence_test_logic'}
+E         Extra items in the left set:
+E         'practical_equivalence'
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:460: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_two_one_sided_tests_accept_chinese_classifiers[\u4e24\u4e2a\u5355\u4fa7\u68c0\u9a8c\u7684\u5224\u65ad\u5982\u4f55\u5bf9\u5e94\u7f6e\u4fe1\u533a\u95f4\uff1f]" time="0.003"><failure message="AssertionError: assert set() == {'equivalence_test_logic'}&#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = '两个单侧检验的判断如何对应置信区间？'
+
+    @pytest.mark.parametrize("question", [
+        "在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？",
+        "两个单侧检验的判断如何对应置信区间？",
+        "两项单侧检验为什么都要满足条件？",
+    ])
+    def test_two_one_sided_tests_accept_chinese_classifiers(question):
+        task = parse_task(question)
+&gt;       assert outcomes(question) == {"equivalence_test_logic"}
+E       AssertionError: assert set() == {'equivalence_test_logic'}
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:460: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_two_one_sided_tests_accept_chinese_classifiers[\u4e24\u9879\u5355\u4fa7\u68c0\u9a8c\u4e3a\u4ec0\u4e48\u90fd\u8981\u6ee1\u8db3\u6761\u4ef6\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'equivalence_test_logic'}&#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = '两项单侧检验为什么都要满足条件？'
+
+    @pytest.mark.parametrize("question", [
+        "在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？",
+        "两个单侧检验的判断如何对应置信区间？",
+        "两项单侧检验为什么都要满足条件？",
+    ])
+    def test_two_one_sided_tests_accept_chinese_classifiers(question):
+        task = parse_task(question)
+&gt;       assert outcomes(question) == {"equivalence_test_logic"}
+E       AssertionError: assert set() == {'equivalence_test_logic'}
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:460: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_adult_age_group_interrogatives_use_matching_source_context[HHS\u7684\u6210\u4eba\u7ae0\u8282\u8bf4\u7684\u662f\u54ea\u4e9b\u5e74\u9f84\u7684\u4eba\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'adult_guideline_scope'}&#10;  Extra items in the right set:&#10;  'adult_guideline_scope'&#10;  Use -v to get more diff">question = 'HHS的成人章节说的是哪些年龄的人？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS的成人章节说的是哪些年龄的人？",
+        "HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？",
+        "成人建议适用于什么年龄的人群？",
+    ])
+    def test_adult_age_group_interrogatives_use_matching_source_context(question):
+        context = {"named_source_task_subjects": {"adult_guideline_scope": "physical_activity"}}
+&gt;       assert outcomes(question, context) == {"adult_guideline_scope"}
+E       AssertionError: assert set() == {'adult_guideline_scope'}
+E         Extra items in the right set:
+E         'adult_guideline_scope'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:471: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_adult_age_group_interrogatives_use_matching_source_context[HHS\u7684\u6210\u4eba\u7ae0\u8282\u8bf4\u7684\u662f\u54ea\u4e9b\u5e74\u9f84\u7684\u4eba\uff1f\u843d\u5b9e\u5176\u4e2d\u7684\u5efa\u8bae\u65f6\uff0c\u9700\u8981\u8003\u8651\u5df2\u6709\u6d3b\u52a8\u91cf\u548c\u81ea\u5df1\u7684\u5065\u5eb7\u76ee\u6807\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'adult_guideline_scope'}&#10;  Extra items in the right set:&#10;  'adult_guideline_scope'&#10;  Use -v to get more diff">question = 'HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS的成人章节说的是哪些年龄的人？",
+        "HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？",
+        "成人建议适用于什么年龄的人群？",
+    ])
+    def test_adult_age_group_interrogatives_use_matching_source_context(question):
+        context = {"named_source_task_subjects": {"adult_guideline_scope": "physical_activity"}}
+&gt;       assert outcomes(question, context) == {"adult_guideline_scope"}
+E       AssertionError: assert set() == {'adult_guideline_scope'}
+E         Extra items in the right set:
+E         'adult_guideline_scope'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:471: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_adult_age_group_interrogatives_use_matching_source_context[\u6210\u4eba\u5efa\u8bae\u9002\u7528\u4e8e\u4ec0\u4e48\u5e74\u9f84\u7684\u4eba\u7fa4\uff1f]" time="0.002"><failure message="AssertionError: assert {'population_scope'} == {'adult_guideline_scope'}&#10;  Extra items in the left set:&#10;  'population_scope'&#10;  Extra items in the right set:&#10;  'adult_guideline_scope'&#10;  Use -v to get more diff">question = '成人建议适用于什么年龄的人群？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS的成人章节说的是哪些年龄的人？",
+        "HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？",
+        "成人建议适用于什么年龄的人群？",
+    ])
+    def test_adult_age_group_interrogatives_use_matching_source_context(question):
+        context = {"named_source_task_subjects": {"adult_guideline_scope": "physical_activity"}}
+&gt;       assert outcomes(question, context) == {"adult_guideline_scope"}
+E       AssertionError: assert {'population_scope'} == {'adult_guideline_scope'}
+E         Extra items in the left set:
+E         'population_scope'
+E         Extra items in the right set:
+E         'adult_guideline_scope'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:471: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_increment_magnitude_and_progression_rate_remain_independent_targets[HHS\u4e3a\u4ec0\u4e48\u5f3a\u8c03\u76f8\u5bf9\u4e8e\u539f\u6765\u6d3b\u52a8\u91cf\u7684\u5c0f\u5e45\u589e\u52a0\uff1f\u5b89\u6392\u589e\u52a0\u901f\u5ea6\u65f6\uff0c\u5e74\u9f84\u3001\u4f53\u80fd\u4e0e\u65e2\u5f80\u7ecf\u9a8c\u5206\u522b\u8d77\u4ec0\u4e48\u4f5c\u7528\uff1f]" time="0.002"><failure message="AssertionError: assert {'progression_rate_factors'} == {'activity_in...rate_factors'}&#10;  Extra items in the right set:&#10;  'activity_increment_size'&#10;  Use -v to get more diff">question = 'HHS为什么强调相对于原来活动量的小幅增加？安排增加速度时，年龄、体能与既往经验分别起什么作用？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS为什么强调相对于原来活动量的小幅增加？安排增加速度时，年龄、体能与既往经验分别起什么作用？",
+        "为什么要小幅增加身体活动？另外，身体活动增加速度受到年龄和经验怎样的影响？",
+    ])
+    def test_increment_magnitude_and_progression_rate_remain_independent_targets(question):
+        context = {"named_source_task_subjects": {
+            "activity_increment_size": "physical_activity",
+            "progression_rate_factors": "physical_activity",
+        }}
+&gt;       assert outcomes(question, context) == {"activity_increment_size", "progression_rate_factors"}
+E       AssertionError: assert {'progression_rate_factors'} == {'activity_in...rate_factors'}
+E         Extra items in the right set:
+E         'activity_increment_size'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:484: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_increment_magnitude_and_progression_rate_remain_independent_targets[\u4e3a\u4ec0\u4e48\u8981\u5c0f\u5e45\u589e\u52a0\u8eab\u4f53\u6d3b\u52a8\uff1f\u53e6\u5916\uff0c\u8eab\u4f53\u6d3b\u52a8\u589e\u52a0\u901f\u5ea6\u53d7\u5230\u5e74\u9f84\u548c\u7ecf\u9a8c\u600e\u6837\u7684\u5f71\u54cd\uff1f]" time="0.002"><failure message="AssertionError: assert {'progression_rate_factors'} == {'activity_in...rate_factors'}&#10;  Extra items in the right set:&#10;  'activity_increment_size'&#10;  Use -v to get more diff">question = '为什么要小幅增加身体活动？另外，身体活动增加速度受到年龄和经验怎样的影响？'
+
+    @pytest.mark.parametrize("question", [
+        "HHS为什么强调相对于原来活动量的小幅增加？安排增加速度时，年龄、体能与既往经验分别起什么作用？",
+        "为什么要小幅增加身体活动？另外，身体活动增加速度受到年龄和经验怎样的影响？",
+    ])
+    def test_increment_magnitude_and_progression_rate_remain_independent_targets(question):
+        context = {"named_source_task_subjects": {
+            "activity_increment_size": "physical_activity",
+            "progression_rate_factors": "physical_activity",
+        }}
+&gt;       assert outcomes(question, context) == {"activity_increment_size", "progression_rate_factors"}
+E       AssertionError: assert {'progression_rate_factors'} == {'activity_in...rate_factors'}
+E         Extra items in the right set:
+E         'activity_increment_size'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:484: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards[\u6210\u4eba\u8eab\u4f53\u6d3b\u52a8\u589e\u52a0\u7684\u901f\u5ea6\uff0c\u8981\u8003\u8651\u54ea\u4e9b\u5e74\u9f84\u56e0\u7d20\uff1f-adult_guideline_scope]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards[\u6210\u4eba\u8d26\u6237\u8bf4\u7684\u662f\u54ea\u4e9b\u5e74\u9f84\u7684\u4eba\uff1f-adult_guideline_scope]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards[\u4e3a\u4ec0\u4e48\u8981\u76f8\u5bf9\u4e8e\u539f\u6765\u5bb9\u91cf\u5c0f\u5e45\u589e\u52a0\u6570\u636e\u5e93\u7a7a\u95f4\uff1f-activity_increment_size]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards[\u4e24\u4e2a\u5355\u4fa7\u56fe\u5f62\u8981\u600e\u6837\u5bf9\u5e94\uff1f-equivalence_test_logic]" time="0.001" /></testsuite></testsuites>

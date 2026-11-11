@@ -1,0 +1,115 @@
+{
+  "recorded_at": "2026-11-11T14:40:39.416959+00:00",
+  "baseline_head": "95c8472",
+  "scope": "developer_defined_semantic_roles_and_source_topic_recognition",
+  "verification_kind": "software_verification",
+  "frozen_files": {
+    "src/healthzip/knowledge/question_parts.py": "76cd6908cce62d8b81b0ccb3d673f30f12c446949f42f3e51f81c237613dfd9b",
+    "tests/unit/test_v14_question_language.py": "8db4311c4d3493d678b49ee22664120e3c8de796e97ab3f1f9e735ab3f5ce67f"
+  },
+  "failures_before": [
+    {
+      "artifact": "language-semantic-roles-failing-before.xml",
+      "failed": 36,
+      "passed": 93
+    },
+    {
+      "artifact": "language-semantic-context-failing-before.xml",
+      "failed": 7,
+      "passed": 0,
+      "deselected": 129
+    },
+    {
+      "artifact": "language-topic-context-failing-before.xml",
+      "failed": 3,
+      "passed": 0,
+      "deselected": 136
+    }
+  ],
+  "verification": {
+    "artifact": "language-semantic-owned-verification.xml",
+    "passed": 164,
+    "failed": 0,
+    "language_examples": 139,
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "integration_history": {
+    "artifact": "language-semantic-roles-verification.xml",
+    "passed": 211,
+    "failed": 7,
+    "status": "intermediate_before_parent_source_constraint_and_synthetic_contract_updates"
+  },
+  "integration_reported_by_parent_after_updates": {
+    "passed": 227,
+    "failed": 0,
+    "evidence_origin": "parent agent completion message; parent owns integration report"
+  },
+  "new_source_tasks": [
+    {
+      "subject": "statistical_inference",
+      "outcome": "non_significance_interpretation",
+      "requested_relation": "explanation"
+    },
+    {
+      "subject": "statistical_inference",
+      "outcome": "equivalence_test_logic",
+      "requested_relation": "explanation"
+    },
+    {
+      "subject": "statistical_inference",
+      "outcome": "equivalence_margin_basis",
+      "requested_relation": "explanation"
+    },
+    {
+      "subject": "statistical_inference",
+      "outcome": "equivalence_design_scope",
+      "requested_relation": "scope"
+    },
+    {
+      "subject": "physical_activity",
+      "outcome": "adult_guideline_scope",
+      "requested_relation": "scope"
+    },
+    {
+      "subject": "resistance_training",
+      "outcome": "muscle_strengthening_start",
+      "requested_relation": "options"
+    },
+    {
+      "subject": "physical_activity",
+      "outcome": "activity_increment_size",
+      "requested_relation": "explanation"
+    },
+    {
+      "subject": "physical_activity",
+      "outcome": "progression_rate_factors",
+      "requested_relation": "explanation"
+    },
+    {
+      "subject": "resistance_training",
+      "outcome": "failure_definition",
+      "requested_relation": "explanation"
+    }
+  ],
+  "source_contract": "src/healthzip/knowledge/data/source_explanations_1_4_6.json",
+  "release_id": "core-source-explanations-1.4.6",
+  "coverage": [
+    "Separate statistical non-significance, equivalence logic, contextual margins, and design scope; generic practical equivalence remains a distinct entry.",
+    "Recognize population inclusion, representation and experience as source scope rather than a prescription for an excluded population.",
+    "Recognize negated progressive-stimulus necessity and distinguish the definition of failure from whether failure is required.",
+    "Consume matched/equal training variables as context; retain separately asked variables and both targets of cross-goal inference.",
+    "Recognize adult physical-activity scope, starting muscle strengthening, increment size and progression-rate factors only in activity or exact named-source topic context."
+  ],
+  "boundaries": [
+    "Finite local grammar is not unrestricted language understanding; unrecognized targets remain visible/unresolved.",
+    "General repeated-measurement or confidence-interval questions do not automatically become equivalence-method tasks.",
+    "Ordinary equality of names/files, account limits and database rates do not supply statistical or physical-activity authority.",
+    "Named-source context supplies only the matching reviewed topic subject; source identity, edition, chapter, corpus and applicability checks are external and unchanged here.",
+    "No personal parameter, medicine, causal-effect or numerical equivalence authority was added.",
+    "Two prior developer assertions for standalone non-significance were explicitly migrated from the old broad task to the new independently reviewed narrow task."
+  ],
+  "independent_18_20_round3_questions_or_outputs_read": false,
+  "independent_evaluation_scores_modified": false,
+  "status": "frozen"
+}

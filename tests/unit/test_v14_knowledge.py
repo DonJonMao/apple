@@ -24,13 +24,13 @@ def kb(tmp_path):
     w.close()
 
 
-def approved(w, theory="TC-progression-load-repetition-options", relation="supports", version="0.1.0"):
+def approved(w, theory="TC-progression-load-repetition-options", relation="supports", version="0.1.0", required=None):
     raw = ("Synthetic adult protocol " + relation + " repetition progression; longevity was not measured.").encode()
     vid = w.lib.record_version("S5", raw, "fulltext", {}, {}, {"index_allowed": True, "license_id": "CC0"}, "matched",
                                [{"text": raw.decode(), "locator": {"synthetic_line": 1}}], "synthetic-v14")
     sid = vid + ":s00000"
     w.review_theory(theory, version, reviewer="Synthetic fixture", reviewer_kind="synthetic_fixture", rationale="Software fixture only",
-        applicability={"required": {}, "scope": "synthetic"}, evidence_links=[{"source_id": "S5", "source_version_id": vid, "span_ids": [sid]}],
+        applicability={"required": required or {}, "scope": "synthetic"}, evidence_links=[{"source_id": "S5", "source_version_id": vid, "span_ids": [sid]}],
         claims=[{"text": "合成方案增加重复次数。", "span_ids": [sid], "support_rationale": "Invented assertion",
                  "answer_bindings": [{"question": QUESTION, "target_claim": TARGET, "relation": relation, "rationale": "Synthetic relation"}]}])
     return vid, sid
@@ -370,6 +370,11 @@ def test_unconfirmed_structured_target_does_not_remove_personal_numeric_request(
 ])
 def test_unreviewed_personal_parameter_or_source_comparison_cannot_be_complete(kb, question, outcome, missing):
     core_claim(kb, outcome, "合成一般解释；不提供个人最优参数或两个版本对照。")
+    if "guidelines" in question:
+        manifest = kb.lib.source("S5")["manifest"]
+        manifest["document_kind"] = "guideline"
+        with kb.lib.sources:
+            kb.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id='S5'", (json.dumps(manifest),))
     result = kb.query(question, "strength")
     assert result["answer_status"] == "partially_answered"
     assert missing in {p["part_id"] for p in result["support_assessment"]["uncovered_parts"]}
@@ -409,7 +414,8 @@ def test_registered_association_year_and_book_edition_resolve_without_guessing_b
     assert resolved["source_constraints"]["source_ids"] == ["CORE-US-HHS-PAG-2"]
     bare = resolve_named_sources(kb, "According to ACSM, discuss training volume.", {})["source_constraints"]
     assert not bare["source_ids"]  # An issuer still does not select a book/edition.
-    assert bare["unresolved_named_source"]  # Keep the unresolved constraint visible.
+    assert bare["source_resolution"] == "issuer_scope_not_document_identity"
+    assert set(bare["issuer_source_ids"]) == {"S1", "CORE-ACSM-GETP-12"}
 
 
 def test_source_population_boundary_is_not_an_application_to_an_excluded_population(kb):
@@ -443,6 +449,8 @@ def test_asking_about_plan_effects_is_not_requesting_plan_generation(kb):
 
 def test_method_explanation_stays_in_research_partition_and_cannot_compute_personal_statistics(kb):
     core_claim(kb, "practical_equivalence", "合成方法：统计不显著不证明实用等效，必须核对界值与模型。",
+               subject="statistical_inference", scope={"study_design": "synthetic_parallel_groups"})
+    core_claim(kb, "non_significance_interpretation", "合成方法：非显著不能证明没有效应。",
                subject="statistical_inference", scope={"study_design": "synthetic_parallel_groups"})
     for question in ("Does a nonsignificant result establish practical equivalence?", "p > 0.05能证明没有进步吗？"):
         result = kb.query(question, "plateau")
@@ -562,6 +570,10 @@ def test_unreviewed_nutrition_request_is_a_visible_missing_part(kb):
 def test_public_health_frequency_boundary_is_not_a_hypertrophy_prescription(kb):
     core_claim(kb, "frequency", "合成公共健康建议每周至少两天。", scope={"population": "adults", "goal": "public_health"})
     core_claim(kb, "goal_scope", "合成最低健康建议不能确定个人增肌最优安排。", scope={"population": "adults", "goal": "public_health"})
+    manifest = kb.lib.source("S5")["manifest"]
+    manifest["document_kind"] = "guideline"
+    with kb.lib.sources:
+        kb.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id='S5'", (json.dumps(manifest),))
     result = kb.query("一般健康指南建议每周练几天？这能证明增肌的最优频率吗？", "strength")
     assert result["answer_status"] == "answered_with_support"
     actual = kb.query("为我的增肌训练选择最优频率。", "strength")
@@ -600,7 +612,9 @@ def test_issuer_without_a_resolved_document_never_falls_back_to_another_source(k
     result = kb.query(question, "strength")
     assert not result["claims"]
     assert result["answer_status"] != "answered_with_support"
-    assert result["retrieval"]["question_contract"]["source_constraints"]["unresolved_named_source"]
+    constraints = result["retrieval"]["question_contract"]["source_constraints"]
+    assert constraints["source_resolution"] == "issuer_scope_not_document_identity"
+    assert "S5" not in constraints["issuer_source_ids"]
 
 
 @pytest.mark.parametrize("question", [
@@ -633,3 +647,155 @@ def test_confirmed_single_target_retains_source_constraints_but_excludes_other_r
     assert {p["part_id"] for p in result["support_assessment"]["covered_parts"]} == {"volume"}
     result = kb.query(question, "strength", context={**context, "source_constraints": {"source_ids": ["S1"]}})
     assert not result["claims"]
+
+
+def test_issuer_scope_retrieves_its_available_work_without_inventing_book_identity(kb):
+    core_claim(kb, "progression_options", "合成机构公开指导允许渐进调整。")
+    with kb.lib.sources:
+        manifest = kb.lib.source("S5")["manifest"]
+        manifest.update(issuing_body="Synthetic Activity Institute", query_issuer_names=["SAI"], document_kind="guideline")
+        kb.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id='S5'", (json.dumps(manifest),))
+    kb.lib.seed({"sources": [{"source_id": "SYNTH-SAI-BOOK", "manifestation_id": "synthetic-sai-ed5",
+        "edition": 5, "title": "Synthetic activity textbook", "issuing_body": "Synthetic Activity Institute",
+        "query_issuer_names": ["SAI"], "document_kind": "textbook", "corpus_roles": ["core"]}]}, {"cards": []})
+    result = kb.query("Under SAI guidance, explain training progression.", "strength")
+    assert result["answer_status"] == "answered_with_support"
+    constraints = result["retrieval"]["question_contract"]["source_constraints"]
+    assert not constraints.get("source_ids")
+    assert constraints["source_resolution"] == "issuer_scope_not_document_identity"
+    assert {c["source_id"] for c in result["citations"]} == {"S5"}
+    missing = kb.query("According to the SAI textbook fifth edition, explain training progression.", "strength")
+    assert not missing["claims"]
+    assert missing["retrieval"]["question_contract"]["source_constraints"]["document_kind"] == "textbook"
+    separated = kb.query("According to SAI, use the textbook to explain training progression.", "strength")
+    assert not separated["claims"]
+    assert separated["retrieval"]["question_contract"]["source_constraints"]["document_kind"] == "textbook"
+    unknown = kb.query("According to a DifferentUnknownInstitute, explain training progression.", "strength")
+    assert not unknown["claims"]
+
+
+@pytest.mark.parametrize("question", [
+    "根据S5第312页解释组间休息。",
+    "According to S5 page 312, explain rest between sets.",
+    "根据S5的PDF第15页解释组间休息。",
+])
+def test_requested_page_cannot_be_fulfilled_by_a_different_or_unlocated_passage(kb, question):
+    core_claim(kb, "rest", "合成已审说明，但没有所要求的页码。")
+    answer = kb.query(question, "strength")
+    assert not answer["claims"]
+    assert answer["answer_status"] != "answered_with_support"
+
+
+def test_printed_page_and_file_page_are_distinct_constraints(kb):
+    from healthzip.knowledge.tasks import parse_task, source_constraints_match
+    evidence = [{"locator": {"printed_page_label": "12", "file_page_index": 14}}]
+    printed = parse_task("解释第12页的训练频率。")['source_constraints']
+    file_page = parse_task("Explain training frequency on PDF page 15.")['source_constraints']
+    assert source_constraints_match(kb, evidence, printed)
+    assert source_constraints_match(kb, evidence, file_page)
+    assert not source_constraints_match(kb, evidence, parse_task("解释第15页的训练频率。")['source_constraints'])
+    assert not source_constraints_match(kb, evidence, parse_task("Explain training frequency on PDF page 12.")['source_constraints'])
+
+
+def test_available_named_body_with_unresolved_question_is_not_reported_missing(kb):
+    core_claim(kb, "rest", "合成正文已经存在，但未核对这个新目标。")
+    result = kb.query("根据S5，解释这份材料的那个特殊东西。", "strength")
+    assert not result["claims"]
+    assert result["answer_status"] == "unresolved_question_target"
+    assert result["retrieval"]["requested_material"]["status"] == "available"
+    assert "尚未可靠识别" in result["answer"]
+    assert "尚无与所要求来源" not in result["answer"]
+
+
+def test_available_body_without_target_review_is_distinct_from_missing_location(kb):
+    core_claim(kb, "rest", "合成正文只审核休息，不包含组量主张。")
+    available = kb.query("根据S5，解释训练组量。", "strength")
+    assert not available["claims"]
+    assert available["answer_status"] == "missing_answer_relation"
+    missing = kb.query("根据S5第312页，解释训练组量。", "strength")
+    assert missing["answer_status"] == "missing_source_content"
+    assert missing["retrieval"]["requested_material"]["status"] == "unavailable"
+
+
+def test_adult_guideline_scope_question_does_not_apply_advice_to_children(kb):
+    core_claim(kb, "adult_guideline_scope", "合成成人章节年龄为18至64岁，不包含儿童专章。",
+               subject="physical_activity", scope={"population": "adults", "age_range": [18, 64]})
+    result = kb.query("根据S5，成人身体活动章节覆盖儿童吗？", "strength", context={"question_contract": {
+        "subject": "physical_activity", "outcome": "adult_guideline_scope", "requested_relation": "scope"}})
+    assert result["answer_status"] == "answered_with_support"
+    core_claim(kb, "muscle_strengthening_start", "合成成人起步建议。", scope={"population": "adults", "age_range": [18, 64]})
+    application = kb.query("孩子的力量训练怎么开始？", "strength", context={"question_contract": {
+        "subject": "resistance_training", "outcome": "muscle_strengthening_start", "requested_relation": "options"}})
+    assert not application["claims"]
+
+
+@pytest.mark.parametrize("label,outcome,subject", [
+    ("非显著结果能说明什么", "non_significance_interpretation", "statistical_inference"),
+    ("等效检验与区间的判断逻辑", "equivalence_test_logic", "statistical_inference"),
+    ("实用等效界值如何论证", "equivalence_margin_basis", "statistical_inference"),
+    ("等效方法的研究设计范围", "equivalence_design_scope", "statistical_inference"),
+    ("成人身体活动指南的年龄范围", "adult_guideline_scope", "physical_activity"),
+    ("力量训练的起步安排", "muscle_strengthening_start", "resistance_training"),
+    ("身体活动增量的大小", "activity_increment_size", "physical_activity"),
+    ("身体活动进阶速度的影响因素", "progression_rate_factors", "physical_activity"),
+    ("力竭的定义", "failure_definition", "resistance_training"),
+])
+def test_source_topic_ui_selects_the_right_domain_and_requires_confirmation(kb, label, outcome, subject):
+    from streamlit.testing.v1 import AppTest
+    core_claim(kb, outcome, "已匹配所选主题的合成解释。", subject=subject)
+    app = AppTest.from_string(f'''from healthzip.knowledge import KnowledgeWorkbench
+from healthzip.ui.knowledge_page import _render
+w=KnowledgeWorkbench({str(kb.root)!r}, environment_kind="synthetic_test")
+try: _render(w)
+finally: w.close()
+''').run()
+    app.text_input[0].set_value("那个事情怎么说？")
+    app.checkbox(key="knowledge_explicit_target").check().run()
+    next(s for s in app.selectbox if s.label == "本次要回答").select(label).run()
+    app.button[0].click().run()
+    assert not app.exception
+    assert not any("answered_with_support" in c.value for c in app.caption)
+    app.checkbox(key="knowledge_target_confirmed").check().run()
+    app.button[0].click().run()
+    assert not app.exception
+    assert any("answered_with_support" in c.value for c in app.caption)
+    assert any("已匹配所选主题的合成解释" in m.value for m in app.markdown)
+
+
+def test_material_availability_aggregates_requested_components(kb):
+    from healthzip.knowledge.tasks import parse_task, requested_material
+    raw = b"Two synthetic tables, separate evidence spans."
+    kb.lib.record_version("S5", raw, "fulltext", {}, {}, {"index_allowed": True, "license_id": "CC0"}, "matched",
+        [{"text": f"Synthetic table {n}", "locator": {"table_id": str(n)}} for n in (1, 2)], "synthetic-tables")
+    both = parse_task("根据S5表1和表2解释训练组量。")
+    result = requested_material(kb, both, {"research"})
+    assert result["status"] == "available"
+    assert len(result["matching_span_ids"]) == 2
+    absent = requested_material(kb, parse_task("根据S5表1和表3解释训练组量。"), {"research"})
+    assert absent["status"] == "partially_available"
+    assert absent["missing_components"] == {"table": ["3"]}
+
+
+@pytest.mark.parametrize("excluded", ["wrong_source", "partition", "withdrawn"])
+def test_unusable_legacy_binding_cannot_override_missing_reason_with_context(kb, excluded):
+    approved(kb, required={"age": 25})
+    context = {"source_constraints": {"source_ids": ["S1"]}} if excluded == "wrong_source" else {"corpus_roles": ["core"]} if excluded == "partition" else {}
+    if excluded == "withdrawn":
+        kb.lib.update_state("S5", "withdrawn", "Synthetic source invalidation")
+    result = kb.query(QUESTION, "progression", context=context)
+    assert not result["claims"]
+    assert result["answer_status"] != "missing_context"
+
+
+@pytest.mark.parametrize("question", [
+    "我没有教材，根据S5解释训练组量。",
+    "According to S5, explain training volume; I do not have a textbook.",
+    "I don't own any textbooks. Under S5, explain training volume.",
+    "I have a textbook at home; according to S5, explain training volume.",
+    "根据S5解释训练组量；教材放在书桌上。",
+])
+def test_background_missing_book_is_not_a_requested_source_type(kb, question):
+    core_claim(kb, "volume", "合成可用来源的组量说明。")
+    result = kb.query(question, "strength")
+    assert result["answer_status"] == "answered_with_support"
+    assert not result["retrieval"]["question_contract"]["source_constraints"].get("document_kind")

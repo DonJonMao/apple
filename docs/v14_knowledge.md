@@ -5,13 +5,13 @@
 
 ## 真实完成范围
 
-已登记 8 个核心来源、21 个原规则主题；当前实际核对 **18个核心来源主张＋1个研究方法补充主张**，合计19个SourceClaim，发布19个有明确能力范围的ApplicationRule。补充论文没有因此变成核心教材或核心来源骨干。
-新发布 ID 为 `core-hhs-scope-explanation-1.4.5`，公开清单为 `release-1.4.5.json`；M2发布`core-method-explanation-1.4.4`保持冻结；原 `release.json` 和17主张发布 `core-personal-trial-1.4.3` 保持冻结。
-其中4项候选仍是双进阶、同负荷增加次数试验、较重负荷/较少次数试验、策略复盘中的试验选择；另有10项来源解释/讨论和5项记录描述/执行反馈/报告合同。
-新增独立方法解释规则不替代原21主题中的4项个人统计推断规则；后者仍缺相应原始方法材料、个人界值或任务校准。活动合同数不能等同全部科学主题已完备。
+已登记 8 个核心来源、21 个原规则主题；当前 **1.4.6 发布包含28个SourceClaim和28个ApplicationRule**。主张分区为23个core核心主张、5个research研究方法补充主张。补充论文没有因此变成核心教材或核心来源骨干。
+当前发布 ID 为 `core-source-explanations-1.4.6`，公开清单为 [release-1.4.6.json](../artifacts/v14/knowledge/release-1.4.6.json)。前序HHS发布`core-hhs-scope-explanation-1.4.5`、M2发布`core-method-explanation-1.4.4`、原 `release.json` 和17主张发布 `core-personal-trial-1.4.3` 均保持冻结。
+其中4项候选仍是双进阶、同负荷增加次数试验、较重负荷/较少次数试验、策略复盘中的试验选择；另有19项来源解释/讨论和5项记录描述/执行反馈/报告合同。
+新增来源解释规则不替代原21主题中的4项个人统计推断规则；后者仍缺相应原始方法材料、个人界值或任务校准。活动合同数不能等同全部科学主题已完备。
 首次6主张/4规则的`1.4.1`发布和中间`1.4.2`发布均保留；目标范围改进通过新的不可变版本完成。
 `source_rule_feature_matrix.csv` 逐项区分相关解释主张、尚缺的主题和应用核对。
-原21主题覆盖表及独立评测仍记录1.4.3时点，未因补充方法解释而回填；1.4.4新增范围和验证单列于`method_explanation-1.4.4.json`、`method-release-verification.json`及`method-verification.xml`。
+原21主题覆盖表保留1.4.3时点，各批独立评测保留各自冻结时的来源与实现，不因新发布回填。1.4.4新增范围和验证单列于`method_explanation-1.4.4.json`、`method-release-verification.json`及`method-verification.xml`；1.4.6的计数、能力边界及67项既有文件哈希核验见 [发布核验](../artifacts/v14/knowledge/source-topics-release-verification-1.4.6.json)。
 
 旧版 11 张 TheoryCard 继续为 `needs_review`；没有改写其历史审核、冒充专家，或把旧解释权限提升成候选权限。
 新增 SourceClaim 只授权相应解释；产品如何把一般原则变成一次可选择任务，另由 ApplicationRule 保存版本、来源、数值来源、退出条件与后续观察。
@@ -19,8 +19,8 @@
 
 | 核心来源 | 本轮真实材料与状态 |
 | --- | --- |
-| ACSM 2026 抗阻训练立场，S1 | 复用既有规范身份与原始全文；实际进一步精读段11、24–26、59–76，覆盖初始获益/持续进展、特异性、负荷次数、不同目标、努力及证据局限。当前14个主张引用S1，其中1个同时引用HHS；CC-BY-NC-ND仅按已声明本地非商业用途使用。|
-| HHS《Physical Activity Guidelines for Americans》第 2 版 | 官方完整 PDF 118 页已取得；解析第4、7章共18页，实际读取正文页56–63、88–93。只使用联邦正文，排除照片/图示；当前5个主张引用HHS，其中1个跨来源。公共频次明确绑定第4章18–64岁成人范围。|
+| ACSM 2026 抗阻训练立场，S1 | 复用既有规范身份与原始全文；实际进一步精读段11、24–26、59–76，覆盖初始获益/持续进展、特异性、负荷次数、不同目标、努力及证据局限。另核对表2的力竭定义行、表头及脚注；当前15个主张引用S1，其中1个同时引用HHS；CC-BY-NC-ND仅按已声明本地非商业用途使用。|
+| HHS《Physical Activity Guidelines for Americans》第 2 版 | 官方完整 PDF 118 页已取得；解析第4、7章共18页，实际读取正文页56–63、88–93。只使用联邦正文，排除照片/图示；当前9个主张引用HHS，其中1个跨来源。公共频次明确绑定第4章18–64岁成人范围。|
 | 中国全民健身指南 2017 | 官方公开正文已取得，但未确立重用许可；保留本地原件与待审状态，不进入可用证据。|
 | 中国身体活动指南 2021 | 期刊公开指南摘录已取得，明确保留“摘录”范围；版权待审，不当作完整指南或可用证据。|
 | NSCA 第 5 版、ACSM GETP 第 12 版、肌肥大第 3 版、Neumann 第 4 版 | 实际尝试协会/出版社官方路径。前三类遇 403/429；Neumann 产品页返回 200，但未发现目标正文或可用章节样本。未取得的章节保持缺口。|
@@ -59,6 +59,18 @@ PDF 共974407字节、13文件页（1页仓储封面和12页正文），SHA256�
 
 HHS新增`CORE-CLAIM-HHS-GOAL-SCOPE:1.4.5`，逐项复核第4章印刷页56、57、61–63及五处片段哈希，只解释18–64岁成人的一般健康目标、每周至少两天肌力活动的最低频次与个体优化边界。它不提供个人增肌最优频率或新的候选权限。复跑HHS新发布和M2旧发布时，48项已冻结文件的哈希保持不变，见`hhs-scope-release-verification.json`。
 
+## 1.4.6 新增九个独立解释主题
+
+本轮重新读取既有合法来源中的相关原文，将此前混在宽泛回答中的主题分开建模，并新增来源表格中的非数值定义。范围核对见 [逐来源阅读回执](../artifacts/v14/knowledge/source_topic_review-1.4.6.json)，九组主张/应用合同见 [新增解释清单](../artifacts/v14/knowledge/source_explanations-1.4.6.json)。
+
+|来源与分区|新增主题|明确边界|
+|---|---|---|
+|M2，research，4项|不显著不等于无效或等效；TOST与对应置信区间；情境化等效界值；独立平行组示例的设计范围。|实际核对印刷页203、204、208、209及页204区间公式；只解释一般方法，不授予个人等效结论、个人训练时序算法或停滞标签。|
+|HHS，core，4项|第4章18–64岁成人范围；肌力活动从较低起点开始；相对已有活动量渐进增加；年龄、体能和既往经验对增加速度的考虑。|只使用第4、7章已核对的联邦正文；一般健康建议不推导个人最优频率、固定周增比例或下一次公斤数。|
+|S1，core，1项|表2对力竭的定义：重复至不能继续完成向心运动。|核对定义列、行及脚注；术语定义与“是否必须练至力竭”分别回答，不激活其他数值表格参数。|
+
+九项均只授予`source_explanation`；4项候选权限及5项记录合同保持原边界。M2当前合计5项研究解释，纯核心模式仍不使用；新发布没有新增独立人工/专家审阅或个人校准。`source-topics-verification-1.4.6.xml`是实施者软件回归，不能作为新的独立语义通过率。既有独立题、输出和标签继续保留。
+
 用户已明确暂时没有四本教材授权副本。其目标章节与受影响主题继续按缺口记录；本轮不再将此当作阻止其他软件修复的条件。
 
 ## 权限与适用范围
@@ -74,7 +86,7 @@ HHS新增`CORE-CLAIM-HHS-GOAL-SCOPE:1.4.5`，逐项复核第4章印刷页56、57
 
 新增 `record-description-policy-1.4.0` 只允许 description、task_followup、report，依据已核对的数据身份、时间可见性、目标版本和实现测试；它不要求为“计划与实际差异”等账目事实假造科学主张。
 该策略明确禁止科学权威、数值训练候选、个人预测和因果效果。记录规则和来源解释规则均不会进入 `reviewed_principles` 候选权限。
-QAL-09因此分别报告12/16个有活动的有限来源合同与5/5个记录合同，不能将后者计成科学证据覆盖。
+1.4.3冻结的QAL-09仍分别报告12/16个有活动的有限来源合同与5/5个记录合同，不能将后者计成科学证据覆盖；该历史分母未因1.4.6新增解释而重写。
 
 SourceClaim、已审规则和发布清单不可原地改正文；替换需新版本。
 撤回、待复核或来源更正会阻断当前使用，包括指定旧 release 时的重新查询。旧发布内容及旧建议快照保持原样。
@@ -90,6 +102,18 @@ SourceClaim、已审规则和发布清单不可原地改正文；替换需新版
 `CORE-CLAIM-FREQUENCY-VOLUME:1.4.3`明确`applicable_goals=[strength,hypertrophy]`，与HHS公共健康频次不互相替代。
 旧6个通用范围声明及中间频次声明留存原文与审核，当前置`needs_review`，新版本接替；候选4规则新版仍只获原来的三种动作权限。
 核心书目已登记带版次的完整`query_names`；裸ACSM/NSCA不暗定某本书或版次。
+
+## 本轮问题识别与缺项状态
+
+仅提机构名称时，当前检索限定该机构已登记的作品范围，不自动指定一本书或一个版次；“教材”和“指南”进一步限定文献类型。完整书名、具体版次/章节仍单独核对，不能用同一机构的公开立场声明替代尚缺的教材正文。印刷页与PDF文件页分别核对真实定位，正文提及某页不能代替该页。
+
+问题识别区分非显著解释、等效逻辑/界值/设计、指南年龄范围、活动起步/增量/速度和力竭定义。范围询问与将建议用于该人群分开，背景中的组数、频次或年龄不自动成为新请求。页面可选择并确认这九个目标，各自映射统计推断、身体活动或抗阻训练主题；未确认仍按原问题查询。
+
+缺项也分开报告：指定位置没有当前可用正文为`missing_source_content`；有正文但问题目标未识别为`unresolved_question_target`；有材料但尚无完整已审回答关系为`missing_answer_relation`；分区未选择、适用条件缺失和人群不匹配另列。其他来源候选未匹配指定来源，不再被当作所问正文不存在的证据。多个表格按各自定位汇总材料覆盖，缺其中一张时保留部分可用状态；错误来源或分区的旧理论也不能把正确缺项覆盖成“缺上下文”。
+
+`source-resolution-failing-before.xml`、`missing-reason-failing-before.xml`和语言失败工件保留真实反例。`source-resolution-verification.xml`记录227项定点通过；新增九项实际UI选择/确认链路与其余回归计入最终整仓结果。`semantic-integration-verification.xml`保留更新状态名称前的一次中间结果（281通过、1个旧UI状态断言失败）；该断言迁移后单项通过，不改写中间失败记录。最终知识整合检查为287项通过，见`semantic-final-integration.xml`；来源边界回归10项通过和语言新表达165项通过均是重叠的定点检查，不相加。语言识别边界见`language-semantic-roles-freeze.json`与后续`language-dev146-freeze.json`，不能将这些开发检查称为新的独立语义通过率。
+
+九合同的实施者来源复核全部核对到原文、活动版本与发布成员。另有先冻结预期再取输出的6题实施者开发检查：初始3通过、2部分、1失败；17个引用均可定位，六题所需材料均存在。这证明引用可定位仍不能替代回答正确性。具体缺口为等效逻辑误命中宽泛任务、成人年龄问题未识别、相对增量与影响因素复合问题只答后半，见`source-topics-development-results-1.4.6.json`。修复通用语言识别后，同六题逐题开发回放为6通过、18次引用可定位且当前可用，没有数值行动，见`source-topics-development-replay-1.4.6.json`。预期、初始输出及评价保持不变，后续修复不回填成独立通过率。
 
 ## 21规则的补齐与剩余缺口
 
@@ -220,11 +244,14 @@ PYTHONPATH=src .venv/bin/python tools/v14_evaluate_knowledge.py
 PYTHONPATH=src .venv/bin/python tools/v14_build_quality_audit.py
 PYTHONPATH=src .venv/bin/python tools/v14_import_equivalence_source.py
 PYTHONPATH=src .venv/bin/python tools/v14_import_equivalence_source.py --activate-explanation
+PYTHONPATH=src .venv/bin/python tools/v14_review_hhs_scope.py --activate-explanation
+PYTHONPATH=src .venv/bin/python tools/v14_expand_source_explanations.py --activate-explanations
 PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_v14_knowledge.py tests/unit/test_knowledge.py tests/unit/test_review_knowledge.py tests/science/test_quality_acceptance.py
 PYTHONPATH=src .venv/bin/python -m healthzip.knowledge --root .local/knowledge import-chapter authorized-chapter.json
 ```
 
 默认构建复用本地合法缓存；`--fetch` 仅重试官方公开来源，不绕过访问限制。
 M2工具默认仅核验本地原始收据和SHA后入库；`--activate-explanation`另建不可变1.4.4解释合同，重复执行幂等，不覆盖旧发布或重跑独立评测。
+HHS与九主题工具分别核验既有原件/定位和权利范围后建立1.4.5、1.4.6不可变发布；重复运行核对旧成员、旧发布和独立评测文件未改，不重评旧题。
 章节声明需提供 source_id/path/edition_id/chapter_id/page_indices/expected_page_indices/license_id/rights_evidence_url/authorized_by/identity_review。
 导入成功只建立可审核材料，不自动审核主张/规则。公开前使用 `v14_evaluate_knowledge.py` 的投影保留原始与公开输出哈希，移除原文、结构化表格、版权长文和私有路径。

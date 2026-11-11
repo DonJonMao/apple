@@ -1,0 +1,123 @@
+{
+  "review_kind": "implementer_source_grounded_development_review",
+  "author_implemented_contracts": true,
+  "independent_ai_denominator": 0,
+  "independent_human_or_expert_denominator": 0,
+  "frozen_at": "2026-11-11T14:41:28.828475+00:00",
+  "source_packet_sha256": "c2c974e286492e646886e35102f6bea53ad4f769063e6c220b3ae9bd3b5d2276",
+  "release_id": "core-source-explanations-1.4.6",
+  "expectations_frozen_before_query_outputs": true,
+  "old_independent_cases_or_outputs_read": false,
+  "cases": [
+    {
+      "case_id": "DEV146-01",
+      "question": "在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？",
+      "expected_points": [
+        "两个单侧检验分别针对等效下界和上界，均须在设定alpha水平排除相应界值及更极端的效应。",
+        "对应均值差的双侧100(1−2alpha)%置信区间必须完整落在等效界值内。",
+        "解释限于相应研究设计条件，不选择个人alpha或等效阈值。"
+      ],
+      "acceptable_qualifications": [
+        "可以说明整体P值为两个单侧检验中较大者，但不能用仅一项通过代替TOST。"
+      ],
+      "sufficient_evidence": [
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+      ],
+      "forbidden_claims": [
+        "任意95%置信区间都与任意alpha的TOST直接等价",
+        "个人两训练方案已经等效"
+      ]
+    },
+    {
+      "case_id": "DEV146-02",
+      "question": "M2认为Cohen常见的小效应分界能直接拿来设定等效边界吗？应当根据什么来说明这个界值？",
+      "expected_points": [
+        "不建议将Cohen通用效应量分界直接视为运动生理和运动科学的最小重要效应。",
+        "效应的重要性依研究情境和实质研究问题决定，界值需要相应依据。",
+        "等效上下界界定实际重要差异，目标不是证明两干预绝对相等。"
+      ],
+      "sufficient_evidence": [
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+      ],
+      "forbidden_claims": [
+        "Cohen统一小效应值就是本人的合格阈值",
+        "无须依据可自由选择等效界值"
+      ]
+    },
+    {
+      "case_id": "DEV146-03",
+      "question": "HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？",
+      "expected_points": [
+        "明确把回答绑定HHS第二版第4章，成人范围18至64岁。",
+        "属于身体活动的一般健康指导，落实时考虑已有活动量、体能及个人健康和体能目标。"
+      ],
+      "acceptable_qualifications": [
+        "孕期、慢性病或残障的额外考虑指向第6章。"
+      ],
+      "sufficient_evidence": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+      ],
+      "forbidden_claims": [
+        "第4章完整覆盖所有年龄和特殊人群",
+        "一般健康建议已经给出个人唯一最优增肌安排"
+      ]
+    },
+    {
+      "case_id": "DEV146-04",
+      "question": "按HHS的成人身体活动建议，尚不活跃的人开始肌力活动，必须马上每周练两天吗？之后频次和用力程度可以怎样逐步增加？",
+      "expected_points": [
+        "可以从每周一天、轻到中等用力开始，不要求所有不活跃成人立即达到每周两天。",
+        "随后增加到每周两天，并可能更多；用力程度可逐周小幅提高至中等或更高。",
+        "这是第4章成人健康指导，应结合活动基础、体能和目标，不能当作个人最优训练处方。"
+      ],
+      "sufficient_evidence": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+      ],
+      "forbidden_claims": [
+        "所有人第一周必须两天",
+        "每周一天保证任何个人达到最优增肌"
+      ]
+    },
+    {
+      "case_id": "DEV146-05",
+      "question": "HHS为什么强调相对于原来活动量的小幅增加？安排增加速度时，年龄、体能与既往经验分别起什么作用？",
+      "expected_points": [
+        "受伤风险与新活动量相对平常活动量的差距有关；小幅增加并等待适应和恢复有助于降低风险。",
+        "适应时间可能与年龄有关，老年成人似乎需更长；体能较低者进行相同活动量风险更高，较慢增加可能有帮助。",
+        "若过去某增加速度导致过度使用损伤，一般建议下次增加更慢。",
+        "不据活动分钟数或比例例子推导统一加重百分比、公斤数或个人恢复天数。"
+      ],
+      "sufficient_evidence": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+      ],
+      "forbidden_claims": [
+        "所有年龄每周统一加重比例",
+        "直接计算个人下一次负重或确定恢复日期"
+      ]
+    },
+    {
+      "case_id": "DEV146-06",
+      "question": "ACSM怎样定义一次力量训练做到力竭？请说明动作是在什么情况下停下。",
+      "expected_points": [
+        "若采用当前可用S1，须明确归属ACSM 2026抗阻训练立场表2的定义。",
+        "定义的停止条件是无法继续完成向心运动，不只给出练不练到力竭的必要性结论。"
+      ],
+      "acceptable_qualifications": [
+        "ACSM是机构名，不能把S1定义冒充未取得的ACSM GETP指定版次内容；可以说明当前回答的具体来源。",
+        "术语解释不诊断用户实际是否已发生力竭，也不要求所有训练都做到力竭。"
+      ],
+      "sufficient_evidence": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+      ],
+      "forbidden_claims": [
+        "只回答不需要力竭却不解释定义",
+        "引用未取得的GETP第12版作为已读定义来源"
+      ]
+    }
+  ]
+}

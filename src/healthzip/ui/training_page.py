@@ -406,6 +406,7 @@ def _catalog_results(svc, items, key):
 
 def _exercise_detail(svc, item, key):
     from healthzip.training.catalog_media import MEDIA_STATUS_LABELS
+    from healthzip.training.catalog_terms import CHINESE_NAME_STATUS_LABELS
 
     details = svc.exercise_details(item["exercise_id"], item["definition_version"])
     media = details["media"]
@@ -418,10 +419,8 @@ def _exercise_detail(svc, item, key):
         if zh:
             st.caption(
                 "中文名称："
-                + (
-                    "上游翻译，未作专业审定"
-                    if zh.get("origin") == "upstream"
-                    else "项目术语译稿，待核对"
+                + CHINESE_NAME_STATUS_LABELS.get(
+                    zh.get("review_status"), CHINESE_NAME_STATUS_LABELS["unknown"]
                 )
             )
             if zh.get("untranslated_terms"):

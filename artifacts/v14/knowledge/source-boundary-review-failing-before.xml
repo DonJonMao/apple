@@ -1,0 +1,96 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="7" time="0.937" timestamp="2026-11-11T22:46:15.341314+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_material_availability_aggregates_requested_components" time="0.083"><failure message="AssertionError: assert 'unavailable' == 'available'&#10;  &#10;  - available&#10;  + unavailable&#10;  ? ++">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9beea350&gt;
+
+    def test_material_availability_aggregates_requested_components(kb):
+        from healthzip.knowledge.tasks import parse_task, requested_material
+        raw = b"Two synthetic tables, separate evidence spans."
+        kb.lib.record_version("S5", raw, "fulltext", {}, {}, {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": f"Synthetic table {n}", "locator": {"table_id": str(n)}} for n in (1, 2)], "synthetic-tables")
+        both = parse_task("根据S5表1和表2解释训练组量。")
+        result = requested_material(kb, both, {"research"})
+&gt;       assert result["status"] == "available"
+E       AssertionError: assert 'unavailable' == 'available'
+E
+E         - available
+E         + unavailable
+E         ? ++
+
+tests/unit/test_v14_knowledge.py:769: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_unusable_legacy_binding_cannot_override_missing_reason_with_context[wrong_source]" time="0.073"><failure message="AssertionError: assert 'missing_context' != 'missing_context'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9bfabf10&gt;
+excluded = 'wrong_source'
+
+    @pytest.mark.parametrize("excluded", ["wrong_source", "partition", "withdrawn"])
+    def test_unusable_legacy_binding_cannot_override_missing_reason_with_context(kb, excluded):
+        approved(kb, required={"age": 25})
+        context = {"source_constraints": {"source_ids": ["S1"]}} if excluded == "wrong_source" else {"corpus_roles": ["core"]} if excluded == "partition" else {}
+        if excluded == "withdrawn":
+            kb.lib.update_state("S5", "withdrawn", "Synthetic source invalidation")
+        result = kb.query(QUESTION, "progression", context=context)
+        assert not result["claims"]
+&gt;       assert result["answer_status"] != "missing_context"
+E       AssertionError: assert 'missing_context' != 'missing_context'
+
+tests/unit/test_v14_knowledge.py:784: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_unusable_legacy_binding_cannot_override_missing_reason_with_context[partition]" time="0.042"><failure message="AssertionError: assert 'missing_context' != 'missing_context'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9c155950&gt;
+excluded = 'partition'
+
+    @pytest.mark.parametrize("excluded", ["wrong_source", "partition", "withdrawn"])
+    def test_unusable_legacy_binding_cannot_override_missing_reason_with_context(kb, excluded):
+        approved(kb, required={"age": 25})
+        context = {"source_constraints": {"source_ids": ["S1"]}} if excluded == "wrong_source" else {"corpus_roles": ["core"]} if excluded == "partition" else {}
+        if excluded == "withdrawn":
+            kb.lib.update_state("S5", "withdrawn", "Synthetic source invalidation")
+        result = kb.query(QUESTION, "progression", context=context)
+        assert not result["claims"]
+&gt;       assert result["answer_status"] != "missing_context"
+E       AssertionError: assert 'missing_context' != 'missing_context'
+
+tests/unit/test_v14_knowledge.py:784: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_unusable_legacy_binding_cannot_override_missing_reason_with_context[withdrawn]" time="0.045" /><testcase classname="tests.unit.test_v14_knowledge" name="test_background_missing_book_is_not_a_requested_source_type[\u6211\u6ca1\u6709\u6559\u6750\uff0c\u6839\u636eS5\u89e3\u91ca\u8bad\u7ec3\u7ec4\u91cf\u3002]" time="0.043"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9c684fd0&gt;
+question = '我没有教材，根据S5解释训练组量。'
+
+    @pytest.mark.parametrize("question", [
+        "我没有教材，根据S5解释训练组量。",
+        "According to S5, explain training volume; I do not have a textbook.",
+        "I don't own any textbooks. Under S5, explain training volume.",
+    ])
+    def test_background_missing_book_is_not_a_requested_source_type(kb, question):
+        core_claim(kb, "volume", "合成可用来源的组量说明。")
+        result = kb.query(question, "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:795: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_background_missing_book_is_not_a_requested_source_type[According to S5, explain training volume; I do not have a textbook.]" time="0.045"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9c685dd0&gt;
+question = 'According to S5, explain training volume; I do not have a textbook.'
+
+    @pytest.mark.parametrize("question", [
+        "我没有教材，根据S5解释训练组量。",
+        "According to S5, explain training volume; I do not have a textbook.",
+        "I don't own any textbooks. Under S5, explain training volume.",
+    ])
+    def test_background_missing_book_is_not_a_requested_source_type(kb, question):
+        core_claim(kb, "volume", "合成可用来源的组量说明。")
+        result = kb.query(question, "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:795: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_background_missing_book_is_not_a_requested_source_type[I don't own any textbooks. Under S5, explain training volume.]" time="0.045"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9c1e4610&gt;
+question = "I don't own any textbooks. Under S5, explain training volume."
+
+    @pytest.mark.parametrize("question", [
+        "我没有教材，根据S5解释训练组量。",
+        "According to S5, explain training volume; I do not have a textbook.",
+        "I don't own any textbooks. Under S5, explain training volume.",
+    ])
+    def test_background_missing_book_is_not_a_requested_source_type(kb, question):
+        core_claim(kb, "volume", "合成可用来源的组量说明。")
+        result = kb.query(question, "strength")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:795: AssertionError</failure></testcase></testsuite></testsuites>

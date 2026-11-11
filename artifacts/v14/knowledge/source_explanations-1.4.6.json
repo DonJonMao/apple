@@ -1,0 +1,1157 @@
+{
+  "release_id": "core-source-explanations-1.4.6",
+  "release_sha256": "cc96c75850898f8cdeb620066c519dc22ca753b1adbca51c29d0b67d154239d8",
+  "previous_release_id": "core-hhs-scope-explanation-1.4.5",
+  "previous_release_sha256": "90d88d71f92411a43c7b43dc6ede800ff558c14d30cf20cc8b37042d4e4d77a6",
+  "new_contracts": [
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-M2-NON-SIGNIFICANCE",
+        "version": "1.4.6",
+        "statement": "传统差异检验未达到统计显著，不能据此断言没有效应，也不能把它作为两种干预相等或实用等效的证据。未拒绝零差异与排除一个实际重要的差异，是不同的统计问题。",
+        "scope": {
+          "topic": "traditional_difference_test_interpretation",
+          "individual_inference": "not_authorized"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "M2",
+            "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+            "span_ids": [
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "statistical_inference",
+          "outcome": "non_significance_interpretation",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "non_significance_limit"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "plateau",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "non_significance_limit",
+              "text": "传统差异检验未达到统计显著，不能据此断言没有效应，也不能把它作为两种干预相等或实用等效的证据。未拒绝零差异与排除一个实际重要的差异，是不同的统计问题。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.305125+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "The cited paragraph explicitly rejects interpreting non-significance or failure to reject the null as equality or absence of an effect. This claim concerns interpretation, not a personal equivalence result. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-M2-NON-SIGNIFICANCE-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-M2-NON-SIGNIFICANCE",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "plateau",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "non_significance_interpretation",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.305203+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "The cited paragraph explicitly rejects interpreting non-significance or failure to reject the null as equality or absence of an effect. This claim concerns interpretation, not a personal equivalence result. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+        "version": "1.4.6",
+        "statement": "TOST分别针对等效下界和上界进行两个单侧检验。两项检验都在设定的α水平排除达到或超出相应界值的效应，才能在该α水平判定等效；文章说明，整体等效检验可报告两个单侧检验中较大的P值。\n对应的区间表达是：均值差的双侧100(1−2α)%置信区间必须完全落在等效下界和上界之间。这是在相应方法条件下排除具有实际重要性的差异，并不是证明两种干预绝对相等。",
+        "scope": {
+          "topic": "tost_and_corresponding_confidence_interval",
+          "study_design": "parallel_independent_normal_samples",
+          "individual_inference": "not_authorized"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "M2",
+            "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+            "span_ids": [
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "statistical_inference",
+          "outcome": "equivalence_test_logic",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "two_one_sided_tests",
+            "confidence_interval_logic"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "plateau",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "two_one_sided_tests",
+              "text": "TOST分别针对等效下界和上界进行两个单侧检验。两项检验都在设定的α水平排除达到或超出相应界值的效应，才能在该α水平判定等效；文章说明，整体等效检验可报告两个单侧检验中较大的P值。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "confidence_interval_logic",
+              "text": "对应的区间表达是：均值差的双侧100(1−2α)%置信区间必须完全落在等效下界和上界之间。这是在相应方法条件下排除具有实际重要性的差异，并不是证明两种干预绝对相等。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.307849+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Read the definition continued from page 203 to 204 and visually checked the cited PDF expression. Both one-sided tests and complete containment of the corresponding interval are required. No alpha, margins or personal model are selected. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-M2-EQUIVALENCE-LOGIC-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "plateau",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "equivalence_test_logic",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.307889+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Read the definition continued from page 203 to 204 and visually checked the cited PDF expression. Both one-sided tests and complete containment of the corresponding interval are required. No alpha, margins or personal model are selected. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-MARGINS",
+        "version": "1.4.6",
+        "statement": "最小重要效应取决于具体研究情境，应围绕实质研究问题说明依据。文章不建议把Cohen为社会和行为科学提出的通用效应量分界，直接当作运动生理与运动科学中的最小重要效应标准；确定这个界值本身可能很困难。\n等效下界和上界界定的是大到具有实际重要性的差异。检验目标是排除这类差异，不是证明效应恰好为零或两个干预完全相同。",
+        "scope": {
+          "topic": "contextual_practical_equivalence_margins",
+          "individual_inference": "not_authorized"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "M2",
+            "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+            "span_ids": [
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "statistical_inference",
+          "outcome": "equivalence_margin_basis",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "contextual_effect_of_interest",
+            "margins_define_practical_difference"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "plateau",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "contextual_effect_of_interest",
+              "text": "最小重要效应取决于具体研究情境，应围绕实质研究问题说明依据。文章不建议把Cohen为社会和行为科学提出的通用效应量分界，直接当作运动生理与运动科学中的最小重要效应标准；确定这个界值本身可能很困难。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "margins_define_practical_difference",
+              "text": "等效下界和上界界定的是大到具有实际重要性的差异。检验目标是排除这类差异，不是证明效应恰好为零或两个干预完全相同。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.315366+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "The contextual-SESOI paragraph and the practical-equivalence definition directly support separate margin-basis explanations. The source does not supply an individual's training threshold. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-M2-EQUIVALENCE-MARGINS-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-MARGINS",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "plateau",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "equivalence_margin_basis",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.315406+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "The contextual-SESOI paragraph and the practical-equivalence definition directly support separate margin-basis explanations. The source does not supply an individual's training threshold. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-M2-DESIGN-SCOPE",
+        "version": "1.4.6",
+        "statement": "为使说明清楚简洁，M2集中讨论平行组研究，其中均值和方差来自两组相互独立的随机样本，观测服从正态分布。\n文章明确提醒：其他研究设计或不同概率分布的变量，可能需要不同的分析方法。因此不能未经设计、分布和依赖结构核对，就把文中示例当作重复测量或个人训练时序的已验证分析。",
+        "scope": {
+          "topic": "reviewed_equivalence_example_design_scope",
+          "individual_inference": "not_authorized"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "M2",
+            "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+            "span_ids": [
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+              "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "statistical_inference",
+          "outcome": "equivalence_design_scope",
+          "requested_relation": "scope",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "reviewed_design",
+            "other_designs_need_review"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "plateau",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "reviewed_design",
+              "text": "为使说明清楚简洁，M2集中讨论平行组研究，其中均值和方差来自两组相互独立的随机样本，观测服从正态分布。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "other_designs_need_review",
+              "text": "文章明确提醒：其他研究设计或不同概率分布的变量，可能需要不同的分析方法。因此不能未经设计、分布和依赖结构核对，就把文中示例当作重复测量或个人训练时序的已验证分析。",
+              "span_ids": [
+                "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+              ],
+              "evidence_relation": "qualifies"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.317781+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "The two continuation regions on pages 208 and 209 state the design/distribution assumptions and explicitly warn about other designs. The personal-series limit is a bounded applicability interpretation, not a claim that equivalence methods never support repeated measurements. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-M2-DESIGN-SCOPE-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-M2-DESIGN-SCOPE",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "plateau",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "equivalence_design_scope",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。",
+          "没有提供个人实用等效界值、重测误差、重复查看协议或真实个人时间外校准；不执行个人等效判定。",
+          "仅核对所引文字中的TOST与置信区间关系；不核准全文其他公式或数值表格为执行参数。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.317823+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "The two continuation regions on pages 208 and 209 state the design/distribution assumptions and explicitly warn about other designs. The personal-series limit is a bounded applicability interpretation, not a claim that equivalence methods never support repeated measurements. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-HHS-ADULT-SCOPE",
+        "version": "1.4.6",
+        "statement": "HHS第二版第4章的成人指导明确面向18至64岁的男性和女性，讨论身体活动带来的健康益处；该章范围不能直接当作所有年龄或特殊人群的完整活动指导。\n在落实这些健康建议时，成人应考虑已经进行的活动量、当前体能以及个人健康和体能目标。该章也将孕期及患慢性病或有残障成人的额外考虑指向第6章。",
+        "scope": {
+          "population": "adults",
+          "age_range": [
+            18,
+            64
+          ],
+          "goal": "public_health"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "CORE-US-HHS-PAG-2",
+            "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+            "span_ids": [
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "physical_activity",
+          "outcome": "adult_guideline_scope",
+          "requested_relation": "scope",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "chapter_age_scope",
+            "health_and_fitness_goals"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "chapter_age_scope",
+              "text": "HHS第二版第4章的成人指导明确面向18至64岁的男性和女性，讨论身体活动带来的健康益处；该章范围不能直接当作所有年龄或特殊人群的完整活动指导。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "health_and_fitness_goals",
+              "text": "在落实这些健康建议时，成人应考虑已经进行的活动量、当前体能以及个人健康和体能目标。该章也将孕期及患慢性病或有残障成人的额外考虑指向第6章。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.320193+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Page 56 explicitly states ages 18 through 64; page 62 states current activity, fitness and personal health/fitness goals and points special groups to Chapter 6. This is a scope explanation, not a personalized training schedule. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-HHS-ADULT-SCOPE-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-HHS-ADULT-SCOPE",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "adult_guideline_scope",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.320231+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Page 56 explicitly states ages 18 through 64; page 62 states current activity, fitness and personal health/fitness goals and points special groups to Chapter 6. This is a scope explanation, not a personalized training schedule. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-HHS-MUSCLE-START",
+        "version": "1.4.6",
+        "statement": "HHS第4章说明，肌力活动可以从较低起点逐步增加：初期可每周一天，以轻到中等的用力程度开始；随着时间增加到每周两天，并可能超过两天。用力程度也可逐周小幅提高，直到中等或更高。\n这一开始方式要结合已有活动量、体能和个人健康目标理解；它说明可以逐步达到一般健康建议，不是要求所有人立即采用同一活动量，也不是某个人增肌或力量训练的最优处方。",
+        "scope": {
+          "population": "adults",
+          "age_range": [
+            18,
+            64
+          ],
+          "goal": "public_health",
+          "activity_context": "inactive_or_insufficiently_active"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "CORE-US-HHS-PAG-2",
+            "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+            "span_ids": [
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "resistance_training",
+          "outcome": "muscle_strengthening_start",
+          "requested_relation": "options",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "low_start_and_gradual_increase",
+            "starting_context"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "recovery",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "low_start_and_gradual_increase",
+              "text": "HHS第4章说明，肌力活动可以从较低起点逐步增加：初期可每周一天，以轻到中等的用力程度开始；随着时间增加到每周两天，并可能超过两天。用力程度也可逐周小幅提高，直到中等或更高。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "starting_context",
+              "text": "这一开始方式要结合已有活动量、体能和个人健康目标理解；它说明可以逐步达到一般健康建议，不是要求所有人立即采用同一活动量，也不是某个人增肌或力量训练的最优处方。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+              ],
+              "evidence_relation": "qualifies"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.322534+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Read the paragraph spanning the inactive/insufficiently active section on pages 62-63. The source's one-to-two-or-more-days illustration is explanatory, with no conversion into personal loads or a mandatory schedule. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-HHS-MUSCLE-START-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-HHS-MUSCLE-START",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "recovery",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "muscle_strengthening_start",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.322572+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Read the paragraph spanning the inactive/insufficiently active section on pages 62-63. The source's one-to-two-or-more-days illustration is explanatory, with no conversion into personal loads or a mandatory schedule. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-HHS-ACTIVITY-INCREMENT",
+        "version": "1.4.6",
+        "statement": "HHS第7章把新活动水平与平常活动水平之间的差距称为超负荷量，并说明骨骼、肌肉和关节的受伤风险与这个差距有关。较小的增加，并等待身体适应和恢复，有助于降低风险；因此增加量应相对于原有活动量理解。\n正文以原来活动量不同的人增加同样分钟数作比较，说明相对增幅不同。这个例子不提供人人通用的周增百分比，也不能直接换算成某个抗阻动作应加多少公斤。",
+        "scope": {
+          "population": "adults",
+          "goal": "public_health",
+          "topic": "gradual_general_physical_activity_increases"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "CORE-US-HHS-PAG-2",
+            "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+            "span_ids": [
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "physical_activity",
+          "outcome": "activity_increment_size",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "relative_gap_and_adaptation",
+            "example_is_not_uniform_increment"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "recovery",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "relative_gap_and_adaptation",
+              "text": "HHS第7章把新活动水平与平常活动水平之间的差距称为超负荷量，并说明骨骼、肌肉和关节的受伤风险与这个差距有关。较小的增加，并等待身体适应和恢复，有助于降低风险；因此增加量应相对于原有活动量理解。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "example_is_not_uniform_increment",
+              "text": "正文以原来活动量不同的人增加同样分钟数作比较，说明相对增幅不同。这个例子不提供人人通用的周增百分比，也不能直接换算成某个抗阻动作应加多少公斤。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+              ],
+              "evidence_relation": "qualifies"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.324863+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Page 90 directly links overload to the gap from usual activity, small increases and adaptation/recovery, then compares equal minute increases against different baselines. The restriction on universal weight increments is an applicability boundary. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-HHS-ACTIVITY-INCREMENT-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-INCREMENT",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "recovery",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "activity_increment_size",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.324901+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Page 90 directly links overload to the gap from usual activity, small increases and adaptation/recovery, then compares equal minute increases against different baselines. The restriction on universal weight increments is an applicability boundary. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-HHS-PROGRESSION-FACTORS",
+        "version": "1.4.6",
+        "statement": "HHS第7章建议在个体化活动增加速度时考虑年龄、体能和经验。适应新活动水平所需时间可能与年龄有关，老年成人似乎需要更长时间；对相同活动量，体能较低的成人受伤风险更高，较慢增加可能有助于降低风险。\n既往经验也应参与判断：如果过去按某个增加速度发生过过度使用损伤，指南一般建议下一次增加得更慢。这不构成对个人损伤原因的诊断，也不能据此计算固定恢复天数或下一次加重量。",
+        "scope": {
+          "population": "adults",
+          "goal": "public_health",
+          "topic": "age_fitness_experience_and_activity_progression"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "CORE-US-HHS-PAG-2",
+            "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+            "span_ids": [
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "physical_activity",
+          "outcome": "progression_rate_factors",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "age_and_fitness",
+            "prior_experience"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "recovery",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "age_and_fitness",
+              "text": "HHS第7章建议在个体化活动增加速度时考虑年龄、体能和经验。适应新活动水平所需时间可能与年龄有关，老年成人似乎需要更长时间；对相同活动量，体能较低的成人受伤风险更高，较慢增加可能有助于降低风险。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "prior_experience",
+              "text": "既往经验也应参与判断：如果过去按某个增加速度发生过过度使用损伤，指南一般建议下一次增加得更慢。这不构成对个人损伤原因的诊断，也不能据此计算固定恢复天数或下一次加重量。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.326737+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Read the Age and Level of Fitness subsections on page 90 and the continued Prior Experience subsection on page 91. Preserve the source's probable/appears/may qualifications and avoid a fixed personal progression rate. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-HHS-PROGRESSION-FACTORS-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-HHS-PROGRESSION-FACTORS",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "recovery",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "progression_rate_factors",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "一般身体活动健康指导不等同于个人最优力量或肌肥大方案。",
+          "活动天数、分钟数和比例的来源示例不能自动成为个人加重步长、恢复期限或训练处方。",
+          "第4章的18–64岁范围不套用于第7章的所有一般安全指导。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.326775+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Read the Age and Level of Fitness subsections on page 90 and the continued Prior Experience subsection on page 91. Preserve the source's probable/appears/may qualifications and avoid a fixed personal progression rate. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    },
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-S1-FAILURE-DEFINITION",
+        "version": "1.4.6",
+        "statement": "S1表2把力竭描述为：持续进行重复动作，直到已经无法继续完成向心运动的状态。这是该来源对训练变量的定义。",
+        "scope": {
+          "population": "healthy_adults",
+          "topic": "source_definition_of_volitional_failure"
+        },
+        "limitations": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "仅解释表2的Failure术语定义，不判断个人记录是否已发生肌肉或技术力竭。",
+          "表格的数值审核状态仍为pending；本合同不抽取任何表格数字作为参数。",
+          "沿用已声明的本地非商业用途；公开工件仅含定位、哈希与原创概述，不含原表或其正文。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "S1",
+            "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+            "span_ids": [
+              "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "resistance_training",
+          "outcome": "failure_definition",
+          "requested_relation": "explanation",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "concentric_movement_limit"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "concentric_movement_limit",
+              "text": "S1表2把力竭描述为：持续进行重复动作，直到已经无法继续完成向心运动的状态。这是该来源对训练变量的定义。",
+              "span_ids": [
+                "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+              ],
+              "evidence_relation": "supports"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.329051+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "Checked original Table 2 column headers, Failure row, footnote and component rights. The row supplies a complete nonnumeric definition independently of the older failure-necessity discussion. No personal failure diagnosis or table numeric approval is inferred. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-S1-FAILURE-DEFINITION-EXPLANATION",
+        "rule_version": "1.4.6",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-S1-FAILURE-DEFINITION",
+            "version": "1.4.6"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "failure_definition",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅授予所列来源主题的一般解释；不提供个人模型、参数选择、训练处方或训练候选权限。",
+          "来源内容取得、主题审核、软件验证和个人有效性分别记账；这些解释不构成独立人工或专家审定。",
+          "仅解释表2的Failure术语定义，不判断个人记录是否已发生肌肉或技术力竭。",
+          "表格的数值审核状态仍为pending；本合同不抽取任何表格数字作为参数。",
+          "沿用已声明的本地非商业用途；公开工件仅含定位、哈希与原创概述，不含原表或其正文。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_source_explanation_topics.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T14:34:10.329089+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "Checked original Table 2 column headers, Failure row, footnote and component rights. The row supplies a complete nonnumeric definition independently of the older failure-necessity discussion. No personal failure diagnosis or table numeric approval is inferred. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    }
+  ],
+  "claims_in_release": 28,
+  "rules_in_release": 28,
+  "candidate_rule_count": 4,
+  "independent_human_or_expert_reviews": 0,
+  "personal_calibration_supplied": false,
+  "source_library_mutations": 0,
+  "previous_members_unchanged": true
+}

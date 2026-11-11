@@ -220,7 +220,7 @@ finally: w.close()
     app.text_input[0].set_value("合成方案增加重复次数能否证明个人寿命增长？")
     app.button[0].click().run()
     assert not app.exception
-    assert any("related_material_only" in x.value for x in app.caption)
+    assert any("missing_answer_relation" in x.value for x in app.caption)
     assert any("不等于当前问题已获支持" in x.label for x in app.expander)
 
 

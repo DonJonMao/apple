@@ -189,7 +189,8 @@ def test_separate_progression_question_survives_a_load_repetition_explanation():
 ])
 def test_non_significance_question_does_not_need_the_word_equivalence(question):
     task = parse_task(question)
-    assert outcomes(question) == {"practical_equivalence"}
+    # The separately reviewed interpretation task now names this narrower target.
+    assert outcomes(question) == {"non_significance_interpretation"}
     assert task["subject"] == "statistical_inference"
 
 
@@ -267,3 +268,227 @@ def test_unknown_program_comparison_preserves_a_named_source_and_personal_reques
     assert task["source_constraints"]["source_ids"] == ["S5"]
     assert task["source_constraints"]["requested_chapter_number"] == "4"
     assert task["personal_numeric_request"]
+
+
+@pytest.mark.parametrize("question,expected", [
+    ("What evidence is needed to say a trial's two treatments differ by an unimportant amount?",
+     {"practical_equivalence"}),
+    ("研究两个方案的差别是否小到没有实际重要性，应怎样判定？", {"practical_equivalence"}),
+    ("What does a nonsignificant statistical result actually establish?",
+     {"non_significance_interpretation"}),
+    ("研究的差异检验未能拒绝零假设，可以说明什么？", {"non_significance_interpretation"}),
+    ("Explain how two one-sided tests establish equivalence.", {"equivalence_test_logic"}),
+    ("双单侧检验为什么需要同时排除两个方向的效应？", {"equivalence_test_logic"}),
+    ("Must the confidence interval lie entirely within equivalence bounds?", {"equivalence_test_logic"}),
+    ("Can a generic small standardized effect be reused as the boundary of a meaningful difference?",
+     {"equivalence_margin_basis"}),
+    ("最小重要效应与通用的小效应分界是同一回事吗？", {"equivalence_margin_basis"}),
+    ("For equivalence tests, do independent parallel groups and repeated measurements require the same assumptions?",
+     {"equivalence_design_scope"}),
+    ("平行组的两组独立观测所用等效方法可以直接用于同一个人的重复测量吗？",
+     {"equivalence_design_scope"}),
+])
+def test_statistical_subtopics_have_their_own_semantic_tasks(question, expected):
+    task = parse_task(question)
+    assert outcomes(question) == expected
+    assert all(part["subject"] == "statistical_inference"
+               for part in task["required_answer_parts"] if "outcome" in part)
+
+
+def test_independent_statistical_topics_survive_a_compound_request():
+    assert outcomes(
+        "Explain the logic of TOST. Separately, how should equivalence margins be justified? "
+        "Also, is the method valid for repeated measurements rather than independent parallel groups?"
+    ) == {"equivalence_test_logic", "equivalence_margin_basis", "equivalence_design_scope"}
+
+
+@pytest.mark.parametrize("question", [
+    "两组文件名称的差别很小，需要重新命名吗？",
+    "Are two one-sided drawings the same size?",
+    "Where is the boundary between two panels on the exercise screen?",
+])
+def test_ordinary_differences_and_boundaries_are_not_statistical_methods(question):
+    task = parse_task(question)
+    assert all(part.get("subject") != "statistical_inference" for part in task["required_answer_parts"])
+
+
+@pytest.mark.parametrize("question", [
+    "Which people were represented in this resistance training review?",
+    "Were the participants experienced lifters or novices?",
+    "这些抗阻研究主要来自有训练经验的人，还是初学者？",
+    "训练综述中的样本是否能代表高龄人群？",
+    "Did the resistance training review exclude patients and children?",
+])
+def test_population_scope_means_inclusion_representativeness_or_experience(question):
+    assert outcomes(question) == {"population_scope"}
+
+
+@pytest.mark.parametrize("question,expected", [
+    ("How many training sets should children do?", {"volume"}),
+    ("有疾病的患者训练频次应怎么安排？", {"frequency"}),
+    ("Which medicine should this patient population take?", set()),
+])
+def test_population_mentions_in_application_requests_are_not_source_scope(question, expected):
+    assert outcomes(question) == expected
+
+
+@pytest.mark.parametrize("question", [
+    "不继续增加刺激，抗阻训练是否仍然能有收益？",
+    "如果不再提高训练负荷，就一定完全没有训练收益吗？",
+    "Can resistance training produce benefits without further increases in stimulus?",
+    "Does the absence of progressive overload imply that training offers no benefit?",
+])
+def test_negated_progression_is_a_necessity_question_not_an_extra_numeric_target(question):
+    assert outcomes(question) == {"progression_necessity"}
+
+
+@pytest.mark.parametrize("question", [
+    "Does momentary muscular failure mean being unable to complete another repetition?",
+    "抗阻训练里再也无法完成一次向心动作，是否就是瞬时肌肉力竭？",
+])
+def test_failure_definition_is_distinct_from_prescribing_failure(question):
+    assert outcomes(question) == {"failure_definition"}
+
+
+@pytest.mark.parametrize("question", [
+    "Must a resistance exercise continue until no further repetition can be completed?",
+    "训练是否必须做到无法再完成一次？",
+])
+def test_failure_necessity_accepts_inability_and_passive_forms(question):
+    assert outcomes(question) == {"failure_necessity"}
+
+
+@pytest.mark.parametrize("question", [
+    "The training sessions have the same title. Where are they saved?",
+    "这些训练方案的名称一样吗？",
+])
+def test_same_wording_or_titles_are_not_personal_capability_inference(question):
+    assert "capability_change" not in outcomes(question)
+
+
+def test_background_weekly_sets_do_not_turn_frequency_into_a_volume_request():
+    assert outcomes(
+        "With weekly sets held equal, how often should adults train for hypertrophy?"
+    ) == {"frequency"}
+    assert outcomes("在训练组量一样时，训练频次对肌肥大有什么证据？") == {"frequency"}
+    assert outcomes(
+        "With weekly sets held equal, explain training frequency; separately explain training volume."
+    ) == {"frequency", "volume"}
+
+
+def test_cross_goal_inference_preserves_both_requested_goals():
+    task = parse_task("Can evidence about training frequency for strength be carried over to hypertrophy?")
+    assert {p["part_id"] for p in task["required_answer_parts"]} == {
+        "frequency:strength", "frequency:hypertrophy", "goal_scope",
+    }
+    task = parse_task("提高力量的组间休息结论，是否也能直接用于增肌目标？")
+    assert {p["part_id"] for p in task["required_answer_parts"]} == {
+        "rest:strength", "rest:hypertrophy", "goal_scope",
+    }
+
+
+@pytest.mark.parametrize("question,expected,subject", [
+    ("Which age range does the adult chapter of physical activity guidelines address?",
+     "adult_guideline_scope", "physical_activity"),
+    ("身体活动指南的成人建议面向什么年龄段？", "adult_guideline_scope", "physical_activity"),
+    ("How can an inactive adult begin muscle strengthening activity?",
+     "muscle_strengthening_start", "resistance_training"),
+    ("初次进行肌力活动应该从哪里开始？", "muscle_strengthening_start", "resistance_training"),
+    ("Why should an increase in physical activity be a small increment?",
+     "activity_increment_size", "physical_activity"),
+    ("身体活动每次增加的幅度为什么要小一些？", "activity_increment_size", "physical_activity"),
+    ("How do age and fitness affect the rate of increasing physical activity?",
+     "progression_rate_factors", "physical_activity"),
+    ("年龄和以往经验怎样影响身体活动增加的速度？", "progression_rate_factors", "physical_activity"),
+])
+def test_activity_subtopics_do_not_collapse_into_a_generic_progression(question, expected, subject):
+    task = parse_task(question)
+    assert outcomes(question) == {expected}
+    assert task["subject"] == subject
+
+
+@pytest.mark.parametrize("question", [
+    "Should adults increase account limits in small increments?",
+    "How does experience affect the rate of database backup?",
+    "成人账户的年龄范围在哪里设置？",
+])
+def test_activity_subtopics_require_an_activity_subject(question):
+    task = parse_task(question)
+    assert all(p.get("subject") != "physical_activity" for p in task["required_answer_parts"])
+
+
+@pytest.mark.parametrize("question,expected", [
+    ("What is the basis for a smallest effect size of interest?", "equivalence_margin_basis"),
+    ("为什么没有持续增加训练刺激也可能带来收益？", "progression_necessity"),
+    ("Must resistance training be progressive to produce benefits?", "progression_necessity"),
+    ("How representative were experienced lifters in this review?", "population_scope"),
+    ("How quickly should physical activity increase given age and previous experience?", "progression_rate_factors"),
+])
+def test_semantic_tasks_accept_additional_noun_and_adjective_families(question, expected):
+    assert outcomes(question) == {expected}
+
+
+@pytest.mark.parametrize("question,outcome,subject", [
+    ("成人建议面向什么年龄段？", "adult_guideline_scope", "physical_activity"),
+    ("Why should the increment be small?", "activity_increment_size", "physical_activity"),
+])
+def test_named_source_context_supplies_only_the_matching_activity_topic(question, outcome, subject):
+    context = {"named_source_task_subjects": {outcome: subject}}
+    task = parse_task(question, context)
+    assert outcomes(question, context) == {outcome}
+    assert task["subject"] == subject
+    assert outcome not in outcomes(question)
+
+
+@pytest.mark.parametrize("question,unexpected", [
+    ("Must a measurement confidence interval lie entirely within a device operating range?",
+     "equivalence_test_logic"),
+    ("How should repeated measurements be summarized statistically?", "equivalence_design_scope"),
+    ("How do age and fitness affect adults' rate of increasing physical activity?", "adult_guideline_scope"),
+])
+def test_method_operands_and_activity_modifiers_do_not_supply_a_different_topic(question, unexpected):
+    assert unexpected not in outcomes(question)
+
+
+@pytest.mark.parametrize("question", [
+    "在M2介绍的等效分析中，两个单侧检验要怎样同时满足要求，才与置信区间的判断相对应？",
+    "两个单侧检验的判断如何对应置信区间？",
+    "两项单侧检验为什么都要满足条件？",
+])
+def test_two_one_sided_tests_accept_chinese_classifiers(question):
+    task = parse_task(question)
+    assert outcomes(question) == {"equivalence_test_logic"}
+    assert task["subject"] == "statistical_inference"
+
+
+@pytest.mark.parametrize("question", [
+    "HHS的成人章节说的是哪些年龄的人？",
+    "HHS的成人章节说的是哪些年龄的人？落实其中的建议时，需要考虑已有活动量和自己的健康目标吗？",
+    "成人建议适用于什么年龄的人群？",
+])
+def test_adult_age_group_interrogatives_use_matching_source_context(question):
+    context = {"named_source_task_subjects": {"adult_guideline_scope": "physical_activity"}}
+    assert outcomes(question, context) == {"adult_guideline_scope"}
+    assert "adult_guideline_scope" not in outcomes(question)
+
+
+@pytest.mark.parametrize("question", [
+    "HHS为什么强调相对于原来活动量的小幅增加？安排增加速度时，年龄、体能与既往经验分别起什么作用？",
+    "为什么要小幅增加身体活动？另外，身体活动增加速度受到年龄和经验怎样的影响？",
+])
+def test_increment_magnitude_and_progression_rate_remain_independent_targets(question):
+    context = {"named_source_task_subjects": {
+        "activity_increment_size": "physical_activity",
+        "progression_rate_factors": "physical_activity",
+    }}
+    assert outcomes(question, context) == {"activity_increment_size", "progression_rate_factors"}
+
+
+@pytest.mark.parametrize("question,unexpected", [
+    ("成人身体活动增加的速度，要考虑哪些年龄因素？", "adult_guideline_scope"),
+    ("成人账户说的是哪些年龄的人？", "adult_guideline_scope"),
+    ("为什么要相对于原来容量小幅增加数据库空间？", "activity_increment_size"),
+    ("两个单侧图形要怎样对应？", "equivalence_test_logic"),
+])
+def test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards(question, unexpected):
+    assert unexpected not in outcomes(question)

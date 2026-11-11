@@ -142,6 +142,18 @@ def main():
                     "video=>({width:video.videoWidth,height:video.videoHeight,"
                     "duration:video.duration,current_time:video.currentTime})"
                 )
+                name_statuses = page.evaluate("""async()=>{
+                    const result={};
+                    for(const status of ['draft','upstream_unreviewed','existing_project_label']){
+                        const item=state.catalog.find(x=>x.names?.['zh-CN']?.review_status===status);
+                        if(!item)throw Error('Missing actual catalog name status: '+status);
+                        const panel=document.createElement('section');
+                        await showCatalogDetail(panel,{...item,media:[]});
+                        if(!panel.textContent.includes(CHINESE_NAME_STATUS_LABELS[status]))throw Error('Missing visible provenance');
+                        result[status]=panel.textContent;
+                    }
+                    return result;
+                }""")
                 assert not errors and not network_requests
                 report = {
                     "status": "passed",
@@ -165,6 +177,7 @@ def main():
                               "package_path": video_meta["package_path"],
                               "sample_entries": codecs, "codec": "H.264", **video_fact},
                     "page_errors": errors,
+                    "distinct_chinese_name_provenance": name_statuses,
                     "synthetic_training_only": True,
                     "limitation": "Verifies this packaged H.264 video; HEVC playback support "
                     "is not established by this acceptance.",

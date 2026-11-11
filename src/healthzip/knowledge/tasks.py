@@ -50,6 +50,10 @@ def _ordinal(value):
 def request_constraints(question, context):
     text = question.lower()
     source = dict(context.get("source_constraints", {}))
+    semantic = _semantic_question(question, context).lower()
+    kind = _document_kind(semantic)
+    if kind and not context.get("source_document_kind_resolved") and not source.get("document_kind"):
+        source["document_kind"] = kind
     if not source.get("source_ids"):
         ids = re.findall(r"(?<![A-Za-z0-9_])(?:S\d+|CORE-[A-Z0-9-]+)(?![A-Za-z0-9_])", question)
         if ids:
@@ -70,12 +74,24 @@ def request_constraints(question, context):
             source["requested_" + kind + "_numbers"] = sorted(set(numbers))
     if re.search(r"页码|\bpage number\b", text):
         source["requires_page_locator"] = True
+    page_pattern = (r"(?:(pdf|文件)\s*)?第\s*([\d零一二三四五六七八九十]+)"
+                    r"(?:\s*[-–]\s*([\d零一二三四五六七八九十]+))?\s*页|"
+                    r"(?:(pdf|file)\s+)?(?:pages?|pp?\.)\s*(\d+)(?:\s*[-–]\s*(\d+))?")
+    page_matches = list(re.finditer(page_pattern, text))
+    for page in page_matches:
+        raw_start, raw_end = page[2] or page[5], page[3] or page[6]
+        start, end = _ordinal(raw_start), _ordinal(raw_end or raw_start)
+        file_page = bool(page[1] or page[4])
+        if start is None or end is None or int(start) > int(end) or (file_page and int(start) < 1):
+            source["unresolved_page"] = True
+            continue
+        bounds = [int(start) - int(file_page), int(end) - int(file_page)]
+        source.setdefault("requested_file_page_ranges" if file_page else "requested_printed_page_ranges", []).append(bounds)
     intro = re.search(r"(?:根据|依据|按照|按|according to|as reported by)\s*(?:(?:the|this|these|that|those)\s+)?([A-Za-z][\w-]*|《[^》]+》)", question, re.IGNORECASE)
     generic_intros = {"the", "this", "these", "that", "those", "current", "available", "existing", "general",
                       "published", "scientific", "evidence", "research", "studies", "literature", "data", "review", "guidance", "guidelines", "principles"}
     named_intro = bool(intro and intro[1].casefold() not in generic_intros)
     specific = bool(re.search(r"教材|教科书|textbook|第\s*[\d一二三四五六七八九十]+\s*[版章]|页码|\b(?:edition|chapter|page number)\b", text) or named_intro)
-    semantic = _semantic_question(question, context).lower()
     # A pronoun belongs to its request clause, not every question in the input.
     clauses = re.split(r"[。？！?！;；]|(?<!\d)\.(?!\d)|\b(?:and then|then)\b|然后|再(?=(?:给我|帮我|为我)?(?:计算|算出|求出|选择|列出))", semantic)
     numeric = False
@@ -112,7 +128,7 @@ def request_constraints(question, context):
         and re.search(r"预测|未来|今后|下周|下个月|算出.{0,24}(?:会|将)|\b(?:predict\w*|forecast\w*|will|next|future)\b", clause)
         for clause in clauses
     )
-    return {"source_constraints": source, "specific_source_unresolved": specific and not source.get("source_ids"),
+    return {"source_constraints": source, "specific_source_unresolved": specific and not (source.get("source_ids") or source.get("issuer_source_ids")),
             "personal_numeric_request": numeric, "compound_request": compound, "requested_population": population,
             "source_comparison_request": comparison, "statistical_calculation_request": statistical_calculation,
             "requested_age": age, "study_detail_request": extraction, "nutrition_prescription_request": nutrition,
@@ -138,11 +154,31 @@ def _semantic_question(question, context):
     return "".join(chars)
 
 
+def _document_kind(text):
+    # Lack of a personal copy is background, not a request to replace an
+    # explicitly named source with a textbook. Retain positive genre requests.
+    text = re.sub(r"(?:我|我们)?(?:没有|没买|没带|缺少|暂无|还没买)(?:任何|这本|那本|一本|可用的|授权的)?(?:教材|教科书)", "", text)
+    text = re.sub(r"\b(?:i|we)\s+(?:do\s+not|don't|don’t)\s+(?:have|own)\s+(?:(?:a|any|the)\s+)?textbooks?\b", "", text)
+    if re.search(r"教材|教科书|\btextbooks?\b", text):
+        return "textbook"
+    if re.search(r"指南|指导文件|\b(?:guidelines?|guidance|position stand)\b", text):
+        return "guideline"
+    return None
+
+
+def _allowed_source_ids(w, constraints):
+    ids = constraints.get("source_ids") or constraints.get("issuer_source_ids", [])
+    allowed = {sid for alias in ids for sid in w.lib.resolve(alias)}
+    if constraints.get("document_kind"):
+        allowed = {sid for sid in allowed if w.lib.source(sid)["manifest"].get("document_kind") == constraints["document_kind"]}
+    return allowed
+
+
 def resolve_named_sources(w, question, context, release_id=None):
     """Resolve only actual registered names/identifiers, never infer an edition."""
     matches = set()
     name_sources, issuer_mentions = {}, {}
-    spans, chapters = [], set()
+    spans, issuer_spans, chapters = [], [], set()
     text = question.lower()
     for row in w.lib.sources.execute("SELECT source_id,manifest_json FROM source"):
         manifest = json.loads(row["manifest_json"])
@@ -150,8 +186,10 @@ def resolve_named_sources(w, question, context, release_id=None):
         names = [row["source_id"], manifest.get("title"), *manifest.get("query_names", []),
                  manifest.get("doi"), identifiers.get("doi"), identifiers.get("pmcid")]
         for issuer in [manifest.get("issuing_body"), *manifest.get("query_issuer_names", [])]:
-            if issuer and re.search(_name_pattern(issuer), text):
+            occurrences = list(re.finditer(_name_pattern(issuer), text)) if issuer else []
+            if occurrences:
                 issuer_mentions.setdefault(issuer, set()).add(row["source_id"])
+                issuer_spans.extend(m.span() for m in occurrences)
         for name in names:
             if not name:
                 continue
@@ -167,10 +205,24 @@ def resolve_named_sources(w, question, context, release_id=None):
     existing = context.get("source_constraints", {})
     supplied = {sid for alias in existing.get("source_ids", []) for sid in w.lib.resolve(alias)}
     if matches or supplied or issuer_mentions:
+        issuer_only = bool(issuer_mentions) and not (matches or supplied)
         ambiguous = (any(len(ids) > 1 for ids in name_sources.values())
-                     or any(not ids & (matches | supplied) for ids in issuer_mentions.values()))
-        return _source_subject_context(w, {**context, "recognized_source_name_spans": sorted(set(spans)),
+                     or (not issuer_only and any(not ids & (matches | supplied) for ids in issuer_mentions.values())))
+        semantic = _semantic_question(question, {"recognized_source_name_spans": spans}).lower()
+        # Bind type words to clauses that actually name the requested source.
+        # A later background statement about owning a book cannot retarget it.
+        references = spans + issuer_spans
+        genre = r"(?:教材|教科书|指南|指导文件|\b(?:textbooks?|guidelines?|guidance|position stand)\b)"
+        named_clauses = [semantic[m.start():m.end()] for m in re.finditer(r"[^,，。;；!?！？]+", question)
+                         if any(m.start() <= start < m.end() for start, _ in references)
+                         or re.search(r"(?:根据|依据|按照|按|用|从|采用|\b(?:from|in|under|according to|use|using)\b).{0,35}" + genre,
+                                      semantic[m.start():m.end()])]
+        kind = existing.get("document_kind") or _document_kind(" ".join(named_clauses) if references else semantic)
+        issuer_ids = sorted({sid for ids in issuer_mentions.values() for sid in ids})
+        return _source_subject_context(w, {**context, "recognized_source_name_spans": sorted(set(spans)), "source_document_kind_resolved": True,
             "source_constraints": {**existing, "source_ids": existing.get("source_ids") or sorted(matches),
+            **({"issuer_source_ids": issuer_ids, "source_resolution": "issuer_scope_not_document_identity"} if issuer_only else {}),
+            **({"document_kind": kind} if kind else {}),
             **({"chapter_id": next(iter(chapters))} if len(chapters) == 1 and not existing.get("chapter_id") else {}),
             **({"unresolved_chapter": True} if len(chapters) > 1 else {}),
             **({"unresolved_named_source": True} if ambiguous else {})}}, release_id)
@@ -186,7 +238,7 @@ def _source_subject_context(w, context, release_id=None):
     constraints = context["source_constraints"]
     if constraints.get("unresolved_named_source"):
         return context
-    allowed = {sid for alias in constraints.get("source_ids", []) for sid in w.lib.resolve(alias)}
+    allowed = _allowed_source_ids(w, constraints)
     frozen = None
     if release_id is not None:
         release = w.lib.theories.execute("SELECT manifest_json FROM core_release WHERE release_id=?", (release_id,)).fetchone()
@@ -206,9 +258,11 @@ def _source_subject_context(w, context, release_id=None):
 def source_constraints_match(w, evidence, constraints):
     if any(key.startswith("unresolved_") and value for key, value in constraints.items()):
         return False
-    ids = constraints.get("source_ids", [])
-    allowed = {sid for alias in ids for sid in w.lib.resolve(alias)}
+    ids = constraints.get("source_ids") or constraints.get("issuer_source_ids", [])
+    allowed = _allowed_source_ids(w, constraints)
     if ids and (not allowed or any(s["source_id"] not in allowed for s in evidence)):
+        return False
+    if constraints.get("document_kind") and any(w.lib.source(s["source_id"])["manifest"].get("document_kind") != constraints["document_kind"] for s in evidence):
         return False
     for field in ("edition_id", "chapter_id"):
         if constraints.get(field) is not None and any(str(s["locator"].get(field)) != str(constraints[field]) for s in evidence):
@@ -217,6 +271,13 @@ def source_constraints_match(w, evidence, constraints):
         return False
     if "requested_chapter_number" in constraints and any(str(s["locator"].get("chapter_id")) != constraints["requested_chapter_number"] for s in evidence):
         return False
+    for kind in ("printed", "file"):
+        ranges = constraints.get("requested_" + kind + "_page_ranges", [])
+        for span in evidence if ranges else []:
+            locator = span["locator"]
+            page = locator.get("file_page_index") if kind == "file" else locator.get("printed_page", locator.get("printed_page_label"))
+            if isinstance(page, bool) or page is None or not str(page).isdigit() or not any(a <= int(page) <= b for a, b in ranges):
+                return False
     for kind in ("appendix", "table"):
         requested = constraints.get("requested_" + kind + "_numbers")
         if requested:
@@ -234,6 +295,51 @@ def source_constraints_match(w, evidence, constraints):
     if constraints.get("requires_page_locator") and any(all(s["locator"].get(key) is None for key in ("file_page_index", "printed_page", "printed_page_label")) for s in evidence):
         return False
     return True
+
+
+def requested_material(w, task, roles):
+    """Check actual eligible fulltext separately from reviewed answer relations.
+
+    A matching span proves some material at the requested location is present;
+    it never certifies the complete book, page range or requested proposition.
+    """
+    constraints = task["source_constraints"]
+    if task["specific_source_unresolved"] or constraints.get("unresolved_named_source"):
+        return {"status": "unresolved_source", "matching_span_ids": []}
+    if not constraints:
+        return {"status": "not_requested", "matching_span_ids": []}
+    ids = constraints.get("source_ids") or constraints.get("issuer_source_ids")
+    allowed = _allowed_source_ids(w, constraints) if ids else None
+    matching, partition_excluded, components = [], False, {}
+    for row in w.lib.sources.execute("SELECT s.span_id,v.source_id FROM span s JOIN version v ON v.version_id=s.version_id WHERE v.material_type='fulltext'"):
+        if allowed is not None and row["source_id"] not in allowed:
+            continue
+        span = w.lib.span(row["span_id"])
+        evidence = [{"source_id": span["source_id"], "locator": json.loads(span["locator_json"])}]
+        local_constraints = dict(constraints)
+        for kind in ("appendix", "table"):
+            key = "requested_" + kind + "_numbers"
+            if key not in constraints:
+                continue
+            locator = evidence[0]["locator"]
+            number = locator.get(kind + "_id")
+            if number is None and str(locator.get("chapter_id", "")).startswith(kind + ":"):
+                number = str(locator["chapter_id"]).split(":", 1)[1]
+            if str(number) in constraints[key]:
+                local_constraints[key] = [str(number)]
+        if not source_constraints_match(w, evidence, local_constraints) or not w.lib.eligible(span, "fulltext")[0]:
+            continue
+        if not set(w.lib.source(span["source_id"])["manifest"].get("corpus_roles", ["research"])) & roles:
+            partition_excluded = True
+            continue
+        matching.append(span["span_id"])
+        for kind in ("appendix", "table"):
+            components.setdefault(kind, set()).update(local_constraints.get("requested_" + kind + "_numbers", []))
+    missing = {kind: sorted(set(constraints["requested_" + kind + "_numbers"]) - components.get(kind, set()))
+               for kind in ("appendix", "table") if constraints.get("requested_" + kind + "_numbers")}
+    missing = {kind: numbers for kind, numbers in missing.items() if numbers}
+    return {"status": ("partially_available" if missing else "available") if matching else "partition_excluded" if partition_excluded else "unavailable",
+            "matching_span_ids": matching, "missing_components": missing, "coverage": "matching_spans_only_not_complete_document_or_answer"}
 
 
 def parse_task(question, context=None):
@@ -269,7 +375,7 @@ def parse_task(question, context=None):
         if constraints["statistical_calculation_request"] and contract.get("user_confirmed") is not True:
             parts.append({"part_id": "statistical_calculation", "label": "具体数据的统计计算", "reason": "statistical_data_and_model_required"})
         return {**contract, **constraints, "required_answer_parts": parts + extra_parts, "resolution": "explicit_structured_task", "issues": []}
-    found = lexical_concepts(semantic, CONCEPTS)
+    found = lexical_concepts(semantic, CONCEPTS, context)
     parts = requested_parts(semantic, found, context)
     outcomes = {p["outcome"] for p in parts}
     subject = parts[0]["subject"] if parts else None
@@ -324,18 +430,19 @@ def core_candidates(w, question, context, roles, allowed_refs=None):
                           and (not part.get("requested_goal") or part["requested_goal"] in goals)]
         matches = bool(matching_parts)
         if task["specific_source_unresolved"] or not source_constraints_match(w, evidence, task["source_constraints"]):
-            excluded.append({"theory_id": row["claim_id"], "reason": "requested_source_or_edition_unavailable"})
+            excluded.append({"theory_id": row["claim_id"], "reason": "candidate_source_constraints_mismatch", "target_matched": matches})
             matches = False
         requested_population = task.get("requested_population")
         source_population = claim["scope"].get("population")
-        population_matches = (definition["outcome"] == "population_scope" or requested_population is None
+        scope_question = definition["outcome"] in {"population_scope", "adult_guideline_scope"}
+        population_matches = (scope_question or requested_population is None
                               or requested_population == source_population
                               or (source_population == "adults" and requested_population == "healthy_adults"))
         if matches and not population_matches:
             excluded.append({"theory_id": row["claim_id"], "reason": "question_population_scope_mismatch"})
             matches = False
         age_range = claim["scope"].get("age_range")
-        if (matches and definition["outcome"] != "population_scope" and task.get("requested_age") is not None
+        if (matches and not scope_question and task.get("requested_age") is not None
                 and age_range and not (age_range[0] <= task["requested_age"] <= age_range[1])):
             excluded.append({"theory_id": row["claim_id"], "reason": "question_age_scope_mismatch"})
             matches = False

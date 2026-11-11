@@ -1,0 +1,38 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.596" timestamp="2026-11-11T22:38:21.409447+08:00"><testcase classname="tests.unit.test_v14_knowledge" name="test_available_named_body_with_unresolved_question_is_not_reported_missing" time="0.120"><failure message="AssertionError: assert 'missing_source_content' == 'unresolved_question_target'&#10;  &#10;  - unresolved_question_target&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8c0aab50&gt;
+
+    def test_available_named_body_with_unresolved_question_is_not_reported_missing(kb):
+        core_claim(kb, "rest", "合成正文已经存在，但未核对这个新目标。")
+        result = kb.query("根据S5，解释这份材料的那个特殊东西。", "strength")
+        assert not result["claims"]
+&gt;       assert result["answer_status"] == "unresolved_question_target"
+E       AssertionError: assert 'missing_source_content' == 'unresolved_question_target'
+E
+E         - unresolved_question_target
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:687: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_available_body_without_target_review_is_distinct_from_missing_location" time="0.043"><failure message="AssertionError: assert 'missing_source_content' == 'missing_answer_relation'&#10;  &#10;  - missing_answer_relation&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8c344e10&gt;
+
+    def test_available_body_without_target_review_is_distinct_from_missing_location(kb):
+        core_claim(kb, "rest", "合成正文只审核休息，不包含组量主张。")
+        available = kb.query("根据S5，解释训练组量。", "strength")
+        assert not available["claims"]
+&gt;       assert available["answer_status"] == "missing_answer_relation"
+E       AssertionError: assert 'missing_source_content' == 'missing_answer_relation'
+E
+E         - missing_answer_relation
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:697: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_knowledge" name="test_adult_guideline_scope_question_does_not_apply_advice_to_children" time="0.042"><failure message="AssertionError: assert 'missing_source_content' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_source_content">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8c464750&gt;
+
+    def test_adult_guideline_scope_question_does_not_apply_advice_to_children(kb):
+        core_claim(kb, "adult_guideline_scope", "合成成人章节年龄为18至64岁，不包含儿童专章。",
+                   subject="physical_activity", scope={"population": "adults", "age_range": [18, 64]})
+        result = kb.query("根据S5，成人身体活动章节覆盖儿童吗？", "strength", context={"question_contract": {
+            "subject": "physical_activity", "outcome": "adult_guideline_scope", "requested_relation": "scope"}})
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_source_content' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_source_content
+
+tests/unit/test_v14_knowledge.py:708: AssertionError</failure></testcase></testsuite></testsuites>

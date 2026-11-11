@@ -100,6 +100,7 @@ def recorder_html(repo=None) -> bytes:
     """Embed installed public catalog; seed fallback only before any installation."""
     from .catalog_import import public_catalog
     from .catalog_media import MEDIA_STATUS_LABELS, media_for
+    from .catalog_terms import CHINESE_NAME_STATUS_LABELS
 
     template = Path(__file__).parents[1] / "ui" / "offline_recorder.html"
     seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
@@ -144,6 +145,10 @@ def recorder_html(repo=None) -> bytes:
         .replace("__CATALOG_SNAPSHOT_JSON__", json.dumps(public_data["snapshot_id"]))
         .replace(
             "__MEDIA_STATUS_LABELS_JSON__", json.dumps(MEDIA_STATUS_LABELS, ensure_ascii=False)
+        )
+        .replace(
+            "__CHINESE_NAME_STATUS_LABELS_JSON__",
+            json.dumps(CHINESE_NAME_STATUS_LABELS, ensure_ascii=False),
         )
         .encode("utf-8")
     )
