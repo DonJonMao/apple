@@ -75,7 +75,7 @@ def test_r08_feedback_remains_after_finishing_session(tmp_path, monkeypatch):
     repo.close()
 
 
-def synthetic_authority(root, basis):
+def synthetic_authority(root, basis, actions=None):
     from healthzip.knowledge import KnowledgeWorkbench
 
     knowledge = KnowledgeWorkbench(root)
@@ -93,6 +93,7 @@ def synthetic_authority(root, basis):
             "TC-progression-load-repetition-options", "0.1.0",
             reviewer="SYNTHETIC qualified reviewer role for software acceptance only",
             reviewer_kind="qualified_human_review", authority="progression_candidate",
+            permitted_actions=actions if actions is not None else ["double_progression", "heavier_lower_reps"],
             rationale="Synthetic permission fixture; not a real professional review or efficacy claim.",
             implementation_tests=[__name__ + "::test_visible_candidate_task_end_to_end"],
             applicability={"required": {"load_basis": basis}, "scope": "synthetic software acceptance only"},
@@ -130,6 +131,9 @@ def finish_reference(app, path, instance, load, reps, *, reference=True, unit="k
         app.text_input(key=key + "_" + field).set_value(str(value)).run()
         assert not app.exception and not app.error, [e.value for e in app.error]
     app.selectbox(key=key + "_quality").set_value("acceptable")
+    # v1.4 positive path explicitly confirms absence of pain; unknown is a
+    # separate gate and must not be silently converted to a clean reference.
+    app.selectbox(key=key + "_pain").set_value(False)
     app.selectbox(key=key + "_stop").set_value("target_rir")
     app.button(key=key + "_completed").click().run()
     assert not app.exception and not app.error, [e.value for e in app.error]

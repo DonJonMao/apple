@@ -13,7 +13,7 @@ from urllib.request import Request, urlopen
 
 from lxml import etree
 
-from .rights import rights_for_node, rights_from_xml
+from .rights import PARSER_VERSION, owned_subtree, owner, rights_for_node, rights_from_xml
 from .store import Libraries, now
 
 OAI = "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/"
@@ -86,14 +86,18 @@ def parse_jats(raw: bytes) -> tuple[dict, list[dict], dict]:
     spans = []
     # Preserve each evidence unit and its native source locator, including tables and equations.
     for node in article.xpath(".//*[local-name()='p' or local-name()='table-wrap' or local-name()='disp-formula']"):
-        if any(etree.QName(a).localname in {"table-wrap", "disp-formula", "permissions", "license"} for a in node.iterancestors()):
+        if any(etree.QName(a).localname in {"permissions", "license"}
+               or etree.QName(a).localname in {"table-wrap", "disp-formula"} and owner(a, article) is owner(node, article)
+               for a in node.iterancestors()):
             continue
+        original = node
+        node = owned_subtree(node)
         kind = {"p": "paragraph", "table-wrap": "table", "disp-formula": "formula"}[etree.QName(node).localname]
         text = _text(node)
         if not text:
             continue
         sections = []
-        for ancestor in reversed(list(node.iterancestors())):
+        for ancestor in reversed(list(original.iterancestors())):
             if etree.QName(ancestor).localname in {"sec", "abstract", "app"}:
                 ts = ancestor.xpath("./*[local-name()='title']")
                 sections.append(_text(ts[0]) if ts else etree.QName(ancestor).localname)
@@ -110,11 +114,11 @@ def parse_jats(raw: bytes) -> tuple[dict, list[dict], dict]:
             structured = {"raw_xml": etree.tostring(node, encoding="unicode"), "variable_dictionary": None,
                           "units": None, "assumptions": None, "execution_authority": "none_pending_review"}
         spans.append({"kind": kind, "section_path": "/".join(sections), "text": text,
-                      "locator": {"xpath": tree.getpath(node), "native_id": node.get("id"),
+                      "locator": {"xpath": tree.getpath(original), "native_id": original.get("id"),
                                   "paragraph_id": len(spans), "start_offset": 0, "end_offset": len(text),
                                   "language": article.get("{http://www.w3.org/XML/1998/namespace}lang", "und"),
-                                  "extraction_method": "lxml_jats_no_entities"}, "structured": structured,
-                      "rights": rights_for_node(node, article, rights)})
+                                  "extraction_method": PARSER_VERSION}, "structured": structured,
+                      "rights": rights_for_node(original, article, rights)})
     return metadata, spans, rights
 
 
@@ -277,7 +281,7 @@ class Acquirer:
         status, conflicts = identity_check(source, metadata)
         if not root.xpath("//*[local-name()='body']"):
             return {"status": "fulltext_unavailable", "reason": "response has no article body"}
-        version = self.lib.record_version(sid, raw, "fulltext", receipt, metadata, rights, status, spans, "jats-scoped-1.4.0")
+        version = self.lib.record_version(sid, raw, "fulltext", receipt, metadata, rights, status, spans, PARSER_VERSION)
         return {"status": "fulltext_fetched", "version_id": version, "span_count": len(spans), "rights": rights,
                 "identity_status": status, "conflicts": conflicts, "theory_review": "pending"}
 
@@ -325,7 +329,7 @@ class Acquirer:
                     status, conflicts = identity_check(source, metadata)
                     metadata['identity_conflicts'] = conflicts
                     metadata['embedded_rights'] = embedded_rights
-                    parser_version = 'jats-scoped-1.4.0'
+                    parser_version = PARSER_VERSION
                 version = self.lib.record_version(source['source_id'], raw, 'fulltext', receipt, metadata, rights, status, spans, parser_version)
                 return {'status': 'fulltext_fetched', 'version_id': version, 'identity_status': status, 'span_count': len(spans), 'rights': rights,
                         'theory_review': 'pending'}

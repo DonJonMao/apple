@@ -1,0 +1,67 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______ test_f13_outside_history_is_not_deserialized_for_default_analysis _______
+
+tmp_path = PosixPath('<pytest-temp>/pytest-135/test_f13_outside_history_is_no0')
+
+    def test_f13_outside_history_is_not_deserialized_for_default_analysis(tmp_path):
+        repo = _repo(tmp_path)
+        for i in range(1000):
+            _sample(repo, str(i), (datetime(2020, 1, 1, tzinfo=timezone.utc) + timedelta(minutes=i)).isoformat())
+        repo.conn.commit()
+        cutoff = datetime.now(timezone.utc) + timedelta(seconds=1)
+        counts = []
+        original = repo.rows
+
+        def counted(sql, parameters=()):
+            rows = original(sql, parameters)
+            if "source_revision" in sql and "payload_json" in sql:
+                counts.append(len(rows))
+            elif "SELECT * FROM source_revision" in sql:
+                counts.append(len(rows))
+            return rows
+
+        repo.rows = counted
+        result = analyze(repo, 30, cutoff_time=cutoff.isoformat())
+        assert result["metrics"]["STATE-RHR"]["value"] is None
+>       assert counts and sum(counts) == 0, "Window-external payloads must stay in SQLite"
+E       AssertionError: Window-external payloads must stay in SQLite
+E       assert ([1000, 0, 0] and 1000 == 0)
+E        +  where 1000 = sum([1000, 0, 0])
+
+tests/integration/test_v14_query_planning.py:45: AssertionError
+________ test_f13_window_filter_cannot_revive_moved_or_deleted_revision ________
+
+tmp_path = PosixPath('<pytest-temp>/pytest-135/test_f13_window_filter_cannot_0')
+
+    def test_f13_window_filter_cannot_revive_moved_or_deleted_revision(tmp_path):
+        repo = _repo(tmp_path)
+        _sample(repo, "moving", "2026-11-01T12:00:00+00:00")
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-11-02T00:00:00Z'")
+        repo.conn.execute("UPDATE health_sample SET start_utc='2025-01-01T12:00:00Z',end_utc='2025-01-01T12:00:00Z'")
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-11-04T00:00:00Z' WHERE revision_id=2")
+        window = {"window_start": "2026-11-01T00:00:00Z", "window_end": "2026-11-03T00:00:00Z"}
+>       original = samples_as_of(repo, "2026-11-03T00:00:00Z", **window)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: samples_as_of() got an unexpected keyword argument 'window_start'
+
+tests/integration/test_v14_query_planning.py:56: TypeError
+__________ test_f13_interval_overlap_and_points_keep_half_open_bounds __________
+
+tmp_path = PosixPath('<pytest-temp>/pytest-135/test_f13_interval_overlap_and_0')
+
+    def test_f13_interval_overlap_and_points_keep_half_open_bounds(tmp_path):
+        repo = _repo(tmp_path)
+        for identity, when in (("start", "2026-11-01T00:00:00Z"), ("end", "2026-11-02T00::00Z".replace("00:00:00:00", "00:00:00"))):
+            _sample(repo, identity, when)
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-11-02T01:00:00Z'")
+>       rows = samples_as_of(repo, "2026-11-03T00:00:00Z", window_start="2026-11-01T00:00:00Z", window_end="2026-11-02T00:00:00Z")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: samples_as_of() got an unexpected keyword argument 'window_start'
+
+tests/integration/test_v14_query_planning.py:71: TypeError
+=========================== short test summary info ============================
+FAILED tests/integration/test_v14_query_planning.py::test_f13_outside_history_is_not_deserialized_for_default_analysis
+FAILED tests/integration/test_v14_query_planning.py::test_f13_window_filter_cannot_revive_moved_or_deleted_revision
+FAILED tests/integration/test_v14_query_planning.py::test_f13_interval_overlap_and_points_keep_half_open_bounds
+3 failed in 0.97s

@@ -1,4 +1,4 @@
-> v1.3范围（2026-11-11）：以 [V1_3_GOAL.md](V1_3_GOAL.md) 与执行包为准。完整训练记录、Source/Theory分库与本地RAG均已获授权；实际状态见 IMPLEMENTATION_STATUS.md 和 requirements_traceability.csv。
+> v1.4范围（2026-11-11）：以 [v1.4执行目标](Apple_v1.4_Codex_Execution_Pack/Codex_Goal_Prompt_v1.4.md) 及随包清单为准，保留 [V1_3_GOAL.md](V1_3_GOAL.md) 的既有能力。实际状态见 IMPLEMENTATION_STATUS.md、docs/v14_delivery.md 和 artifacts/v14/，旧验收工件是历史证据。
 
 # Repository instructions for Codex
 

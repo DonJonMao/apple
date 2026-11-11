@@ -80,14 +80,22 @@ def quality_metric(metric_id: str, rows: list[dict], window: Window, context: di
     if code == 4:
         claims = [c for c in context.get("claims", []) if c.get("requires_support")]
         supported = [c for c in claims if c.get("support_label") == "supported" and c.get("provenance_verified")]
+        unknown = sum(c.get("support_label", "unjudged") == "unjudged" for c in claims)
         return emit({"claim_support": ratio(len(supported), len(claims)),
+                     "claim_support_kind": "observed_lower_bound" if unknown else "fully_judged",
+                     "claim_support_upper_bound": ratio(len(supported) + unknown, len(claims)),
+                     "reviewer_denominators": dict(Counter(c.get("reviewer_kind", "controlled_fixture_or_unspecified") for c in claims)),
+                     "independent_answer_reviews": dict(Counter(a.get("reviewer_kind", "unjudged") for a in context.get("semantic_adjudications", []) if a.get("accepted"))),
                      "labels": dict(Counter(c.get("support_label", "unjudged") for c in claims)),
                      "intent_coverage": context.get("intent_coverage")}, len(claims))
     if code == 5:
         claims = [c for c in context.get("claims", []) if c.get("applicability_required")]
         errors = [c for c in claims if c.get("applicability_errors")]
         unjudged = sum(c.get("applicability_review") != "completed" for c in claims)
+        unknown_without_observed_error = sum(c.get("applicability_review") != "completed" and not c.get("applicability_errors") for c in claims)
         return emit({"applicability_error_rate": ratio(len(errors), len(claims)), "unjudged": unjudged,
+                     "error_rate_kind": "observed_lower_bound" if unjudged else "fully_judged",
+                     "error_rate_upper_bound": ratio(len(errors) + unknown_without_observed_error, len(claims)),
                      "error_types": dict(Counter(reason for c in errors for reason in c["applicability_errors"]))}, len(claims),
                     reasons=["unknown_is_not_scope_match"])
     if code == 6:
@@ -105,8 +113,13 @@ def quality_metric(metric_id: str, rows: list[dict], window: Window, context: di
         intents = context.get("intents", [])
         answerable = [i for i in intents if i.get("evidence_state") == "sufficient"]
         insufficient = [i for i in intents if i.get("evidence_state") == "insufficient"]
+        unscorable = [i for i in intents if i.get("label", "unscorable") == "unscorable"]
         return emit({"overanswer": ratio(sum(i.get("label") == "overanswer" for i in insufficient), len(insufficient)),
                      "underanswer": ratio(sum(i.get("label") == "underanswer" for i in answerable), len(answerable)),
+                     "rate_kind": "observed_lower_bound" if unscorable else "fully_judged",
+                     "overanswer_upper_bound": ratio(sum(i.get("label", "unscorable") in {"overanswer", "unscorable"} for i in insufficient), len(insufficient)),
+                     "underanswer_upper_bound": ratio(sum(i.get("label", "unscorable") in {"underanswer", "unscorable"} for i in answerable), len(answerable)),
+                     "unscorable_intents": len(unscorable),
                      "labels": dict(Counter(i.get("label", "unscorable") for i in intents)),
                      "answerable_intents": len(answerable), "insufficient_intents": len(insufficient)}, len(intents))
     if code == 8:
@@ -115,6 +128,8 @@ def quality_metric(metric_id: str, rows: list[dict], window: Window, context: di
         fallback = [r for r in traced if r.get("fallback_events")]
         completable = [r for r in fallback if r.get("allowed_subtask_exists")]
         return emit({"fallback_requests": ratio(len(fallback), len(requests)),
+                     "fallback_rate_kind": "exact_observed_trace" if len(traced) == len(requests) else "observed_lower_bound_incomplete_trace",
+                     "fallback_upper_bound": ratio(len(fallback) + len(requests) - len(traced), len(requests)),
                      "trace_coverage": ratio(len(traced), len(requests)),
                      "fallback_completion": ratio(sum(r.get("fallback_completed") is True for r in completable), len(completable)),
                      "event_count": sum(len(r["fallback_events"]) for r in fallback),
@@ -131,6 +146,8 @@ def quality_metric(metric_id: str, rows: list[dict], window: Window, context: di
         ready = [c for c in cards if c.get("review_decision") == "approved" and c.get("evidence_links_valid") and c.get("rights_valid") and c.get("scope_valid") and c.get("validation_gate_passed")]
         claims = context.get("feature_claim_requirements", [])
         return emit({"overall_fulltext_acquisition": ratio(sum(bool(fetched(s)) for s in targets), len(targets)),
+                     "content_review_completion": ratio(sum(bool(c.get("content_reviewed")) for c in cards), len(cards)),
+                     "reviewer_kind_counts": dict(Counter(c.get("reviewer_kind") or "unknown" for c in cards)),
                      "licensed_retrievable_fetch": ratio(sum(bool(fetched(s)) for s in retrievable), len(retrievable)),
                      "theory_review_completion": ratio(len(reviewed), len(cards)), "theory_activation_ready": ratio(len(ready), len(cards)),
                      "feature_claim_coverage": ratio(sum(c.get("satisfied_by_active_card") is True for c in claims), len(claims)),

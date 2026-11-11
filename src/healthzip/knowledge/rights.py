@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import re
+from copy import deepcopy
 
 from lxml import etree
 
 POLICY_VERSION = "jats-scoped-rights-1.4.0"
+PARSER_VERSION = "jats-owned-text-1.4.1"
 OWNERS = {"article", "sub-article", "fig", "table-wrap", "supplementary-material"}
 LABELS = {
     "by": "CC-BY", "by-sa": "CC-BY-SA", "by-nc": "CC-BY-NC",
@@ -119,3 +121,23 @@ def rights_from_xml(article):
 def rights_for_node(node, article, rights):
     identity = article.getroottree().getpath(owner(node, article))
     return next(x for x in rights["component_scopes"] if x["scope_id"] == identity)
+
+
+def owned_subtree(node):
+    """Copy only this component's content; descendant components own their bytes.
+
+    Preserve the excluded component's tail, which belongs to the parent. Apply
+    the same projection to text, tables and raw_xml, never only to display prose.
+    """
+    clone = deepcopy(node)
+    for child in list(clone.iterdescendants()):
+        if child.getparent() is None:
+            continue
+        if etree.QName(child).localname in OWNERS | {"permissions", "license"}:
+            parent, previous, tail = child.getparent(), child.getprevious(), child.tail or ""
+            if previous is not None:
+                previous.tail = (previous.tail or "") + tail
+            else:
+                parent.text = (parent.text or "") + tail
+            parent.remove(child)
+    return clone

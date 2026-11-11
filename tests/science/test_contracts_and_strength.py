@@ -207,11 +207,12 @@ def test_registry_versions_error_budget_and_simulation_gate(tmp_path):
 def reviewed_principle():
     return {"id": "synthetic-reviewed-principle", "version": "1", "review_status": "approved",
             "reviewer": "synthetic-test-reviewer", "reviewed_at": START, "capability": "progression_candidate",
+            "permitted_actions": ["double_progression", "heavier_lower_reps"],
             "evidence_spans": ["synthetic-source:section-1"], "rights_verified": True, "scope_matches": True}
 
 
 def test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier():
-    history = row(load_basis="plates_per_side_kg", load_value=30, symmetric_loading=True)
+    history = row(load_basis="plates_per_side_kg", load_value=30, symmetric_loading=True, pain_flag=False)
     context = {"progression_plan": {"rep_upper": 10, "target_rir_min": 1, "target_rir_max": 3,
                                     "available_loads": [30, 32.5, 35], "next_target_reps": 8}}
     assert run("STR-25", [history], context)["value"]["next_load"] is None
@@ -222,7 +223,7 @@ def test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier():
     assert result["expected_success"] is None
     context["sleep_hours"] = 1
     assert run("STR-25", [history], context)["value"]["next_load"] == 32.5
-    assisted = row(load_basis="assistance_setting", load_value=40)
+    assisted = row(load_basis="assistance_setting", load_value=40, pain_flag=False)
     context["progression_plan"]["available_loads"] = [30, 35, 40, 45]
     assert run("STR-25", [assisted], context)["value"]["next_load"] == 35
     context["allowed_trial_actions"] = ["heavier_lower_reps"]
@@ -256,7 +257,7 @@ def test_nonexecution_and_unknown_execution_cannot_count_success():
 
 def test_full_metric_execution_uses_one_schema_for_nonempty_mixed_input():
     outputs = evaluate_all([row(), {"id": "rhr", "record_kind": "health_sample", "canonical_type": "resting_heart_rate_bpm",
-                                    "normalized_value": 60, "event_end": "2026-10-01T08:00:00+00:00", "available_at": "2026-10-01T09:00:00+00:00"}],
+                                    "normalized_value": 60, "normalized_unit": "count/min", "event_end": "2026-10-01T08:00:00+00:00", "available_at": "2026-10-01T09:00:00+00:00"}],
                            cutoff_time=CUTOFF, window_start=START, window_end=END)
     assert len(outputs) == 77
     assert outputs["STR-01"]["value"]["completed_work_parent_sets"] == 1

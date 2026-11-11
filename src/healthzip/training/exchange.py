@@ -96,7 +96,7 @@ def export_bundle(repo, session_ids=None, *, user_id="local") -> dict:
             for row in original.get("sets", [])
         ]
         for instance in session["exercises"]:
-            definition = svc.get_exercise(instance["catalog_id"], instance["definition_version"])
+            definition = instance["exercise"]
             definitions[(definition["exercise_id"], definition["definition_version"])] = definition
             machine = instance["condition"].get("equipment_instance_id")
             if machine:
@@ -374,21 +374,28 @@ def _catalog(svc, data):
                 raise
             if eid.startswith("psa.ex."):
                 raise TrainingError("未知公共种子版本，需先核查目录升级: " + eid) from exc
+            public_source = definition.get("source", {}).get(
+                "provider"
+            ) == "wger" and eid.startswith("catalog.wger.")
             copied = {
                 **definition,
-                "owner_id": svc.user_id,
-                "custom": True,
+                "owner_id": "public" if public_source else svc.user_id,
+                "custom": not public_source,
+                "import_origin": "external_public_definition_unverified"
+                if public_source
+                else "private_exchange",
                 "scientific_review": {"status": "unreviewed", "source_ids": []},
                 "muscle_participation_proposals": [],
             }
             svc.conn.execute(
-                "INSERT INTO exercise_catalog(exercise_id,definition_version,owner_id,name,definition_json,custom,active,created_at) VALUES(?,?,?,?,?,1,1,?)",
+                "INSERT INTO exercise_catalog(exercise_id,definition_version,owner_id,name,definition_json,custom,active,created_at) VALUES(?,?,?,?,?,?,1,?)",
                 (
                     eid,
                     version,
-                    svc.user_id,
+                    copied["owner_id"],
                     definition.get("name_zh") or definition.get("name") or eid,
                     json_text(copied),
+                    int(copied["custom"]),
                     timestamp(),
                 ),
             )
@@ -609,6 +616,20 @@ def import_training(repo, path, *, source_name="training_file") -> dict:
                             instance.get("replaced_from_exercise_id"),
                             instance.get("replacement_reason"),
                         )
+                        frozen_definition = instance.get("definition_snapshot") or instance.get(
+                            "exercise"
+                        )
+                        if frozen_definition:
+                            if (
+                                frozen_definition.get("exercise_id") != instance["catalog_id"]
+                                or frozen_definition.get("definition_version")
+                                != instance["definition_version"]
+                            ):
+                                raise TrainingError("历史动作快照身份与版本不一致")
+                            svc.conn.execute(
+                                "UPDATE training_session_exercise SET definition_snapshot_json=? WHERE id=?",
+                                (json_text(frozen_definition), instance_id),
+                            )
                     for row in instance.get("sets", []):
                         source_uuid = row["set_uuid"]
                         payload = _payload(row)

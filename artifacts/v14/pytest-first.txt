@@ -1,0 +1,37 @@
+.......................................F................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 37%]
+........................................................................ [ 49%]
+........................................................................ [ 62%]
+........................................................................ [ 74%]
+......................................................................F. [ 87%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+=================================== FAILURES ===================================
+______ test_modified_choice_checks_equipment_and_preserves_original_task _______
+
+tmp_path = PosixPath('<pytest-temp>/pytest-171/test_modified_choice_checks_eq0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb30d4210>
+
+>   ???
+E   NameError: name 'path' is not defined
+
+<repo>/tests/integration/test_v14_advice_flow.py:106: NameError
+____________________ test_schema_v2_sync_tables_and_status _____________________
+
+tmp_path = PosixPath('<pytest-temp>/pytest-171/test_schema_v2_sync_tables_and0')
+
+    def test_schema_v2_sync_tables_and_status(tmp_path):
+        repo = Repository(tmp_path / "health.sqlite3")
+        version = repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")
+>       assert version[0] == "3"
+E       AssertionError: assert '4' == '3'
+E
+E         - 3
+E         + 4
+
+tests/unit/test_incremental.py:148: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_v14_advice_flow.py::test_modified_choice_checks_equipment_and_preserves_original_task
+FAILED tests/unit/test_incremental.py::test_schema_v2_sync_tables_and_status
+2 failed, 576 passed in 236.80s (0:03:56)

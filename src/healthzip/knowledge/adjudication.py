@@ -4,6 +4,19 @@ from __future__ import annotations
 
 from .store import digest, dumps
 
+VALIDATOR_VERSION = "claim-evidence-bundle-1.4.1"
+
+
+def evidence_supports_relation(expected, judgments):
+    """A direct relation may be accompanied by scope/limitation evidence.
+
+    Qualifiers alone do not establish a positive or negative proposition, and
+    an opposite, irrelevant or scope-mismatched span cannot be laundered by one
+    otherwise supportive span in the bundle.
+    """
+    return (bool(judgments) and any(e.get("relation") == expected for e in judgments)
+            and all(e.get("scope_matches") is True and e.get("relation") in {expected, "qualifies"} for e in judgments))
+
 
 def annotation_identity(case_id, question, output):
     return {"case_id": case_id, "question_sha256": digest(question.encode()),
@@ -53,11 +66,14 @@ def validate_annotation(annotation, case_id, question, output):
         if (evidence.get("relation") not in {"supports", "refutes", "qualifies", "irrelevant", "insufficient"}
                 or not isinstance(evidence.get("scope_matches"), bool) or not evidence.get("rationale")):
             errors.append("complete_evidence_relation_judgment_required")
-        if judgment.get("decision") == "pass" and (evidence.get("relation") != expected_evidence.get(key) or evidence.get("scope_matches") is not True):
-            errors.append("passing_answer_conflicts_with_evidence_judgment")
     if set(expected_evidence) != seen:
         errors.append("cited_claim_evidence_judgment_coverage_incomplete")
-    return {"accepted": not errors, "errors": sorted(set(errors)), "reviewer_kind": kind,
+    if judgment.get("decision") == "pass":
+        for index, claim in enumerate(output.get("claims", [])):
+            evidence = [e for e in judgments if e.get("claim_index") == index]
+            if not evidence_supports_relation(claim["evidence_relation"], evidence):
+                errors.append("passing_answer_conflicts_with_evidence_judgment")
+    return {"validator_version": VALIDATOR_VERSION, "accepted": not errors, "errors": sorted(set(errors)), "reviewer_kind": kind,
             "decision": judgment.get("decision") if not errors else "pending",
             "human_semantic_denominator_increment": int(not errors and kind == "independent_human"),
             "ai_semantic_denominator_increment": int(not errors and kind == "independent_ai"),
@@ -83,7 +99,7 @@ def score_frozen_annotations(frozen, annotations):
             counts[reviewer + "_pass"] += increment and checked["decision"] == "pass"
         results.append({"case_id": case["case_id"], **checked})
     failed = any(case.get("decision") == "fail" for case in results)
-    return {"counts": counts, "cases": results, "evaluation_scope": frozen.get("data_kind"),
+    return {"validator_version": VALIDATOR_VERSION, "counts": counts, "cases": results, "evaluation_scope": frozen.get("data_kind"),
             "frozen_packet_sha256": digest(dumps(frozen).encode()),
             "frozen_packet_hash_scope": "canonical JSON; file-byte hash is recorded by the execution artifact",
             "release_gate": "failed_independent_review" if failed else "pending_independent_human_review",

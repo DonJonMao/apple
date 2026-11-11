@@ -29,13 +29,32 @@ OPERATIONS = {
 
 
 def browser_bootstrap(repo) -> dict:
+    from .catalog_import import public_catalog, published_snapshot
+    from .catalog_media import media_for
+
     svc = TrainingService(repo)
     sessions = svc.list_sessions()[:30]
+    templates = svc.list_templates()
+    definitions = {
+        (item["exercise_id"], item["definition_version"]): item.get("exercise_snapshot")
+        or svc.get_exercise(item["exercise_id"], item["definition_version"])
+        for template in templates
+        for item in template["items"]
+    }
+    catalog = svc.search_exercises()
+    for item in catalog:
+        item["media"] = [
+            {k: v for k, v in media.items() if k not in {"local_path", "error"}}
+            for media in media_for(repo.conn, item["exercise_id"])
+        ]
     return {
         "schema_version": "1.3.0",
-        "catalog": svc.search_exercises(),
+        "catalog": catalog,
+        "catalog_snapshot_id": published_snapshot(repo.conn),
+        "catalog_public_ids": [x["exercise_id"] for x in public_catalog(repo)["items"]],
+        "catalog_definitions": list(definitions.values()),
         "equipment": svc.list_equipment(),
-        "templates": svc.list_templates(),
+        "templates": templates,
         "sessions": [svc.get_session(row["id"]) for row in sessions],
         "conflicts": svc.list_conflicts(),
         "private_data": True,
@@ -77,10 +96,18 @@ def apply_event_batch(repo, events: list, *, device_id: str = "browser-local") -
     return {"results": results, "processed": len(results), "submitted": len(events)}
 
 
-def recorder_html() -> bytes:
-    """Embed only public seed navigation data; no credentials or personal data."""
+def recorder_html(repo=None) -> bytes:
+    """Embed installed public catalog; seed fallback only before any installation."""
+    from .catalog_import import public_catalog
+    from .catalog_media import media_for
+
     template = Path(__file__).parents[1] / "ui" / "offline_recorder.html"
     seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
+    public_data = (
+        public_catalog(repo)
+        if repo is not None
+        else {"items": seed["exercises"], "snapshot_id": seed["catalog_version"]}
+    )
     public = [
         {
             key: item.get(key)
@@ -93,9 +120,27 @@ def recorder_html() -> bytes:
                 "default_load_basis",
                 "display_regions",
                 "aliases_zh",
+                "name_en",
+                "source",
+                "names",
+                "description",
             )
         }
-        for item in seed["exercises"]
+        for item in public_data["items"]
     ]
+    if repo is not None:
+        for item in public:
+            item["media"] = [
+                {
+                    **{k: v for k, v in media.items() if k not in {"local_path", "error"}},
+                    "package_path": "media/" + media["blob_hash"] if media["local_path"] else None,
+                }
+                for media in media_for(repo.conn, item["exercise_id"])
+            ]
     payload = json.dumps(public, ensure_ascii=False).replace("<", "\\u003c")
-    return template.read_text().replace("__PUBLIC_CATALOG_JSON__", payload).encode("utf-8")
+    return (
+        template.read_text()
+        .replace("__PUBLIC_CATALOG_JSON__", payload)
+        .replace("__CATALOG_SNAPSHOT_JSON__", json.dumps(public_data["snapshot_id"]))
+        .encode("utf-8")
+    )

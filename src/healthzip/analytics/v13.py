@@ -7,7 +7,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from healthzip.db.temporal_schema import samples_as_of
+from healthzip.db.temporal_schema import current_source_rows, samples_as_of
 from healthzip.training.service import TrainingService
 
 
@@ -64,6 +64,10 @@ def _outcome(recommendation, latest, records):
                    known_equal(observed.get("status"), "completed")))
     quality_comparable = False if False in checks else None if None in checks else True
     return {"recommendation_id": recommendation["candidate_id"],
+            "strategy": recommendation["input_snapshot"].get("strategy"),
+            "task_id": recommendation["input_snapshot"].get("advice_context", {}).get("task_id"),
+            "rule_versions": [{"rule_id": p.get("rule_id", p.get("theory_id")), "version": p.get("version")}
+                              for p in recommendation["input_snapshot"].get("theory_authority", {}).get("principles", [])] or None,
             "adoption": {"accepted": "adopted", "modified": "partially_adopted", "declined": "not_adopted"}.get(latest.get("user_choice")),
             "execution_state": latest.get("execution_state"), "nonexecution_reason": latest.get("nonexecution_reason"),
             "frozen_targets": targets, "actual": {k: finite(observed.get(k)) for k in targets},
@@ -74,12 +78,17 @@ def _outcome(recommendation, latest, records):
             "source_record_ids": latest.get("actual_record_ids", [])}
 
 
-def snapshot(repo, cutoff_time: str, *, retrospective=False):
+def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, window_end=None,
+             canonical_types=None, include_sources=True):
     service = TrainingService(repo)
     records = []
-    for table in ("health_sample", "body_measurement", "subjective_log"):
-        rows = ([dict(r) for r in repo.rows(f"SELECT * FROM {table}")]
-                if retrospective else samples_as_of(repo, cutoff_time, table))
+    source_counts = {}
+    for table in (("health_sample", "body_measurement", "subjective_log") if include_sources else ()):
+        rows = (current_source_rows(repo, table, window_start=window_start, window_end=window_end,
+                                    canonical_types=canonical_types if table == "health_sample" else None)
+                if retrospective else samples_as_of(repo, cutoff_time, table, window_start=window_start,
+                    window_end=window_end, canonical_types=canonical_types if table == "health_sample" else None))
+        source_counts[table] = len(rows)
         for row in rows:
             if row.get("record_status", "active") != "active":
                 continue
@@ -149,12 +158,35 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False):
         latest = feedback[-1] if feedback else {}
         outcomes.append(_outcome(recommendation, latest, records))
     return records, {"sessions": sessions, "recommendation_outcomes": outcomes, "data_version": service.data_version(),
+                     "query_plan": {"window_start": window_start, "window_end": window_end,
+                                    "canonical_types": canonical_types, "source_rows_returned": source_counts,
+                                    "revision_order": "latest_visible_before_support_filter"},
                      "session_plans": plans, "retrospective": retrospective,
                      "legacy_unresolved_inventory": {"count": len(legacy), "record_ids": [r["id"] for r in legacy],
                         "scope": "current_inventory_not_asof; execution_and_historical_visibility_unknown"}}
 
 
 def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
+            context=None, retrospective=False, period=None, use_cache=True):
+    from healthzip.analytics.cache import cached
+
+    # Automatic views refresh at most once a minute unless input versions change.
+    # This is a documented UI cache cadence; the exact computed cutoff is shown.
+    now = datetime.now(timezone.utc)
+    arguments = {"window_days": window_days, "cutoff": cutoff_time or now.replace(second=0, microsecond=0).isoformat(),
+                 "mode": "explicit" if cutoff_time else "auto", "timezone": timezone_name,
+                 "context": context, "retrospective": retrospective, "period": period}
+    def compute():
+        value = _analyze_uncached(repo, window_days, cutoff_time=cutoff_time or now.isoformat(),
+                                  timezone_name=timezone_name, context=context, retrospective=retrospective, period=period)
+        value["cutoff_mode"] = "explicit" if cutoff_time else "auto"
+        value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
+                                 "revision_invalidated": True}
+        return value
+    return cached(repo, "canonical", arguments, compute) if use_cache else compute()
+
+
+def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
             context=None, retrospective=False, period=None):
     from healthzip.science import evaluate_all
 
@@ -173,7 +205,16 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
             end = start+timedelta(days=7)
         else:
             raise ValueError("unknown_calendar_period")
-    records, inherited = snapshot(repo, cutoff.isoformat(), retrospective=retrospective)
+    # Sleep24h declares a 24-hour lookback; all other observed metrics use the
+    # requested window. Calendar-day membership remains in the science layer.
+    query_start = min(start, cutoff - timedelta(hours=24))
+    if context and context.get("baseline_window"):
+        query_start = min(query_start, datetime.fromisoformat(context["baseline_window"]["start"].replace("Z", "+00:00")))
+    required_types = {"resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage", "body_mass_kg", "basal_energy_kcal", "active_energy_kcal"}
+    if context and context.get("baseline_canonical_type"):
+        required_types.add(context["baseline_canonical_type"])
+    records, inherited = snapshot(repo, cutoff.isoformat(), retrospective=retrospective,
+                                  window_start=query_start.isoformat(), window_end=end.isoformat(), canonical_types=sorted(required_types))
     from healthzip.science.contracts import Window, select_as_of
     plans, _ = select_as_of(inherited["session_plans"], Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name))
     merged = {**inherited, "plan_snapshot": {"sets": [s for p in plans for s in p["sets"]]} if plans else None, **(context or {})}
@@ -188,7 +229,8 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
     return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.3.1",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.0",
+            "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}
 
@@ -210,18 +252,19 @@ def persist(repo, result):
 
 
 def view_task_interval(repo, analysis, task_id: str, *, family_id: str, alpha_total: float,
-                       metric_id: str = "STR-20", context=None):
+                       metric_id: str = "STR-20", context=None, outcome_series_id=None):
     """An explicit local view spends one registered look for this exact snapshot."""
     from healthzip.science import ParameterRegistry, evaluate
     from healthzip.science.contracts import Window, canonical_hash, select_as_of
-    from healthzip.science.semantics import analysis_task, flatten_record
+    from healthzip.science.semantics import analysis_task, flatten_record, outcome_series
 
     if metric_id not in {"STR-20", "STR-22"} or not family_id.strip():
         raise ValueError("明确选择趋势区间或停滞复核，并填写共享分析家族标识")
     service = TrainingService(repo)
     if service.data_version() != analysis["data_version"]:
         raise ValueError("记录已变化，请重新生成分析后再查看区间")
-    records, inherited = snapshot(repo, analysis["cutoff_time"], retrospective=analysis["retrospective"])
+    records, inherited = snapshot(repo, analysis["cutoff_time"], retrospective=analysis["retrospective"],
+                                  window_start=analysis["window_start"], window_end=analysis["window_end"])
     window = Window(analysis["window_start"], analysis["window_end"], analysis["cutoff_time"], analysis["timezone"])
     available, _ = select_as_of([flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
                                 window, retrospective=analysis["retrospective"])
@@ -233,6 +276,18 @@ def view_task_interval(repo, analysis, task_id: str, *, family_id: str, alpha_to
     task = next((task for task in analysis.get("strength_tasks", []) if task["task_id"] == task_id), None)
     if task is None or task["data_snapshot_hash"] != digest:
         raise ValueError("任务快照已变化，请重新生成分析")
+    series = task["metrics"]["STR-19"].get("series_results", [])
+    if len(series) > 1 and outcome_series_id is None:
+        raise ValueError("该动作有多个负荷层，请明确选择要查看的同负荷描述序列")
+    if outcome_series_id is not None:
+        selected = next((s for s in series if s["outcome_series_id"] == outcome_series_id), None)
+        if selected is None:
+            raise ValueError("所选描述序列不属于本次任务快照")
+        rows = [r for r in rows if outcome_series(r)["outcome_series_id"] == outcome_series_id]
+        digest = canonical_hash({"records": rows, "window": window.as_dict(), "cutoff_time": analysis["cutoff_time"],
+                                 "data_version": str(analysis["data_version"])})
+        if digest != selected["data_snapshot_hash"]:
+            raise ValueError("描述序列快照已变化，请重新生成分析")
     if repo.conn.in_transaction:
         raise ValueError("存在尚未完成的记录事务，请先保存记录")
     registry = ParameterRegistry(str(repo.path))
@@ -245,11 +300,13 @@ def view_task_interval(repo, analysis, task_id: str, *, family_id: str, alpha_to
         elif old["alpha_total"] != alpha_total:
             raise ValueError("该分析家族的总错误预算已冻结，不能修改")
         allocation = registry.allocate_look(family_id, digest, metric_id, data_version=analysis["data_version"],
-                                           task_id=task_id, cutoff_time=analysis["cutoff_time"])
+                                           task_id=task_id, cutoff_time=analysis["cutoff_time"], outcome_series_id=outcome_series_id)
     finally:
         registry.close()
     bound = {**inherited, **(context or {}), "timezone": analysis["timezone"], "look_allocation": allocation,
              "look_registry_path": str(repo.path), "look_metric_id": metric_id, "task_id": task_id}
+    if outcome_series_id is not None:
+        bound["outcome_series_id"] = outcome_series_id
     arguments = {"cutoff_time": analysis["cutoff_time"], "window_start": window.start, "window_end": window.end, "context": bound}
     metric = evaluate(metric_id, rows, **arguments)
     metric["look_audit"] = evaluate("STR-24", rows, **arguments)

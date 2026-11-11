@@ -83,6 +83,8 @@ class ParameterRegistry:
         if artifact["data_kind"] == "simulation" and artifact["scope_status"] != "simulation_only":
             raise ValueError("simulation_cannot_validate_people")
         if artifact["scope_status"] == "validated_for_scope":
+            if not artifact.get("required_scope") or any(key not in artifact["scope"] for key in artifact["required_scope"]):
+                raise ValueError("calibration_required_scope_missing")
             if not artifact["independent_holdout"] or not artifact.get("reviewer"):
                 raise ValueError("real_validation_review_required")
             if not artifact.get("preregistered_targets") or not artifact.get("target_results"):
@@ -129,12 +131,14 @@ class ParameterRegistry:
                               (family_id, alpha_total, json.dumps(protocol)))
 
     def allocate_look(self, family_id: str, data_hash: str, metric_id: str, *, data_version=None,
-                      task_id=None, cutoff_time=None) -> dict:
+                      task_id=None, cutoff_time=None, outcome_series_id=None) -> dict:
         # BEGIN IMMEDIATE prevents two concurrent page requests spending one look twice.
         self.conn.execute("BEGIN IMMEDIATE")
         try:
             binding = {"data_version": str(data_version) if data_version is not None else None,
                        "task_id": task_id, "cutoff_time": cutoff_time}
+            if outcome_series_id is not None:
+                binding["outcome_series_id"] = outcome_series_id
             old = self.conn.execute("SELECT * FROM analysis_look WHERE family_id=? AND data_hash=? AND metric_id=?",
                                     (family_id, data_hash, metric_id)).fetchone()
             if old:
@@ -172,6 +176,8 @@ def verified_look(context: dict, metric_id: str, *, snapshot_hash: str, task_id:
     target = context.get("look_metric_id", metric_id) if metric_id == "STR-24" else metric_id
     expected = {"metric_id": target, "data_hash": snapshot_hash, "data_version": str(context.get("data_version")),
                 "task_id": task_id, "cutoff_time": cutoff_time}
+    if context.get("outcome_series_id") is not None or allocation.get("outcome_series_id") is not None:
+        expected["outcome_series_id"] = context.get("observed_outcome_series_id")
     if any(allocation.get(key) != value for key, value in expected.items()):
         return None, ["registered_look_binding_mismatch"]
     try:
@@ -199,16 +205,58 @@ def verified_look(context: dict, metric_id: str, *, snapshot_hash: str, task_id:
 
 def calibration_matches(artifact: Optional[dict], *, metric_id: str, scope: dict,
                         model_version: Optional[str] = None) -> bool:
+    return calibration_scope_check(artifact, metric_id=metric_id, scope=scope, model_version=model_version)["matches"]
+
+
+def calibration_scope_check(artifact: Optional[dict], *, metric_id: str, scope: dict,
+                            model_version: Optional[str] = None) -> dict:
+    reasons = []
     if not artifact or artifact.get("scope_status") != "validated_for_scope":
-        return False
+        reasons.append("real_scope_validation_missing")
+    artifact = artifact or {}
     if artifact.get("data_kind") != "real" or not artifact.get("independent_holdout"):
-        return False
+        reasons.append("independent_real_holdout_missing")
     if metric_id not in artifact.get("metric_ids", []):
-        return False
+        reasons.append("calibration_metric_mismatch")
     if model_version and artifact.get("model_version") != model_version:
-        return False
+        reasons.append("calibration_model_mismatch")
     registered = artifact.get("scope", {})
-    return bool(scope) and all(k in registered and registered[k] == v for k, v in scope.items())
+    required = artifact.get("required_scope") or []
+    if not required:
+        reasons.append("calibration_required_scope_missing")
+    for key in required:
+        if key not in registered or registered[key] in (None, "", "unknown"):
+            reasons.append("calibration_scope_definition_missing:" + key)
+        elif key not in scope or scope[key] in (None, "", "unknown"):
+            reasons.append("calibration_scope_input_missing:" + key)
+        elif scope[key] != registered[key]:
+            reasons.append("calibration_scope_mismatch:" + key)
+    return {"matches": not reasons, "reason_codes": reasons, "required_scope": required,
+            "actual_scope": scope, "registered_scope": registered}
+
+
+def task_calibration_scope(record: Optional[dict], context: dict) -> dict:
+    """Measurement scope comes from the target; caller labels cannot replace it."""
+    from .semantics import analysis_task, flatten_record, outcome_series
+    row = flatten_record(record or {})
+    series = outcome_series(row)
+    supplied = context.get("scope", {})
+    population = context.get("population")
+    if isinstance(population, dict):
+        population = population.get("value") if population.get("origin") else None
+    elif not context.get("profile_provenance", {}).get("population"):
+        population = None
+    return {**supplied, "population": population, "exercise": row.get("exercise_id"),
+            "exercise_id": row.get("exercise_id"), "canonical_exercise_id": row.get("exercise_id"),
+            "definition_version": row.get("definition_version"),
+            "outcome": "repetitions" if row.get("measurement_mode") == "repetitions" else row.get("measurement_mode"),
+            "outcome_unit": series["outcome_unit"] if row.get("measurement_mode") == "repetitions" else None,
+            "reference": row.get("reference_protocol_id"), "reference_protocol_id": row.get("reference_protocol_id"),
+            "reference_protocol_version": row.get("reference_protocol_version"),
+            "protocol": row.get("reference_protocol_id"), "protocol_id": row.get("reference_protocol_id"),
+            "unit": series["normalized_unit"], "load_unit": series["normalized_unit"],
+            "load_basis": row.get("load_basis"), "task_id": analysis_task(row)["task_id"],
+            "outcome_series_id": series["outcome_series_id"]}
 
 
 def hall_chow_replication_parameters() -> list[dict[str, Any]]:

@@ -1,0 +1,328 @@
+[
+  {
+    "id": "F01",
+    "priority": "P2",
+    "title": "未转换的原数值被当成目标单位参与分析",
+    "locations": [
+      "normalize/__init__.py:122",
+      "science/state.py:82",
+      "science/energy.py:102"
+    ],
+    "reproduction": "真实导入合成Apple格式ZIP：basal 6694.4 kJ、active 2510.4 kJ、SDNN 0.05 s。",
+    "actual": "总能量9204.8 kcal、SDNN 0.05 ms，均valid、无排除。正确转换应为2200 kcal和50 ms。",
+    "scope": "可换算替代单位输入；不声称所有iPhone原生导出都采用这些单位。",
+    "fix": "归一化只在转换成功时写normalized_value/unit；未知单位保留原值并排除相应数值聚合。把unit_status检查置于统一数值适配层，并让状态、能量和报告消费同一合同。",
+    "acceptance": "kJ/kcal及s/ms等价输入结果一致；未知单位不贡献数值且显示原因；原值和转换版本可追溯。",
+    "evidence": [
+      "state/reproduce.py",
+      "state/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/normalize/__init__.py#L122",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/state.py#L82",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/energy.py#L102"
+    ]
+  },
+  {
+    "id": "F02",
+    "priority": "P2",
+    "title": "午夜半开窗口可令整个分析抛异常",
+    "locations": [
+      "science/state.py:67",
+      "science/state.py:128",
+      "science/contracts.py:204"
+    ],
+    "reproduction": "一天窗口[D 00:00,D+1 00:00)，睡眠为D日01–06与23–次日00；cutoff等于窗口末端。",
+    "actual": "覆盖分子按两个结束日期计为2，分母为1，抛invalid_denominator；evaluate_all及analyze整体失败。",
+    "scope": "通过显式cutoff的真实ZIP→Repository→analyze链复现；不是推测所有日常页面必然崩溃。",
+    "fix": "明确覆盖指标的日期域：按窗口内实际支持区间裁剪并映射当地日；分子与分母同域。不能用min(分子,分母)掩盖错误。单个指标失败应保留结构化错误和其余指标，不能吞异常伪装valid。",
+    "acceptance": "UTC、非UTC、DST、边界相等及±1微秒均满足0≤有效日期≤分母；合法跨午夜记录不使整体分析失败。",
+    "evidence": [
+      "state/reproduce.py",
+      "state/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/state.py#L67",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/state.py#L128",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/contracts.py#L204"
+    ]
+  },
+  {
+    "id": "F03",
+    "priority": "P1",
+    "title": "当次训练的疼痛/技术限制未进入新候选判断",
+    "locations": [
+      "ui/recommendation_page.py:61",
+      "ui/recommendation_page.py:78"
+    ],
+    "reproduction": "前一已结束场次同条件50kg×12、RIR2、质量正常；当前场次已记录4次、pain_flag=true、technique_limited，再生成下一组建议。",
+    "actual": "UI仍冻结52.5kg增重候选；source_record_ids没有本次异常组。",
+    "scope": "隔离测试中使用明确标为synthetic的知识权限夹具。当前生产0有效批准通常阻止数值路径；缺陷会在该能力启用后暴露。",
+    "fix": "将历史比较基线与截止前当次观察分为两个输入；保留当次异常事实、对应来源和任务适用性。已有疼痛/技术限制时进入当前任务复核，不以历史正常表现直接升级。不得凭此推算疾病或随手减5%。",
+    "acceptance": "真实AppTest复现后不再静默产生相同升级候选，原因和当次来源可见；异常前已冻结的旧候选仍保持原快照，当前使用状态另记。",
+    "evidence": [
+      "training/candidate_counterexamples.py",
+      "training/candidate_counterexamples.log"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/ui/recommendation_page.py#L61",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/ui/recommendation_page.py#L78"
+    ]
+  },
+  {
+    "id": "F04",
+    "priority": "P1",
+    "title": "STR-26可从疼痛/技术受限参考组生成更难任务",
+    "locations": [
+      "science/strength.py:351",
+      "ui/recommendation_page.py:77"
+    ],
+    "reproduction": "历史参考50kg×12，stop_reason=pain、pain_flag=true、quality_status=technique_limited；选择heavier_lower_reps。",
+    "actual": "真实UI冻结52.5kg×6，只提示trial_not_causal_effect_estimate。",
+    "scope": "同F03为有合成权限的启用后路径；不伪称真实知识已获批准。",
+    "fix": "STR-25/26共用候选适用输入验证：参考组的停止原因、质量和症状有明确三态处理。受限记录继续保留为事实，但不能被当成数值升级的能力基线。技术标准来自协议/经核对规则，不自动从RIR推断。",
+    "acceptance": "疼痛、技术受限、质量未知分别有反例；干净参考为正例。检查最终冻结重量、理由、证据，而非只检查内部函数不报错。",
+    "evidence": [
+      "training/candidate_counterexamples.py",
+      "training/candidate_counterexamples.log"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/strength.py#L351",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/ui/recommendation_page.py#L77"
+    ]
+  },
+  {
+    "id": "F05",
+    "priority": "P2",
+    "title": "开始第二场训练后仍向第一场录入",
+    "locations": [
+      "ui/training_page.py:716",
+      "ui/training_page.py:732"
+    ],
+    "reproduction": "保留未结束场次1，再点击开始创建场次2。",
+    "actual": "数据库与active_training为2，但resume_training仍选1，界面显示及后续录入仍指向旧场次。",
+    "scope": "真实AppTest已复现；这是记录归属错误，与理论审阅无关。",
+    "fix": "训练创建成功后更新选择器的唯一会话状态，并在写组时核对当前展示session_id；旧会话由用户明确恢复。不要维护互不一致的active/resume两套指针。",
+    "acceptance": "创建两场后添加不同动作及组，只属于场次2，场次1无变化；显式恢复1后再正确写入1；结束/重启状态一致。",
+    "evidence": [
+      "training/active_session_counterexample.py",
+      "training/active_session_counterexample.log"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/ui/training_page.py#L716",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/ui/training_page.py#L732"
+    ]
+  },
+  {
+    "id": "F06",
+    "priority": "P2",
+    "title": "历史训练另存模板会静默升级动作测量定义",
+    "locations": [
+      "training/service.py:1674",
+      "training/service.py:553"
+    ],
+    "reproduction": "自定义v1次数动作记录6–8次目标；目录修改为v2时长，再将旧训练存模板并开始。",
+    "actual": "模板及新训练采用v2 duration，仍带6–8次目标；原历史为v1 repetitions。",
+    "scope": "关系到动作库扩容后的历史兼容，不能只修表面名称。",
+    "fix": "模板项保存明确definition_version与模式相符的目标；历史复制默认保留当时定义。用户显式采用新定义时做有说明的迁移，新旧目标不能跨模式混用。",
+    "acceptance": "次数→时长、负荷口径变化均测试；旧模板/旧历史保持旧定义，新目录新建可使用v2，导入导出同样保持版本。",
+    "evidence": [
+      "training/candidate_counterexamples.py",
+      "training/candidate_counterexamples.log"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/training/service.py#L1674",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/training/service.py#L553"
+    ]
+  },
+  {
+    "id": "F07",
+    "priority": "P2",
+    "title": "正常加重后已有同负荷描述趋势整体消失",
+    "locations": [
+      "science/semantics.py:106",
+      "science/engine.py:132",
+      "science/strength.py:237"
+    ],
+    "reproduction": "同动作同协议：30kg三场10/12/11次，32.5kg三场8/10/9次。",
+    "actual": "各负荷单算STR-19均valid；六条一起默认分析只有一个任务，整体incompatible。",
+    "scope": "应保留分层描述；不是要求无校准时发布正式平台期或用e1RM强连。",
+    "fix": "保留物理任务ID，按指标定义增加outcome_series_id。次数变化使用同负荷/同单位口径/同协议子序列；同次数负荷指标保留自己的比较层。不要全局把负荷塞入所有任务键。",
+    "acceptance": "混合六条得到两个n=3的可追溯描述序列，当前层结果与单算一致；跨层不偷偷生成能力趋势。",
+    "evidence": [
+      "strength/repro_remaining.py",
+      "strength/repro_remaining.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/semantics.py#L106",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/engine.py#L132",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/strength.py#L237"
+    ]
+  },
+  {
+    "id": "F08",
+    "priority": "P2",
+    "title": "校准范围省略关键条件反而可通过",
+    "locations": [
+      "science/registry.py:200",
+      "science/strength.py:270"
+    ],
+    "reproduction": "校准工件限定动作bench、人群、次数单位和协议；调用方只提供相符population。",
+    "actual": "calibration_matches返回True；完整scope填错动作反而False。",
+    "scope": "当前无真实校准时仍拒绝正式结论；这是未来接入受限校准前必须修复的适用性漏洞。",
+    "fix": "从真实任务生成实际scope；逐一核对工件声明的required_scope。必需项缺失或不符均拒绝并说明，调用者不能靠删键扩权。审计字段不充当适用条件。",
+    "acceptance": "完整正确为True；缺动作/协议/单位、人群未知、动作错误均False；用户context与真实任务冲突时以可追溯真实字段为准。",
+    "evidence": [
+      "strength/repro_remaining.py",
+      "strength/repro_remaining.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/registry.py#L200",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/strength.py#L270"
+    ]
+  },
+  {
+    "id": "F09",
+    "priority": "P2",
+    "title": "仅inBed的手机来源阻断唯一asleep来源",
+    "locations": [
+      "science/state.py:44"
+    ],
+    "reproduction": "同一天iPhone记录8小时inBed，Watch记录其中7小时asleep，未指定primary_sleep_stream。",
+    "actual": "24小时睡眠卡incompatible/null，而同次周报摘要有420分钟。",
+    "scope": "没有两个竞争的asleep来源；不要求猜测主睡眠或未观测时段。",
+    "fix": "先筛选指标相关的asleep类别，再判断相关来源冲突。保留inBed独立事实；真实双asleep来源仍分流或由用户选主来源。",
+    "acceptance": "追加任意inBed记录不改变唯一asleep的420分钟；两asleep来源不相加；完整性未知仍明确。",
+    "evidence": [
+      "state/reproduce.py",
+      "state/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/science/state.py#L44"
+    ]
+  },
+  {
+    "id": "F10",
+    "priority": "P1",
+    "title": "检索top-k裁剪可隐藏已存在的同目标反证",
+    "locations": [
+      "knowledge/retrieval.py:115",
+      "knowledge/retrieval.py:160",
+      "knowledge/support.py:56"
+    ],
+    "reproduction": "同目标有6张支持卡和1张反对卡；默认k=6与k=7分别查询。",
+    "actual": "k=6为evidence_supported，k=7才conflicting_evidence。",
+    "scope": "离线合成知识fixture；证明冲突判定受展示预算影响，不宣称现有真实语料一定有此冲突。",
+    "fix": "在同目标、同范围的有效主张集合上做冲突检查，随后裁剪展示。无法完成冲突筛查须明确不完整；不能用提高k或多数投票替代正确语义。",
+    "acceptance": "k=1/6/7均不得把已发现反证变成确定支持；范围不同只作范围区别，同目标真冲突必须保留。",
+    "evidence": [
+      "knowledge/reproduce.py",
+      "knowledge/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/retrieval.py#L115",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/retrieval.py#L160",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/support.py#L56"
+    ]
+  },
+  {
+    "id": "F11",
+    "priority": "P1",
+    "title": "受限子图内容可借父段落许可进入索引",
+    "locations": [
+      "knowledge/acquisition.py:92",
+      "knowledge/acquisition.py:117",
+      "knowledge/rights.py:119"
+    ],
+    "reproduction": "文章许可开放，父p内嵌受限fig；fig的caption含唯一受限标记。",
+    "actual": "fig独立片段被阻断，但父p itertext包含同一受限标记，按/article许可获准索引。",
+    "scope": "上次组件许可继承直接场景已修；本次是嵌套抽取跨许可边界泄漏。",
+    "fix": "按文本实际所有权拆段或遍历时跳过不同许可作用域的后代；父段落不能携带受限后代文本。修解析器后重建派生片段/索引并复核依赖卡，原始版本与审计保留。",
+    "acceptance": "任意可索引span的text、结构化内容及raw_xml均无受限标记；父段许可开放/受限与子图许可开放/受限四类组合均验证；不能整篇误封或整篇误放。",
+    "evidence": [
+      "knowledge/reproduce.py",
+      "knowledge/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/acquisition.py#L92",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/acquisition.py#L117",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/rights.py#L119"
+    ]
+  },
+  {
+    "id": "F12",
+    "priority": "P2",
+    "title": "重复获取同一更正通知会使已复核证据再次失效",
+    "locations": [
+      "knowledge/store.py:240",
+      "knowledge/acquisition.py:240"
+    ],
+    "reproduction": "对同一更正版本完成精确复核后，重复抓取字节及metadata version完全相同的PubMed通知。",
+    "actual": "scientific_epoch从1升2，eligible true→false，已审卡再次needs_review。",
+    "scope": "科学生命周期应保守，但相同事件必须幂等；新更正仍应触发复核。",
+    "fix": "更正事件按规范身份、通知内容hash、关系和目标版本去重；仅新内容/新关系增加epoch，保留每次获取日志而不伪造新科学事件。",
+    "acceptance": "同通知重复获取不改epoch/审阅状态；内容或目标版本真正改变会失效；普通获取不能清除待复核。",
+    "evidence": [
+      "knowledge/reproduce.py",
+      "knowledge/results.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/store.py#L240",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/knowledge/acquisition.py#L240"
+    ]
+  },
+  {
+    "id": "F13",
+    "priority": "P2",
+    "title": "每次分析读取全部健康历史，窗外数据也显著拖慢页面",
+    "locations": [
+      "analytics/v13.py:77",
+      "db/temporal_schema.py:56",
+      "analytics/core.py:443"
+    ],
+    "root_locations": [
+      "app.py:96"
+    ],
+    "reproduction": "真实导入合成Apple ZIP；全部记录在2020年，分析2026年30日窗口。0/1万/5万条对比。",
+    "actual": "单次analyze耗时0.180/1.795/8.962秒；页面还无条件计算选择窗口、周、月三份分析。",
+    "scope": "本机合成测量，不是用户完整ZIP实测；进程内存高水位含导入，不能称分析专用内存，也不外推百万条精确耗时。",
+    "fix": "统一窗口/类型查询规划、索引与可复用as-of快照，周月按需计算；缓存键含来源修订、窗口、cutoff、时区、协议、规则/目录/知识版本。先选cutoff可见最新修订，再按事件支持区间过滤，避免旧版本复活。",
+    "acceptance": "10k/100k/1m合成规模矩阵分别测导入、首次/重复分析、页面操作；相同有效窗口时，增加窗外历史不得导致Python全量反序列化。正确性与原小数据结果一致；真实目标机器记录响应预算和实测，不能用抽样删数据提速。",
+    "evidence": [
+      "benchmark_history.py",
+      "history_benchmark.json"
+    ],
+    "commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+    "verification": "reproduced_synthetic_not_real_user_validation",
+    "code_urls": [
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/analytics/v13.py#L77",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/db/temporal_schema.py#L56",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/src/healthzip/analytics/core.py#L443",
+      "https://github.com/DonJonMao/apple/blob/912aefc93b9bd9c1cebf297a10728c69c827e266/app.py#L96"
+    ]
+  }
+]

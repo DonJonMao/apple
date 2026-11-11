@@ -1,0 +1,510 @@
+{
+  "baseline": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+  "cases": [
+    {
+      "id": "F01",
+      "scenario": "真实导入合成Apple格式ZIP：basal 6694.4 kJ、active 2510.4 kJ、SDNN 0.05 s。",
+      "expected": "kJ/kcal及s/ms等价输入结果一致；未知单位不贡献数值且显示原因；原值和转换版本可追溯。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F02",
+      "scenario": "一天窗口[D 00:00,D+1 00:00)，睡眠为D日01–06与23–次日00；cutoff等于窗口末端。",
+      "expected": "UTC、非UTC、DST、边界相等及±1微秒均满足0≤有效日期≤分母；合法跨午夜记录不使整体分析失败。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F03",
+      "scenario": "前一已结束场次同条件50kg×12、RIR2、质量正常；当前场次已记录4次、pain_flag=true、technique_limited，再生成下一组建议。",
+      "expected": "真实AppTest复现后不再静默产生相同升级候选，原因和当次来源可见；异常前已冻结的旧候选仍保持原快照，当前使用状态另记。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F04",
+      "scenario": "历史参考50kg×12，stop_reason=pain、pain_flag=true、quality_status=technique_limited；选择heavier_lower_reps。",
+      "expected": "疼痛、技术受限、质量未知分别有反例；干净参考为正例。检查最终冻结重量、理由、证据，而非只检查内部函数不报错。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F05",
+      "scenario": "保留未结束场次1，再点击开始创建场次2。",
+      "expected": "创建两场后添加不同动作及组，只属于场次2，场次1无变化；显式恢复1后再正确写入1；结束/重启状态一致。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F06",
+      "scenario": "自定义v1次数动作记录6–8次目标；目录修改为v2时长，再将旧训练存模板并开始。",
+      "expected": "次数→时长、负荷口径变化均测试；旧模板/旧历史保持旧定义，新目录新建可使用v2，导入导出同样保持版本。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F07",
+      "scenario": "同动作同协议：30kg三场10/12/11次，32.5kg三场8/10/9次。",
+      "expected": "混合六条得到两个n=3的可追溯描述序列，当前层结果与单算一致；跨层不偷偷生成能力趋势。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F08",
+      "scenario": "校准工件限定动作bench、人群、次数单位和协议；调用方只提供相符population。",
+      "expected": "完整正确为True；缺动作/协议/单位、人群未知、动作错误均False；用户context与真实任务冲突时以可追溯真实字段为准。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F09",
+      "scenario": "同一天iPhone记录8小时inBed，Watch记录其中7小时asleep，未指定primary_sleep_stream。",
+      "expected": "追加任意inBed记录不改变唯一asleep的420分钟；两asleep来源不相加；完整性未知仍明确。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F10",
+      "scenario": "同目标有6张支持卡和1张反对卡；默认k=6与k=7分别查询。",
+      "expected": "k=1/6/7均不得把已发现反证变成确定支持；范围不同只作范围区别，同目标真冲突必须保留。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F11",
+      "scenario": "文章许可开放，父p内嵌受限fig；fig的caption含唯一受限标记。",
+      "expected": "任意可索引span的text、结构化内容及raw_xml均无受限标记；父段许可开放/受限与子图许可开放/受限四类组合均验证；不能整篇误封或整篇误放。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F12",
+      "scenario": "对同一更正版本完成精确复核后，重复抓取字节及metadata version完全相同的PubMed通知。",
+      "expected": "同通知重复获取不改epoch/审阅状态；内容或目标版本真正改变会失效；普通获取不能清除待复核。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "F13",
+      "scenario": "真实导入合成Apple ZIP；全部记录在2020年，分析2026年30日窗口。0/1万/5万条对比。",
+      "expected": "10k/100k/1m合成规模矩阵分别测导入、首次/重复分析、页面操作；相同有效窗口时，增加窗外历史不得导致Python全量反序列化。正确性与原小数据结果一致；真实目标机器记录响应预算和实测，不能用抽样删数据提速。",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-01",
+      "scenario": "完整966动作基线快照",
+      "expected": "导入唯一动作数与manifest一致，翻译/媒体数分开报告，差异有原因；未来以真实新快照为准",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-02",
+      "scenario": "分页中断、重复页、重复同步",
+      "expected": "未完成快照不发布；重复导入不新增重复实体；旧目录持续可用",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-03",
+      "scenario": "已有46项和合成历史升级",
+      "expected": "原catalog ID、definition_version、负荷/次数、条件键与历史引用不变；收藏、模板和私人别名不丢",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-04",
+      "scenario": "46项逐项映射清单",
+      "expected": "每项有明确结论；未匹配不强合并；用户示例只占普通样例之一",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-05",
+      "scenario": "平板/上斜、杠铃/史密斯、辅助/负重引体",
+      "expected": "搜索可关联，但不得归并物理身份或混合力量趋势",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-06",
+      "scenario": "改中文名、说明、图片",
+      "expected": "只增加展示版本；不改变已有训练条件键，不重写历史冻结快照",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-07",
+      "scenario": "上游记录模式/器械语义变化",
+      "expected": "新定义版本只用于明确采用的新记录；旧会话/模板版本仍可读取",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-08",
+      "scenario": "上游删除、UUID变更、许可变化",
+      "expected": "tombstone/待映射/媒体停用分别正确；无历史级联删除；缺页不视为删除",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-09",
+      "scenario": "中文/别名/英文检索",
+      "expected": "同一实体被正确找到；中文覆盖和译稿状态真实显示；翻译不能产生重复动作",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "Chinese upstream/seed/AI draft identities and anatomical review status remain distinct; no professional mapping or stimulus weights inferred."
+    },
+    {
+      "id": "CAT-10",
+      "scenario": "389图、78视频基线",
+      "expected": "媒体记录与实际覆盖282/46动作分别核对；图片/视频可本地打开；不伪造全覆盖",
+      "state": "local_images_verified_video_cache_partial",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "All 389 images cached; 78 video metadata objects, ready/pending counts in coverage.json; background downloads are not counted as ready."
+    },
+    {
+      "id": "CAT-11",
+      "scenario": "无图、损坏下载、无许可字段",
+      "expected": "分别显示无示范/下载失败/暂不可用，不用错误变式图片补位",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-12",
+      "scenario": "媒体导出与署名",
+      "expected": "每项许可、作者、来源和hash可追溯；代码许可证不替代媒体许可",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-13",
+      "scenario": "主页面与离线页同动作记录",
+      "expected": "同一本地ID、定义版本和口径；断网/重启/事件重试不改动作身份，不退回只剩46项",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-14",
+      "scenario": "单边片重、每只哑铃、助力、器械刻度",
+      "expected": "全部维持原口径与正确方向；未知杆重/传动比/体重不补造",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-15",
+      "scenario": "平板支撑、搬运和普通次数动作",
+      "expected": "按时长/距离/次数分别记录，模板、历史、导入导出一致",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-16",
+      "scenario": "自定义动作/私人别名",
+      "expected": "本地持久化和重试正确；公共更新不覆盖；公共catalog导出不泄露私人资料",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "CAT-17",
+      "scenario": "社区肌群标签与教材关系",
+      "expected": "来源身份分别展示；无自动刺激权重、有效组数或恢复百分比",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "Chinese upstream/seed/AI draft identities and anatomical review status remain distinct; no professional mapping or stimulus weights inferred."
+    },
+    {
+      "id": "CAT-18",
+      "scenario": "迁移中断与恢复、旧交换文件",
+      "expected": "事务回滚、重跑幂等；旧文件仍可导入，来源信息不足保持未知",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_catalog.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-01",
+      "scenario": "仅新增书目和目录，未导入正文",
+      "expected": "可以浏览书目；对应正文主张仍缺失，不能获得候选权限",
+      "state": "software_contract_verified_actual_textbook_body_gaps",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "Edition/chapter/rights gates work; paid source chapters not acquired."
+    },
+    {
+      "id": "KB-02",
+      "scenario": "导入第4版中文译本与第5版英文版",
+      "expected": "两份独立身份和页码；译本关系清楚，不能相互套页码",
+      "state": "software_contract_verified_actual_textbook_body_gaps",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "Edition/chapter/rights gates work; paid source chapters not acquired."
+    },
+    {
+      "id": "KB-03",
+      "scenario": "导入表格而脚注缺页",
+      "expected": "相关参数不能被标为完整可用；其他独立段落仍可用",
+      "state": "software_contract_verified_actual_textbook_body_gaps",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "Edition/chapter/rights gates work; paid source chapters not acquired."
+    },
+    {
+      "id": "KB-04",
+      "scenario": "同一现有S1加核心标签",
+      "expected": "原始正文只有一份，不重复计为两篇独立来源",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-05",
+      "scenario": "不同问法表达同一主张",
+      "expected": "召回同一支持关系并回答要点；不得靠逐问题硬编码答案",
+      "state": "partial_semantic_coverage_independent_review_failed",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "Original frozen independent AI review 3/18; generic wrong-target guards repaired separately. No new independent pass rate."
+    },
+    {
+      "id": "KB-06",
+      "scenario": "只有相关材料，无支持目标问题的主张",
+      "expected": "related_material_only，不标answered_with_support",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-07",
+      "scenario": "用户计划完整、档位已确认、规则已核对但没有真人因果验证",
+      "expected": "按发布能力策略给可选择任务，保留效果未知；不因为缺因果研究一律阻断",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-08",
+      "scenario": "同输入但规则正文未核对",
+      "expected": "给具体缺项；不能把模拟原则或测试夹具作为生产依据",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-09",
+      "scenario": "规则需要目标/人群字段",
+      "expected": "实际UI输入→统一context→规则适用成功；缺失/不符分别解释",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-10",
+      "scenario": "只缺睡眠但当前规则不依赖睡眠",
+      "expected": "其他充分依据的候选仍可运行；不伪造睡眠，不强行阻断所有建议",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-11",
+      "scenario": "尚未达到计划次数上沿，用户选择可用试验",
+      "expected": "在相应规则允许时可提出任务，不要求先证明平台期",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-12",
+      "scenario": "负重引体与助力引体",
+      "expected": "负荷口径和难度方向正确；不得共用“数值变大更难”逻辑",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-13",
+      "scenario": "新规则发布后重看旧建议",
+      "expected": "旧快照不变；当前依据/撤回状态明确，新版重算另记",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-14",
+      "scenario": "研究与教材在适用范围上不同",
+      "expected": "不平均参数，不造加权证据分；显示范围区别或真实冲突",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-15",
+      "scenario": "只看核心来源与核心+研究来源",
+      "expected": "能分开报告召回和答案支持质量；不能把更多文献视为默认更可靠",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-16",
+      "scenario": "RIR未知、区间答案或非RIR型RPE",
+      "expected": "保持各自语义，必要候选降级，不猜精确余力",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-17",
+      "scenario": "补录旧训练及晚到健康数据",
+      "expected": "候选当时可见信息不泄漏未来，回顾分析单独标记",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-18",
+      "scenario": "完成一次候选任务",
+      "expected": "可报告完成；不能报告已证明增肌或改善平台期的因果效果",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-19",
+      "scenario": "图示来自开源动作库/AI生成素材",
+      "expected": "显示目录/图示来源；不被核心科学检索当作训练处方证据",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "KB-20",
+      "scenario": "结束训练后反馈与周报",
+      "expected": "可以补录执行，关联对应候选/目标/理论版本，报告事实和待检验解释",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_knowledge.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-01",
+      "scenario": "空库→完整合成Apple ZIP→浏览状态/能量",
+      "expected": "单位、日期域、来源、缺失正确；无合法输入崩溃",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-02",
+      "scenario": "旧46目录+历史+模板→新目录升级",
+      "expected": "历史身份/版本/负荷不变；新目录中文/媒体可用",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-03",
+      "scenario": "两场未结束→选择新动作→记组→结束",
+      "expected": "记录归属正确；重启恢复；反馈可补录",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-04",
+      "scenario": "真实目标与档位→已核对规则→计划内候选",
+      "expected": "范围匹配、数字来源明确、可采纳/修改/拒绝",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-05",
+      "scenario": "本次受限组后再次请求候选",
+      "expected": "当次事实进入复核；无静默升级；原冻结快照保留",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-06",
+      "scenario": "同动作两负荷历史→周/月报告",
+      "expected": "保留各自可比描述，不跨负荷伪拟合；未知不等于停滞",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-07",
+      "scenario": "选择试验→未执行/部分执行/完成→反馈",
+      "expected": "三种情况分开；任务达成不等于因果收益",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-08",
+      "scenario": "核心证据撤回/更正→旧建议与新查询",
+      "expected": "历史可读、当前适用状态改变；重复通知幂等",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-09",
+      "scenario": "核心问题多种表述、冲突、未取得正文",
+      "expected": "返回正确支持/部分回答/缺项；不依靠关键词或背答案",
+      "state": "partial_semantic_coverage_independent_review_failed",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "Original frozen independent AI review 3/18; generic wrong-target guards repaired separately. No new independent pass rate."
+    },
+    {
+      "id": "E2E-10",
+      "scenario": "断网记录→导出→主程序重放两次",
+      "expected": "同一动作版本、组不重复、目标与反馈可追溯",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-11",
+      "scenario": "全量历史→反复编辑/查看/换时区",
+      "expected": "缓存失效正确；窗外历史不反复全量装载；报告实测耗时",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    },
+    {
+      "id": "E2E-12",
+      "scenario": "生产知识为空或全部待审",
+      "expected": "记录与确定性描述可用；相关候选说明具体缺项，不能套合成批准",
+      "state": "implemented_with_scoped_software_verification",
+      "evidence_document": "docs/v14_delivery.md",
+      "limitations": "See item-level evidence; software checks do not establish professional review or scientific efficacy."
+    }
+  ],
+  "all_product_semantics_passed": false
+}

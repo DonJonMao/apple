@@ -1,0 +1,830 @@
+{
+  "run_at": "2026-11-11T11:02:48.330260+00:00",
+  "acquisition": [
+    {
+      "source_id": "CORE-US-HHS-PAG-2",
+      "status": "chapters_parsed",
+      "version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+      "raw_sha256": "0147d4dfc5ae76613a8b8d9d1c95244477527989f1d841845866ae5b5340cda5",
+      "span_count": 18,
+      "index_allowed": true
+    },
+    {
+      "source_id": "CORE-CN-SPORT-GUIDE-2017",
+      "status": "body_acquired_rights_pending",
+      "version_id": "CORE-CN-SPORT-GUIDE-2017:fulltext:e3e2d87b6e4e97548026:official-html-prose-1.4.0",
+      "raw_sha256": "e3e2d87b6e4e97548026de43e8c3bfa1df91a5ccb11e2202428d5716fc9cffac",
+      "span_count": 21,
+      "index_allowed": false
+    },
+    {
+      "source_id": "CORE-CN-PA-2021",
+      "status": "body_acquired_rights_pending",
+      "version_id": "CORE-CN-PA-2021:fulltext:0dc843f0e519046167e2:official-html-prose-1.4.0",
+      "raw_sha256": "0dc843f0e519046167e257ca844c99aa8975c0ddc6e71f7ecac2b641505eefc4",
+      "span_count": 38,
+      "index_allowed": false
+    }
+  ],
+  "core": {
+    "policy": {
+      "version": "personal-trial-policy-1.4.0",
+      "allowed_reviewers": [
+        "ai_assisted",
+        "qualified_human_review",
+        "independent_human"
+      ],
+      "capabilities": [
+        "source_explanation",
+        "plan_candidate",
+        "trial_candidate"
+      ],
+      "requirements": [
+        "exact_eligible_fulltext",
+        "content_review",
+        "application_review",
+        "implementation_tests",
+        "explicit_context"
+      ],
+      "requires_personal_causal_validation": false,
+      "forbidden": [
+        "individual_prediction",
+        "causal_effect",
+        "diagnosis",
+        "automatic_clinical_prescription"
+      ],
+      "limit": "Personal fitness trial policy, not an independent expert endorsement or proof of individual effect."
+    },
+    "claims": [
+      {
+        "claim_id": "CORE-CLAIM-PROGRESSION",
+        "version": "1.4.0",
+        "status": "verified"
+      },
+      {
+        "claim_id": "CORE-CLAIM-FAILURE",
+        "version": "1.4.0",
+        "status": "verified"
+      },
+      {
+        "claim_id": "CORE-CLAIM-RIR",
+        "version": "1.4.0",
+        "status": "verified"
+      },
+      {
+        "claim_id": "CORE-CLAIM-VOLUME",
+        "version": "1.4.0",
+        "status": "verified"
+      },
+      {
+        "claim_id": "CORE-CLAIM-REST",
+        "version": "1.4.0",
+        "status": "verified"
+      },
+      {
+        "claim_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+        "version": "1.4.0",
+        "status": "verified"
+      }
+    ],
+    "rules": [
+      {
+        "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+        "version": "1.4.0",
+        "status": "superseded",
+        "effective": false,
+        "capability": "plan_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+        "version": "1.4.1",
+        "status": "active",
+        "effective": true,
+        "capability": "plan_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+        "version": "draft-1",
+        "status": "superseded",
+        "effective": false,
+        "capability": "plan_candidate",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "渐进训练原则"
+          },
+          {
+            "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "从既定计划目标映射到可选后续任务的操作范围"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-EFFORT",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "source_explanation",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-EFFORT-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "努力程度的含义与任务条件"
+          },
+          {
+            "claim_topic_id": "CORE-F2-EFFORT-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "RIR误差与量表不能任意互换"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-FREQUENCY-OPTIONS",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "trial_discussion",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "频率、总量与目标的关系"
+          },
+          {
+            "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "公共健康最低建议与训练优化的范围差异"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-GOAL-SCOPE",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "source_explanation",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-GOAL-SCOPE-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "力量、肌肥大与公共健康目标的范围区别"
+          },
+          {
+            "claim_topic_id": "CORE-F2-GOAL-SCOPE-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "人群和训练经历的适用边界"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+        "version": "1.4.0",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+        "version": "1.4.1",
+        "status": "active",
+        "effective": true,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+        "version": "draft-1",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "负荷与次数任务组织"
+          },
+          {
+            "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "器械可行档位和试验的适用边界"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-PLAN-CHECK",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "description",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-PLAN-CHECK-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "计划任务与实际表现的区分"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-REPETITION-TRIAL",
+        "version": "1.4.0",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-REPETITION-TRIAL",
+        "version": "1.4.1",
+        "status": "active",
+        "effective": true,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F2-REPETITION-TRIAL",
+        "version": "draft-1",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "次数任务作为进阶路径的适用条件"
+          },
+          {
+            "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "用户可选任务与个人最优的区别"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-REST-OPTIONS",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "trial_discussion",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-REST-OPTIONS-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "组间休息的目标与任务语境"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-STATE-CONTEXT",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "source_explanation",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-STATE-CONTEXT-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "恢复和表现下降的不同解释"
+          },
+          {
+            "claim_topic_id": "CORE-F2-STATE-CONTEXT-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "主观/设备观测与训练能力的区别"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F2-VOLUME-OPTIONS",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "trial_discussion",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "组量定义与训练目标"
+          },
+          {
+            "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "组量与适应的适用范围"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F23-COMPARABILITY",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "description",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F23-COMPARABILITY-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "练习特异性和测量可比性"
+          },
+          {
+            "claim_topic_id": "CORE-F23-COMPARABILITY-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "关节动作、动作变式与负重语义"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F23-EXECUTION-FEEDBACK",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "task_followup",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F23-EXECUTION-FEEDBACK-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "任务达成与长期适应/因果效果的区别"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-DESCRIPTIVE-TREND",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "description",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-DESCRIPTIVE-TREND-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "测试对象与描述性变化的解释"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-EXPLANATION-HYPOTHESES",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "source_explanation",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "训练适应、刺激、恢复与生活情境"
+          },
+          {
+            "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "关联、预测和因果解释区别"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "model_conditional_inference",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "测试可靠性与有意义变化区别"
+          },
+          {
+            "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "具体误差模型适用于该观察任务的证据"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-OPPORTUNITY",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "source_explanation",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-OPPORTUNITY-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "完成计划与观察能力上限不同"
+          },
+          {
+            "claim_topic_id": "CORE-F3-OPPORTUNITY-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "努力、质量及停止原因的解释"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "model_conditional_inference",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "训练适应/表现测量的解释边界"
+          },
+          {
+            "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "平台期标签所用统计方法及任务条件"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-PRACTICAL-EQUIVALENCE",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "model_conditional_inference",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "测量误差与用户有用变化不是同一量"
+          },
+          {
+            "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "等效判断的具体方法与假设"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-REPEATED-LOOKS",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "model_conditional_inference",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "重复查看方法的适用条件"
+          },
+          {
+            "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "单次区间有效性与累计错误控制的关系"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-STRATEGY-REVIEW",
+        "version": "1.4.0",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F3-STRATEGY-REVIEW",
+        "version": "1.4.1",
+        "status": "active",
+        "effective": true,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": []
+      },
+      {
+        "rule_id": "CORE-F3-STRATEGY-REVIEW",
+        "version": "draft-1",
+        "status": "superseded",
+        "effective": false,
+        "capability": "trial_candidate",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "目标一致的任务选择"
+          },
+          {
+            "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "策略评估与个体响应"
+          }
+        ]
+      },
+      {
+        "rule_id": "CORE-F3-WEEK-MONTH-REPORT",
+        "version": "draft-1",
+        "status": "draft",
+        "effective": false,
+        "capability": "report",
+        "dependency_issues": [],
+        "source_gaps": [
+          {
+            "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C1",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "训练执行、可比表现与适应推断区别"
+          },
+          {
+            "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C2",
+            "status": "pending_original_content_and_applicability_review",
+            "supporting_source_version_id": null,
+            "supporting_span_ids": [],
+            "topic_zh": "不同目标下训练变量解释"
+          }
+        ]
+      }
+    ],
+    "distinct_rule_count": 21,
+    "effective_rule_count": 4,
+    "chapter_coverage": [
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "2",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 2, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"抗阻生物力学\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "5",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"适应与停止训练\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "13",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 13, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"测量选择与实施\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "14",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 14, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"测试结果解释\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "16",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 16, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"自由重量及器械动作\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "17",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 17, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"替代形式与单侧动作\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "18",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 18, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"抗阻方案变量\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "22",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 22, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"周期组织\"}"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+        "chapter_id": "24",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 24, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"恢复与表现下降\"}"
+      },
+      {
+        "source_id": "CORE-ACSM-GETP-12",
+        "edition_id": "CORE-ACSM-GETP-12:edition-12",
+        "chapter_id": "5",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"一般运动处方原则与抗阻部分\"}"
+      },
+      {
+        "source_id": "CORE-ACSM-GETP-12",
+        "edition_id": "CORE-ACSM-GETP-12:edition-12",
+        "chapter_id": "section-2",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"健康人群特殊考虑、测量与参与前评估\"}"
+      },
+      {
+        "source_id": "S1",
+        "edition_id": "S1",
+        "chapter_id": "section-1",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_bibliographic_record_and_position_stand_abstract\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"训练目标、变量、适用人群、正式结论及相关表格和限制\"}"
+      },
+      {
+        "source_id": "CORE-HYPERTROPHY-3",
+        "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+        "chapter_id": "4",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 4, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肌肥大测量\"}"
+      },
+      {
+        "source_id": "CORE-HYPERTROPHY-3",
+        "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+        "chapter_id": "5",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"组量、频率、负荷、动作、休息、ROM与努力程度\"}"
+      },
+      {
+        "source_id": "CORE-HYPERTROPHY-3",
+        "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+        "chapter_id": "8",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 8, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"年龄、性别及训练经历\"}"
+      },
+      {
+        "source_id": "CORE-HYPERTROPHY-3",
+        "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+        "chapter_id": "9",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 9, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"方案组织\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "3",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 3, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肌肉功能\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "4",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 4, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"生物力学\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "5",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肩复合体\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "6",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 6, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肘与前臂\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "9",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 9, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"躯干骨与关节\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "10",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 10, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"躯干肌肉与关节作用\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "12",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 12, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"髋\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "13",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 13, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"膝\"}"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "edition_id": "CORE-NEUMANN-4:edition-4",
+        "chapter_id": "14",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 14, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"踝与足\"}"
+      },
+      {
+        "source_id": "CORE-US-HHS-PAG-2",
+        "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+        "chapter_id": "section-1",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_current_guidelines_page\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"成人身体活动、肌力活动、特定人群及健康边界\"}"
+      },
+      {
+        "source_id": "CORE-CN-SPORT-GUIDE-2017",
+        "edition_id": "CORE-CN-SPORT-GUIDE-2017",
+        "chapter_id": "section-1",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_public_web_text\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"健身原则、力量练习、方案要素、能力评价、人群与阶段语境\"}"
+      },
+      {
+        "source_id": "CORE-CN-PA-2021",
+        "edition_id": "CORE-CN-PA-2021",
+        "chapter_id": "section-1",
+        "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_release_identity_and_primary_guideline_publication\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"总则、成年人、老年人及其他特定人群\"}"
+      },
+      {
+        "source_id": "CORE-US-HHS-PAG-2",
+        "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+        "chapter_id": "4",
+        "payload_json": "{\"missing_pages\": [], \"span_ids\": [\"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00000\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00003\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00004\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00005\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00009\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00010\"], \"status\": \"prose_parsed\", \"table_review\": \"images_and_table_parameters_not_activated\"}"
+      },
+      {
+        "source_id": "CORE-US-HHS-PAG-2",
+        "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+        "chapter_id": "7",
+        "payload_json": "{\"missing_pages\": [], \"span_ids\": [\"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00011\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00013\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00016\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017\"], \"status\": \"prose_parsed\", \"table_review\": \"images_and_table_parameters_not_activated\"}"
+      }
+    ],
+    "independent_human_review_count": 0
+  },
+  "legacy_theories": {
+    "draft": 9,
+    "needs_review": 11
+  }
+}

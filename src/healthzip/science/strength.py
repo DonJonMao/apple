@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from .contracts import Window, finite, instant, result
+from healthzip.normalize import quantity_value
+
+from .applicability import candidate_applicability
+from .contracts import Window, canonical_hash, finite, instant, result
 from .formulas import e1rm
-from .registry import calibration_matches, verified_look
+from .registry import calibration_scope_check, task_calibration_scope, verified_look
 from .semantics import (
     analysis_task,
     comparable,
@@ -14,6 +17,7 @@ from .semantics import (
     load_basis,
     load_change,
     load_components,
+    outcome_series,
 )
 from .statistics import classify_interval, linear_trend, typical_error
 
@@ -60,12 +64,60 @@ def opportunity(row: dict) -> str:
     return "capacity_unobserved"
 
 
+def equivalence_reasons(delta, outcome_unit, refs=()):
+    if delta and delta.get("unit") is not None and delta["unit"] != outcome_unit:
+        raise ValueError("practical_equivalence_unit_mismatch")
+    if not delta or any(finite(delta.get(k)) is None or delta[k] < 0 for k in ("lower_magnitude", "upper_magnitude")):
+        return ["user_or_protocol_equivalence_required"]
+    reasons = []
+    if not delta.get("unit"):
+        reasons.append("practical_equivalence_unit_required")
+    if not delta.get("declared_before"):
+        reasons.append("practical_equivalence_not_preregistered")
+    elif refs and instant(delta["declared_before"]) > min(instant(r["_event_end"]) for r in refs):
+        reasons.append("practical_equivalence_chosen_after_observations")
+    if not delta.get("provenance"):
+        reasons.append("practical_equivalence_provenance_required")
+    return reasons
+
+
+def _plan_rir_range(plan, *, required):
+    raw = (plan.get("target_rir_min"), plan.get("target_rir_max"))
+    if raw == (None, None) and not required:
+        return None, []
+    lower, upper = map(finite, raw)
+    if lower is None or upper is None:
+        return None, ["complete_finite_target_rir_range_required"]
+    if not 0 <= lower <= upper <= 10:
+        return None, ["ordered_target_rir_range_within_zero_to_ten_required"]
+    return {"min": lower, "max": upper}, []
+
+
+def _plan_equipment_steps(plan):
+    raw = plan.get("available_loads")
+    if not isinstance(raw, (list, tuple)):
+        return None
+    values = [finite(value) for value in raw]
+    if any(value is None or value < 0 for value in values):
+        return None
+    return values
+
+
 def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
     code = int(metric_id.split("-")[1])
     total = len(rows)
     work = _parents([row for row in rows if _completed(row)])
     refs = reference_rows(rows, context)
     kw = {"records": rows, "total_n": total}
+    if code in {25, 26}:
+        applicability = candidate_applicability(refs[-1] if refs else None, context.get("current_session_observations"))
+        unknown_observations = context.get("current_session_observation_unknown_ids", [])
+        if unknown_observations:
+            applicability["current_session_record_ids"] = sorted(set(applicability["current_session_record_ids"]) | set(unknown_observations))
+            applicability["reason_codes"].append("current_observation_time_or_availability_unknown")
+            if applicability["applicable"] is not False:
+                applicability.update(applicable=None, status="unknown")
+        kw["candidate_applicability"] = applicability
 
     def emit(value=None, status="valid", **extra):
         return result(metric_id, window, value, data_status=status, **{**kw, **extra})
@@ -130,11 +182,31 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         times = sorted({(r["session_id"], r["_event_end"]) for r in known}, key=lambda p: p[1])
         dates = [instant(t) for _, t in times]
         elapsed = (min(instant(window.end), instant(window.cutoff_time)) - instant(window.start)).total_seconds() / 86400
-        value = {"sessions": len(times), "observed_dates": len({d.date() for d in dates}),
+        recorded = {r["session_id"]: r for r in work if r.get("session_id")}
+        eligible = {r["session_id"] for r in known if outcome_series(r)["eligible"]}
+        series_groups = defaultdict(list)
+        for record in known:
+            identity = outcome_series(record)
+            if identity["eligible"]:
+                series_groups[identity["outcome_series_id"]].append(record)
+        exposures = []
+        for group in series_groups.values():
+            endpoints = sorted(instant(r["_event_end"]) for r in group)
+            exposures.append({**outcome_series(group[0]), "sessions": len({r["session_id"] for r in group}),
+                              "span_days": (endpoints[-1] - endpoints[0]).total_seconds() / 86400,
+                              "first_observed_at": endpoints[0].isoformat(), "last_observed_at": endpoints[-1].isoformat(),
+                              "source_record_ids": [r.get("_source_id") for r in group]})
+        frequency_n = len(recorded) if code == 8 else len(times)
+        frequency_dates = {instant(r["_event_end"]).date() for r in recorded.values()} if code == 8 else {d.date() for d in dates}
+        value = {"sessions": frequency_n, "observed_dates": len(frequency_dates),
                  "span_days": (dates[-1] - dates[0]).total_seconds() / 86400 if dates else None,
-                 "recorded_frequency_per_week": len(times) / elapsed * 7 if elapsed > 0 else None,
-                 "interval_days": [(b - a).total_seconds() / 86400 for a, b in zip(dates, dates[1:])]}
-        return emit(value, "valid" if known else "insufficient", valid_n=len(known),
+                 "recorded_frequency_per_week": frequency_n / elapsed * 7 if elapsed > 0 and len(frequency_dates) > 1 else None,
+                 "frequency_window_elapsed_days": elapsed,
+                 "interval_days": [(b - a).total_seconds() / 86400 for a, b in zip(dates, dates[1:])],
+                 "recorded_training_sessions": len(recorded), "comparable_reference_sessions": len(eligible),
+                 "recorded_without_eligible_reference_session_ids": sorted(set(recorded) - eligible),
+                 "outcome_series_exposures": exposures}
+        return emit(value, "valid" if known or code == 8 and recorded else "insufficient", valid_n=len(known) if code == 7 else len(recorded),
                     reasons=["recorded_frequency_not_actual_training_or_recovery"])
     if code == 9:
         plan = context.get("plan_snapshot")
@@ -170,17 +242,35 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                     valid_n=len(refs), reasons=[] if refs else ["predesignated_reference_missing"])
     if code in {12, 13, 14}:
         pair = context.get("comparison_pair") or refs[-2:]
+        comparison_series = []
+        if code in {12, 14} and not context.get("comparison_pair"):
+            layers = defaultdict(list)
+            for record in refs:
+                identity = outcome_series(record)
+                key = (identity["outcome_series_id"], record.get("reps") if code == 14 else None)
+                layers[key].append(record)
+            for (identity, _), group in layers.items():
+                if len(group) >= 2:
+                    calculated = strength_metric(metric_id, group, window, {**context, "comparison_pair": group[-2:]})
+                    comparison_series.append({"outcome_series_id": identity, "value": calculated["value"],
+                                              "data_status": calculated["data_status"], "reason_codes": calculated["reason_codes"]})
+            if comparison_series:
+                valid = [item for item in comparison_series if item["value"] is not None]
+                if valid:
+                    latest = max(valid, key=lambda item: instant(item["value"]["current_observed_at"]))
+                    return emit({**latest["value"], "comparison_series": comparison_series}, latest["data_status"],
+                                evidence_status="descriptive", reasons=latest["reason_codes"])
         if len(pair) != 2:
             return emit(None, "insufficient", reasons=["two_reference_observations_required"])
         old, new = pair
         ok, reasons = comparable(old, new)
         if not ok:
             return emit(None, "incompatible", reasons=reasons)
-        a, b = load_components(old), load_components(new)
-        same_load = a["entered_unit"] == b["entered_unit"] and a["entered_load"] == b["entered_load"]
+        same_load = outcome_series(old)["outcome_series_id"] == outcome_series(new)["outcome_series_id"]
         same_reps = finite(old.get("reps")) is not None and old.get("reps") == new.get("reps")
         protocol_ok, protocol_reasons = comparable(old, new, protocol=True)
         base = {"reference_id": old.get("id"), "current_id": new.get("id"),
+                "reference_observed_at": old.get("_event_end"), "current_observed_at": new.get("_event_end"),
                 "rir_before": old.get("rir"), "rir_after": new.get("rir"),
                 "stop_before": old.get("stop_reason"), "stop_after": new.get("stop_reason")}
         if code == 12:
@@ -235,9 +325,10 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         return emit(data["value"], "valid" if data["value"] is not None else "insufficient",
                     evidence_status="model_conditional", reasons=data["reason_codes"], assumptions=data["assumptions"])
     if code in {19, 20, 22}:
+        delta = context.get("practical_equivalence")
+        delta_reasons = equivalence_reasons(delta, "repetitions", refs) if code == 22 else []
         if refs and (not comparable(refs[0], refs[0], protocol=True)[0] or any(not comparable(refs[0], r, protocol=True)[0]
-                                                     or r.get("entered_load") != refs[0].get("entered_load")
-                                                     or r.get("load_unit") != refs[0].get("load_unit") for r in refs[1:])):
+                                                     or outcome_series(r)["outcome_series_id"] != outcome_series(refs[0])["outcome_series_id"] for r in refs[1:])):
             return emit(None, "incompatible", reasons=["trend_reference_conditions_incompatible"])
         allocation, allocation_reasons = verified_look(context, metric_id,
             snapshot_hash=context.get("observed_snapshot_hash"), task_id=context.get("observed_task_id"), cutoff_time=window.cutoff_time)
@@ -256,18 +347,17 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                         uncertainty=trend["interval"], evidence_status="research_only", valid_n=len(refs),
                         reasons=trend["reason_codes"], parameter_set_id=context.get("parameter_set_id"), look_allocation=allocation)
         calibration = context.get("calibration")
-        delta = context.get("practical_equivalence")
+        scope_check = calibration_scope_check(calibration, metric_id=metric_id,
+            scope=task_calibration_scope(refs[-1] if refs else None, context), model_version=trend["model_version"])
         reasons = []
         label = "uncertain"
         if not refs or any(opportunity(r) == "capacity_unobserved" for r in refs):
             label, reasons = "opportunity_unchecked", ["capacity_unobserved"]
-        elif not delta or not delta.get("declared_before"):
-            reasons = ["practical_equivalence_not_preregistered"]
-        elif instant(delta["declared_before"]) > min(instant(r["_event_end"]) for r in refs):
-            reasons = ["practical_equivalence_chosen_after_observations"]
+        elif delta_reasons:
+            reasons = delta_reasons
         elif not trend["interval"]:
             reasons = trend["reason_codes"]
-        elif not calibration_matches(calibration, metric_id=metric_id, scope=context.get("scope", {}), model_version=trend["model_version"]):
+        elif not scope_check["matches"]:
             reasons = ["target_calibration_missing_or_scope_mismatch"]
         elif allocation_reasons:
             reasons = allocation_reasons
@@ -275,17 +365,16 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
             lo, hi = trend["interval"]["lower"], trend["interval"]["upper"]
             left, right = delta["lower_magnitude"], delta["upper_magnitude"]
             label = classify_interval(lo, hi, left, right)
-        if not calibration_matches(calibration, metric_id=metric_id, scope=context.get("scope", {}), model_version=trend["model_version"]):
-            reasons = list(dict.fromkeys(reasons + ["target_calibration_missing_or_scope_mismatch"]))
+        if not scope_check["matches"]:
+            reasons = list(dict.fromkeys(reasons + ["target_calibration_missing_or_scope_mismatch"] + scope_check["reason_codes"]))
         return emit({"classification": label, "trend": trend, "practical_equivalence": delta},
                     "insufficient" if reasons else "valid", evidence_status="research_only" if reasons else "model_conditional",
-                    calibration=calibration, reasons=reasons, valid_n=len(refs))
+                    calibration=calibration, calibration_scope_check=scope_check, reasons=reasons, valid_n=len(refs))
     if code == 21:
         delta = context.get("practical_equivalence")
-        if delta and delta.get("unit") is not None and delta.get("unit") != context.get("outcome_unit", "repetitions"):
-            raise ValueError("practical_equivalence_unit_mismatch")
-        if not delta or any(finite(delta.get(k)) is None or delta[k] < 0 for k in ("lower_magnitude", "upper_magnitude")):
-            return emit(None, "insufficient", reasons=["user_or_protocol_equivalence_required"])
+        reasons = equivalence_reasons(delta, context.get("outcome_unit", "repetitions"), refs)
+        if reasons:
+            return emit(None, "insufficient", reasons=reasons)
         return emit(delta, parameter_set_id=context.get("parameter_set_id"))
     if code == 23:
         return emit([{ "set_id": r.get("id"), "observation": opportunity(r), "stop_reason": r.get("stop_reason")} for r in refs] or None,
@@ -298,22 +387,38 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
     if code == 25:
         history = refs[-1] if refs else None
         plan = context.get("progression_plan")
-        if not history or not plan:
+        if not history or not isinstance(plan, dict) or not plan:
             return emit(None, "insufficient", reasons=["comparable_reference_and_user_plan_required"])
+        if applicability["applicable"] is not True:
+            return emit({"candidate": "review_observations_or_collect_reference", "next_load": None}, "partial",
+                        reasons=["candidate_applicability_" + applicability["status"], *applicability["reason_codes"]])
         if not comparable(history, history, protocol=True)[0]:
             return emit(None, "insufficient", reasons=["complete_reference_protocol_required"])
         if not history.get("load_unit"):
             return emit(None, "insufficient", reasons=["reference_load_unit_required"])
-        required = ("rep_upper", "target_rir_min", "target_rir_max", "available_loads")
-        if any(k not in plan for k in required):
-            return emit(None, "insufficient", reasons=["plan_targets_or_equipment_steps_missing"])
+        upper, next_reps = finite(plan.get("rep_upper")), finite(plan.get("next_target_reps"))
+        reasons = []
+        if upper is None or upper <= 0 or int(upper) != upper:
+            reasons.append("positive_integer_plan_repetition_upper_required")
+        if next_reps is None or next_reps <= 0 or int(next_reps) != next_reps:
+            reasons.append("positive_integer_next_repetition_target_required")
+        elif upper is not None and next_reps > upper:
+            reasons.append("next_repetition_target_exceeds_plan_upper")
+        effort, effort_reasons = _plan_rir_range(plan, required=True)
+        reasons.extend(effort_reasons)
+        available = _plan_equipment_steps(plan)
+        if available is None:
+            reasons.append("finite_nonnegative_equipment_steps_required")
+        if reasons:
+            return emit(None, "insufficient", reasons=reasons)
         current = finite(history.get("entered_load"))
         reserve = finite(history.get("rir"))
+        observed_reps = finite(history.get("reps"))
         assistance = load_basis(history) == "assistance_setting"
-        steps = sorted((float(v) for v in plan["available_loads"] if finite(v) is not None and current is not None
-                        and (float(v) < current if assistance else float(v) > current)), reverse=assistance)
-        qualified = current is not None and finite(history.get("reps")) is not None and history["reps"] >= plan["rep_upper"] \
-            and reserve is not None and plan["target_rir_min"] <= reserve <= plan["target_rir_max"] and history.get("quality") == "acceptable"
+        steps = sorted((v for v in available if current is not None
+                        and (v < current if assistance else v > current)), reverse=assistance)
+        qualified = current is not None and observed_reps is not None and observed_reps >= upper \
+            and reserve is not None and effort["min"] <= reserve <= effort["max"] and history.get("quality") == "acceptable"
         if not qualified or not steps:
             return emit({"candidate": "continue_user_plan_or_collect_reference", "next_load": None}, "partial",
                         reasons=["plan_upper_target_or_effort_or_quality_not_met" if not qualified else "no_available_equipment_step"])
@@ -321,6 +426,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         reviewed = [p for p in principles if p.get("review_status") == "approved"
                     and p.get("version") and p.get("reviewer") and p.get("reviewed_at")
                     and p.get("capability") == "progression_candidate"
+                    and "double_progression" in p.get("permitted_actions", [])
                     and p.get("evidence_spans") and p.get("rights_verified")
                     and p.get("scope_matches")]
         if not reviewed:
@@ -331,11 +437,16 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         changes = load_change(history, next_row)
         return emit({"candidate": "double_progression_candidate", "current_load": current, "next_load": steps[0],
                      "load_unit": history.get("load_unit"), "reference_set_id": history.get("set_uuid") or history.get("set_id") or history.get("id"),
-                     "target_reps": plan.get("next_target_reps"), "load_basis": load_basis(history), "changes": changes,
+                     "target_reps": int(next_reps), "target_rir_range": effort,
+                     "load_basis": load_basis(history), "changes": changes,
                      "verification_task": "Record first work set, RIR, quality and stop reason; stop or revise if unsuitable",
                      "expected_success": None, "reviewed_principle_versions": [{"id": p.get("id", p.get("theory_id")), "version": p["version"]} for p in reviewed]}, evidence_status="definition_based",
                     reasons=["user_plan_candidate_not_guaranteed_success_or_optimal_prescription"])
     if code == 26:
+        if applicability["applicable"] is not True:
+            return emit({"candidates": ["maintain_and_collect_reference"], "task_trial": None,
+                         "quantified_change": None, "review_options": ["review_symptoms_and_technique", "clarify_unknown_observations"]}, "partial",
+                        reasons=["candidate_applicability_" + applicability["status"], *applicability["reason_codes"]])
         allowed = context.get("allowed_trial_actions", [])
         approved = [p for p in context.get("reviewed_principles", [])
                     if p.get("review_status") == "approved" and p.get("version") and p.get("reviewer")
@@ -344,10 +455,20 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if not approved:
             return emit({"candidates": ["maintain_and_collect_reference"], "quantified_change": None}, "partial",
                         reasons=["reviewed_principles_missing", "personal_intervention_effect_unvalidated"])
-        actions = [v for v in allowed if v in {"repetition_progression", "heavier_lower_reps", "discuss_sets", "discuss_interval", "maintain_and_collect_reference"}]
+        permitted = {action for principle in approved for action in principle.get("permitted_actions", [])}
+        actions = [v for v in allowed if v in permitted
+                   and v in {"repetition_progression", "heavier_lower_reps", "discuss_sets", "discuss_interval", "maintain_and_collect_reference"}]
+        if not actions:
+            return emit({"candidates": ["maintain_and_collect_reference"], "task_trial": None, "quantified_change": None},
+                        "partial", reasons=["specific_reviewed_rule_action_permission_required"])
         numerical = None
         plan = context.get("progression_plan") or {}
         reasons = ["trial_not_causal_effect_estimate"]
+        if not isinstance(plan, dict):
+            return emit(None, "insufficient", reasons=["user_trial_plan_must_be_structured"])
+        effort, effort_reasons = _plan_rir_range(plan, required=False)
+        if effort_reasons and {"heavier_lower_reps", "repetition_progression"}.intersection(actions):
+            return emit({"candidates": actions, "task_trial": None}, "insufficient", reasons=effort_reasons)
         if refs and "heavier_lower_reps" in actions and plan.get("next_target_reps") is not None:
             previous = refs[-1]
             target_reps = finite(plan.get("next_target_reps"))
@@ -359,21 +480,57 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                 return emit(None, "insufficient", reasons=["positive_integer_target_lower_than_reference_reps_required"])
             current = finite(previous.get("load_value"))
             assistance = load_basis(previous) == "assistance_setting"
-            steps = sorted((float(v) for v in plan.get("available_loads", []) if finite(v) is not None and current is not None
-                            and (float(v) < current if assistance else float(v) > current)), reverse=assistance)
+            available = _plan_equipment_steps(plan)
+            if available is None:
+                return emit(None, "insufficient", reasons=["finite_nonnegative_equipment_steps_required"])
+            steps = sorted((v for v in available if current is not None
+                            and (v < current if assistance else v > current)), reverse=assistance)
             if steps and finite(plan.get("next_target_reps")) is not None:
                 proposed = {**previous, "load_value": steps[0]}
                 numerical = {"load_value": steps[0], "load_basis": load_basis(previous),
                              "load_unit": previous.get("load_unit"), "reference_set_id": previous.get("set_uuid") or previous.get("set_id") or previous.get("id"),
-                             "reps_target": plan["next_target_reps"], "changes": load_change(previous, proposed),
+                             "reps_target": int(target_reps), "changes": load_change(previous, proposed),
                              "expected_success": None, "exit_options": ["stop", "revise_target", "end_exercise"],
                              "reason": "user_allowed_task_trial_not_capacity_guarantee"}
             else:
                 reasons.append("harder_available_equipment_step_required")
         elif "heavier_lower_reps" in actions:
             reasons.append("comparable_reference_and_explicit_lower_repetition_target_required")
+        if "repetition_progression" in actions and "heavier_lower_reps" not in actions:
+            previous = refs[-1] if refs else None
+            upper = finite(plan.get("rep_upper"))
+            if not previous:
+                reasons.append("comparable_reference_required")
+            elif not comparable(previous, previous, protocol=True)[0]:
+                reasons.append("complete_reference_protocol_required")
+            elif not previous.get("load_unit") or finite(previous.get("load_value")) is None:
+                reasons.append("reference_load_and_unit_required")
+            elif upper is None or upper <= 0 or int(upper) != upper:
+                reasons.append("explicit_positive_integer_user_repetition_upper_target_required")
+            elif finite(previous.get("reps")) is None or upper <= previous["reps"]:
+                reasons.append("user_upper_repetition_target_not_above_observation")
+            else:
+                reference_id = previous.get("set_uuid") or previous.get("set_id") or previous.get("id")
+                numerical = {"load_value": finite(previous["load_value"]), "load_basis": load_basis(previous),
+                             "load_unit": previous["load_unit"], "reference_set_id": reference_id,
+                             "reps_target": int(upper), "changes": load_change(previous, previous),
+                             "expected_success": None, "exit_options": ["stop", "revise_target", "end_exercise"],
+                             "reason": "same_observed_load_and_explicit_user_repetition_upper_target",
+                             "numeric_provenance": {
+                                 "load_value": {"kind": "observed", "unit": previous["load_unit"], "source_record_id": reference_id},
+                                 "reps_target": {"kind": "user_target", "unit": "repetitions", "source": "progression_plan.rep_upper",
+                                                 "target_version": context.get("target_version")}}}
+        if numerical is not None:
+            numerical["target_rir_range"] = effort
+            numerical["effort_target_status"] = "user_specified" if effort is not None else "unspecified"
+            if effort is None:
+                reasons.append("target_rir_unspecified_not_effort_matched")
         return emit({"candidates": actions, "reviewed_principle_ids": [p.get("id", p.get("theory_id")) for p in approved],
+                     "action_authority": [{"action": action, "rule_versions": [
+                         {"id": p.get("id", p.get("theory_id")), "version": p["version"]} for p in approved if action in p.get("permitted_actions", [])]}
+                         for action in actions],
                      "task_trial": numerical, "verification_task": context.get("verification_task"), "personal_optimum": None},
+                    "partial" if numerical is not None and effort is None else
                     "valid" if actions and len(reasons) == 1 else "insufficient", reasons=reasons)
     if code in {27, 28}:
         outcomes = context.get("recommendation_outcomes", [])
@@ -388,6 +545,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                 met = complete and row.get("quality_comparable") is True and all(
                     spec["min"] <= actual[k] <= spec["max"] for k, spec in targets.items())
                 values.append({"recommendation_id": row.get("recommendation_id"), "adoption": row.get("adoption"),
+                               "strategy": row.get("strategy"), "task_id": row.get("task_id"), "rule_versions": row.get("rule_versions"),
                                "execution_state": row.get("execution_state"),
                                "short_term_success": bool(met) if complete else None,
                                "reason_codes": ["execution_not_confirmed"] if not executed else ["task_condition_or_quality_unknown"] if not quality_known else [],
@@ -397,20 +555,41 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         values = strength_metric("STR-27", rows, window, context)["value"] or []
         responding = [r for r in values if r["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
         complete = [r for r in values if r["short_term_success"] is not None]
+        groups, strata = defaultdict(list), []
+        for item in values:
+            identity = {key: item.get(key) for key in ("strategy", "task_id", "rule_versions")}
+            groups[canonical_hash(identity)].append(item)
+        for group in groups.values():
+            replied = [item for item in group if item["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
+            known = [item for item in group if item["short_term_success"] is not None]
+            strata.append({**{key: group[0].get(key) for key in ("strategy", "task_id", "rule_versions")},
+                           "recommendation_ids": [item["recommendation_id"] for item in group],
+                           "counts": {"adoption_numerator": sum(item["adoption"] == "adopted" for item in replied),
+                                      "adoption_denominator": len(replied), "unanswered": len(group) - len(replied),
+                                      "success_numerator": sum(item["short_term_success"] for item in known),
+                                      "success_denominator": len(known), "missing_outcomes": len(group) - len(known)}})
         return emit({"adoption_numerator": sum(r["adoption"] == "adopted" for r in responding), "adoption_denominator": len(responding),
                      "unanswered": len(values) - len(responding), "success_numerator": sum(r["short_term_success"] for r in complete),
-                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete)},
+                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete), "strata": strata},
                     "valid" if values else "insufficient", count_domain="recommendations", total_n=len(values), valid_n=len(complete))
     if code == 29:
         return emit({"fields": {k: {"numerator": sum(r.get(k) is not None for r in rows), "denominator": total}
                                 for k in ("entered_load", "reps", "rir", "stop_reason")},
-                     "comparable_references": sum(condition_key(r) is not None for r in refs), "candidate_references": len(refs)},
+                     "comparable_references": sum(condition_key(r) is not None for r in refs), "candidate_references": len(refs),
+                     "protocol_complete_references": sum(analysis_task(r)["protocol_complete"] for r in refs),
+                     "outcome_series_eligible_references": sum(outcome_series(r)["eligible"] for r in refs),
+                     "outcome_series_ids": sorted({outcome_series(r)["outcome_series_id"] for r in refs if outcome_series(r)["eligible"]})},
                     "valid" if rows else "insufficient", reasons=["no_aggregate_quality_score"])
     if code == 30:
         numerator = finite(context.get("strength_numerator"))
-        mass = finite(context.get("body_mass_kg"))
-        if numerator is None or mass is None or mass <= 0 or not context.get("complete_load_known"):
+        mass_record = context.get("body_mass_observation")
+        mass_numeric = quantity_value(mass_record) if mass_record else {}
+        mass = mass_numeric.get("value") if mass_numeric.get("unit") == "kg" else None
+        if numerator is None or context.get("strength_numerator_unit") != "kg" or mass is None or mass <= 0 or not context.get("complete_load_known"):
             return emit(None, "insufficient", reasons=["complete_numerator_and_comparable_body_mass_required"])
         return emit({"ratio": numerator / mass, "numerator": numerator, "body_mass_kg": mass,
+                     "body_mass_record_id": mass_record.get("id", mass_record.get("_source_id")),
+                     "body_mass_observed_at": mass_record.get("event_end", mass_record.get("end_utc")),
+                     "body_mass_source": mass_record.get("source_name"), "body_mass_normalization": mass_numeric,
                      "numerator_identity": context.get("strength_numerator_identity")}, evidence_status=context.get("numerator_evidence_status", "descriptive"))
     raise ValueError("unknown_strength_metric")

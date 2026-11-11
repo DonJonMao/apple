@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from datetime import datetime, timedelta, timezone
-from uuid import uuid4
 
 import streamlit as st
 
@@ -26,95 +23,37 @@ EXECUTIONS = {"unknown": "尚未记录", "executed": "已执行", "partially_exe
 VERIFICATION = "在执行前指定参考组，记录实际重量、次数、RIR、动作质量与停止原因；不适合时可停止、改目标或结束动作。"
 
 
-def _register_parameters(repo, instance, plan, available, strategy):
-    from healthzip.science.registry import ParameterRegistry
-
-    if repo.conn.in_transaction:
-        raise ValueError("请先保存当前编辑，再核对候选依据。")
-    registry = ParameterRegistry(str(repo.path))
-    try:
-        parameters = []
-        for kind, value, unit in (
-            ("user_plan", {"plan": plan, "strategy": strategy}, "declared_task"),
-            ("equipment_constraint", available, "recorded_load_unit"),
-        ):
-            digest = hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
-            parameters.append(registry.register({
-                "parameter_id": f"{kind}:{instance['id']}", "version": digest,
-                "kind": kind, "definition": "用户计划与策略" if kind == "user_plan" else "用户确认本台器械可用档位",
-                "value_or_distribution": value, "unit": unit,
-                "provenance": {"basis": "user_declared", "source_ids": [], "source_location": "training_candidate_form"},
-                "scope": {"session_exercise_id": instance["id"], "condition_key": instance.get("condition_key")},
-                "validation_status": "user_declared",
-            }))
-        return parameters
-    finally:
-        registry.close()
-
-
 def _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy):
-    from healthzip.knowledge import KnowledgeWorkbench
-
-    now = datetime.now(timezone.utc)
-    records, context = snapshot(repo, now.isoformat())
-    condition_key = instance.get("condition_key")
-    records = [r for r in records if condition_key and r.get("record_kind") == "strength_set"
-               and r.get("condition_key") == condition_key and r.get("session_id") != session["id"]
-               and r.get("completion_state") == "completed" and r.get("ended_at")]
-    records.sort(key=lambda r: datetime.fromisoformat(r["ended_at"].replace("Z", "+00:00")))
-    target = selected["target"] if selected else {}
-    plan = {"rep_upper": target.get("reps_max"), "target_rir_min": target.get("rir"),
-            "target_rir_max": target.get("rir"), "available_loads": available,
-            "next_target_reps": target.get("reps_min")}
-    if any(plan[k] is None for k in ("rep_upper", "target_rir_min", "target_rir_max", "next_target_reps")):
-        plan = None
-    parameters = _register_parameters(repo, instance, plan, available, strategy)
-    knowledge = KnowledgeWorkbench(".local/knowledge")
-    try:
-        authority = knowledge.reviewed_principles("progression", instance["condition"])
-    finally:
-        knowledge.close()
-    metric_id = "STR-25" if strategy == "double_progression" else "STR-26"
-    metric = evaluate(metric_id, records, cutoff_time=now.isoformat(),
-                      window_start=(now - timedelta(days=365)).isoformat(), window_end=now.isoformat(),
-                      context={**context, "progression_plan": plan, "reviewed_principles": authority["principles"],
-                               "allowed_trial_actions": [strategy] if metric_id == "STR-26" else [],
-                               "verification_task": VERIFICATION})
-    metric["parameter_set_id"] = parameters[0]["parameter_id"] + "@" + parameters[0]["version"]
-    metric["parameters_used"] = [{"parameter_id": p["parameter_id"], "version": p["version"], "kind": p["kind"]} for p in parameters]
-    value = metric.get("value") or {}
-    trial = value.get("task_trial") or {}
-    load = value.get("next_load") if metric_id == "STR-25" else trial.get("load_value")
-    reference = value if metric_id == "STR-25" else trial
-    action = (value.get("candidate") if metric_id == "STR-25" else strategy) if load is not None else "collect_or_confirm_evidence"
-    if metric_id == "STR-26" and load is None and strategy in value.get("candidates", []):
-        action = strategy  # Discussion/observation tasks have no numerical success target.
-    reps = value.get("target_reps") if metric_id == "STR-25" else trial.get("reps_target")
-    target_range = {"reps_min": reps, "reps_max": reps, "rir_min": target.get("rir"), "rir_max": target.get("rir")} if load is not None else {}
-    candidate = {
-        "candidate_id": str(uuid4()), "target_session": session["session_uuid"], "action_kind": action,
-        "proposed_change": {"load": load, "load_unit": reference.get("load_unit"),
-                            "load_basis": instance["condition"].get("load_basis"), "changes": trial.get("changes", value.get("changes"))},
-        "target_range": target_range, "reason_evidence_ids": [metric_id], "eligibility": metric["reason_codes"],
-        "uncertainty": metric["uncertainty"], "verification_protocol": VERIFICATION,
-        "followup_window": "本次所选动作的候选创建后执行记录；结束后可在历史中复核",
-        "rule_version": metric["algorithm_version"], "user_choice": None,
-    }
-    frozen = {
-        "source_record_ids": [r.get("set_uuid") or r["raw_id"] for r in records], "metric_result": metric,
-        "plan_snapshot": {"sets": [target] if target else []}, "original_plan_snapshot": instance.get("planned"),
-        "effective_targets_snapshot": effective, "selected_target": selected,
-        "reference_set_id": reference.get("reference_set_id"),
-        "condition": instance["condition"], "theory_authority": authority, "strategy": strategy,
-        "session_exercise_id": instance["id"], "parameter_manifest": parameters,
-    }
-    return svc.record_recommendation(
-        candidate, frozen, cutoff_time=now.isoformat(),
-        theory_version=str(authority.get("source_release") or authority.get("review_snapshot_sha256") or "none_reviewed_for_numerical_action"),
-    )
+    from healthzip.advice import freeze_candidate
+    return freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
+                            timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"))
 
 
 def _create_form(repo, svc, session, instance, key):
+    from healthzip.advice import profile, save_profile
+
+    personal = profile(repo, svc.user_id)
+    fields = personal["fields"]
+    with st.expander("建议适用信息（保存在本机，可留未知）"):
+        st.caption("这些是你的自报信息，用于核对来源适用范围；填写不等于医疗评估或专业审核。")
+        age_text = st.text_input("年龄（可留空）", value=str(fields.get("age") or ""), key="advice_age_" + key)
+        choices = {
+            "training_goal": ("训练目标", {"unknown": "尚未明确", "strength": "力量表现", "hypertrophy": "肌肉增长", "general_fitness": "一般体能"}),
+            "training_experience": ("力量训练经验", {"unknown": "尚未记录", "novice": "新手", "experienced": "有训练经验"}),
+            "health_scope": ("健康适用范围自报", {"unknown": "尚未确认", "healthy_adult_self_reported": "自报一般健康成人", "clinical_or_rehabilitation": "有疾病或康复相关限制"}),
+        }
+        entered = {}
+        for name, (label, options) in choices.items():
+            current = fields.get(name) or "unknown"
+            entered[name] = st.selectbox(label, list(options), index=list(options).index(current) if current in options else 0,
+                                         format_func=options.get, key="advice_profile_" + name + "_" + key)
+        if st.button("保存适用信息", key="advice_profile_save_" + key):
+            try:
+                entered["age"] = numeric(age_text, "年龄") if age_text.strip() else None
+                save_profile(repo, entered, user_id=svc.user_id)
+                st.success("已保存自报范围及版本；未确认信息保持未知。")
+            except ValueError as exc:
+                st.error(str(exc))
     effective = svc.current_targets(instance["id"])
     targets = effective["sets"]
     by_id = {x["set_uuid"]: x for x in targets}
@@ -141,8 +80,14 @@ def _create_form(repo, svc, session, instance, key):
 
 
 def _render_feedback(repo, svc, instance, record, prefix):
+    from healthzip.advice import current_use_status
+
     candidate = record["candidate"]
     cid = candidate["candidate_id"]
+    current_status = current_use_status(repo, record)
+    if current_status["status"] == "review_required":
+        st.warning("当前使用需重新核对：" + "；".join(current_status["reason_codes"]))
+        st.caption("原候选及当时依据保持不变；新的观察、目标或知识状态单独留有复核记录。")
     st.write("候选 / 缺项", candidate["action_kind"], candidate["eligibility"])
     if candidate.get("proposed_change", {}).get("load") is not None:
         st.write("待选择的任务", candidate["proposed_change"], candidate["target_range"])
@@ -169,16 +114,39 @@ def _render_feedback(repo, svc, instance, record, prefix):
     # A later correction/deletion may remove a previously selected actual group.
     st.session_state[record_key] = [sid for sid in st.session_state.get(record_key, []) if sid in actual]
     choice = st.selectbox("我的选择", list(CHOICES), format_func=CHOICES.get, key=choice_key)
+    modified = None
+    if choice == "modified":
+        proposed = candidate.get("proposed_change", {}).get("load")
+        if proposed is not None:
+            st.caption("修改将冻结为独立任务；须仍符合当前依据、测量模式与已确认器械档位，原候选保留。")
+            changed_load = st.number_input("修改后的重量 / 刻度", value=float(proposed), min_value=0.0, key=prefix + "modified_load_" + cid)
+            changed_targets = dict(candidate.get("target_range", {}))
+            for name, value in list(changed_targets.items()):
+                if value is not None:
+                    changed_targets[name] = st.number_input("修改目标 " + name, value=float(value), min_value=0.0,
+                                                          key=prefix + "modified_" + name + "_" + cid)
+            modified = (changed_load, changed_targets)
+        else:
+            st.info("当前只有缺项或讨论任务，请先补充条件并核对新的任务。")
     execution = st.selectbox("实际执行", list(EXECUTIONS), format_func=EXECUTIONS.get, key=execution_key)
     selected_ids = st.multiselect("用于复核的实际组", list(actual), key=record_key,
                                  format_func=lambda sid: f"第 {actual[sid].get('set_number')} 组 · {actual[sid].get('load_value')} × {actual[sid].get('reps')}")
     reason = st.text_input("未执行原因 / 后续结果", key=reason_key)
     if st.button("保存选择与执行反馈", key=prefix + "feedback_" + cid):
         try:
+            feedback_id = cid
+            if choice == "modified":
+                if modified is None:
+                    raise ValueError("没有可核对的数值任务可修改")
+                if execution != "unknown":
+                    raise ValueError("新修改任务先保存为尚未记录，再记录其后的实际执行")
+                from healthzip.advice import modify_candidate
+                revised = modify_candidate(repo, record, *modified)
+                feedback_id = revised["candidate_id"]
             if execution in {"executed", "partially_executed"} and not selected_ids:
                 raise ValueError("请选取实际组用于复核；尚未记录时将执行状态保留为尚未记录。")
             svc.recommendation_feedback(
-                cid, user_choice=choice, execution_state=execution, nonexecution_reason=reason or "unknown",
+                feedback_id, user_choice=choice, execution_state=execution, nonexecution_reason=reason or "unknown",
                 outcome={"user_note": reason},
                 actual_record_ids=selected_ids if execution in {"executed", "partially_executed"} else [],
             )
@@ -188,7 +156,7 @@ def _render_feedback(repo, svc, instance, record, prefix):
     if latest:
         st.caption("最近反馈：" + str(latest.get("recorded_at")))
         now = datetime.now(timezone.utc)
-        _, context = snapshot(repo, now.isoformat())
+        _, context = snapshot(repo, now.isoformat(), include_sources=False)
         outcome = next((r for r in context["recommendation_outcomes"] if r["recommendation_id"] == cid), None)
         if outcome:
             metric = evaluate("STR-27", [], cutoff_time=now.isoformat(),

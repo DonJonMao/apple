@@ -1,0 +1,1770 @@
+{
+  "review_baseline": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+  "metric_count": 65,
+  "algorithm_version": "healthzip-science-1.4",
+  "verification_test_cases": 418,
+  "all_verification_cases_passed": true,
+  "new_real_calibration_artifacts_created": 0,
+  "new_human_or_expert_approvals_created": 0,
+  "scope": "science/normalize and bounded real-entry synthetic import/TrainingService tests; root owns final UI/knowledge integration",
+  "metrics": [
+    {
+      "metric_id": "STR-01",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保持 parent 与 segment 层级和原始状态",
+        "动作库扩展、离线同步与历史模板不得改变既有组身份"
+      ],
+      "targeted_acceptance_reviewed": [
+        "直组重传不重复计数",
+        "递减组多段仍是一个 parent 组",
+        "未填与明确未执行不能合并"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "组",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T03]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-02",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "固定历史动作版本对应的记录模式",
+        "不同模式分别展示、导出和汇总"
+      ],
+      "targeted_acceptance_reviewed": [
+        "reps 模式改版为 duration 后历史记录仍按旧版解释",
+        "单侧两边的次数与侧别可追溯",
+        "缺字段不补零"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次 / 秒",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-03",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "动作目录给出明确允许的负荷口径",
+        "保留原值原单位及转换版本",
+        "未知杆重、体重支撑比例与机械倍率保持未知"
+      ],
+      "targeted_acceptance_reviewed": [
+        "kg/lb 精确换算且不丢原值",
+        "缺杆重不算杠铃总重",
+        "助力增加的方向不能当作外加负荷增加",
+        "器械刻度不冒充自由重量"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg / lb / 器械刻度",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T03]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-04",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保持分动作、口径与条件汇总",
+        "页面和报告统一使用配重×次数名义"
+      ],
+      "targeted_acceptance_reviewed": [
+        "30 kg×10=300 kg·次",
+        "不是焦耳、机械功或热量",
+        "部分缺配重只汇总可计算部分并报告分母"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg·次",
+      "empty_input_data_status": "valid",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-05",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "目录导航用肌群标签与定量计数所需审核映射分离",
+        "没有审核映射时保留训练记录但不生成生理剂量"
+      ],
+      "targeted_acceptance_reviewed": [
+        "新导入动作只有导航标签时不能自动进入直接组数",
+        "更改映射版本不改历史快照",
+        "复合动作可多标签但不可相加为全身有效组"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "组/肌群/时间窗",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-06",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "与 STR-05 共享映射版本和审批来源",
+        "直接/间接分别展示"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同组可同时出现直接与间接参与但不可加权为有效组",
+        "无审核映射返回未知",
+        "地图更新可追溯"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "组/肌群/时间窗",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-06-T01]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-07",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "与 STR-19 的 outcome series 分层一致显示参考暴露",
+        "另列有记录但无可用参考的场次，避免把参考覆盖说成训练总次数"
+      ],
+      "targeted_acceptance_reviewed": [
+        "跨两个负荷层分别给出暴露数与跨度",
+        "一次 session 多个普通组不变成多次独立暴露",
+        "断档不插值或补零"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次 / 天",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-07-T01]",
+        "tests/science/test_v14_science.py::test_f07_exposure_layers_and_training_frequency_include_ordinary_sessions"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-08",
+      "revision_action": "明确语义并回归",
+      "planned_behavior_reviewed": [
+        "区分实际记录训练场次频率与符合参考协议的暴露频率",
+        "日历分母与窗口口径明确，不能将记录空白当作未训练"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同场多个组只算一场",
+        "存在完成组但缺参考协议时仍计入训练记录频率并单独降低可比覆盖",
+        "只一天观察不制造长期每周频率"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次/周；天",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-08-T01]",
+        "tests/science/test_v14_science.py::test_f07_exposure_layers_and_training_frequency_include_ordinary_sessions"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-09",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "计划版本、执行 session 与模板原动作版本一致",
+        "保持未知分母和额外执行独立"
+      ],
+      "targeted_acceptance_reviewed": [
+        "3 个冻结目标完成 2 个并新增 1 个，不得成为 100% 原计划执行",
+        "新场次记录写入当前选中 session",
+        "改模板不回写已冻结计划"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "比例",
+      "empty_input_data_status": "not_applicable",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-10",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保留量表、采集时间、是否估计及限定语",
+        "不从普通 RPE 或组间下降反推 RIR"
+      ],
+      "targeted_acceptance_reviewed": [
+        "RIR≥3 不渲染为精确 3",
+        "普通 RPE 不转换为 RIR",
+        "缺努力程度使依赖它的判断降级而不阻止记录"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次余力 / 量表分值",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-11",
+      "revision_action": "保持修复并回归",
+      "planned_behavior_reviewed": [
+        "保留 R01/R02 修复",
+        "任务由完整结构化协议、动作版本和条件组成，候选的基准与当场安全/质量观察分开"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同场卧推与深蹲各保留参考",
+        "普通后续组仍进入场内下降",
+        "纯旧字符串不伪装完整协议",
+        "当前不良记录不可因非参考组而从候选适用性消失"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "结构化向量",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-11-T01]",
+        "tests/science/test_v14_science.py::test_f04_restricted_or_unknown_reference_cannot_license_harder_task",
+        "tests/science/test_v14_science.py::test_f03_current_nonreference_observation_vetoes_good_historical_baseline",
+        "tests/science/test_v14_science.py::test_f03_current_unknown_observation_timestamp_cannot_disappear_as_empty_normal_context"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-12",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "同负荷分层比较",
+        "显示前后次数、日期、努力与协议差异，不把更接近力竭误称适应"
+      ],
+      "targeted_acceptance_reviewed": [
+        "不同动作、设备、单位、ROM 或协议不比较",
+        "30 kg 的两次观察不被中间 32.5 kg 观察覆盖成不可比全历史",
+        "缺努力程度仅作受限描述"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-12-T01]",
+        "tests/science/test_v14_science.py::test_f07_intervening_load_does_not_hide_same_load_raw_change"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-13",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保持跨负荷的同次数比较能力",
+        "STR-19 修复只对需要固定负荷的 outcome series 分层，不能把负荷写死到全部任务身份"
+      ],
+      "targeted_acceptance_reviewed": [
+        "30 kg×10 与 32.5 kg×10 可比较 2.5 kg",
+        "STR-19 分层后此能力仍存在",
+        "助力方向与器械身份明确"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg 或同机刻度",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-13-T01]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-14",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "同时固定负荷、次数和协议",
+        "RIR 限定区间不硬作点差"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同负荷同次数 RIR 2→3 显示原差但不宣称肌力增加百分比",
+        "次数变化时不可直接应用",
+        "缺 RIR 保持未知"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次余力",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-14-T01]",
+        "tests/science/test_v14_science.py::test_f07_intervening_load_does_not_hide_same_load_raw_change"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-15",
+      "revision_action": "保持修复并回归",
+      "planned_behavior_reviewed": [
+        "继续使用全部适用组",
+        "记录休息、顺序、目标及停止原因，不从下降诊断中枢疲劳或恢复不足"
+      ],
+      "targeted_acceptance_reviewed": [
+        "10/8/6 次完整保存下降序列",
+        "两个动作不串组",
+        "因计划提前停止或疼痛不能解释为单一疲劳病因"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次数差 / 比例",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-15-T01]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-16",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "明确 Epley 0.0333 与 /30 版本差异",
+        "原始组表现优先，候选不依赖未经校准换算"
+      ],
+      "targeted_acceptance_reviewed": [
+        "超出已声明重复次数/努力范围返回不适用而非截断",
+        "不同版本可复算",
+        "实测最大值不冒充公式估计",
+        "不得自动开通训练处方"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg",
+      "empty_input_data_status": "not_applicable",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T03]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-17",
+      "revision_action": "保持研究边界",
+      "planned_behavior_reviewed": [
+        "明确 RIR 修正未完成个体效度验证",
+        "RIR 缺失或范围值不补成精确点估计"
+      ],
+      "targeted_acceptance_reviewed": [
+        "没有 RIR 不替代为 0",
+        "RIR 修正结果不得成为默认推荐增重或“真实 1RM”",
+        "异常输入不得裁剪伪造有效值"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg",
+      "empty_input_data_status": "not_applicable",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-17-T01]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-18",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "单列重测协议、误差单位及设计假设",
+        "没有有效重复测量或区间方法时输出未知，不从训练趋势残差偷换成可靠测量误差"
+      ],
+      "targeted_acceptance_reviewed": [
+        "换动作/负荷/协议的配对不能作为同任务重测",
+        "零差不证明无测量误差",
+        "MDC 条件与单位明确，不能成为统一进阶阈值"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次 / kg 或CV",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-18-T01]",
+        "tests/science/test_v14_science.py::test_metric_matrix_retest_requires_same_task_and_reports_zero_error_limit"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-19",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "增加指标级 outcome series：同任务内按负荷口径、单位、值及结果定义分层",
+        "分别计算和展示真实时间趋势",
+        "保持跨负荷 STR-13，不强造跨负荷能力标量"
+      ],
+      "targeted_acceptance_reviewed": [
+        "30 kg 的 10/12/11 次与 32.5 kg 的 8/10/9 次共存时返回两个描述趋势，非整任务 null",
+        "无登记 look 仍可显示点趋势但无推断区间",
+        "e1RM 未验证不自动合并"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次/天 或经验证指标单位/天",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T02]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values",
+        "tests/integration/test_v14_science_import.py::test_f07_real_training_service_preserves_load_layers_in_analysis"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-20",
+      "revision_action": "修复并保留原门控",
+      "planned_behavior_reviewed": [
+        "继承 outcome series 分层并将 series 身份绑定到 look/快照",
+        "保持 R10 的真实 alpha 消耗，不新增任意显著性阈值"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同数据同 look 可重读且不伪造新独立证据",
+        "切换负荷系列或截止时间不得复用旧 receipt",
+        "不同已登记 alpha 的区间宽度按实际公式变化",
+        "缺门控保留点估计"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "与ΔH相同",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-20-T01]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values",
+        "tests/science/test_v14_science.py::test_f07_series_receipt_cannot_be_reused_for_another_load_or_cutoff"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-21",
+      "revision_action": "统一验证入口",
+      "planned_behavior_reviewed": [
+        "STR-21/22 复用同一范围验证",
+        "保留用户目标或研究协议来源、声明时间与结果单位，不设统一百分比"
+      ],
+      "targeted_acceptance_reviewed": [
+        "repetitions 的结果不可接受 kg 边界",
+        "负值/NaN/事后选择边界不得激活等效分类",
+        "上下界可不对称但来源清楚"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "次 / kg /明确任务单位",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-21-T01]",
+        "tests/science/test_v14_science.py::test_f08_scope_subset_cannot_broaden_calibration_and_audit_fields_do_not_narrow_it",
+        "tests/science/test_v14_science.py::test_f08_actual_task_scope_wins_over_contradictory_caller_labels",
+        "tests/science/test_v14_science.py::test_f08_str22_rejects_same_equivalence_unit_mismatch_as_str21"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-22",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "使用分层的 outcome series",
+        "校准按制品声明的所有必需 scope 字段与实际任务双向匹配，缺一项即不匹配",
+        "与 STR-21 共用边界验证，未满足保持 unknown/opportunity_unchecked"
+      ],
+      "targeted_acceptance_reviewed": [
+        "人工校准制品要求 exercise/population/outcome/reference 时只给 population 不能通过",
+        "wrong exercise 拒绝",
+        "没有真实校准仍可记录/描述而不正式判停滞",
+        "完整合成校准通路可执行分类并给 trace"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "类别",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T03]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values",
+        "tests/science/test_v14_science.py::test_f08_scope_subset_cannot_broaden_calibration_and_audit_fields_do_not_narrow_it",
+        "tests/science/test_v14_science.py::test_f08_actual_task_scope_wins_over_contradictory_caller_labels",
+        "tests/science/test_v14_science.py::test_f08_str22_rejects_same_equivalence_unit_mismatch_as_str21"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-23",
+      "revision_action": "保持并接入候选",
+      "planned_behavior_reviewed": [
+        "同一机会定义供 STR-22/25/26 使用",
+        "不以未尝试更多次数认定能力停滞"
+      ],
+      "targeted_acceptance_reviewed": [
+        "每次 10 次到计划即停不可判停滞",
+        "技术受限/疼痛不等于肌力上限",
+        "明确目标与努力观察才说明机会是否被检验"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "类别",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-23-T01]",
+        "tests/science/test_v14_science.py::test_f04_restricted_or_unknown_reference_cannot_license_harder_task",
+        "tests/science/test_v14_science.py::test_f03_current_nonreference_observation_vetoes_good_historical_baseline",
+        "tests/science/test_v14_science.py::test_f03_current_unknown_observation_timestamp_cannot_disappear_as_empty_normal_context"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-24",
+      "revision_action": "保持修复并扩展身份",
+      "planned_behavior_reviewed": [
+        "增加 outcome series 身份后保持重复查看幂等及预算审计",
+        "预登记统计参数与生理阈值分开"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同任务同快照重复读不得新增 look 或重置 alpha",
+        "真实新增数据按登记家族处理",
+        "未注册 receipt 不生成有效推断",
+        "查看预算耗尽输出明确理由"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "α预算 / look编号",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T02]",
+        "tests/science/test_v14_science.py::test_f07_multiple_loads_preserve_separate_descriptive_series",
+        "tests/science/test_v14_science.py::test_f07_equivalent_exact_mass_units_share_series_without_losing_raw_values",
+        "tests/science/test_v14_science.py::test_f07_series_receipt_cannot_be_reused_for_another_load_or_cutoff"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-25",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "历史可比基准与截止前当前观测分为两类输入",
+        "当前疼痛/技术受限/质量未知进入候选适用性",
+        "受限时拒绝数字升级并说明原因",
+        "条件允许才给真实可用步长候选"
+      ],
+      "targeted_acceptance_reviewed": [
+        "昨天 50×12 良好、今天 50×4 疼痛/技术受限不得仍建议 52.5",
+        "允许的正常案例可给 32.5×8 候选但不保证完成",
+        "当场观测与历史基准都留在冻结证据/快照",
+        "不替换为默认 −5%"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg /同器械刻度",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T02]",
+        "tests/science/test_v14_science.py::test_f04_restricted_or_unknown_reference_cannot_license_harder_task",
+        "tests/science/test_v14_science.py::test_f03_current_nonreference_observation_vetoes_good_historical_baseline",
+        "tests/science/test_v14_science.py::test_f03_current_unknown_observation_timestamp_cannot_disappear_as_empty_normal_context",
+        "tests/science/test_v14_science.py::test_candidate_requires_specific_rule_action_permission",
+        "tests/science/test_v14_science.py::test_double_progression_partial_or_invalid_plan_has_no_numeric_task",
+        "tests/integration/test_v14_advice_flow.py::test_partial_visible_targets_freeze_missing_conditions_without_crashing"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-26",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "策略菜单由用户许可和已审核指南规则共同约束",
+        "在数字候选前检查历史/当前停止原因、疼痛、质量与未知",
+        "不良或未知适用性保留可执行非数值信息收集/调整讨论"
+      ],
+      "targeted_acceptance_reviewed": [
+        "历史 pain_flag 或 stop_reason=pain 或技术受限分别不能给更重负荷",
+        "正常完整条件可生成用户允许策略并冻结",
+        "任一字段未知不得当作正常",
+        "每条候选追到指南版本/章节/适用范围，非因果保证"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "结构化建议",
+      "empty_input_data_status": "partial",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-26-T01]",
+        "tests/science/test_v14_science.py::test_f04_restricted_or_unknown_reference_cannot_license_harder_task",
+        "tests/science/test_v14_science.py::test_f03_current_nonreference_observation_vetoes_good_historical_baseline",
+        "tests/science/test_v14_science.py::test_f03_current_unknown_observation_timestamp_cannot_disappear_as_empty_normal_context",
+        "tests/science/test_v14_science.py::test_candidate_requires_specific_rule_action_permission",
+        "tests/science/test_v14_science.py::test_optional_trial_rir_preserves_unknown_and_blocks_invalid_effort_target",
+        "tests/science/test_v14_science.py::test_repetition_trial_uses_only_explicit_higher_user_upper_target",
+        "tests/science/test_v14_science.py::test_repetition_trial_current_symptoms_or_unknown_block_numeric_target",
+        "tests/integration/test_v14_choice_validation.py::test_repetition_choice_cannot_silently_change_load"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-27",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "维持场次结束后可补反馈",
+        "动作版本/条件/候选快照不可变",
+        "目标未达到与不适用、未执行分开"
+      ],
+      "targeted_acceptance_reviewed": [
+        "已结束场次可关联原候选补录",
+        "unknown quality→unknown outcome",
+        "未执行不进入成功数",
+        "换器械完成不冒充原候选验证"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "类别与原始差值",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-27-T01]",
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-28",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "按候选策略、条件和版本分层报告",
+        "后续差值是观察关联，未随机/控制设计不估计干预效果"
+      ],
+      "targeted_acceptance_reviewed": [
+        "3 个采纳中仅 1 个完整反馈时成功分母=1，未知另列",
+        "反复查看同反馈不增加样本",
+        "不可用成功率宣称某策略导致力量提升"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "比例 / 差值 / 区间",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-28-T01]",
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-29",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "分别报告记录覆盖、任务协议覆盖和 outcome series 可比覆盖",
+        "不将默认填入字段算成实测已知"
+      ],
+      "targeted_acceptance_reviewed": [
+        "动作库新记录缺协议可保存但可比覆盖下降",
+        "分母与时间窗可复算",
+        "缺测与明确零次区分",
+        "无法得出训练日总数时不声称依从性"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "数量 / 比例",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-29-T01]",
+        "tests/science/test_v14_science.py::test_f07_exposure_layers_and_training_frequency_include_ordinary_sessions"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STR-30",
+      "revision_action": "集成与保持",
+      "planned_behavior_reviewed": [
+        "体重输入使用通过单位验证且可比的每日记录",
+        "标注体重日期、来源与分子是实测或公式研究值"
+      ],
+      "targeted_acceptance_reviewed": [
+        "负荷 kg 与体重 kg 后才相除",
+        "lb 转换一致",
+        "缺体重/有效负荷时未知",
+        "e1RM 研究值不会被比值包装成已验证能力"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg/kg",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/strength.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-30-T01]",
+        "tests/science/test_v14_science.py::test_metric_matrix_relative_strength_requires_verified_mass_and_numerator_unit"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SLEEP-MAIN",
+      "revision_action": "修复并保持",
+      "planned_behavior_reviewed": [
+        "先限定与计算有关的 asleep/stage 记录，再判断设备冲突",
+        "保持显式主睡眠与完整性语义"
+      ],
+      "targeted_acceptance_reviewed": [
+        "iPhone inBed 与 Watch asleep 并存时可得显式 Watch 主睡眠",
+        "只有多夜睡眠无主 episode→insufficient",
+        "未来结束片段不能泄漏"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "min",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T03]",
+        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
+        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SLEEP-24H",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "先过滤无关 inBed/清醒记录再识别睡眠源",
+        "多个真正 asleep 流不擅自合并，允许明确选择来源"
+      ],
+      "targeted_acceptance_reviewed": [
+        "iPhone 8h inBed + Watch 7h asleep→420 min 而非 incompatible",
+        "两个真实 asleep 设备仍要求来源处理",
+        "DST 下按真实 24h 而非固定当地日历日"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "min",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T02]",
+        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
+        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SLEEP-COVERAGE",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "分子/分母使用同一时区与半开日期域",
+        "先按域归属再去重，覆盖率是有记录日期而非佩戴时长"
+      ],
+      "targeted_acceptance_reviewed": [
+        "[D00,D+100) 内 D01–06 与 D23–D+100 只占允许日期，不崩溃且分子≤分母",
+        "精确端点及±1微秒、UTC/非UTC/DST 均回归",
+        "空窗保持未知"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ratio",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T02]",
+        "tests/science/test_v14_science.py::test_f02_sleep_coverage_uses_clipped_half_open_local_dates",
+        "tests/science/test_v14_science.py::test_f02_one_metric_failure_does_not_abort_independent_analysis"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SLEEP-STAGE",
+      "revision_action": "修复共享源选择并保持",
+      "planned_behavior_reviewed": [
+        "复用正确 asleep 源选择",
+        "重叠冲突不能消失成精确阶段比例",
+        "不从设备分期推出临床诊断"
+      ],
+      "targeted_acceptance_reviewed": [
+        "阶段缺失时总睡眠仍可用而分期未知",
+        "重叠矛盾明确冲突",
+        "inBed 不进入睡眠分期分母"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "min; ratio",
+      "empty_input_data_status": "partial",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T02]",
+        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SLEEP-TIMING",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "与主睡眠 episode/来源选择共用",
+        "timestamp 与 clock_min 明确区分"
+      ],
+      "targeted_acceptance_reviewed": [
+        "23:30–07:30 中点跨午夜正确",
+        "无主 episode 不输出主睡眠规律性",
+        "夏令时切换真实时长与钟面中点各按定义"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "timestamp; clock_min",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-RHR",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "上游只做已知单位转换",
+        "消费者拒绝 unit_unverified/转换失败",
+        "保留原值原单位，普通心率不可替代静息心率"
+      ],
+      "targeted_acceptance_reviewed": [
+        "等价已知单位归一后一致",
+        "未知单位不带 beats/min 进入参考值",
+        "多设备不同协议分层",
+        "没有 RHR 不使用普通 HR 冒充"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "beats/min",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SDNN",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "已知 s→ms 精确转换并留下记录",
+        "未知单位不得进入 SDNN 与后续参考/预测",
+        "保留 NN 协议和时长"
+      ],
+      "targeted_acceptance_reviewed": [
+        "真实 XML 中 SDNN 0.05 s→50 ms",
+        "未知单位返回缺失原因并保留 raw",
+        "RMSSD 标签不能被接纳为 SDNN",
+        "来源变化不混池"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ms",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T03]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MEDIAN",
+      "revision_action": "修复输入并保持",
+      "planned_behavior_reviewed": [
+        "仅使用通过单位/协议验证的每日值",
+        "保留基线定义、版本、日期覆盖与当前偏离的同流匹配"
+      ],
+      "targeted_acceptance_reviewed": [
+        "日内采样多不提高当天权重",
+        "当前值/未来值不污染基线",
+        "s 与 ms 等价转换后基线一致",
+        "单设备缺测不由另一协议自动补"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "same_as_metric",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MAD",
+      "revision_action": "修复输入并保持",
+      "planned_behavior_reviewed": [
+        "与参考中位数同一输入与基线",
+        "单位仍为原指标单位，缩放假设明确"
+      ],
+      "targeted_acceptance_reviewed": [
+        "常数基线 MAD=0 时保留零离散度并禁止除零",
+        "未验证单位不进入",
+        "不因 MAD 小就宣称精确生理异常"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "same_as_metric",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-DEVIATION",
+      "revision_action": "修复输入并保持",
+      "planned_behavior_reviewed": [
+        "同流同单位比较",
+        "没有适用校准时只描述偏离，不映射 readiness 百分比或固定减重"
+      ],
+      "targeted_acceptance_reviewed": [
+        "MAD=0 不产生无穷或默认 0",
+        "绝对偏差保留原单位",
+        "偏离值无默认红黄绿生理阈值",
+        "不能由单次低 SDNN 自动减重"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "original_unit; dimensionless",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-FATIGUE",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "疲劳、酸痛、疼痛独立显示",
+        "量表版本与训练前可用时间进入候选背景及研究特征"
+      ],
+      "targeted_acceptance_reviewed": [
+        "0–10 与其他尺度不简单混算",
+        "训练后补报不冒充训练前信息",
+        "不组成任意加权恢复总分"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ordinal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-SORENESS",
+      "revision_action": "保持并接入适用性",
+      "planned_behavior_reviewed": [
+        "候选只使用与动作/肌群、时间相关且已知的信息",
+        "酸痛不等同损伤诊断或规定减重百分比"
+      ],
+      "targeted_acceptance_reviewed": [
+        "左右侧不同不被平均抹平",
+        "未填返回未知",
+        "不凭酸痛单值生成 −5% 等数字"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ordinal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "STATE-PAIN",
+      "revision_action": "接通候选适用性",
+      "planned_behavior_reviewed": [
+        "将截止前疼痛与技术受限保留到 STR-25/26 冻结快照及规则输入",
+        "未知不当正常，不能自动诊断"
+      ],
+      "targeted_acceptance_reviewed": [
+        "当前或历史相关疼痛存在时不生成未经支持的更重候选",
+        "非目标动作疼痛不随意外推，显示适用性依据",
+        "不良记录不会因非参考组被删除"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "categorical",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T02]",
+        "tests/science/test_v14_science.py::test_f04_restricted_or_unknown_reference_cannot_license_harder_task",
+        "tests/science/test_v14_science.py::test_f03_current_nonreference_observation_vetoes_good_historical_baseline",
+        "tests/science/test_v14_science.py::test_f03_current_unknown_observation_timestamp_cannot_disappear_as_empty_normal_context"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "LOAD-SRPE",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "明确量表及采集时点",
+        "保留训练后结果与训练前预测特征隔离"
+      ],
+      "targeted_acceptance_reviewed": [
+        "只有组 RPE 时 sRPE 未知",
+        "训练后 sRPE 不进入同次训练候选的过去输入",
+        "不同量表不直接池化"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "0–10 ordinal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "LOAD-DURATION",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "记录 elapsed 与 active 工作时长语义，避免将组时长之和作整次训练时长"
+      ],
+      "targeted_acceptance_reviewed": [
+        "暂停重叠只扣一次",
+        "手填时长与计时冲突不静默选有利值",
+        "持续训练跨午夜按真实分钟"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "min",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T02]",
+        "tests/science/test_v14_science.py::test_metric_matrix_elapsed_and_pause_adjusted_duration_are_distinct"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "LOAD-SRPE-AU",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保留两项原值/协议和内部负荷代理标签",
+        "不可换算热量或跨量表绝对比较"
+      ],
+      "targeted_acceptance_reviewed": [
+        "60 min×sRPE 5=300 AU",
+        "缺一个输入返回未知",
+        "相同 AU 不宣称相同生理刺激、恢复需求或机械功"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "AU",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/state.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T02]",
+        "tests/science/test_v14_science.py::test_metric_matrix_elapsed_and_pause_adjusted_duration_are_distinct"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "BODY-MASS-DAILY",
+      "revision_action": "修复单位输入并保持",
+      "planned_behavior_reviewed": [
+        "已知单位严格换算至 kg，未知单位不重标",
+        "保留原秤、protocol/source_version 与原始值"
+      ],
+      "targeted_acceptance_reviewed": [
+        "等价 kg/lb 输入日值一致",
+        "不同秤不能混成单流",
+        "转换失败不进入趋势/相对力量"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "BODY-MASS-TREND",
+      "revision_action": "修复输入并保持",
+      "planned_behavior_reviewed": [
+        "只接纳可比已验证单位的每日值",
+        "保持观察跨度和日数，断档不插体重或推断组织变化"
+      ],
+      "targeted_acceptance_reviewed": [
+        "不规则日期使用真实间隔",
+        "只有一天不足以算斜率",
+        "水重变化不能叫脂肪变化",
+        "不从斜率乘任意热量系数"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg/week",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "BODY-MASS-RELATIVE",
+      "revision_action": "修复输入并保持",
+      "planned_behavior_reviewed": [
+        "参考体重定义、值、日期与来源随结果显示",
+        "%/week 不能混为体脂变化率"
+      ],
+      "targeted_acceptance_reviewed": [
+        "不同参考分母的结果不可无提示比较",
+        "参考≤0 或缺失返回未知",
+        "不能把个体目标范围当作统一安全/健康阈值"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "%/week",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-BASAL",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "保留 metric ID，主结果单位改为 kcal 并与 schema/registry/UI/export 一致",
+        "日均字段另明确 kcal/day",
+        "已知 kJ 精确转换，未知单位拒绝进入累计"
+      ],
+      "targeted_acceptance_reviewed": [
+        "6694.4 kJ=1600 kcal",
+        "两日累计不标 kcal/day",
+        "跨边界样本不按均匀速率强拆",
+        "未知单位保留 raw 但数值结果缺失"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T02]",
+        "tests/science/test_v14_science.py::test_f01_registry_and_runtime_agree_cumulative_energy_is_kcal",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-ACTIVE",
+      "revision_action": "修复",
+      "planned_behavior_reviewed": [
+        "统一累计 kcal 与日均 kcal/day 语义",
+        "已知单位转换及验证与 basal 共用"
+      ],
+      "targeted_acceptance_reviewed": [
+        "2510.4 kJ=600 kcal",
+        "同 workout 不再加一次",
+        "来源冲突不混池",
+        "历史导入已错标数据以原 raw 重算/标需重处理而非覆盖原始文件"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T02]",
+        "tests/science/test_v14_science.py::test_f01_registry_and_runtime_agree_cumulative_energy_is_kcal",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "revision_action": "修复输入与声明并保持",
+      "planned_behavior_reviewed": [
+        "registry 主单位对齐 runtime kcal",
+        "继续保留 R12 区间配对与完整日分母",
+        "unit_unverified 分量使相应日期不可用"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同日 1600+600=2200 kcal，kJ 输入等价",
+        "basal 和 active 时段不相交不能求总",
+        "不同设备不配对",
+        "没有 TEF 乘数或 workout 二次累加"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T02]",
+        "tests/science/test_v14_science.py::test_f01_registry_and_runtime_agree_cumulative_energy_is_kcal",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-RECORD-COVERAGE",
+      "revision_action": "统一日期域并回归",
+      "planned_behavior_reviewed": [
+        "与睡眠/报告覆盖共用半开窗口日期集合",
+        "仅单位、来源、支持区间合格的天进入相应分子",
+        "完整日与部分记录日分开"
+      ],
+      "targeted_acceptance_reviewed": [
+        "窗外或未来 energy_days 不进入分子",
+        "午夜端点不令分子>分母",
+        "只有 basal 的一天 total 覆盖不能增加",
+        "空分母不输出100%"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ratio",
+      "empty_input_data_status": "valid",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T02]",
+        "tests/science/test_v14_science.py::test_f02_sleep_coverage_uses_clipped_half_open_local_dates",
+        "tests/science/test_v14_science.py::test_f02_one_metric_failure_does_not_abort_independent_analysis"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-NET-STORAGE",
+      "revision_action": "保持研究边界",
+      "planned_behavior_reviewed": [
+        "模型条件与误差结构明确",
+        "未知组分/误差不由体重趋势补齐，未获联合误差时区间保持未知"
+      ],
+      "targeted_acceptance_reviewed": [
+        "同体重变化的不同组分不得得出相同强制热量",
+        "没有组分模型返回 not_identifiable",
+        "组分相关性不能当独立处理",
+        "绝不固定7700外推"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal/day",
+      "empty_input_data_status": "not_identifiable",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T03]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-DELTA-INTAKE",
+      "revision_action": "保持研究边界",
+      "planned_behavior_reviewed": [
+        "保留平衡基线/参数版本、协方差与估计口径",
+        "摄入变化和储能为不同结果",
+        "不以设备能量直接填未知模型条件"
+      ],
+      "targeted_acceptance_reviewed": [
+        "缺平衡基线/有效参数返回不可识别",
+        "基线与体重误差相关时需联合误差",
+        "原合同 −499 与 −44 示例保持不同物理量",
+        "不得转成自动饮食处方"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal/day",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T03]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "revision_action": "保持研究边界",
+      "planned_behavior_reviewed": [
+        "保留独立基线证据及 I0 与 ΔI 协方差",
+        "情景范围与已校准区间不同标签"
+      ],
+      "targeted_acceptance_reviewed": [
+        "没有独立摄入基线不声称实测摄入",
+        "bias/storage 上下界影响区间且反向界拒绝",
+        "研究情景不能自动变日热量目标"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kcal/day",
+      "empty_input_data_status": "not_identifiable",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T02]",
+        "tests/science/test_v14_science.py::test_metric_matrix_each_energy_scenario_bound_must_be_ordered"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "ENERGY-IDENTIFIABILITY",
+      "revision_action": "保持并细化前提展示",
+      "planned_behavior_reviewed": [
+        "独立约束必须有来源/版本/范围，不能把输入存在等同科学可识别",
+        "与 DELTA/ABSOLUTE 实际可计算状态一起展示"
+      ],
+      "targeted_acceptance_reviewed": [
+        "只有设备总能量+体重时仍不可识别摄入",
+        "声明独立基线却无适用模型不能自动给绝对摄入",
+        "用户能看清缺失哪类独立信息"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "categorical",
+      "empty_input_data_status": "not_identifiable",
+      "implementation_paths": [
+        "src/healthzip/science/energy.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T02]",
+        "tests/science/test_v14_science.py::test_metric_matrix_independent_flags_do_not_establish_energy_identifiability"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "PRED-B0",
+      "revision_action": "保持并接入统一任务",
+      "planned_behavior_reviewed": [
+        "与动作/版本/负荷/协议和截止时间快照一致",
+        "无可比数据返回无预测，描述历史不伪装成功保证"
+      ],
+      "targeted_acceptance_reviewed": [
+        "当前目标变负荷时不可拿旧负荷次数当同任务预测",
+        "预测前不可见的补录不泄漏",
+        "不能以默认 8 次填冷启动"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "reps; RIR separately",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/prediction.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "PRED-B1",
+      "revision_action": "修复校准匹配并保持研究模式",
+      "planned_behavior_reviewed": [
+        "实际目标派生完整 scope 与制品必需字段逐一匹配",
+        "只用预训练可见特征",
+        "没有真实外部/个体校准时仍返回 B0 与研究状态"
+      ],
+      "targeted_acceptance_reviewed": [
+        "仅 population 的 scope 不能激活要求动作/结果/协议的校准",
+        "跨人留出不拟合留出结果",
+        "当次 sRPE/结果不泄漏",
+        "不能从状态回归系数声称疲劳因果"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "reps",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/prediction.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T02]",
+        "tests/science/test_v14_science.py::test_f08_scope_subset_cannot_broaden_calibration_and_audit_fields_do_not_narrow_it",
+        "tests/science/test_v14_science.py::test_f08_actual_task_scope_wins_over_contradictory_caller_labels",
+        "tests/science/test_v14_science.py::test_f08_str22_rejects_same_equivalence_unit_mismatch_as_str21"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "PRED-ERROR-GAIN",
+      "revision_action": "保持并补评估接线",
+      "planned_behavior_reviewed": [
+        "将 B0/B1 可评价共同样本与全部任务/回退分别计数",
+        "多次来自同用户不当独立样本"
+      ],
+      "targeted_acceptance_reviewed": [
+        "B1 失败样本不能静默删除后宣称总体更优",
+        "同批成对误差可复算",
+        "未做用户/时间独立设计不宣称泛化提升"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "reps",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/prediction.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "PRED-INTERVAL",
+      "revision_action": "保持研究边界",
+      "planned_behavior_reviewed": [
+        "仅将经过相应 scope 校准的区间送用户",
+        "区间覆盖评估与新任务预测区间区别明确"
+      ],
+      "targeted_acceptance_reviewed": [
+        "0 个可评估结果输出未知而非100%",
+        "同用户/同任务重复误差不伪装独立精确置信区间",
+        "域外输入不能复用校准"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ratio; reps",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/prediction.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T02]"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "REPORT-PERIOD-COVERAGE",
+      "revision_action": "统一日期域并回归",
+      "planned_behavior_reviewed": [
+        "共享半开时区日期域、单位验证与来源分层",
+        "报告未记录不等同未发生"
+      ],
+      "targeted_acceptance_reviewed": [
+        "睡眠精确午夜端点不令覆盖>100%或阻断整报",
+        "当前半周不按完整周分母",
+        "未来事实排除",
+        "多个设备不重复算天"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "ratio",
+      "empty_input_data_status": "partial",
+      "implementation_paths": [
+        "src/healthzip/science/reports.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T02]",
+        "tests/science/test_v14_science.py::test_f02_sleep_coverage_uses_clipped_half_open_local_dates",
+        "tests/science/test_v14_science.py::test_f02_one_metric_failure_does_not_abort_independent_analysis"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "REPORT-STATE-SUMMARY",
+      "revision_action": "修复输入并保留陈述边界",
+      "planned_behavior_reviewed": [
+        "复用规范化/睡眠源筛选与清晰时窗",
+        "状态摘要只陈述观察，不因低 HRV/高疲劳推出恢复诊断或数字处方"
+      ],
+      "targeted_acceptance_reviewed": [
+        "inBed+asleep 不制造睡眠冲突",
+        "同单位转换摘要一致",
+        "没有主 episode 只能说观察睡眠",
+        "不得写“因此下周减重5%”"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "mixed explicit units",
+      "empty_input_data_status": "insufficient",
+      "implementation_paths": [
+        "src/healthzip/science/reports.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T02]",
+        "tests/science/test_v14_science.py::test_f01_legacy_unverified_normalized_number_is_reprocessed_only_from_known_raw_unit",
+        "tests/science/test_v14_science.py::test_f01_missing_or_unknown_units_never_enter_daily_baselines",
+        "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
+        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "REPORT-ENERGY-SUMMARY",
+      "revision_action": "修复输入并保留陈述边界",
+      "planned_behavior_reviewed": [
+        "沿用 ENERGY 全部单位/来源/识别约束",
+        "说明完整日数和观察跨度，不用缺测外推整月总量"
+      ],
+      "targeted_acceptance_reviewed": [
+        "两日累计 kcal 与日均 kcal/day 同时正确",
+        "不同设备不求合并总值",
+        "体重下降不能写成已知脂肪消耗或实际少吃量",
+        "条件估计始终带模型标签"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "kg/week; kcal; kcal/day",
+      "empty_input_data_status": "partial",
+      "implementation_paths": [
+        "src/healthzip/science/reports.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T02]",
+        "tests/science/test_v14_science.py::test_f01_registry_and_runtime_agree_cumulative_energy_is_kcal",
+        "tests/integration/test_v14_science_import.py::test_f01_real_import_checks_units_before_energy_and_physiology"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    },
+    {
+      "metric_id": "REPORT-RECOMMENDATION-FOLLOWUP",
+      "revision_action": "保持并回归",
+      "planned_behavior_reviewed": [
+        "保留策略/版本/任务分层、完整反馈分母及未知",
+        "措辞为执行后观察到，不能声称策略造成改变"
+      ],
+      "targeted_acceptance_reviewed": [
+        "用户选择较重策略后完成次数改变，只报告观察差值",
+        "未执行/失访另列",
+        "无独立因果设计 causal_effect 保持空",
+        "重复读不增样本"
+      ],
+      "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
+      "runtime_unit": "categorical; outcome units",
+      "empty_input_data_status": "partial",
+      "implementation_paths": [
+        "src/healthzip/science/reports.py"
+      ],
+      "passed_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T02]",
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+      ],
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+    }
+  ]
+}

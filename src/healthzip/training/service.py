@@ -272,6 +272,7 @@ class TrainingService:
             owner_id=row["owner_id"],
             name=row["name"],
             revision=row["revision"],
+            active=bool(row["active"]),
         )
         return result
 
@@ -302,12 +303,19 @@ class TrainingService:
         for r in self.conn.execute("SELECT * FROM exercise_alias WHERE user_id=?", (self.user_id,)):
             aliases.setdefault(r["exercise_id"], []).append(r["alias"])
         result = []
+        presentations = {
+            r["local_exercise_id"]: json.loads(r["content_json"])
+            for r in self.conn.execute(
+                "SELECT local_exercise_id,content_json FROM catalog_presentation WHERE is_current=1"
+            )
+        }
         for row in rows:
             item = json.loads(row["definition_json"])
             key = item["exercise_id"]
+            item.update(presentations.get(key, {}))
             pref = prefs.get(key, {})
             item.update(
-                name=row["name"],
+                name=item.get("name_zh", row["name"]),
                 revision=row["revision"],
                 custom=bool(row["custom"]),
                 favorite=bool(pref.get("favorite")),
@@ -315,7 +323,13 @@ class TrainingService:
                 user_aliases=aliases.get(key, []),
             )
             haystack = " ".join(
-                [row["name"], key, *item.get("aliases_zh", []), *item["user_aliases"]]
+                [
+                    item["name"],
+                    item.get("name_en", ""),
+                    key,
+                    *item.get("aliases_zh", []),
+                    *item["user_aliases"],
+                ]
             ).casefold()
             if query.casefold() not in haystack:
                 continue
@@ -334,9 +348,61 @@ class TrainingService:
             if view == "custom" and not item["custom"]:
                 continue
             result.append(item)
+        if query:
+
+            def score(item):
+                names = [
+                    item["name"],
+                    item.get("name_en", ""),
+                    item["exercise_id"],
+                    *item.get("aliases_zh", []),
+                    *item["user_aliases"],
+                ]
+                query_folded = query.casefold()
+                return (
+                    0
+                    if any(x.casefold() == query_folded for x in names)
+                    else 1
+                    if any(x.casefold().startswith(query_folded) for x in names)
+                    else 2,
+                    item["name"],
+                )
+
+            return sorted(result, key=score)
         return sorted(
             result, key=lambda x: (x.get("last_used_at") or "", x["name"]), reverse=view == "recent"
         )
+
+    def search_catalog(self, query="", *, offset=0, limit=30, **filters):
+        from .catalog_import import published_snapshot
+
+        if offset < 0 or not 1 <= limit <= 200:
+            raise TrainingError("目录分页参数无效")
+        rows = self.search_exercises(query, **filters)
+        return {
+            "items": rows[offset : offset + limit],
+            "total": len(rows),
+            "offset": offset,
+            "limit": limit,
+            "snapshot_id": published_snapshot(self.conn),
+        }
+
+    def exercise_details(self, exercise_id, version=None):
+        from .catalog_import import presentation
+        from .catalog_media import media_for
+
+        item = self.get_exercise(exercise_id, version)
+        item.update(presentation(self.conn, exercise_id))
+        item["name"] = item.get("name_zh", item["name"])
+        item["media"] = media_for(self.conn, exercise_id)
+        item["media_availability"] = (
+            "none_in_source"
+            if not item["media"]
+            else "ready"
+            if any(m["local_path"] for m in item["media"])
+            else "unavailable"
+        )
+        return item
 
     def create_exercise(
         self,
@@ -350,6 +416,9 @@ class TrainingService:
         exercise_id=None,
         event_id=None,
         movement_patterns=None,
+        derived_from=None,
+        variant_notes=None,
+        side=None,
     ) -> dict:
         if not name.strip() or not equipment_type.strip():
             raise TrainingError("动作名称和器械类型必填")
@@ -370,6 +439,9 @@ class TrainingService:
             "scientific_review": {"status": "unreviewed", "source_ids": []},
             "muscle_participation_proposals": [],
             "status": "private_custom",
+            "derived_from": derived_from,
+            "variant_notes": variant_notes,
+            "side": side,
         }
 
         def apply(current, eid, now):
@@ -551,19 +623,49 @@ class TrainingService:
         result = []
         for item in items:
             exercise = self.get_exercise(item["exercise_id"], item.get("definition_version"))
+            frozen = item.get("exercise_snapshot") or exercise
+            if any(
+                frozen.get(key) != exercise.get(key)
+                for key in (
+                    "exercise_id",
+                    "definition_version",
+                    "recording_mode",
+                    "equipment_type",
+                    "default_load_basis",
+                )
+            ):
+                raise TrainingError("模板冻结定义与指定版本不一致")
             condition = self._condition(
                 item["exercise_id"], item.get("condition") or {}, item.get("definition_version")
             )
             targets = self._targets(item.get("targets") or {})
+            self._validate_target_mode(targets, exercise["recording_mode"])
             result.append(
                 {
                     "exercise_id": item["exercise_id"],
                     "definition_version": exercise["definition_version"],
+                    "exercise_snapshot": frozen,
                     "condition": condition,
                     "targets": targets,
                 }
             )
         return result
+
+    @staticmethod
+    def _validate_target_mode(targets, mode):
+        forbidden = {
+            "repetitions": {"duration_s", "distance_m"},
+            "duration": {"reps_min", "reps_max", "distance_m"},
+            "distance": {"reps_min", "reps_max", "duration_s"},
+        }
+        if mode not in forbidden:
+            raise TrainingError("此目录动作的记录模式尚未核对，请明确选择模式并保存个人记录定义")
+        if any(
+            entry.get(key) is not None
+            for entry in targets.get("sets", [])
+            for key in forbidden[mode]
+        ):
+            raise TrainingError("目标与动作测量模式不符，请明确迁移目标")
 
     def _targets(self, targets: dict) -> dict:
         result = json.loads(json_text(targets))
@@ -768,6 +870,7 @@ class TrainingService:
                     item["targets"],
                     position,
                     item["definition_version"],
+                    exercise_snapshot=item.get("exercise_snapshot"),
                 )
                 for number, target in enumerate(item["targets"].get("sets", [])):
                     self._insert_set(
@@ -796,8 +899,16 @@ class TrainingService:
         version=None,
         replaced_from=None,
         reason=None,
+        exercise_snapshot=None,
     ):
         snapshot = self._condition(exercise_id, condition, version)
+        exercise_snapshot = exercise_snapshot or self.get_exercise(exercise_id, version)
+        if (
+            exercise_snapshot["exercise_id"] != exercise_id
+            or exercise_snapshot["definition_version"] != snapshot["definition_version"]
+        ):
+            raise TrainingError("冻结动作定义身份不匹配")
+        self._validate_target_mode(targets, exercise_snapshot["recording_mode"])
         self.conn.execute(
             "INSERT INTO training_session_exercise(id,session_id,user_id,position,catalog_id,definition_version,condition_json,condition_key,comparability_status,planned_json,replaced_from_exercise_id,replacement_reason) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
             (
@@ -814,6 +925,10 @@ class TrainingService:
                 replaced_from,
                 reason,
             ),
+        )
+        self.conn.execute(
+            "UPDATE training_session_exercise SET definition_snapshot_json=? WHERE id=?",
+            (json_text(exercise_snapshot), identity),
         )
         self.conn.execute(
             "INSERT INTO exercise_preference(user_id,exercise_id,last_used_at) VALUES(?,?,?) ON CONFLICT(user_id,exercise_id) DO UPDATE SET last_used_at=excluded.last_used_at",
@@ -895,7 +1010,16 @@ class TrainingService:
         )
         if item is None:
             raise TrainingError("找不到此训练动作")
-        item["exercise"] = self.get_exercise(item["catalog_id"], item["definition_version"])
+        item["exercise"] = item.get("definition_snapshot") or self.get_exercise(
+            item["catalog_id"], item["definition_version"]
+        )
+        item["exercise"].setdefault("name", item["exercise"].get("name_zh", item["catalog_id"]))
+        item["catalog_active"] = bool(
+            self.conn.execute(
+                "SELECT MAX(active) FROM exercise_catalog WHERE exercise_id=?",
+                (item["catalog_id"],),
+            ).fetchone()[0]
+        )
         item["sets"] = [
             _decode(r)
             for r in self.conn.execute(
@@ -1674,6 +1798,8 @@ class TrainingService:
         items = [
             {
                 "exercise_id": x["catalog_id"],
+                "definition_version": x["definition_version"],
+                "exercise_snapshot": x["exercise"],
                 "condition": x["condition"],
                 "targets": self.current_targets(x["id"])["targets"],
             }
@@ -2363,6 +2489,7 @@ class TrainingService:
     ) -> dict:
         target = self._targets({"sets": [planned]})["sets"][0]
         original = self.get_set(set_id)
+        self._validate_target_mode({"sets": [target]}, original["condition"]["measurement_mode"])
         identity = original["set_uuid"] or str(original["id"])
 
         def apply(old, eid, now):

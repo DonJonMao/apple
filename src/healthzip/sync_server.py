@@ -93,14 +93,18 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
         if path == "/training/offline":
-            body = recorder_html()
+            repo = Repository(self.server.db_path)
+            try:
+                body = recorder_html(repo)
+            finally:
+                repo.close()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.send_header(
                 "Content-Security-Policy",
-                "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src http: https:; base-uri 'none'; form-action 'none'",
+                "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src http: https:; img-src 'self' blob: data:; media-src 'self' blob:; base-uri 'none'; form-action 'none'",
             )
             if "download=1" in self.path:
                 self.send_header(
@@ -108,6 +112,27 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
                 )
             self.end_headers()
             self.wfile.write(body)
+            return
+        if path.startswith("/v1/training/media/"):
+            if not self._authorized() or not self._training_origin_allowed():
+                self._respond(401, {"error": "unauthorized"})
+                return
+            from healthzip.training.catalog_media import local_media
+
+            repo = Repository(self.server.db_path)
+            try:
+                location, mime = local_media(repo.conn, path.rsplit("/", 1)[-1])
+                body = location.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", mime)
+                self.send_header("Content-Length", str(len(body)))
+                self._cors_headers()
+                self.end_headers()
+                self.wfile.write(body)
+            except ValueError:
+                self._respond(404, {"error": "media_unavailable"})
+            finally:
+                repo.close()
             return
         if path in {"/v1/training/bootstrap", "/v1/training/catalog", "/v1/training/sessions"}:
             if not self._authorized() or not self._training_origin_allowed():
@@ -117,10 +142,22 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
             try:
                 result = browser_bootstrap(repo)
                 if path.endswith("/catalog"):
-                    result = {
-                        key: result[key]
-                        for key in ("schema_version", "catalog", "equipment", "templates")
-                    }
+                    from urllib.parse import parse_qs
+
+                    from healthzip.training.service import TrainingService
+
+                    query = parse_qs(urlparse(self.path).query)
+                    try:
+                        result = TrainingService(repo).search_catalog(
+                            query.get("q", [""])[0],
+                            offset=int(query.get("offset", [0])[0]),
+                            limit=int(query.get("limit", [50])[0]),
+                        )
+                        result["catalog"] = result["items"]  # v1.3 clients keep their field name.
+                        result["schema_version"] = "1.4.0"
+                    except ValueError as exc:
+                        self._respond(400, {"error": str(exc)})
+                        return
                 elif path.endswith("/sessions"):
                     result = {"sessions": result["sessions"], "conflicts": result["conflicts"]}
                 self._respond(200, result)

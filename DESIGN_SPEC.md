@@ -1,4 +1,6 @@
-# HealthZIP v1.3 实际设计
+# HealthZIP v1.4 实际设计
+
+v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`AdviceContext`统一事实、目标、适用信息和候选冻结；SourceClaim与ApplicationRule分开并带能力策略；按结果负荷分层的描述序列；窗口索引与有界版本缓存。具体实现、迁移及限制见 [v1.4验收](docs/v14_delivery.md)、[科学合同](docs/v14_science.md)、[目录](docs/v14_catalog.md)、[知识](docs/v14_knowledge.md)。
 
 完整需求见 [V1_3_GOAL.md](V1_3_GOAL.md) 与执行包；本文件描述本地实现。原MVP设计保存在 `docs/history/DESIGN_SPEC_v1.0.md`，旧固定建议规则不再适用。
 
@@ -6,7 +8,7 @@
 
 `app.py` 使用 Streamlit，`healthzip.cli` 提供命令，根启动器协调网页和本地REST。`importers/` 保留ZIP流式解析、CSV及JSON/JSONL增量导入。XML禁用外部实体与网络，ZIP检查路径/大小/压缩比；来源、原始单位与时间均保留。
 
-`Repository` 在同一SQLite上执行显式事务升级至schema v3，拒绝更高版本降级；`db/schema.sql` 为单一基表定义，`training/schema.py` 与 `db/temporal_schema.py` 增量扩展。升级不将历史未知负荷、器械、ROM或可见时间补成已知值。备份使用SQLite backup API包含已提交WAL，恢复只能写新路径。
+`Repository` 在同一SQLite上执行显式事务升级至schema v4，拒绝更高版本降级；`db/schema.sql` 为单一基表定义，`training/schema.py` 与 `db/temporal_schema.py` 增量扩展。升级不将历史未知负荷、器械、ROM或可见时间补成已知值。备份使用SQLite backup API包含已提交WAL，恢复只能写新路径。
 
 ## 训练领域
 

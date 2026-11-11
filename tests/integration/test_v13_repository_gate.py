@@ -23,7 +23,7 @@ def test_repository_outer_migration_rolls_back_all_added_tables(tmp_path, monkey
     assert [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")] == ["schema_meta"]
     conn.close()
     repo = Repository(path)
-    assert repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")[0] == "3"
+    assert repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")[0] == "4"
     repo.close()
 
 

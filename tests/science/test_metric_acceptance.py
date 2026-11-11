@@ -119,7 +119,7 @@ def test_metric_catalog(case, tmp_path):
         elif code in {25, 26}:
             s.test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier()
             if code == 26 or number == 2:
-                record = s.row(load_basis="plates_per_side_kg", load_value=30, symmetric_loading=True)
+                record = s.row(load_basis="plates_per_side_kg", load_value=30, symmetric_loading=True, pain_flag=False)
                 context = {"allowed_trial_actions": ["heavier_lower_reps"], "reviewed_principles": [s.reviewed_principle()],
                            "progression_plan": {"rep_upper": 12, "next_target_reps": 8, "available_loads": [30, 32.5]}}
                 trial = s.run("STR-26", [record], context)["value"]["task_trial"]
@@ -133,9 +133,13 @@ def test_metric_catalog(case, tmp_path):
             assert value["rir"] == {"numerator": 2, "denominator": 10}
             assert value["entered_load"] == {"numerator": 10, "denominator": 10}
         elif code == 30:
-            ctx = {"strength_numerator": 80, "body_mass_kg": 80, "complete_load_known": True, "strength_numerator_identity": "observed_load"}
+            mass = {"id": "synthetic-scale", "canonical_type": "body_mass_kg", "normalized_value": 80,
+                    "normalized_unit": "kg", "source_name": "synthetic_scale", "event_end": "2026-10-01T08:00:00Z",
+                    "available_at": "2026-10-01T08:01:00Z"}
+            ctx = {"strength_numerator": 80, "strength_numerator_unit": "kg", "body_mass_observation": mass,
+                   "complete_load_known": True, "strength_numerator_identity": "observed_load"}
             a = s.run(metric_id, context=ctx)["value"]
-            b = s.run(metric_id, context={**ctx, "body_mass_kg": 75})["value"]
+            b = s.run(metric_id, context={**ctx, "body_mass_observation": {**mass, "normalized_value": 75}})["value"]
             assert a["numerator"] == b["numerator"] == 80 and a["ratio"] < b["ratio"]
         return
     if metric_id in {"STATE-SLEEP-MAIN", "STATE-SLEEP-STAGE"}:
@@ -204,7 +208,7 @@ def test_metric_catalog(case, tmp_path):
             value = list(h.run(metric_id, rows)["value"].values())[0][0]["value"]
             assert value == pytest.approx(45.359237 if number == 1 else 80)
         else:
-            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "source_name": "synthetic_scale", "normalized_value": value, "event_end": f"2026-10-{1+14*i:02d}T08:00:00+00:00", "available_at": f"2026-10-{1+14*i:02d}T09:00:00+00:00"} for i, value in enumerate([80, 79])]
+            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "source_name": "synthetic_scale", "normalized_value": value, "normalized_unit": "kg", "event_end": f"2026-10-{1+14*i:02d}T08:00:00+00:00", "available_at": f"2026-10-{1+14*i:02d}T09:00:00+00:00"} for i, value in enumerate([80, 79])]
             value = s.run(metric_id, rows, {"body_mass_reference": {"value": 80, "definition": "declared_comparison_baseline"}})["value"][0]
             assert value["kg_per_week"] == -.5 and value["percent_per_week"] == -.625
             assert "body_fat_percent" not in value

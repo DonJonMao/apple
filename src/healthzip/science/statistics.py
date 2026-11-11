@@ -80,12 +80,23 @@ def linear_trend(observations: list[dict], *, alpha: float = 0.05,
 
 
 def typical_error(pairs: list[dict], design: dict) -> dict:
+    from .semantics import outcome_series
     assumptions = ["independent repeat pairs", "equal within-person variance",
                    "no systematic learning or fatigue between repeats"]
     if not design.get("independent_repeats") or not design.get("equal_variance") \
             or not design.get("no_systematic_change"):
         return {"value": None, "reason_codes": ["repeat_measurement_design_unconfirmed"],
                 "assumptions": assumptions}
+    if not design.get("same_task_protocol_confirmed") or any(not design.get(k) for k in ("task_id", "protocol_id", "unit")):
+        return {"value": None, "reason_codes": ["repeat_task_protocol_and_unit_required"], "assumptions": assumptions}
+    for pair in pairs:
+        first, second = pair.get("first_record"), pair.get("second_record")
+        if first is not None or second is not None:
+            if not first or not second:
+                return {"value": None, "reason_codes": ["repeat_pair_provenance_incomplete"], "assumptions": assumptions}
+            a, b = outcome_series(first), outcome_series(second)
+            if not a["eligible"] or not b["eligible"] or a["outcome_series_id"] != b["outcome_series_id"]:
+                return {"value": None, "reason_codes": ["repeat_pair_task_or_protocol_changed"], "assumptions": assumptions}
     differences = [finite(p.get("second")) - finite(p.get("first")) for p in pairs
                    if finite(p.get("first")) is not None and finite(p.get("second")) is not None]
     if len(differences) < 2:
@@ -93,7 +104,9 @@ def typical_error(pairs: list[dict], design: dict) -> dict:
     te = stdev(differences) / math.sqrt(2)
     return {"value": {"TE": te, "MDC95_two_scores": 1.96 * math.sqrt(2) * te,
                       "mean_difference": sum(differences) / len(differences),
-                      "pairs": len(differences)}, "reason_codes": [], "assumptions": assumptions}
+                      "pairs": len(differences), "unit": design["unit"], "task_id": design["task_id"],
+                      "protocol_id": design["protocol_id"]},
+            "reason_codes": ["zero_observed_repeat_variability_not_proof_of_zero_measurement_error"] if te == 0 else [], "assumptions": assumptions}
 
 
 def theil_sen(points: list[tuple[float, float]]) -> Optional[float]:

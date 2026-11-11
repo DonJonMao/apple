@@ -1,4 +1,6 @@
-# HealthZIP v1.3 开发目标
+# HealthZIP v1.4 开发目标
+
+当前完整执行合同是 [v1.4执行包](Apple_v1.4_Codex_Execution_Pack/Codex_Goal_Prompt_v1.4.md)。审查基线912aefc；F01–F13、CAT-01–18、KB-01–20、E2E-01–12及77指标按实际证据核对。新交付状态见 [v1.4验收](docs/v14_delivery.md)。以下为继续保留的v1.3基础范围。
 
 本轮完整授权与完成标准见 [V1_3_GOAL.md](V1_3_GOAL.md)。执行规范位于 [specs/v1.3/Codex_Execution_Pack_v1.3](specs/v1.3/Codex_Execution_Pack_v1.3/README.md)，包括77项指标、178条验收、46项动作种子、43项来源和20张理论种子。
 

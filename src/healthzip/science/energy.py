@@ -7,8 +7,10 @@ from datetime import datetime, time, timedelta
 from statistics import median
 from zoneinfo import ZoneInfo
 
+from healthzip.normalize import quantity_value
+
 from .contracts import Window, finite, instant, result
-from .state import daily_values, elapsed_dates, stream_key, union
+from .state import daily_values, elapsed_dates, local_date_domain, stream_key, union
 from .statistics import theil_sen
 
 
@@ -99,20 +101,21 @@ def atomic_energy(rows: list[dict], canonical: str, window: Window) -> dict:
     for key, samples in streams.items():
         intervals = []
         for row in samples:
-            value = finite(row.get("normalized_value", row.get("value")))
+            numeric = quantity_value(row)
+            value = numeric["value"]
             try:
                 start = instant(row.get("event_start") or row.get("start_utc"))
                 end = instant(row["_event_end"])
             except ValueError:
                 unknown.append(row.get("_source_id"))
                 continue
-            if value is None or value < 0 or row.get("normalized_unit", row.get("unit")) != "kcal":
+            if value is None or value < 0 or numeric["unit"] != "kcal":
                 unknown.append(row.get("_source_id"))
                 continue
             if start < instant(window.start) or end > min(instant(window.end), instant(window.cutoff_time)):
                 unknown.append(row.get("_source_id"))
                 continue  # no unjustified rate assumption / prorating.
-            intervals.append((start, end, value, row))
+            intervals.append((start, end, value, {**row, "_numeric_provenance": numeric}))
         intervals.sort(key=lambda p: p[0])
         stream_conflicted = False
         for i, first in enumerate(intervals):
@@ -124,7 +127,8 @@ def atomic_energy(rows: list[dict], canonical: str, window: Window) -> dict:
                     stream_conflicted = True
         values.append({"stream": list(key), "known_kcal": None if stream_conflicted or not intervals else sum(v for _, _, v, _ in intervals),
                        "sample_count": len(intervals), "conflicted": stream_conflicted,
-                       "source_ids": [r.get("_source_id") for _, _, _, r in intervals]})
+                       "source_ids": [r.get("_source_id") for _, _, _, r in intervals],
+                       "numeric_provenance": [r["_numeric_provenance"] for _, _, _, r in intervals]})
     return {"streams": values, "conflicts": conflicts, "unknown_or_boundary_ids": unknown}
 
 
@@ -232,6 +236,8 @@ def energy_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                     daily_buckets=days, reasons=["same_date_stream_and_interval_components_only", "workout_not_added_again", "no_TEF_multiplier", "device_report_not_true_TEE"])
     if metric_id == "ENERGY-RECORD-COVERAGE":
         days = context.get("energy_days", [])
+        domain = local_date_domain(instant(window.start), min(instant(window.end), instant(window.cutoff_time)), window.timezone)
+        days = [d for d in days if d.get("date") in domain]
         denominator = elapsed_dates(window)
         b = {d["date"] for d in days if d.get("basal_valid")}
         a = {d["date"] for d in days if d.get("active_valid")}
@@ -243,9 +249,16 @@ def energy_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                     valid_n=len(totals), total_n=denominator, count_domain="dates")
     if metric_id == "ENERGY-IDENTIFIABILITY":
         independent = context.get("independent_constraints", {})
-        identified = bool(independent.get("intake_baseline") or (independent.get("device_bias") and independent.get("storage_model")))
+        documented = {k: v for k, v in independent.items() if isinstance(v, dict)
+                      and all(v.get(field) for field in ("provenance", "version", "scope"))}
+        delta = energy_metric("ENERGY-DELTA-INTAKE", rows, window, context)
+        absolute = energy_metric("ENERGY-ABSOLUTE-INTAKE", rows, window, context)
+        absolute_computable = bool(absolute["value"] and "absolute_intake_kcal_day" in absolute["value"])
+        identified = bool(documented.get("intake_baseline") and absolute_computable)
         return emit({"identified": identified, "invariant_family": "(I+c, E+c, b-c) leaves D=E+b and Q=I-E unchanged",
-                     "required_independent_data": [] if identified else ["independent equilibrium intake or calibrated device bias", "valid composition/storage model"]},
+                     "documented_constraint_ids": sorted(documented), "delta_computable": delta["value"] is not None,
+                     "absolute_computable": absolute_computable, "model_reason_codes": sorted(set(delta["reason_codes"] + absolute["reason_codes"])),
+                     "required_independent_data": [] if identified else ["traceable independent equilibrium intake baseline", "applicable intake-change model and its prerequisites"]},
                     "valid" if identified else "not_identifiable", evidence_status="definition_based")
     if metric_id == "ENERGY-NET-STORAGE":
         model = context.get("composition_model")
@@ -290,6 +303,8 @@ def energy_metric(metric_id: str, rows: list[dict], window: Window, context: dic
         scenario = context.get("energy_scenario", {})
         required = ("device_total", "bias_lower", "bias_upper", "storage_lower", "storage_upper")
         if scenario.get("provenance") and all(finite(scenario.get(k)) is not None for k in required):
+            if scenario["bias_lower"] > scenario["bias_upper"] or scenario["storage_lower"] > scenario["storage_upper"]:
+                raise ValueError("energy_scenario_bounds_reversed")
             lo = scenario["device_total"] - scenario["bias_upper"] + scenario["storage_lower"]
             hi = scenario["device_total"] - scenario["bias_lower"] + scenario["storage_upper"]
             if lo > hi:

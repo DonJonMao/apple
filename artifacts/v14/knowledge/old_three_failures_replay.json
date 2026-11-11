@@ -1,0 +1,916 @@
+{
+  "data_kind": "synthetic_software_regression_only",
+  "original_packet_sha256": "ccf673fb1ff6732d2c81983be89d5fd9b2fda5299273995ebded537b83fb6e93",
+  "original_annotations_sha256": "538111eaf3cdb6866a6edb665e05e3a3894f0b7324cbb6a4c2b58b2b0260e686",
+  "original_independent_ai_score_unchanged": "7/10",
+  "reviewer_kind": "implementation_self_review",
+  "independent_human_denominator": 0,
+  "change": "Compositional task contracts plus explicit new content review. NEW-06 relation is corrected by a new review, not automatically inferred from keywords.",
+  "counts": {
+    "cases": 3,
+    "software_contract_complete_answers": 3
+  },
+  "cases": [
+    {
+      "case_id": "NEW-02",
+      "question": "合成方案增加重复次数能否证明个人寿命增长？",
+      "before_status": "related_material_only",
+      "before_independent_judgment": {
+        "decision": "fail",
+        "addresses_target": false,
+        "scope_correct": true,
+        "relation_supported": false,
+        "rationale": "未虚构寿命收益，范围控制正确；但已给证据明确写明未测量寿命，足以回答“这项方案不能证明个人寿命增长”。回答只重复通用的相关阅读/未建立关系，未给出该目标问题的明确否定与理由，属于保守但未完成作答。"
+      },
+      "source_text_sha256": "0037421d79d5b0101042876b2caffd6556d3c9935505636082cd5899cef8e594",
+      "annotation_identity": {
+        "case_id": "NEW-02",
+        "question_sha256": "e7f87d89d5a2777f2f653ec551149c0fbdc8c3e6d4c750752aa2736b67e70067",
+        "output_sha256": "9102b0149cbc86e6a4ad64e71dc25f7a48b5df1792533378431558c38c15a38d",
+        "evidence_bundle_hash": "776f9dd63a7fec8382daaccfd05c99c01b167903a6f0e4ebd2eec09e16e84afa"
+      },
+      "output": {
+        "observations": [],
+        "answer": "该方案未测量寿命，不能据此证明个人寿命增长；这也不证明没有效应。",
+        "claims": [
+          {
+            "text": "该方案未测量寿命，不能据此证明个人寿命增长；这也不证明没有效应。",
+            "theory_id": "V14-REGRESSION-NEW-02",
+            "theory_version": "2",
+            "span_ids": [
+              "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "unspecified",
+            "limitations": [
+              "虚构软件回归，不是真实研究。"
+            ],
+            "target_claim": {
+              "proposition": "{\"outcome\": \"longevity\", \"requested_relation\": \"individual_inference\", \"subject\": \"resistance_training\"}",
+              "scope": {
+                "population": "synthetic_only",
+                "time_scale": "source_protocol_only"
+              }
+            },
+            "evidence_relation": "refutes",
+            "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation."
+          }
+        ],
+        "limits": [
+          "候选需要用户目标、可比历史和器械可实现步长；当前没有依据保证某个新负荷必然完成。",
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "虚构软件回归，不是真实研究。"
+        ],
+        "citations": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-02",
+            "theory_version": "2",
+            "source_id": "S5",
+            "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+            "span_ids": [
+              "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "support_assessment": {
+          "status": "evidence_supported",
+          "target_resolution": "normalized_claim_task",
+          "targets": [
+            {
+              "target_claim": {
+                "proposition": "{\"outcome\": \"longevity\", \"requested_relation\": \"individual_inference\", \"subject\": \"resistance_training\"}",
+                "scope": {
+                  "population": "synthetic_only",
+                  "time_scale": "source_protocol_only"
+                }
+              },
+              "verdict": "supported_answer_relation",
+              "relations": [
+                "refutes"
+              ],
+              "excluded_reasons": [],
+              "review_basis": "explicit_reviewed_claim_bindings_not_lexical_score"
+            }
+          ],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "b6200e8ed25de0e19be5f87c3512cdc9ed0ac3b1e6b141d02a35bc7c84150cef",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 1,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-02",
+            "theory_version": "2",
+            "source_statements": [
+              "该方案未测量寿命，不能据此证明个人寿命增长；这也不证明没有效应。"
+            ],
+            "evidence_links": [
+              {
+                "source_id": "S5",
+                "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                "span_ids": [
+                  "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                ]
+              }
+            ],
+            "status": "reading_material_not_answer_support"
+          }
+        ],
+        "routes": [
+          {
+            "route": "progression",
+            "reason": "explicit_user_route",
+            "matched_terms": [
+              "加重"
+            ]
+          },
+          {
+            "route": "strength",
+            "reason": "cross_route_context:重复",
+            "matched_terms": [
+              "重复"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": "resistance_training",
+            "outcome": "longevity",
+            "requested_relation": "individual_inference",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [
+              "longevity",
+              "progression_options"
+            ],
+            "issues": [],
+            "resolution": "compositional_concept_contract_v1.4.1"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "V14-REGRESSION-NEW-02",
+              "theory_version": "2",
+              "card": {
+                "title": "该方案未测量寿命，不能据此证明个人寿命增长；这也不证明没有效应。",
+                "domains": [
+                  "progression"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "该方案未测量寿命，不能据此证明个人寿命增长；这也不证明没有效应。",
+                    "span_ids": [
+                      "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                    ],
+                    "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                    "limitations": [
+                      "虚构软件回归，不是真实研究。"
+                    ],
+                    "answer_bindings": [
+                      {
+                        "question": "合成方案增加重复次数能否证明个人寿命增长？",
+                        "target_claim": {
+                          "proposition": "{\"outcome\": \"longevity\", \"requested_relation\": \"individual_inference\", \"subject\": \"resistance_training\"}",
+                          "scope": {
+                            "population": "synthetic_only",
+                            "time_scale": "source_protocol_only"
+                          }
+                        },
+                        "relation": "refutes",
+                        "answer_complete": true,
+                        "target_coverage_complete": true,
+                        "rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                        "target_resolution": "compositional_concept_contract_v1.4.1"
+                      }
+                    ]
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "S5",
+                    "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                    "span_ids": [
+                      "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "synthetic_fixture",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000",
+                  "version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                  "locator_json": "{\"synthetic_line\": 1}",
+                  "text_hash": "0037421d79d5b0101042876b2caffd6556d3c9935505636082cd5899cef8e594",
+                  "source_id": "S5",
+                  "rights_json": "{\"index_allowed\": true, \"license_id\": \"CC0\"}"
+                }
+              ],
+              "exact_reviewed_question": true,
+              "corpus_roles": [
+                "research"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": "longevity",
+                "requested_relation": "individual_inference",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [
+                  "longevity",
+                  "progression_options"
+                ],
+                "issues": [],
+                "resolution": "compositional_concept_contract_v1.4.1"
+              },
+              "score": 10.349707583661576
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-prediction-not-causation",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 1,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "answered_with_support",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "776f9dd63a7fec8382daaccfd05c99c01b167903a6f0e4ebd2eec09e16e84afa"
+      },
+      "regression_contract": {
+        "complete_answer": true,
+        "reviewed_relation": "refutes"
+      },
+      "new_independent_semantic_review": "not_performed; do not replace old labels with software checks",
+      "public_output_sha256": "64c5998e0e6c7cf10268e196fac313cf6e7b8a2a36fae2d0991b6632a51ce85d"
+    },
+    {
+      "case_id": "NEW-05",
+      "question": "合成温度计试验能确定我明天的绝对体温吗？",
+      "before_status": "related_material_only",
+      "before_independent_judgment": {
+        "decision": "fail",
+        "addresses_target": false,
+        "scope_correct": true,
+        "relation_supported": false,
+        "rationale": "未给出个人体温数值，范围控制正确；然而证据明确没有测量明日个人体温，回答本可说明据此不能确定提问者明日绝对体温。通用相关阅读标签没有解释该具体缺项，未完成目标作答。"
+      },
+      "source_text_sha256": "0fd34767e6834fb53f8be57b5a6456eed9f847c9b7fed738caef4c06b28f2e98",
+      "annotation_identity": {
+        "case_id": "NEW-05",
+        "question_sha256": "25850728af6174c6d7fdbe158f1c9e18c273586aa93f2c319c87af598bde91f3",
+        "output_sha256": "65457906c0725548bef1c6059ceb5b7427a45e0457c96835c5b784aad50952cd",
+        "evidence_bundle_hash": "ded2a9cdba5b25ece9189cc2c2cab5c20c53d5aed0a91d6f8b175d6948b4f64a"
+      },
+      "output": {
+        "observations": [],
+        "answer": "该温度计试验未测量明日个人体温，因此不能据此确定你明日的绝对体温。",
+        "claims": [
+          {
+            "text": "该温度计试验未测量明日个人体温，因此不能据此确定你明日的绝对体温。",
+            "theory_id": "V14-REGRESSION-NEW-05",
+            "theory_version": "2",
+            "span_ids": [
+              "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "unspecified",
+            "limitations": [
+              "虚构软件回归，不是真实研究。"
+            ],
+            "target_claim": {
+              "proposition": "{\"outcome\": \"personal_temperature\", \"requested_relation\": \"individual_inference\", \"subject\": \"device_measurement\"}",
+              "scope": {
+                "population": "synthetic_only",
+                "time_scale": "source_protocol_only"
+              }
+            },
+            "evidence_relation": "refutes",
+            "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation."
+          }
+        ],
+        "limits": [
+          "设备报告、真实总消耗、净储能、相对摄入变化和绝对摄入是不同量；缺少可识别基线时保留事实。",
+          "虚构软件回归，不是真实研究。"
+        ],
+        "citations": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-05",
+            "theory_version": "2",
+            "source_id": "E8",
+            "source_version_id": "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1",
+            "span_ids": [
+              "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "support_assessment": {
+          "status": "evidence_supported",
+          "target_resolution": "normalized_claim_task",
+          "targets": [
+            {
+              "target_claim": {
+                "proposition": "{\"outcome\": \"personal_temperature\", \"requested_relation\": \"individual_inference\", \"subject\": \"device_measurement\"}",
+                "scope": {
+                  "population": "synthetic_only",
+                  "time_scale": "source_protocol_only"
+                }
+              },
+              "verdict": "supported_answer_relation",
+              "relations": [
+                "refutes"
+              ],
+              "excluded_reasons": [],
+              "review_basis": "explicit_reviewed_claim_bindings_not_lexical_score"
+            }
+          ],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "7d1189f5ad4650dc6775e91ab7a764a950b262dfa61e9e4202c761d01eca7c86",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 1,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-05",
+            "theory_version": "2",
+            "source_statements": [
+              "该温度计试验未测量明日个人体温，因此不能据此确定你明日的绝对体温。"
+            ],
+            "evidence_links": [
+              {
+                "source_id": "E8",
+                "source_version_id": "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1",
+                "span_ids": [
+                  "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000"
+                ]
+              }
+            ],
+            "status": "reading_material_not_answer_support"
+          }
+        ],
+        "routes": [
+          {
+            "route": "energy",
+            "reason": "explicit_user_route",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": "device_measurement",
+            "outcome": "personal_temperature",
+            "requested_relation": "individual_inference",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [
+              "personal_temperature"
+            ],
+            "issues": [],
+            "resolution": "compositional_concept_contract_v1.4.1"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "V14-REGRESSION-NEW-05",
+              "theory_version": "2",
+              "card": {
+                "title": "该温度计试验未测量明日个人体温，因此不能据此确定你明日的绝对体温。",
+                "domains": [
+                  "energy"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "该温度计试验未测量明日个人体温，因此不能据此确定你明日的绝对体温。",
+                    "span_ids": [
+                      "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000"
+                    ],
+                    "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                    "limitations": [
+                      "虚构软件回归，不是真实研究。"
+                    ],
+                    "answer_bindings": [
+                      {
+                        "question": "合成温度计试验能确定我明天的绝对体温吗？",
+                        "target_claim": {
+                          "proposition": "{\"outcome\": \"personal_temperature\", \"requested_relation\": \"individual_inference\", \"subject\": \"device_measurement\"}",
+                          "scope": {
+                            "population": "synthetic_only",
+                            "time_scale": "source_protocol_only"
+                          }
+                        },
+                        "relation": "refutes",
+                        "answer_complete": true,
+                        "target_coverage_complete": true,
+                        "rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                        "target_resolution": "compositional_concept_contract_v1.4.1"
+                      }
+                    ]
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "E8",
+                    "source_version_id": "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1",
+                    "span_ids": [
+                      "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "synthetic_fixture",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1:s00000",
+                  "version_id": "E8:fulltext:0fd34767e6834fb53f8b:synthetic-review-1",
+                  "locator_json": "{\"synthetic_line\": 1}",
+                  "text_hash": "0fd34767e6834fb53f8be57b5a6456eed9f847c9b7fed738caef4c06b28f2e98",
+                  "source_id": "E8",
+                  "rights_json": "{\"index_allowed\": true, \"license_id\": \"CC0\"}"
+                }
+              ],
+              "exact_reviewed_question": true,
+              "corpus_roles": [
+                "research"
+              ],
+              "resolved_task": {
+                "subject": "device_measurement",
+                "outcome": "personal_temperature",
+                "requested_relation": "individual_inference",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [
+                  "personal_temperature"
+                ],
+                "issues": [],
+                "resolution": "compositional_concept_contract_v1.4.1"
+              },
+              "score": 11.04285476422152
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-energy-device-reporting",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-energy-hall-relative-intake",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-energy-identifiability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-energy-uncertainty-propagation",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 1,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "answered_with_support",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "ded2a9cdba5b25ece9189cc2c2cab5c20c53d5aed0a91d6f8b175d6948b4f64a"
+      },
+      "regression_contract": {
+        "complete_answer": true,
+        "reviewed_relation": "refutes"
+      },
+      "new_independent_semantic_review": "not_performed; do not replace old labels with software checks",
+      "public_output_sha256": "d6400d75dc8415c934a3acb33480e24ef20e971122bef88f86e313508c49ffb6"
+    },
+    {
+      "case_id": "NEW-06",
+      "question": "合成方案是否允许增加重复次数？",
+      "before_status": "partial_answer_support",
+      "before_independent_judgment": {
+        "decision": "fail",
+        "addresses_target": true,
+        "scope_correct": true,
+        "relation_supported": false,
+        "rationale": "答案文字与来源一致，回答了允许次数的目标，且没有越界；但目标已经限定相同合成成人方案，原文是直接肯定允许增加次数，并非仅对该命题作条件限制。packet将关系标为qualifies/qualified_only及部分支持，缺少证据中对应的限定理由；关系语义标注不准确。"
+      },
+      "source_text_sha256": "0037421d79d5b0101042876b2caffd6556d3c9935505636082cd5899cef8e594",
+      "annotation_identity": {
+        "case_id": "NEW-06",
+        "question_sha256": "8700e1bbf15cbbdbe2ae63692213face1c94ba6d6fba18239662d9edde2b4a07",
+        "output_sha256": "85a57f1f7f4dd371535f499d8b9a7d240c429768a93f44776b4f76870d2cab16",
+        "evidence_bundle_hash": "158ccf3e31630cd569e201c444148081893df731f7658665501d75c7bb988c46"
+      },
+      "output": {
+        "observations": [],
+        "answer": "该虚构成人方案允许增加重复次数，但没有个人效果保证。",
+        "claims": [
+          {
+            "text": "该虚构成人方案允许增加重复次数，但没有个人效果保证。",
+            "theory_id": "V14-REGRESSION-NEW-06",
+            "theory_version": "2",
+            "span_ids": [
+              "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "unspecified",
+            "limitations": [
+              "虚构软件回归，不是真实研究。"
+            ],
+            "target_claim": {
+              "proposition": "{\"outcome\": \"progression_options\", \"requested_relation\": \"options\", \"subject\": \"resistance_training\"}",
+              "scope": {
+                "population": "synthetic_only",
+                "time_scale": "source_protocol_only"
+              }
+            },
+            "evidence_relation": "supports",
+            "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation."
+          }
+        ],
+        "limits": [
+          "候选需要用户目标、可比历史和器械可实现步长；当前没有依据保证某个新负荷必然完成。",
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "虚构软件回归，不是真实研究。"
+        ],
+        "citations": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-06",
+            "theory_version": "2",
+            "source_id": "S5",
+            "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+            "span_ids": [
+              "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "support_assessment": {
+          "status": "evidence_supported",
+          "target_resolution": "normalized_claim_task",
+          "targets": [
+            {
+              "target_claim": {
+                "proposition": "{\"outcome\": \"progression_options\", \"requested_relation\": \"options\", \"subject\": \"resistance_training\"}",
+                "scope": {
+                  "population": "synthetic_only",
+                  "time_scale": "source_protocol_only"
+                }
+              },
+              "verdict": "supported_answer_relation",
+              "relations": [
+                "supports"
+              ],
+              "excluded_reasons": [],
+              "review_basis": "explicit_reviewed_claim_bindings_not_lexical_score"
+            }
+          ],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4e881a0aebe7a587a9848a80de276ccfcff95e3e8e0972ba30c4c8020792c34e",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 1,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [
+          {
+            "theory_id": "V14-REGRESSION-NEW-06",
+            "theory_version": "2",
+            "source_statements": [
+              "该虚构成人方案允许增加重复次数，但没有个人效果保证。"
+            ],
+            "evidence_links": [
+              {
+                "source_id": "S5",
+                "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                "span_ids": [
+                  "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                ]
+              }
+            ],
+            "status": "reading_material_not_answer_support"
+          }
+        ],
+        "routes": [
+          {
+            "route": "progression",
+            "reason": "explicit_user_route",
+            "matched_terms": [
+              "加重"
+            ]
+          },
+          {
+            "route": "strength",
+            "reason": "cross_route_context:重复",
+            "matched_terms": [
+              "重复"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": "resistance_training",
+            "outcome": "progression_options",
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [
+              "progression_options"
+            ],
+            "issues": [],
+            "resolution": "compositional_concept_contract_v1.4.1"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "V14-REGRESSION-NEW-06",
+              "theory_version": "2",
+              "card": {
+                "title": "该虚构成人方案允许增加重复次数，但没有个人效果保证。",
+                "domains": [
+                  "progression"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "该虚构成人方案允许增加重复次数，但没有个人效果保证。",
+                    "span_ids": [
+                      "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                    ],
+                    "support_rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                    "limitations": [
+                      "虚构软件回归，不是真实研究。"
+                    ],
+                    "answer_bindings": [
+                      {
+                        "question": "合成方案是否允许增加重复次数？",
+                        "target_claim": {
+                          "proposition": "{\"outcome\": \"progression_options\", \"requested_relation\": \"options\", \"subject\": \"resistance_training\"}",
+                          "scope": {
+                            "population": "synthetic_only",
+                            "time_scale": "source_protocol_only"
+                          }
+                        },
+                        "relation": "supports",
+                        "answer_complete": true,
+                        "target_coverage_complete": true,
+                        "rationale": "Read preserved invented source; explicitly states the option or unmeasured-outcome limitation.",
+                        "target_resolution": "compositional_concept_contract_v1.4.1"
+                      }
+                    ]
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "S5",
+                    "source_version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                    "span_ids": [
+                      "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "synthetic_fixture",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1:s00000",
+                  "version_id": "S5:fulltext:0037421d79d5b0101042:synthetic-review-1",
+                  "locator_json": "{\"synthetic_line\": 1}",
+                  "text_hash": "0037421d79d5b0101042876b2caffd6556d3c9935505636082cd5899cef8e594",
+                  "source_id": "S5",
+                  "rights_json": "{\"index_allowed\": true, \"license_id\": \"CC0\"}"
+                }
+              ],
+              "exact_reviewed_question": true,
+              "corpus_roles": [
+                "research"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": "progression_options",
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [
+                  "progression_options"
+                ],
+                "issues": [],
+                "resolution": "compositional_concept_contract_v1.4.1"
+              },
+              "score": 9.388801555825173
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-prediction-not-causation",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 1,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "answered_with_support",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "158ccf3e31630cd569e201c444148081893df731f7658665501d75c7bb988c46"
+      },
+      "regression_contract": {
+        "complete_answer": true,
+        "reviewed_relation": "supports"
+      },
+      "new_independent_semantic_review": "not_performed; do not replace old labels with software checks",
+      "public_output_sha256": "51ae174d5aaeb11d95024d432bd81331c19950972f54184438a431cd503d384e"
+    }
+  ],
+  "publication_projection": {
+    "version": "public-artifacts-1.1.0",
+    "original_artifact_sha256": "5f955a1f10e8439deedbb8fe38524e2901f90e12f8ca6f64eb9c413ef23fb126",
+    "scope": "retrieval spans only: ID, exact source version, text hash, locator and rights status",
+    "removed": [
+      "source text",
+      "structured source content",
+      "article metadata",
+      "license prose"
+    ],
+    "span_occurrences_projected": 3,
+    "case_output_sha256_scope": "Unprojected original result; existing semantic annotation binding is unchanged.",
+    "case_public_output_sha256_scope": "Canonical JSON of the published output after source-content projection.",
+    "evaluation_changed": false,
+    "private_corpus_modified": false,
+    "limits": "Public metadata is not a substitute for authorized source reading; no scores or adjudications were recomputed."
+  }
+}

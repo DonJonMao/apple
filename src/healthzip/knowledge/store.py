@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -40,6 +41,14 @@ CREATE TABLE IF NOT EXISTS source_version_clearance (
  source_id TEXT NOT NULL, version_id TEXT NOT NULL, scientific_epoch INTEGER NOT NULL,
  reviewer TEXT NOT NULL, rationale TEXT NOT NULL, created_at TEXT NOT NULL,
  PRIMARY KEY(source_id,version_id,scientific_epoch)
+);
+CREATE TABLE IF NOT EXISTS scientific_notice (
+ notice_id TEXT PRIMARY KEY, source_id TEXT NOT NULL, state TEXT NOT NULL,
+ payload_json TEXT NOT NULL, first_seen_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS parse_supersession (
+ old_version_id TEXT PRIMARY KEY, new_version_id TEXT NOT NULL,
+ reason TEXT NOT NULL, created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS index_release (
  release_id TEXT PRIMARY KEY, manifest_json TEXT NOT NULL, sha256 TEXT NOT NULL,
@@ -83,6 +92,10 @@ def digest(raw: bytes) -> str:
 
 
 def identity(source: dict[str, Any]) -> str:
+    if source.get("manifestation_id"):
+        return "manifestation:" + source["manifestation_id"]
+    if source.get("isbn"):
+        return "isbn:" + re.sub(r"[^0-9X]", "", str(source["isbn"]).upper())
     if source.get("doi"):
         return "doi:" + source["doi"].lower().removeprefix("https://doi.org/")
     for key in ("pmid", "pmcid", "canonical_url"):
@@ -208,6 +221,8 @@ class Libraries:
         return result
 
     def eligible(self, span: dict, material: str | None = None) -> tuple[bool, str]:
+        if self.sources.execute("SELECT 1 FROM parse_supersession WHERE old_version_id=?", (span["version_id"],)).fetchone():
+            return False, "parser_superseded_requires_explicit_claim_review"
         current = self.sources.execute("SELECT scientific_state,scientific_epoch FROM source WHERE source_id=?", (span["source_id"],)).fetchone()
         if not current:
             return False, "source_missing"
@@ -216,7 +231,9 @@ class Libraries:
                                         (span["source_id"], span["version_id"], current["scientific_epoch"])).fetchone()
         if scientific == "withdrawn" or scientific == "corrected_pending_review" and not cleared:
             return False, scientific
-        if span["identity_status"] != "matched":
+        identity_review = self.sources.execute("SELECT 1 FROM source_review WHERE source_id=? AND version_id=? AND decision='identity_matched'",
+            (span["source_id"], span["version_id"])).fetchone()
+        if span["identity_status"] != "matched" and not identity_review:
             return False, "identity_not_matched"
         rights = json.loads(span["rights_json"])
         if rights.get("status") == "license_identified" and not rights.get("scope_policy_version"):
@@ -236,7 +253,16 @@ class Libraries:
         if current["scientific_state"] == "withdrawn":
             scientific = "withdrawn"  # fetches and correction notices cannot undo withdrawal
         effective = scientific if scientific != "current" else state
+        notice = {"canonical_identity": current["canonical_identity"], "state": state,
+                  "reason": reason, "relation": relation or {}}
+        notice_id = digest(dumps(notice).encode())
+        if state != "acquired" and self.sources.execute("SELECT 1 FROM scientific_notice WHERE notice_id=?", (notice_id,)).fetchone():
+            self.log(source_id, "scientific_notice_seen_again", {"notice_id": notice_id, "notice": notice})
+            return {"source_id": source_id, "state": current["state"], "scientific_state": current["scientific_state"],
+                    "affected_theories": [], "duplicate_notice": True, "scientific_epoch": current["scientific_epoch"]}
         with self.sources:
+            if state != "acquired":
+                self.sources.execute("INSERT INTO scientific_notice VALUES(?,?,?,?,?)", (notice_id, source_id, state, dumps(notice), now()))
             self.sources.execute("UPDATE source SET state=?,scientific_state=?,scientific_epoch=scientific_epoch+?,acquisition_state=CASE WHEN ?='acquired' THEN 'acquired' ELSE acquisition_state END,updates_json=?,updated_at=? WHERE source_id=?", (effective, scientific, int(state != "acquired"), state, dumps({"reason": reason, "relation": relation, "checked_at": now()}), now(), source_id))
         affected = []
         if scientific != "current":
@@ -299,7 +325,8 @@ class Libraries:
     def review(self, theory_id: str, version: str, *, reviewer: str, rationale: str,
                evidence_links: list[dict], applicability: dict, claims: list[dict],
                decision: str = "approved", implementation_tests: list[str] | None = None,
-               authority: str = "explanation_only", reviewer_kind: str = "human") -> dict:
+               authority: str = "explanation_only", reviewer_kind: str = "human",
+               permitted_actions: list[str] | None = None) -> dict:
         row = self.theories.execute("SELECT * FROM theory WHERE theory_id=? AND version=?", (theory_id, version)).fetchone()
         if not row:
             raise ValueError("unknown theory/version")
@@ -342,6 +369,10 @@ class Libraries:
                    "evidence_links": evidence_links, "applicability": applicability, "claims": claims,
                    "implementation_tests": implementation_tests or [], "authority": authority,
                    "reviewer_kind": reviewer_kind, "independent_expert_validation": False}
+        if permitted_actions is not None:
+            if not isinstance(permitted_actions, list) or any(not isinstance(x, str) for x in permitted_actions):
+                raise ValueError("permitted_actions must be an explicit list")
+            payload["permitted_actions"] = sorted(set(permitted_actions))
         if previous:
             unchanged = all(previous.get(k) == value for k, value in payload.items() if k != "reviewed_at")
             if unchanged and row["status"] == decision:

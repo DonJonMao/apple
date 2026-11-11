@@ -21,6 +21,11 @@ def _date_span(values: list[str]) -> tuple[Optional[str], Optional[str], int]:
 
 
 def inventory(repo: Repository) -> dict[str, Any]:
+    from healthzip.analytics.cache import cached
+    return cached(repo, "inventory", {}, lambda: _inventory(repo))
+
+
+def _inventory(repo: Repository) -> dict[str, Any]:
     result: dict[str, Any] = {"sample_types": [], "workouts": {}, "external": {}, "batches": []}
     for row in repo.rows(
         "SELECT canonical_type,raw_type,COUNT(*) n,MIN(local_date) first_date,MAX(local_date) last_date,COUNT(DISTINCT local_date) observed_days,COUNT(DISTINCT source_name) source_count FROM health_sample WHERE record_status='active' GROUP BY canonical_type,raw_type ORDER BY canonical_type"

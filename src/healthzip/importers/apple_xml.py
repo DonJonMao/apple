@@ -16,6 +16,7 @@ from healthzip.importers.apple_zip import inspect_zip
 from healthzip.normalize import (
     SLEEP_VALUES,
     TYPE_MAP,
+    UNIT_CONVERSION_VERSION,
     normalize_value,
     parse_apple_datetime,
     parse_number,
@@ -80,7 +81,7 @@ def _metadata(attrs: dict[str, str]) -> dict[str, str]:
 
 
 def _record_data(
-    attrs: dict[str, str], include_cycle: bool
+    attrs: dict[str, str], include_cycle: bool, metadata_entries=None
 ) -> tuple[Optional[dict[str, Any]], Optional[str]]:
     raw_type = attrs.get("type", "")
     canonical_tuple = TYPE_MAP.get(raw_type)
@@ -114,6 +115,11 @@ def _record_data(
     category = (
         attrs.get("value") if normalized is None or raw_type.startswith("HKCategory") else None
     )
+    metadata = _metadata(attrs)
+    if metadata_entries:
+        # Preserve duplicate keys, source spellings and attributes in order.
+        # HKWasUserEntered and sync identifiers are facts, not dedup policies.
+        metadata["MetadataEntry"] = metadata_entries
     fp = stable_fingerprint(
         [
             raw_type,
@@ -125,7 +131,7 @@ def _record_data(
             attrs.get("sourceName"),
             attrs.get("sourceVersion"),
             attrs.get("device"),
-            _metadata(attrs),
+            metadata,
         ]
     )
     return {
@@ -153,7 +159,10 @@ def _record_data(
         "source_name": attrs.get("sourceName"),
         "source_version": attrs.get("sourceVersion"),
         "device": attrs.get("device"),
-        "metadata_json": json.dumps(_metadata(attrs), ensure_ascii=False, sort_keys=True),
+        "metadata_json": json.dumps({**metadata, "unit_normalization": {
+            "version": UNIT_CONVERSION_VERSION, "status": unit_status,
+            "conversion_id": f"{canonical_tuple[0]}:{attrs.get('unit')}->{normalized_unit}" if normalized is not None else None,
+            "raw_unit": attrs.get("unit"), "normalized_unit": normalized_unit}}, ensure_ascii=False, sort_keys=True),
         "quality_flags_json": json.dumps(
             {"sleep_value": SLEEP_VALUES.get(category, category) if category else None},
             ensure_ascii=False,
@@ -256,7 +265,9 @@ def _iter_export(
                     result.unknown_type_counts[raw_type] = (
                         result.unknown_type_counts.get(raw_type, 0) + 1
                     )
-                data, reason = _record_data(attrs, include_cycle)
+                entries = [dict(child.attrib) for child in elem
+                           if isinstance(child.tag, str) and child.tag.rsplit("}", 1)[-1] == "MetadataEntry"]
+                data, reason = _record_data(attrs, include_cycle, entries)
                 if data is None:
                     if reason == "invalid_timestamp":
                         result.errors_count += 1

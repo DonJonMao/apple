@@ -17,11 +17,44 @@ def default_spec_dir() -> Path:
 
 
 class KnowledgeWorkbench:
-    def __init__(self, root, spec_dir=None):
+    def __init__(self, root, spec_dir=None, *, environment_kind="production"):
         self.root = Path(root)
         self.spec_dir = Path(spec_dir) if spec_dir else default_spec_dir()
         self.lib = Libraries(self.root)
+        if environment_kind not in {"production", "synthetic_test"}:
+            raise ValueError("unknown knowledge environment")
+        self.environment_kind = environment_kind
+        from .core import ensure_schema
+        ensure_schema(self)
         self.routes = json.loads((self.spec_dir / "knowledge_routes.json").read_text())
+
+    def seed_core(self):
+        from .core import seed_core
+        return seed_core(self)
+
+    def review_claim(self, claim, review):
+        from .core import review_claim
+        return review_claim(self, claim, review)
+
+    def review_rule(self, rule, review):
+        from .core import review_rule
+        return review_rule(self, rule, review)
+
+    def core_status(self):
+        from .core import core_status
+        return core_status(self)
+
+    def quality_context(self, cases, annotations=None):
+        from .quality import quality_context
+        return quality_context(self, cases, annotations)
+
+    def release_core(self, release_id):
+        from .core import release_core
+        return release_core(self, release_id)
+
+    def core_state(self, object_type, object_id, version, action, **kwargs):
+        from .core import core_state
+        return core_state(self, object_type, object_id, version, action, **kwargs)
 
     def close(self):
         self.lib.close()
@@ -71,6 +104,7 @@ class KnowledgeWorkbench:
         counts["scientific_validation"] = "not_established_by_software_or_retrieval_checks"
         for field in ("acquisition_state", "scientific_state"):
             counts[field + "s"] = {r[0]: r[1] for r in self.lib.sources.execute(f"SELECT {field},COUNT(*) FROM source GROUP BY {field}")}
+        counts["core_knowledge"] = self.core_status()
         return counts
 
     def query(self, question, route=None, context=None, personal_metrics=None, **kwargs):
@@ -93,9 +127,14 @@ class KnowledgeWorkbench:
         from .documents import import_document
         return import_document(self, source_id, path, **kwargs)
 
+    def import_chapter(self, source_id, path, **kwargs):
+        from .documents import import_chapter
+        return import_chapter(self, source_id, path, **kwargs)
+
     def reparse_source_version(self, source_version_id):
         """Reparse already-held JATS bytes into a new version, without changing reviews."""
         from .acquisition import identity_check, parse_jats
+        from .rights import PARSER_VERSION
         row = self.lib.sources.execute("SELECT * FROM version WHERE version_id=?", (source_version_id,)).fetchone()
         if not row or row["material_type"] != "fulltext":
             raise ValueError("existing JATS fulltext version required")
@@ -105,7 +144,11 @@ class KnowledgeWorkbench:
         metadata, spans, rights = parse_jats(raw)
         identity, conflicts = identity_check(self.lib.source(row["source_id"])["manifest"], metadata)
         version = self.lib.record_version(row["source_id"], raw, "fulltext", json.loads(row["receipt_json"]),
-                                           metadata, rights, identity, spans, "jats-scoped-1.4.0")
+                                           metadata, rights, identity, spans, PARSER_VERSION)
+        if source_version_id != version:
+            with self.lib.sources:
+                self.lib.sources.execute("INSERT OR IGNORE INTO parse_supersession VALUES(?,?,?,datetime('now'))",
+                    (source_version_id, version, "Component-owned text parser correction; old bytes/reviews retained, new claims require review."))
         result = {"source_id": row["source_id"], "previous_version_id": source_version_id,
                   "version_id": version, "raw_sha256": row["sha256"], "identity_status": identity,
                   "identity_conflicts": conflicts, "article_index_allowed": rights["index_allowed"],
@@ -132,7 +175,8 @@ class KnowledgeWorkbench:
         from .retrieval import _context_match
         if route not in {r['route_id'] for r in self.routes['routes']}:
             raise ValueError('unknown knowledge route')
-        rows = self.lib.released_theories(release_id) if release_id else self.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
+        core_release = release_id and self.lib.theories.execute("SELECT 1 FROM core_release WHERE release_id=?", (release_id,)).fetchone()
+        rows = [] if core_release else self.lib.released_theories(release_id) if release_id else self.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
         principles, excluded = [], []
         for row in rows:
             card, review = json.loads(row['card_json']), json.loads(row['review_json'])
@@ -167,7 +211,12 @@ class KnowledgeWorkbench:
                                'capability': review['authority'], 'evidence_spans': spans,
                                'rights_verified': True, 'scope_matches': True, 'applicability': review['applicability'],
                                'implementation_tests': review.get('implementation_tests', []),
+                               'permitted_actions': review.get('permitted_actions', []),
                                'limits': ['Candidate is a user-selectable experiment; no guaranteed individual effect or automatic execution.']})
+        from .core import core_principles
+        core, core_excluded = core_principles(self, route, context, release_id)
+        principles.extend(core)
+        excluded.extend(core_excluded)
         return {'principles': principles, 'excluded': excluded, 'source_release': release_id,
                 'review_snapshot_sha256': digest(json.dumps(principles, sort_keys=True).encode())}
 

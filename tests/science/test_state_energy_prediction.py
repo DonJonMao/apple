@@ -124,7 +124,7 @@ def test_energy_boundary_no_uniform_rate_assumption_and_nonidentifiable_intake()
 
 
 def test_mass_trend_uses_true_days_and_never_creates_calories():
-    rows = [{"id": str(i), "canonical_type": "body_mass_kg", "normalized_value": 80 - i, "source_name": "synthetic_scale",
+    rows = [{"id": str(i), "canonical_type": "body_mass_kg", "normalized_value": 80 - i, "normalized_unit": "kg", "source_name": "synthetic_scale",
              "event_end": f"2026-11-{1 + 3*i:02d}T08:00:00+00:00", "available_at": f"2026-11-{1 + 3*i:02d}T08:00:00+00:00"} for i in range(3)]
     trend = run("BODY-MASS-TREND", rows)["value"][0]
     assert trend["kg_per_week"] == pytest.approx(-7/3)
@@ -243,7 +243,7 @@ def test_report_context_is_not_future_or_unknown_availability_backdoor():
 
 
 def test_report_baseline_is_separate_from_display_window_and_excludes_current_day():
-    rows = [{"id": str(day), "canonical_type": "resting_heart_rate_bpm", "normalized_value": value,
+    rows = [{"id": str(day), "canonical_type": "resting_heart_rate_bpm", "normalized_value": value, "normalized_unit": "count/min",
              "source_name": "synthetic_watch", "protocol_id": "rhr-v1", "event_end": f"2026-11-0{day}T08:00:00+00:00", "available_at": f"2026-11-0{day}T09:00:00+00:00"}
             for day, value in ((1, 50), (2, 52), (3, 100))]
     output = run("STATE-DEVIATION", rows, {"baseline_window": {"start": "2026-11-01T00:00:00+00:00", "end": "2026-11-04T00:00:00+00:00"}},

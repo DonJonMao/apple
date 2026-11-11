@@ -20,7 +20,7 @@ def render_analysis(repo, value):
     result = value.get("v13")
     if result is None:
         from healthzip.analytics.v13 import analyze, persist
-        result = analyze(repo)
+        result = analyze(repo, value.get("analysis_window_days", 30), timezone_name=value.get("analysis_timezone", "Asia/Shanghai"))
         persist(repo, result)
     st.subheader("训练分析")
     st.caption(f"数据截止 {result['cutoff_time']} · 版本 {result['algorithm_version']}。未知保留为空；模型有效性与数据可用性分别显示。")
@@ -35,6 +35,13 @@ def render_analysis(repo, value):
             "参考场次": task["metrics"]["STR-11"]["n_sessions"],
             "趋势": str(task["metrics"]["STR-19"]["value"]),
             "状态": task["metrics"]["STR-19"]["data_status"]} for task in tasks], use_container_width=True)
+        described = [{"动作": task["exercise_name"], "负荷": series["normalized_load"], "单位": series["normalized_unit"],
+                      "有效参考": series["metric"]["valid_n"], "观察起点": series["first_observed_at"],
+                      "观察终点": series["last_observed_at"], "同负荷描述": str(series["metric"]["value"])}
+                     for task in tasks for series in task["metrics"]["STR-19"].get("series_results", [])]
+        if described:
+            st.dataframe(described, use_container_width=True)
+            st.caption("不同负荷分别描述。计划次数没变化不等于能力停滞；缺测量校准时仍可记录事实和选择适用试验。")
         with st.expander("登记并查看任务区间"):
             st.caption("每个共享分析家族分配总错误预算。重复查看同一任务、同一数据和指标复用登记；数据或指标变化会分配下一次预算。缺少真实校准仍不确认停滞。")
             cutoff_mode = result.get("cutoff_mode", "explicit")
@@ -50,6 +57,15 @@ def render_analysis(repo, value):
             task_labels = {task["exercise_name"] + " · " + task["task_id"][:12]: task["task_id"] for task in tasks}
             task_label = st.selectbox("测量任务", list(task_labels), key="analysis_look_task")
             task_id = task_labels[task_label]
+            frozen_task = next(task for task in look_snapshot["strength_tasks"] if task["task_id"] == task_id)
+            series = frozen_task["metrics"]["STR-19"].get("series_results", [])
+            series_id = None
+            selected_series = None
+            if series:
+                by_series = {s["outcome_series_id"]: s for s in series}
+                series_id = st.selectbox("同负荷描述序列", list(by_series), key="analysis_look_series",
+                    format_func=lambda identity: f"{by_series[identity]['normalized_load']} {by_series[identity]['normalized_unit']} · {by_series[identity]['metric']['valid_n']} 条")
+                selected_series = by_series[series_id]
             family_id = st.text_input("共享分析家族标识", value="local_strength_monitoring", key="analysis_look_family")
             alpha = st.number_input("该家族总错误概率预算（统计设计）", min_value=0.001, max_value=0.5, value=0.05, step=0.005, key="analysis_look_alpha")
             metric_label = st.selectbox("查看内容", ["趋势变化区间", "停滞候选复核"], key="analysis_look_metric")
@@ -57,7 +73,8 @@ def render_analysis(repo, value):
             if st.button("登记本次查看并计算", key="analysis_look_submit"):
                 from healthzip.analytics.v13 import view_task_interval
                 try:
-                    viewed = view_task_interval(repo, look_snapshot, task_id, family_id=family_id, alpha_total=alpha, metric_id=metric_id)
+                    viewed = view_task_interval(repo, look_snapshot, task_id, family_id=family_id, alpha_total=alpha,
+                                                metric_id=metric_id, outcome_series_id=series_id)
                     st.session_state["analysis_last_look"] = viewed
                 except ValueError as exc:
                     st.error(str(exc))
@@ -71,7 +88,8 @@ def render_analysis(repo, value):
                            and receipt.get("task_id") == task_id and receipt.get("metric_id") == metric_id
                            and receipt.get("family_id") == family_id and abs(bound_alpha - alpha) < 1e-15
                            and receipt.get("cutoff_time") == look_snapshot["cutoff_time"]
-                           and receipt.get("data_hash") == frozen_task["data_snapshot_hash"])
+                           and receipt.get("outcome_series_id") == series_id
+                           and receipt.get("data_hash") == (selected_series or frozen_task)["data_snapshot_hash"])
                 if matches:
                     st.write("实际区间与登记依据", viewed["value"])
                     st.caption("；".join(viewed["reason_codes"]))
@@ -81,10 +99,22 @@ def render_analysis(repo, value):
     for tab, (title, prefixes) in zip(st.tabs(list(GROUPS)), GROUPS.items()):
         with tab:
             selected = [x for k, x in metrics.items() if any(k.startswith(p) for p in prefixes)]
-            st.dataframe([{"指标": names[x["metric_id"]]["title"], "结果": str(x["value"]) if x["value"] is not None else "未知",
-                           "单位": x["unit"], "数据状态": x["data_status"], "证据身份": x["evidence_status"],
-                           "有效/总数": f"{x['valid_n']}/{x['total_n']}", "原因": "；".join(x["reason_codes"])} for x in selected], use_container_width=True)
-            with st.expander("窗口、来源和计算依据"):
+            summaries = {
+                "可比力量表现": ["STR-01", "STR-09", "STR-12"],
+                "每日训练候选": ["STR-25", "STR-27"],
+                "停滞与调整试验": ["STR-19", "STR-23", "STR-26"],
+                "身体状态": ["STATE-SLEEP-24H", "STATE-RHR", "STATE-SDNN"],
+                "长期能量背景": ["BODY-MASS-TREND", "ENERGY-DEVICE-TOTAL"],
+                "复盘与个体学习": ["REPORT-RECOMMENDATION-FOLLOWUP", "REPORT-PERIOD-COVERAGE"],
+            }
+            for metric_id in summaries[title]:
+                x = metrics[metric_id]
+                st.write(names[metric_id]["title"], x["value"] if x["value"] is not None else "资料不足，尚不能判断")
+                st.caption(f"有效记录 {x['valid_n']}/{x['total_n']} · {x['unit'] or ''} · {'；'.join(x['reason_codes'])}")
+            with st.expander("高级：完整指标、窗口、来源和计算依据"):
+                st.dataframe([{"指标": names[x["metric_id"]]["title"], "结果": str(x["value"]) if x["value"] is not None else "未知",
+                               "单位": x["unit"], "数据状态": x["data_status"], "证据身份": x["evidence_status"],
+                               "有效/总数": f"{x['valid_n']}/{x['total_n']}", "原因": "；".join(x["reason_codes"])} for x in selected], use_container_width=True)
                 for x in selected:
                     st.json(x)
             if title == "每日训练候选":
@@ -96,7 +126,8 @@ def render_analysis(repo, value):
         period_label = st.selectbox("复盘周期", ["本周", "本月"])
         period = {"本周": "week", "本月": "month"}[period_label]
         if st.button("生成当前周期复盘"):
-            period_result = value.get("period_snapshots", {}).get(period) or analyze(repo, cutoff_time=result["cutoff_time"], period=period)
+            period_result = value.get("period_snapshots", {}).get(period) or analyze(repo, cutoff_time=result["cutoff_time"], period=period,
+                                                                                  timezone_name=result["timezone"])
             persist(repo, period_result)
             st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
             for mid, metric in period_result["metrics"].items():

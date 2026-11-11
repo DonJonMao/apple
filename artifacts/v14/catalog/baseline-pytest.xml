@@ -1,0 +1,48 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="3.273" timestamp="2026-11-11T18:52:27.571017+08:00"><testcase classname="tests.test_v14_catalog_baseline" name="test_f06_history_template_keeps_actual_definition[changes0]" time="0.075"><failure message="assert 2 == 1">repo = &lt;healthzip.db.repository.Repository object at 0xffff7dbe3b90&gt;
+changes = {'recording_mode': 'duration'}
+
+    @pytest.mark.parametrize("changes", [{"recording_mode": "duration"}, {"default_load_basis": "dumbbells_total_kg"}])
+    def test_f06_history_template_keeps_actual_definition(repo, changes):
+        svc = TrainingService(repo)
+        exercise = svc.create_exercise("版本测试", "repetitions", "dumbbell", "per_dumbbell_kg")
+        session = svc.start_session("old")
+        original = svc.add_exercise(session["id"], exercise["exercise_id"], {}, {"sets": [{"reps_min": 6, "reps_max": 8}]})
+        svc.update_exercise(exercise["exercise_id"], changes, base_revision=1)
+        template = svc.save_session_as_template(session["id"], "保留历史")
+&gt;       assert template["items"][0]["definition_version"] == 1
+E       assert 2 == 1
+
+tests/test_v14_catalog_baseline.py:19: AssertionError</failure></testcase><testcase classname="tests.test_v14_catalog_baseline" name="test_f06_history_template_keeps_actual_definition[changes1]" time="0.071"><failure message="assert 2 == 1">repo = &lt;healthzip.db.repository.Repository object at 0xffff7dc0fe10&gt;
+changes = {'default_load_basis': 'dumbbells_total_kg'}
+
+    @pytest.mark.parametrize("changes", [{"recording_mode": "duration"}, {"default_load_basis": "dumbbells_total_kg"}])
+    def test_f06_history_template_keeps_actual_definition(repo, changes):
+        svc = TrainingService(repo)
+        exercise = svc.create_exercise("版本测试", "repetitions", "dumbbell", "per_dumbbell_kg")
+        session = svc.start_session("old")
+        original = svc.add_exercise(session["id"], exercise["exercise_id"], {}, {"sets": [{"reps_min": 6, "reps_max": 8}]})
+        svc.update_exercise(exercise["exercise_id"], changes, base_revision=1)
+        template = svc.save_session_as_template(session["id"], "保留历史")
+&gt;       assert template["items"][0]["definition_version"] == 1
+E       assert 2 == 1
+
+tests/test_v14_catalog_baseline.py:19: AssertionError</failure></testcase><testcase classname="tests.test_v14_catalog_baseline" name="test_f05_real_ui_new_session_and_explicit_resume" time="2.964"><failure message="assert (1 != 1)">tmp_path = PosixPath('&lt;synthetic-test-directory&gt;')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff7da42310&gt;
+
+    def test_f05_real_ui_new_session_and_explicit_resume(tmp_path, monkeypatch):
+        from streamlit.testing.v1 import AppTest
+        monkeypatch.chdir(tmp_path)
+        path = tmp_path / "ui.sqlite3"
+        script = ("from healthzip.db.repository import Repository\nfrom healthzip.ui.training_page import render_training\n"
+                  f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()")
+        app = AppTest.from_string(script).run(timeout=30)
+        app.text_input(key="start_name").set_value("第一场")
+        app.button(key="training_start").click().run(timeout=30)
+        first = app.selectbox(key="resume_training").value
+        app.text_input(key="start_name").set_value("第二场")
+        app.button(key="training_start").click().run(timeout=30)
+        second = app.selectbox(key="resume_training").value
+&gt;       assert first != second and not app.exception
+E       assert (1 != 1)
+
+&lt;baseline-checkout&gt;/tests/test_v14_catalog_baseline.py:39: AssertionError</failure></testcase></testsuite></testsuites>

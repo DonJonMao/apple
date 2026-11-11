@@ -16,6 +16,16 @@ def main(argv=None):
     sub.add_parser("seed")
     sub.add_parser("status")
     sub.add_parser("verify")
+    sub.add_parser("core-seed")
+    sub.add_parser("core-status")
+    p = sub.add_parser("review-claim")
+    p.add_argument("declaration", help="JSON: claim plus truthful content review")
+    p = sub.add_parser("review-rule")
+    p.add_argument("declaration", help="JSON: application rule plus truthful application review")
+    p = sub.add_parser("core-release")
+    p.add_argument("release_id")
+    p = sub.add_parser("core-state")
+    p.add_argument("declaration", help="JSON: object_type,object_id,version,action,actor,rationale; immutable content retained")
     p = sub.add_parser("acquire")
     p.add_argument("--source", action="append")
     p.add_argument("--fulltext", action="store_true")
@@ -44,6 +54,8 @@ def main(argv=None):
     p.add_argument("source_version_id", help="Existing local JATS fulltext version; creates a new scoped parse without approving theories")
     p = sub.add_parser("import-document")
     p.add_argument("declaration", help="JSON: source_id,path,license_id,rights_evidence_url,authorized_by,identity_review")
+    p = sub.add_parser("import-chapter")
+    p.add_argument("declaration", help="JSON: authorized exact edition/chapter/pages and missing-page/footnote declarations")
     p = sub.add_parser("release")
     p.add_argument("release_id")
     p = sub.add_parser("source-state")
@@ -59,6 +71,19 @@ def main(argv=None):
             result = w.status()
         elif args.command == "verify":
             result = w.verify()
+        elif args.command == "core-seed":
+            w.seed()
+            result = w.seed_core()
+        elif args.command == "core-status":
+            result = w.core_status()
+        elif args.command == "review-claim":
+            result = w.review_claim(**json.loads(Path(args.declaration).read_text()))
+        elif args.command == "review-rule":
+            result = w.review_rule(**json.loads(Path(args.declaration).read_text()))
+        elif args.command == "core-release":
+            result = w.release_core(args.release_id)
+        elif args.command == "core-state":
+            result = w.core_state(**json.loads(Path(args.declaration).read_text()))
         elif args.command == "acquire":
             w.seed()
             result = w.acquire(args.source, args.fulltext, args.contact, args.timeout, not args.no_smoke)
@@ -83,6 +108,8 @@ def main(argv=None):
             result = w.reparse_source_version(args.source_version_id)
         elif args.command == "import-document":
             result = w.import_document(**json.loads(Path(args.declaration).read_text()))
+        elif args.command == "import-chapter":
+            result = w.import_chapter(**json.loads(Path(args.declaration).read_text()))
         elif args.command == "release":
             result = w.release(args.release_id)
         else:

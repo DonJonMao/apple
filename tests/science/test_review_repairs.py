@@ -58,4 +58,7 @@ def test_followup_unknown_quality_is_not_a_failed_task():
 
 def test_r01_equal_recorded_numbers_with_different_units_are_not_one_trend():
     rows = [row(1, load_value=50, load_unit="kg"), row(2, load_value=50, load_unit="lb"), row(3, load_value=50, load_unit="kg")]
-    assert run("STR-19", rows)["data_status"] == "incompatible"
+    result = run("STR-19", rows)
+    assert len(result["series_results"]) == 2
+    assert sorted(item["metric"]["valid_n"] for item in result["series_results"]) == [1, 2]
+    assert len({item["normalized_load"] for item in result["series_results"]}) == 2

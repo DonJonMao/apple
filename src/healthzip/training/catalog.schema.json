@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "healthzip.catalog.exercise.v1.4",
+  "type": "object",
+  "required": ["exercise_id", "definition_version", "recording_mode", "default_load_basis", "source", "names", "upstream_muscle_tags", "reviewed_anatomy"],
+  "properties": {
+    "exercise_id": {"type": "string", "pattern": "^(catalog\\.wger\\.|psa\\.ex\\.)[A-Za-z0-9_.:-]+$"},
+    "definition_version": {"type": "integer", "minimum": 1},
+    "recording_mode": {"enum": ["repetitions", "duration", "distance", "unknown"]},
+    "mode_basis": {"enum": ["requires_user_confirmation", "catalog_mapping_review"]},
+    "default_load_basis": {"enum": ["unknown", "external_total_kg", "plates_per_side_kg", "per_dumbbell_kg", "dumbbells_total_kg", "single_implement_kg", "machine_setting", "bodyweight_no_external", "added_load_kg", "assistance_setting", "band_configuration"]},
+    "source": {
+      "type": "object", "required": ["provider", "source_id", "source_uuid", "snapshot_id", "raw_sha256", "license"],
+      "properties": {
+        "provider": {"const": "wger"}, "source_id": {"type": "integer", "minimum": 1},
+        "source_uuid": {"type": "string", "minLength": 1}, "snapshot_id": {"type": "string", "pattern": "^wger\\.[a-f0-9]{64}$"},
+        "raw_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "license": {"type": ["object", "null"]}
+      }
+    },
+    "names": {"type": "object", "required": ["en", "zh-CN"], "additionalProperties": {"type": "object", "required": ["text", "origin"], "properties": {"text": {"type": "string", "minLength": 1}, "origin": {"enum": ["upstream", "project_translation", "project_seed"]}, "review_status": {"enum": ["upstream_unreviewed", "draft", "existing_project_label"]}}}},
+    "upstream_muscle_tags": {"type": "object", "required": ["use", "primary", "secondary"], "properties": {"use": {"const": "navigation"}, "primary": {"type": "array"}, "secondary": {"type": "array"}}},
+    "reviewed_anatomy": {"type": ["object", "null"]}
+  }
+}

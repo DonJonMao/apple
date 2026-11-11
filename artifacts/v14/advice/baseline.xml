@@ -1,0 +1,47 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.356" timestamp="2026-11-11T18:40:25.420665+08:00"><testcase classname="tests.integration.test_v14_advice_flow" name="test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade" time="2.176"><failure message="KeyError: 'candidate_target_872b69ad-0fe2-52f8-95fd-c82fe1db916e'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-144/test_f03_current_pain_remains_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffa6dbf790&gt;
+
+    def test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade(tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        HELPERS["synthetic_authority"](tmp_path / ".local/knowledge", "external_total_kg")
+        path = tmp_path / "synthetic-advice.sqlite3"
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        equipment = svc.create_equipment("Synthetic station", "barbell")
+        condition = {"equipment_instance_id": equipment["id"], "load_basis": "external_total_kg", "load_basis_confirmed": True,
+            "side": "both", "repetition_semantics": "simultaneous", "rom_protocol": "full",
+            "settings_confirmed": True, "settings": {"grip": "fixed"},
+            "reference_protocol": {"protocol_id": "synthetic", "version": "1", "reference_policy_id": "first-work",
+            "effort_protocol": "rir-2", "tempo": "controlled", "rest_protocol": "180-sec"}}
+        prior = svc.start_session("prior")
+        baseline = _reference(svc, svc.add_exercise(prior["id"], "psa.ex.barbell_bench_press", condition))
+        svc.end_session(prior["id"])
+        session = svc.start_session("current")
+        instance = svc.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+        limited = _reference(svc, instance, pain=True)
+        target = svc.add_set(instance["id"], planned={"reps_min": 6, "reps_max": 8, "rir": 2})
+        repo.close()
+        app = HELPERS["open_app"](path)
+&gt;       app.selectbox(key="candidate_target_" + instance["id"]).set_value(target["set_uuid"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+&lt;repo&gt;/tests/integration/test_v14_advice_flow.py:46:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WidgetList()
+key = 'candidate_target_872b69ad-0fe2-52f8-95fd-c82fe1db916e'
+
+    def __call__(self, key: str) -&gt; El_co:
+        """Return the first element in this collection with the given user key.
+
+        The same key can appear on different element types, so this returns the
+        first match in this collection. Use ``get_by_key`` when an ambiguous
+        key should raise.
+        """
+        for e in self._list:
+            if getattr(e, "key", None) == key:
+                return e
+&gt;       raise KeyError(key)
+E       KeyError: 'candidate_target_872b69ad-0fe2-52f8-95fd-c82fe1db916e'
+
+&lt;repo&gt;/.venv/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:602: KeyError</failure></testcase></testsuite></testsuites>

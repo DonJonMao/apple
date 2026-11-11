@@ -6,8 +6,8 @@ import math
 from collections import defaultdict
 
 from .contracts import Window, finite, instant, result
-from .registry import calibration_matches
-from .semantics import comparable, condition_key
+from .registry import calibration_scope_check, task_calibration_scope
+from .semantics import comparable, condition_key, outcome_series
 from .strength import reference_rows
 
 
@@ -181,7 +181,8 @@ def prediction_metric(metric_id: str, rows: list[dict], window: Window, context:
     target = context.get("prediction_target")
     if not target:
         return emit(None, "insufficient", reasons=["fixed_task_prediction_target_required"])
-    same = [r for r in refs if comparable(r, target, protocol=True)[0] and r.get("load_value") == target.get("load_value")]
+    same = [r for r in refs if comparable(r, target, protocol=True)[0] and outcome_series(r)["eligible"]
+            and outcome_series(r)["outcome_series_id"] == outcome_series(target)["outcome_series_id"]]
     if not same:
         return emit(None, "insufficient", reasons=["strictly_comparable_available_history_missing"])
     previous = max(same, key=lambda r: instant(r["_event_end"]))
@@ -200,7 +201,9 @@ def prediction_metric(metric_id: str, rows: list[dict], window: Window, context:
             return emit({"B0": b0, "B1": None, "selected_model": "B0"}, "partial", reasons=["feature_unavailable_at_prediction_cutoff"])
     estimate = b0["predicted_reps"] + model["beta"] * (current_state["value"] - previous_state["value"])
     calibration = context.get("calibration")
-    valid = calibration_matches(calibration, metric_id=metric_id, scope=context.get("scope", {}), model_version=model["model_version"])
+    scope_check = calibration_scope_check(calibration, metric_id=metric_id, scope=task_calibration_scope(target, context), model_version=model["model_version"])
+    valid = scope_check["matches"]
     return emit({"B0": b0, "B1": {"predicted_reps": estimate, "model": model}, "selected_model": "B1" if valid else "B0"},
                 evidence_status="predictive_validated_for_scope" if valid else "research_only", calibration=calibration,
+                calibration_scope_check=scope_check,
                 reasons=["prediction_association_not_causal_sleep_or_load_adjustment"] + ([] if valid else ["target_validation_missing_fallback_B0"]))

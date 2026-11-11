@@ -224,6 +224,8 @@ def _draft_change(db_path, set_id, revision, widget_key, field, prefix, mode):
 
 
 def _selector(svc, key):
+    from healthzip.training.catalog_terms import EQUIPMENT_LABELS, PATTERN_LABELS
+
     query = st.text_input("搜索动作或别名", key=key + "_query")
     view = st.selectbox(
         "动作列表",
@@ -239,11 +241,15 @@ def _selector(svc, key):
     regions = st.multiselect("部位", list(REGIONS), format_func=REGIONS.get, key=key + "_regions")
     catalog = svc.search_exercises()
     equipment = st.multiselect(
-        "器械筛选", sorted({x["equipment_type"] for x in catalog}), key=key + "_equipment"
+        "器械筛选",
+        sorted({x["equipment_type"] for x in catalog}),
+        format_func=lambda x: EQUIPMENT_LABELS.get(x, x),
+        key=key + "_equipment",
     )
     patterns = st.multiselect(
         "动作模式",
         sorted({p for x in catalog for p in x.get("movement_patterns", [])}),
+        format_func=lambda x: PATTERN_LABELS.get(x, x),
         key=key + "_patterns",
     )
     matches = svc.search_exercises(
@@ -253,14 +259,139 @@ def _selector(svc, key):
     if not matches:
         st.info("可清除筛选或在“动作维护”中新建动作。")
         return None
+    if len(matches) > 50:
+        page = st.number_input(
+            "动作结果页",
+            min_value=1,
+            max_value=(len(matches) + 49) // 50,
+            value=1,
+            step=1,
+            key=key + "_page",
+        )
+        matches = matches[(page - 1) * 50 : page * 50]
     ids = [x["exercise_id"] for x in matches]
-    names = {x["exercise_id"]: x["name"] + " · " + x["equipment_type"] for x in matches}
+    names = {
+        x["exercise_id"]: x["name"]
+        + " · "
+        + EQUIPMENT_LABELS.get(x["equipment_type"], x["equipment_type"])
+        for x in matches
+    }
     selected = st.selectbox("选择动作", ids, format_func=names.get, key=key + "_choice")
     item = next(x for x in matches if x["exercise_id"] == selected)
     if st.button("取消收藏" if item["favorite"] else "收藏动作", key=key + "_favorite"):
         svc.favorite(selected, not item["favorite"])
         st.rerun()
+    _exercise_detail(svc, item, key)
+    if item["recording_mode"] == "unknown":
+        st.info(
+            "此动作的记录模式尚未核对。请选择实际记录方式，保存为你的个人记录定义；来源动作身份继续保留。"
+        )
+        modes = {"repetitions": "次数", "duration": "时长", "distance": "距离"}
+        mode = st.selectbox(
+            "本次动作记录方式", list(modes), format_func=modes.get, key=key + "_adopt_mode"
+        )
+        equipment = st.selectbox(
+            "实际器械类别",
+            list(EQUIPMENT_LABELS),
+            index=list(EQUIPMENT_LABELS).index(item["equipment_type"])
+            if item["equipment_type"] in EQUIPMENT_LABELS
+            else 0,
+            format_func=EQUIPMENT_LABELS.get,
+            key=key + "_adopt_equipment",
+        )
+        basis = st.selectbox(
+            "个人定义负荷口径",
+            sorted(LOAD_BASES),
+            format_func=LOAD_LABELS.get,
+            key=key + "_adopt_basis",
+        )
+        if st.button("保存个人记录定义", key=key + "_adopt"):
+            adopted = _act(
+                svc.create_exercise,
+                item["name"] + "（我的记录）",
+                mode,
+                equipment,
+                basis,
+                regions=item.get("display_regions"),
+                derived_from={
+                    "exercise_id": item["exercise_id"],
+                    "definition_version": item["definition_version"],
+                    "source": item.get("source"),
+                },
+            )
+            if adopted:
+                st.session_state[key + "_adopted"] = {
+                    "source": item["exercise_id"],
+                    "id": adopted["exercise_id"],
+                }
+        adopted = st.session_state.get(key + "_adopted", {})
+        if adopted.get("source") == item["exercise_id"]:
+            return svc.get_exercise(adopted["id"])
+        return None
     return item
+
+
+def _exercise_detail(svc, item, key):
+    details = svc.exercise_details(item["exercise_id"], item["definition_version"])
+    media = details["media"]
+    images = [x for x in media if x["media_type"] == "image" and x["local_path"]]
+    if images:
+        st.image(images[0]["local_path"], width=120, caption="动作示范 · 来源 wger")
+    with st.expander("动作详情、示范与来源"):
+        st.write(details.get("name_en") or details["name"])
+        zh = details.get("names", {}).get("zh-CN", {})
+        if zh:
+            st.caption(
+                "中文名称："
+                + (
+                    "上游翻译，未作专业审定"
+                    if zh.get("origin") == "upstream"
+                    else "项目术语译稿，待核对"
+                )
+            )
+            if zh.get("untranslated_terms"):
+                st.caption("保留待翻译术语：" + ", ".join(zh["untranslated_terms"]))
+        if details.get("description"):
+            st.text(details["description"])
+            st.caption("以上为上游动作说明，不能替代已核对教材指导。")
+        if images:
+            index = st.selectbox(
+                "示范图片",
+                range(len(images)),
+                format_func=lambda x: f"图片 {x + 1}",
+                key=key + "_image",
+            )
+            st.image(images[index]["local_path"], caption=images[index]["attribution_text"])
+        for video in (x for x in media if x["media_type"] == "video" and x["local_path"]):
+            st.video(
+                video["local_path"],
+                format=video.get("verified_file", {}).get("mime", "video/mp4"),
+                autoplay=False,
+            )
+            st.caption(video["attribution_text"])
+        if not media:
+            st.info("暂无动作示范：来源没有此动作的图片或视频。")
+        elif not any(x["local_path"] for x in media):
+            st.info("示范尚未本地下载，或因下载失败／许可未知而暂不可用。")
+        for entry in media:
+            st.caption(
+                f"{entry['media_type']} · {entry['fetch_status']} · {entry['attribution_text']}"
+            )
+            license_url = (entry.get("license") or {}).get("url")
+            if license_url:
+                st.markdown(f"[媒体许可]({license_url})")
+        tags = details.get("upstream_muscle_tags", {})
+        if tags:
+            st.write(
+                "来源分类（仅供导航）",
+                {
+                    k: [x.get("name_en") or x["name"] for x in tags.get(k, [])]
+                    for k in ("primary", "secondary")
+                },
+            )
+            st.caption("教材核对的肌肉关系：尚未建立；不计算刺激权重、有效组数或恢复百分比。")
+        if details.get("source"):
+            st.json(details["source"])
 
 
 def _condition_form(svc, exercise, key, existing=None):
@@ -408,10 +539,24 @@ def _condition_form(svc, exercise, key, existing=None):
     }
 
 
-def _targets(key):
+def _targets(key, mode="repetitions"):
     count = st.number_input("计划组数", min_value=1, value=1, key=key + "_count")
-    low = st.text_input("目标次数下限（可留空）", key=key + "_low")
-    high = st.text_input("目标次数上限（可留空）", key=key + "_high")
+    low = (
+        st.text_input("目标次数下限（可留空）", key=key + "_low") if mode == "repetitions" else None
+    )
+    high = (
+        st.text_input("目标次数上限（可留空）", key=key + "_high")
+        if mode == "repetitions"
+        else None
+    )
+    quantity = (
+        st.text_input(
+            "目标时长秒数（可留空）" if mode == "duration" else "目标距离米数（可留空）",
+            key=key + "_quantity",
+        )
+        if mode != "repetitions"
+        else None
+    )
     rir = st.text_input("目标 RIR（可留空）", key=key + "_rir")
     rest = st.text_input("目标休息秒数（可留空）", key=key + "_rest")
     return {
@@ -422,6 +567,15 @@ def _targets(key):
                 "reps_max": int(high) if high else None,
                 "rir": float(rir) if rir else None,
                 "rest_seconds": float(rest) if rest else None,
+                **(
+                    {
+                        "duration_s" if mode == "duration" else "distance_m": float(quantity)
+                        if quantity
+                        else None
+                    }
+                    if mode != "repetitions"
+                    else {}
+                ),
             }
             for _ in range(int(count))
         ]
@@ -436,11 +590,16 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         return
     st.markdown(f"**第 {row['set_number']} 组 · {row.get('completion_state') or '历史记录'}**")
     planned = row.get("planned") or {}
-    if planned:
-        st.caption(
-            f"目标 {planned.get('reps_min') or '—'}–{planned.get('reps_max') or '—'} 次；RIR {planned.get('rir') if planned.get('rir') is not None else '未设'}"
-        )
     mode = instance["condition"]["measurement_mode"]
+    if planned:
+        if mode == "repetitions":
+            st.caption(
+                f"目标 {planned.get('reps_min') or '—'}–{planned.get('reps_max') or '—'} 次；RIR {planned.get('rir') if planned.get('rir') is not None else '未设'}"
+            )
+        else:
+            st.caption(
+                f"目标 {planned.get('duration_s' if mode == 'duration' else 'distance_m') or '—'} {'秒' if mode == 'duration' else '米'}"
+            )
     baseline = _bind_set_form(row, mode, prefix)
     revision = baseline["revision"]
     fields = [
@@ -686,7 +845,7 @@ def render_training(repo):
     with st.expander("离线训练记录器"):
         st.download_button(
             "下载可离线打开的记录器",
-            recorder_html(),
+            recorder_html(repo),
             file_name="HealthZIP_离线记录器.html",
             mime="text/html",
         )
@@ -713,7 +872,8 @@ def render_training(repo):
         if st.button("开始训练", key="training_start", type="primary"):
             result = _act(svc.start_session, name, template_id=selected)
             if result:
-                st.session_state["active_training"] = result["id"]
+                st.session_state["resume_training"] = result["id"]
+                st.session_state.pop("active_training", None)
                 for key in (
                     "session_feedback",
                     "session_srpe",
@@ -752,7 +912,7 @@ def _templates(svc):
     if item:
         try:
             condition = _condition_form(svc, item, "template_condition")
-            targets = _targets("template_targets")
+            targets = _targets("template_targets", item["recording_mode"])
         except ValueError:
             st.info("请输入有效的数字目标。")
             return
@@ -771,7 +931,7 @@ def _templates(svc):
     if current:
         for i, entry in enumerate(current["items"]):
             st.write(
-                f"{i + 1}. {svc.get_exercise(entry['exercise_id'])['name']} · {len(entry.get('targets', {}).get('sets', []))} 组"
+                f"{i + 1}. {svc.get_exercise(entry['exercise_id'], entry.get('definition_version'))['name']} · {len(entry.get('targets', {}).get('sets', []))} 组"
             )
             with st.expander(f"修改第 {i + 1} 个动作的目标与顺序"):
                 revised = st.data_editor(
@@ -830,17 +990,68 @@ def _templates(svc):
 
 
 def _catalog(svc):
+    from healthzip.training.catalog_terms import EQUIPMENT_LABELS, PATTERN_LABELS
+
     with st.form("new_custom_exercise"):
         name = st.text_input("我的动作名称")
         mode = st.selectbox("记录模式", ["repetitions", "duration", "distance"])
-        equipment = st.text_input("器械类别", "other")
+        equipment = st.selectbox(
+            "器械类别", list(EQUIPMENT_LABELS), format_func=EQUIPMENT_LABELS.get
+        )
         basis = st.selectbox("自定义动作负荷口径", sorted(LOAD_BASES), format_func=LOAD_LABELS.get)
+        regions = st.multiselect("自定义动作部位", list(REGIONS), format_func=REGIONS.get)
+        patterns = st.multiselect(
+            "自定义动作模式", list(PATTERN_LABELS), format_func=PATTERN_LABELS.get
+        )
+        side = st.selectbox(
+            "自定义动作侧别",
+            ["unknown", "both", "left", "right", "alternating"],
+            format_func=lambda x: {
+                "unknown": "待确认",
+                "both": "双侧",
+                "left": "左侧",
+                "right": "右侧",
+                "alternating": "交替",
+            }[x],
+        )
+        notes = st.text_input("动作变式说明")
         submitted = st.form_submit_button("创建自定义动作")
     if submitted:
-        if _act(svc.create_exercise, name, mode, equipment, basis):
+        if _act(
+            svc.create_exercise,
+            name,
+            mode,
+            equipment,
+            basis,
+            regions=regions,
+            movement_patterns=patterns,
+            side=side,
+            variant_notes=notes,
+        ):
             st.success("动作已保存。肌群映射保持待审核。")
     item = _selector(svc, "catalog_maintenance")
     if item:
+        if not item.get("custom"):
+            with st.expander("复制为我的动作变式"):
+                variant_name = st.text_input(
+                    "个人变式名称", value=item["name"] + "（我的变式）", key="catalog_copy_name"
+                )
+                variant_note = st.text_input("与来源动作的区别", key="catalog_copy_note")
+                if st.button("保存个人变式", key="catalog_copy"):
+                    _act(
+                        svc.create_exercise,
+                        variant_name,
+                        item["recording_mode"],
+                        item["equipment_type"],
+                        item["default_load_basis"],
+                        regions=item.get("display_regions"),
+                        movement_patterns=item.get("movement_patterns"),
+                        derived_from={
+                            "exercise_id": item["exercise_id"],
+                            "definition_version": item["definition_version"],
+                        },
+                        variant_notes=variant_note,
+                    )
         alias = st.text_input("添加我的别名", key="new_alias")
         if st.button("保存别名"):
             _act(svc.add_alias, item["exercise_id"], alias)
@@ -912,7 +1123,7 @@ def _instance_controls(svc, instance):
         if selected:
             try:
                 condition = _condition_form(svc, selected, key + "_replacement_condition")
-                targets = _targets(key + "_replacement_targets")
+                targets = _targets(key + "_replacement_targets", selected["recording_mode"])
             except ValueError as exc:
                 st.info(str(exc))
             else:
@@ -987,6 +1198,8 @@ def _session(repo, svc, session):
         if instance.get("deleted_at"):
             continue
         st.markdown("### " + instance["exercise"]["name"])
+        if instance.get("catalog_active") is False:
+            st.caption("此来源动作已停用，当前训练保留原定义与历史数值。")
         st.caption(LOAD_LABELS.get(instance["condition"]["load_basis"], "未知口径"))
         _instance_controls(svc, instance)
         previous = svc.last_values(instance["id"])
@@ -1240,6 +1453,8 @@ def _history(svc):
         _act(svc.save_session_as_template, selected, template_name)
     with st.expander("历史逐组更正"):
         for instance in detail["exercises"]:
+            if instance.get("catalog_active") is False:
+                st.caption(instance["exercise"]["name"] + "：来源已停用，保留当时定义。")
             for row in instance["sets"]:
                 _set_editor(svc.repo, svc, row, instance, key_prefix="history")
     if detail.get("session_status") in {"completed", "aborted"}:

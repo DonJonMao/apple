@@ -1,0 +1,4083 @@
+{
+  "schema": "metric_revision_matrix.v1",
+  "review_head": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+  "registry_path": "src/healthzip/science/metrics.json",
+  "metric_count": 77,
+  "purpose": "77 个既有指标逐项修改/保持追踪；不新增指标或默认生理参数。",
+  "function_map": {
+    "F1": "可比力量表现",
+    "F2": "每日训练候选",
+    "F3": "停滞识别与策略试验",
+    "F4": "身体状态",
+    "F5": "长期能量背景",
+    "F6": "周月复盘与个体学习"
+  },
+  "common_invariants": [
+    "原 metric_id/title/unit 在本附录逐字保留；存在已证实单位错位时用 runtime_unit/next_contract_unit 显式描述迁移。",
+    "所有指标均继承原数据/证据/权限/版本/时间边界；完整实现不得靠伪造默认值或生理阈值绕过未知。",
+    "用户计划目标、设备实际步长、产品参数、预登记统计校准参数、外部生理证据的数字各自标来源，不可互相冒充。",
+    "原记录、动作历史版本、原始单位与来源不能被目录升级或迁移覆盖；重算生成新版本与审计。",
+    "当前日期窗一律明确 timezone、half-open start/end、cutoff 与信息可用时间；过滤未来/窗外事实。",
+    "计数/描述可默认启用；需要科学验证的推断与候选按各自条件启用，无真实校准本身不当作缺代码。",
+    "existing_test_refs 均来自当前仓库真实参数化测试函数与 acceptance catalog；本附录不声称重新执行了全部 77 指标。",
+    "targeted_acceptance 是本轮应新增/强化的可执行断言，不因已有同名目录条目就当作已通过。",
+    "没有综合加权恢复分、统一 −5% 调整、固定 N 生理真值或把重复观察当独立样本的总体精度承诺。"
+  ],
+  "verification_disclaimer": "逐项复核契约与实现；已复现缺陷见指定 review_findings 和 review912 各子目录。代码测试、独立 AI 评议、人工语义审核与科学/个体验证分开记录。未实测指标不标为科学验证通过。",
+  "review_artifacts": {
+    "strength": "review912/strength/strength_review_912.md",
+    "state": "review912/state/findings.md",
+    "training": "review912/training/findings.md",
+    "knowledge": "review912/knowledge/review.md",
+    "catalog": "review912/catalog_plan.md",
+    "core_knowledge": "review912/core_knowledge_plan.md"
+  },
+  "metrics": [
+    {
+      "metric_id": "STR-01",
+      "title": "已完成工作组数",
+      "unit": "组",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "计数实际完成的工作组；不是有效增肌组的生理测量。",
+      "registry_algorithm": "对同一动作暴露内 role=work、status=completed 且有有效次数/时长的独立 parent_set_id 去重计数。热身、计划未执行、仅创建的占位行、零次失败尝试分别计数但不进入完成工作组。递减组/cluster 的多个 segment 不默认为多个标准直组。",
+      "current_actual_contract": "完成且有有效次数、持续时间或距离的 work 行按 session 与 parent_set 去重；热身、失败零次与未知分别保留。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            73
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保持 parent 与 segment 层级和原始状态",
+        "动作库扩展、离线同步与历史模板不得改变既有组身份"
+      ],
+      "targeted_acceptance": [
+        "直组重传不重复计数",
+        "递减组多段仍是一个 parent 组",
+        "未填与明确未执行不能合并"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T03]"
+      ],
+      "source_test_case_ids": [
+        "STR-01-T01",
+        "STR-01-T02",
+        "STR-01-T03"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1",
+        "S8"
+      ],
+      "forbidden_inferences": [
+        "组数不等于有效刺激",
+        "不同肌群组数之和不等于全身有效组"
+      ],
+      "review_findings": [
+        "历史动作版本与模板迁移回归"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-02",
+      "title": "完成次数与等长持续时间",
+      "unit": "次 / 秒",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "保留训练原始完成量，不把不同动作测量混成一项。",
+      "registry_algorithm": "dynamic_reps 模式记录整数完成次数；isometric_hold 模式记录秒；distance_carry 模式记录距离并另存负重。分别汇总。部分次数、借力次数若用户明确标注可另字段保留，不混入标准次数。",
+      "current_actual_contract": "次数、等长持续时间、距离及左右侧以原记录模式分别输出，未强换成次数。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            81
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "固定历史动作版本对应的记录模式",
+        "不同模式分别展示、导出和汇总"
+      ],
+      "targeted_acceptance": [
+        "reps 模式改版为 duration 后历史记录仍按旧版解释",
+        "单侧两边的次数与侧别可追溯",
+        "缺字段不补零"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-02-T01",
+        "STR-02-T02"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1"
+      ],
+      "forbidden_inferences": [
+        "保持60秒不等价于做60次",
+        "自重动作不因外部重量为0就无训练量"
+      ],
+      "review_findings": [
+        "历史动作版本与模板迁移回归"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-03",
+      "title": "负荷口径与可计算负荷",
+      "unit": "kg / lb / 器械刻度",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "保存用户记录负荷及其口径；必要时产生可审计单位归一值。",
+      "registry_algorithm": "先单位换算，1 lb=0.45359237 kg；barbell_total 原值即总负荷；bilateral_plates_per_side 在杆重已知时 total=2×单边+杆重，否则仅给plate_total=2×单边；dumbbell_per_hand 保留每只与参与只数；stack_marked 保留名义刻度。assistance_positive 单列，数值越大代表辅助越大。",
+      "current_actual_contract": "load_components 区分总重、每侧片重、每只哑铃、助力和器械刻度；已知口径才产生可计算总负荷。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            86
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "动作目录给出明确允许的负荷口径",
+        "保留原值原单位及转换版本",
+        "未知杆重、体重支撑比例与机械倍率保持未知"
+      ],
+      "targeted_acceptance": [
+        "kg/lb 精确换算且不丢原值",
+        "缺杆重不算杠铃总重",
+        "助力增加的方向不能当作外加负荷增加",
+        "器械刻度不冒充自由重量"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T03]"
+      ],
+      "source_test_case_ids": [
+        "STR-03-T01",
+        "STR-03-T02",
+        "STR-03-T03"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1",
+        "S6"
+      ],
+      "forbidden_inferences": [
+        "单边30kg不能直接称总重30kg",
+        "不能把辅助重量当正外部训练重量",
+        "机器刻度不等于跨机器可比阻力"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-04",
+      "title": "配重×次数汇总",
+      "unit": "kg·次",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "同负荷口径下记录的外部负荷与完成次数乘积之和，非机械功。",
+      "registry_algorithm": "V=Σ load_i×reps_i；只包含同一可解释负荷模式的有效工作组。默认按动作/具体器械给出；如展示全场外部配重总计，必须说明只是记录汇总。等长、自重未知有效负荷、辅助器械不强行换算。",
+      "current_actual_contract": "在可比条件内计算配重×次数账目；不能计算的助力、自重有效负荷和刻度情形不混加，覆盖不足明确返回。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            90
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保持分动作、口径与条件汇总",
+        "页面和报告统一使用配重×次数名义"
+      ],
+      "targeted_acceptance": [
+        "30 kg×10=300 kg·次",
+        "不是焦耳、机械功或热量",
+        "部分缺配重只汇总可计算部分并报告分母"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-04-T01",
+        "STR-04-T02"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1",
+        "S8"
+      ],
+      "forbidden_inferences": [
+        "不是焦耳；缺少位移不能叫机械功",
+        "吨位增加不等于肌肥大增加",
+        "禁止把它与sRPE或kcal加权求和"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-05",
+      "title": "直接参与肌群工作组",
+      "unit": "组/肌群/时间窗",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "基于经审阅动作本体统计某肌群直接参与的已完成组。",
+      "registry_algorithm": "对每个肌群，计入经审阅 direct 映射的 parent_set_id；同一个组对同一肌群最多计一次。左右肌群可分别计数；双侧合并展示必须标记口径。",
+      "current_actual_contract": "仅审核通过且带版本的直接参与肌群映射生成工作组计数。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            113
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "目录导航用肌群标签与定量计数所需审核映射分离",
+        "没有审核映射时保留训练记录但不生成生理剂量"
+      ],
+      "targeted_acceptance": [
+        "新导入动作只有导航标签时不能自动进入直接组数",
+        "更改映射版本不改历史快照",
+        "复合动作可多标签但不可相加为全身有效组"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-05-T01",
+        "STR-05-T02"
+      ],
+      "registry_evidence_status": "literature_principle_product_definition",
+      "registry_evidence_refs": [
+        "S8"
+      ],
+      "forbidden_inferences": [
+        "不能将所有肌群计数相加作全身有效组",
+        "直接肌群也不意味着每组刺激完全相同"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-06",
+      "title": "间接参与肌群工作组",
+      "unit": "组/肌群/时间窗",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "单独显示间接参与，避免丢失训练背景。",
+      "registry_algorithm": "与直接组相同去重逻辑，但 muscle_role=indirect；分栏显示，不乘固定0.5后加入direct。实验性fractional计数若复现S8，必须另metric/version，不能替换原始列。",
+      "current_actual_contract": "间接参与肌群独立计数，不以固定 0.5 等系数折算为直接组。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            113
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "与 STR-05 共享映射版本和审批来源",
+        "直接/间接分别展示"
+      ],
+      "targeted_acceptance": [
+        "同组可同时出现直接与间接参与但不可加权为有效组",
+        "无审核映射返回未知",
+        "地图更新可追溯"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-06-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-06-T01"
+      ],
+      "registry_evidence_status": "literature_principle_product_definition",
+      "registry_evidence_refs": [
+        "S8"
+      ],
+      "forbidden_inferences": [
+        "0.5不是通用生理刺激比例",
+        "不能用该折算直接给个人最优组数"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-07",
+      "title": "可比暴露次数与观测跨度",
+      "unit": "次 / 天",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "模型实际使用的动作场次及真实日历覆盖。",
+      "registry_algorithm": "n=有效独立session中的参考表现数；T=最后与首次记录时间差/86400。展示排除数及理由。同日两session为两场，但统计不假定相互独立。",
+      "current_actual_contract": "以已识别的参考组按独立 session/date 计算可比暴露、首末观察日期及跨度。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            128
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "与 STR-19 的 outcome series 分层一致显示参考暴露",
+        "另列有记录但无可用参考的场次，避免把参考覆盖说成训练总次数"
+      ],
+      "targeted_acceptance": [
+        "跨两个负荷层分别给出暴露数与跨度",
+        "一次 session 多个普通组不变成多次独立暴露",
+        "断档不插值或补零"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-07-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-07-T01"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "M1"
+      ],
+      "forbidden_inferences": [
+        "3次不是已足以判定停滞的科学门槛"
+      ],
+      "review_findings": [
+        "strength-N01"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-08",
+      "title": "训练频率与场次间隔",
+      "unit": "次/周；天",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "描述指定动作/肌群在明确时间窗内的训练分布。",
+      "registry_algorithm": "频率使用有效场次数/窗口实际天数×7；另列发生训练的本地日期数，避免同日两场的含义混乱。间隔为相邻可比暴露真实时间差。周报可同时列自然周计数。",
+      "current_actual_contract": "当前以参考记录计算场次日期、间隔和观察跨度上的频率。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            128
+          ]
+        }
+      ],
+      "revision_action": "明确语义并回归",
+      "planned_behavior": [
+        "区分实际记录训练场次频率与符合参考协议的暴露频率",
+        "日历分母与窗口口径明确，不能将记录空白当作未训练"
+      ],
+      "targeted_acceptance": [
+        "同场多个组只算一场",
+        "存在完成组但缺参考协议时仍计入训练记录频率并单独降低可比覆盖",
+        "只一天观察不制造长期每周频率"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-08-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-08-T01"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1",
+        "S8"
+      ],
+      "forbidden_inferences": [
+        "不能从平均间隔推断肌肉已恢复",
+        "同场两个动作不等于同肌群两次独立训练日"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-09",
+      "title": "计划执行率",
+      "unit": "比例",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "按当时计划版本衡量已知执行情况。",
+      "registry_algorithm": "原计划组完成率=已完成且链接原计划的组数/原计划组数。额外组单列；负荷/次数/RIR目标达成各自给比例，不混为总分。临时无计划训练返回not_applicable。",
+      "current_actual_contract": "以冻结计划 set 身份计算完成、跳过、未知与额外组；不以临时新增组改变原计划分母。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            139
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "计划版本、执行 session 与模板原动作版本一致",
+        "保持未知分母和额外执行独立"
+      ],
+      "targeted_acceptance": [
+        "3 个冻结目标完成 2 个并新增 1 个，不得成为 100% 原计划执行",
+        "新场次记录写入当前选中 session",
+        "改模板不回写已冻结计划"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-09-T01",
+        "STR-09-T02"
+      ],
+      "registry_evidence_status": "definition",
+      "registry_evidence_refs": [
+        "S1"
+      ],
+      "forbidden_inferences": [
+        "执行率高不代表刺激足够",
+        "禁止训练后降低目标使完成率虚高"
+      ],
+      "review_findings": [
+        "当前训练场次 UI 选择一致性"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-10",
+      "title": "逐组RIR与RPE",
+      "unit": "次余力 / 量表分值",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "记录用户对剩余标准重复次数的估计与量表语义。",
+      "registry_algorithm": "优先保留直接RIR。仅在RIR-based RPE量表已定义对应区间内做明确映射，并同时保留原值；不对session-RPE/Borg做10−RPE。每场摘要可给median及分布，不替代参考组值。",
+      "current_actual_contract": "保存逐组 RIR/RPE 原报告；仅明确 RIR-based RPE 协议支持 10−RPE，at_least 等限定语保留区间。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            153
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保留量表、采集时间、是否估计及限定语",
+        "不从普通 RPE 或组间下降反推 RIR"
+      ],
+      "targeted_acceptance": [
+        "RIR≥3 不渲染为精确 3",
+        "普通 RPE 不转换为 RIR",
+        "缺努力程度使依赖它的判断降级而不阻止记录"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-10-T01",
+        "STR-10-T02"
+      ],
+      "registry_evidence_status": "literature_measurement",
+      "registry_evidence_refs": [
+        "S3",
+        "S4"
+      ],
+      "forbidden_inferences": [
+        "相同工作RIR下降不是进步",
+        "不能统一给全部RIR加1修正",
+        "高RIR估计不自动认定准确"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-11",
+      "title": "参考工作组表现",
+      "unit": "结构化向量",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "每次可比暴露预先指定参考工作组的原始表现。",
+      "registry_algorithm": "默认用户指定/模板绑定一个固定位置的工作组；取该组(load,reps,RIR,quality,stop_reason)。所有其他组仍保留。若参考组缺失，不事后挑最强组替代；可展示缺失，并将替换后的观察单独标识。",
+      "current_actual_contract": "reference_rows 已按 task 与 session 分组，预声明参考不被其他动作删除，也不事后挑最佳组。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            164
+          ]
+        }
+      ],
+      "revision_action": "保持修复并回归",
+      "planned_behavior": [
+        "保留 R01/R02 修复",
+        "任务由完整结构化协议、动作版本和条件组成，候选的基准与当场安全/质量观察分开"
+      ],
+      "targeted_acceptance": [
+        "同场卧推与深蹲各保留参考",
+        "普通后续组仍进入场内下降",
+        "纯旧字符串不伪装完整协议",
+        "当前不良记录不可因非参考组而从候选适用性消失"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-11-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-11-T01"
+      ],
+      "registry_evidence_status": "measurement_protocol_proposal",
+      "registry_evidence_refs": [
+        "S3",
+        "S6",
+        "S7",
+        "M1"
+      ],
+      "forbidden_inferences": [
+        "每次取最大e1RM会引入选择偏差",
+        "不能将不同机器同名动作拼接"
+      ],
+      "review_findings": [
+        "原 R01/R02 已修复",
+        "training-当前不良记录"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-12",
+      "title": "同负荷次数变化",
+      "unit": "次",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "在明确相同负荷和条件下，完成次数的变化。",
+      "registry_algorithm": "Δr=r_new−r_ref；保留两次RIR与停止原因并排。若努力目标或停止机制不同，仍可显示原始差，但状态为context_changed而不是capacity_gain。以实际器械档位/单位规范化做相等判断，不用自由百分比近似同重量。",
+      "current_actual_contract": "最近两条参考在相同条件和负荷下比较次数，努力与停止原因影响解释。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            171,
+            186
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "同负荷分层比较",
+        "显示前后次数、日期、努力与协议差异，不把更接近力竭误称适应"
+      ],
+      "targeted_acceptance": [
+        "不同动作、设备、单位、ROM 或协议不比较",
+        "30 kg 的两次观察不被中间 32.5 kg 观察覆盖成不可比全历史",
+        "缺努力程度仅作受限描述"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-12-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-12-T01"
+      ],
+      "registry_evidence_status": "measurement_definition",
+      "registry_evidence_refs": [
+        "S5",
+        "S6"
+      ],
+      "forbidden_inferences": [
+        "单次多1次不自动等于永久适应"
+      ],
+      "review_findings": [
+        "strength-N01 关联分层"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-13",
+      "title": "同次数负荷变化",
+      "unit": "kg 或同机刻度",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "相同次数和可比努力/动作条件下的外部负荷差。",
+      "registry_algorithm": "Δw=w_new−w_ref。完整负荷已知时可附Δw/w_ref×100%；未知杆重时仅给配重差，不计算完整负荷百分比。",
+      "current_actual_contract": "同次数参考对比较可比外部负荷差；未使用通用 e1RM 统一不同次数。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            171,
+            190
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保持跨负荷的同次数比较能力",
+        "STR-19 修复只对需要固定负荷的 outcome series 分层，不能把负荷写死到全部任务身份"
+      ],
+      "targeted_acceptance": [
+        "30 kg×10 与 32.5 kg×10 可比较 2.5 kg",
+        "STR-19 分层后此能力仍存在",
+        "助力方向与器械身份明确"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-13-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-13-T01"
+      ],
+      "registry_evidence_status": "measurement_definition",
+      "registry_evidence_refs": [
+        "S5",
+        "S6"
+      ],
+      "forbidden_inferences": [
+        "增加负荷不自动等于增肌",
+        "辅助重量减少应按辅助模式解释"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-14",
+      "title": "同工作量RIR变化",
+      "unit": "次余力",
+      "function_ids": [
+        "F1",
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "相同重量次数下余力的变化，属于主观支持证据。",
+      "registry_algorithm": "ΔRIR=RIR_new−RIR_ref；仅两个精确且同量表值做差。区间型RIR保留区间差；不能折成相同数量的实际次数。",
+      "current_actual_contract": "同工作量条件下比较 RIR 原始差，努力程度变化不直接等于力量变化。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            171
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "同时固定负荷、次数和协议",
+        "RIR 限定区间不硬作点差"
+      ],
+      "targeted_acceptance": [
+        "同负荷同次数 RIR 2→3 显示原差但不宣称肌力增加百分比",
+        "次数变化时不可直接应用",
+        "缺 RIR 保持未知"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-14-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-14-T01"
+      ],
+      "registry_evidence_status": "literature_measurement",
+      "registry_evidence_refs": [
+        "S3",
+        "S4"
+      ],
+      "forbidden_inferences": [
+        "RIR高2不等于1RM确定增加某百分比"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-15",
+      "title": "同场组间表现下降",
+      "unit": "次数差 / 比例",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "在相同负荷及休息协议下描述后续组相对参考组掉次。",
+      "registry_algorithm": "每组差d_j=r_j−r_1；r_1>0时可附(r_1−r_j)/r_1。不同负荷或递减组不做该比例。用整组序列展示，不根据一个阈值诊断疲劳。",
+      "current_actual_contract": "完整场次内按条件比较第一组与后续组次数及比例；参考筛选不再删除普通后续组。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            203
+          ]
+        }
+      ],
+      "revision_action": "保持修复并回归",
+      "planned_behavior": [
+        "继续使用全部适用组",
+        "记录休息、顺序、目标及停止原因，不从下降诊断中枢疲劳或恢复不足"
+      ],
+      "targeted_acceptance": [
+        "10/8/6 次完整保存下降序列",
+        "两个动作不串组",
+        "因计划提前停止或疼痛不能解释为单一疲劳病因"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-15-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-15-T01"
+      ],
+      "registry_evidence_status": "descriptive_measurement",
+      "registry_evidence_refs": [
+        "S1",
+        "S3"
+      ],
+      "forbidden_inferences": [
+        "掉次不证明过度训练",
+        "不能超过20%就自动减两组"
+      ],
+      "review_findings": [
+        "原 R01 关联修复已通过"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-16",
+      "title": "普通e1RM参考",
+      "unit": "kg",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "指定公式下的任务表现近似值，不是直接测得1RM。",
+      "registry_algorithm": "原文可复现候选Epley参考按N3表1：w×(1+0.0333×r)。若保留常见w×(1+r/30)版本，使用不同formula_id，不能声称二者计算常数完全相同。实现formula registry并保留输入、公式版本与来源定位；输出仅在校准配置声明动作、负荷、重复与停止条件范围内使用。未经校准时可在研究/可选辅助视图显示proxy，不进入主判定。r=1的实测最大单次应另存measured_1RM，不能用本公式凭空多算约3.33%。",
+      "current_actual_contract": "注册公式、版本与适用域产生普通 e1RM 研究参考；未经验证的域或负荷口径不能用于个体决策。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            222
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "明确 Epley 0.0333 与 /30 版本差异",
+        "原始组表现优先，候选不依赖未经校准换算"
+      ],
+      "targeted_acceptance": [
+        "超出已声明重复次数/努力范围返回不适用而非截断",
+        "不同版本可复算",
+        "实测最大值不冒充公式估计",
+        "不得自动开通训练处方"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T03]"
+      ],
+      "source_test_case_ids": [
+        "STR-16-T01",
+        "STR-16-T02",
+        "STR-16-T03"
+      ],
+      "registry_evidence_status": "model_proxy",
+      "registry_evidence_refs": [
+        "S6",
+        "S7",
+        "N3"
+      ],
+      "forbidden_inferences": [
+        "不把同一公式当所有动作的精确强度换算",
+        "不得拼接不同formula的趋势"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-17",
+      "title": "RIR修正e1RM实验值",
+      "unit": "kg",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "由完成次数+自报余力组合得到的待验证代理。",
+      "registry_algorithm": "e1RM_RIR=w×[1+(r+RIR)/30]，只能作为明确实验分支，与普通e1RM、原始表现对照。不得把量表验证当成组合公式验证。",
+      "current_actual_contract": "带 RIR 的公式仅作为研究值，保留公式版本、RIR 与负荷可计算性限制。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            222
+          ]
+        }
+      ],
+      "revision_action": "保持研究边界",
+      "planned_behavior": [
+        "明确 RIR 修正未完成个体效度验证",
+        "RIR 缺失或范围值不补成精确点估计"
+      ],
+      "targeted_acceptance": [
+        "没有 RIR 不替代为 0",
+        "RIR 修正结果不得成为默认推荐增重或“真实 1RM”",
+        "异常输入不得裁剪伪造有效值"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-17-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-17-T01"
+      ],
+      "registry_evidence_status": "unvalidated_model",
+      "registry_evidence_refs": [
+        "S3",
+        "S4",
+        "S6"
+      ],
+      "forbidden_inferences": [
+        "不得作为默认停滞核心",
+        "不得据此保证32.5kg能做8次"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-18",
+      "title": "个人任务测量误差",
+      "unit": "次 / kg 或CV",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "标准化重复观察下的误差估计，与最小有用变化分开。",
+      "registry_algorithm": "在两次独立同方差重复测量且无学习/疲劳系统差时TE=SD(difference)/sqrt(2)；SEM与MDC95=1.96×sqrt(2)×SEM只用于其适用的两次分数差。其他设计按声明误差模型估计。",
+      "current_actual_contract": "重复测量设计给出 paired SD/√2 等典型误差和条件性 MDC；依赖输入设计假设。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            233
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "单列重测协议、误差单位及设计假设",
+        "没有有效重复测量或区间方法时输出未知，不从训练趋势残差偷换成可靠测量误差"
+      ],
+      "targeted_acceptance": [
+        "换动作/负荷/协议的配对不能作为同任务重测",
+        "零差不证明无测量误差",
+        "MDC 条件与单位明确，不能成为统一进阶阈值"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-18-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-18-T01"
+      ],
+      "registry_evidence_status": "literature_method",
+      "registry_evidence_refs": [
+        "S7",
+        "M1"
+      ],
+      "forbidden_inferences": [
+        "不把群体CV4.2%写成每个人阈值",
+        "MDC不是用户最小有价值变化"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-19",
+      "title": "局部表现趋势点估计",
+      "unit": "次/天 或经验证指标单位/天",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "预设观察段内可比参考表现对真实时间的局部趋势。",
+      "registry_algorithm": "参考实现：X_i=(1,t_i−t0)，βhat=argminΣ(y_i−a−β(t_i−t0))²，使用QR/SVD求解；每session一个预先定义观察。y默认固定负荷/努力协议下的次数，改变负荷建立另一测量层或用已验证映射。ΔH=βhat×H。 正式回顾变化使用预先指定且位于实际观测时间支持内的两个时点ta,tb，H=tb−ta；不能用仅一周资料外推一个月变化后称“一个月已停滞”。",
+      "current_actual_contract": "真实时间 OLS 点趋势已按动作/完整协议建立任务，但同任务混合负荷会整组 incompatible，丢失每个负荷本可计算的趋势。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            237,
+            251
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "增加指标级 outcome series：同任务内按负荷口径、单位、值及结果定义分层",
+        "分别计算和展示真实时间趋势",
+        "保持跨负荷 STR-13，不强造跨负荷能力标量"
+      ],
+      "targeted_acceptance": [
+        "30 kg 的 10/12/11 次与 32.5 kg 的 8/10/9 次共存时返回两个描述趋势，非整任务 null",
+        "无登记 look 仍可显示点趋势但无推断区间",
+        "e1RM 未验证不自动合并"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-19-T01",
+        "STR-19-T02"
+      ],
+      "registry_evidence_status": "statistical_product_proposal",
+      "registry_evidence_refs": [
+        "M1",
+        "M2"
+      ],
+      "forbidden_inferences": [
+        "负斜率不等于原因诊断",
+        "记录序号不可代替真实日期"
+      ],
+      "review_findings": [
+        "strength-N01 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-20",
+      "title": "趋势变化区间",
+      "unit": "与ΔH相同",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "趋势推断的不确定性，并显式记录依赖假设。",
+      "registry_algorithm": "基准统计实现：独立同方差正态误差的局部线性模型下，SEβ=s/sqrtΣ(t−tbar)²，C_H=H×[βhat±t_(1−αlook/2,n−2)SEβ]。该t区间只在模型假设下成立。计数、相关或异方差场景另比较已注册的稳健/GLS模型；不能把HAC或bootstrap当小样本万能保证。",
+      "current_actual_contract": "与 STR-19 共用趋势，在有效已登记 look 时使用实际 alpha_look 构造变化区间；未登记时剥离区间。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            237,
+            254
+          ]
+        }
+      ],
+      "revision_action": "修复并保留原门控",
+      "planned_behavior": [
+        "继承 outcome series 分层并将 series 身份绑定到 look/快照",
+        "保持 R10 的真实 alpha 消耗，不新增任意显著性阈值"
+      ],
+      "targeted_acceptance": [
+        "同数据同 look 可重读且不伪造新独立证据",
+        "切换负荷系列或截止时间不得复用旧 receipt",
+        "不同已登记 alpha 的区间宽度按实际公式变化",
+        "缺门控保留点估计"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-20-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-20-T01"
+      ],
+      "registry_evidence_status": "statistical_method_transferred",
+      "registry_evidence_refs": [
+        "M1",
+        "M2",
+        "N1"
+      ],
+      "forbidden_inferences": [
+        "三次可回归不代表三次足够停滞",
+        "不能随机拆同一个人的重叠窗口验证区间"
+      ],
+      "review_findings": [
+        "strength-N01",
+        "原 R10 已修复"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-21",
+      "title": "实用变化范围",
+      "unit": "次 / kg /明确任务单位",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "由用户目标和可执行训练改变定义的等效范围，非噪声阈值。",
+      "registry_algorithm": "预先登记[−δL,+δU]，允许不对称。默认不自动填1%、2%或0.2SD。可让用户/研究协议指定“固定重量稳定多完成1次”的任务目标；这只是任务意义定义，不冒充生理最小适应。",
+      "current_actual_contract": "预声明实用变化范围要求非负有限上下界与结果单位匹配；单位不匹配现会报错。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            283
+          ]
+        }
+      ],
+      "revision_action": "统一验证入口",
+      "planned_behavior": [
+        "STR-21/22 复用同一范围验证",
+        "保留用户目标或研究协议来源、声明时间与结果单位，不设统一百分比"
+      ],
+      "targeted_acceptance": [
+        "repetitions 的结果不可接受 kg 边界",
+        "负值/NaN/事后选择边界不得激活等效分类",
+        "上下界可不对称但来源清楚"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-21-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-21-T01"
+      ],
+      "registry_evidence_status": "decision_definition",
+      "registry_evidence_refs": [
+        "M2"
+      ],
+      "forbidden_inferences": [
+        "不能看完数据后选一个刚好让结果显著的δ",
+        "不能把TE/MDC直接当同一概念"
+      ],
+      "review_findings": [
+        "STR-22 直接调用边界一致性"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-22",
+      "title": "持续无实质改善候选",
+      "unit": "类别",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "可比观察支持在指定跨度内变化处于实用等效范围；不是生理停滞诊断。",
+      "registry_algorithm": "在校准区间可用且容量观察充分时：C完全高于+δU→material_progress；完全低于−δL→decline；C完全落入[−δL,+δU]→no_material_change_candidate；否则uncertain。容量未验证优先输出opportunity_unchecked；不同原因保留reason_codes。",
+      "current_actual_contract": "机会已检验、预声明边界、有效区间、校准与查看预算同时满足才输出分类；当前校准 scope 校验对缺失必需字段可能 fail-open。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            237
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "使用分层的 outcome series",
+        "校准按制品声明的所有必需 scope 字段与实际任务双向匹配，缺一项即不匹配",
+        "与 STR-21 共用边界验证，未满足保持 unknown/opportunity_unchecked"
+      ],
+      "targeted_acceptance": [
+        "人工校准制品要求 exercise/population/outcome/reference 时只给 population 不能通过",
+        "wrong exercise 拒绝",
+        "没有真实校准仍可记录/描述而不正式判停滞",
+        "完整合成校准通路可执行分类并给 trace"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T03]"
+      ],
+      "source_test_case_ids": [
+        "STR-22-T01",
+        "STR-22-T02",
+        "STR-22-T03"
+      ],
+      "registry_evidence_status": "unvalidated_product_classifier",
+      "registry_evidence_refs": [
+        "M2",
+        "S3",
+        "S4"
+      ],
+      "forbidden_inferences": [
+        "不把P>0.05称停滞",
+        "不因HRV正常判定训练刺激不足",
+        "不声称“已证明生理无法进步”"
+      ],
+      "review_findings": [
+        "strength-N01",
+        "strength-N02 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-23",
+      "title": "进阶机会是否被检验",
+      "unit": "类别",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "区分任务被计划截停与表现上限未改善。",
+      "registry_algorithm": "按停止机制分类：planned_stop且RIR缺失/余力信息不足→capacity_unobserved；target_RIR_stop且协议一致→submaximal_reference；volitional_failure/technical_limit分别保存。该分类不把力竭设为唯一有效观察。",
+      "current_actual_contract": "停止于计划上限视为 capacity_unobserved；努力、失败、技术受限与疼痛采用不同机会状态。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            290
+          ]
+        }
+      ],
+      "revision_action": "保持并接入候选",
+      "planned_behavior": [
+        "同一机会定义供 STR-22/25/26 使用",
+        "不以未尝试更多次数认定能力停滞"
+      ],
+      "targeted_acceptance": [
+        "每次 10 次到计划即停不可判停滞",
+        "技术受限/疼痛不等于肌力上限",
+        "明确目标与努力观察才说明机会是否被检验"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-23-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-23-T01"
+      ],
+      "registry_evidence_status": "measurement_observability_definition",
+      "registry_evidence_refs": [
+        "S3",
+        "S4"
+      ],
+      "forbidden_inferences": [
+        "固定做10次不是证明只能做10次",
+        "不要求用户为了模型安全地/不安全地做每组力竭"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-24",
+      "title": "重复查看的误报控制",
+      "unit": "α预算 / look编号",
+      "function_ids": [
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "防止每天重复分析增加偶然触发率。",
+      "registry_algorithm": "可实现保守基线：一个预定义分析episode内，第k次正式判断分配αk=αtotal/[k(k+1)]，Σαk≤αtotal；使用覆盖至少1−αk的区间。由并集界，任何一次因区间失覆盖而错误强结论的总概率≤αtotal，前提是每次区间本身有效。重复打开同一data_hash不新增look。 若同时对多个动作/指标宣称一组总体错误率，还需在同一family内分配预算，不能每个动作重复使用完整α。用户新建计划不自动重置预算；真正新episode的错误率声明与旧episode分开。",
+      "current_actual_contract": "look receipt 已绑定 family、metric、task、snapshot、版本和 cutoff；有效分配的 alpha 已进入 STR-20/22 实算。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            293
+          ]
+        }
+      ],
+      "revision_action": "保持修复并扩展身份",
+      "planned_behavior": [
+        "增加 outcome series 身份后保持重复查看幂等及预算审计",
+        "预登记统计参数与生理阈值分开"
+      ],
+      "targeted_acceptance": [
+        "同任务同快照重复读不得新增 look 或重置 alpha",
+        "真实新增数据按登记家族处理",
+        "未注册 receipt 不生成有效推断",
+        "查看预算耗尽输出明确理由"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-24-T01",
+        "STR-24-T02"
+      ],
+      "registry_evidence_status": "mathematical_product_design",
+      "registry_evidence_refs": [
+        "M2",
+        "N2"
+      ],
+      "forbidden_inferences": [
+        "95%区间每天重复使用不等于长期95%保证",
+        "不能将普通95%CI称置信序列",
+        "本基线的统一CI等效判定不等同于标准α级TOST的90%CI"
+      ],
+      "review_findings": [
+        "原 R10 已修复",
+        "strength-N01 身份联动"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-25",
+      "title": "可用负荷步长与增重候选",
+      "unit": "kg /同器械刻度",
+      "function_ids": [
+        "F2"
+      ],
+      "registry_definition": "从实际器械配置产生可执行下一档，而非任意百分比。",
+      "registry_algorithm": "next_load=min{配置可用负荷>current_load}；上沿达标且余力/质量满足用户计划时可形成double_progression_candidate。最小步长是器械事实，不证明该跳跃对个人合适；档位过大可保留当前负荷次数进阶或不量化。",
+      "current_actual_contract": "可用真实步长、计划次数上限/RIR、审核 capability 与参考组质量决定下一步长候选；UI 冻结时移除整个当场导致当前疼痛/技术受限记录不可见。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            298
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "历史可比基准与截止前当前观测分为两类输入",
+        "当前疼痛/技术受限/质量未知进入候选适用性",
+        "受限时拒绝数字升级并说明原因",
+        "条件允许才给真实可用步长候选"
+      ],
+      "targeted_acceptance": [
+        "昨天 50×12 良好、今天 50×4 疼痛/技术受限不得仍建议 52.5",
+        "允许的正常案例可给 32.5×8 候选但不保证完成",
+        "当场观测与历史基准都留在冻结证据/快照",
+        "不替换为默认 −5%"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T02]"
+      ],
+      "source_test_case_ids": [
+        "STR-25-T01",
+        "STR-25-T02"
+      ],
+      "registry_evidence_status": "literature_principle_product_rule",
+      "registry_evidence_refs": [
+        "S1",
+        "S2",
+        "S5"
+      ],
+      "forbidden_inferences": [
+        "不能固定加5%或减5%",
+        "最小档位不等于安全/成功保证"
+      ],
+      "review_findings": [
+        "training-当前不良记录 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-26",
+      "title": "停滞后策略试验候选",
+      "unit": "结构化建议",
+      "function_ids": [
+        "F3",
+        "F2"
+      ],
+      "registry_definition": "在用户计划允许范围内提出可评估改变。",
+      "registry_algorithm": "候选集合限于可解释行动：增加次数/较重负荷较低次数/讨论组数或间隔调整/维持并补测。选择过程记录每个行动的依据、冲突与未知；没有个体干预证据时不得优化宣称个人最优。默认建议一次主要可解释变化并保留其他条件，目的是评价可解释性，不是生理硬规则。",
+      "current_actual_contract": "UI 策略分支已接通；允许菜单中的 heavier_lower 能生成较重较少次候选，但未挡住历史 pain/technical_limit。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            338
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "策略菜单由用户许可和已审核指南规则共同约束",
+        "在数字候选前检查历史/当前停止原因、疼痛、质量与未知",
+        "不良或未知适用性保留可执行非数值信息收集/调整讨论"
+      ],
+      "targeted_acceptance": [
+        "历史 pain_flag 或 stop_reason=pain 或技术受限分别不能给更重负荷",
+        "正常完整条件可生成用户允许策略并冻结",
+        "任一字段未知不得当作正常",
+        "每条候选追到指南版本/章节/适用范围，非因果保证"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-26-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-26-T01"
+      ],
+      "registry_evidence_status": "product_intervention_proposal",
+      "registry_evidence_refs": [
+        "S1",
+        "S5",
+        "S8",
+        "R7"
+      ],
+      "forbidden_inferences": [
+        "恢复指标正常不证明容量不足",
+        "加组的群体剂量反应不能倒推个人最佳组数",
+        "不能把30×10换算保证32.5×8"
+      ],
+      "review_findings": [
+        "原 R03 已修复",
+        "training-STR26 不良历史 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-27",
+      "title": "建议执行结果",
+      "unit": "类别与原始差值",
+      "function_ids": [
+        "F2",
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "评价是否执行和是否满足原目标，不等于因果有效性。",
+      "registry_algorithm": "分别记录not_adopted/partially_adopted/adopted；实际负荷、次数、RIR与原目标逐项对比；short_term_success必须由预先定义目标全部满足且质量可比决定。临时改目标另记，不覆盖原目标。",
+      "current_actual_contract": "使用冻结的候选目标、执行选择和已知质量判断完成结果；未执行、未知执行和未知质量不能算成功。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            378,
+            380
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "维持场次结束后可补反馈",
+        "动作版本/条件/候选快照不可变",
+        "目标未达到与不适用、未执行分开"
+      ],
+      "targeted_acceptance": [
+        "已结束场次可关联原候选补录",
+        "unknown quality→unknown outcome",
+        "未执行不进入成功数",
+        "换器械完成不冒充原候选验证"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-27-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-27-T01"
+      ],
+      "registry_evidence_status": "audit_definition",
+      "registry_evidence_refs": [
+        "R7"
+      ],
+      "forbidden_inferences": [
+        "短期做成不证明长期增肌有效",
+        "不能只保留成功采纳者"
+      ],
+      "review_findings": [
+        "原 R08 已修复"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-28",
+      "title": "建议结果汇总",
+      "unit": "比例 / 差值 / 区间",
+      "function_ids": [
+        "F2",
+        "F3",
+        "F6"
+      ],
+      "registry_definition": "周月报分别汇总采纳、执行与随访结果。",
+      "registry_algorithm": "采纳率=明确采纳数/明确响应数，另报未响应数；执行成功率=满足预设执行目标数/已有完整执行结果数，另报缺结果数；随访变化按STR-12至22输出。不合成一个策略得分。",
+      "current_actual_contract": "建议采纳与有足够信息的执行成功分母分开，缺反馈不默认为失败或成功。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            378
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "按候选策略、条件和版本分层报告",
+        "后续差值是观察关联，未随机/控制设计不估计干预效果"
+      ],
+      "targeted_acceptance": [
+        "3 个采纳中仅 1 个完整反馈时成功分母=1，未知另列",
+        "反复查看同反馈不增加样本",
+        "不可用成功率宣称某策略导致力量提升"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-28-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-28-T01"
+      ],
+      "registry_evidence_status": "descriptive_evaluation",
+      "registry_evidence_refs": [
+        "R7",
+        "M1"
+      ],
+      "forbidden_inferences": [
+        "采纳率不能作为唯一优化目标",
+        "前后变好不证明是建议导致"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-29",
+      "title": "力量记录覆盖与可比覆盖",
+      "unit": "数量 / 比例",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "让解释知道哪些记录可用。",
+      "registry_algorithm": "分别输出有重量/次数/RIR/停止原因的组数和分母；参考暴露可比数/候选暴露数；缺原因分布。字段覆盖不求平均成quality_score。",
+      "current_actual_contract": "按字段、记录和可比参考提供数量/覆盖比例，不构造综合质量分。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            404
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "分别报告记录覆盖、任务协议覆盖和 outcome series 可比覆盖",
+        "不将默认填入字段算成实测已知"
+      ],
+      "targeted_acceptance": [
+        "动作库新记录缺协议可保存但可比覆盖下降",
+        "分母与时间窗可复算",
+        "缺测与明确零次区分",
+        "无法得出训练日总数时不声称依从性"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-29-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-29-T01"
+      ],
+      "registry_evidence_status": "data_definition",
+      "registry_evidence_refs": [
+        "M1"
+      ],
+      "forbidden_inferences": [
+        "不以字段齐全证明测量真实准确",
+        "不以无记录推断未训练"
+      ],
+      "review_findings": [
+        "strength-N01 分层覆盖"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STR-30",
+      "title": "相对体重力量参考比",
+      "unit": "kg/kg",
+      "function_ids": [
+        "F1",
+        "F6"
+      ],
+      "registry_definition": "在明示时间配对下的力量指标与体重比，非全面力量评分。",
+      "registry_algorithm": "ratio=已知完整负荷的指定力量指标/体重；原始分子分母均显示。仅用于同人的描述，不默认跨身高/性别公平比较；e1RM若为proxy，ratio也继承proxy标记。",
+      "current_actual_contract": "明确可计算力量分子与对应体重的比值参考；不生成跨动作综合力量等级。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/strength.py",
+          "branch_start_lines": [
+            409
+          ]
+        }
+      ],
+      "revision_action": "集成与保持",
+      "planned_behavior": [
+        "体重输入使用通过单位验证且可比的每日记录",
+        "标注体重日期、来源与分子是实测或公式研究值"
+      ],
+      "targeted_acceptance": [
+        "负荷 kg 与体重 kg 后才相除",
+        "lb 转换一致",
+        "缺体重/有效负荷时未知",
+        "e1RM 研究值不会被比值包装成已验证能力"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-30-T01]"
+      ],
+      "source_test_case_ids": [
+        "STR-30-T01"
+      ],
+      "registry_evidence_status": "derived_description",
+      "registry_evidence_refs": [
+        "S6",
+        "S7"
+      ],
+      "forbidden_inferences": [
+        "比值上升可能因减重而非绝对力量增加"
+      ],
+      "review_findings": [
+        "state-单位规范化 关联"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SLEEP-MAIN",
+      "title": "主睡眠已观察时长",
+      "unit": "min",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "经来源会话或用户确认的主睡眠片段内睡眠区间并集长度",
+      "registry_algorithm": "选定一个主来源，clip到主片段及cutoff；合并asleepUnspecified/Core/Deep/REM区间后求elapsed秒/60；排除inBed与awake。",
+      "current_actual_contract": "必须显式提供主睡眠 episode 边界，ASLEEP 区间取并集并截到 cutoff；没有边界不会把最长段自动命名主睡眠。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            109,
+            111,
+            119
+          ]
+        }
+      ],
+      "revision_action": "修复并保持",
+      "planned_behavior": [
+        "先限定与计算有关的 asleep/stage 记录，再判断设备冲突",
+        "保持显式主睡眠与完整性语义"
+      ],
+      "targeted_acceptance": [
+        "iPhone inBed 与 Watch asleep 并存时可得显式 Watch 主睡眠",
+        "只有多夜睡眠无主 episode→insufficient",
+        "未来结束片段不能泄漏"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T03]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SLEEP-MAIN-T01",
+        "STATE-SLEEP-MAIN-T02",
+        "STATE-SLEEP-MAIN-T03"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP",
+        "R4"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "原 R13 已修复",
+        "state-无关 inBed 流冲突 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SLEEP-24H",
+      "title": "截止前24小时睡眠",
+      "unit": "min",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "固定真实24h内所有已观察睡眠区间并集，包括午睡",
+      "registry_algorithm": "union(asleep intervals intersect [cutoff−24h,cutoff))，elapsed秒/60。",
+      "current_actual_contract": "以截止前真实 24 小时裁剪睡眠并集；当前 source 冲突判断发生在过滤 inBed 之前。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            105,
+            119
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "先过滤无关 inBed/清醒记录再识别睡眠源",
+        "多个真正 asleep 流不擅自合并，允许明确选择来源"
+      ],
+      "targeted_acceptance": [
+        "iPhone 8h inBed + Watch 7h asleep→420 min 而非 incompatible",
+        "两个真实 asleep 设备仍要求来源处理",
+        "DST 下按真实 24h 而非固定当地日历日"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SLEEP-24H-T01",
+        "STATE-SLEEP-24H-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP",
+        "R4"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-无关 inBed 流冲突 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SLEEP-COVERAGE",
+      "title": "睡眠记录日期覆盖率",
+      "unit": "ratio",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "有可用主睡眠记录日期数除以已过去的目标日期数",
+      "registry_algorithm": "n_valid/n_elapsed；保留分子分母和partial日，不能将未来日期加入分母。",
+      "current_actual_contract": "分母 elapsed_dates 使用半开窗口；当前分子取片段结束日期，午夜端点可被计入窗外，触发分子2/分母1崩溃。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            128
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "分子/分母使用同一时区与半开日期域",
+        "先按域归属再去重，覆盖率是有记录日期而非佩戴时长"
+      ],
+      "targeted_acceptance": [
+        "[D00,D+100) 内 D01–06 与 D23–D+100 只占允许日期，不崩溃且分子≤分母",
+        "精确端点及±1微秒、UTC/非UTC/DST 均回归",
+        "空窗保持未知"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SLEEP-COVERAGE-T01",
+        "STATE-SLEEP-COVERAGE-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-午夜覆盖崩溃 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SLEEP-STAGE",
+      "title": "睡眠阶段时长与注释覆盖",
+      "unit": "min; ratio",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "来源标注的各阶段并集时长及明确片段内阶段注释比例",
+      "registry_algorithm": "分别统计core/deep/REM/awake；互斥阶段矛盾标conflicted；annotation coverage=阶段并集时长/明确片段跨度。",
+      "current_actual_contract": "区间并集与阶段交叠检查保留 unknown/conflict，阶段注释覆盖与总睡眠分开。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            135
+          ]
+        }
+      ],
+      "revision_action": "修复共享源选择并保持",
+      "planned_behavior": [
+        "复用正确 asleep 源选择",
+        "重叠冲突不能消失成精确阶段比例",
+        "不从设备分期推出临床诊断"
+      ],
+      "targeted_acceptance": [
+        "阶段缺失时总睡眠仍可用而分期未知",
+        "重叠矛盾明确冲突",
+        "inBed 不进入睡眠分期分母"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SLEEP-STAGE-T01",
+        "STATE-SLEEP-STAGE-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-无关 inBed 流冲突 共享路径"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SLEEP-TIMING",
+      "title": "睡眠时点与中点",
+      "unit": "timestamp; clock_min",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "主睡眠开始、结束及实际跨度中点在当地时区的钟点",
+      "registry_algorithm": "midpoint=start+(end−start)/2；多日钟点用圆周均值atan2(mean sinθ,mean cosθ)，并报告分布离散/分组。",
+      "current_actual_contract": "只有显式且已确认主 episode 才计算睡眠时点、中点和跨午夜圆周时间；按真实时间处理 DST。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "与主睡眠 episode/来源选择共用",
+        "timestamp 与 clock_min 明确区分"
+      ],
+      "targeted_acceptance": [
+        "23:30–07:30 中点跨午夜正确",
+        "无主 episode 不输出主睡眠规律性",
+        "夏令时切换真实时长与钟面中点各按定义"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SLEEP-TIMING-T01",
+        "STATE-SLEEP-TIMING-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP",
+        "R4"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-睡眠源选择 共享路径"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-RHR",
+      "title": "静息心率每日代表值",
+      "unit": "beats/min",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "正式restingHeartRate或标准化静息协议的日代表值",
+      "registry_algorithm": "按as-of选择合法未删除版本；同协议独立样本用日中位数，附n及测量时点。",
+      "current_actual_contract": "同 source/device/protocol/version 与当地日的 RHR 代表值，优先明确 primary，否则日内中位数；未验证单位可能被上游伪标为标准单位。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            181
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "上游只做已知单位转换",
+        "消费者拒绝 unit_unverified/转换失败",
+        "保留原值原单位，普通心率不可替代静息心率"
+      ],
+      "targeted_acceptance": [
+        "等价已知单位归一后一致",
+        "未知单位不带 beats/min 进入参考值",
+        "多设备不同协议分层",
+        "没有 RHR 不使用普通 HR 冒充"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-RHR-T01",
+        "STATE-RHR-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_RHR",
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 共享缺陷"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SDNN",
+      "title": "同协议SDNN每日代表值",
+      "unit": "ms",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "正常NN间期的标准差，或来源输出的同名标量",
+      "registry_algorithm": "源标量转ms；同协议日中位数；有清洗后原始NN时可按样本标准差计算并记录清洗及n。",
+      "current_actual_contract": "按协议/设备拆分每日 SDNN，排除 RMSSD；0.05 s 在导入后会被错误标为 0.05 ms 并被正常使用。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            181,
+            184
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "已知 s→ms 精确转换并留下记录",
+        "未知单位不得进入 SDNN 与后续参考/预测",
+        "保留 NN 协议和时长"
+      ],
+      "targeted_acceptance": [
+        "真实 XML 中 SDNN 0.05 s→50 ms",
+        "未知单位返回缺失原因并保留 raw",
+        "RMSSD 标签不能被接纳为 SDNN",
+        "来源变化不混池"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T03]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SDNN-T01",
+        "STATE-SDNN-T02",
+        "STATE-SDNN-T03"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_SDNN",
+        "R2a",
+        "R2b"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MEDIAN",
+      "title": "个人参考中位数",
+      "unit": "same_as_metric",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "cutoff前同协议每日代表值的参考中心",
+      "registry_algorithm": "先按日等权，m=median(x)；保存window_H、有效日期、样本ID与baseline_id。",
+      "current_actual_contract": "个人基线按每日等权代表值取中位数，基线窗口与展示窗口分离并排除当前日。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            192
+          ]
+        }
+      ],
+      "revision_action": "修复输入并保持",
+      "planned_behavior": [
+        "仅使用通过单位/协议验证的每日值",
+        "保留基线定义、版本、日期覆盖与当前偏离的同流匹配"
+      ],
+      "targeted_acceptance": [
+        "日内采样多不提高当天权重",
+        "当前值/未来值不污染基线",
+        "s 与 ms 等价转换后基线一致",
+        "单设备缺测不由另一协议自动补"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-REFERENCE-MEDIAN-T01",
+        "STATE-REFERENCE-MEDIAN-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R5",
+        "R8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MAD",
+      "title": "个人参考离散度",
+      "unit": "same_as_metric",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "同协议日代表值相对中位数的绝对偏差中位数",
+      "registry_algorithm": "MAD=median(abs(x−median(x)))；可同时保存scaled_MAD=1.4826MAD，注明高斯一致性而非生理常数。",
+      "current_actual_contract": "基于同一每日基线的 MAD，1.4826 仅作为明确的高斯一致性缩放，不是恢复分。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            192
+          ]
+        }
+      ],
+      "revision_action": "修复输入并保持",
+      "planned_behavior": [
+        "与参考中位数同一输入与基线",
+        "单位仍为原指标单位，缩放假设明确"
+      ],
+      "targeted_acceptance": [
+        "常数基线 MAD=0 时保留零离散度并禁止除零",
+        "未验证单位不进入",
+        "不因 MAD 小就宣称精确生理异常"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-REFERENCE-MAD-T01",
+        "STATE-REFERENCE-MAD-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-DEVIATION",
+      "title": "绝对与稳健标准化偏离",
+      "unit": "original_unit; dimensionless",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "当前同协议代表值相对历史参考的偏离",
+      "registry_algorithm": "d=x−m；MAD>0且基线有效时z=d/(1.4826MAD)。",
+      "current_actual_contract": "绝对偏离和稳健标准化偏离并列；MAD=0 时标准化值为未知，不硬加 epsilon。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            192,
+            249
+          ]
+        }
+      ],
+      "revision_action": "修复输入并保持",
+      "planned_behavior": [
+        "同流同单位比较",
+        "没有适用校准时只描述偏离，不映射 readiness 百分比或固定减重"
+      ],
+      "targeted_acceptance": [
+        "MAD=0 不产生无穷或默认 0",
+        "绝对偏差保留原单位",
+        "偏离值无默认红黄绿生理阈值",
+        "不能由单次低 SDNN 自动减重"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-DEVIATION-T01",
+        "STATE-DEVIATION-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R2a",
+        "R2b",
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-FATIGUE",
+      "title": "训练前总体疲劳自评",
+      "unit": "ordinal",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "版本化问卷中的独立有序回答",
+      "registry_algorithm": "保存原始等级和文字锚点；展示最近值及各档频数，不与HRV/酸痛相加。",
+      "current_actual_contract": "训练前疲劳按自报量表与采集时点保留序数值/频数。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            257
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "疲劳、酸痛、疼痛独立显示",
+        "量表版本与训练前可用时间进入候选背景及研究特征"
+      ],
+      "targeted_acceptance": [
+        "0–10 与其他尺度不简单混算",
+        "训练后补报不冒充训练前信息",
+        "不组成任意加权恢复总分"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-FATIGUE-T01",
+        "STATE-FATIGUE-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-SORENESS",
+      "title": "肌群酸痛自评",
+      "unit": "ordinal",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "按肌群、侧别和诱发情境记录的有序酸痛回答",
+      "registry_algorithm": "保留局部条目，各肌群分别展示；不平均成身体恢复总分。",
+      "current_actual_contract": "按肌群、侧别、量表和时点保留酸痛自报，不能由空白推为无酸痛。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            257
+          ]
+        }
+      ],
+      "revision_action": "保持并接入适用性",
+      "planned_behavior": [
+        "候选只使用与动作/肌群、时间相关且已知的信息",
+        "酸痛不等同损伤诊断或规定减重百分比"
+      ],
+      "targeted_acceptance": [
+        "左右侧不同不被平均抹平",
+        "未填返回未知",
+        "不凭酸痛单值生成 −5% 等数字"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-SORENESS-T01",
+        "STATE-SORENESS-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "STATE-PAIN",
+      "title": "疼痛/不适报告",
+      "unit": "categorical",
+      "function_ids": [
+        "F4",
+        "F2",
+        "F6"
+      ],
+      "registry_definition": "区别于酸痛的症状与动作影响记录",
+      "registry_algorithm": "原样记录位置/性质/是否由动作诱发和动作影响，触发已审定的症状安全流程。",
+      "current_actual_contract": "疼痛/不适原始报告独立保留，临床解释需审核症状协议。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": [
+            257
+          ]
+        }
+      ],
+      "revision_action": "接通候选适用性",
+      "planned_behavior": [
+        "将截止前疼痛与技术受限保留到 STR-25/26 冻结快照及规则输入",
+        "未知不当正常，不能自动诊断"
+      ],
+      "targeted_acceptance": [
+        "当前或历史相关疼痛存在时不生成未经支持的更重候选",
+        "非目标动作疼痛不随意外推，显示适用性依据",
+        "不良记录不会因非参考组被删除"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T02]"
+      ],
+      "source_test_case_ids": [
+        "STATE-PAIN-T01",
+        "STATE-PAIN-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "R5"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "training-STR25/26 不良记录"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "LOAD-SRPE",
+      "title": "整次训练sRPE",
+      "unit": "0–10 ordinal",
+      "function_ids": [
+        "F4",
+        "F6"
+      ],
+      "registry_definition": "总体训练用力感，区别于逐组RIR/RPE",
+      "registry_algorithm": "按完整量表协议保存值、文字锚点、实际采集延迟；约结束30min可作复现提示，实际值不伪造为30min。",
+      "current_actual_contract": "整次训练 sRPE 只接受明确协议下的独立自报，保留采集延迟；不用逐组 RPE 中位数替代。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "明确量表及采集时点",
+        "保留训练后结果与训练前预测特征隔离"
+      ],
+      "targeted_acceptance": [
+        "只有组 RPE 时 sRPE 未知",
+        "训练后 sRPE 不进入同次训练候选的过去输入",
+        "不同量表不直接池化"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T02]"
+      ],
+      "source_test_case_ids": [
+        "LOAD-SRPE-T01",
+        "LOAD-SRPE-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "R6"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "LOAD-DURATION",
+      "title": "整次训练协议时长",
+      "unit": "min",
+      "function_ids": [
+        "F4",
+        "F6"
+      ],
+      "registry_definition": "训练开始至结束扣除明确暂停后的时长，包含计划内休息",
+      "registry_algorithm": "elapsed UTC秒减union(pause)秒后/60；是否扣除某类中断由版本化协议确定。",
+      "current_actual_contract": "用户报告含休息总时长或按起止减暂停并集计算，需明确 duration 协议并标冲突。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "记录 elapsed 与 active 工作时长语义，避免将组时长之和作整次训练时长"
+      ],
+      "targeted_acceptance": [
+        "暂停重叠只扣一次",
+        "手填时长与计时冲突不静默选有利值",
+        "持续训练跨午夜按真实分钟"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T02]"
+      ],
+      "source_test_case_ids": [
+        "LOAD-DURATION-T01",
+        "LOAD-DURATION-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "R6"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "LOAD-SRPE-AU",
+      "title": "sRPE内部负荷代理",
+      "unit": "AU",
+      "function_ids": [
+        "F4",
+        "F6"
+      ],
+      "registry_definition": "整次用力感乘协议训练时长",
+      "registry_algorithm": "AU=sRPE×duration_min。",
+      "current_actual_contract": "只有同场有效 sRPE 与协议时长都已知时输出乘积 AU。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/state.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保留两项原值/协议和内部负荷代理标签",
+        "不可换算热量或跨量表绝对比较"
+      ],
+      "targeted_acceptance": [
+        "60 min×sRPE 5=300 AU",
+        "缺一个输入返回未知",
+        "相同 AU 不宣称相同生理刺激、恢复需求或机械功"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T02]"
+      ],
+      "source_test_case_ids": [
+        "LOAD-SRPE-AU-T01",
+        "LOAD-SRPE-AU-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R6"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "BODY-MASS-DAILY",
+      "title": "每日可比体重",
+      "unit": "kg",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "同称量协议的指定主值或日代表值",
+      "registry_algorithm": "kg标准化，先去重；优先明确晨起主值，无主值可用同协议中位数并注明n。",
+      "current_actual_contract": "按设备/来源/协议与当地日生成可比体重代表值；CSV 来源分层已修复。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            193
+          ]
+        }
+      ],
+      "revision_action": "修复单位输入并保持",
+      "planned_behavior": [
+        "已知单位严格换算至 kg，未知单位不重标",
+        "保留原秤、protocol/source_version 与原始值"
+      ],
+      "targeted_acceptance": [
+        "等价 kg/lb 输入日值一致",
+        "不同秤不能混成单流",
+        "转换失败不进入趋势/相对力量"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T02]"
+      ],
+      "source_test_case_ids": [
+        "BODY-MASS-DAILY-T01",
+        "BODY-MASS-DAILY-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "E1",
+        "E2"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "原 R14 已修复",
+        "state-单位规范化 共享缺陷"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "BODY-MASS-TREND",
+      "title": "真实时间体重趋势",
+      "unit": "kg/week",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "同协议体重随真实时间变化的稳健描述斜率",
+      "registry_algorithm": "a=median((Wj−Wi)/(tj−ti)) for distinct times；输出7a，附实际跨度/n；与能量OLS斜率分开。",
+      "current_actual_contract": "每流每日体重采用真实日历时间的 Theil–Sen 斜率并转换为 kg/week。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "修复输入并保持",
+      "planned_behavior": [
+        "只接纳可比已验证单位的每日值",
+        "保持观察跨度和日数，断档不插体重或推断组织变化"
+      ],
+      "targeted_acceptance": [
+        "不规则日期使用真实间隔",
+        "只有一天不足以算斜率",
+        "水重变化不能叫脂肪变化",
+        "不从斜率乘任意热量系数"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T02]"
+      ],
+      "source_test_case_ids": [
+        "BODY-MASS-TREND-T01",
+        "BODY-MASS-TREND-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "E1",
+        "E2"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "BODY-MASS-RELATIVE",
+      "title": "相对体重变化速率",
+      "unit": "%/week",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "相对于明确参考体重的每周百分比变化",
+      "registry_algorithm": "100×(kg/week)/W_ref；默认参考为明确同窗可比中位数，保存定义。",
+      "current_actual_contract": "以声明的参考体重或明确窗口每日等权中位数为分母，输出 %/week。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "修复输入并保持",
+      "planned_behavior": [
+        "参考体重定义、值、日期与来源随结果显示",
+        "%/week 不能混为体脂变化率"
+      ],
+      "targeted_acceptance": [
+        "不同参考分母的结果不可无提示比较",
+        "参考≤0 或缺失返回未知",
+        "不能把个体目标范围当作统一安全/健康阈值"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T02]"
+      ],
+      "source_test_case_ids": [
+        "BODY-MASS-RELATIVE-T01",
+        "BODY-MASS-RELATIVE-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "E1"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "ENERGY-BASAL",
+      "title": "设备报告静息能量",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "来源定义的静息累计能量",
+      "registry_algorithm": "同窗口同来源按平台统计/无冲突原子区间聚合；跨边界不无依据匀速分摊。",
+      "current_actual_contract": "runtime 已输出窗口累计 kcal 与逐日桶，registry.unit 仍写 kcal/day；上游 kJ 可被未换算重标 kcal。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            209
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "保留 metric ID，主结果单位改为 kcal 并与 schema/registry/UI/export 一致",
+        "日均字段另明确 kcal/day",
+        "已知 kJ 精确转换，未知单位拒绝进入累计"
+      ],
+      "targeted_acceptance": [
+        "6694.4 kJ=1600 kcal",
+        "两日累计不标 kcal/day",
+        "跨边界样本不按均匀速率强拆",
+        "未知单位保留 raw 但数值结果缺失"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-BASAL-T01",
+        "ENERGY-BASAL-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_BASAL",
+        "E8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "原 R11 runtime 已修复，registry 待对齐",
+        "state-单位规范化 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "runtime_unit": "kcal",
+      "next_contract_unit": "kcal",
+      "auxiliary_unit_note": "完整日均值等明确 rate 字段使用 kcal/day；保留原 metric ID。"
+    },
+    {
+      "metric_id": "ENERGY-ACTIVE",
+      "title": "设备报告活动能量",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "活动与运动能量，不包含同期间静息能量",
+      "registry_algorithm": "聚合同口径active；Workout active/total作明细不重复增加日量。",
+      "current_actual_contract": "runtime 为窗口累计 kcal，不再把 workout 热量另加；registry 仍 kcal/day，unit_unverified 输入仍可流入。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            209
+          ]
+        }
+      ],
+      "revision_action": "修复",
+      "planned_behavior": [
+        "统一累计 kcal 与日均 kcal/day 语义",
+        "已知单位转换及验证与 basal 共用"
+      ],
+      "targeted_acceptance": [
+        "2510.4 kJ=600 kcal",
+        "同 workout 不再加一次",
+        "来源冲突不混池",
+        "历史导入已错标数据以原 raw 重算/标需重处理而非覆盖原始文件"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-ACTIVE-T01",
+        "ENERGY-ACTIVE-T02"
+      ],
+      "registry_evidence_status": "observed",
+      "registry_evidence_refs": [
+        "APPLE_ACTIVE",
+        "E7"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "原 R11 runtime 已修复，registry 待对齐",
+        "state-单位规范化 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "runtime_unit": "kcal",
+      "next_contract_unit": "kcal",
+      "auxiliary_unit_note": "完整日均值等明确 rate 字段使用 kcal/day；保留原 metric ID。"
+    },
+    {
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "title": "设备报告总能量",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "对齐静息与活动分量之和",
+      "registry_algorithm": "D=B+A；仅同窗口且分量有效；不另加Workout，不固定补10%TEF。",
+      "current_actual_contract": "只合并同日期、同流、支持区间匹配的 basal+active，累计 kcal 与完整日均 kcal/day 分列；不是测量真实 TEE。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            216
+          ]
+        }
+      ],
+      "revision_action": "修复输入与声明并保持",
+      "planned_behavior": [
+        "registry 主单位对齐 runtime kcal",
+        "继续保留 R12 区间配对与完整日分母",
+        "unit_unverified 分量使相应日期不可用"
+      ],
+      "targeted_acceptance": [
+        "同日 1600+600=2200 kcal，kJ 输入等价",
+        "basal 和 active 时段不相交不能求总",
+        "不同设备不配对",
+        "没有 TEF 乘数或 workout 二次累加"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-DEVICE-TOTAL-T01",
+        "ENERGY-DEVICE-TOTAL-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "APPLE_BASAL",
+        "APPLE_ACTIVE",
+        "E7"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "原 R11/R12 已修复",
+        "state-单位规范化 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
+      "runtime_unit": "kcal",
+      "next_contract_unit": "kcal",
+      "auxiliary_unit_note": "完整日均值等明确 rate 字段使用 kcal/day；保留原 metric ID。"
+    },
+    {
+      "metric_id": "ENERGY-RECORD-COVERAGE",
+      "title": "能量记录日期覆盖",
+      "unit": "ratio",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "符合报告口径的完整分量日期数/已过去目标日期数",
+      "registry_algorithm": "分别算B/A/D覆盖；D需B和A同日有效；保留分子分母。",
+      "current_actual_contract": "分别计 basal/active/total 有效记录日期，除以 elapsed_dates；覆盖不是全天佩戴率。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            233
+          ]
+        }
+      ],
+      "revision_action": "统一日期域并回归",
+      "planned_behavior": [
+        "与睡眠/报告覆盖共用半开窗口日期集合",
+        "仅单位、来源、支持区间合格的天进入相应分子",
+        "完整日与部分记录日分开"
+      ],
+      "targeted_acceptance": [
+        "窗外或未来 energy_days 不进入分子",
+        "午夜端点不令分子>分母",
+        "只有 basal 的一天 total 覆盖不能增加",
+        "空分母不输出100%"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-RECORD-COVERAGE-T01",
+        "ENERGY-RECORD-COVERAGE-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "APPLE_BASAL",
+        "APPLE_ACTIVE"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-午夜覆盖 共享日期域复核"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "ENERGY-NET-STORAGE",
+      "title": "平均净储能变化",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "平均摄入减去真实消耗，即身体能量储存变化率",
+      "registry_algorithm": "Q=ΔS/Δt；仅在适用组成模型中计算ρ_FΔF+ρ_LΔL等显式储能项并传播误差；不得用有效ρ代替纯储能参数。",
+      "current_actual_contract": "显式组织组分变化×组分储能密度/elapsed_days；需要模型版本与来源，拒绝总重、effective_rho、瘦体重直接当蛋白。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            250
+          ]
+        }
+      ],
+      "revision_action": "保持研究边界",
+      "planned_behavior": [
+        "模型条件与误差结构明确",
+        "未知组分/误差不由体重趋势补齐，未获联合误差时区间保持未知"
+      ],
+      "targeted_acceptance": [
+        "同体重变化的不同组分不得得出相同强制热量",
+        "没有组分模型返回 not_identifiable",
+        "组分相关性不能当独立处理",
+        "绝不固定7700外推"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T03]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-NET-STORAGE-T01",
+        "ENERGY-NET-STORAGE-T02",
+        "ENERGY-NET-STORAGE-T03"
+      ],
+      "registry_evidence_status": "model_conditional",
+      "registry_evidence_refs": [
+        "E1",
+        "E2",
+        "E8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "ENERGY-DELTA-INTAKE",
+      "title": "相对初始平衡摄入变化",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "相对于初始能量平衡摄入I0的ΔEI，非当前I−E",
+      "registry_algorithm": "Hall–Chow：ΔEI=ρa+ε(W−W0)；真实日期OLS；明确末端W估计。ρ为有效动力学参数。9100/22仅hall_chow_2011_replication研究常数。",
+      "current_actual_contract": "Hall–Chow 类条件模型使用真实体重时间、初始平衡基线与参数估计相对摄入变化；不是净储能。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            267
+          ]
+        }
+      ],
+      "revision_action": "保持研究边界",
+      "planned_behavior": [
+        "保留平衡基线/参数版本、协方差与估计口径",
+        "摄入变化和储能为不同结果",
+        "不以设备能量直接填未知模型条件"
+      ],
+      "targeted_acceptance": [
+        "缺平衡基线/有效参数返回不可识别",
+        "基线与体重误差相关时需联合误差",
+        "原合同 −499 与 −44 示例保持不同物理量",
+        "不得转成自动饮食处方"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T03]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-DELTA-INTAKE-T01",
+        "ENERGY-DELTA-INTAKE-T02",
+        "ENERGY-DELTA-INTAKE-T03"
+      ],
+      "registry_evidence_status": "model_conditional",
+      "registry_evidence_refs": [
+        "E2",
+        "E4"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "title": "绝对摄入条件估计",
+      "unit": "kcal/day",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "依赖独立基线或明确设备偏差假设的摄入范围",
+      "registry_algorithm": "路径A：I=I0+ΔEI联合传播；路径B：可信b范围下I=D−b+Q，输出条件场景区间。无校准不得同时从同一体重序列学I与b。",
+      "current_actual_contract": "只有独立 I0 与相对变化或显式 bias/storage 情景才产生条件估计；情景范围不带置信水平。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            280
+          ]
+        }
+      ],
+      "revision_action": "保持研究边界",
+      "planned_behavior": [
+        "保留独立基线证据及 I0 与 ΔI 协方差",
+        "情景范围与已校准区间不同标签"
+      ],
+      "targeted_acceptance": [
+        "没有独立摄入基线不声称实测摄入",
+        "bias/storage 上下界影响区间且反向界拒绝",
+        "研究情景不能自动变日热量目标"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-ABSOLUTE-INTAKE-T01",
+        "ENERGY-ABSOLUTE-INTAKE-T02"
+      ],
+      "registry_evidence_status": "model_conditional",
+      "registry_evidence_refs": [
+        "E2",
+        "E3",
+        "E4",
+        "E7",
+        "E8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "ENERGY-IDENTIFIABILITY",
+      "title": "摄入与设备偏差可识别性状态",
+      "unit": "categorical",
+      "function_ids": [
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "给定现有观测能否唯一识别真实摄入/消耗/偏差",
+      "registry_algorithm": "依据D=E+b+η及dS/dt=I−E，检查是否存在(I+c,E+c,b−c)不变族；若存在，输出not_identifiable并列缺少独立量。",
+      "current_actual_contract": "显式报告 (I+c,E+c,b−c) 的不变族及独立约束需求；没有约束时 not_identifiable。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/energy.py",
+          "branch_start_lines": [
+            244
+          ]
+        }
+      ],
+      "revision_action": "保持并细化前提展示",
+      "planned_behavior": [
+        "独立约束必须有来源/版本/范围，不能把输入存在等同科学可识别",
+        "与 DELTA/ABSOLUTE 实际可计算状态一起展示"
+      ],
+      "targeted_acceptance": [
+        "只有设备总能量+体重时仍不可识别摄入",
+        "声明独立基线却无适用模型不能自动给绝对摄入",
+        "用户能看清缺失哪类独立信息"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T02]"
+      ],
+      "source_test_case_ids": [
+        "ENERGY-IDENTIFIABILITY-T01",
+        "ENERGY-IDENTIFIABILITY-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "E1",
+        "E2",
+        "E8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "PRED-B0",
+      "title": "可比历史B0参考预测",
+      "unit": "reps; RIR separately",
+      "function_ids": [
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "下一次同计划负重/目标RIR等条件下的指定组表现基线",
+      "registry_algorithm": "B0_last_comparable：最近同条件暴露完成次数为点预测，历史RIR单列；不合成为得分。",
+      "current_actual_contract": "固定目标下取严格可比且发生在预测前的最近历史参考，reps 与 RIR 分开。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/prediction.py",
+          "branch_start_lines": [
+            190
+          ]
+        }
+      ],
+      "revision_action": "保持并接入统一任务",
+      "planned_behavior": [
+        "与动作/版本/负荷/协议和截止时间快照一致",
+        "无可比数据返回无预测，描述历史不伪装成功保证"
+      ],
+      "targeted_acceptance": [
+        "当前目标变负荷时不可拿旧负荷次数当同任务预测",
+        "预测前不可见的补录不泄漏",
+        "不能以默认 8 次填冷启动"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T02]"
+      ],
+      "source_test_case_ids": [
+        "PRED-B0-T01",
+        "PRED-B0-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R7",
+        "R8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "PRED-B1",
+      "title": "单状态增量B1研究预测",
+      "unit": "reps",
+      "function_ids": [
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "同一B0基础上测试一个预注册状态特征的增量预测",
+      "registry_algorithm": "最小研究式reps_next−reps_last=β(state_next−state_last)+error；β由训练数据估计，先单特征；RIR若预测另用序数模型。",
+      "current_actual_contract": "单个预声明状态特征对 B0 残差做研究拟合，外推需校准匹配；共享 calibration_matches 的 scope 缺字段风险。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/prediction.py",
+          "branch_start_lines": []
+        }
+      ],
+      "revision_action": "修复校准匹配并保持研究模式",
+      "planned_behavior": [
+        "实际目标派生完整 scope 与制品必需字段逐一匹配",
+        "只用预训练可见特征",
+        "没有真实外部/个体校准时仍返回 B0 与研究状态"
+      ],
+      "targeted_acceptance": [
+        "仅 population 的 scope 不能激活要求动作/结果/协议的校准",
+        "跨人留出不拟合留出结果",
+        "当次 sRPE/结果不泄漏",
+        "不能从状态回归系数声称疲劳因果"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T02]"
+      ],
+      "source_test_case_ids": [
+        "PRED-B1-T01",
+        "PRED-B1-T02"
+      ],
+      "registry_evidence_status": "research_only",
+      "registry_evidence_refs": [
+        "R7",
+        "R8",
+        "R2a",
+        "R2b"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "strength-N02 共享校准函数"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "PRED-ERROR-GAIN",
+      "title": "B0/B1成对预测误差差异",
+      "unit": "reps",
+      "function_ids": [
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "同一未来暴露上B1相对B0的误差变化",
+      "registry_algorithm": "ΔMAE=mean|y−B0|−mean|y−B1|；同时RMSE和逐人/动作分层；测试集与模型选择隔离。",
+      "current_actual_contract": "B0/B1 在同批前向留出观察中计算成对 MAE/RMSE 差，保留排除、回退、按用户/条件分组。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/prediction.py",
+          "branch_start_lines": [
+            170
+          ]
+        }
+      ],
+      "revision_action": "保持并补评估接线",
+      "planned_behavior": [
+        "将 B0/B1 可评价共同样本与全部任务/回退分别计数",
+        "多次来自同用户不当独立样本"
+      ],
+      "targeted_acceptance": [
+        "B1 失败样本不能静默删除后宣称总体更优",
+        "同批成对误差可复算",
+        "未做用户/时间独立设计不宣称泛化提升"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T02]"
+      ],
+      "source_test_case_ids": [
+        "PRED-ERROR-GAIN-T01",
+        "PRED-ERROR-GAIN-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R8",
+        "R7"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "PRED-INTERVAL",
+      "title": "预测区间校准与宽度",
+      "unit": "ratio; reps",
+      "function_ids": [
+        "F6",
+        "F2"
+      ],
+      "registry_definition": "名义预测区间对未来结果的经验覆盖和宽度",
+      "registry_algorithm": "coverage=mean(L≤y≤U)，width=mean(U−L)；分人群/动作/缺失场景报告，保存名义水平。",
+      "current_actual_contract": "在留出结果上按分层统计观察覆盖与平均宽度、名义水平；空集合无覆盖率。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/prediction.py",
+          "branch_start_lines": [
+            175
+          ]
+        }
+      ],
+      "revision_action": "保持研究边界",
+      "planned_behavior": [
+        "仅将经过相应 scope 校准的区间送用户",
+        "区间覆盖评估与新任务预测区间区别明确"
+      ],
+      "targeted_acceptance": [
+        "0 个可评估结果输出未知而非100%",
+        "同用户/同任务重复误差不伪装独立精确置信区间",
+        "域外输入不能复用校准"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T02]"
+      ],
+      "source_test_case_ids": [
+        "PRED-INTERVAL-T01",
+        "PRED-INTERVAL-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "strength-N02 关联适用范围"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "REPORT-PERIOD-COVERAGE",
+      "title": "周月指标记录覆盖",
+      "unit": "ratio",
+      "function_ids": [
+        "F6"
+      ],
+      "registry_definition": "各指标在日历报告窗口中的可用日期/场次比例",
+      "registry_algorithm": "按指标分别计分子分母；日指标用已过日期，场次指标用实际应填场次；当前周期标partial。",
+      "current_actual_contract": "基于原始事实的有效日期与 elapsed_dates，训练 session 覆盖另列；当前周期完整性有标记。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/reports.py",
+          "branch_start_lines": [
+            72
+          ]
+        }
+      ],
+      "revision_action": "统一日期域并回归",
+      "planned_behavior": [
+        "共享半开时区日期域、单位验证与来源分层",
+        "报告未记录不等同未发生"
+      ],
+      "targeted_acceptance": [
+        "睡眠精确午夜端点不令覆盖>100%或阻断整报",
+        "当前半周不按完整周分母",
+        "未来事实排除",
+        "多个设备不重复算天"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T02]"
+      ],
+      "source_test_case_ids": [
+        "REPORT-PERIOD-COVERAGE-T01",
+        "REPORT-PERIOD-COVERAGE-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "APPLE_SLEEP",
+        "R6"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-午夜覆盖 共享日期域复核",
+        "state-单位规范化 下游"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "REPORT-STATE-SUMMARY",
+      "title": "周月身体状态摘要",
+      "unit": "mixed explicit units",
+      "function_ids": [
+        "F6"
+      ],
+      "registry_definition": "同协议日代表值与主观等级的周期摘要",
+      "registry_algorithm": "连续量中位数/分位数；疲劳/酸痛等级频数；分别报告各协议/来源；不生成恢复总分。",
+      "current_actual_contract": "连续量按同流每日值给中位数/分位数，序数量表给频数；睡眠标为按结束/醒来日期观察量，不冒称主睡眠。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/reports.py",
+          "branch_start_lines": [
+            88
+          ]
+        }
+      ],
+      "revision_action": "修复输入并保留陈述边界",
+      "planned_behavior": [
+        "复用规范化/睡眠源筛选与清晰时窗",
+        "状态摘要只陈述观察，不因低 HRV/高疲劳推出恢复诊断或数字处方"
+      ],
+      "targeted_acceptance": [
+        "inBed+asleep 不制造睡眠冲突",
+        "同单位转换摘要一致",
+        "没有主 episode 只能说观察睡眠",
+        "不得写“因此下周减重5%”"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T02]"
+      ],
+      "source_test_case_ids": [
+        "REPORT-STATE-SUMMARY-T01",
+        "REPORT-STATE-SUMMARY-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R5",
+        "R4",
+        "R8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化",
+        "state-睡眠源选择"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "REPORT-ENERGY-SUMMARY",
+      "title": "周月体重与能量摘要",
+      "unit": "kg/week; kcal; kcal/day",
+      "function_ids": [
+        "F6"
+      ],
+      "registry_definition": "原始日期数据重估趋势并汇总有记录的设备能量",
+      "registry_algorithm": "体重整窗重估；能量已知完整日求和/有效日均值；ΔEI整窗重新拟合或明确非重叠子窗，保留基线与条件。",
+      "current_actual_contract": "按完整匹配能量日分来源汇总；体重趋势与条件摄入模型分列，累计/日均单位明确。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/reports.py",
+          "branch_start_lines": [
+            108
+          ]
+        }
+      ],
+      "revision_action": "修复输入并保留陈述边界",
+      "planned_behavior": [
+        "沿用 ENERGY 全部单位/来源/识别约束",
+        "说明完整日数和观察跨度，不用缺测外推整月总量"
+      ],
+      "targeted_acceptance": [
+        "两日累计 kcal 与日均 kcal/day 同时正确",
+        "不同设备不求合并总值",
+        "体重下降不能写成已知脂肪消耗或实际少吃量",
+        "条件估计始终带模型标签"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T02]"
+      ],
+      "source_test_case_ids": [
+        "REPORT-ENERGY-SUMMARY-T01",
+        "REPORT-ENERGY-SUMMARY-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "E1",
+        "E2",
+        "E4",
+        "E7"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [
+        "state-单位规范化",
+        "ENERGY registry 单位对齐"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "REPORT-RECOMMENDATION-FOLLOWUP",
+      "title": "建议执行与后续结果",
+      "unit": "categorical; outcome units",
+      "function_ids": [
+        "F6"
+      ],
+      "registry_definition": "建议、采纳、实际执行及可比后续表现的关联记录",
+      "registry_algorithm": "保存建议版本/证据、实际变化、未执行原因和预定义后续窗口；分别报采纳率/执行率/可比表现，禁止混成有效率。",
+      "current_actual_contract": "包装 STR-27/28 的执行与后续观察，当前 causal_effect 明确为 None。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/reports.py",
+          "branch_start_lines": [
+            125
+          ]
+        }
+      ],
+      "revision_action": "保持并回归",
+      "planned_behavior": [
+        "保留策略/版本/任务分层、完整反馈分母及未知",
+        "措辞为执行后观察到，不能声称策略造成改变"
+      ],
+      "targeted_acceptance": [
+        "用户选择较重策略后完成次数改变，只报告观察差值",
+        "未执行/失访另列",
+        "无独立因果设计 causal_effect 保持空",
+        "重复读不增样本"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T02]"
+      ],
+      "source_test_case_ids": [
+        "REPORT-RECOMMENDATION-FOLLOWUP-T01",
+        "REPORT-RECOMMENDATION-FOLLOWUP-T02"
+      ],
+      "registry_evidence_status": "descriptive",
+      "registry_evidence_refs": [
+        "R7",
+        "R8"
+      ],
+      "forbidden_inferences": [],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。"
+    },
+    {
+      "metric_id": "QAL-01",
+      "title": "充分证据组召回",
+      "unit": "比例 / 完整命中题数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "在给定检索阶段和资源预算下，检索结果对该问题至少一种可接受的充分证据方案的覆盖程度，同时报告是否完整命中某个充分方案。",
+      "registry_algorithm": "对检索结果R按source_version和span身份去重。hit(g)=1当且仅当存在已认可支持集合A_g,l包含于R并满足版本、适用性和独立性条件。单题group_recall=max_j[sum_(g in B_j)hit(g)/|B_j|]；sufficient_bundle_hit=1当存在B_j使所有g均命中，否则0。保留实现最大值的方案ID、各方案覆盖和缺失组。对单题group_recall取预设query宏平均；完整命中率为sum(sufficient_bundle_hit)/n。两项分开报告，不加权。top-k、token/字节预算、检索阶段及过滤前后结果都锁定，防止无限返回全文冒充高质量检索。",
+      "current_actual_contract": "science.evaluation 仅审核 gold，支持每组多种支持集合及多组充分 bundle，计算最佳充分路径召回和 bundle 命中；知识运行器使用另一组级计数。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            41
+          ]
+        }
+      ],
+      "revision_action": "统一运行器接线并回归",
+      "planned_behavior": [
+        "知识查询评估转换到同一充分证据 schema",
+        "目标/适用范围冲突检查不应随展示 top-k 改变",
+        "筛查不完整时显式标记"
+      ],
+      "targeted_acceptance": [
+        "A+B 或 C 两条充分路径只需命中一条",
+        "只命中 A 不算充分",
+        "6 supports+1 refutes 在 k6/k7 不能一个宣称已支持另一个冲突",
+        "空/未审 gold 不算满分"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-01-T01",
+        "QAL-01-T02",
+        "QAL-01-T03",
+        "QAL-01-T04",
+        "QAL-01-T05"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "同论文重复10个chunk不算10份独立支持",
+        "命中一条关键词不等于命中充分证据",
+        "检索召回达标不证明个体训练建议有效"
+      ],
+      "review_findings": [
+        "knowledge-top-k 冲突 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-02",
+      "title": "检索证据精度与重复负担",
+      "unit": "比例 / 证据单元数 / token",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "实际返回或送入模型的证据单元中，与问题目标、版本和适用条件相关且可用于所声明解释的比例；重复上下文负担单独报告。",
+      "registry_algorithm": "precision=number_relevant_unique_units/number_retrieved_unique_units。输出relevant、background、irrelevant、unjudged各计数；未裁决单元不自动进入相关分子，主报告同时给已裁决覆盖，并可给保守上下界：已确认相关/全部单元与(已确认相关+未裁决)/全部单元。重复识别仅按预定规范单元与版本关系，不凭相似度擅自合并不同结论。query宏平均与micro率分别报告；duplicate_fraction另报，禁止用其修正形成自造总分。",
+      "current_actual_contract": "canonical unit 去重后计算 precision 下界、含未审项上界与标注覆盖；micro/macro 与重复负担独立。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            51
+          ]
+        }
+      ],
+      "revision_action": "保持并绑定真实检索记录",
+      "planned_behavior": [
+        "使用实际候选/展示 top-k、证据单元身份与独立标签",
+        "不同 query/user 的重复评估不视为独立样本"
+      ],
+      "targeted_acceptance": [
+        "同证据不同包装不提高 precision",
+        "未审项扩大上下界而非当相关",
+        "无检索返回无定义精度并保留 recall 失败",
+        "不把 top-k 参数当生理阈值"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T04]"
+      ],
+      "source_test_case_ids": [
+        "QAL-02-T01",
+        "QAL-02-T02",
+        "QAL-02-T03",
+        "QAL-02-T04"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "精度高不证明必要证据已找全",
+        "重复文段不能增加独立证据精度或样本量",
+        "检索得分不是科学证据等级"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-03",
+      "title": "引用可定位与邻近支持精度",
+      "unit": "比例 / 引用主张链接数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "引用链接是否解析到实际保存的指定版本及证据位置，以及该引用是否支持它声称支撑的邻近主张；两种有效性分别计量。",
+      "registry_algorithm": "先解析source/version/span链并验证offset或bbox范围与hash；再盲审引用与相邻原子主张的支持关系，类别supported/partial/contradicts/irrelevant/unverifiable。分别计算定位率和支持精度。用户界面DOI可打开但没有保存的精确证据位置时不算严格可定位成功。省略全部引用不会在本项得到100%，并由QAL-04检查未支持主张。",
+      "current_actual_contract": "引用按 claim/version/spans 去重，分别算可定位率与已审支持精度，同时报告审查覆盖。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            69
+          ]
+        }
+      ],
+      "revision_action": "修复上游证据边界并保持",
+      "planned_behavior": [
+        "逐主张原文版本/哈希/定位/权利校验",
+        "JATS 父段不得携带受限子组件",
+        "定位正确不等于语义支持"
+      ],
+      "targeted_acceptance": [
+        "父 p 内受限 fig 的文字在 text/structured/raw_xml 中均不可被父 article 权利放行",
+        "同引用贴多次不增证据量",
+        "可定位但矛盾应记录支持失败"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-03-T01",
+        "QAL-03-T02",
+        "QAL-03-T03",
+        "QAL-03-T04",
+        "QAL-03-T05"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "有DOI不等于该句被支持",
+        "引用整篇论文不自动支持全文外推",
+        "定位率100%不能抵消错误解释"
+      ],
+      "review_findings": [
+        "knowledge-JATS 权利继承 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-04",
+      "title": "可检验主张支持率",
+      "unit": "比例 / 原子主张数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "回答中需要事实、计算或科学证据的原子主张，获得足够且适用于其实际措辞的证据支持的比例。",
+      "registry_algorithm": "按固定拆分手册形成claim ledger，依次验证事实来源、计算及科学适用范围，再分配支持标签。support_rate=n_fully_supported/n_support_required。分别报告各类型主张的五类数量以及回答任务覆盖，后者用QAL-07的intent满足情况。允许任一经认可充分证据束成立；不要求匹配唯一标准答案措辞。由同一生成模型自动自评分只能作为候选标注。",
+      "current_actual_contract": "需支持主张中仅 support_label=supported 且 provenance_verified 计入分子；缺审查标签留在分母。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            80
+          ]
+        }
+      ],
+      "revision_action": "保持并统一裁决来源",
+      "planned_behavior": [
+        "人工、独立 AI、开发回归分别计数",
+        "回答意图覆盖与主张支持同时显示",
+        "冲突目标不能靠多数卡片宣称支持"
+      ],
+      "targeted_acceptance": [
+        "0 条主张不是100%正确",
+        "AI 7/10 不渲染为人工验证或科学效度",
+        "相关但不回答目标的段落不算支持",
+        "未审不当通过"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-04-T01",
+        "QAL-04-T02",
+        "QAL-04-T03",
+        "QAL-04-T04",
+        "QAL-04-T05"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "部分支持不按0.5分随意并入支持率",
+        "流畅性或引用数量不替代主张审阅",
+        "高支持率不等于推荐干预已验证有效"
+      ],
+      "review_findings": [
+        "knowledge-top-k 冲突 关联"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-05",
+      "title": "科学适用性错误率",
+      "unit": "比例 / 错配主张数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "依赖研究适用范围或测量协议的主张中，出现人群、任务、器械、测量字段、干预、结局或时间尺度不匹配而仍作确定应用的比例。",
+      "registry_algorithm": "逐条件比较match/mismatch/unknown/not_required，评审该条件对当前推断是否决定性。错误标签为population、exercise_equipment、metric_identity、protocol、outcome、timescale、intervention、unknown_as_match等；rate=n_error_claims/n_conditional_claims。另报各原因事件数，允许一个主张多标签，因此原因计数之和可超过错误主张数。",
+      "current_actual_contract": "适用主张错误/全部需适用性主张，同时单列 unjudged 与错误类型；未审不能视作匹配。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            86
+          ]
+        }
+      ],
+      "revision_action": "修复适用范围验证并回归",
+      "planned_behavior": [
+        "校准制品、理论卡和候选实际任务均完整比较适用字段",
+        "在有未审项时不得把观察错误率解释为完整安全率"
+      ],
+      "targeted_acceptance": [
+        "要求 exercise/protocol/outcome 的规则不能因只传 population 通过",
+        "缺字段计未知",
+        "同一主张多人多次裁决保留身份与分歧，不当独立样本"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T04]"
+      ],
+      "source_test_case_ids": [
+        "QAL-05-T01",
+        "QAL-05-T02",
+        "QAL-05-T03",
+        "QAL-05-T04"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition_with_claim_specific_scientific_gold",
+      "registry_evidence_refs": [
+        "R3a",
+        "R3b",
+        "S3",
+        "S4",
+        "S6",
+        "S7"
+      ],
+      "forbidden_inferences": [
+        "话题相同不等于测量协议可互换",
+        "来源证据等级高不自动消除间接性",
+        "未知适用信息不默认为满足"
+      ],
+      "review_findings": [
+        "strength-N02",
+        "training-候选适用性"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-06",
+      "title": "无依据数字与因果越界",
+      "unit": "比例 / 违规断言数 / 涉及回答数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "分别审计无法追溯或无法支持其用途的数值断言，以及证据设计不支持的因果或确定个体效应断言；两者不合并为总分。",
+      "registry_algorithm": "每个数值核对来源类型record/calculation/literature/user_goal/equipment_fact并检查单位、版本和用途。计算正确但公式用于未经验证的处方仍是unsupported。因果断言核对研究设计、干预分配、反事实目标、混杂与适用条件；观察相关、简单前后比较、未检出差异不能直接支持确定因果。输出各率、原始事件数及any_violation_answer_count。无依据固定-5%处方是必测反例；换成0.95系数或其他变量名仍按语义识别。",
+      "current_actual_contract": "无依据数字与因果越界各有独立分母、未审计数及受影响回答数；不做综合分。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            93
+          ]
+        }
+      ],
+      "revision_action": "接通候选/报告审核",
+      "planned_behavior": [
+        "审核数字来源类型与必要条件：计划目标、器械步长、统计参数、外部生理证据分别标识",
+        "观察报告、研究预测和因果主张分开"
+      ],
+      "targeted_acceptance": [
+        "固定 −5% 无依据建议必须失败",
+        "32.5×8 可作为有出处条件候选但“保证完成”失败",
+        "执行后改善不得称策略疗效",
+        "未审数字不能当无错误"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-06-T01",
+        "QAL-06-T02",
+        "QAL-06-T03",
+        "QAL-06-T04",
+        "QAL-06-T05"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition_with_scientific_inference_boundaries",
+      "registry_evidence_refs": [
+        "S4",
+        "S6",
+        "R7",
+        "R8",
+        "M2"
+      ],
+      "forbidden_inferences": [
+        "数字有出处不等于它的用途有依据",
+        "正确算术不等于正确科学模型",
+        "一次建议后改善不证明建议导致改善"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-07",
+      "title": "证据不足与可回答情境的双向错误",
+      "unit": "比例 / 意图数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "同时评价本应保留未知或拒绝具体结论时仍强答，以及已有足够依据可答时却不当拒答；对复合请求按意图边界评估。",
+      "registry_algorithm": "将回答映射到intent ledger，比较允许行为集合和实际输出作用域。为每个intent独立标correct_boundary、overanswer、underanswer、other_task_failure或unscorable。混合题可一部分正确回答、一部分合理保留；正确条件性解释并给可核验候选，不等于拒答。缺少关键上下文时提出必要澄清可以正确，反复询问已知事实导致任务未完成则记录任务错误。",
+      "current_actual_contract": "证据充分与不足意图分开，分别计 underanswer 与 overanswer；标签不完整时保持不可判。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            104
+          ]
+        }
+      ],
+      "revision_action": "统一真实问答验收",
+      "planned_behavior": [
+        "对有效指南适用情境测试有依据可执行回答",
+        "对冲突、未审核、越域和缺条件分别测试限界回答，不以全部拒绝过关"
+      ],
+      "targeted_acceptance": [
+        "6 supports+1 refutes 的冲突不得因 top-k 丢失强答",
+        "已批准且适用的完整目标可正常答",
+        "部分可回答任务保留可答部分",
+        "分母按意图而非引用个数"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-07-T01",
+        "QAL-07-T02",
+        "QAL-07-T03",
+        "QAL-07-T04",
+        "QAL-07-T05"
+      ],
+      "registry_evidence_status": "engineering_evaluation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "unknown不是自动失败或自动成功",
+        "正确拒绝个体百分比不要求拒绝全部解释",
+        "空回答不能当合格拒答"
+      ],
+      "review_findings": [
+        "knowledge-top-k 冲突",
+        "core_knowledge_plan 接线"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-08",
+      "title": "回退率、回退原因与完成情况",
+      "unit": "比例 / 请求数 / 回退事件数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "请求未按其预定主路径完成而进入明确备用路径的频率，以及备用路径是否完成其允许任务；预期证据不足与技术故障分别报告。",
+      "registry_algorithm": "固定主路径及fallback事件定义；按request_id去重得到any_fallback，再按timeout、provider_error、parse_error、evidence_insufficient、rights_unavailable、calculation_not_validated等reason分层。正常输出unknown若本来就是该路径规定结果，不硬记技术回退；因证据不足从定量路径转到解释路径可记预期回退。另报每请求事件数和端到端成功/部分完成/失败，不把重复自动重试当新用户请求。",
+      "current_actual_contract": "eligible request 去重，报告有完整 trace 的 fallback 请求数/全部请求及 trace 覆盖、原因与可完成子任务结果。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            112
+          ]
+        }
+      ],
+      "revision_action": "完善未知展示并保持",
+      "planned_behavior": [
+        "trace 不全时 fallback_requests 标为已观察下界或给未知范围，不把未观察视为未回退",
+        "按事件簇与请求分开"
+      ],
+      "targeted_acceptance": [
+        "同请求多回退事件只占一个请求分子",
+        "完整 trace 缺失不得宣称回退率精确",
+        "可完成子任务的分母独立",
+        "同服务故障大量请求不伪造独立置信区间"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T04]"
+      ],
+      "source_test_case_ids": [
+        "QAL-08-T01",
+        "QAL-08-T02",
+        "QAL-08-T03",
+        "QAL-08-T04"
+      ],
+      "registry_evidence_status": "engineering_operational_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "合理的证据不足回退不等于模型差",
+        "减少回退不能靠强行输出无依据数值",
+        "技术重试次数不是用户请求样本量"
+      ],
+      "review_findings": [],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-09",
+      "title": "原文获取、理论审核与功能证据覆盖",
+      "unit": "比例 / 来源版本数 / 理论卡数 / 功能主张要求数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "分别度量冻结来源清单的原文获取进度、理论卡审核进度、可激活卡比例以及功能所需主张的证据覆盖；各自分母明确且互不替代。",
+      "registry_algorithm": "冻结各清单后分别count。原文获取需bytes非空、哈希、版本身份及获取授权；URL、摘要、网页曾被浏览不算保存全文。原文获取不要求已完成理论审阅，理论审阅完成也不意味着通过。为每个未完成项保留not_fetched、abstract_only、rights_unknown、unavailable、identity_conflict、parse_pending、review_pending、rejected、activation_blocked等状态。功能覆盖按要求去重，多张同义卡不增加覆盖。清单新增或去除有审计与新版本，并同时报告前后分母。",
+      "current_actual_contract": "原文获取分总体目标和有权限可获取目标，理论审核完成/激活就绪及功能主张覆盖各自分母。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            123
+          ]
+        }
+      ],
+      "revision_action": "保持并对齐工件",
+      "planned_behavior": [
+        "固定 source/version/权利/原文字节证据与 review 决策",
+        "单独展示采集、审核和功能可用",
+        "教材摘录范围与全文获取分开"
+      ],
+      "targeted_acceptance": [
+        "14 个不同 fulltext 不等于 14 个已审核理论",
+        "0 approved 时不得显示功能理论已完备",
+        "同文件重复保存不增 distinct source",
+        "AI 结果不替代专家审核"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-09-T01",
+        "QAL-09-T02",
+        "QAL-09-T03",
+        "QAL-09-T04",
+        "QAL-09-T05"
+      ],
+      "registry_evidence_status": "engineering_inventory_definition",
+      "registry_evidence_refs": [
+        "KB1",
+        "KB2",
+        "KB3",
+        "KB5",
+        "KB6",
+        "KB7",
+        "KB8"
+      ],
+      "forbidden_inferences": [
+        "审核完成不等于审核通过",
+        "来源获取率不等于功能理论覆盖率",
+        "开放链接不等于当前用途的许可",
+        "大量重复理论卡不能增加独立功能覆盖"
+      ],
+      "review_findings": [
+        "knowledge-当前工件 0 approved/14 fulltext"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-10",
+      "title": "路由越权与数据隔离违反",
+      "unit": "事件数 / 涉及请求比例",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "实际读取、检索、计算或输出超出当前请求授权范围、功能证据边界或用户数据隔离的事件；尝试被阻断与实际越权分别记录。",
+      "registry_algorithm": "将真实trace与请求时锁定的权限及多意图路由契约比较。授权的多领域问题允许显式多路由；没有绝对的一题只能一个namespace规则。训练记录路径不必要地调用科学RAG属于路由效率/契约偏差，除非违反边界，不自动等同隐私泄漏。对私有记录输出逐项核对owner与授权；检索文档里的指令不具有工具授权。计数实际违规、成功阻断、未检查缺口与受影响请求。",
+      "current_actual_contract": "请求与授权机会分别统计越权，未完整 trace 计 unverifiable_gap；发布门要求完整 trace 且无请求级违反。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            138
+          ]
+        }
+      ],
+      "revision_action": "修复权限继承并保持路由隔离",
+      "planned_behavior": [
+        "受限子组件必须从父文本/结构化/raw_xml 中移除或按其权限阻断",
+        "个人观测与知识原文/理论权限独立"
+      ],
+      "targeted_acceptance": [
+        "嵌套受限 fig 不能通过父 p 绕过",
+        "相关路由不得取未经授权个人数据",
+        "被拦尝试不等同实际泄漏",
+        "0 个用例不视为安全通过"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-10-T01",
+        "QAL-10-T02",
+        "QAL-10-T03",
+        "QAL-10-T04",
+        "QAL-10-T05"
+      ],
+      "registry_evidence_status": "engineering_authorization_and_isolation_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "跨用户事实看似合理仍是越权",
+        "科学原文不能授权访问或发送个人数据",
+        "多领域路由不必然越权，取决于请求和授权"
+      ],
+      "review_findings": [
+        "knowledge-JATS 权利继承 已复现"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-11",
+      "title": "数值、单位和版本一致性",
+      "unit": "比例 / 可核验数值断言数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "回答展示或建议中的数值，是否与授权原始事实、锁定公式版本、单位口径以及声明的舍入规则一致；参考不可得与计算不一致分别报告。",
+      "registry_algorithm": "数值由独立受测参考执行器或已审阅来源表格给出，不用同一个LLM重算当oracle。先比单位与语义，再按十进制精度和明确舍入规则比较。浮点误差容忍度来自数值分析与显示精度，不用任意±5%。允许多种正确输出时预先登记其formula_id与适用条件，匹配任一合法结果即可；不能在看结果后任选最有利公式。错误将群体均值变个体区间、将plate-only变总阻力，即使数字相同仍失败。",
+      "current_actual_contract": "独立参考与实际结果逐项比较单位、负荷口径、公式/版本、方向、窗口、估计身份、区间类型及声明舍入。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            149
+          ]
+        }
+      ],
+      "revision_action": "集成单位/任务修复回归",
+      "planned_behavior": [
+        "把导入→规范化→指标→UI/报告/导出纳入同一数值链",
+        "参考缺失单列，不能用被测代码自身作唯一 oracle"
+      ],
+      "targeted_acceptance": [
+        "0.05 s→50 ms、6694.4+2510.4 kJ→2200 kcal 完整链一致",
+        "累计不标日均",
+        "STR-19 分层与 STR-13 跨负荷差都正确",
+        "unknown 不改0"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T05]"
+      ],
+      "source_test_case_ids": [
+        "QAL-11-T01",
+        "QAL-11-T02",
+        "QAL-11-T03",
+        "QAL-11-T04",
+        "QAL-11-T05"
+      ],
+      "registry_evidence_status": "engineering_numeric_correctness_definition",
+      "registry_evidence_refs": [],
+      "forbidden_inferences": [
+        "算得一致不证明模型在现实中准确",
+        "四舍五入相等不证明不同公式常数相同",
+        "同数值不同单位或负荷口径不是一致"
+      ],
+      "review_findings": [
+        "state-单位规范化",
+        "ENERGY registry 单位",
+        "strength-N01"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    },
+    {
+      "metric_id": "QAL-12",
+      "title": "来源身份、版本、权利与撤稿完整性",
+      "unit": "比例 / 来源版本数 / 违规激活事件数",
+      "function_ids": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "registry_definition": "被纳入来源、活跃索引与输出解释的材料是否具有一致的身份及版本，并符合当前用途权利、撤稿/更正状态和发布依赖要求。",
+      "registry_algorithm": "用标识符、题名作者、出版/更新日期与版本关系交叉核对；同DOI不同稿件保留版本。同题名冲突不自动合并。权利按材料版本与declared_use核对，metadata可用不授权全文展示。发布时检查撤稿/更正及状态扫描时间；没有检出标记只能记本次未发现。发现withdrawn或影响结论的更正时使依赖卡/索引/缓存进入阻断或复核状态，保留历史复现及当时依据，不静默删除。",
+      "current_actual_contract": "来源身份/版本/声明用途权利/撤稿更正状态分别验证，active 材料不合规列 ID；没有合格 active 不能假称科学可用。",
+      "implementation_refs": [
+        {
+          "path": "src/healthzip/science/evaluation.py",
+          "branch_start_lines": [
+            177
+          ]
+        }
+      ],
+      "revision_action": "修复通知幂等并保持撤稿门控",
+      "planned_behavior": [
+        "同一来源版本与同一更正通知重复采集不增长 scientific_epoch、不使精确已审 clearance 失效",
+        "真正新通知/新版本仍失效",
+        "子组件权利独立"
+      ],
+      "targeted_acceptance": [
+        "同字节同 metadata 同通知二次抓取 epoch 不变",
+        "新更正使相关 clearance 失效并保留历史审查",
+        "父许可不能覆盖子 fig",
+        "历史冻结记录保留但当前用途可停用"
+      ],
+      "existing_test_refs": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T05]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T06]"
+      ],
+      "source_test_case_ids": [
+        "QAL-12-T01",
+        "QAL-12-T02",
+        "QAL-12-T03",
+        "QAL-12-T04",
+        "QAL-12-T05",
+        "QAL-12-T06"
+      ],
+      "registry_evidence_status": "engineering_provenance_and_rights_definition",
+      "registry_evidence_refs": [
+        "KB1",
+        "KB2",
+        "KB3",
+        "KB5",
+        "KB6",
+        "KB7",
+        "KB8"
+      ],
+      "forbidden_inferences": [
+        "Crossref有记录不等于全文许可",
+        "同DOI不等于同一可替换文本版本",
+        "没有撤稿标记不等于保证从未存在问题",
+        "旧指南被新指南更新不自动等于撤稿"
+      ],
+      "review_findings": [
+        "knowledge-更正重复抓取 已复现",
+        "原 R05/R06/R15 已修复，剩余边界"
+      ],
+      "review_verification": "contract_and_code_review; targeted reproduction only where explicitly referenced; existing test nodes are references, not a new full-suite execution",
+      "scientific_validation_boundary": "工程/评估定义；评估集、标注者及依赖结构决定外推范围，测试通过不是运动生理效度。"
+    }
+  ]
+}

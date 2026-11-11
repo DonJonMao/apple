@@ -49,7 +49,8 @@ def assess_support(question, context, candidates):
                 for binding in claim.get("answer_bindings", []):
                     if normalized_question(binding["question"]) == normalized_question(question):
                         targets[target_key(binding["target_claim"])] = binding["target_claim"]
-        origin = "exact_reviewed_question_binding" if targets else "unresolved_free_text_search"
+        normalized = any(c.get("resolved_task") and c["exact_reviewed_question"] for c in candidates)
+        origin = "normalized_claim_task" if normalized else "exact_reviewed_question_binding" if targets else "unresolved_free_text_search"
     judgments, selected = [], []
     for key, target in targets.items():
         matches, rejected = [], []
@@ -65,7 +66,9 @@ def assess_support(question, context, candidates):
                     matches.append((candidate, claim, binding))
         relations = {binding["relation"] for _, _, binding in matches}
         conflict = "supports" in relations and "refutes" in relations
-        verdict = "conflicting_relations" if conflict else "qualified_only" if relations == {"qualifies"} else "supported_answer_relation" if matches else "no_reviewed_relation"
+        complete_qualification = matches and all(binding.get("answer_complete") is True for _, _, binding in matches)
+        incomplete_target = any(binding.get("target_coverage_complete") is False for _, _, binding in matches)
+        verdict = "conflicting_relations" if conflict else "incomplete_target_coverage" if incomplete_target else "qualified_only" if relations == {"qualifies"} and not complete_qualification else "supported_answer_relation" if matches else "no_reviewed_relation"
         judgments.append({"target_claim": target, "verdict": verdict, "relations": sorted(relations),
                           "excluded_reasons": rejected, "review_basis": "explicit_reviewed_claim_bindings_not_lexical_score"})
         if matches and not conflict:

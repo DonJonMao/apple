@@ -54,8 +54,9 @@ def evaluate(workbench, cases_path, *, split="visible_development", annotations_
         available = 0
         for group in groups:
             active_sources = set()
-            for r in workbench.lib.theories.execute("SELECT review_json FROM theory WHERE status='approved'"):
-                review = json.loads(r[0])
+            reviews = [json.loads(r[0]) for r in workbench.lib.theories.execute("SELECT review_json FROM theory WHERE status='approved'")]
+            reviews.extend(json.loads(r[0]) for r in workbench.lib.theories.execute("SELECT payload_json FROM source_claim WHERE status='verified'"))
+            for review in reviews:
                 for link in review.get("evidence_links", []):
                     if all(workbench.lib.span(sid) and workbench.lib.eligible(workbench.lib.span(sid))[0] for sid in link["span_ids"]):
                         active_sources.add(link["source_id"])
@@ -94,7 +95,10 @@ def evaluate(workbench, cases_path, *, split="visible_development", annotations_
                         "annotation_validation": validation_result,
                         "annotation_identity": annotation_identity(case["case_id"], case["query_zh"], result),
                         "output_sha256": digest(dumps(result).encode()), "output": result})
-    return {"evaluation_version": "rag-eval-1.3.0", "run_at": now(), "split": split,
+    from .quality import run_quality
+    quality_cases = [{**case, "output": record["output"]} for case, record in zip(cases, records)]
+    quality = run_quality(workbench, quality_cases, annotations)
+    return {"evaluation_version": "rag-eval-1.4.0", "run_at": now(), "split": split, "quality_metrics": quality,
             "dataset_path": str(path), "dataset_sha256": digest(raw), "case_count": len(cases), "k": k,
             "metric_provider": getattr(metric_provider, '__module__', None),
             "counts": counts, "schema_pass_rate": proportion(counts["schema_pass"], len(cases)),

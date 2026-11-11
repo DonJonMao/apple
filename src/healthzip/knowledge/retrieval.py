@@ -52,16 +52,8 @@ def route_question(question: str, route: str | None = None) -> list[dict]:
 
 
 def _context_match(required: dict, context: dict) -> tuple[bool, str]:
-    for key, expected in required.items():
-        actual = context.get(key)
-        if actual is None or actual == "unknown":
-            return False, "unknown_applicability:" + key
-        if isinstance(expected, list):
-            if actual not in expected:
-                return False, "scope_mismatch:" + key
-        elif actual != expected:
-            return False, "scope_mismatch:" + key
-    return True, "matched"
+    from .applicability import context_match
+    return context_match(required, context)
 
 
 def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int = 6, release_id: str | None = None) -> dict:
@@ -69,6 +61,9 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
         raise ValueError("k must be a positive retrieval resource budget at most 50")
     route_ids = {x["route"] for x in routes}
     candidates, excluded = [], []
+    roles = set(context.get("corpus_roles", ["core", "research"]))
+    if not roles or not roles <= {"core", "research", "interface", "catalog"}:
+        raise ValueError("unknown corpus partition")
     rows = workbench.lib.released_theories(release_id) if release_id else workbench.lib.theories.execute("SELECT * FROM theory ORDER BY theory_id,version")
     for row in rows:
         card, review = json.loads(row["card_json"]), json.loads(row["review_json"])
@@ -93,6 +88,11 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
                 if not ok:
                     reasons.append(why)
                 else:
+                    manifest = workbench.lib.source(span["source_id"])["manifest"]
+                    source_roles = set(manifest.get("corpus_roles", ["research"]))
+                    if not source_roles & roles or not source_roles & {"core", "research"}:
+                        reasons.append("corpus_partition_excluded")
+                        continue
                     spans.append(span)
         if reasons or not spans:
             excluded.append({"theory_id": row["theory_id"], "reason": ";".join(reasons) or "no_spans"})
@@ -102,6 +102,26 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
                             for claim in review.get("claims", []) for binding in claim.get("answer_bindings", []))
         candidates.append({"theory_id": row["theory_id"], "theory_version": row["version"], "card": card,
                            "review": review, "spans": spans, "terms": Counter(tokens(text)), "exact_reviewed_question": exact_binding})
+    from .tasks import core_candidates, parse_task, source_constraints_match
+    core, core_excluded = core_candidates(workbench, question, context, roles)
+    excluded.extend(core_excluded)
+    for candidate in core:
+        matched, reason = _context_match(candidate["review"]["applicability"]["required"], context)
+        if not matched:
+            excluded.append({"theory_id": candidate["theory_id"], "reason": reason})
+            continue
+        if not route_ids.intersection(candidate["card"]["domains"]) and not candidate["exact_reviewed_question"]:
+            continue
+        candidate["terms"] = Counter(tokens(candidate["card"]["title"] + " " + " ".join(c["text"] for c in candidate["review"]["claims"])))
+        candidates.append(candidate)
+    task = parse_task(question, context)
+    for candidate in candidates:
+        evidence = [{"source_id": span["source_id"], "locator": json.loads(span["locator_json"])} for span in candidate["spans"]]
+        if task["specific_source_unresolved"] or not source_constraints_match(workbench, evidence, task["source_constraints"]):
+            for claim in candidate["review"]["claims"]:
+                claim["answer_bindings"] = []
+            candidate["exact_reviewed_question"] = False
+            excluded.append({"theory_id": candidate["theory_id"], "reason": "requested_source_or_edition_unavailable"})
     query_terms = set(tokens(question))
     for item in candidates:
         score = 0.0
@@ -113,7 +133,8 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
         item["score"] = score
     candidates.sort(key=lambda x: (not x["exact_reviewed_question"], -x["score"], x["theory_id"], x["theory_version"]))
     chosen = [{k: v for k, v in c.items() if k != "terms"} for c in candidates if c["score"] > 0 or c["exact_reviewed_question"]][:k]
-    return {"retriever_version": "lexical-1.3.0", "k": k, "candidates": chosen, "excluded": excluded,
+    return {"retriever_version": "lexical-1.4.1", "question_contract": task, "k": k, "candidates": chosen, "excluded": excluded,
+            "_support_candidates": [{k: v for k, v in c.items() if k != "terms"} for c in candidates],
             "eligible_candidate_count": len(candidates), "numeric_action_authority": "none", "release_id": release_id}
 
 
@@ -157,7 +178,12 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
         if metric.get("metric_id") and (metric.get("data_cutoff") or metric.get("cutoff_time")) and (metric.get("algorithm_version") or metric.get("formula_version") or metric.get("definition_version")):
             observations.append(metric)
     claims, citations, related = [], [], []
-    assessment, supported = assess_support(question, context, retrieval["candidates"])
+    support_candidates = retrieval.pop("_support_candidates")
+    assessment, supported = assess_support(question, context, support_candidates)
+    assessment["conflict_screen"] = {"complete": True, "eligible_theories_checked": len(support_candidates),
+                                      "scope": "all eligible route and applicability matches before display budget"}
+    displayed = {(c["theory_id"], c["theory_version"]) for c in retrieval["candidates"]}
+    supported = [s for s in supported if (s[0]["theory_id"], s[0]["theory_version"]) in displayed]
     if not guard:
         for candidate in retrieval["candidates"]:
             related.append({"theory_id": candidate["theory_id"], "theory_version": candidate["theory_version"],
@@ -185,12 +211,20 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
         sentences = computed + sentences
     if not sentences:
         sentences = ["已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。" if related else "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。"]
+        task = retrieval["question_contract"]
+        if task["specific_source_unresolved"] or any(x["reason"] == "requested_source_or_edition_unavailable" for x in retrieval["excluded"]):
+            sentences.append("尚无与所要求来源、版次或章节一致的可核验依据；其他文献不能替代指定正文或提供它的页码。请明确来源并导入有权使用的相应正文。")
+        elif task["issues"]:
+            sentences.append("尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。")
+        elif any("population_scope_mismatch" in x["reason"] for x in retrieval["excluded"]):
+            sentences.append("已核对来源的人群范围与问题指定人群不同，不能据此称该方案已经在目标人群验证。")
     if assessment["status"] == "conflicting_evidence" and not guard:
         sentences.append("对目标主张存在相互冲突的已审证据关系；不能选择其中一项当作确定结论。")
     limits = [BOUNDARIES[x["route"]] for x in routes]
     limits.extend(limit for c in claims for limit in c["limitations"])
     if assessment["status"] == "partial_answer_support" and not guard:
         limits.append("仅部分目标或限定条件有已审关系；未覆盖的目标保持未知，当前不是完整回答。")
+        sentences.append("以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。")
     if not claims and not guard:
         limits.append("来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。")
     output = {"observations": observations, "answer": "\n".join(sentences), "claims": claims,
@@ -199,6 +233,11 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
               "routes": routes, "retrieval": retrieval, "source": "local_structured_template", "numeric_actions": [],
               "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
               "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access"}
+    output["answer_status"] = {"evidence_supported": "answered_with_support", "partial_answer_support": "partially_answered",
+                               "insufficient_evidence": "missing_source_content"}.get(output["status"], output["status"])
+    if not claims and any("missing_context" in x["reason"] or "unknown_applicability" in x["reason"] for x in retrieval["excluded"]):
+        output["answer_status"] = "missing_context"
+    output["corpus_partitions"] = sorted(context.get("corpus_roles", ["core", "research"]))
     output["evidence_bundle_hash"] = digest(dumps({k: output[k] for k in ("observations", "claims", "citations", "routes", "support_assessment")}).encode())
     if proposed_answer is not None:
         errors = validate_answer(workbench, proposed_answer, output)
@@ -235,7 +274,8 @@ def validate_answer(workbench, candidate: dict, bundle: dict) -> list[str]:
             errors.append("unapproved_citation")
             continue
         theory = workbench.lib.theories.execute("SELECT status FROM theory WHERE theory_id=? AND version=?", (citation['theory_id'], citation['theory_version'])).fetchone()
-        if not theory or theory[0] != 'approved':
+        core_claim = workbench.lib.theories.execute("SELECT status FROM source_claim WHERE claim_id=? AND version=?", (citation['theory_id'], citation['theory_version'])).fetchone()
+        if not (theory and theory[0] == 'approved' or core_claim and core_claim[0] == 'verified'):
             errors.append('theory_approval_no_longer_current')
         for sid in citation.get("span_ids", []):
             span = workbench.lib.span(sid)

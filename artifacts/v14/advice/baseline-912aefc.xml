@@ -1,0 +1,34 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.768" timestamp="2026-11-11T18:41:09.857198+08:00"><testcase classname="tests.integration.test_v14_advice_flow" name="test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade" time="3.644"><failure message="assert 52.5 is None">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-145/test_f03_current_pain_remains_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffad593290&gt;
+
+    def test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade(tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        HELPERS["synthetic_authority"](tmp_path / ".local/knowledge", "external_total_kg")
+        path = tmp_path / "synthetic-advice.sqlite3"
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        equipment = svc.create_equipment("Synthetic station", "barbell")
+        condition = {"equipment_instance_id": equipment["id"], "load_basis": "external_total_kg", "load_basis_confirmed": True,
+            "side": "both", "repetition_semantics": "simultaneous", "rom_protocol": "full",
+            "settings_confirmed": True, "settings": {"grip": "fixed"},
+            "reference_protocol": {"protocol_id": "synthetic", "version": "1", "reference_policy_id": "first-work",
+            "effort_protocol": "rir-2", "tempo": "controlled", "rest_protocol": "180-sec"}}
+        prior = svc.start_session("prior")
+        baseline = _reference(svc, svc.add_exercise(prior["id"], "psa.ex.barbell_bench_press", condition))
+        svc.end_session(prior["id"])
+        session = svc.start_session("current")
+        instance = svc.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+        limited = _reference(svc, instance, pain=True)
+        target = svc.add_set(instance["id"], planned={"reps_min": 6, "reps_max": 8, "rir": 2})
+        repo.close()
+        app = HELPERS["open_app"](path)
+        app.selectbox(key="candidate_target_" + instance["id"]).set_value(target["set_uuid"])
+        app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
+        app.button(key="candidate_" + instance["id"]).click().run(timeout=30)
+        assert not app.exception and not app.error
+        repo = Repository(path)
+        record = TrainingService(repo).list_recommendations()[0]
+&gt;       assert record["candidate"]["proposed_change"]["load"] is None
+E       assert 52.5 is None
+
+&lt;repo&gt;/.local/v14-baseline/tests/integration/test_v14_advice_flow.py:52: AssertionError</failure></testcase></testsuite></testsuites>

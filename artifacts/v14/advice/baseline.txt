@@ -1,0 +1,85 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade ______
+
+tmp_path = PosixPath('<pytest-temp>/pytest-144/test_f03_current_pain_remains_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffa6dbf790>
+
+    def test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade(tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        HELPERS["synthetic_authority"](tmp_path / ".local/knowledge", "external_total_kg")
+        path = tmp_path / "synthetic-advice.sqlite3"
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        equipment = svc.create_equipment("Synthetic station", "barbell")
+        condition = {"equipment_instance_id": equipment["id"], "load_basis": "external_total_kg", "load_basis_confirmed": True,
+            "side": "both", "repetition_semantics": "simultaneous", "rom_protocol": "full",
+            "settings_confirmed": True, "settings": {"grip": "fixed"},
+            "reference_protocol": {"protocol_id": "synthetic", "version": "1", "reference_policy_id": "first-work",
+            "effort_protocol": "rir-2", "tempo": "controlled", "rest_protocol": "180-sec"}}
+        prior = svc.start_session("prior")
+        baseline = _reference(svc, svc.add_exercise(prior["id"], "psa.ex.barbell_bench_press", condition))
+        svc.end_session(prior["id"])
+        session = svc.start_session("current")
+        instance = svc.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+        limited = _reference(svc, instance, pain=True)
+        target = svc.add_set(instance["id"], planned={"reps_min": 6, "reps_max": 8, "rir": 2})
+        repo.close()
+        app = HELPERS["open_app"](path)
+>       app.selectbox(key="candidate_target_" + instance["id"]).set_value(target["set_uuid"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+<repo>/tests/integration/test_v14_advice_flow.py:46:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WidgetList()
+key = 'candidate_target_872b69ad-0fe2-52f8-95fd-c82fe1db916e'
+
+    def __call__(self, key: str) -> El_co:
+        """Return the first element in this collection with the given user key.
+
+        The same key can appear on different element types, so this returns the
+        first match in this collection. Use ``get_by_key`` when an ambiguous
+        key should raise.
+        """
+        for e in self._list:
+            if getattr(e, "key", None) == key:
+                return e
+>       raise KeyError(key)
+E       KeyError: 'candidate_target_872b69ad-0fe2-52f8-95fd-c82fe1db916e'
+
+<repo>/.venv/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:602: KeyError
+----------------------------- Captured stdout call -----------------------------
+────────────────────── Traceback (most recent call last) ───────────────────────
+  <repo>/.venv/lib/python3.11/site-packages/streamlit/runti
+  me/scriptrunner/exec_code.py:136 in exec_func_with_error_handling
+
+  <repo>/.venv/lib/python3.11/site-packages/streamlit/runti
+  me/scriptrunner/script_runner.py:936 in code_to_exec
+
+  /tmp/tmp3lv496zo/14b55719216536a5427a9b730d35500b:4 in <module>
+
+    1 from healthzip.db.repository import Repository
+    2 from healthzip.ui.training_page import render_training
+    3 repo=Repository('<pytest-temp>/pytest-144/test_f03_curren
+  ❱ 4 render_training(repo)
+    5 repo.close()
+    6
+
+  <repo>/src/healthzip/ui/training_page.py:748 in
+  render_training
+
+     745 │   with st.expander("离线训练记录器"):
+     746 │   │   st.download_button(
+     747 │   │   │   "下载可离线打开的记录器",
+  ❱  748 │   │   │   recorder_html(repo),
+     749 │   │   │   file_name="HealthZIP_离线记录器.html",
+     750 │   │   │   mime="text/html",
+     751 │   │   )
+────────────────────────────────────────────────────────────────────────────────
+TypeError: recorder_html() takes 0 positional arguments but 1 was given
+----------------------------- Captured stderr call -----------------------------
+2026-11-11 18:40:26.266 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+=========================== short test summary info ============================
+FAILED tests/integration/test_v14_advice_flow.py::test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade
+1 failed in 2.35s

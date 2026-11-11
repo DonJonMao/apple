@@ -1,0 +1,80 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_f06_history_template_keeps_actual_definition[changes0] __________
+
+repo = <healthzip.db.repository.Repository object at 0xffff7dbe3b90>
+changes = {'recording_mode': 'duration'}
+
+    @pytest.mark.parametrize("changes", [{"recording_mode": "duration"}, {"default_load_basis": "dumbbells_total_kg"}])
+    def test_f06_history_template_keeps_actual_definition(repo, changes):
+        svc = TrainingService(repo)
+        exercise = svc.create_exercise("版本测试", "repetitions", "dumbbell", "per_dumbbell_kg")
+        session = svc.start_session("old")
+        original = svc.add_exercise(session["id"], exercise["exercise_id"], {}, {"sets": [{"reps_min": 6, "reps_max": 8}]})
+        svc.update_exercise(exercise["exercise_id"], changes, base_revision=1)
+        template = svc.save_session_as_template(session["id"], "保留历史")
+>       assert template["items"][0]["definition_version"] == 1
+E       assert 2 == 1
+
+tests/test_v14_catalog_baseline.py:19: AssertionError
+_________ test_f06_history_template_keeps_actual_definition[changes1] __________
+
+repo = <healthzip.db.repository.Repository object at 0xffff7dc0fe10>
+changes = {'default_load_basis': 'dumbbells_total_kg'}
+
+    @pytest.mark.parametrize("changes", [{"recording_mode": "duration"}, {"default_load_basis": "dumbbells_total_kg"}])
+    def test_f06_history_template_keeps_actual_definition(repo, changes):
+        svc = TrainingService(repo)
+        exercise = svc.create_exercise("版本测试", "repetitions", "dumbbell", "per_dumbbell_kg")
+        session = svc.start_session("old")
+        original = svc.add_exercise(session["id"], exercise["exercise_id"], {}, {"sets": [{"reps_min": 6, "reps_max": 8}]})
+        svc.update_exercise(exercise["exercise_id"], changes, base_revision=1)
+        template = svc.save_session_as_template(session["id"], "保留历史")
+>       assert template["items"][0]["definition_version"] == 1
+E       assert 2 == 1
+
+tests/test_v14_catalog_baseline.py:19: AssertionError
+_______________ test_f05_real_ui_new_session_and_explicit_resume _______________
+
+tmp_path = PosixPath('<synthetic-test-directory>')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff7da42310>
+
+    def test_f05_real_ui_new_session_and_explicit_resume(tmp_path, monkeypatch):
+        from streamlit.testing.v1 import AppTest
+        monkeypatch.chdir(tmp_path)
+        path = tmp_path / "ui.sqlite3"
+        script = ("from healthzip.db.repository import Repository\nfrom healthzip.ui.training_page import render_training\n"
+                  f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()")
+        app = AppTest.from_string(script).run(timeout=30)
+        app.text_input(key="start_name").set_value("第一场")
+        app.button(key="training_start").click().run(timeout=30)
+        first = app.selectbox(key="resume_training").value
+        app.text_input(key="start_name").set_value("第二场")
+        app.button(key="training_start").click().run(timeout=30)
+        second = app.selectbox(key="resume_training").value
+>       assert first != second and not app.exception
+E       assert (1 != 1)
+
+<baseline-checkout>/tests/test_v14_catalog_baseline.py:39: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-11-11 18:52:28.506 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-11 18:52:30.531 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-11 18:52:30.681 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-11 18:52:30.776 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+=========================== short test summary info ============================
+FAILED tests/test_v14_catalog_baseline.py::test_f06_history_template_keeps_actual_definition[changes0]
+FAILED tests/test_v14_catalog_baseline.py::test_f06_history_template_keeps_actual_definition[changes1]
+FAILED tests/test_v14_catalog_baseline.py::test_f05_real_ui_new_session_and_explicit_resume
+3 failed in 3.25s

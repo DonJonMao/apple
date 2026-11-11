@@ -309,7 +309,7 @@ def build_story() -> list[object]:
             ),
         ),
         Spacer(1, 35 * mm),
-        Paragraph("本地优先 - 版本 1.3.1 - 2026-11-11", styles["ManualSmall"]),
+        Paragraph("本地优先 - 版本 1.4.0 - 2026-11-11", styles["ManualSmall"]),
         PageBreak(),
     ]
     return cover + story

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from statistics import median
 
 from healthzip.analytics.core import evidence_card
@@ -126,11 +126,21 @@ def body_state(repo, start_date=None, end_date=None, *, cutoff_time=None):
     lookback = start - timedelta(days=28) if start else None
     if cutoff_time:
         from healthzip.db.temporal_schema import samples_as_of
-        records = samples_as_of(repo, cutoff_time)
-        subjective = samples_as_of(repo, cutoff_time, "subjective_log")
+        bounds = {"window_start": datetime.combine(lookback, datetime.min.time(), tzinfo=timezone.utc).isoformat(),
+                  "window_end": datetime.combine(end + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc).isoformat()} if lookback and end else {}
+        records = samples_as_of(repo, cutoff_time, canonical_types=("resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"), **bounds)
+        subjective = samples_as_of(repo, cutoff_time, "subjective_log", **bounds)
     else:
-        records = [dict(r) for r in repo.rows("SELECT * FROM health_sample WHERE record_status='active'")]
-        subjective = [dict(r) for r in repo.rows("SELECT * FROM subjective_log")]
+        filters, args = "", []
+        if lookback:
+            filters += " AND local_date>=?"
+            args.append((lookback-timedelta(days=1)).isoformat())
+        if end:
+            filters += " AND local_date<=?"
+            args.append((end+timedelta(days=1)).isoformat())
+        records = [dict(r) for r in repo.rows("SELECT * FROM health_sample WHERE record_status='active' "
+                   "AND canonical_type IN ('resting_heart_rate_bpm','hrv_sdnn_ms','sleep_stage')"+filters, tuple(args))]
+        subjective = [dict(r) for r in repo.rows("SELECT * FROM subjective_log WHERE 1=1"+filters.replace("local_date", "day"), tuple(args))]
     days = defaultdict(dict)
     for row in records:
         d = _day(row.get("local_date"))

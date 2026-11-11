@@ -12,7 +12,7 @@ from healthzip.training.semantics import (
 )
 from healthzip.training.semantics import load_change as training_load_change
 
-from .contracts import canonical_hash
+from .contracts import canonical_hash, finite
 
 LEGACY_LOAD_ALIASES = {
     "barbell_total": "external_total_kg", "external_total": "external_total_kg",
@@ -61,6 +61,8 @@ def flatten_record(record: dict) -> dict:
     row["load_unit"] = row.get("load_unit", row.get("unit", "kg" if "weight_kg" in row else None))
     row["entered_load"] = row["load_value"]
     row["quality"] = row.get("quality", row.get("quality_status"))
+    if type(row.get("pain_flag")) is int and row["pain_flag"] in (0, 1):
+        row["pain_flag"] = bool(row["pain_flag"])
     row["unit"] = row["load_unit"]
     mode = row.get("measurement_mode")
     row["measurement_mode"] = {"dynamic_reps": "repetitions", "isometric_hold": "duration", "distance_carry": "distance"}.get(mode, mode)
@@ -114,6 +116,31 @@ def analysis_task(record: dict) -> dict:
     return {**identity, "task_id": canonical_hash(identity),
             "exercise_name": row.get("exercise_name") or row.get("raw_exercise_name") or row.get("exercise_id"),
             "protocol_complete": all(value not in (None, "", "unknown") for value in protocol.values())}
+
+
+def outcome_series(record: dict) -> dict:
+    """Fixed-load repetition endpoint identity within an unchanged physical task."""
+    row = flatten_record(record)
+    task = analysis_task(row)
+    components = load_components(row)
+    reasons = []
+    if not task["condition_key"] or not task["protocol_complete"]:
+        reasons.append("outcome_series_condition_or_protocol_unknown")
+    if row.get("quality") != "acceptable":
+        reasons.append("outcome_series_quality_restricted_or_unknown")
+    if row.get("measurement_mode") != "repetitions" or finite(row.get("reps")) is None:
+        reasons.append("outcome_series_repetitions_missing")
+    if row.get("pain_flag") is True or row.get("stop_reason") in {"pain", "technical_limit", "technique_limited"}:
+        reasons.append("outcome_series_observation_restricted")
+    unit = "kg" if components["normalized_kg"] is not None else row.get("load_unit")
+    load = components["normalized_kg"] if components["normalized_kg"] is not None else finite(row.get("load_value"))
+    if load is None or row.get("load_unit") not in {"kg", "lb", "level", "stack_level"} or row.get("load_basis") == "unknown":
+        reasons.append("outcome_series_load_unknown")
+    identity = {"task_id": task["task_id"], "load_basis": row.get("load_basis"),
+                "normalized_load": load, "normalized_unit": unit, "outcome_unit": "repetitions",
+                "outcome_definition": "observed_reference_repetitions_v1",
+                "observation_segment": row.get("observation_segment")}
+    return {**identity, "outcome_series_id": canonical_hash(identity), "eligible": not reasons, "reason_codes": reasons}
 
 
 def load_components(record: dict) -> dict:

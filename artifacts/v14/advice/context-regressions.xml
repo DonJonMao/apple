@@ -1,0 +1,189 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="14" time="129.462" timestamp="2026-11-11T18:55:00.320741+08:00"><testcase classname="tests.integration.test_review_candidate_flow" name="test_r03_visible_strategy_choice" time="3.368" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_r08_feedback_remains_after_finishing_session" time="3.085" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[template-heavier_lower_reps-10-True-True]" time="15.632"><failure message="assert None == 52.5">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-164/test_visible_candidate_task_en0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffacddf990&gt;
+mode = 'template', strategy = 'heavier_lower_reps', prior_reps = 10
+approved = True, complete_protocol = True
+
+    @pytest.mark.parametrize("mode,strategy,prior_reps,approved,complete_protocol", [
+        ("template", "heavier_lower_reps", 10, True, True),
+        ("temporary", "double_progression", 12, True, True),
+        ("temporary", "heavier_lower_reps", 10, False, True),
+        ("template", "heavier_lower_reps", 10, True, False),
+    ])
+    def test_visible_candidate_task_end_to_end(tmp_path, monkeypatch, mode, strategy, prior_reps, approved, complete_protocol):
+        from healthzip.analytics.v13 import analyze
+
+        monkeypatch.chdir(tmp_path)
+        path = tmp_path / "visible-candidate.sqlite3"
+        if approved:
+            synthetic_authority(tmp_path / ".local/knowledge", "external_total_kg")
+        app = open_app(path)
+        prefix = "template_condition" if mode == "template" else "session_condition"
+        selector = "template_selector" if mode == "template" else "session_selector"
+        if mode == "temporary":
+            app.text_input(key="start_name").set_value("Synthetic temporary history")
+            app.button(key="training_start").click().run()
+        app.text_input(key=selector + "_query").set_value("杠铃平板卧推").run()
+        app.text_input(key=prefix + "_new_machine").set_value("Synthetic bench station")
+        app.button(key=prefix + "_add_machine").click().run()
+        repo = Repository(path)
+        machine = TrainingService(repo).list_equipment()[0]["id"]
+        repo.close()
+
+        app.selectbox(key=prefix + "_instance").set_value(machine)
+        configure_condition(app, prefix, complete_protocol=complete_protocol)
+        if mode == "template":
+            app.text_input(key="template_name_None").set_value("Synthetic task plan")
+            for field, value in (("low", "8"), ("high", "12"), ("rir", "2")):
+                app.text_input(key="template_targets_" + field).set_value(value)
+            app.button(key="template_save").click().run()
+            repo = Repository(path)
+            template_id = TrainingService(repo).list_templates()[0]["id"]
+            repo.close()
+            app.run()
+            app.selectbox(key="start_template").set_value(template_id)
+            app.text_input(key="start_name").set_value("Synthetic template history")
+            app.button(key="training_start").click().run()
+        else:
+            next(b for b in app.button if b.label == "添加到本次训练").click().run()
+            instance = current(path)["exercises"][0]
+            app.button(key="add_set_" + instance["id"]).click().run()
+        assert not app.exception and not app.error, [e.value for e in app.error]
+        instance = current(path)["exercises"][0]
+        reference_id = finish_reference(app, path, instance, 50, prior_reps)
+        if approved and complete_protocol and mode == "template":
+            # A later ordinary group must never supply the reference task's unit.
+            app.button(key="add_set_" + instance["id"]).click().run()
+            finish_reference(app, path, instance, 110, 10, reference=False, unit="lb")
+        next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+
+        app.text_input(key="start_name").set_value("Synthetic next task")
+        app.button(key="training_start").click().run()
+        if mode == "temporary":
+            app.text_input(key="session_selector_query").set_value("杠铃平板卧推").run()
+            app.selectbox(key="session_condition_instance").set_value(machine)
+            configure_condition(app, "session_condition", complete_protocol=complete_protocol)
+            next(b for b in app.button if b.label == "添加到本次训练").click().run()
+            instance = current(path)["exercises"][0]
+            app.button(key="add_set_" + instance["id"]).click().run()
+        session = current(path)
+        instance = session["exercises"][0]
+        sid = instance["sets"][0]["set_uuid"]
+        # Modify a group's effective target through the UI: R07 must feed this exact revision.
+        for field, value in (("low", "6"), ("high", "8"), ("rir", "2")):
+            app.text_input(key="set_" + sid + "_target_" + field).set_value(value)
+        app.button(key="set_" + sid + "_target_save").click().run()
+        app.selectbox(key="strategy_" + instance["id"]).set_value(strategy)
+        app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
+        app.button(key="candidate_" + instance["id"]).click().run()
+        assert not app.exception and not app.error, [e.value for e in app.error]
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        record = svc.list_recommendations()[0]
+        target = record["input_snapshot"]["selected_target"]
+        assert target["set_uuid"] == sid and target["target"]["reps_min"] == 6
+        assert record["input_snapshot"]["strategy"] == strategy
+        candidate = record["candidate"]
+        repo.close()
+        if not approved or not complete_protocol:
+            assert candidate["proposed_change"]["load"] is None
+            assert candidate["eligibility"]
+            assert candidate["target_range"] == {}
+            return
+&gt;       assert candidate["proposed_change"]["load"] == 52.5
+E       assert None == 52.5
+
+&lt;repo&gt;/tests/integration/test_review_candidate_flow.py:226: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[temporary-double_progression-12-True-True]" time="10.932"><failure message="assert None == 52.5">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-164/test_visible_candidate_task_en1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffeea3cbed0&gt;
+mode = 'temporary', strategy = 'double_progression', prior_reps = 12
+approved = True, complete_protocol = True
+
+    @pytest.mark.parametrize("mode,strategy,prior_reps,approved,complete_protocol", [
+        ("template", "heavier_lower_reps", 10, True, True),
+        ("temporary", "double_progression", 12, True, True),
+        ("temporary", "heavier_lower_reps", 10, False, True),
+        ("template", "heavier_lower_reps", 10, True, False),
+    ])
+    def test_visible_candidate_task_end_to_end(tmp_path, monkeypatch, mode, strategy, prior_reps, approved, complete_protocol):
+        from healthzip.analytics.v13 import analyze
+
+        monkeypatch.chdir(tmp_path)
+        path = tmp_path / "visible-candidate.sqlite3"
+        if approved:
+            synthetic_authority(tmp_path / ".local/knowledge", "external_total_kg")
+        app = open_app(path)
+        prefix = "template_condition" if mode == "template" else "session_condition"
+        selector = "template_selector" if mode == "template" else "session_selector"
+        if mode == "temporary":
+            app.text_input(key="start_name").set_value("Synthetic temporary history")
+            app.button(key="training_start").click().run()
+        app.text_input(key=selector + "_query").set_value("杠铃平板卧推").run()
+        app.text_input(key=prefix + "_new_machine").set_value("Synthetic bench station")
+        app.button(key=prefix + "_add_machine").click().run()
+        repo = Repository(path)
+        machine = TrainingService(repo).list_equipment()[0]["id"]
+        repo.close()
+
+        app.selectbox(key=prefix + "_instance").set_value(machine)
+        configure_condition(app, prefix, complete_protocol=complete_protocol)
+        if mode == "template":
+            app.text_input(key="template_name_None").set_value("Synthetic task plan")
+            for field, value in (("low", "8"), ("high", "12"), ("rir", "2")):
+                app.text_input(key="template_targets_" + field).set_value(value)
+            app.button(key="template_save").click().run()
+            repo = Repository(path)
+            template_id = TrainingService(repo).list_templates()[0]["id"]
+            repo.close()
+            app.run()
+            app.selectbox(key="start_template").set_value(template_id)
+            app.text_input(key="start_name").set_value("Synthetic template history")
+            app.button(key="training_start").click().run()
+        else:
+            next(b for b in app.button if b.label == "添加到本次训练").click().run()
+            instance = current(path)["exercises"][0]
+            app.button(key="add_set_" + instance["id"]).click().run()
+        assert not app.exception and not app.error, [e.value for e in app.error]
+        instance = current(path)["exercises"][0]
+        reference_id = finish_reference(app, path, instance, 50, prior_reps)
+        if approved and complete_protocol and mode == "template":
+            # A later ordinary group must never supply the reference task's unit.
+            app.button(key="add_set_" + instance["id"]).click().run()
+            finish_reference(app, path, instance, 110, 10, reference=False, unit="lb")
+        next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+
+        app.text_input(key="start_name").set_value("Synthetic next task")
+        app.button(key="training_start").click().run()
+        if mode == "temporary":
+            app.text_input(key="session_selector_query").set_value("杠铃平板卧推").run()
+            app.selectbox(key="session_condition_instance").set_value(machine)
+            configure_condition(app, "session_condition", complete_protocol=complete_protocol)
+            next(b for b in app.button if b.label == "添加到本次训练").click().run()
+            instance = current(path)["exercises"][0]
+            app.button(key="add_set_" + instance["id"]).click().run()
+        session = current(path)
+        instance = session["exercises"][0]
+        sid = instance["sets"][0]["set_uuid"]
+        # Modify a group's effective target through the UI: R07 must feed this exact revision.
+        for field, value in (("low", "6"), ("high", "8"), ("rir", "2")):
+            app.text_input(key="set_" + sid + "_target_" + field).set_value(value)
+        app.button(key="set_" + sid + "_target_save").click().run()
+        app.selectbox(key="strategy_" + instance["id"]).set_value(strategy)
+        app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
+        app.button(key="candidate_" + instance["id"]).click().run()
+        assert not app.exception and not app.error, [e.value for e in app.error]
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        record = svc.list_recommendations()[0]
+        target = record["input_snapshot"]["selected_target"]
+        assert target["set_uuid"] == sid and target["target"]["reps_min"] == 6
+        assert record["input_snapshot"]["strategy"] == strategy
+        candidate = record["candidate"]
+        repo.close()
+        if not approved or not complete_protocol:
+            assert candidate["proposed_change"]["load"] is None
+            assert candidate["eligibility"]
+            assert candidate["target_range"] == {}
+            return
+&gt;       assert candidate["proposed_change"]["load"] == 52.5
+E       assert None == 52.5
+
+&lt;repo&gt;/tests/integration/test_review_candidate_flow.py:226: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[temporary-heavier_lower_reps-10-False-True]" time="11.106" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_visible_candidate_task_end_to_end[template-heavier_lower_reps-10-True-False]" time="9.040" /><testcase classname="tests.integration.test_review_candidate_flow" name="test_multiaction_ui_history_reaches_default_analysis" time="71.790" /><testcase classname="tests.integration.test_v14_advice_flow" name="test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade" time="2.191" /><testcase classname="tests.integration.test_v14_query_planning" name="test_f13_outside_history_is_not_deserialized_for_default_analysis" time="0.641" /><testcase classname="tests.integration.test_v14_query_planning" name="test_f13_window_filter_cannot_revive_moved_or_deleted_revision" time="0.070" /><testcase classname="tests.integration.test_v14_query_planning" name="test_f13_interval_overlap_and_points_keep_half_open_bounds" time="0.068" /><testcase classname="tests.integration.test_v14_query_planning" name="test_cache_reuses_exact_snapshot_and_invalidates_input_timezone_and_context" time="1.145" /><testcase classname="tests.integration.test_v14_query_planning" name="test_apple_child_metadata_and_normalization_version_survive_import" time="0.077" /><testcase classname="tests.integration.test_v14_query_planning" name="test_index_padding_never_relaxes_exact_microsecond_cutoff_or_window" time="0.069" /></testsuite></testsuites>

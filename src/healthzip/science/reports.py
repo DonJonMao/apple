@@ -8,7 +8,16 @@ from zoneinfo import ZoneInfo
 
 from .contracts import Window, finite, instant, result
 from .energy import device_energy_days, energy_metric
-from .state import ASLEEP, daily_values, elapsed_dates, seconds, stage, state_metric, stream_key
+from .state import (
+    ASLEEP,
+    daily_values,
+    elapsed_dates,
+    local_date_domain,
+    seconds,
+    stage,
+    state_metric,
+    stream_key,
+)
 from .strength import strength_metric
 
 
@@ -49,6 +58,8 @@ def derive_report_context(rows: list[dict], window: Window) -> dict:
         daily.append({"metric_id": "sleep_observed_minutes_by_wake_date", "series_id": "observed_sleep_by_wake_date",
                       "series_label": "按结束日期汇总的已观察睡眠（未认定主睡眠）", "date": day, "value": seconds(intervals) / 60,
                       "unit": "min", "source_id": str(key), "protocol_id": str(key), "measurement_scale": "continuous",
+                      "event_start": min(a.isoformat() for a, _ in intervals) if intervals else None,
+                      "support_local_dates": sorted(set().union(*(local_date_domain(a, b, window.timezone) for a, b in intervals))),
                       "event_end": max(r["_event_end"] for r in inputs),
                       "available_at": max(r.get("available_at", r["_event_end"]) or r["_event_end"] for r in inputs),
                       "source_record_ids": [r.get("_source_id") for r in inputs], "episode_complete": False})
@@ -72,10 +83,11 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
     if metric_id == "REPORT-PERIOD-COVERAGE":
         denominator = elapsed_dates(window)
         facts = context.get("daily_metric_facts", [])
+        domain = local_date_domain(instant(window.start), min(instant(window.end), instant(window.cutoff_time)), window.timezone)
         groups = defaultdict(set)
         for fact in facts:
             if fact.get("value") is not None:
-                groups[fact["metric_id"]].add(fact["date"])
+                groups[fact["metric_id"]].update(set(fact.get("support_local_dates", [fact["date"]])) & domain)
         values = [{"kind": key, "metric_id": key, "numerator": len(dates), "denominator": denominator,
                    "definition": "valid local dates / elapsed target dates"} for key, dates in groups.items()]
         session_coverage = []

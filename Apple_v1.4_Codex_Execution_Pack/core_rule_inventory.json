@@ -1,0 +1,1749 @@
+{
+  "schema_version": "core-rule-plan-1.0",
+  "generated_on": "2026-11-11",
+  "project": "DonJonMao/apple",
+  "design_baseline": "912aefc",
+  "purpose": "Complete function-2/function-3 topic and input worklist; no source claim is activated by this file",
+  "rule_count": 21,
+  "feature_definitions": {
+    "F2": "下一次训练建议",
+    "F3": "长期表现、停滞迹象、调整及周月复盘"
+  },
+  "global_policies": {
+    "no_unread_textbook_claims": true,
+    "no_unverified_numeric_constants": true,
+    "no_arbitrary_physiological_thresholds": true,
+    "no_personal_causal_validation_requirement_for_every_user_selectable_candidate": true,
+    "no_fake_human_review": true,
+    "reviewer_policy_must_be_explicit_and_versioned": true,
+    "missing_is_not_zero": true,
+    "private_health_data_excluded_from_public_indexes": true
+  },
+  "research_supplement_requirements": {
+    "effort": [
+      "RIR量表语义及测量误差的原始方法/验证"
+    ],
+    "inference": [
+      "具体误差模型和区间方法原文",
+      "实用等效与重复查看方法",
+      "目标条件真实校准"
+    ],
+    "causation": [
+      "预测/关联与干预效果的区别"
+    ]
+  },
+  "numeric_value_provenance_types": [
+    "source_stated_range_after_fulltext_verification",
+    "user_declared_plan",
+    "physical_equipment_constraint",
+    "direct_observation",
+    "validated_model_parameter"
+  ],
+  "input_groups": {
+    "declared_goal": {
+      "fields": [
+        "training_goal",
+        "target_outcome",
+        "declared_at",
+        "version"
+      ],
+      "origin": "user_goal_or_plan",
+      "unknown_policy": "do_not_infer"
+    },
+    "declared_profile": {
+      "fields": [
+        "age_or_age_band",
+        "training_experience",
+        "relevant_self_reported_limitations",
+        "recorded_at"
+      ],
+      "origin": "user_declared_profile",
+      "unknown_policy": "claim_specific_required_fields_only"
+    },
+    "requested_claim": {
+      "fields": [
+        "route",
+        "requested_relation",
+        "requested_capability",
+        "target_population"
+      ],
+      "origin": "user_question_or_UI_task",
+      "unknown_policy": "resolve_task_without_guessing_missing_personal_facts"
+    },
+    "exercise_condition": {
+      "fields": [
+        "canonical_exercise_id",
+        "variant_id",
+        "equipment_instance_id",
+        "load_basis",
+        "load_unit",
+        "side",
+        "repetition_semantics",
+        "ROM_protocol",
+        "condition_version"
+      ],
+      "origin": "session_exercise_and_equipment_snapshot",
+      "unknown_policy": "unknown_is_not_wildcard"
+    },
+    "measurement_protocol": {
+      "fields": [
+        "reference_protocol_id",
+        "protocol_version",
+        "set_position",
+        "effort_scale",
+        "rest_protocol",
+        "tempo_protocol"
+      ],
+      "origin": "structured_measurement_protocol",
+      "unknown_policy": "only_compare_when_required_dimensions_known"
+    },
+    "effective_plan": {
+      "fields": [
+        "selected_set_uuid",
+        "target_version",
+        "reps_range",
+        "target_rir",
+        "planned_load",
+        "strategy",
+        "original_plan_snapshot"
+      ],
+      "origin": "TrainingService.current_targets_and_user_selection",
+      "unknown_policy": "do_not_replace_with_stale_original_plan"
+    },
+    "equipment_options": {
+      "fields": [
+        "available_loads",
+        "unit",
+        "load_basis",
+        "assistance_direction",
+        "confirmed_at"
+      ],
+      "origin": "user_confirmed_or_verified_equipment_configuration",
+      "unknown_policy": "no_invented_load_steps"
+    },
+    "candidate_choice": {
+      "fields": [
+        "allowed_strategy",
+        "user_choice",
+        "choice_time"
+      ],
+      "origin": "user_UI_event",
+      "unknown_policy": "no_automatic_template_change"
+    },
+    "comparable_reference": {
+      "fields": [
+        "reference_record_ids",
+        "task_identity",
+        "observations",
+        "visibility_cutoff"
+      ],
+      "origin": "Repository_snapshot_and_comparability_selection",
+      "unknown_policy": "no_cross_action_pooling"
+    },
+    "completed_records": {
+      "fields": [
+        "record_ids",
+        "completion_state",
+        "actual_load",
+        "actual_reps_or_time_or_distance",
+        "quality",
+        "stop_reason",
+        "event_time",
+        "available_at"
+      ],
+      "origin": "private_Repository",
+      "unknown_policy": "missing_is_not_zero"
+    },
+    "effort_observation": {
+      "fields": [
+        "RIR_or_RIR_interval",
+        "RPE_with_scale",
+        "stop_reason",
+        "recorded_at"
+      ],
+      "origin": "actual_set_user_record",
+      "unknown_policy": "unknown_or_interval_remains_as_entered"
+    },
+    "rest_observations": {
+      "fields": [
+        "actual_rest",
+        "start_end_endpoints",
+        "planned_rest",
+        "source_kind"
+      ],
+      "origin": "recorded_or_recomputed_neighbor_timestamps",
+      "unknown_policy": "missing_endpoints_produce_unknown"
+    },
+    "training_distribution": {
+      "fields": [
+        "session_dates",
+        "completed_set_counts_by_task",
+        "coverage",
+        "window"
+      ],
+      "origin": "private_training_aggregation",
+      "unknown_policy": "no_unverified_muscle_weighted_dose"
+    },
+    "user_schedule_constraints": {
+      "fields": [
+        "available_days",
+        "time_constraints",
+        "user_preferences"
+      ],
+      "origin": "user_declared",
+      "unknown_policy": "do_not_infer_full_plan"
+    },
+    "state_observations": {
+      "fields": [
+        "MetricResult_ids",
+        "source_protocol",
+        "coverage",
+        "quality",
+        "window",
+        "cutoff"
+      ],
+      "origin": "science_state_metrics_and_subjective_records",
+      "unknown_policy": "optional_unless_current_rule_requires"
+    },
+    "frozen_candidate": {
+      "fields": [
+        "candidate_id",
+        "rule_id",
+        "rule_version",
+        "source_dependencies",
+        "plan_snapshot",
+        "condition_snapshot",
+        "created_at"
+      ],
+      "origin": "immutable_recommendation_snapshot",
+      "unknown_policy": "no_rewrite_after_source_update"
+    },
+    "execution_feedback": {
+      "fields": [
+        "execution_state",
+        "actual_record_ids",
+        "user_note",
+        "recorded_at"
+      ],
+      "origin": "user_feedback_after_actual_session",
+      "unknown_policy": "unexecuted_is_not_efficacy_failure"
+    },
+    "analysis_window": {
+      "fields": [
+        "start",
+        "end",
+        "timezone",
+        "closure",
+        "coverage"
+      ],
+      "origin": "explicit_analysis_request",
+      "unknown_policy": "do_not_compare_partial_and_complete_total_without_context"
+    },
+    "analysis_cutoff": {
+      "fields": [
+        "cutoff_time",
+        "visibility_mode"
+      ],
+      "origin": "explicit_snapshot_boundary",
+      "unknown_policy": "no_future_or_late_revision_leak"
+    },
+    "stop_reason_observations": {
+      "fields": [
+        "stop_reason",
+        "quality",
+        "pain_or_discomfort_note"
+      ],
+      "origin": "actual_set_record",
+      "unknown_policy": "do_not_guess_capacity_observation"
+    },
+    "measurement_model": {
+      "fields": [
+        "model_id",
+        "model_version",
+        "outcome_unit",
+        "assumptions",
+        "measurement_error_basis",
+        "interval_method"
+      ],
+      "origin": "reviewed_method_and_registered_model",
+      "unknown_policy": "describe_only_if_inference_assumptions_unmet"
+    },
+    "model_calibration": {
+      "fields": [
+        "calibration_id",
+        "scope",
+        "evaluation_design",
+        "validation_status"
+      ],
+      "origin": "actual_target_evaluation_artifact",
+      "unknown_policy": "simulation_is_not_real_world_validation"
+    },
+    "practical_equivalence": {
+      "fields": [
+        "range_definition",
+        "outcome_unit",
+        "provenance",
+        "declared_at",
+        "parameter_version"
+      ],
+      "origin": "user_or_predefined_protocol",
+      "unknown_policy": "no_arbitrary_or_posthoc_default"
+    },
+    "look_allocation": {
+      "fields": [
+        "family_id",
+        "allocated_alpha",
+        "data_hash",
+        "metric_task_identity",
+        "allocation_time"
+      ],
+      "origin": "actual_parameter_registry",
+      "unknown_policy": "interval_must_consume_registered_allocation"
+    },
+    "analysis_snapshot_identity": {
+      "fields": [
+        "data_revision_hash",
+        "task_id",
+        "metric_id",
+        "snapshot_cutoff"
+      ],
+      "origin": "frozen_analysis_snapshot",
+      "unknown_policy": "no_mismatched_snapshot_reuse"
+    },
+    "observation_opportunity": {
+      "fields": [
+        "opportunity_result_id",
+        "evidence_record_ids",
+        "known_limits"
+      ],
+      "origin": "CORE_F3_OPPORTUNITY_result",
+      "unknown_policy": "unknown_observability_blocks_capacity_claim_only"
+    },
+    "descriptive_strength_facts": {
+      "fields": [
+        "per_task_MetricResult_ids",
+        "units",
+        "windows",
+        "data_status"
+      ],
+      "origin": "eligible_strength_description",
+      "unknown_policy": "no_unsupported_extrapolation"
+    },
+    "selected_strategy": {
+      "fields": [
+        "strategy_id",
+        "requested_change",
+        "user_allowed_actions"
+      ],
+      "origin": "user_selection",
+      "unknown_policy": "no_preselected_personal_optimum"
+    },
+    "effective_plan_history": {
+      "fields": [
+        "plan_version_ids",
+        "target_revision_ids",
+        "valid_times"
+      ],
+      "origin": "private_training_plan_history",
+      "unknown_policy": "preserve_original_and_current"
+    },
+    "candidate_feedback_history": {
+      "fields": [
+        "candidate_ids",
+        "feedback_event_ids",
+        "actual_record_ids"
+      ],
+      "origin": "recommendation_history",
+      "unknown_policy": "absence_not_failure"
+    },
+    "model_inference_results": {
+      "fields": [
+        "MetricResult_ids",
+        "model_versions",
+        "calibration_status",
+        "assumptions"
+      ],
+      "origin": "validated_eligible_model_path",
+      "unknown_policy": "omit_ineligible_inference_without_losing_descriptions"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "CORE-F23-COMPARABILITY",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "动作、器械、负荷与测量任务可比性",
+      "requested_capability": "description",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-NEUMANN-4"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F23-COMPARABILITY-C1",
+          "topic_zh": "练习特异性和测量可比性",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F23-COMPARABILITY-C2",
+          "topic_zh": "关节动作、动作变式与负重语义",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "exercise_condition",
+        "measurement_protocol",
+        "completed_records",
+        "analysis_cutoff"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "逐动作可比记录集",
+        "排除记录及原因"
+      ],
+      "unknown_handling": "缺失字段返回具体未知，不跨动作或设备合并",
+      "prohibited_inferences": [
+        "名称相似等于可比",
+        "未知器械阻力自动换算"
+      ],
+      "acceptance_case_ids": [
+        "KB-09",
+        "KB-12",
+        "KB-17"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-GOAL-SCOPE",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "目标和用户适用范围",
+      "requested_capability": "source_explanation",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3",
+        "CORE-US-HHS-PAG-2",
+        "CORE-CN-SPORT-GUIDE-2017",
+        "CORE-CN-PA-2021"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-GOAL-SCOPE-C1",
+          "topic_zh": "力量、肌肥大与公共健康目标的范围区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-GOAL-SCOPE-C2",
+          "topic_zh": "人群和训练经历的适用边界",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "requested_claim"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "declared_profile",
+          "when": "actual_claim_scope_requires"
+        }
+      ],
+      "allowed_output_contract": [
+        "匹配的知识范围",
+        "具体必要输入缺项"
+      ],
+      "unknown_handling": "不从没有病历推断健康；不从体重猜训练目标",
+      "prohibited_inferences": [
+        "所有成人共用一种训练目标",
+        "专业协会等于政府发布"
+      ],
+      "acceptance_case_ids": [
+        "KB-09",
+        "KB-14"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-PLAN-CHECK",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2"
+      ],
+      "topic_zh": "核对当前有效计划与实际完成",
+      "requested_capability": "description",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-PLAN-CHECK-C1",
+          "topic_zh": "计划任务与实际表现的区分",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "effective_plan",
+        "completed_records",
+        "analysis_cutoff"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "计划和实际差异",
+        "所用目标版本"
+      ],
+      "unknown_handling": "缺目标时可显示实际记录，计划比较保持未知",
+      "prohibited_inferences": [
+        "原始计划替代修改后的目标",
+        "未填实际等于未完成"
+      ],
+      "acceptance_case_ids": [
+        "KB-09",
+        "KB-17",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-EFFORT",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "RIR、RPE、停止原因的语义与误差",
+      "requested_capability": "source_explanation",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-HYPERTROPHY-3",
+        "CORE-ACSM-RT-2026"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-EFFORT-C1",
+          "topic_zh": "努力程度的含义与任务条件",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-EFFORT-C2",
+          "topic_zh": "RIR误差与量表不能任意互换",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "effort_observation"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "measurement_protocol",
+          "when": "comparing_effort_across_sessions"
+        },
+        {
+          "group": "declared_profile",
+          "when": "source_scope_depends_on_training_experience"
+        }
+      ],
+      "allowed_output_contract": [
+        "RIR/RPE原始语义",
+        "缺测或区间回答的限制"
+      ],
+      "unknown_handling": "未知、区间及不同量表分别保留，不补成精确RIR",
+      "prohibited_inferences": [
+        "其他RPE直接换成RIR",
+        "RIR绝对精确"
+      ],
+      "acceptance_case_ids": [
+        "KB-16"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2"
+      ],
+      "topic_zh": "按用户计划上沿核对进阶候选",
+      "requested_capability": "plan_candidate",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C1",
+          "topic_zh": "渐进训练原则",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C2",
+          "topic_zh": "从既定计划目标映射到可选后续任务的操作范围",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "measurement_protocol",
+        "comparable_reference",
+        "equipment_options",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "selected_plan_or_verified_rule_requires_effort"
+        }
+      ],
+      "allowed_output_contract": [
+        "维持或下一档位候选",
+        "每个数字的计划/器械来源",
+        "不保证完成与复核任务"
+      ],
+      "unknown_handling": "缺必要计划、档位或可比观察时不生成具体负重；保留事实和非数值解释",
+      "prohibited_inferences": [
+        "固定身体状态减量比例",
+        "保证下一重量可完成"
+      ],
+      "acceptance_case_ids": [
+        "KB-07",
+        "KB-08",
+        "KB-09",
+        "KB-10",
+        "KB-12",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-REPETITION-TRIAL",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "增加次数的可选任务",
+      "requested_capability": "trial_candidate",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C1",
+          "topic_zh": "次数任务作为进阶路径的适用条件",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C2",
+          "topic_zh": "用户可选任务与个人最优的区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "comparable_reference",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "verified_rule_requires_effort"
+        }
+      ],
+      "allowed_output_contract": [
+        "用户目标范围内的次数试验或讨论任务",
+        "实际执行复核要求"
+      ],
+      "unknown_handling": "无明确次数目标时只讨论方向，不编目标次数",
+      "prohibited_inferences": [
+        "群体结果证明个人唯一最优",
+        "必须先确诊停滞才能试验"
+      ],
+      "acceptance_case_ids": [
+        "KB-07",
+        "KB-08",
+        "KB-11",
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "更难档位、降低次数的可选任务",
+      "requested_capability": "trial_candidate",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C1",
+          "topic_zh": "负荷与次数任务组织",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C2",
+          "topic_zh": "器械可行档位和试验的适用边界",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "measurement_protocol",
+        "comparable_reference",
+        "equipment_options",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "selected_plan_or_verified_rule_requires_effort"
+        }
+      ],
+      "allowed_output_contract": [
+        "可选负重及次数任务",
+        "退出和复核方式",
+        "效果未知"
+      ],
+      "unknown_handling": "无档位或目标则不量化；未达到原次数上沿本身不禁止已允许试验",
+      "prohibited_inferences": [
+        "e1RM推算即保证成功",
+        "硬编码某动作或重量",
+        "强制已证明平台期"
+      ],
+      "acceptance_case_ids": [
+        "KB-07",
+        "KB-08",
+        "KB-11",
+        "KB-12",
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-VOLUME-OPTIONS",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "讨论组数与训练量调整",
+      "requested_capability": "trial_discussion",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C1",
+          "topic_zh": "组量定义与训练目标",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C2",
+          "topic_zh": "组量与适应的适用范围",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "completed_records",
+        "training_distribution",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "state_observations",
+          "when": "user_requests_state_context"
+        }
+      ],
+      "allowed_output_contract": [
+        "组数结构事实",
+        "有依据的讨论选项",
+        "需要后续观察的结果"
+      ],
+      "unknown_handling": "没有已核对应用范围或目标时不自动加减组数",
+      "prohibited_inferences": [
+        "吨位等于机械功或肌肉刺激",
+        "主次肌群权重任意加权",
+        "统一加组百分比"
+      ],
+      "acceptance_case_ids": [
+        "KB-08",
+        "KB-14",
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-REST-OPTIONS",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "讨论组间休息与任务表现",
+      "requested_capability": "trial_discussion",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-REST-OPTIONS-C1",
+          "topic_zh": "组间休息的目标与任务语境",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "rest_observations",
+        "completed_records",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "实际休息分布",
+        "相关选择及来源范围"
+      ],
+      "unknown_handling": "端点缺失不制造真实休息时长；无来源参数不编秒数",
+      "prohibited_inferences": [
+        "计划休息等于真实休息",
+        "某人统一休息常数"
+      ],
+      "acceptance_case_ids": [
+        "KB-08",
+        "KB-14",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-FREQUENCY-OPTIONS",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "讨论训练频率和间隔",
+      "requested_capability": "trial_discussion",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3",
+        "CORE-US-HHS-PAG-2",
+        "CORE-CN-SPORT-GUIDE-2017",
+        "CORE-CN-PA-2021"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C1",
+          "topic_zh": "频率、总量与目标的关系",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C2",
+          "topic_zh": "公共健康最低建议与训练优化的范围差异",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "training_distribution",
+        "user_schedule_constraints",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "state_observations",
+          "when": "state_explanation_requested"
+        }
+      ],
+      "allowed_output_contract": [
+        "频率与间隔事实",
+        "保持/调整安排的讨论"
+      ],
+      "unknown_handling": "无安排约束时不自动生成整周计划",
+      "prohibited_inferences": [
+        "公共健康最低频次等于个人最优",
+        "固定恢复小时数适用于所有人"
+      ],
+      "acceptance_case_ids": [
+        "KB-08",
+        "KB-14",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F2-STATE-CONTEXT",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "结合睡眠、主观状态和心率指标作情境解释",
+      "requested_capability": "source_explanation",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F2-STATE-CONTEXT-C1",
+          "topic_zh": "恢复和表现下降的不同解释",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F2-STATE-CONTEXT-C2",
+          "topic_zh": "主观/设备观测与训练能力的区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "state_observations",
+        "analysis_cutoff"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "comparable_reference",
+          "when": "relating_state_to_strength_observations"
+        }
+      ],
+      "allowed_output_contract": [
+        "已观察状态变化及来源",
+        "可能相关因素和证据限制"
+      ],
+      "unknown_handling": "缺状态只限制状态解释，不自动阻断不依赖状态的候选",
+      "prohibited_inferences": [
+        "HRV等于局部肌肉恢复",
+        "睡眠差映射固定减量",
+        "同时变化证明因果"
+      ],
+      "acceptance_case_ids": [
+        "KB-10",
+        "KB-17",
+        "KB-18"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F23-EXECUTION-FEEDBACK",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F2",
+        "F3"
+      ],
+      "topic_zh": "建议选择、执行与目标达成复核",
+      "requested_capability": "task_followup",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F23-EXECUTION-FEEDBACK-C1",
+          "topic_zh": "任务达成与长期适应/因果效果的区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "frozen_candidate",
+        "candidate_choice",
+        "completed_records",
+        "execution_feedback"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "采纳和执行事实",
+        "目标是否达成或未知",
+        "后续同条件比较"
+      ],
+      "unknown_handling": "实际组缺失时不可判断完成；结束后仍可补录",
+      "prohibited_inferences": [
+        "一次完成证明长期增肌",
+        "未执行按失败收益计算"
+      ],
+      "acceptance_case_ids": [
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-DESCRIPTIVE-TREND",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "每动作描述性表现趋势",
+      "requested_capability": "description",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-NEUMANN-4"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-DESCRIPTIVE-TREND-C1",
+          "topic_zh": "测试对象与描述性变化的解释",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "exercise_condition",
+        "measurement_protocol",
+        "completed_records",
+        "analysis_window",
+        "analysis_cutoff"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "同条件历史",
+        "变化量及单位",
+        "样本/缺项"
+      ],
+      "unknown_handling": "可比数据不足时保持观测表，趋势或推断返回未知",
+      "prohibited_inferences": [
+        "无显著差异证明无进步",
+        "每动作固定等待一个月"
+      ],
+      "acceptance_case_ids": [
+        "KB-09",
+        "KB-17"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-OPPORTUNITY",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "计划停止与能力观察机会",
+      "requested_capability": "source_explanation",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-HYPERTROPHY-3",
+        "CORE-ACSM-RT-2026"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-OPPORTUNITY-C1",
+          "topic_zh": "完成计划与观察能力上限不同",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-OPPORTUNITY-C2",
+          "topic_zh": "努力、质量及停止原因的解释",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "effective_plan",
+        "comparable_reference",
+        "effort_observation",
+        "stop_reason_observations"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "本次实际观察了什么",
+        "是否仅重复固定任务",
+        "进一步测量需要"
+      ],
+      "unknown_handling": "不清楚为什么停止时标观察不足",
+      "prohibited_inferences": [
+        "同重同次自动平台期",
+        "高RIR一定偷懒"
+      ],
+      "acceptance_case_ids": [
+        "KB-05",
+        "KB-06",
+        "KB-16"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "测量误差、变化区间与模型适用性",
+      "requested_capability": "model_conditional_inference",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C1",
+          "topic_zh": "测试可靠性与有意义变化区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C2",
+          "topic_zh": "具体误差模型适用于该观察任务的证据",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "exercise_condition",
+        "measurement_protocol",
+        "comparable_reference",
+        "analysis_window",
+        "measurement_model"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "model_calibration",
+          "when": "inference_claim_requires_target_calibration"
+        }
+      ],
+      "allowed_output_contract": [
+        "变化估计及实际模型区间",
+        "适用性和校准状态"
+      ],
+      "unknown_handling": "教材概述不替代具体模型原文；无适用误差/校准时仅描述",
+      "prohibited_inferences": [
+        "模拟验证即真人有效",
+        "相关系数高即个人预测准确"
+      ],
+      "acceptance_case_ids": [
+        "KB-08",
+        "KB-14",
+        "KB-17"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-PRACTICAL-EQUIVALENCE",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "有用变化范围与统计不确定性分开",
+      "requested_capability": "model_conditional_inference",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C1",
+          "topic_zh": "测量误差与用户有用变化不是同一量",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C2",
+          "topic_zh": "等效判断的具体方法与假设",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "measurement_model",
+        "practical_equivalence",
+        "analysis_window"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "事前有用变化范围的来源",
+        "与变化区间的关系"
+      ],
+      "unknown_handling": "无事前范围及来源时不补默认阈值，不输出确定平台期",
+      "prohibited_inferences": [
+        "事后为标签调阈值",
+        "p大于阈值即等效"
+      ],
+      "acceptance_case_ids": [
+        "KB-05",
+        "KB-06",
+        "KB-08"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-REPEATED-LOOKS",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "重复查看与多任务误报控制",
+      "requested_capability": "model_conditional_inference",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C1",
+          "topic_zh": "重复查看方法的适用条件",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C2",
+          "topic_zh": "单次区间有效性与累计错误控制的关系",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "measurement_model",
+        "look_allocation",
+        "analysis_snapshot_identity"
+      ],
+      "conditional_input_groups": [],
+      "allowed_output_contract": [
+        "实际使用的登记预算和区间身份",
+        "推断限制"
+      ],
+      "unknown_handling": "未登记或单次区间无效时不发布受控推断",
+      "prohibited_inferences": [
+        "任意硬编码alpha",
+        "预算求和通过证明实际区间有效"
+      ],
+      "acceptance_case_ids": [
+        "KB-08",
+        "KB-13",
+        "KB-17"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "区分表现未变、信息不足与停滞候选",
+      "requested_capability": "model_conditional_inference",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C1",
+          "topic_zh": "训练适应/表现测量的解释边界",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C2",
+          "topic_zh": "平台期标签所用统计方法及任务条件",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "comparable_reference",
+        "observation_opportunity",
+        "measurement_model",
+        "practical_equivalence",
+        "look_allocation",
+        "analysis_snapshot_identity"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "model_calibration",
+          "when": "formal_label_requires_target_calibration"
+        }
+      ],
+      "allowed_output_contract": [
+        "未观察到可辨认变化/信息不足/满足定义的停滞候选",
+        "定义与证据版本"
+      ],
+      "unknown_handling": "不满足条件时描述变化和缺项；可选试验不以该标签为前提",
+      "prohibited_inferences": [
+        "连续固定次数不涨自动平台期",
+        "教材权威替代模型校准"
+      ],
+      "acceptance_case_ids": [
+        "KB-05",
+        "KB-06",
+        "KB-08",
+        "KB-11"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-EXPLANATION-HYPOTHESES",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "表现变化的候选解释",
+      "requested_capability": "source_explanation",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C1",
+          "topic_zh": "训练适应、刺激、恢复与生活情境",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C2",
+          "topic_zh": "关联、预测和因果解释区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "descriptive_strength_facts",
+        "declared_goal",
+        "effective_plan"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "state_observations",
+          "when": "available_and_relevant"
+        },
+        {
+          "group": "training_distribution",
+          "when": "volume_or_frequency_hypothesis"
+        }
+      ],
+      "allowed_output_contract": [
+        "有观测支持的可能解释",
+        "反例/缺项",
+        "可检验后续任务"
+      ],
+      "unknown_handling": "没有饮食记录不捏造摄入；没有生理证据不定因",
+      "prohibited_inferences": [
+        "睡眠导致平台期的确定因果",
+        "手表数值诊断心脏原因",
+        "臆造能量摄入"
+      ],
+      "acceptance_case_ids": [
+        "KB-06",
+        "KB-10",
+        "KB-18"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-STRATEGY-REVIEW",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "从长期分析转入用户可选调整与复核",
+      "requested_capability": "trial_candidate",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C1",
+          "topic_zh": "目标一致的任务选择",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C2",
+          "topic_zh": "策略评估与个体响应",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "candidate_choice",
+        "selected_strategy"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "equipment_options",
+          "when": "load_change"
+        },
+        {
+          "group": "comparable_reference",
+          "when": "quantified_candidate"
+        },
+        {
+          "group": "measurement_protocol",
+          "when": "comparable_performance_trial"
+        }
+      ],
+      "allowed_output_contract": [
+        "有依据的策略候选",
+        "所改变量、退出与后续比较方式"
+      ],
+      "unknown_handling": "没有必要依据则给观察/讨论任务，不随机调整多变量",
+      "prohibited_inferences": [
+        "用多个任意权重形成最佳策略分",
+        "所有人同一减量幅度"
+      ],
+      "acceptance_case_ids": [
+        "KB-07",
+        "KB-08",
+        "KB-11",
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    },
+    {
+      "rule_id": "CORE-F3-WEEK-MONTH-REPORT",
+      "rule_version": "draft-1",
+      "feature_ids": [
+        "F3"
+      ],
+      "topic_zh": "周月训练与调整复盘",
+      "requested_capability": "report",
+      "core_source_manifest_ids": [
+        "CORE-NSCA-ESTC-5",
+        "CORE-ACSM-GETP-12",
+        "CORE-ACSM-RT-2026",
+        "CORE-HYPERTROPHY-3"
+      ],
+      "claim_topics_to_verify": [
+        {
+          "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C1",
+          "topic_zh": "训练执行、可比表现与适应推断区别",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        },
+        {
+          "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C2",
+          "topic_zh": "不同目标下训练变量解释",
+          "status": "pending_original_content_and_applicability_review",
+          "supporting_source_version_id": null,
+          "supporting_span_ids": []
+        }
+      ],
+      "required_input_groups": [
+        "analysis_window",
+        "analysis_cutoff",
+        "completed_records",
+        "effective_plan_history"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "state_observations",
+          "when": "available"
+        },
+        {
+          "group": "candidate_feedback_history",
+          "when": "candidates_exist"
+        },
+        {
+          "group": "model_inference_results",
+          "when": "eligible_models_exist"
+        }
+      ],
+      "allowed_output_contract": [
+        "执行情况",
+        "每动作可比表现",
+        "状态关联",
+        "试验与结果",
+        "不足及下次关注"
+      ],
+      "unknown_handling": "部分周期注明覆盖，不拿总量直接比较完整周期；不存在数据的版块留空",
+      "prohibited_inferences": [
+        "估算增肌公斤数",
+        "用总结语气掩盖缺项",
+        "反馈改善即证明因果"
+      ],
+      "acceptance_case_ids": [
+        "KB-13",
+        "KB-17",
+        "KB-18",
+        "KB-20"
+      ],
+      "activation_status": "design_only_not_authorized",
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "review": {
+        "status": "not_reviewed_by_this_planning_run",
+        "reviewer": null,
+        "reviewer_kind": null,
+        "independent_expert_validation": false
+      },
+      "implementation_validation_refs": []
+    }
+  ]
+}

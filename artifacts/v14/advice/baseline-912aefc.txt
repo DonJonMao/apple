@@ -1,0 +1,89 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade ______
+
+tmp_path = PosixPath('<pytest-temp>/pytest-145/test_f03_current_pain_remains_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffad593290>
+
+    def test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade(tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        HELPERS["synthetic_authority"](tmp_path / ".local/knowledge", "external_total_kg")
+        path = tmp_path / "synthetic-advice.sqlite3"
+        repo = Repository(path)
+        svc = TrainingService(repo)
+        equipment = svc.create_equipment("Synthetic station", "barbell")
+        condition = {"equipment_instance_id": equipment["id"], "load_basis": "external_total_kg", "load_basis_confirmed": True,
+            "side": "both", "repetition_semantics": "simultaneous", "rom_protocol": "full",
+            "settings_confirmed": True, "settings": {"grip": "fixed"},
+            "reference_protocol": {"protocol_id": "synthetic", "version": "1", "reference_policy_id": "first-work",
+            "effort_protocol": "rir-2", "tempo": "controlled", "rest_protocol": "180-sec"}}
+        prior = svc.start_session("prior")
+        baseline = _reference(svc, svc.add_exercise(prior["id"], "psa.ex.barbell_bench_press", condition))
+        svc.end_session(prior["id"])
+        session = svc.start_session("current")
+        instance = svc.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+        limited = _reference(svc, instance, pain=True)
+        target = svc.add_set(instance["id"], planned={"reps_min": 6, "reps_max": 8, "rir": 2})
+        repo.close()
+        app = HELPERS["open_app"](path)
+        app.selectbox(key="candidate_target_" + instance["id"]).set_value(target["set_uuid"])
+        app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
+        app.button(key="candidate_" + instance["id"]).click().run(timeout=30)
+        assert not app.exception and not app.error
+        repo = Repository(path)
+        record = TrainingService(repo).list_recommendations()[0]
+>       assert record["candidate"]["proposed_change"]["load"] is None
+E       assert 52.5 is None
+
+<repo>/.local/v14-baseline/tests/integration/test_v14_advice_flow.py:52: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-11-11 18:41:10.746 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-11 18:41:12.420 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-11 18:41:12.433 The widget with key "history_629632c2-6965-5b7d-bda3-34c0ce676c54_load_value" was created with a default value but also had its value set via the Session State API.
+Stack (most recent call last):
+  File "<home>/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "<home>/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "<home>/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/testing/v1/local_script_runner.py", line 157, in _run_script_thread
+    super()._run_script_thread()
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 443, in _run_script_thread
+    self._run_script(request.rerun_data)
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 961, in _run_script
+    ) = exec_func_with_error_handling(code_to_exec, ctx)
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 136, in exec_func_with_error_handling
+    result = func()
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 936, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "/tmp/tmp5xo1w7bp/ecd4e6f42aebe193c8f16d81e36d51f7", line 4, in <module>
+    render_training(repo)
+  File "<repo>/.local/v14-baseline/src/healthzip/ui/training_page.py", line 702, in render_training
+    _history(svc)
+  File "<repo>/.local/v14-baseline/src/healthzip/ui/training_page.py", line 1244, in _history
+    _set_editor(svc.repo, svc, row, instance, key_prefix="history")
+  File "<repo>/.local/v14-baseline/src/healthzip/ui/training_page.py", line 456, in _set_editor
+    st.text_input(
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/runtime/metrics_util.py", line 732, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/elements/widgets/text_widgets.py", line 728, in text_input
+    return self._text_input(
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/elements/widgets/text_widgets.py", line 791, in _text_input
+    check_widget_policies(
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/elements/lib/policies.py", line 146, in check_widget_policies
+    check_session_state_rules(
+  File "<repo>/.venv/lib/python3.11/site-packages/streamlit/elements/lib/policies.py", line 90, in check_session_state_rules
+    _LOGGER.warning(
+2026-11-11 18:41:13.039 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+=========================== short test summary info ============================
+FAILED tests/integration/test_v14_advice_flow.py::test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade
+1 failed in 3.75s

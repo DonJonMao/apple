@@ -135,7 +135,9 @@ def sleep_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     end = date.today()
     start = end - timedelta(days=max(1, int(window_days)) - 1)
     values = sleep_nights(
-        [dict(r) for r in repo.rows("SELECT * FROM health_sample WHERE canonical_type='sleep_stage'")],
+        [dict(r) for r in repo.rows("SELECT * FROM health_sample WHERE canonical_type='sleep_stage' "
+                                   "AND local_date BETWEEN ? AND ?",
+                                   ((start-timedelta(days=1)).isoformat(), (end+timedelta(days=1)).isoformat()))],
         start.isoformat(), end.isoformat(),
     )
     status = (
@@ -404,7 +406,14 @@ def cycle_analysis(repo: Repository) -> dict[str, Any]:
     return {"card": card, "events": rows}
 
 
-def all_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
+def all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai") -> dict[str, Any]:
+    from healthzip.analytics.cache import cached
+    return cached(repo, "complete_view", {"window_days": window_days, "include_periods": include_periods, "timezone": timezone_name,
+                  "automatic_minute": datetime.now(timezone.utc).replace(second=0, microsecond=0).isoformat()},
+                  lambda: _all_analysis(repo, window_days, include_periods=include_periods, timezone_name=timezone_name))
+
+
+def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai") -> dict[str, Any]:
     # P1 strength/body-state functions are kept in a separate module to make
     # their more opinionated joins easy to audit.  Import lazily here because
     # that module reuses ``evidence_card`` from this core module.
@@ -429,22 +438,22 @@ def all_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
         "strength": strength_analysis(repo),
         "nutrition": nutrition_analysis(repo),
         "cycle": cycle_analysis(repo),
-        "readiness": readiness(repo, window_days=window_days),
+        "readiness": readiness(repo, window_days=window_days, as_of=end.isoformat()),
         # Deterministic P1 outputs. ``week_report`` and ``month_report`` use
         # the current date as their anchor and are intentionally separate from
         # the user-selected trend window.
         "strength_quality": p1_strength,
         "body_state": p1_state,
         "body_state_strength": p1_joined,
-        "week_report": period_report(repo, "week"),
-        "month_report": period_report(repo, "month"),
+        "week_report": period_report(repo, "week") if include_periods else {},
+        "month_report": period_report(repo, "month") if include_periods else {},
     }
 
     from healthzip.analytics.v13 import analyze, metric_card
-    output["v13"] = analyze(repo, window_days)
+    output["v13"] = analyze(repo, window_days, timezone_name=timezone_name)
     cutoff = output["v13"]["cutoff_time"]
-    output["period_snapshots"] = {period: analyze(repo, cutoff_time=cutoff, period=period)
-                                  for period in ("week", "month")}
+    output["period_snapshots"] = ({period: analyze(repo, cutoff_time=cutoff, period=period, timezone_name=timezone_name)
+                                  for period in ("week", "month")} if include_periods else {})
     metrics = output["v13"]["metrics"]
     daily = metrics["REPORT-STATE-SUMMARY"].get("daily_facts", [])
     output["sleep"]["nights"] = [{"date": x["date"], "sleep_hours": x["value"] / 60,

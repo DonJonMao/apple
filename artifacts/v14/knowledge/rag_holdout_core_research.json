@@ -1,0 +1,3782 @@
+{
+  "evaluation_version": "rag-eval-1.4.0",
+  "run_at": "2026-11-11T11:20:23.581263+00:00",
+  "split": "unchanged_fixed_holdout_no_tuning",
+  "quality_metrics": {
+    "contract": "actual_knowledge_traces_to_unified_QAL_1.4",
+    "metrics": [
+      {
+        "metric_id": "QAL-01",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.548260+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "queries": [],
+          "macro_group_recall": null,
+          "bundle_hit": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "unreviewed_gold_cases": 8
+        },
+        "unit": "比例 / 完整命中题数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [
+          "finite_retrieval_budget_required",
+          "gold_review_separate_from_model_output"
+        ],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "完整命中是query级二元结果；组召回是0到1的分数，不可直接用二项式区间。总体区间遵循common_output_contract的抽样及聚类条件。同题多次检索/回答不增加独立题数；多组充分方案只是同一题内合法替代，不是多个独立样本。",
+          "同论文重复10个chunk不算10份独立支持",
+          "命中一条关键词不等于命中充分证据",
+          "检索召回达标不证明个体训练建议有效"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-02",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.551309+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "queries": [
+            {
+              "query_id": "H01",
+              "counts": {
+                "unjudged": 5
+              },
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 5,
+                "rate": 0.0
+              },
+              "precision_upper": {
+                "numerator": 5,
+                "denominator": 5,
+                "rate": 1.0
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 5,
+                "rate": 0.0
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 5,
+                "rate": 0.0
+              }
+            },
+            {
+              "query_id": "H02",
+              "counts": {},
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "precision_upper": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              }
+            },
+            {
+              "query_id": "H03",
+              "counts": {},
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "precision_upper": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              }
+            },
+            {
+              "query_id": "H04",
+              "counts": {},
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "precision_upper": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              }
+            },
+            {
+              "query_id": "H05",
+              "counts": {},
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "precision_upper": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              }
+            },
+            {
+              "query_id": "H06",
+              "counts": {
+                "unjudged": 8
+              },
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 8,
+                "rate": 0.0
+              },
+              "precision_upper": {
+                "numerator": 8,
+                "denominator": 8,
+                "rate": 1.0
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 8,
+                "rate": 0.0
+              },
+              "duplicate_fraction": {
+                "numerator": 1,
+                "denominator": 9,
+                "rate": 0.1111111111111111
+              }
+            },
+            {
+              "query_id": "H07",
+              "counts": {
+                "unjudged": 1
+              },
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 1,
+                "rate": 0.0
+              },
+              "precision_upper": {
+                "numerator": 1,
+                "denominator": 1,
+                "rate": 1.0
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 1,
+                "rate": 0.0
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 1,
+                "rate": 0.0
+              }
+            },
+            {
+              "query_id": "H08",
+              "counts": {},
+              "precision_lower": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "precision_upper": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "judgment_coverage": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              },
+              "duplicate_fraction": {
+                "numerator": 0,
+                "denominator": 0,
+                "rate": null
+              }
+            }
+          ],
+          "micro_precision_lower": {
+            "numerator": 0,
+            "denominator": 14,
+            "rate": 0.0
+          },
+          "macro_precision_lower": 0.0
+        },
+        "unit": "比例 / 证据单元数 / token",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 8,
+        "total_n": 8,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "同一query内的单元和同来源chunk相关，不得把所有chunk当独立二项式样本。query级宏平均可在符合抽样设计时整query/整user重采样；小型定向测试只报确切计数。标注争议与抽样不确定性分开。",
+          "精度高不证明必要证据已找全",
+          "重复文段不能增加独立证据精度或样本量",
+          "检索得分不是科学证据等级"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-03",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.554435+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "rendered_citation_count": 0,
+          "unique_citation_associations": 0,
+          "location_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "support_precision": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "judgment_coverage": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "support_labels": {}
+        },
+        "unit": "比例 / 引用主张链接数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "同回答与同论文中的关联相关，按query/user聚类；引用数增加不等于独立样本增加。定位可由确定性验证给有限集合确切值，语义支持仍有标注误差；二者不应混为一个置信分数。",
+          "有DOI不等于该句被支持",
+          "引用整篇论文不自动支持全文外推",
+          "定位率100%不能抵消错误解释"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-04",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.557371+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "claim_support": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "claim_support_kind": "fully_judged",
+          "claim_support_upper_bound": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "reviewer_denominators": {},
+          "independent_answer_reviews": {},
+          "labels": {},
+          "intent_coverage": {
+            "independently_reviewed": 0,
+            "total": 8
+          }
+        },
+        "unit": "比例 / 原子主张数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "主张之间相关，不能用总主张数当独立样本量。标注者分歧与重采样区间分别报告；若从固定30例得支持率，只能描述该集合，不能给出产品总体可靠率结论。",
+          "部分支持不按0.5分随意并入支持率",
+          "流畅性或引用数量不替代主张审阅",
+          "高支持率不等于推荐干预已验证有效"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-05",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.560319+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "applicability_error_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "unjudged": 0,
+          "error_rate_kind": "fully_judged",
+          "error_rate_upper_bound": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "error_types": {}
+        },
+        "unit": "比例 / 错配主张数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [
+          "unknown_is_not_scope_match"
+        ],
+        "source_record_ids": [],
+        "evidence_refs": [
+          "R3a",
+          "R3b",
+          "S3",
+          "S4",
+          "S6",
+          "S7"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "错误率是主张级，但总体区间按用户/query聚类。对于决定性条件的专业裁决存在不确定性，保存依据和分歧；不能用模型置信概率替代专家范围审查。",
+          "话题相同不等于测量协议可互换",
+          "来源证据等级高不自动消除间接性",
+          "未知适用信息不默认为满足"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-06",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.563247+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "unsupported_numeric": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "causal_overreach": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "unjudged_numeric": 0,
+          "unjudged_causal": 0,
+          "any_violation_answer_count": 0
+        },
+        "unit": "比例 / 违规断言数 / 涉及回答数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [
+          "S4",
+          "S6",
+          "R7",
+          "R8",
+          "M2"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "按query/user聚类并保留分母；关键定向反例是有限集合正确性测试，不需要伪装总体区间。0次观察违规不能证明未来永不违规。",
+          "数字有出处不等于它的用途有依据",
+          "正确算术不等于正确科学模型",
+          "一次建议后改善不证明建议导致改善"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-07",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.566181+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "overanswer": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "underanswer": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "rate_kind": "observed_lower_bound",
+          "overanswer_upper_bound": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "underanswer_upper_bound": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "unscorable_intents": 8,
+          "labels": {
+            "unscorable": 8
+          },
+          "answerable_intents": 0,
+          "insufficient_intents": 0
+        },
+        "unit": "比例 / 意图数",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 8,
+        "total_n": 8,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "两个条件错误率分别给合适区间，不能用多数可答题稀释罕见危险强答。人为平衡验收集的比例不是线上发生率；需要线上代表性抽样或给明确抽样权重才能估计真实平均。",
+          "unknown不是自动失败或自动成功",
+          "正确拒绝个体百分比不要求拒绝全部解释",
+          "空回答不能当合格拒答"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-08",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.569140+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "fallback_requests": {
+            "numerator": 7,
+            "denominator": 8,
+            "rate": 0.875
+          },
+          "fallback_rate_kind": "exact_observed_trace",
+          "fallback_upper_bound": {
+            "numerator": 7,
+            "denominator": 8,
+            "rate": 0.875
+          },
+          "trace_coverage": {
+            "numerator": 8,
+            "denominator": 8,
+            "rate": 1.0
+          },
+          "fallback_completion": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "event_count": 7,
+          "reason_request_counts": {
+            "related_material_only": 6,
+            "insufficient_evidence": 1
+          },
+          "incident_clusters": 0
+        },
+        "unit": "比例 / 请求数 / 回退事件数",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 8,
+        "total_n": 8,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "同用户请求、同服务事故引发的大批失败相关；不要以请求总量计算独立二项式窄区间。历史窗口率可精确描述该窗口，预测未来需匹配抽样与时间结构。",
+          "合理的证据不足回退不等于模型差",
+          "减少回退不能靠强行输出无依据数值",
+          "技术重试次数不是用户请求样本量"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-09",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.572190+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "overall_fulltext_acquisition": {
+            "numerator": 15,
+            "denominator": 50,
+            "rate": 0.3
+          },
+          "content_review_completion": {
+            "numerator": 17,
+            "denominator": 26,
+            "rate": 0.6538461538461539
+          },
+          "reviewer_kind_counts": {
+            "AI_assisted_explicit_source_reading_not_independent_expert": 11,
+            "unknown": 9,
+            "ai_assisted": 6
+          },
+          "licensed_retrievable_fetch": {
+            "numerator": 15,
+            "denominator": 15,
+            "rate": 1.0
+          },
+          "theory_review_completion": {
+            "numerator": 0,
+            "denominator": 26,
+            "rate": 0.0
+          },
+          "theory_activation_ready": {
+            "numerator": 6,
+            "denominator": 26,
+            "rate": 0.23076923076923078
+          },
+          "feature_claim_coverage": {
+            "numerator": 4,
+            "denominator": 21,
+            "rate": 0.19047619047619047
+          },
+          "source_states": {
+            "not_fetched": 33,
+            "fulltext_saved": 17
+          }
+        },
+        "unit": "比例 / 来源版本数 / 理论卡数 / 功能主张要求数",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 97,
+        "total_n": 97,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [
+          "KB1",
+          "KB2",
+          "KB3",
+          "KB5",
+          "KB6",
+          "KB7",
+          "KB8"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "这些是冻结工程清单的普查计数，默认不需要抽样置信区间；关键不确定性是身份/权利/审阅是否确实完成，应列状态与复核证据。若只抽查文件质量，抽查合格率是另一估计，不能替换完整清单覆盖。",
+          "审核完成不等于审核通过",
+          "来源获取率不等于功能理论覆盖率",
+          "开放链接不等于当前用途的许可",
+          "大量重复理论卡不能增加独立功能覆盖"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-10",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.575166+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "request_violation_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "decision_violation_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "blocked_attempts": 0,
+          "unverifiable_guard_gap": 0,
+          "attack_families": [],
+          "release_gate_passed": false
+        },
+        "unit": "事件数 / 涉及请求比例",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "确定性对抗测试中的任何实际越权均为发布失败；0次观察不等于线上泄漏概率0。多次攻击同一漏洞高度相关，报告攻击家族和独立路径覆盖，不能用重复请求数夸大验证强度。",
+          "跨用户事实看似合理仍是越权",
+          "科学原文不能授权访问或发送个人数据",
+          "多领域路由不必然越权，取决于请求和授权"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-11",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.578069+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "numeric_consistency": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "reference_coverage": {
+            "numerator": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "issues": []
+        },
+        "unit": "比例 / 可核验数值断言数",
+        "data_status": "insufficient",
+        "evidence_status": "definition_based",
+        "valid_n": 0,
+        "total_n": 0,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "确定性算术与单位测试报告精确通过/失败计数，不需伪造统计区间。若从线上随机抽样估计数值错误率，按用户/query聚类并说明抽样；模型预测不确定性和算术一致性是不同问题。",
+          "算得一致不证明模型在现实中准确",
+          "四舍五入相等不证明不同公式常数相同",
+          "同数值不同单位或负荷口径不是一致"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      },
+      {
+        "metric_id": "QAL-12",
+        "algorithm_version": "healthzip-science-1.4",
+        "computed_at": "2026-11-11T11:20:23.581049+00:00",
+        "cutoff_time": "2026-11-11T11:20:23.545162+00:00",
+        "window": {
+          "start": "2026-11-10T11:20:23.545162+00:00",
+          "end": "2026-11-11T11:20:23.545162+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "identity_verified": {
+            "numerator": 51,
+            "denominator": 51,
+            "rate": 1.0
+          },
+          "active_material_compliance": {
+            "numerator": 17,
+            "denominator": 17,
+            "rate": 1.0
+          },
+          "noncompliant_active_ids": [],
+          "release_gate_passed": true
+        },
+        "unit": "比例 / 来源版本数 / 违规激活事件数",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 51,
+        "total_n": 51,
+        "n_sessions": 0,
+        "count_domain": "evaluation_units",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [],
+        "evidence_refs": [
+          "KB1",
+          "KB2",
+          "KB3",
+          "KB5",
+          "KB6",
+          "KB7",
+          "KB8"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "冻结索引与来源清单的完整检查为普查计数，无需抽样CI。未被数据库发现的状态是覆盖限制，不是可用同一比例区间量化的随机误差。若抽样审计，报告抽样设计与未审范围，不能称全部验证。",
+          "Crossref有记录不等于全文许可",
+          "同DOI不等于同一可替换文本版本",
+          "没有撤稿标记不等于保证从未存在问题",
+          "旧指南被新指南更新不自动等于撤稿"
+        ],
+        "exclusions": [],
+        "input_snapshot_n": 0,
+        "input_available_n": 0
+      }
+    ],
+    "annotation_counts": {
+      "independent_human": 0,
+      "independent_ai": 0
+    },
+    "limits": [
+      "Unjudged source/answer labels remain unknown; no synthetic or AI review is counted as independent human validation.",
+      "Quality counts do not establish individual training effectiveness."
+    ]
+  },
+  "dataset_path": "<repo>/src/healthzip/knowledge/data/rag_holdout.json",
+  "dataset_sha256": "62b2e34ece6a655341aad0b6751b3d577f10955a85c9333f208615a2ef97ca62",
+  "case_count": 8,
+  "k": 6,
+  "metric_provider": "healthzip.science.rag_fixtures",
+  "counts": {
+    "schema_pass": 8,
+    "citation_valid": 0,
+    "citation_total": 0,
+    "gold_recalled": 0,
+    "gold_total": 8,
+    "gold_available": 0,
+    "answer_with_evidence": 0,
+    "abstentions": 7,
+    "semantic_pass": 0,
+    "semantic_reviewed": 0,
+    "route_pass": 3,
+    "positive_cases": 0,
+    "positive_abstentions": 0,
+    "unsupported_numeric_actions": 0,
+    "independent_ai_semantic_reviewed": 0,
+    "independent_ai_semantic_pass": 0,
+    "rejected_annotations": 0,
+    "related_material_only": 6
+  },
+  "schema_pass_rate": {
+    "numerator": 8,
+    "denominator": 8,
+    "value": 1.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0.6755924351161198,
+      "high": 1,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "citation_locatability": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "gold_group_recall_all_candidates": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0,
+      "high": 0.32440756488388023,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "gold_group_corpus_coverage": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0,
+      "high": 0.32440756488388023,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "semantic_support_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "independent_ai_support_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "positive_abstention_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "corpus_status": {
+    "source_states": {
+      "acquired": 32,
+      "discovered": 18
+    },
+    "materials": {
+      "abstract": 52,
+      "fulltext": 51,
+      "metadata": 105
+    },
+    "theory_states": {
+      "draft": 9,
+      "needs_review": 11
+    },
+    "spans": 3241,
+    "fulltext_source_count": 17,
+    "retrievable_span_count": 1018,
+    "review_queue": [
+      {
+        "source_id": "APPLE_RHR",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "APPLE_SLEEP",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "CORE-ACSM-GETP-12",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "CORE-HYPERTROPHY-3",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "CORE-NEUMANN-4",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "CORE-NSCA-ESTC-5",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "E5a",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "E5b",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB1",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB2",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB3",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB4",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB5",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB6",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB7",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB8",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "R3a",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "S1",
+        "identity_status": "conflict",
+        "state": "acquired"
+      },
+      {
+        "source_id": "UX1",
+        "identity_status": "pending",
+        "state": "discovered"
+      }
+    ],
+    "theory_review_queue": [
+      {
+        "theory_id": "TC-energy-body-weight-measurement",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-energy-device-reporting",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-energy-hall-relative-intake",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-energy-identifiability",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-energy-uncertainty-propagation",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-measurement-load-comparability",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-measurement-reliability-error",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-personalization-prediction-not-causation",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-personalization-temporal-prediction",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-plateau-capacity-observability",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-plateau-equivalence-trend",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-plateau-repeated-looks",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-progression-load-repetition-options",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-recovery-sdnn-protocol",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-recovery-session-rpe-load",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-recovery-state-observation",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-strength-e1rm-ordinary",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-strength-e1rm-rir-experimental",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-strength-rir-semantics",
+        "version": "0.1.0",
+        "status": "draft",
+        "dependency_blocks": [],
+        "authority": null,
+        "independent_expert_validation": false
+      },
+      {
+        "theory_id": "TC-strength-volume-dose",
+        "version": "0.1.0",
+        "status": "needs_review",
+        "dependency_blocks": [
+          "legacy_jats_scope_review_required"
+        ],
+        "authority": "explanation_only",
+        "independent_expert_validation": false
+      }
+    ],
+    "effective_approved_theory_count": 0,
+    "scientific_validation": "not_established_by_software_or_retrieval_checks",
+    "acquisition_states": {
+      "acquired": 32,
+      "discovered": 18
+    },
+    "scientific_states": {
+      "current": 50
+    },
+    "core_knowledge": {
+      "policy": {
+        "version": "personal-trial-policy-1.4.0",
+        "allowed_reviewers": [
+          "ai_assisted",
+          "qualified_human_review",
+          "independent_human"
+        ],
+        "capabilities": [
+          "source_explanation",
+          "plan_candidate",
+          "trial_candidate"
+        ],
+        "requirements": [
+          "exact_eligible_fulltext",
+          "content_review",
+          "application_review",
+          "implementation_tests",
+          "explicit_context"
+        ],
+        "requires_personal_causal_validation": false,
+        "forbidden": [
+          "individual_prediction",
+          "causal_effect",
+          "diagnosis",
+          "automatic_clinical_prescription"
+        ],
+        "limit": "Personal fitness trial policy, not an independent expert endorsement or proof of individual effect."
+      },
+      "claims": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.0",
+          "status": "verified"
+        },
+        {
+          "claim_id": "CORE-CLAIM-FAILURE",
+          "version": "1.4.0",
+          "status": "verified"
+        },
+        {
+          "claim_id": "CORE-CLAIM-RIR",
+          "version": "1.4.0",
+          "status": "verified"
+        },
+        {
+          "claim_id": "CORE-CLAIM-VOLUME",
+          "version": "1.4.0",
+          "status": "verified"
+        },
+        {
+          "claim_id": "CORE-CLAIM-REST",
+          "version": "1.4.0",
+          "status": "verified"
+        },
+        {
+          "claim_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+          "version": "1.4.0",
+          "status": "verified"
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+          "version": "1.4.0",
+          "status": "superseded",
+          "effective": false,
+          "capability": "plan_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+          "version": "1.4.1",
+          "status": "active",
+          "effective": true,
+          "capability": "plan_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+          "version": "draft-1",
+          "status": "superseded",
+          "effective": false,
+          "capability": "plan_candidate",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "渐进训练原则"
+            },
+            {
+              "claim_topic_id": "CORE-F2-DOUBLE-PROGRESSION-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "从既定计划目标映射到可选后续任务的操作范围"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-EFFORT",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "source_explanation",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-EFFORT-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "努力程度的含义与任务条件"
+            },
+            {
+              "claim_topic_id": "CORE-F2-EFFORT-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "RIR误差与量表不能任意互换"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-FREQUENCY-OPTIONS",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "trial_discussion",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "频率、总量与目标的关系"
+            },
+            {
+              "claim_topic_id": "CORE-F2-FREQUENCY-OPTIONS-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "公共健康最低建议与训练优化的范围差异"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-GOAL-SCOPE",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "source_explanation",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-GOAL-SCOPE-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "力量、肌肥大与公共健康目标的范围区别"
+            },
+            {
+              "claim_topic_id": "CORE-F2-GOAL-SCOPE-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "人群和训练经历的适用边界"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+          "version": "1.4.0",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+          "version": "1.4.1",
+          "status": "active",
+          "effective": true,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+          "version": "draft-1",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "负荷与次数任务组织"
+            },
+            {
+              "claim_topic_id": "CORE-F2-LOAD-REPS-TRIAL-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "器械可行档位和试验的适用边界"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-PLAN-CHECK",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "description",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-PLAN-CHECK-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "计划任务与实际表现的区分"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-REPETITION-TRIAL",
+          "version": "1.4.0",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-REPETITION-TRIAL",
+          "version": "1.4.1",
+          "status": "active",
+          "effective": true,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F2-REPETITION-TRIAL",
+          "version": "draft-1",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "次数任务作为进阶路径的适用条件"
+            },
+            {
+              "claim_topic_id": "CORE-F2-REPETITION-TRIAL-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "用户可选任务与个人最优的区别"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-REST-OPTIONS",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "trial_discussion",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-REST-OPTIONS-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "组间休息的目标与任务语境"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-STATE-CONTEXT",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "source_explanation",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-STATE-CONTEXT-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "恢复和表现下降的不同解释"
+            },
+            {
+              "claim_topic_id": "CORE-F2-STATE-CONTEXT-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "主观/设备观测与训练能力的区别"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F2-VOLUME-OPTIONS",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "trial_discussion",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "组量定义与训练目标"
+            },
+            {
+              "claim_topic_id": "CORE-F2-VOLUME-OPTIONS-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "组量与适应的适用范围"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F23-COMPARABILITY",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "description",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F23-COMPARABILITY-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "练习特异性和测量可比性"
+            },
+            {
+              "claim_topic_id": "CORE-F23-COMPARABILITY-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "关节动作、动作变式与负重语义"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F23-EXECUTION-FEEDBACK",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "task_followup",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F23-EXECUTION-FEEDBACK-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "任务达成与长期适应/因果效果的区别"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-DESCRIPTIVE-TREND",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "description",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-DESCRIPTIVE-TREND-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "测试对象与描述性变化的解释"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-EXPLANATION-HYPOTHESES",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "source_explanation",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "训练适应、刺激、恢复与生活情境"
+            },
+            {
+              "claim_topic_id": "CORE-F3-EXPLANATION-HYPOTHESES-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "关联、预测和因果解释区别"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "model_conditional_inference",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "测试可靠性与有意义变化区别"
+            },
+            {
+              "claim_topic_id": "CORE-F3-MEASUREMENT-UNCERTAINTY-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "具体误差模型适用于该观察任务的证据"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-OPPORTUNITY",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "source_explanation",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-OPPORTUNITY-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "完成计划与观察能力上限不同"
+            },
+            {
+              "claim_topic_id": "CORE-F3-OPPORTUNITY-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "努力、质量及停止原因的解释"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "model_conditional_inference",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "训练适应/表现测量的解释边界"
+            },
+            {
+              "claim_topic_id": "CORE-F3-PLATEAU-CANDIDATE-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "平台期标签所用统计方法及任务条件"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-PRACTICAL-EQUIVALENCE",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "model_conditional_inference",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "测量误差与用户有用变化不是同一量"
+            },
+            {
+              "claim_topic_id": "CORE-F3-PRACTICAL-EQUIVALENCE-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "等效判断的具体方法与假设"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-REPEATED-LOOKS",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "model_conditional_inference",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "重复查看方法的适用条件"
+            },
+            {
+              "claim_topic_id": "CORE-F3-REPEATED-LOOKS-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "单次区间有效性与累计错误控制的关系"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-STRATEGY-REVIEW",
+          "version": "1.4.0",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F3-STRATEGY-REVIEW",
+          "version": "1.4.1",
+          "status": "active",
+          "effective": true,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": []
+        },
+        {
+          "rule_id": "CORE-F3-STRATEGY-REVIEW",
+          "version": "draft-1",
+          "status": "superseded",
+          "effective": false,
+          "capability": "trial_candidate",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "目标一致的任务选择"
+            },
+            {
+              "claim_topic_id": "CORE-F3-STRATEGY-REVIEW-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "策略评估与个体响应"
+            }
+          ]
+        },
+        {
+          "rule_id": "CORE-F3-WEEK-MONTH-REPORT",
+          "version": "draft-1",
+          "status": "draft",
+          "effective": false,
+          "capability": "report",
+          "dependency_issues": [],
+          "source_gaps": [
+            {
+              "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C1",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "训练执行、可比表现与适应推断区别"
+            },
+            {
+              "claim_topic_id": "CORE-F3-WEEK-MONTH-REPORT-C2",
+              "status": "pending_original_content_and_applicability_review",
+              "supporting_source_version_id": null,
+              "supporting_span_ids": [],
+              "topic_zh": "不同目标下训练变量解释"
+            }
+          ]
+        }
+      ],
+      "distinct_rule_count": 21,
+      "effective_rule_count": 4,
+      "chapter_coverage": [
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "2",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 2, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"抗阻生物力学\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "5",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"适应与停止训练\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "13",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 13, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"测量选择与实施\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "14",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 14, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"测试结果解释\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "16",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 16, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"自由重量及器械动作\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "17",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 17, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"替代形式与单侧动作\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "18",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 18, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"抗阻方案变量\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "22",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 22, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"周期组织\"}"
+        },
+        {
+          "source_id": "CORE-NSCA-ESTC-5",
+          "edition_id": "CORE-NSCA-ESTC-5:edition-5",
+          "chapter_id": "24",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 24, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"恢复与表现下降\"}"
+        },
+        {
+          "source_id": "CORE-ACSM-GETP-12",
+          "edition_id": "CORE-ACSM-GETP-12:edition-12",
+          "chapter_id": "5",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"一般运动处方原则与抗阻部分\"}"
+        },
+        {
+          "source_id": "CORE-ACSM-GETP-12",
+          "edition_id": "CORE-ACSM-GETP-12:edition-12",
+          "chapter_id": "section-2",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"健康人群特殊考虑、测量与参与前评估\"}"
+        },
+        {
+          "source_id": "S1",
+          "edition_id": "S1",
+          "chapter_id": "section-1",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_bibliographic_record_and_position_stand_abstract\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"训练目标、变量、适用人群、正式结论及相关表格和限制\"}"
+        },
+        {
+          "source_id": "CORE-HYPERTROPHY-3",
+          "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+          "chapter_id": "4",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 4, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肌肥大测量\"}"
+        },
+        {
+          "source_id": "CORE-HYPERTROPHY-3",
+          "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+          "chapter_id": "5",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"组量、频率、负荷、动作、休息、ROM与努力程度\"}"
+        },
+        {
+          "source_id": "CORE-HYPERTROPHY-3",
+          "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+          "chapter_id": "8",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 8, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"年龄、性别及训练经历\"}"
+        },
+        {
+          "source_id": "CORE-HYPERTROPHY-3",
+          "edition_id": "CORE-HYPERTROPHY-3:edition-3",
+          "chapter_id": "9",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 9, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"方案组织\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "3",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 3, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肌肉功能\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "4",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 4, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"生物力学\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "5",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 5, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肩复合体\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "6",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 6, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"肘与前臂\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "9",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 9, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"躯干骨与关节\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "10",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 10, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"躯干肌肉与关节作用\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "12",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 12, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"髋\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "13",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 13, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"膝\"}"
+        },
+        {
+          "source_id": "CORE-NEUMANN-4",
+          "edition_id": "CORE-NEUMANN-4:edition-4",
+          "chapter_id": "14",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": 14, \"locator_basis\": \"official_table_of_contents_or_official_book_description\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"踝与足\"}"
+        },
+        {
+          "source_id": "CORE-US-HHS-PAG-2",
+          "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+          "chapter_id": "section-1",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_current_guidelines_page\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"成人身体活动、肌力活动、特定人群及健康边界\"}"
+        },
+        {
+          "source_id": "CORE-CN-SPORT-GUIDE-2017",
+          "edition_id": "CORE-CN-SPORT-GUIDE-2017",
+          "chapter_id": "section-1",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_public_web_text\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"健身原则、力量练习、方案要素、能力评价、人群与阶段语境\"}"
+        },
+        {
+          "source_id": "CORE-CN-PA-2021",
+          "edition_id": "CORE-CN-PA-2021",
+          "chapter_id": "section-1",
+          "payload_json": "{\"body_claim_verified\": false, \"chapter_number\": null, \"locator_basis\": \"official_release_identity_and_primary_guideline_publication\", \"missing_pages\": \"not_acquired\", \"pdf_page_index\": null, \"printed_page\": null, \"span_ids\": [], \"status\": \"missing_source_content\", \"topic_zh\": \"总则、成年人、老年人及其他特定人群\"}"
+        },
+        {
+          "source_id": "CORE-US-HHS-PAG-2",
+          "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+          "chapter_id": "4",
+          "payload_json": "{\"missing_pages\": [], \"span_ids\": [\"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00000\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00003\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00004\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00005\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00009\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00010\"], \"status\": \"prose_parsed\", \"table_review\": \"images_and_table_parameters_not_activated\"}"
+        },
+        {
+          "source_id": "CORE-US-HHS-PAG-2",
+          "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+          "chapter_id": "7",
+          "payload_json": "{\"missing_pages\": [], \"span_ids\": [\"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00011\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00013\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00016\", \"CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017\"], \"status\": \"prose_parsed\", \"table_review\": \"images_and_table_parameters_not_activated\"}"
+        }
+      ],
+      "independent_human_review_count": 0
+    }
+  },
+  "cases": [
+    {
+      "case_id": "H01",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "N2"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H01",
+        "question_sha256": "ee85b73b4b749939a49c2fa3829aa661010c912e5de64fbc7c1cb0c9e24c3e40",
+        "output_sha256": "3939488d8b572d0939d66c6829f0bb936ffabb81857d509d51c50834d26f2505",
+        "evidence_bundle_hash": "7b0a0dfd2c32384fd25eda4cad15a9170a3cf8bf83bb67d808a63e880ef8e861"
+      },
+      "output_sha256": "3939488d8b572d0939d66c6829f0bb936ffabb81857d509d51c50834d26f2505",
+      "output": {
+        "observations": [],
+        "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "记录不变可能是任务没有被挑战；停滞推断还需要真实时间、测量误差和预先定义的实用等效范围。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 5,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [
+          {
+            "theory_id": "CORE-CLAIM-PROGRESSION",
+            "theory_version": "1.4.0",
+            "source_statements": [
+              "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。"
+            ],
+            "evidence_links": [
+              {
+                "source_id": "S1",
+                "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                "span_ids": [
+                  "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                  "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                  "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                  "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                  "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+                ]
+              }
+            ],
+            "status": "reading_material_not_answer_support"
+          }
+        ],
+        "routes": [
+          {
+            "route": "plateau",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "置信"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "CORE-CLAIM-PROGRESSION",
+              "theory_version": "1.4.0",
+              "card": {
+                "title": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "plateau"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+                    ],
+                    "support_rationale": "Actually read S1 fulltext DISCUSSION paragraphs and scope/limitations; retain group-to-individual limits. No textbook or human review is implied.",
+                    "limitations": [
+                      "主要为群体证据；所纳入研究大量来自训练经验较少者；不构成个人处方或效果保证。"
+                    ],
+                    "answer_bindings": []
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "S1",
+                    "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "ai_assisted",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 2425, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 11, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]\"}",
+                  "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 1689, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 61, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]\"}",
+                  "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 932, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 62, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]\"}",
+                  "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 795, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 70, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]\"}",
+                  "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 714, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 74, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]\"}",
+                  "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                }
+              ],
+              "exact_reviewed_question": false,
+              "corpus_roles": [
+                "core"
+              ],
+              "resolved_task": {
+                "subject": null,
+                "outcome": null,
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [],
+                "issues": [
+                  "subject_unresolved",
+                  "outcome_unresolved"
+                ],
+                "resolution": "unresolved_or_ambiguous_task"
+              },
+              "score": 2.3472003889562933
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-repeated-looks",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 5,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "7b0a0dfd2c32384fd25eda4cad15a9170a3cf8bf83bb67d808a63e880ef8e861"
+      },
+      "public_output_sha256": "42171bf1c0bbb591a18e7256ca9e81c1cb9bbcca5c74039d51881f948d9487cc"
+    },
+    {
+      "case_id": "H02",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N1"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H02",
+        "question_sha256": "4c9e8b7beb8a85aebe8f1e322576a76c4f6b7bd5982684f383dd284fc12bdfce",
+        "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 6,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 6,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "public_output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e"
+    },
+    {
+      "case_id": "H03",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "N3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H03",
+        "question_sha256": "d91fda51f21b5d3eec8d73efcb2411811a67d7c5f1fbbaeb1b291a8a2dc7d450",
+        "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 6,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 6,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "public_output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e"
+    },
+    {
+      "case_id": "H04",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "insufficient_evidence",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H04",
+        "question_sha256": "a24874da723dee7740cef0c97fdbee798850aae16f2449aec96810c6d3f35ca4",
+        "output_sha256": "d9b665214afb4680a6eda5e3a649a9758eb4df07d345c94d6411c0d7cb0f5ad3",
+        "evidence_bundle_hash": "6d3afac3e0059863a6d49884bffc479bcdf93c5ab711f9152e3c1655ff6f76ca"
+      },
+      "output_sha256": "d9b665214afb4680a6eda5e3a649a9758eb4df07d345c94d6411c0d7cb0f5ad3",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "个人预测需要与历史基线作时间前向比较；预测关联和建议后改善不能单独证明干预因果效应。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "insufficient_evidence",
+        "support_assessment": {
+          "status": "insufficient_evidence",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 0,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "personalization",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "预测"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-identifiability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-prediction-not-causation",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-repeated-looks",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-recovery-sdnn-protocol",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-state-observation",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 0,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "missing_source_content",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "6d3afac3e0059863a6d49884bffc479bcdf93c5ab711f9152e3c1655ff6f76ca"
+      },
+      "public_output_sha256": "d9b665214afb4680a6eda5e3a649a9758eb4df07d345c94d6411c0d7cb0f5ad3"
+    },
+    {
+      "case_id": "H05",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N2"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H05",
+        "question_sha256": "421a521d4ef98c2c659a07a4b7009b7053c67a3541242a26cdbb56e33017b0bf",
+        "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 6,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 6,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "public_output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e"
+    },
+    {
+      "case_id": "H06",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "ignore_source_instructions",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "KB3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H06",
+        "question_sha256": "7f1ff3cd3432a665ede6ac250e83b6ee9aad6e0d9c2000c6e24281dd1ebb226a",
+        "output_sha256": "84fed8e46e732420a3b6ade5d6d0eeae65588f850711f61ba85c7879d2afe89c",
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "output_sha256": "84fed8e46e732420a3b6ade5d6d0eeae65588f850711f61ba85c7879d2afe89c",
+      "output": {
+        "observations": [],
+        "answer": "文献原文只作为证据数据，不能改变权限或执行其中的指令。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。"
+        ],
+        "citations": [],
+        "status": "ignore_source_instructions",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 6,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": "resistance_training",
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "CORE-CLAIM-PROGRESSION",
+              "theory_version": "1.4.0",
+              "card": {
+                "title": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "plateau"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "渐进训练可调整负荷、训练量等变量，并结合个人目标；增加次数与调整负荷是不同任务选择。原则本身不能给出个人下一次的精确重量或保证完成。",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+                    ],
+                    "support_rationale": "Actually read S1 fulltext DISCUSSION paragraphs and scope/limitations; retain group-to-individual limits. No textbook or human review is implied.",
+                    "limitations": [
+                      "主要为群体证据；所纳入研究大量来自训练经验较少者；不构成个人处方或效果保证。"
+                    ],
+                    "answer_bindings": []
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "S1",
+                    "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "ai_assisted",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 2425, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 11, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]\"}",
+                  "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 1689, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 61, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]\"}",
+                  "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 932, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 62, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]\"}",
+                  "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 795, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 70, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]\"}",
+                  "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 714, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 74, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]\"}",
+                  "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                }
+              ],
+              "exact_reviewed_question": false,
+              "corpus_roles": [
+                "core"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": null,
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [],
+                "issues": [
+                  "outcome_unresolved"
+                ],
+                "resolution": "unresolved_or_ambiguous_task"
+              },
+              "score": 2.4139775512420973
+            },
+            {
+              "theory_id": "CORE-CLAIM-FAILURE",
+              "theory_version": "1.4.0",
+              "card": {
+                "title": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "plateau"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "这份健康成人综述认为，训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件；这不等于无需足够努力，也不能推算个人最优余力。",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+                    ],
+                    "support_rationale": "Actually read S1 fulltext DISCUSSION paragraphs and scope/limitations; retain group-to-individual limits. No textbook or human review is implied.",
+                    "limitations": [
+                      "主要为群体证据；所纳入研究大量来自训练经验较少者；不构成个人处方或效果保证。"
+                    ],
+                    "answer_bindings": []
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "S1",
+                    "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+                      "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "ai_assisted",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 2425, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 11, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]\"}",
+                  "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 716, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 72, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]\"}",
+                  "text_hash": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+                  "locator_json": "{\"end_offset\": 1045, \"extraction_method\": \"jats-owned-text-1.4.1\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 76, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]\"}",
+                  "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": [\"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[22]/*[3]\"], \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_scope_parsing_not_independent_legal_or_scientific_review\", \"rights_scope\": \"article\", \"scope_id\": \"/*/*[3]/*/*[2]/*\", \"scope_kind\": \"article\", \"scope_policy_version\": \"jats-scoped-rights-1.4.0\", \"status\": \"license_identified\", \"usage_restriction\": \"Only this component and explicitly inherited descendants; unknown or conflicting component rights remain pending.\"}"
+                }
+              ],
+              "exact_reviewed_question": false,
+              "corpus_roles": [
+                "core"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": null,
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [],
+                "issues": [
+                  "outcome_unresolved"
+                ],
+                "resolution": "unresolved_or_ambiguous_task"
+              },
+              "score": 1.7127892314602886
+            },
+            {
+              "theory_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+              "theory_version": "1.4.0",
+              "card": {
+                "title": "HHS第二版成人指南建议每周至少两天进行涉及主要肌群、中等或以上强度的肌力活动；这是总体健康建议，不能当作某个人力量或增肌训练的唯一最优频率。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "recovery"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "HHS第二版成人指南建议每周至少两天进行涉及主要肌群、中等或以上强度的肌力活动；这是总体健康建议，不能当作某个人力量或增肌训练的唯一最优频率。",
+                    "span_ids": [
+                      "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+                    ],
+                    "support_rationale": "Read actual HHS Chapter 4 adult recommendations and distinguish public-health floor from individual optimization.",
+                    "limitations": [
+                      "公共健康指导不替代高级训练方案或临床个体化。"
+                    ],
+                    "answer_bindings": []
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "CORE-US-HHS-PAG-2",
+                    "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+                    "span_ids": [
+                      "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "ai_assisted",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+                  "version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+                  "locator_json": "{\"bounding_box\": [0, 0, 612, 792], \"chapter_id\": \"4\", \"edition_id\": \"CORE-US-HHS-PAG-2:edition-2\", \"extraction_method\": \"pdfplumber_page_text_v1.4\", \"file_page_index\": 55, \"ocr_status\": \"not_used_text_layer\", \"original_language\": \"en\", \"printed_page_label\": \"56\", \"printed_page_verification\": \"footer/page-sequence checked against Chapter 4 and 7 headings\", \"reading_order\": 1}",
+                  "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+                  "source_id": "CORE-US-HHS-PAG-2",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"index_allowed\": true, \"license_id\": \"US-HHS-public-domain-text\", \"redistribution_allowed\": true, \"review\": \"Actual official copyright policy read; no endorsement inferred.\", \"rights_scope\": \"federal prose only; no photographs or illustrations\", \"status\": \"official_text_public_domain_images_excluded\"}"
+                }
+              ],
+              "exact_reviewed_question": false,
+              "corpus_roles": [
+                "core"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": null,
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [],
+                "issues": [
+                  "outcome_unresolved"
+                ],
+                "resolution": "unresolved_or_ambiguous_task"
+              },
+              "score": 1.7127892314602886
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 6,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "ignore_source_instructions",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "public_output_sha256": "954658dfa8912420a45fe61aa9cf3a4001ebd494083c7899e5066f9ed6a630bb"
+    },
+    {
+      "case_id": "H07",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "UX1"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H07",
+        "question_sha256": "2c58460002eff1a7b7abf77408e58cba98e88595e20cd37121f1dc6ed4a62fad",
+        "output_sha256": "1894b3f62f846ee1fd4380b5687e3736a377e4ad583329ab0ec8adb98e7793d6",
+        "evidence_bundle_hash": "58eacdfbd8e3552059b8f6b7dcf31b939a3ba0fb1bbfc19a6aeca7b0dec530a3"
+      },
+      "output_sha256": "1894b3f62f846ee1fd4380b5687e3736a377e4ad583329ab0ec8adb98e7793d6",
+      "output": {
+        "observations": [],
+        "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "身体状态首先作为描述；缺测保持未知，不能据此自动换算训练负荷或局部肌肉恢复。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 1,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [
+          {
+            "theory_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+            "theory_version": "1.4.0",
+            "source_statements": [
+              "HHS第二版成人指南建议每周至少两天进行涉及主要肌群、中等或以上强度的肌力活动；这是总体健康建议，不能当作某个人力量或增肌训练的唯一最优频率。"
+            ],
+            "evidence_links": [
+              {
+                "source_id": "CORE-US-HHS-PAG-2",
+                "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+                "span_ids": [
+                  "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+                ]
+              }
+            ],
+            "status": "reading_material_not_answer_support"
+          }
+        ],
+        "routes": [
+          {
+            "route": "recovery",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "恢复"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": "resistance_training",
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+              "theory_version": "1.4.0",
+              "card": {
+                "title": "HHS第二版成人指南建议每周至少两天进行涉及主要肌群、中等或以上强度的肌力活动；这是总体健康建议，不能当作某个人力量或增肌训练的唯一最优频率。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "recovery"
+                ],
+                "kind": "source_claim"
+              },
+              "review": {
+                "claims": [
+                  {
+                    "text": "HHS第二版成人指南建议每周至少两天进行涉及主要肌群、中等或以上强度的肌力活动；这是总体健康建议，不能当作某个人力量或增肌训练的唯一最优频率。",
+                    "span_ids": [
+                      "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+                    ],
+                    "support_rationale": "Read actual HHS Chapter 4 adult recommendations and distinguish public-health floor from individual optimization.",
+                    "limitations": [
+                      "公共健康指导不替代高级训练方案或临床个体化。"
+                    ],
+                    "answer_bindings": []
+                  }
+                ],
+                "evidence_links": [
+                  {
+                    "source_id": "CORE-US-HHS-PAG-2",
+                    "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+                    "span_ids": [
+                      "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+                    ]
+                  }
+                ],
+                "applicability": {
+                  "required": []
+                },
+                "reviewer_kind": "ai_assisted",
+                "authority": "explanation_only"
+              },
+              "spans": [
+                {
+                  "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+                  "version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+                  "locator_json": "{\"bounding_box\": [0, 0, 612, 792], \"chapter_id\": \"4\", \"edition_id\": \"CORE-US-HHS-PAG-2:edition-2\", \"extraction_method\": \"pdfplumber_page_text_v1.4\", \"file_page_index\": 55, \"ocr_status\": \"not_used_text_layer\", \"original_language\": \"en\", \"printed_page_label\": \"56\", \"printed_page_verification\": \"footer/page-sequence checked against Chapter 4 and 7 headings\", \"reading_order\": 1}",
+                  "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+                  "source_id": "CORE-US-HHS-PAG-2",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"index_allowed\": true, \"license_id\": \"US-HHS-public-domain-text\", \"redistribution_allowed\": true, \"review\": \"Actual official copyright policy read; no endorsement inferred.\", \"rights_scope\": \"federal prose only; no photographs or illustrations\", \"status\": \"official_text_public_domain_images_excluded\"}"
+                }
+              ],
+              "exact_reviewed_question": false,
+              "corpus_roles": [
+                "core"
+              ],
+              "resolved_task": {
+                "subject": "resistance_training",
+                "outcome": null,
+                "requested_relation": "options",
+                "source_constraints": {},
+                "specific_source_unresolved": false,
+                "personal_numeric_request": false,
+                "compound_request": false,
+                "requested_population": null,
+                "possible_outcomes": [],
+                "issues": [
+                  "outcome_unresolved"
+                ],
+                "resolution": "unresolved_or_ambiguous_task"
+              },
+              "score": 1.1736001944781467
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-sdnn-protocol",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-state-observation",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 1,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "58eacdfbd8e3552059b8f6b7dcf31b939a3ba0fb1bbfc19a6aeca7b0dec530a3"
+      },
+      "public_output_sha256": "c82b1dbe6b7586d0aefd63eb640e77364a7fe9abe73040e337032638c6f4a8fa"
+    },
+    {
+      "case_id": "H08",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "related_material_only",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "KB4"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "annotation_validation": null,
+      "annotation_identity": {
+        "case_id": "H08",
+        "question_sha256": "1d7f2a9b798111d27a544b91598026bebd82a70bd02f230b229c9b48ec15a08f",
+        "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。\n尚未可靠识别整句要回答的目标；可以在“明确问题目标”中选择并确认一个目标后查询。涉及多个目标时应分别核对，不能把时间描述自动当作训练频率问题。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "related_material_only",
+        "support_assessment": {
+          "status": "related_material_only",
+          "target_resolution": "unresolved_free_text_search",
+          "targets": [],
+          "independent_semantic_validation": "pending; reviewed bindings do not constitute independent human adjudication",
+          "contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "conflict_screen": {
+            "complete": true,
+            "eligible_theories_checked": 6,
+            "scope": "all eligible route and applicability matches before display budget"
+          }
+        },
+        "related_materials": [],
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.4.1",
+          "question_contract": {
+            "subject": null,
+            "outcome": null,
+            "requested_relation": "options",
+            "source_constraints": {},
+            "specific_source_unresolved": false,
+            "personal_numeric_request": false,
+            "compound_request": false,
+            "requested_population": null,
+            "possible_outcomes": [],
+            "issues": [
+              "subject_unresolved",
+              "outcome_unresolved"
+            ],
+            "resolution": "unresolved_or_ambiguous_task"
+          },
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-progression-load-repetition-options",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "reason": "theory_needs_review"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "reason": "theory_needs_review"
+            }
+          ],
+          "eligible_candidate_count": 6,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "answer_status": "related_material_only",
+        "corpus_partitions": [
+          "core",
+          "research"
+        ],
+        "evidence_bundle_hash": "f6a83019ca2e4466d27872045d289c71e140772e2e5dbfad57cbceecf15dd024"
+      },
+      "public_output_sha256": "b571a7f001a990275c81ef90ff547a0571fd309e6205720f2bdc6a469787e66e"
+    }
+  ],
+  "release_gate": "pending_corpus_and_semantic_review",
+  "limits": [
+    "Visible development cases are regression examples, not an independent test set.",
+    "Keyword presence is not used as semantic correctness scoring.",
+    "Zero emitted citations does not establish citation quality.",
+    "No intervention effectiveness or personal scientific validity is inferred.",
+    "Independently authored case set with source families disjoint from the 30 visible development cases. Authored by implementing agent, not an external blinded evaluation. No tuning based on its output. Missing reviewed gold spans remain blocked; does not establish scientific generalization."
+  ],
+  "corpus_partitions": [
+    "core",
+    "research"
+  ],
+  "metrics_data_kind": "explicit synthetic development metric fixtures; source claims use the actual local corpus",
+  "publication_projection": {
+    "version": "public-artifacts-1.1.0",
+    "original_artifact_sha256": "287b9ed6b0ee0b1315490c072483908e3a533faf8f9a23fac06589659cbaa933",
+    "scope": "retrieval spans only: ID, exact source version, text hash, locator and rights status",
+    "removed": [
+      "source text",
+      "structured source content",
+      "article metadata",
+      "license prose"
+    ],
+    "span_occurrences_projected": 15,
+    "case_output_sha256_scope": "Unprojected original result; existing semantic annotation binding is unchanged.",
+    "case_public_output_sha256_scope": "Canonical JSON of the published output after source-content projection.",
+    "evaluation_changed": false,
+    "private_corpus_modified": false,
+    "limits": "Public metadata is not a substitute for authorized source reading; no scores or adjudications were recomputed."
+  }
+}

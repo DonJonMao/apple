@@ -1,0 +1,166 @@
+{
+  "alternate_units": {
+    "import": {
+      "batch_id": 1,
+      "status": "completed",
+      "records_seen": 3,
+      "records_inserted": 3,
+      "records_deduplicated": 0,
+      "records_skipped": 0,
+      "errors_count": 0,
+      "unknown_type_counts": {},
+      "error_samples": [],
+      "date_min": "2026-11-09",
+      "date_max": "2026-11-09",
+      "exported_at": null
+    },
+    "stored": [
+      {
+        "raw_type": "HKQuantityTypeIdentifierBasalEnergyBurned",
+        "raw_value": "6694.4",
+        "raw_unit": "kJ",
+        "normalized_value": 6694.4,
+        "normalized_unit": "kcal",
+        "unit_status": "unit_unverified"
+      },
+      {
+        "raw_type": "HKQuantityTypeIdentifierActiveEnergyBurned",
+        "raw_value": "2510.4",
+        "raw_unit": "kJ",
+        "normalized_value": 2510.4,
+        "normalized_unit": "kcal",
+        "unit_status": "unit_unverified"
+      },
+      {
+        "raw_type": "HKQuantityTypeIdentifierHeartRateVariabilitySDNN",
+        "raw_value": "0.05",
+        "raw_unit": "s",
+        "normalized_value": 0.05,
+        "normalized_unit": "ms",
+        "unit_status": "unit_unverified"
+      }
+    ],
+    "metrics": {
+      "ENERGY-DEVICE-TOTAL": {
+        "value": [
+          {
+            "stream": [
+              "Watch",
+              null,
+              null,
+              "1"
+            ],
+            "basal_kcal": 6694.4,
+            "active_kcal": 2510.4,
+            "device_total_kcal": 9204.8,
+            "paired_dates": [
+              "2026-11-09"
+            ],
+            "complete_days": 1,
+            "valid_day_mean_kcal_day": 9204.8
+          }
+        ],
+        "unit": "kcal",
+        "data_status": "valid",
+        "reason_codes": [
+          "same_date_stream_and_interval_components_only",
+          "workout_not_added_again",
+          "no_TEF_multiplier",
+          "device_report_not_true_TEE"
+        ],
+        "exclusions": []
+      },
+      "STATE-SDNN": {
+        "value": {
+          "('Watch', None, None, '1')": [
+            {
+              "date": "2026-11-09",
+              "value": 0.05,
+              "n": 1,
+              "source_ids": [
+                "health_sample:3"
+              ],
+              "protocol": [
+                "Watch",
+                null,
+                null,
+                "1"
+              ]
+            }
+          ]
+        },
+        "unit": "ms",
+        "data_status": "valid",
+        "reason_codes": [
+          "protocol_streams_not_pooled",
+          "SDNN_is_not_RMSSD"
+        ],
+        "exclusions": []
+      }
+    },
+    "expected": {
+      "device_total_kcal": 2200,
+      "SDNN_ms": 50
+    }
+  },
+  "phone_inbed_watch_asleep": {
+    "import": {
+      "batch_id": 1,
+      "status": "completed",
+      "records_seen": 2,
+      "records_inserted": 2,
+      "records_deduplicated": 0,
+      "records_skipped": 0,
+      "errors_count": 0,
+      "unknown_type_counts": {},
+      "error_samples": [],
+      "date_min": "2026-11-11",
+      "date_max": "2026-11-11",
+      "exported_at": null
+    },
+    "metric": {
+      "value": null,
+      "unit": "min",
+      "data_status": "incompatible",
+      "reason_codes": [
+        "multiple_sleep_streams_primary_source_required"
+      ],
+      "exclusions": []
+    },
+    "report": {
+      "value": [
+        {
+          "metric_id": "sleep_observed_minutes_by_wake_date",
+          "series_id": "observed_sleep_by_wake_date",
+          "series_label": "按结束日期汇总的已观察睡眠（未认定主睡眠）",
+          "protocol_id": "('Watch', None, None, '1')",
+          "source_id": "('Watch', None, None, '1')",
+          "n": 1,
+          "median": 420.0,
+          "quartiles": null
+        }
+      ],
+      "unit": "mixed explicit units",
+      "data_status": "valid",
+      "reason_codes": [],
+      "exclusions": []
+    },
+    "expected_observed_minutes": 420
+  },
+  "sleep_midnight_boundary": {
+    "exception_type": "ValueError",
+    "message": "invalid_denominator",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/a74a838d7f65/review912/state/reproduce.py\", line 43, in <module>\n    v=analyze(r,window_days=1,cutoff_time=cutoff.isoformat(),timezone_name='UTC')\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/analytics/v13.py\", line 180, in analyze\n    metrics = evaluate_all(records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/engine.py\", line 127, in evaluate_all\n    output = {metric_id: evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/engine.py\", line 99, in evaluate\n    value = state_metric(metric_id, selected, window, context)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/state.py\", line 131, in state_metric\n    return emit({\"recorded_dates\": len(dates), \"elapsed_dates\": denominator,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/state.py\", line 101, in emit\n    return result(metric_id, window, value, data_status=status, **{\"records\": rows, **extra})\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/contracts.py\", line 183, in result\n    validate_result(output, calibration=calibration)\n  File \"/workspace/scratch/a74a838d7f65/apple_review_912aefc/src/healthzip/science/contracts.py\", line 205, in validate_result\n    raise ValueError(\"invalid_denominator\")\nValueError: invalid_denominator\n",
+    "cutoff": "2026-11-13T00:00:00+00:00",
+    "window_start": "2026-11-12T00:00:00+00:00",
+    "expected": "No exception; numerator must use same half-open local-date domain as denominator"
+  },
+  "record_metadata": {
+    "stored": [
+      {
+        "metadata_json": "{}",
+        "source_record_id": null
+      }
+    ]
+  }
+}

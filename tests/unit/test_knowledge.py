@@ -186,6 +186,7 @@ def test_candidate_capability_requires_explicit_authority_and_current_evidence(k
     assert any(x['reason'] == 'explanation_only_no_candidate_authority' for x in knowledge.reviewed_principles('progression', {})['excluded'])
     request = dict(reviewer='Synthetic qualified review for software test only',
                    reviewer_kind='qualified_human_review', authority='progression_candidate',
+                   permitted_actions=['double_progression'],
                    rationale='Synthetic candidate protocol validation, not empirical efficacy.',
                    implementation_tests=['tests/unit/test_knowledge.py::test_candidate_capability_requires_explicit_authority_and_current_evidence'],
                    applicability={'required': {'population': 'adult_resistance', 'load_basis': 'total_external_kg'}},

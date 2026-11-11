@@ -1,0 +1,126 @@
+{
+  "baseline_commit": "912aefc93b9bd9c1cebf297a10728c69c827e266",
+  "data_kind": "synthetic",
+  "F10": {
+    "k1": {
+      "status": "evidence_supported",
+      "answer": "合成方案不允许增加重复次数。",
+      "eligible_candidate_count": 2,
+      "returned_theories": [
+        "TC-measurement-load-comparability"
+      ]
+    },
+    "k2": {
+      "status": "conflicting_evidence",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n对目标主张存在相互冲突的已审证据关系；不能选择其中一项当作确定结论。",
+      "eligible_candidate_count": 2,
+      "returned_theories": [
+        "TC-measurement-load-comparability",
+        "TC-progression-load-repetition-options"
+      ]
+    },
+    "k6": {
+      "status": "evidence_supported",
+      "answer": "合成方案允许增加重复次数。\n合成方案允许增加重复次数。\n合成方案允许增加重复次数。\n合成方案允许增加重复次数。\n合成方案允许增加重复次数。\n合成方案允许增加重复次数。",
+      "eligible_candidate_count": 7,
+      "returned_theories": [
+        "SYNTHETIC-0",
+        "SYNTHETIC-1",
+        "SYNTHETIC-2",
+        "SYNTHETIC-3",
+        "SYNTHETIC-4",
+        "SYNTHETIC-5"
+      ]
+    },
+    "k7": {
+      "status": "conflicting_evidence",
+      "answer": "已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。\n对目标主张存在相互冲突的已审证据关系；不能选择其中一项当作确定结论。",
+      "eligible_candidate_count": 7,
+      "returned_theories": [
+        "SYNTHETIC-0",
+        "SYNTHETIC-1",
+        "SYNTHETIC-2",
+        "SYNTHETIC-3",
+        "SYNTHETIC-4",
+        "SYNTHETIC-5",
+        "SYNTHETIC-6"
+      ]
+    },
+    "expected": "A resource budget must not turn an existing same-target contradiction into evidence_supported; both budgets should flag conflict or an incomplete conflict screen."
+  },
+  "F11": {
+    "spans": [
+      {
+        "xpath": "/article/body/p",
+        "text": "Allowed article context. RESTRICTED_FIGURE_MARKER All rights reserved. Permission required. Allowed article tail.",
+        "owner_scope": "/article",
+        "index_allowed": true,
+        "eligible": [
+          true,
+          "eligible"
+        ]
+      },
+      {
+        "xpath": "/article/body/p/fig/caption/p",
+        "text": "RESTRICTED_FIGURE_MARKER",
+        "owner_scope": "/article/body/p/fig",
+        "index_allowed": false,
+        "eligible": [
+          false,
+          "rights_not_cleared"
+        ]
+      }
+    ],
+    "expected": "RESTRICTED_FIGURE_MARKER must never appear in any eligible span, even when an enclosing paragraph is article-licensed."
+  },
+  "F12": {
+    "same_metadata_version_id": true,
+    "before_identical_refetch": {
+      "scientific_epoch": 1,
+      "eligible": [
+        true,
+        "eligible"
+      ],
+      "answer_status": "evidence_supported"
+    },
+    "after_identical_refetch": {
+      "scientific_epoch": 2,
+      "eligible": [
+        false,
+        "corrected_pending_review"
+      ],
+      "answer_status": "insufficient_evidence"
+    },
+    "expected": "Re-fetching byte-identical unchanged correction metadata must preserve the notice epoch and its exact-version clearance; a new or changed correction should invalidate it."
+  },
+  "previous": {
+    "R05_revocation_current": "insufficient_evidence",
+    "R05_revocation_frozen_release": "insufficient_evidence",
+    "R05_original_review_preserved": true,
+    "R05_effective_replacement_versions": [
+      "0.2.0"
+    ],
+    "RAG_unrelated_question": {
+      "status": "related_material_only",
+      "claims": 0,
+      "citations": 0,
+      "related_materials": 1
+    },
+    "R15_fetch_after_correction": {
+      "scientific_state": "corrected_pending_review",
+      "eligible": [
+        false,
+        "corrected_pending_review"
+      ]
+    },
+    "R06_original_component_fixture": {
+      "article_index_allowed": false,
+      "partially_indexable": true,
+      "by_native_id": {
+        "main": false,
+        "closed-table": false,
+        "child": true
+      }
+    }
+  }
+}

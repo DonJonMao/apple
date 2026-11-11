@@ -8,6 +8,8 @@ from datetime import timedelta
 from statistics import median, stdev
 from zoneinfo import ZoneInfo
 
+from healthzip.normalize import quantity_value
+
 from .contracts import Window, finite, instant, result
 
 ASLEEP = {"asleep", "asleepunspecified", "asleepcore", "asleepdeep", "asleeprem", "core", "deep", "rem"}
@@ -41,16 +43,22 @@ def stage(row: dict) -> str:
     return str(row.get("stage", row.get("category_value", ""))).replace("HKCategoryValueSleepAnalysis", "").lower()
 
 
-def sleep_intervals(rows: list[dict], start, end, context: dict) -> tuple[list[dict], list[str]]:
+def sleep_intervals(rows: list[dict], start, end, context: dict, *, include_awake=False) -> tuple[list[dict], list[str]]:
     candidates = [r for r in rows if r.get("canonical_type") == "sleep_stage" or r.get("metric_type") == "sleep" or "stage" in r]
-    streams = {stream_key(r) for r in candidates}
+    # Source eligibility is established by actual asleep observations. InBed or
+    # an awake-only stream does not compete with an asleep-recording device.
+    streams = {stream_key(r) for r in candidates if stage(r) in ASLEEP}
     selected_stream = context.get("primary_sleep_stream")
     reasons = []
+    if selected_stream is None and len(streams) == 1:
+        selected_stream = next(iter(streams))
     if selected_stream is not None:
         selected_stream = tuple(selected_stream)
         candidates = [r for r in candidates if stream_key(r) == selected_stream]
     elif len(streams) > 1:
         return [], ["multiple_sleep_streams_primary_source_required"]
+    relevant_stages = ASLEEP | ({"awake"} if include_awake else set())
+    candidates = [r for r in candidates if stage(r) in relevant_stages]
     out = []
     for row in candidates:
         try:
@@ -65,13 +73,18 @@ def sleep_intervals(rows: list[dict], start, end, context: dict) -> tuple[list[d
 
 
 def elapsed_dates(window: Window) -> int:
-    zone = ZoneInfo(window.timezone)
-    start = instant(window.start).astimezone(zone)
-    end = min(instant(window.end), instant(window.cutoff_time)).astimezone(zone)
+    return len(local_date_domain(instant(window.start), min(instant(window.end), instant(window.cutoff_time)), window.timezone))
+
+
+def local_date_domain(start, end, zone_name: str) -> set[str]:
+    """Local dates with positive support in the half-open instant interval."""
+    zone = ZoneInfo(zone_name)
+    start, end = instant(start), instant(end)
     if end <= start:
-        return 0
-    # Include the partly elapsed local day, never future days in a monthly view.
-    return ((end - timedelta(microseconds=1)).date() - start.date()).days + 1
+        return set()
+    first = start.astimezone(zone).date()
+    last = (end - timedelta(microseconds=1)).astimezone(zone).date()
+    return {(first + timedelta(days=offset)).isoformat() for offset in range((last-first).days+1)}
 
 
 def daily_values(rows: list[dict], canonical: str, zone_name: str) -> dict:
@@ -79,20 +92,17 @@ def daily_values(rows: list[dict], canonical: str, zone_name: str) -> dict:
     for row in rows:
         if row.get("canonical_type", row.get("metric_type")) != canonical:
             continue
-        value = finite(row.get("normalized_value", row.get("value")))
+        numeric = quantity_value(row)
+        value = numeric["value"]
         if value is None:
             continue
-        unit = row.get("normalized_unit", row.get("unit", row.get("raw_unit")))
-        if canonical == "hrv_sdnn_ms" and unit in {"s", "sec", "second"}:
-            value *= 1000
-        elif canonical == "body_mass_kg" and unit in {"lb", "lbs"}:
-            value *= 0.45359237
         if canonical == "hrv_sdnn_ms" and row.get("metric_identity") == "RMSSD":
             continue
         day = instant(row["_event_end"]).astimezone(ZoneInfo(zone_name)).date().isoformat()
-        streams[stream_key(row)][day].append((value, row))
+        streams[stream_key(row)][day].append((value, {**row, "_numeric_provenance": numeric}))
     return {str(key): [{"date": day, "value": next((v for v, r in items if r.get("is_primary") is True), median(v for v, _ in items)), "n": len(items),
-                        "source_ids": [r.get("_source_id") for _, r in items], "protocol": list(key)}
+                        "source_ids": [r.get("_source_id") for _, r in items], "protocol": list(key),
+                        "numeric_provenance": [r["_numeric_provenance"] for _, r in items]}
                        for day, items in sorted(days.items())] for key, days in streams.items()}
 
 
@@ -112,7 +122,7 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             if not main.get("start") or not main.get("end") or not instant(main["start"]) < instant(main["end"]) <= instant(window.cutoff_time):
                 return emit(None, "insufficient", reasons=["main_sleep_episode_boundary_invalid_or_future"], valid_n=0)
             start, end = max(start, instant(main["start"])), min(end, instant(main["end"]))
-        intervals, reasons = sleep_intervals(rows, start, end, context)
+        intervals, reasons = sleep_intervals(rows, start, end, context, include_awake=metric_id == "STATE-SLEEP-STAGE")
         if reasons and not intervals:
             return emit(None, "incompatible", reasons=reasons, valid_n=0, total_n=len(rows))
         asleep = union([(v["start"], v["end"]) for v in intervals if v["stage"] in ASLEEP])
@@ -126,11 +136,13 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
                         "valid" if complete else "partial", evidence_status="observed",
                         reasons=[] if complete else ["observed_sleep_not_proven_complete_episode"])
         if metric_id == "STATE-SLEEP-COVERAGE":
-            dates = {end.astimezone(ZoneInfo(window.timezone)).date().isoformat() for _, end in asleep}
-            denominator = elapsed_dates(window)
+            domain = local_date_domain(start, end, window.timezone)
+            dates = set().union(*(local_date_domain(a, b, window.timezone) for a, b in asleep)) & domain
+            denominator = len(domain)
             return emit({"recorded_dates": len(dates), "elapsed_dates": denominator,
-                         "fraction": len(dates) / denominator if denominator else None},
-                        "valid" if denominator else "insufficient", valid_n=len(dates), total_n=denominator,
+                         "fraction": len(dates) / denominator if denominator and dates else None,
+                         "recorded_date_ids": sorted(dates), "eligible_date_ids": sorted(domain)},
+                        "valid" if denominator and dates else "insufficient", valid_n=len(dates), total_n=denominator,
                         count_domain="local_dates", reasons=["record_coverage_not_wear_time_or_complete_nights"])
         if metric_id == "STATE-SLEEP-STAGE":
             by_stage = defaultdict(list)
@@ -188,6 +200,7 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             return emit({"SDNN_ms": stdev(nn), "n_NN": len(nn), "cleaning_protocol": context["artifact_cleaning_protocol"]},
                         evidence_status="observed", reasons=["SDNN_is_not_RMSSD"])
         return emit(values or None, "valid" if values else "insufficient", evidence_status="observed",
+                    valid_n=sum(item["n"] for stream in values.values() for item in stream),
                     reasons=["protocol_streams_not_pooled", "SDNN_is_not_RMSSD"] if metric_id == "STATE-SDNN" else ["protocol_streams_not_pooled"])
     if metric_id in {"STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION"}:
         if "baseline_daily" not in context:
@@ -287,12 +300,19 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             pauses = [(max(a, instant(p["start"])), min(b, instant(p["end"]))) for p in session.get("pauses", [])]
             protocol = session.get("duration_protocol")
             explicit = finite(session.get("duration_seconds"))
+            elapsed_seconds = (b - a).total_seconds()
+            pause_seconds = seconds(pauses)
+            duration_reasons = []
             if protocol == "user_elapsed_including_rest" and explicit is not None:
                 duration = explicit / 60
                 duration_source = "user_reported"
             elif protocol in {"elapsed_including_set_rest", "elapsed_minus_pauses", "event_elapsed_including_rest"}:
-                duration = ((b - a).total_seconds() - seconds(pauses)) / 60
-                duration_source = "event_timestamps_and_union_pauses"
+                expected = elapsed_seconds - pause_seconds if protocol == "elapsed_minus_pauses" else elapsed_seconds
+                duration = expected / 60
+                duration_source = "event_timestamps_and_union_pauses" if protocol == "elapsed_minus_pauses" else "event_elapsed"
+                if explicit is not None and explicit != expected:
+                    duration = None
+                    duration_reasons.append("manual_and_event_duration_conflict")
             else:
                 duration = None
                 duration_source = "unknown_protocol"
@@ -302,6 +322,8 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             delay = (instant(session["srpe_collected_at"]) - b).total_seconds() / 60 if session.get("srpe_collected_at") else None
             values.append({"session_id": session["session_id"], "session_rpe": srpe,
                            "duration_minutes": duration, "duration_source": duration_source,
+                           "observed_elapsed_minutes": elapsed_seconds / 60, "union_pause_minutes": pause_seconds / 60,
+                           "user_duration_seconds": explicit, "reason_codes": duration_reasons,
                            "actual_collection_delay_minutes": delay,
                            "srpe_protocol": session.get("srpe_protocol"), "duration_protocol": session.get("duration_protocol"),
                            "AU": srpe * duration if srpe is not None and duration is not None else None})
