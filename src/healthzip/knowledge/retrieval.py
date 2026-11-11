@@ -8,6 +8,7 @@ import re
 from collections import Counter
 
 from .store import digest, dumps
+from .support import assess_support, normalized_question
 
 ROUTE_TERMS = {
     "strength": ("力量", "负重", "公斤", "史密斯", "卧推", "e1rm", "1rm", "rir", "rpe", "配重", "重复", "strength", "load"),
@@ -97,8 +98,10 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
             excluded.append({"theory_id": row["theory_id"], "reason": ";".join(reasons) or "no_spans"})
             continue
         text = card.get("title", "") + " " + " ".join(c["text"] for c in review.get("claims", []))
+        exact_binding = any(normalized_question(binding["question"]) == normalized_question(question)
+                            for claim in review.get("claims", []) for binding in claim.get("answer_bindings", []))
         candidates.append({"theory_id": row["theory_id"], "theory_version": row["version"], "card": card,
-                           "review": review, "spans": spans, "terms": Counter(tokens(text))})
+                           "review": review, "spans": spans, "terms": Counter(tokens(text)), "exact_reviewed_question": exact_binding})
     query_terms = set(tokens(question))
     for item in candidates:
         score = 0.0
@@ -108,8 +111,8 @@ def retrieve(workbench, question: str, routes: list[dict], context: dict, k: int
             if tf:
                 score += (1 + math.log(tf)) * math.log(1 + (len(candidates) + 1) / (df + 1))
         item["score"] = score
-    candidates.sort(key=lambda x: (-x["score"], x["theory_id"], x["theory_version"]))
-    chosen = [{k: v for k, v in c.items() if k != "terms"} for c in candidates if c["score"] > 0][:k]
+    candidates.sort(key=lambda x: (not x["exact_reviewed_question"], -x["score"], x["theory_id"], x["theory_version"]))
+    chosen = [{k: v for k, v in c.items() if k != "terms"} for c in candidates if c["score"] > 0 or c["exact_reviewed_question"]][:k]
     return {"retriever_version": "lexical-1.3.0", "k": k, "candidates": chosen, "excluded": excluded,
             "eligible_candidate_count": len(candidates), "numeric_action_authority": "none", "release_id": release_id}
 
@@ -153,33 +156,50 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
         # Only already-computed, traceable metric objects are carried through; no inferred numbers.
         if metric.get("metric_id") and (metric.get("data_cutoff") or metric.get("cutoff_time")) and (metric.get("algorithm_version") or metric.get("formula_version") or metric.get("definition_version")):
             observations.append(metric)
-    claims, citations = [], []
+    claims, citations, related = [], [], []
+    assessment, supported = assess_support(question, context, retrieval["candidates"])
     if not guard:
         for candidate in retrieval["candidates"]:
-            for claim in candidate["review"]["claims"]:
+            related.append({"theory_id": candidate["theory_id"], "theory_version": candidate["theory_version"],
+                            "source_statements": [c["text"] for c in candidate["review"]["claims"]],
+                            "evidence_links": candidate["review"]["evidence_links"],
+                            "status": "reading_material_not_answer_support"})
+        for candidate, claim, binding in supported:
+            if not any(c["text"] == claim["text"] and c["theory_id"] == candidate["theory_id"] for c in claims):
                 claims.append({"text": claim["text"], "theory_id": candidate["theory_id"],
                                "theory_version": candidate["theory_version"], "span_ids": claim["span_ids"],
                                "kind": "reviewed_evidence_claim", "direction": claim.get("direction", "unspecified"),
-                               "limitations": claim.get("limitations", [])})
+                               "limitations": claim.get("limitations", []), "target_claim": binding["target_claim"],
+                               "evidence_relation": binding["relation"], "support_rationale": binding["rationale"]})
             for link in candidate["review"]["evidence_links"]:
-                citations.append({"theory_id": candidate["theory_id"], "theory_version": candidate["theory_version"],
-                                  **link, "evidence_level_used": "fulltext" if all(workbench.lib.span(s)["material_type"] == "fulltext" for s in link["span_ids"]) else "abstract"})
+                cited = [sid for sid in link["span_ids"] if sid in claim["span_ids"]]
+                if not cited:
+                    continue
+                citation = {"theory_id": candidate["theory_id"], "theory_version": candidate["theory_version"],
+                            **link, "span_ids": cited, "evidence_level_used": "fulltext" if all(workbench.lib.span(s)["material_type"] == "fulltext" for s in cited) else "abstract"}
+                if citation not in citations:
+                    citations.append(citation)
     sentences = [guard_text] if guard_text else [c["text"] for c in claims]
     if not guard:
         computed = [f"已计算指标 {m['metric_id']}：{dumps(m.get('value'))}；单位 {m.get('unit')}；时间窗 {dumps(m.get('window'))}；截止 {m.get('cutoff_time', m.get('data_cutoff'))}；版本 {m.get('algorithm_version', m.get('formula_version'))}。" for m in observations]
         sentences = computed + sentences
     if not sentences:
-        sentences = ["当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。"]
+        sentences = ["已找到相关阅读材料，但尚未建立其对当前目标主张及适用条件的支持关系；当前问题仍未得到证据支持的回答。" if related else "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。"]
+    if assessment["status"] == "conflicting_evidence" and not guard:
+        sentences.append("对目标主张存在相互冲突的已审证据关系；不能选择其中一项当作确定结论。")
     limits = [BOUNDARIES[x["route"]] for x in routes]
     limits.extend(limit for c in claims for limit in c["limitations"])
+    if assessment["status"] == "partial_answer_support" and not guard:
+        limits.append("仅部分目标或限定条件有已审关系；未覆盖的目标保持未知，当前不是完整回答。")
     if not claims and not guard:
         limits.append("来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。")
     output = {"observations": observations, "answer": "\n".join(sentences), "claims": claims,
-              "limits": limits, "citations": citations, "status": guard or ("evidence_supported" if claims else "insufficient_evidence"),
+              "limits": limits, "citations": citations, "status": guard or assessment["status"],
+              "support_assessment": assessment, "related_materials": related,
               "routes": routes, "retrieval": retrieval, "source": "local_structured_template", "numeric_actions": [],
               "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
               "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access"}
-    output["evidence_bundle_hash"] = digest(dumps({k: output[k] for k in ("observations", "claims", "citations", "routes")}).encode())
+    output["evidence_bundle_hash"] = digest(dumps({k: output[k] for k in ("observations", "claims", "citations", "routes", "support_assessment")}).encode())
     if proposed_answer is not None:
         errors = validate_answer(workbench, proposed_answer, output)
         output["generation_validation"] = {"accepted": not errors, "errors": errors}
@@ -204,6 +224,11 @@ def validate_answer(workbench, candidate: dict, bundle: dict) -> list[str]:
     for observation in candidate.get("observations", []):
         if dumps(observation) not in allowed_metrics:
             errors.append("metric_value_unit_direction_window_or_version_mismatch")
+    allowed_claims = {dumps(x) for x in bundle.get("claims", [])}
+    if any(dumps(x) not in allowed_claims for x in candidate.get("claims", [])):
+        errors.append("unapproved_target_claim_or_evidence_relation")
+    if "support_assessment" in candidate and candidate["support_assessment"] != bundle.get("support_assessment"):
+        errors.append("target_support_assessment_changed")
     allowed_citations = {dumps(c) for c in bundle["citations"]}
     for citation in candidate.get("citations", []):
         if dumps(citation) not in allowed_citations:

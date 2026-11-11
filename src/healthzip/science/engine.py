@@ -5,14 +5,16 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Optional
 
-from .contracts import Window, definitions, instant, select_as_of, validate_result
+from .contracts import Window, canonical_hash, definitions, instant, select_as_of, validate_result
 from .energy import energy_metric
 from .evaluation import quality_metric
 from .prediction import prediction_metric
 from .reports import derive_report_context, report_metric
-from .semantics import flatten_record
+from .semantics import analysis_task, flatten_record
 from .state import state_metric
 from .strength import strength_metric
+
+TASK_METRICS = {f"STR-{number:02d}" for number in (7, 8, 11, 12, 13, 14, *range(16, 27))} | {"PRED-B0", "PRED-B1"}
 
 
 def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_time: str,
@@ -86,6 +88,11 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         selection_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
     selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False),
                                      overlap=metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-")))
+    if metric_id in {"STR-19", "STR-20", "STR-22", "STR-24"}:
+        context["observed_snapshot_hash"] = canonical_hash({"records": selected, "window": window.as_dict(), "cutoff_time": cutoff_time,
+                                                          "data_version": str(context.get("data_version"))})
+        task_ids = {analysis_task(row)["task_id"] for row in selected}
+        context["observed_task_id"] = next(iter(task_ids)) if len(task_ids) == 1 else None
     if metric_id.startswith("STR-"):
         value = strength_metric(metric_id, selected, window, context)
     elif metric_id.startswith("STATE-") or metric_id.startswith("LOAD-"):
@@ -117,6 +124,39 @@ def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, wind
     window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
     report_rows, _ = select_as_of(normalized, window, retrospective=context.get("retrospective", False), overlap=True)
     context = {**derive_report_context(report_rows, window), **context}
-    return {metric_id: evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
-                                window_end=window_end, context=context, _normalized=normalized)
-            for metric_id in definitions()}
+    output = {metric_id: evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
+                                  window_end=window_end, context=context, _normalized=normalized)
+              for metric_id in definitions()}
+    available, _ = select_as_of([r for r in normalized if r.get("record_kind", "strength_set") == "strength_set"],
+                                window, retrospective=context.get("retrospective", False))
+    groups, identities = {}, {}
+    for row in available:
+        if not row.get("is_reference"):
+            continue
+        task = analysis_task(row)
+        identities[task["task_id"]] = task
+        groups.setdefault(task["task_id"], []).append(row)
+    for metric_id in TASK_METRICS:
+        task_results = []
+        for task_id, rows in groups.items():
+            task_context = {**context, **context.get("task_contexts", {}).get(task_id, {}), "task_id": task_id}
+            task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(), "cutoff_time": cutoff_time,
+                                                                 "data_version": str(context.get("data_version"))})
+            calculated = evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
+                                  window_end=window_end, context=task_context, _normalized=rows)
+            task_results.append({**identities[task_id], "data_snapshot_hash": task_context["data_snapshot_hash"],
+                                 "input_data_hash": canonical_hash(rows), "metric": calculated})
+        if task_results:
+            if len(task_results) == 1:
+                output[metric_id] = {**task_results[0]["metric"], "task_results": task_results}
+            else:
+                item = output[metric_id]
+                item.update(value={"tasks": [{k: v for k, v in task.items() if k != "metric"} | {
+                    "value": task["metric"]["value"], "data_status": task["metric"]["data_status"],
+                    "valid_n": task["metric"]["valid_n"], "reason_codes": task["metric"]["reason_codes"]} for task in task_results]},
+                    task_results=task_results, data_status="valid" if all(task["metric"]["data_status"] == "valid" for task in task_results) else "partial",
+                    valid_n=sum(task["metric"]["valid_n"] or 0 for task in task_results),
+                    total_n=sum(task["metric"]["total_n"] or 0 for task in task_results),
+                    reason_codes=["independent_action_condition_protocol_tasks"],
+                    uncertainty={"kind": "not_estimated", "lower": None, "upper": None, "level": None, "assumptions": []})
+    return output

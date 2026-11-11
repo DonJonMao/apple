@@ -64,9 +64,146 @@ def _act(function, *args, **kwargs):
         return None
 
 
-def _draft_change(db_path, set_id, revision, widget_key, field):
+def _set_form_fields(row, mode):
+    measured = {"repetitions": "reps", "duration": "duration_s", "distance": "distance_m"}[mode]
+    suffixes = {
+        "load_value": "load_value",
+        measured: measured,
+        "rir": "rir",
+        "load_unit": "unit",
+        "stop_reason": "stop",
+        "set_type": "type",
+        "quality_status": "quality",
+        "rir_qualifier": "rir_qualifier",
+        "rpe": "rpe",
+        "rpe_scale": "rpe_scale",
+        "pain_flag": "pain",
+        "started_at": "start",
+        "ended_at": "end",
+        "relation_kind": "relation",
+        "parent_set_uuid": "parent_set",
+        "relation_group_id": "relation_id",
+        "quality_note": "note",
+    }
+    suffixes.update(
+        {
+            field: "extra_" + field
+            for field in (
+                "body_mass_kg",
+                "added_load_kg",
+                "assistance_value",
+                "duration_s",
+                "distance_m",
+                "rest_recorded_s",
+                "rest_recorded_method",
+            )
+            if field != measured
+        }
+    )
+    select_fields = {
+        "load_unit",
+        "stop_reason",
+        "set_type",
+        "quality_status",
+        "rir_qualifier",
+        "rpe_scale",
+        "pain_flag",
+        "relation_kind",
+    }
+    defaults = {"load_unit": "kg", "stop_reason": "unknown", "set_type": "work"}
+    values = {}
+    for field in suffixes:
+        value = row.get(field)
+        if field in defaults:
+            value = value or defaults[field]
+        if field == "pain_flag" and value is not None:
+            value = bool(value)
+        values[field] = value if field in select_fields else ("" if value is None else str(value))
+    for field, suffix in (
+        ("reps_min", "target_low"),
+        ("reps_max", "target_high"),
+        ("rir", "target_rir"),
+    ):
+        key = "planned." + field
+        suffixes[key] = suffix
+        value = (row.get("planned") or {}).get(field)
+        values[key] = "" if value is None else str(value)
+    return suffixes, values
+
+
+def _form_dirty(prefix, baseline):
+    dirty = set()
+    numeric_fields = {
+        "load_value",
+        "reps",
+        "rir",
+        "rpe",
+        "body_mass_kg",
+        "added_load_kg",
+        "assistance_value",
+        "duration_s",
+        "distance_m",
+        "rest_recorded_s",
+        "planned.reps_min",
+        "planned.reps_max",
+        "planned.rir",
+    }
+    for field, suffix in baseline["suffixes"].items():
+        before = baseline["values"][field]
+        current = st.session_state.get(prefix + "_" + suffix, before)
+        if current == before:
+            continue
+        if field in numeric_fields:
+            try:
+                if numeric(current, field) == numeric(before, field):
+                    continue
+            except ValueError:
+                pass
+        dirty.add(field)
+    return dirty
+
+
+def _bind_set_form(row, mode, prefix):
+    key = "training_form:" + prefix
+    baseline = st.session_state.get(key)
+    if baseline and baseline.get("sync"):
+        for field, value in baseline.pop("sync").items():
+            st.session_state[prefix + "_" + baseline["suffixes"][field]] = value
+    if baseline is None or (
+        baseline["revision"] != row["revision"] and not _form_dirty(prefix, baseline)
+    ):
+        suffixes, values = _set_form_fields(row, mode)
+        baseline = {
+            "revision": row["revision"],
+            "suffixes": suffixes,
+            "values": values,
+            "mode": mode,
+        }
+        st.session_state[key] = baseline
+        for field, suffix in suffixes.items():
+            st.session_state[prefix + "_" + suffix] = values[field]
+    return baseline
+
+
+def _accept_set_form(row, prefix, mode, submitted):
+    old = st.session_state.get("training_form:" + prefix)
+    keep = (_form_dirty(prefix, old) if old else set()) - set(submitted)
+    suffixes, values = _set_form_fields(row, mode)
+    st.session_state["training_form:" + prefix] = {
+        "revision": row["revision"],
+        "suffixes": suffixes,
+        "values": values,
+        "mode": mode,
+        "sync": {key: value for key, value in values.items() if key not in keep},
+    }
+
+
+def _draft_change(db_path, set_id, revision, widget_key, field, prefix, mode):
     repo = Repository(db_path)
     try:
+        # Other callbacks from this same submission may already have committed
+        # one field. Advance only to this form's acknowledged revision.
+        revision = st.session_state.get("training_form:" + prefix, {}).get("revision", revision)
         value = st.session_state[widget_key]
         changes = {field: None if value == "" else value}
         if field == "load_value":
@@ -78,6 +215,8 @@ def _draft_change(db_path, set_id, revision, widget_key, field):
         )
         if result.get("status") == "conflicted":
             st.session_state["training_notice"] = "草稿有版本冲突，请复核。"
+        else:
+            _accept_set_form(result, prefix, mode, changes)
     except ValueError as exc:
         st.session_state["training_notice"] = str(exc)
     finally:
@@ -195,9 +334,31 @@ def _condition_form(svc, exercise, key, existing=None):
         value=bool(old.get("settings_confirmed")),
         key=key + "_settings_ok",
     )
-    protocol = st.text_input(
-        "参考测量协议（可选，如固定首个工作组/休息/技术规则）",
-        value=old.get("reference_protocol") or "",
+    old_protocol = old.get("reference_protocol")
+    protocol_note = old.get("reference_protocol_note") or (
+        old_protocol if isinstance(old_protocol, str) else ""
+    )
+    structured = old_protocol if isinstance(old_protocol, dict) else {}
+    protocol = {}
+    with st.expander("结构化参考测量协议（未知字段留空）"):
+        st.caption(
+            "协议标识和版本与策略、用力、节奏及休息规则共同定义一次测量任务；说明文字不替代这些字段。修改规则请更新版本。"
+        )
+        for field, suffix, label in (
+            ("protocol_id", "id", "协议标识"),
+            ("version", "version", "协议版本"),
+            ("reference_policy_id", "policy", "参考组选择规则"),
+            ("effort_protocol", "effort", "用力终止规则"),
+            ("tempo", "tempo", "动作节奏规则"),
+            ("rest_protocol", "rest", "参考组前休息规则"),
+        ):
+            value = st.text_input(
+                label, value=structured.get(field) or "", key=key + "_protocol_" + suffix
+            )
+            protocol[field] = value.strip() or None
+    note = st.text_input(
+        "参考协议备注（可选，不作为可比性条件）",
+        value=protocol_note,
         key=key + "_protocol",
     )
     symmetric = (
@@ -242,7 +403,8 @@ def _condition_form(svc, exercise, key, existing=None):
         "symmetric_loading": symmetric,
         "effective_bar_mass_kg": numeric(bar, "杆重"),
         "implement_count": numeric(count, "哑铃只数", integer=True),
-        "reference_protocol": protocol or None,
+        "reference_protocol": protocol if any(protocol.values()) else None,
+        "reference_protocol_note": note or None,
     }
 
 
@@ -279,6 +441,8 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
             f"目标 {planned.get('reps_min') or '—'}–{planned.get('reps_max') or '—'} 次；RIR {planned.get('rir') if planned.get('rir') is not None else '未设'}"
         )
     mode = instance["condition"]["measurement_mode"]
+    baseline = _bind_set_form(row, mode, prefix)
+    revision = baseline["revision"]
     fields = [
         ("load_value", "重量 / 刻度"),
         (
@@ -294,7 +458,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
             value="" if row.get(field) is None else str(row[field]),
             key=key,
             on_change=_draft_change,
-            args=(str(repo.path), identity, row["revision"], key, field),
+            args=(str(repo.path), identity, revision, key, field, prefix, mode),
         )
     unit = st.selectbox(
         "单位",
@@ -302,7 +466,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         index=["kg", "lb", "stack_level", "level"].index(row.get("load_unit") or "kg"),
         key=prefix + "_unit",
         on_change=_draft_change,
-        args=(str(repo.path), identity, row["revision"], prefix + "_unit", "load_unit"),
+        args=(str(repo.path), identity, revision, prefix + "_unit", "load_unit", prefix, mode),
     )
     stop = st.selectbox(
         "停止原因",
@@ -311,7 +475,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         index=list(STOP_LABELS).index(row.get("stop_reason") or "unknown"),
         key=prefix + "_stop",
         on_change=_draft_change,
-        args=(str(repo.path), identity, row["revision"], prefix + "_stop", "stop_reason"),
+        args=(str(repo.path), identity, revision, prefix + "_stop", "stop_reason", prefix, mode),
     )
     kind = st.selectbox(
         "组类型",
@@ -359,6 +523,8 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
             ("assistance_value", "独立记录助力大小"),
             ("duration_s", "实际持续秒数"),
             ("distance_m", "实际距离米"),
+            ("rest_recorded_s", "主动记录的组前休息秒数"),
+            ("rest_recorded_method", "主动休息记录方法（如秒表或回忆）"),
         ):
             if field in {x[0] for x in fields}:
                 continue
@@ -375,6 +541,9 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
                 None if row.get("pain_flag") is None else bool(row["pain_flag"])
             ),
             key=prefix + "_pain",
+        )
+        st.caption(
+            f"由相邻实际端点派生的组前休息：{row.get('rest_actual_s') if row.get('rest_actual_s') is not None else '未知'} 秒。主动记录与派生值分开保存。"
         )
     with st.expander("时间、特殊组和补充信息"):
         started = st.text_input(
@@ -406,9 +575,11 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
             st.caption("已预先指定参考组")
         elif row.get("completion_state") in {"draft", "in_progress"}:
             if st.button("将这组预先指定为参考组", key=prefix + "_reference"):
-                if _act(
-                    svc.edit_set, identity, {"reference_set": True}, base_revision=row["revision"]
-                ):
+                saved = _act(
+                    svc.edit_set, identity, {"reference_set": True}, base_revision=revision
+                )
+                if saved:
+                    _accept_set_form(saved, prefix, mode, {"reference_set"})
                     st.rerun()
     updates = {field: st.session_state[prefix + "_" + field] or None for field, _ in fields}
     updates.update(
@@ -428,8 +599,15 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
     )
     if st.button("保存字段更正", key=prefix + "_save_fields"):
         updates.update(started_at=started or None, ended_at=ended or None)
-        if _act(svc.edit_set, identity, updates, base_revision=row["revision"]):
-            st.rerun()
+        dirty = _form_dirty(prefix, baseline)
+        patch = {key: value for key, value in updates.items() if key in dirty}
+        if patch:
+            saved = _act(svc.edit_set, identity, patch, base_revision=revision)
+            if saved:
+                _accept_set_form(saved, prefix, mode, patch)
+                st.rerun()
+        else:
+            st.info("没有修改实际字段；当前记录保持不变。")
     if row.get("completion_state") in {"draft", "in_progress"}:
         with st.expander("本组目标（与实际完成分开）"):
             target_low = st.text_input(
@@ -448,7 +626,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
                 key=prefix + "_target_rir",
             )
             if st.button("保存本组目标", key=prefix + "_target_save"):
-                if _act(
+                saved = _act(
                     svc.update_set_target,
                     identity,
                     {
@@ -457,8 +635,12 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
                         "reps_max": target_high or None,
                         "rir": target_rir or None,
                     },
-                    base_revision=row["revision"],
-                ):
+                    base_revision=revision,
+                )
+                if saved:
+                    _accept_set_form(
+                        saved, prefix, mode, {"planned.reps_min", "planned.reps_max", "planned.rir"}
+                    )
                     st.rerun()
     for label, state in [
         ("开始这一组", "in_progress"),
@@ -467,6 +649,8 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         ("跳过", "skipped"),
     ]:
         if st.button(label, key=prefix + "_" + state):
+            dirty = _form_dirty(prefix, baseline)
+            updates = {key: value for key, value in updates.items() if key in dirty}
             updates["completion_state"] = state
             updates["started_at"] = started or (_now() if state == "in_progress" else None)
             updates["ended_at"] = ended or (_now() if state in {"completed", "aborted"} else None)
@@ -474,10 +658,11 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
                 svc.edit_set,
                 identity,
                 updates,
-                base_revision=row["revision"],
+                base_revision=revision,
                 event_id=str(uuid4()),
             )
             if result:
+                _accept_set_form(result, prefix, mode, updates)
                 st.rerun()
     if st.button("复制为下一组草稿", key=prefix + "_copy"):
         actual = {
@@ -488,7 +673,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         if _act(svc.add_set, instance["id"], actual, planned):
             st.rerun()
     if st.button("删除这一组（可撤销）", key=prefix + "_delete"):
-        if _act(svc.delete_set, identity, base_revision=row["revision"]):
+        if _act(svc.delete_set, identity, base_revision=revision):
             st.rerun()
 
 
@@ -1057,6 +1242,14 @@ def _history(svc):
         for instance in detail["exercises"]:
             for row in instance["sets"]:
                 _set_editor(svc.repo, svc, row, instance, key_prefix="history")
+    if detail.get("session_status") in {"completed", "aborted"}:
+        from healthzip.ui.recommendation_page import render_candidates
+
+        with st.expander("本次训练的建议与结束后反馈"):
+            for instance in detail["exercises"]:
+                render_candidates(
+                    svc.repo, svc, detail, instance, allow_create=False, key_prefix="history_"
+                )
     with st.expander("训练信息修订与删除"):
         title = st.text_input(
             "更正训练名称", value=detail["name"], key=f"history_session_name_{detail['id']}"

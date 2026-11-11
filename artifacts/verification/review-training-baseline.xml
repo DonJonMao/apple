@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="8.479" timestamp="2026-11-11T16:55:56.112875+08:00"><testcase classname="tests.training.test_review_repairs" name="test_r07_current_explicit_targets_feed_saved_template_and_keep_original[False]" time="0.075"><failure message="KeyError: 'sets'">service = &lt;healthzip.training.service.TrainingService object at 0xffffad165a50&gt;
+from_template = False
+
+    @pytest.mark.parametrize("from_template", [False, True])
+    def test_r07_current_explicit_targets_feed_saved_template_and_keep_original(service, from_template):
+        exercise = "psa.ex.smith_incline_press"
+        original = {"sets": [{"reps_min": 10, "reps_max": 12, "rir": 3}]} if from_template else {}
+        if from_template:
+            template = service.create_template("原计划", [{"exercise_id": exercise, "condition": {}, "targets": original}])
+            session = service.start_session(template_id=template["id"])
+            instance = session["exercises"][0]
+            row = session["sets"][0]
+        else:
+            session = service.start_session()
+            instance = service.add_exercise(session["id"], exercise, {})
+            row = service.add_set(instance["id"])
+        service.update_set_target(row["id"], {"reps_min": 6, "reps_max": 8, "rir": 2}, base_revision=row["revision"])
+        saved = service.save_session_as_template(session["id"], "使用当前明确目标")
+&gt;       assert saved["items"][0]["targets"]["sets"][0]["reps_max"] == 8
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'sets'
+
+tests/training/test_review_repairs.py:33: KeyError</failure></testcase><testcase classname="tests.training.test_review_repairs" name="test_r07_current_explicit_targets_feed_saved_template_and_keep_original[True]" time="0.070"><failure message="assert 12 == 8">service = &lt;healthzip.training.service.TrainingService object at 0xffffad145390&gt;
+from_template = True
+
+    @pytest.mark.parametrize("from_template", [False, True])
+    def test_r07_current_explicit_targets_feed_saved_template_and_keep_original(service, from_template):
+        exercise = "psa.ex.smith_incline_press"
+        original = {"sets": [{"reps_min": 10, "reps_max": 12, "rir": 3}]} if from_template else {}
+        if from_template:
+            template = service.create_template("原计划", [{"exercise_id": exercise, "condition": {}, "targets": original}])
+            session = service.start_session(template_id=template["id"])
+            instance = session["exercises"][0]
+            row = session["sets"][0]
+        else:
+            session = service.start_session()
+            instance = service.add_exercise(session["id"], exercise, {})
+            row = service.add_set(instance["id"])
+        service.update_set_target(row["id"], {"reps_min": 6, "reps_max": 8, "rir": 2}, base_revision=row["revision"])
+        saved = service.save_session_as_template(session["id"], "使用当前明确目标")
+&gt;       assert saved["items"][0]["targets"]["sets"][0]["reps_max"] == 8
+E       assert 12 == 8
+
+tests/training/test_review_repairs.py:33: AssertionError</failure></testcase><testcase classname="tests.training.test_review_repairs" name="test_r09_neighbor_endpoint_edit_rederives_rest_and_missing_start_clears" time="0.071"><failure message="assert 120.0 == 60">service = &lt;healthzip.training.service.TrainingService object at 0xffffad176bd0&gt;
+
+    def test_r09_neighbor_endpoint_edit_rederives_rest_and_missing_start_clears(service):
+        session = service.start_session()
+        exercise = service.add_exercise(session["id"], "psa.ex.smith_incline_press", {})
+        first = service.add_set(exercise["id"], {"completion_state": "completed", "reps": 10,
+            "started_at": "2026-11-10T10:00:00+08:00", "ended_at": "2026-11-10T10:01:00+08:00"})
+        second = service.add_set(exercise["id"], {"completion_state": "completed", "reps": 10,
+            "started_at": "2026-11-10T10:03:00+08:00", "ended_at": "2026-11-10T10:04:00+08:00"})
+        assert second["rest_actual_s"] == 120
+        prior_cutoff = datetime.now(timezone.utc).isoformat()
+        service.edit_set(first["id"], {"ended_at": "2026-11-10T10:02:00+08:00"}, base_revision=first["revision"])
+        revised = service.get_set(second["id"])
+&gt;       assert revised["rest_actual_s"] == 60
+E       assert 120.0 == 60
+
+tests/training/test_review_repairs.py:53: AssertionError</failure></testcase><testcase classname="tests.training.test_review_repairs" name="test_r09_clearing_prior_end_does_not_invent_a_new_endpoint" time="0.070"><failure message="AssertionError: assert '2026-11-11T08:55:56.523693+00:00' is None">service = &lt;healthzip.training.service.TrainingService object at 0xffffad167050&gt;
+
+    def test_r09_clearing_prior_end_does_not_invent_a_new_endpoint(service):
+        session = service.start_session()
+        instance = service.add_exercise(session["id"], "psa.ex.smith_incline_press", {})
+        first = service.add_set(instance["id"], {"completion_state": "completed", "reps": 8,
+            "started_at": "2026-11-10T10:00:00+08:00", "ended_at": "2026-11-10T10:01:00+08:00"})
+        second = service.add_set(instance["id"], {"completion_state": "completed", "reps": 8,
+            "started_at": "2026-11-10T10:03:00+08:00", "ended_at": "2026-11-10T10:04:00+08:00"})
+        service.edit_set(first["id"], {"ended_at": None}, base_revision=first["revision"])
+&gt;       assert service.get_set(first["id"])["ended_at"] is None
+E       AssertionError: assert '2026-11-11T08:55:56.523693+00:00' is None
+
+tests/training/test_review_repairs.py:68: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_training_ui" name="test_r04_clean_history_save_cannot_revert_current_view" time="3.708"><failure message="assert 10 == 9">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-101/test_r04_clean_history_save_ca0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffad393910&gt;
+
+    def test_r04_clean_history_save_cannot_revert_current_view(tmp_path, monkeypatch):
+        app, path, _, _, row = review_app(tmp_path, monkeypatch)
+        identity = row["set_uuid"]
+        assert app.text_input(key=f"history_{identity}_reps").value == "10"
+        app.text_input(key=f"set_{identity}_reps").set_value("9").run()
+        assert not app.exception
+        app.run()
+        app.button(key=f"history_{identity}_save_fields").click().run()
+        assert not app.exception
+        repo = Repository(path)
+&gt;       assert TrainingService(repo).get_set(identity)["reps"] == 9
+E       assert 10 == 9
+
+&lt;repo&gt;/tests/integration/test_review_training_ui.py:34: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_training_ui" name="test_r04_dirty_history_keeps_loaded_revision_and_reports_conflict" time="2.608"><failure message="assert 10 == 9">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-101/test_r04_dirty_history_keeps_l0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffad16af10&gt;
+
+    def test_r04_dirty_history_keeps_loaded_revision_and_reports_conflict(tmp_path, monkeypatch):
+        app, path, _, _, row = review_app(tmp_path, monkeypatch)
+        identity = row["set_uuid"]
+        app.text_input(key=f"history_{identity}_note").set_value("历史视图尚未保存的备注").run()
+        app.text_input(key=f"set_{identity}_reps").set_value("9").run()
+        app.run()
+        app.button(key=f"history_{identity}_save_fields").click().run()
+        assert not app.exception
+        repo = Repository(path)
+        svc = TrainingService(repo)
+&gt;       assert svc.get_set(identity)["reps"] == 9
+E       assert 10 == 9
+
+&lt;repo&gt;/tests/integration/test_review_training_ui.py:48: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_training_ui" name="test_r02_structured_protocol_is_entered_through_condition_widgets" time="1.485"><failure message="KeyError: 'template_condition_protocol_id'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-101/test_r02_structured_protocol_i0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffef2465a10&gt;
+
+    def test_r02_structured_protocol_is_entered_through_condition_widgets(tmp_path, monkeypatch):
+        app, path, _, instance, _ = review_app(tmp_path, monkeypatch)
+        # Use the ordinary template form; execution conditions are intentionally immutable.
+        app.text_input(key="template_name_None").set_value("结构化协议模板")
+        app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
+&gt;       fill_reference_protocol(app, "template_condition")
+
+&lt;repo&gt;/tests/integration/test_review_training_ui.py:65:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;repo&gt;/tests/integration/test_review_training_ui.py:57: in fill_reference_protocol
+    app.text_input(key=f"{prefix}_protocol_{key}").set_value(value)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WidgetList(_list=[TextInput(key='start_name', _value=InitialValue(), label='本次训练名称'), TextInput(key='pre_muscle', _val...itialValue(), label='更正训练名称'), TextInput(key='history_session_start_1', _value=InitialValue(), label='更正训练开始时间（含时区）')])
+key = 'template_condition_protocol_id'
+
+    def __call__(self, key: str) -&gt; El_co:
+        """Return the first element in this collection with the given user key.
+
+        The same key can appear on different element types, so this returns the
+        first match in this collection. Use ``get_by_key`` when an ambiguous
+        key should raise.
+        """
+        for e in self._list:
+            if getattr(e, "key", None) == key:
+                return e
+&gt;       raise KeyError(key)
+E       KeyError: 'template_condition_protocol_id'
+
+&lt;repo&gt;/.venv/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:602: KeyError</failure></testcase></testsuite></testsuites>

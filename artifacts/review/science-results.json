@@ -1,0 +1,132 @@
+{
+  "algorithm_version": "healthzip-science-1.3.1",
+  "review_base_commit": "0a943b49638247e16197cf7fa768cde33f5d0901",
+  "runs": {
+    "science-baseline.xml": {
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "sha256": "a40347d4a4f545cfb7ac6db5f985c5f98df04c626269925c2e6faed8ca1dea07",
+      "environment_metadata": "hostname/home/temporary usernames removed; outcomes unchanged"
+    },
+    "science-regressions.xml": {
+      "tests": 313,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "0d26d184706e0c5d6d7721544766c383146a4838d99f1c7dc703223c83199190",
+      "environment_metadata": "hostname/home/temporary usernames removed; outcomes unchanged"
+    },
+    "science-ui.xml": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "8e495db246924aa564721d669f7f9a1195a11a70442031d35d9791a67f84a91f",
+      "environment_metadata": "hostname/home/temporary usernames removed; outcomes unchanged"
+    },
+    "science-look-binding.xml": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "sha256": "3b5bf5cbd7e5733d228d94facdc98cee571b02e338b05ff416e9955ef6fb2386",
+      "environment_metadata": "hostname/home/temporary usernames removed; outcomes unchanged"
+    },
+    "science-ui-system-environment.xml": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "sha256": "44c1ff5264013bf1760d204a3ee66c8f93b277a52ca70347efa4a9e07b1d9890",
+      "environment_metadata": "hostname/home/temporary usernames removed; outcomes unchanged"
+    }
+  },
+  "cases": {
+    "R01": {
+      "baseline": "6 nominated references were reduced to 0 across multi-action sessions",
+      "verified_by": [
+        "test_r01_each_exercise_in_a_session_keeps_its_reference",
+        "test_r01_default_repository_analysis_has_independent_action_tasks",
+        "test_multiaction_ui_history_reaches_default_analysis",
+        "test_r01_reference_tasks_do_not_remove_regular_sets_from_session_decline",
+        "test_r01_equal_recorded_numbers_with_different_units_are_not_one_trend"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R02": {
+      "baseline": "structured protocol identity/version not exposed by adapter; visible fields absent in original UI",
+      "verified_by": [
+        "test_r02_protocol_identity_and_version_are_part_of_measurement_contract",
+        "test_r02_three_sessions_from_page_produce_protocol_identified_trend"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R10": {
+      "baseline": "registered alpha .025 still produced confidence level .95",
+      "verified_by": [
+        "test_r10_registered_look_alpha_controls_actual_interval",
+        "test_r10_actual_analysis_view_registers_and_consumes_budget",
+        "test_r10_explicit_same_day_cutoff_change_invalidates_display"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R11": {
+      "baseline": "two days device energy cumulative mislabeled kcal/day",
+      "verified_by": [
+        "test_r11_imported_two_day_energy_cumulative_has_kcal_unit"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R12": {
+      "baseline": "basal day1 and active day2 incorrectly formed total2200",
+      "verified_by": [
+        "test_r12_imported_disjoint_component_days_cannot_form_total",
+        "test_r12_same_date_disjoint_intervals_and_different_devices_are_not_pooled"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R13": {
+      "baseline": "three nights1260min incorrectly represented main sleep",
+      "verified_by": [
+        "test_r13_imported_multiple_nights_require_explicit_main_episode"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    },
+    "R14": {
+      "baseline": "scale_A80 and scale_B90 yielded pooled70kg/week",
+      "verified_by": [
+        "test_r14_real_measurement_csv_preserves_scale_source_streams"
+      ],
+      "software_status": "implemented_and_regression_passed",
+      "data_kind": "synthetic_through_real_local_services_or_ui",
+      "professional_review": "not_established_by_software_tests",
+      "scientific_validation": "unchanged; real calibration gates retained"
+    }
+  },
+  "scope_note": "313-test science regression preceded the last R10 display-binding patch; the final R10 patch has its own 2-test project-venv AppTest artifact. Root full-suite artifact is final repository-wide evidence.",
+  "system_environment_note": "Unpinned system-Python Streamlit failed before entering training flow; project .venv UI retest passed. This diagnostic is not product acceptance.",
+  "demo": {
+    "path": "artifacts/review/demo",
+    "all_77_metric_replay": "verified_before_cutoff_mode_metadata_addition; metric computations unchanged",
+    "files": {
+      "README.md": "bad5f3d11f2a91788616b933b5a5e4f0c185b3f64b32c1fd909309cabf21a9ff",
+      "demo.json": "f31fb82029c46fd0d125dd9cad8bcf3e50c7c736e87a21ba0491ec4c7a6b2160",
+      "metric_snapshot.json": "8c1a919ba8142687bcd3e8fa8e984f15b4f7219099d9a0190a39ee293fcb0e9c"
+    }
+  }
+}

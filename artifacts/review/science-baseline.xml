@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="2.178" timestamp="2026-11-11T16:55:06.778120"><testcase classname="tests.science.test_review_repairs" name="test_r01_each_exercise_in_a_session_keeps_its_reference" time="0.005"><failure message="assert 0 == 6">def test_r01_each_exercise_in_a_session_keeps_its_reference():
+        rows = [row(i, session_id=f"session-{i}", id=f"{exercise}-{i}", set_id=f"{exercise}-{i}", exercise_id=exercise)
+                for i in range(1, 4) for exercise in ("bench", "squat")]
+        result = run("STR-11", rows)
+&gt;       assert result["valid_n"] == 6
+E       assert 0 == 6
+
+tests/science/test_review_repairs.py:11: AssertionError</failure></testcase><testcase classname="tests.science.test_review_repairs" name="test_r02_protocol_identity_and_version_are_part_of_measurement_contract" time="0.001"><failure message="AssertionError: assert None == 'press-protocol'&#10; +  where None = &lt;built-in method get of dict object at 0xffff8a8fc600&gt;('reference_protocol_id')&#10; +    where &lt;built-in method get of dict object at 0xffff8a8fc600&gt; = {'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...}.get&#10; +      where {'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...} = &lt;function flatten_record at 0xffff8ad2ede0&gt;({'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...})">def test_r02_protocol_identity_and_version_are_part_of_measurement_contract():
+        from healthzip.science.semantics import comparable, flatten_record
+        original = row(reference_protocol={"protocol_id": "press-protocol", "version": "1",
+            "reference_policy_id": "first-work", "effort_protocol": "target-rir-2", "tempo": "controlled", "rest_protocol": "180s"})
+        changed = {**original, "reference_protocol": {**original["reference_protocol"], "version": "2"}}
+&gt;       assert flatten_record(original).get("reference_protocol_id") == "press-protocol"
+E       AssertionError: assert None == 'press-protocol'
+E        +  where None = &lt;built-in method get of dict object at 0xffff8a8fc600&gt;('reference_protocol_id')
+E        +    where &lt;built-in method get of dict object at 0xffff8a8fc600&gt; = {'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...}.get
+E        +      where {'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...} = &lt;function flatten_record at 0xffff8ad2ede0&gt;({'_event_end': '2026-10-03T00:00:00+00:00', 'available_at': '2026-10-03T00:00:00+00:00', 'definition_version': 1, 'effort_protocol': 'target-rir-2', ...})
+
+tests/science/test_review_repairs.py:20: AssertionError</failure></testcase><testcase classname="tests.science.test_review_repairs" name="test_r10_registered_look_alpha_controls_actual_interval" time="0.691"><failure message="assert 0.95 == (1 - 0.025)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-99/test_r10_registered_look_alpha0')
+
+    def test_r10_registered_look_alpha_controls_actual_interval(tmp_path):
+        registry = ParameterRegistry(str(tmp_path / "registry.sqlite3"))
+        registry.register_family("family", .05, {"declared_before": START, "metrics": ["STR-20"]})
+        allocation = registry.allocate_look("family", "synthetic-data-version", "STR-20")
+        result = run("STR-20", [row(1, reps=8), row(2, reps=11), row(3, reps=9)],
+                     {"look_allocation": allocation})
+&gt;       assert result["uncertainty"]["level"] == 1 - allocation["alpha_look"]
+E       assert 0.95 == (1 - 0.025)
+
+tests/science/test_review_repairs.py:30: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_analysis" name="test_r11_imported_two_day_energy_cumulative_has_kcal_unit" time="0.328"><failure message="AssertionError: assert 'kcal/day' == 'kcal'&#10;  - kcal&#10;  + kcal/day">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-99/test_r11_imported_two_day_ener0')
+
+    def test_r11_imported_two_day_energy_cumulative_has_kcal_unit(tmp_path):
+        repo = Repository(tmp_path / "r11.sqlite3")
+        output = imported(repo, tmp_path, [energy_record(kind, day, amount)
+            for day in (1, 2) for kind, amount in (("Basal", 1600), ("Active", 600))])
+        metric = output["metrics"]["ENERGY-DEVICE-TOTAL"]
+&gt;       assert metric["unit"] == "kcal"
+E       AssertionError: assert 'kcal/day' == 'kcal'
+E         - kcal
+E         + kcal/day
+
+tests/integration/test_review_analysis.py:32: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_analysis" name="test_r12_imported_disjoint_component_days_cannot_form_total" time="0.325"><failure message="AssertionError: assert [{'active_kcal': 600.0, 'basal_kcal': 1600.0, 'device_total_kcal': 2200.0, 'stream': ['synthetic_watch', None, None, '1']}] is None">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-99/test_r12_imported_disjoint_com0')
+
+    def test_r12_imported_disjoint_component_days_cannot_form_total(tmp_path):
+        repo = Repository(tmp_path / "r12.sqlite3")
+        output = imported(repo, tmp_path, [energy_record("Basal", 1, 1600), energy_record("Active", 2, 600)])
+        metric = output["metrics"]["ENERGY-DEVICE-TOTAL"]
+&gt;       assert metric["value"] is None
+E       AssertionError: assert [{'active_kcal': 600.0, 'basal_kcal': 1600.0, 'device_total_kcal': 2200.0, 'stream': ['synthetic_watch', None, None, '1']}] is None
+
+tests/integration/test_review_analysis.py:43: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_analysis" name="test_r13_imported_multiple_nights_require_explicit_main_episode" time="0.333"><failure message="AssertionError: assert {'complete_episode': False, 'intervals': [{'end': '2026-11-02T06:00:00+00:00', 'start': '2026-11-01T23:00:00+00:00'}, ...00:00+00:00'}, {'end': '2026-11-04T06:00:00+00:00', 'start': '2026-11-03T23:00:00+00:00'}], 'observed_minutes': 1260.0} is None">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-99/test_r13_imported_multiple_nig0')
+
+    def test_r13_imported_multiple_nights_require_explicit_main_episode(tmp_path):
+        repo = Repository(tmp_path / "r13.sqlite3")
+        rows = [f'&lt;Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleep" '
+                f'sourceName="synthetic_watch" startDate="2026-11-{day:02d} 23:00:00 +0000" '
+                f'endDate="2026-11-{day+1:02d} 06:00:00 +0000"/&gt;' for day in (1, 2, 3)]
+        output = imported(repo, tmp_path, rows)
+&gt;       assert output["metrics"]["STATE-SLEEP-MAIN"]["value"] is None
+E       AssertionError: assert {'complete_episode': False, 'intervals': [{'end': '2026-11-02T06:00:00+00:00', 'start': '2026-11-01T23:00:00+00:00'}, ...00:00+00:00'}, {'end': '2026-11-04T06:00:00+00:00', 'start': '2026-11-03T23:00:00+00:00'}], 'observed_minutes': 1260.0} is None
+
+tests/integration/test_review_analysis.py:54: AssertionError</failure></testcase><testcase classname="tests.integration.test_review_analysis" name="test_r14_real_measurement_csv_preserves_scale_source_streams" time="0.324"><failure message="AssertionError: assert 1 == 2&#10; +  where 1 = len([{'kg_per_week': 70.0, 'n_days': 2, 'percent_per_week': 82.35294117647058, 'reference_definition': 'within_window_equal_day_median', ...}])">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-99/test_r14_real_measurement_csv_0')
+
+    def test_r14_real_measurement_csv_preserves_scale_source_streams(tmp_path):
+        path = tmp_path / "synthetic-measurements.csv"
+        path.write_text("datetime,measurement_type,value,unit,source\n"
+                        "2026-11-01T08:00:00+00:00,weight,80,kg,scale_A\n"
+                        "2026-11-02T08:00:00+00:00,weight,90,kg,scale_B\n")
+        repo = Repository(tmp_path / "r14.sqlite3")
+        assert import_measurements_csv(path, repo)["inserted"] == 2
+        output = analyze(repo, window_days=365)
+        trend = output["metrics"]["BODY-MASS-TREND"]
+&gt;       assert len(trend["value"]) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = len([{'kg_per_week': 70.0, 'n_days': 2, 'percent_per_week': 82.35294117647058, 'reference_definition': 'within_window_equal_day_median', ...}])
+
+tests/integration/test_review_analysis.py:69: AssertionError</failure></testcase></testsuite></testsuites>

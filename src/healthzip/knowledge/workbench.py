@@ -51,7 +51,26 @@ class KnowledgeWorkbench:
         counts["fulltext_source_count"] = self.lib.sources.execute("SELECT COUNT(DISTINCT source_id) FROM version WHERE material_type='fulltext'").fetchone()[0]
         counts["retrievable_span_count"] = sum(self.lib.eligible(self.lib.span(r[0]))[0] for r in self.lib.sources.execute("SELECT span_id FROM span"))
         counts["review_queue"] = [dict(r) for r in self.lib.sources.execute("SELECT source_id,identity_status,state FROM source WHERE identity_status!='matched' OR state IN ('withdrawn','corrected_pending_review') ORDER BY source_id")]
+        counts["theory_review_queue"] = []
+        counts["effective_approved_theory_count"] = 0
+        for row in self.lib.theories.execute("SELECT theory_id,version,status,review_json FROM theory ORDER BY theory_id,version"):
+            review = json.loads(row["review_json"])
+            reasons = set()
+            for link in review.get("evidence_links", []):
+                for sid in link["span_ids"]:
+                    span = self.lib.span(sid)
+                    allowed, reason = self.lib.eligible(span) if span else (False, "missing_span")
+                    if not allowed:
+                        reasons.add(reason)
+            if row["status"] == "approved" and not reasons:
+                counts["effective_approved_theory_count"] += 1
+            elif row["status"] in {"draft", "needs_review", "revoked", "disabled"} or reasons:
+                counts["theory_review_queue"].append({"theory_id": row["theory_id"], "version": row["version"],
+                    "status": row["status"], "dependency_blocks": sorted(reasons),
+                    "authority": review.get("authority"), "independent_expert_validation": False})
         counts["scientific_validation"] = "not_established_by_software_or_retrieval_checks"
+        for field in ("acquisition_state", "scientific_state"):
+            counts[field + "s"] = {r[0]: r[1] for r in self.lib.sources.execute(f"SELECT {field},COUNT(*) FROM source GROUP BY {field}")}
         return counts
 
     def query(self, question, route=None, context=None, personal_metrics=None, **kwargs):
@@ -64,9 +83,37 @@ class KnowledgeWorkbench:
     def revise_theory(self, theory_id, from_version, new_version, **kwargs):
         return self.lib.revise_theory(theory_id, from_version, new_version, **kwargs)
 
+    def theory_state(self, theory_id, version, action, **kwargs):
+        return self.lib.theory_state(theory_id, version, action, **kwargs)
+
+    def review_source_state(self, source_id, **kwargs):
+        return self.lib.review_source_state(source_id, **kwargs)
+
     def import_document(self, source_id, path, **kwargs):
         from .documents import import_document
         return import_document(self, source_id, path, **kwargs)
+
+    def reparse_source_version(self, source_version_id):
+        """Reparse already-held JATS bytes into a new version, without changing reviews."""
+        from .acquisition import identity_check, parse_jats
+        row = self.lib.sources.execute("SELECT * FROM version WHERE version_id=?", (source_version_id,)).fetchone()
+        if not row or row["material_type"] != "fulltext":
+            raise ValueError("existing JATS fulltext version required")
+        raw = (self.root / row["storage_uri"]).read_bytes()
+        if digest(raw) != row["sha256"] or raw.startswith(b"%PDF"):
+            raise ValueError("valid preserved JATS bytes required")
+        metadata, spans, rights = parse_jats(raw)
+        identity, conflicts = identity_check(self.lib.source(row["source_id"])["manifest"], metadata)
+        version = self.lib.record_version(row["source_id"], raw, "fulltext", json.loads(row["receipt_json"]),
+                                           metadata, rights, identity, spans, "jats-scoped-1.4.0")
+        result = {"source_id": row["source_id"], "previous_version_id": source_version_id,
+                  "version_id": version, "raw_sha256": row["sha256"], "identity_status": identity,
+                  "identity_conflicts": conflicts, "article_index_allowed": rights["index_allowed"],
+                  "scope_count": len(rights["component_scopes"]), "span_count": len(spans),
+                  "eligible_spans": sum(self.lib.eligible(self.lib.span(f"{version}:s{i:05d}"))[0] for i in range(len(spans))),
+                  "theory_reviews_changed": False, "review": "automated_scope_reparse_not_expert_validation"}
+        self.lib.log(row["source_id"], "local_scope_reparse", result)
+        return result
 
     def evaluate(self, cases_path, split="visible_development", **kwargs):
         from .evaluation import evaluate
@@ -94,7 +141,7 @@ class KnowledgeWorkbench:
             reason = None
             if row['status'] != 'approved':
                 reason = 'theory_' + row['status']
-            elif review.get('authority') != 'progression_candidate':
+            elif review.get('authority') not in {'progression_candidate', 'trial_candidate'}:
                 reason = 'explanation_only_no_candidate_authority'
             elif review.get('reviewer_kind') != 'qualified_human_review':
                 reason = 'candidate_review_qualification_missing'
@@ -112,11 +159,12 @@ class KnowledgeWorkbench:
             if not reason and not spans:
                 reason = 'no_real_evidence_spans'
             if reason:
-                excluded.append({'theory_id': row['theory_id'], 'reason': reason})
+                excluded.append({'theory_id': row['theory_id'], 'version': row['version'], 'reason': reason,
+                                 'required_context': review.get('applicability', {}).get('required', {})})
                 continue
             principles.append({'theory_id': row['theory_id'], 'review_status': 'approved', 'version': row['version'],
                                'reviewer': review['reviewer'], 'reviewed_at': review['reviewed_at'],
-                               'capability': 'progression_candidate', 'evidence_spans': spans,
+                               'capability': review['authority'], 'evidence_spans': spans,
                                'rights_verified': True, 'scope_matches': True, 'applicability': review['applicability'],
                                'implementation_tests': review.get('implementation_tests', []),
                                'limits': ['Candidate is a user-selectable experiment; no guaranteed individual effect or automatic execution.']})

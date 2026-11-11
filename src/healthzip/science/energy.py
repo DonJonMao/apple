@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime, time, timedelta
 from statistics import median
+from zoneinfo import ZoneInfo
 
 from .contracts import Window, finite, instant, result
-from .state import daily_values, elapsed_dates, stream_key
+from .state import daily_values, elapsed_dates, stream_key, union
 from .statistics import theil_sen
 
 
@@ -126,6 +128,60 @@ def atomic_energy(rows: list[dict], canonical: str, window: Window) -> dict:
     return {"streams": values, "conflicts": conflicts, "unknown_or_boundary_ids": unknown}
 
 
+def device_energy_days(rows: list[dict], window: Window) -> list[dict]:
+    """Pair components only on the same local date, source and observed support."""
+    zone = ZoneInfo(window.timezone)
+    eligible = [r for r in rows if r.get("canonical_type") in {"basal_energy_kcal", "active_energy_kcal"}]
+    dates = set()
+    for row in eligible:
+        raw = row.get("event_start") or row.get("start_utc")
+        if raw:
+            first = max(instant(raw), instant(window.start))
+            last = min(instant(row["_event_end"]), instant(window.end), instant(window.cutoff_time))
+            day = first.astimezone(zone).date()
+            while datetime.combine(day, time.min, zone) < last:
+                dates.add(day)
+                day += timedelta(days=1)
+    output = []
+    for day in sorted(dates):
+        start = datetime.combine(day, time.min, zone)
+        end = datetime.combine(day + timedelta(days=1), time.min, zone)
+        a, b = max(instant(start), instant(window.start)), min(instant(end), instant(window.end), instant(window.cutoff_time))
+        if a >= b:
+            continue
+        daily_window = Window(a.isoformat(), b.isoformat(), window.cutoff_time, window.timezone)
+        daily = [r for r in eligible if instant(r["_event_end"]) > a
+                 and instant(r.get("event_start") or r["start_utc"]) < b]
+        for stream in sorted({stream_key(r) for r in daily}, key=str):
+            inputs = [r for r in daily if stream_key(r) == stream]
+            amounts, supports, component_complete, conflicts, rejected = {}, {}, {}, [], []
+            for label, canonical in (("basal", "basal_energy_kcal"), ("active", "active_energy_kcal")):
+                selected = [r for r in inputs if r["canonical_type"] == canonical]
+                item = atomic_energy(selected, canonical, daily_window)
+                streams = item["streams"]
+                amounts[label] = streams[0]["known_kcal"] if len(streams) == 1 else None
+                ids = {identity for value in streams for identity in value["source_ids"]}
+                observed = [r for r in selected if r.get("_source_id") in ids]
+                supports[label] = union([(instant(r.get("event_start") or r["start_utc"]), instant(r["_event_end"])) for r in observed])
+                component_complete[label] = bool(observed) and (all(r.get("platform_complete_day") is True for r in observed)
+                    or supports[label] == [(instant(start), instant(end))])
+                conflicts.extend(item["conflicts"])
+                rejected.extend(item["unknown_or_boundary_ids"])
+            matched = (all(amounts[k] is not None for k in ("basal", "active")) and not conflicts and not rejected
+                       and (supports["basal"] == supports["active"] or all(component_complete.values())))
+            complete = matched and all(component_complete.values()) and a == instant(start) and b == instant(end)
+            output.append({"date": day.isoformat(), "stream": list(stream), "event_start": a.isoformat(), "event_end": b.isoformat(),
+                           "available_at": max((instant(r.get("available_at") or r["_event_end"]).isoformat() for r in inputs)),
+                           "basal_kcal": amounts["basal"], "active_kcal": amounts["active"],
+                           "basal_valid": amounts["basal"] is not None, "active_valid": amounts["active"] is not None,
+                           "total_valid": matched, "complete": complete,
+                           "device_total_kcal": sum(amounts.values()) if matched else None,
+                           "source_record_ids": [r.get("_source_id") for r in inputs],
+                           "source_conflicted": bool(conflicts), "unknown_or_boundary_ids": rejected,
+                           "component_support": {k: [{"start": x.isoformat(), "end": y.isoformat()} for x, y in v] for k, v in supports.items()}})
+    return output
+
+
 def energy_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
     def emit(value=None, status="valid", **extra):
         return result(metric_id, window, value, data_status=status, records=rows, **extra)
@@ -155,18 +211,25 @@ def energy_metric(metric_id: str, rows: list[dict], window: Window, context: dic
         value = atomic_energy(rows, canonical, window)
         status = "conflicted" if value["conflicts"] else "partial" if value["unknown_or_boundary_ids"] else "valid" if value["streams"] else "insufficient"
         return emit(value if value["streams"] else None, status, evidence_status="observed",
+                    unit="kcal", aggregation="observed_window_cumulative", daily_buckets=device_energy_days(rows, window),
                     reasons=["device_report_not_true_TEE", "cross_boundary_samples_not_prorated"])
     if metric_id == "ENERGY-DEVICE-TOTAL":
-        basal, active = atomic_energy(rows, "basal_energy_kcal", window), atomic_energy(rows, "active_energy_kcal", window)
-        a = {tuple(v["stream"]): v for v in active["streams"]}
+        days = device_energy_days(rows, window)
+        grouped = defaultdict(list)
+        for day in days:
+            if day["total_valid"]:
+                grouped[tuple(day["stream"])].append(day)
         values = []
-        for b in basal["streams"]:
-            match = a.get(tuple(b["stream"]))
-            if match and b["known_kcal"] is not None and match["known_kcal"] is not None:
-                values.append({"stream": b["stream"], "basal_kcal": b["known_kcal"], "active_kcal": match["known_kcal"],
-                               "device_total_kcal": b["known_kcal"] + match["known_kcal"]})
-        return emit(values or None, "valid" if values else "insufficient", evidence_status="observed",
-                    reasons=["same_window_and_stream_components_only", "workout_not_added_again", "no_TEF_multiplier", "device_report_not_true_TEE"])
+        for stream, matched in grouped.items():
+            complete = [d for d in matched if d["complete"]]
+            values.append({"stream": list(stream), "basal_kcal": sum(d["basal_kcal"] for d in matched),
+                           "active_kcal": sum(d["active_kcal"] for d in matched),
+                           "device_total_kcal": sum(d["device_total_kcal"] for d in matched),
+                           "paired_dates": [d["date"] for d in matched], "complete_days": len(complete),
+                           "valid_day_mean_kcal_day": sum(d["device_total_kcal"] for d in complete) / len(complete) if complete else None})
+        status = "conflicted" if any(d["source_conflicted"] for d in days) else "insufficient" if not values else "partial" if any(not d["complete"] for d in days) else "valid"
+        return emit(values or None, status, evidence_status="observed", unit="kcal", aggregation="paired_observed_window_cumulative",
+                    daily_buckets=days, reasons=["same_date_stream_and_interval_components_only", "workout_not_added_again", "no_TEF_multiplier", "device_report_not_true_TEE"])
     if metric_id == "ENERGY-RECORD-COVERAGE":
         days = context.get("energy_days", [])
         denominator = elapsed_dates(window)

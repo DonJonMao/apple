@@ -33,7 +33,8 @@ def test_inbed_generic_overlap_stage_conflict_and_explicit_episode():
 
 def test_dst_elapsed_time_and_last_24_hours_clip():
     rows = [sleep("dst", "asleep", "2026-11-01T00:00:00-04:00", "2026-11-01T08:00:00-05:00")]
-    result = run("STATE-SLEEP-MAIN", rows, {"timezone": "America/New_York"})
+    result = run("STATE-SLEEP-MAIN", rows, {"timezone": "America/New_York", "main_sleep_episode": {
+        "start": rows[0]["event_start"], "end": rows[0]["event_end"], "attribution_date": "2026-11-01"}})
     assert result["value"]["observed_minutes"] == 540
     rows = [sleep("main", "asleep", "2026-11-06T23:00:00+00:00", "2026-11-07T06:00:00+00:00"),
             sleep("nap", "asleep", "2026-11-07T14:00:00+00:00", "2026-11-07T14:30:00+00:00")]
@@ -50,7 +51,8 @@ def test_sleep_coverage_elapsed_dates_and_source_choice():
     assert out["value"]["fraction"] == 3 / 7
     assert "record_coverage_not_wear_time_or_complete_nights" in out["reason_codes"]
     rows.append({**rows[0], "id": "other", "source_name": "other_watch"})
-    assert run("STATE-SLEEP-MAIN", rows)["data_status"] == "incompatible"
+    assert run("STATE-SLEEP-MAIN", rows, {"main_sleep_episode": {
+        "start": rows[0]["event_start"], "end": rows[0]["event_end"]}})["data_status"] == "incompatible"
 
 
 def test_circular_midpoint_and_no_future_sleep():
@@ -122,7 +124,7 @@ def test_energy_boundary_no_uniform_rate_assumption_and_nonidentifiable_intake()
 
 
 def test_mass_trend_uses_true_days_and_never_creates_calories():
-    rows = [{"id": str(i), "canonical_type": "body_mass_kg", "normalized_value": 80 - i,
+    rows = [{"id": str(i), "canonical_type": "body_mass_kg", "normalized_value": 80 - i, "source_name": "synthetic_scale",
              "event_end": f"2026-11-{1 + 3*i:02d}T08:00:00+00:00", "available_at": f"2026-11-{1 + 3*i:02d}T08:00:00+00:00"} for i in range(3)]
     trend = run("BODY-MASS-TREND", rows)["value"][0]
     assert trend["kg_per_week"] == pytest.approx(-7/3)
@@ -218,10 +220,10 @@ def test_report_derives_sleep_subjective_and_complete_energy_from_raw_snapshot()
             energy_row("basal", "basal_energy_kcal", 1600), energy_row("active", "active_energy_kcal", 600)]
     report = run("REPORT-STATE-SUMMARY", rows)
     state = report["value"]
-    assert {value["metric_id"] for value in state} == {"STATE-SLEEP-MAIN", "STATE-FATIGUE"}
-    sleep_value = next(value for value in state if value["metric_id"] == "STATE-SLEEP-MAIN")
+    assert {value["metric_id"] for value in state} == {"sleep_observed_minutes_by_wake_date", "STATE-FATIGUE"}
+    sleep_value = next(value for value in state if value["series_id"] == "observed_sleep_by_wake_date")
     assert sleep_value["median"] == 420
-    fact = next(fact for fact in report["daily_facts"] if fact["metric_id"] == "STATE-SLEEP-MAIN")
+    fact = next(fact for fact in report["daily_facts"] if fact.get("series_id") == "observed_sleep_by_wake_date")
     assert fact["value"] == 420 and fact["unit"] == "min" and fact["source_record_ids"] == ["sleep"]
     assert fact["date"] == "2026-11-03" and fact["episode_complete"] is False
     energy = run("REPORT-ENERGY-SUMMARY", rows)["value"]
@@ -242,7 +244,7 @@ def test_report_context_is_not_future_or_unknown_availability_backdoor():
 
 def test_report_baseline_is_separate_from_display_window_and_excludes_current_day():
     rows = [{"id": str(day), "canonical_type": "resting_heart_rate_bpm", "normalized_value": value,
-             "protocol_id": "rhr-v1", "event_end": f"2026-11-0{day}T08:00:00+00:00", "available_at": f"2026-11-0{day}T09:00:00+00:00"}
+             "source_name": "synthetic_watch", "protocol_id": "rhr-v1", "event_end": f"2026-11-0{day}T08:00:00+00:00", "available_at": f"2026-11-0{day}T09:00:00+00:00"}
             for day, value in ((1, 50), (2, 52), (3, 100))]
     output = run("STATE-DEVIATION", rows, {"baseline_window": {"start": "2026-11-01T00:00:00+00:00", "end": "2026-11-04T00:00:00+00:00"}},
                  start="2026-11-03T00:00:00+00:00")

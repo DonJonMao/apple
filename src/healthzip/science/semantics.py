@@ -12,6 +12,8 @@ from healthzip.training.semantics import (
 )
 from healthzip.training.semantics import load_change as training_load_change
 
+from .contracts import canonical_hash
+
 LEGACY_LOAD_ALIASES = {
     "barbell_total": "external_total_kg", "external_total": "external_total_kg",
     "bilateral_plates_per_side": "plates_per_side_kg", "per_side": "plates_per_side_kg",
@@ -32,7 +34,7 @@ def flatten_record(record: dict) -> dict:
     for key in ("condition", "actual"):
         if isinstance(row.get(key), dict):
             row.update(row[key])
-    row["ingestion_status"] = row.get("status")
+    row["ingestion_status"] = row.get("ingestion_status", row.get("status"))
     row["status"] = row.get("completion_state") if row.get("completion_state") is not None else row.get("status")
     row["role"] = row.get("role", row.get("set_type"))
     row["parent_set_id"] = row.get("parent_set_id", row.get("parent_set_uuid"))
@@ -40,7 +42,7 @@ def flatten_record(record: dict) -> dict:
     row["is_reference"] = row.get("is_reference", row.get("reference_set") == 1)
     row["set_position"] = row.get("set_position", row.get("set_number"))
     row["set_structure"] = row.get("set_structure", row.get("relation_kind", "straight"))
-    row["raw_stop_reason"] = row.get("stop_reason")
+    row["raw_stop_reason"] = row.get("raw_stop_reason", row.get("stop_reason"))
     row["stop_reason"] = {"plan_target": "planned_stop", "target_rir": "target_rir_stop"}.get(row.get("stop_reason"), row.get("stop_reason"))
     if row.get("rir_qualifier") == "at_least" and row.get("rir") is not None:
         row["rir_interval"] = {"lower": row["rir"], "upper": None}
@@ -48,11 +50,13 @@ def flatten_record(record: dict) -> dict:
     row["scale_type"] = row.get("scale_type", {"rir_rpe10": "rir_based_rpe_6_10"}.get(row.get("rpe_scale"), row.get("rpe_scale")))
     if isinstance(row.get("reference_protocol"), dict):
         protocol = row["reference_protocol"]
+        row["reference_protocol_id"] = protocol.get("protocol_id")
+        row["reference_protocol_version"] = protocol.get("version")
         for key in ("reference_policy_id", "effort_protocol", "tempo", "rest_protocol"):
-            row[key] = row.get(key, protocol.get(key))
+            row[key] = protocol.get(key)
     raw = row.get("load_basis", row.get("load_mode", row.get("load_convention")))
     row["load_basis"] = raw if raw in LOAD_BASES else LEGACY_LOAD_ALIASES.get(raw, "unknown")
-    row["legacy_raw_load_basis"] = raw
+    row["legacy_raw_load_basis"] = row.get("legacy_raw_load_basis", raw)
     row["load_value"] = row.get("load_value", row.get("entered_load", row.get("weight_kg")))
     row["load_unit"] = row.get("load_unit", row.get("unit", "kg" if "weight_kg" in row else None))
     row["entered_load"] = row["load_value"]
@@ -80,18 +84,36 @@ def condition_key(record: dict) -> Optional[str]:
 
 
 def comparable(first: dict, second: dict, *, protocol: bool = False) -> tuple[bool, list[str]]:
+    first, second = flatten_record(first), flatten_record(second)
     a, b = condition_key(first), condition_key(second)
     if a is None or b is None:
         return False, ["comparability_unknown"]
     if a != b:
         return False, ["physical_condition_changed"]
     if protocol:
-        keys = ("reference_policy_id", "set_position", "effort_protocol", "tempo", "rest_protocol")
-        if any(first.get(k) is None or second.get(k) is None for k in keys):
+        keys = PROTOCOL_FIELDS
+        if any(first.get(k) in (None, "", "unknown") or second.get(k) in (None, "", "unknown") for k in keys):
             return False, ["protocol_unknown"]
         if any(first[k] != second[k] for k in keys):
             return False, ["protocol_changed"]
     return True, []
+
+
+PROTOCOL_FIELDS = ("reference_protocol_id", "reference_protocol_version", "reference_policy_id",
+                   "set_position", "effort_protocol", "tempo", "rest_protocol")
+
+
+def analysis_task(record: dict) -> dict:
+    row = flatten_record(record)
+    physical = condition_key(row)
+    protocol = {key: row.get(key) for key in PROTOCOL_FIELDS}
+    identity = {"user_id": row.get("user_id"), "exercise_id": row.get("exercise_id"),
+                "condition_key": physical, "protocol": protocol}
+    if physical is None:
+        identity["unknown_condition_record_id"] = row.get("set_id", row.get("id"))
+    return {**identity, "task_id": canonical_hash(identity),
+            "exercise_name": row.get("exercise_name") or row.get("raw_exercise_name") or row.get("exercise_id"),
+            "protocol_complete": all(value not in (None, "", "unknown") for value in protocol.values())}
 
 
 def load_components(record: dict) -> dict:

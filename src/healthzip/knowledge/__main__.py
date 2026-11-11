@@ -36,6 +36,12 @@ def main(argv=None):
     p.add_argument("review_file", help="JSON object with theory_id, version and explicit claim-level review")
     p = sub.add_parser("revise-theory")
     p.add_argument("revision_file", help="JSON: theory_id,from_version,new_version,reviewer,rationale,optional card_patch")
+    p = sub.add_parser("theory-state")
+    p.add_argument("declaration", help="JSON: theory_id,version,action,actor,rationale; immutable review is retained")
+    p = sub.add_parser("review-source-state")
+    p.add_argument("declaration", help="JSON: source_id,reviewer,rationale,source_version_ids; explicit scientific-state clearance")
+    p = sub.add_parser("reparse-source")
+    p.add_argument("source_version_id", help="Existing local JATS fulltext version; creates a new scoped parse without approving theories")
     p = sub.add_parser("import-document")
     p.add_argument("declaration", help="JSON: source_id,path,license_id,rights_evidence_url,authorized_by,identity_review")
     p = sub.add_parser("release")
@@ -69,6 +75,12 @@ def main(argv=None):
             result = w.review_theory(**json.loads(Path(args.review_file).read_text()))
         elif args.command == "revise-theory":
             result = w.revise_theory(**json.loads(Path(args.revision_file).read_text()))
+        elif args.command == "theory-state":
+            result = w.theory_state(**json.loads(Path(args.declaration).read_text()))
+        elif args.command == "review-source-state":
+            result = w.review_source_state(**json.loads(Path(args.declaration).read_text()))
+        elif args.command == "reparse-source":
+            result = w.reparse_source_version(args.source_version_id)
         elif args.command == "import-document":
             result = w.import_document(**json.loads(Path(args.declaration).read_text()))
         elif args.command == "release":

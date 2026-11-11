@@ -83,7 +83,7 @@ def import_document(workbench, source_id: str, path, *, license_id: str, rights_
         if not spans:
             rights['index_allowed'] = False
     else:
-        parser_version = 'jats-1.3.0'
+        parser_version = 'jats-scoped-1.4.0'
         metadata, spans, document_rights = parse_jats(raw)
         status, conflicts = identity_check(source, metadata)
         metadata['embedded_rights'] = document_rights

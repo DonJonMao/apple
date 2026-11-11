@@ -60,7 +60,9 @@ def build_demo(directory: Path) -> dict:
                      "load_basis_confirmed": True, "side": "both", "repetition_semantics": "simultaneous",
                      "rom_protocol": "synthetic_user_declared_full", "settings": {"bench_angle_degrees": 30},
                      "settings_confirmed": True, "symmetric_loading": True,
-                     "effective_bar_mass_kg": None, "reference_protocol": "first_work_set_v1"}
+                     "effective_bar_mass_kg": None, "reference_protocol": {
+                         "protocol_id": "synthetic_first_work", "version": "1", "reference_policy_id": "first_work_set",
+                         "effort_protocol": "planned_reps_rir2", "tempo": "controlled", "rest_protocol": "user_declared_180s"}}
         template = service.create_template("合成演示：胸部计划", [{"exercise_id": exercise["exercise_id"],
             "condition": condition, "targets": {"sets": [{"set_type": "work", "reps_min": 8,
                 "reps_max": 10, "rir": 2, "load_value": "30", "load_unit": "kg"}]}}], event_id="demo-template")

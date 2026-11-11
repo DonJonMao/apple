@@ -36,6 +36,11 @@ CREATE TABLE IF NOT EXISTS source_review (
  id INTEGER PRIMARY KEY, source_id TEXT, version_id TEXT, reviewer TEXT NOT NULL,
  decision TEXT NOT NULL, rationale TEXT NOT NULL, created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS source_version_clearance (
+ source_id TEXT NOT NULL, version_id TEXT NOT NULL, scientific_epoch INTEGER NOT NULL,
+ reviewer TEXT NOT NULL, rationale TEXT NOT NULL, created_at TEXT NOT NULL,
+ PRIMARY KEY(source_id,version_id,scientific_epoch)
+);
 CREATE TABLE IF NOT EXISTS index_release (
  release_id TEXT PRIMARY KEY, manifest_json TEXT NOT NULL, sha256 TEXT NOT NULL,
  created_at TEXT NOT NULL
@@ -54,6 +59,12 @@ CREATE TABLE IF NOT EXISTS theory_review (
 );
 CREATE TABLE IF NOT EXISTS theory_release (
  release_id TEXT PRIMARY KEY, manifest_json TEXT NOT NULL, sha256 TEXT NOT NULL,
+ created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS theory_lifecycle (
+ id INTEGER PRIMARY KEY, theory_id TEXT NOT NULL, version TEXT NOT NULL,
+ action TEXT NOT NULL, actor TEXT NOT NULL, rationale TEXT NOT NULL,
+ previous_status TEXT NOT NULL, status TEXT NOT NULL, superseded_by TEXT,
  created_at TEXT NOT NULL
 );
 """
@@ -91,6 +102,18 @@ class Libraries:
             db.row_factory = sqlite3.Row
             db.executescript(schema)
             db.commit()
+        columns = {r[1] for r in self.sources.execute("PRAGMA table_info(source)")}
+        if "acquisition_state" not in columns:
+            with self.sources:
+                self.sources.execute("ALTER TABLE source ADD COLUMN acquisition_state TEXT NOT NULL DEFAULT 'discovered'")
+                self.sources.execute("ALTER TABLE source ADD COLUMN scientific_state TEXT NOT NULL DEFAULT 'current'")
+                self.sources.execute("UPDATE source SET acquisition_state=CASE WHEN EXISTS(SELECT 1 FROM version WHERE version.source_id=source.source_id) THEN 'acquired' ELSE 'discovered' END,scientific_state=CASE WHEN state IN ('withdrawn','corrected_pending_review') THEN state ELSE 'current' END")
+        if "scope_rights_json" not in {r[1] for r in self.sources.execute("PRAGMA table_info(span)")}:
+            with self.sources:
+                self.sources.execute("ALTER TABLE span ADD COLUMN scope_rights_json TEXT NOT NULL DEFAULT '{}'")
+        if "scientific_epoch" not in {r[1] for r in self.sources.execute("PRAGMA table_info(source)")}:
+            with self.sources:
+                self.sources.execute("ALTER TABLE source ADD COLUMN scientific_epoch INTEGER NOT NULL DEFAULT 0")
         # Early local source libraries used raw hash as a unique parse identity. Preserve old
         # parses while allowing an explicit parser-version correction over the same raw bytes.
         sql = self.sources.execute("SELECT sql FROM sqlite_master WHERE name='version'").fetchone()[0]
@@ -117,7 +140,7 @@ class Libraries:
                 ).fetchone()
                 canonical = old[0] if old else source["source_id"]
                 self.sources.execute(
-                    "INSERT OR IGNORE INTO source VALUES(?,?,?,'discovered','pending','{}',?)",
+                    "INSERT OR IGNORE INTO source(source_id,canonical_identity,manifest_json,state,identity_status,updates_json,updated_at) VALUES(?,?,?,'discovered','pending','{}',?)",
                     (canonical, key, dumps(source), now()),
                 )
                 self.sources.execute("INSERT OR IGNORE INTO alias VALUES(?,?)", (source["source_id"], canonical))
@@ -165,26 +188,40 @@ class Libraries:
             )
             for i, span in enumerate(spans or []):
                 text = span["text"]
-                self.sources.execute("INSERT OR IGNORE INTO span VALUES(?,?,?,?,?,?,?,?)", (
+                self.sources.execute("INSERT OR IGNORE INTO span(span_id,version_id,kind,section_path,locator_json,text,text_hash,structured_json,scope_rights_json) VALUES(?,?,?,?,?,?,?,?,?)", (
                     f"{version_id}:s{i:05d}", version_id, span.get("kind", "paragraph"),
                     span.get("section_path", ""), dumps(span.get("locator", {})), text,
-                    digest(text.encode()), dumps(span.get("structured", {}))))
+                    digest(text.encode()), dumps(span.get("structured", {})), dumps(span.get("rights", {}))))
             self.sources.execute(
-                "UPDATE source SET state=CASE WHEN state='withdrawn' THEN state ELSE 'acquired' END,identity_status=?,updated_at=? WHERE source_id=?",
+                "UPDATE source SET acquisition_state='acquired',state=CASE WHEN scientific_state='current' THEN 'acquired' ELSE scientific_state END,identity_status=?,updated_at=? WHERE source_id=?",
                 (identity_status, now(), source_id),
             )
         return version_id
 
     def span(self, span_id: str) -> dict | None:
-        row = self.sources.execute("SELECT s.*,v.source_id,v.material_type,v.rights_json,v.identity_status,v.metadata_json,src.state source_state FROM span s JOIN version v ON v.version_id=s.version_id JOIN source src ON src.source_id=v.source_id WHERE span_id=?", (span_id,)).fetchone()
-        return dict(row) if row else None
+        row = self.sources.execute("SELECT s.*,v.source_id,v.material_type,v.rights_json,v.parser_version,v.identity_status,v.metadata_json,src.state source_state,src.scientific_state source_scientific_state,src.scientific_epoch,src.acquisition_state source_acquisition_state FROM span s JOIN version v ON v.version_id=s.version_id JOIN source src ON src.source_id=v.source_id WHERE span_id=?", (span_id,)).fetchone()
+        if not row:
+            return None
+        result = dict(row)
+        if json.loads(result["scope_rights_json"]):
+            result["rights_json"] = result["scope_rights_json"]
+        return result
 
     def eligible(self, span: dict, material: str | None = None) -> tuple[bool, str]:
-        if span["source_state"] in {"withdrawn", "corrected_pending_review"}:
-            return False, span["source_state"]
+        current = self.sources.execute("SELECT scientific_state,scientific_epoch FROM source WHERE source_id=?", (span["source_id"],)).fetchone()
+        if not current:
+            return False, "source_missing"
+        scientific = current["scientific_state"]
+        cleared = self.sources.execute("SELECT 1 FROM source_version_clearance WHERE source_id=? AND version_id=? AND scientific_epoch=?",
+                                        (span["source_id"], span["version_id"], current["scientific_epoch"])).fetchone()
+        if scientific == "withdrawn" or scientific == "corrected_pending_review" and not cleared:
+            return False, scientific
         if span["identity_status"] != "matched":
             return False, "identity_not_matched"
-        if not json.loads(span["rights_json"]).get("index_allowed"):
+        rights = json.loads(span["rights_json"])
+        if rights.get("status") == "license_identified" and not rights.get("scope_policy_version"):
+            return False, "legacy_jats_scope_review_required"
+        if not rights.get("index_allowed"):
             return False, "rights_not_cleared"
         if material == "fulltext" and span["material_type"] != "fulltext":
             return False, "insufficient_material_depth"
@@ -193,19 +230,71 @@ class Libraries:
     def update_state(self, source_id: str, state: str, reason: str, relation: dict | None = None) -> dict:
         if state not in {"withdrawn", "corrected_pending_review", "acquired"}:
             raise ValueError("unsupported lifecycle state")
-        source_id = self.source(source_id)["source_id"]
+        current = self.source(source_id)
+        source_id = current["source_id"]
+        scientific = current["scientific_state"] if state == "acquired" else state
+        if current["scientific_state"] == "withdrawn":
+            scientific = "withdrawn"  # fetches and correction notices cannot undo withdrawal
+        effective = scientific if scientific != "current" else state
         with self.sources:
-            self.sources.execute("UPDATE source SET state=?,updates_json=?,updated_at=? WHERE source_id=?", (state, dumps({"reason": reason, "relation": relation, "checked_at": now()}), now(), source_id))
+            self.sources.execute("UPDATE source SET state=?,scientific_state=?,scientific_epoch=scientific_epoch+?,acquisition_state=CASE WHEN ?='acquired' THEN 'acquired' ELSE acquisition_state END,updates_json=?,updated_at=? WHERE source_id=?", (effective, scientific, int(state != "acquired"), state, dumps({"reason": reason, "relation": relation, "checked_at": now()}), now(), source_id))
         affected = []
-        if state != "acquired":
+        if scientific != "current":
             with self.theories:
                 for row in self.theories.execute("SELECT * FROM theory WHERE status='approved'").fetchall():
                     review = json.loads(row["review_json"])
                     if any(x.get("source_id") == source_id for x in review.get("evidence_links", [])):
-                        self.theories.execute("UPDATE theory SET status='needs_review' WHERE theory_id=? AND version=?", (row["theory_id"], row["version"]))
+                        self.theory_state(row["theory_id"], row["version"], "needs_review", actor="source_lifecycle", rationale=f"{source_id}: {reason}")
                         affected.append(row["theory_id"])
         self.log(source_id, "lifecycle_change", {"state": state, "reason": reason, "affected_theories": affected})
-        return {"source_id": source_id, "state": state, "affected_theories": affected, "cached_explanations": "revalidate_citations_before_use"}
+        return {"source_id": source_id, "state": effective, "scientific_state": scientific, "affected_theories": affected, "cached_explanations": "revalidate_citations_before_use"}
+
+    def review_source_state(self, source_id: str, *, reviewer: str, rationale: str,
+                            source_version_ids: list[str]) -> dict:
+        """Explicit clearance is distinct from fetching or source metadata updates."""
+        source = self.source(source_id)
+        source_id = source["source_id"]
+        if source["scientific_state"] == "withdrawn":
+            raise ValueError("withdrawn source cannot be restored by ordinary version clearance")
+        if not reviewer.strip() or not rationale.strip() or not source_version_ids:
+            raise ValueError("source clearance requires identified review, rationale and exact versions")
+        for version in source_version_ids:
+            if not self.sources.execute("SELECT 1 FROM version WHERE source_id=? AND version_id=?", (source_id, version)).fetchone():
+                raise ValueError("source review version mismatch")
+        with self.sources:
+            for version in source_version_ids:
+                self.sources.execute("INSERT INTO source_review(source_id,version_id,reviewer,decision,rationale,created_at) VALUES(?,?,?,?,?,?)",
+                                     (source_id, version, reviewer, "version_scientific_clearance", rationale, now()))
+                self.sources.execute("INSERT OR REPLACE INTO source_version_clearance VALUES(?,?,?,?,?,?)",
+                                     (source_id, version, source["scientific_epoch"], reviewer, rationale, now()))
+        self.log(source_id, "scientific_state_reviewed", {"reviewer": reviewer, "rationale": rationale, "source_version_ids": source_version_ids})
+        return {"source_id": source_id, "scientific_state": source["scientific_state"],
+                "cleared_source_version_ids": source_version_ids, "scientific_epoch": source["scientific_epoch"],
+                "unreviewed_versions_remain_blocked": True, "theories_reactivated": False}
+
+    def theory_state(self, theory_id: str, version: str, action: str, *, actor: str, rationale: str) -> dict:
+        if action not in {"disabled", "revoked", "needs_review", "activate"} or not actor.strip() or not rationale.strip():
+            raise ValueError("identified actor, rationale and supported theory lifecycle action required")
+        row = self.theories.execute("SELECT * FROM theory WHERE theory_id=? AND version=?", (theory_id, version)).fetchone()
+        if not row:
+            raise ValueError("unknown theory/version")
+        status = "approved" if action == "activate" else action
+        if action == "disabled" and row["status"] not in {"approved", "disabled"}:
+            raise ValueError("revoked, superseded or review-pending content cannot be reset to a reactivatable state")
+        if action == "activate":
+            review = json.loads(row["review_json"])
+            if row["status"] != "disabled" or review.get("decision") != "approved":
+                raise ValueError("only a disabled unchanged approval may be reactivated; otherwise create a reviewed revision")
+            if self.theories.execute("SELECT 1 FROM theory WHERE theory_id=? AND status='approved' AND version!=?", (theory_id, version)).fetchone():
+                raise ValueError("another effective theory version already exists")
+            for link in review["evidence_links"]:
+                if any(not self.span(sid) or not self.eligible(self.span(sid))[0] for sid in link["span_ids"]):
+                    raise ValueError("theory dependencies no longer eligible")
+        with self.theories:
+            self.theories.execute("UPDATE theory SET status=? WHERE theory_id=? AND version=?", (status, theory_id, version))
+            self.theories.execute("INSERT INTO theory_lifecycle(theory_id,version,action,actor,rationale,previous_status,status,created_at) VALUES(?,?,?,?,?,?,?,?)",
+                                  (theory_id, version, action, actor, rationale, row["status"], status, now()))
+        return {"theory_id": theory_id, "version": version, "effective_status": status, "review_unchanged": True}
 
     def review(self, theory_id: str, version: str, *, reviewer: str, rationale: str,
                evidence_links: list[dict], applicability: dict, claims: list[dict],
@@ -218,9 +307,13 @@ class Libraries:
             raise ValueError("identified reviewer and claim-specific rationale required")
         if decision not in {"approved", "rejected", "needs_review"}:
             raise ValueError("invalid review decision")
-        if authority not in {"explanation_only", "progression_candidate"}:
+        previous = json.loads(row["review_json"])
+        if previous and decision in {"needs_review", "rejected"}:
+            return self.theory_state(theory_id, version, "revoked" if decision == "rejected" else "needs_review",
+                                     actor=reviewer, rationale=rationale)
+        if authority not in {"explanation_only", "progression_candidate", "trial_candidate"}:
             raise ValueError("unsupported review capability; exact prescriptions are not authorized")
-        if authority == "progression_candidate":
+        if authority in {"progression_candidate", "trial_candidate"}:
             if reviewer_kind != "qualified_human_review" or not implementation_tests or not applicability.get("required"):
                 raise ValueError("candidate capability requires qualified review, explicit applicability and implementation validation references")
         if decision == "approved":
@@ -243,17 +336,28 @@ class Libraries:
                     raise ValueError("each claim requires reviewed supporting spans and rationale")
                 if claim.get("formula") and not implementation_tests:
                     raise ValueError("formula activation requires implementation validation references")
+                from .support import validate_bindings
+                validate_bindings(claim)
         payload = {"reviewer": reviewer, "reviewed_at": now(), "rationale": rationale, "decision": decision,
                    "evidence_links": evidence_links, "applicability": applicability, "claims": claims,
                    "implementation_tests": implementation_tests or [], "authority": authority,
                    "reviewer_kind": reviewer_kind, "independent_expert_validation": False}
-        previous = json.loads(row["review_json"])
         if previous:
             unchanged = all(previous.get(k) == value for k, value in payload.items() if k != "reviewed_at")
             if unchanged and row["status"] == decision:
                 return previous
             raise ValueError("reviewed theory version is immutable; create a new draft with revise_theory")
+        supersedes = json.loads(row["card_json"]).get("revision", {}).get("from_version")
+        active = self.theories.execute("SELECT version FROM theory WHERE theory_id=? AND status='approved' AND version!=?", (theory_id, version)).fetchall()
+        if decision == "approved" and any(item[0] != supersedes for item in active):
+            raise ValueError("approval must explicitly revise the currently effective theory version")
         with self.theories:
+            if decision == "approved" and supersedes:
+                old = self.theories.execute("SELECT status FROM theory WHERE theory_id=? AND version=?", (theory_id, supersedes)).fetchone()
+                if old:
+                    self.theories.execute("UPDATE theory SET status='superseded' WHERE theory_id=? AND version=?", (theory_id, supersedes))
+                    self.theories.execute("INSERT INTO theory_lifecycle(theory_id,version,action,actor,rationale,previous_status,status,superseded_by,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+                                          (theory_id, supersedes, "superseded", reviewer, rationale, old[0], "superseded", version, now()))
             self.theories.execute("UPDATE theory SET status=?,review_json=? WHERE theory_id=? AND version=?", (decision, dumps(payload), theory_id, version))
             self.theories.execute("INSERT INTO theory_review(theory_id,version,decision,payload_json,created_at) VALUES(?,?,?,?,?)", (theory_id, version, decision, dumps(payload), now()))
         return payload
@@ -289,8 +393,17 @@ class Libraries:
     def release(self, release_id: str) -> dict:
         theories = [dict(r) for r in self.theories.execute("SELECT theory_id,version,status,review_json FROM theory WHERE status='approved' ORDER BY theory_id,version")]
         linked = {link['source_version_id'] for t in theories for link in json.loads(t['review_json']).get('evidence_links', [])}
-        sources = [dict(r) for r in self.sources.execute("SELECT v.version_id,v.source_id,v.sha256,v.material_type,v.rights_json FROM version v JOIN source s ON s.source_id=v.source_id WHERE v.identity_status='matched' AND s.state='acquired' ORDER BY version_id")
-                   if r['version_id'] in linked and json.loads(r['rights_json']).get('index_allowed')]
+        for theory in theories:
+            for link in json.loads(theory["review_json"])["evidence_links"]:
+                for sid in link["span_ids"]:
+                    span = self.span(sid)
+                    if (not span or span["version_id"] != link["source_version_id"]
+                            or not self.eligible(span)[0]):
+                        raise ValueError("release has unavailable or rights-blocked theory dependencies")
+        # Eligibility is scoped to each cited span and exact scientific clearance,
+        # not the article-wide grant or source-wide compatibility state.
+        sources = [dict(r) for r in self.sources.execute("SELECT version_id,source_id,sha256,material_type,rights_json FROM version WHERE identity_status='matched' ORDER BY version_id")
+                   if r['version_id'] in linked]
         available = {s['version_id'] for s in sources}
         if not linked <= available:
             raise ValueError("release has unavailable or rights-blocked theory dependencies")

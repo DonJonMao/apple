@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECTION_VERSION = "public-artifacts-1.0.0"
+PROJECTION_VERSION = "public-artifacts-1.1.0"
 EVALUATIONS = (
     "artifacts/knowledge/visible_eval.json",
     "artifacts/knowledge/holdout_eval.json",
@@ -27,6 +27,7 @@ RIGHTS_FIELDS = {
     "license_id", "license_url", "index_allowed", "redistribution_allowed",
     "derivative_redistribution_allowed", "declared_use", "evidence_locator", "review",
     "rights_scope", "status", "usage_restriction",
+    "scope_policy_version", "scope_id", "scope_kind", "inherited_from_scope",
 }
 
 
@@ -36,6 +37,12 @@ def digest(raw: bytes) -> str:
 
 def canonical(value) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, allow_nan=False)
+
+
+def redact_local_paths(value: str) -> str:
+    value = value.replace(str(ROOT), "<repo>")
+    value = re.sub(r"/home/[^/\s'\"<>]+", "<home>", value)
+    return re.sub(r"/tmp/pytest-of-[^/\s'\"<>]+", "<pytest-temp>", value)
 
 
 def write_json(path: Path, value) -> None:
@@ -87,6 +94,7 @@ def prepare() -> dict:
         "scope": "Public artifacts only; source bytes, private databases and core source code are untouched.",
         "files": {},
     }
+    audit["projection_version"] = PROJECTION_VERSION
     changed = {}
 
     def record(path: Path, before: bytes, policy: str, **extra):
@@ -116,18 +124,28 @@ def prepare() -> dict:
         if root.tag not in {"testsuite", "testsuites"}:
             continue
         removed = 0
+        redacted = False
         for element in root.iter():
             if "hostname" in element.attrib:
                 del element.attrib["hostname"]
                 removed += 1
-        if removed:
+            for key, value in list(element.attrib.items()):
+                clean = redact_local_paths(value)
+                redacted |= clean != value
+                element.set(key, clean)
+            for field in ("text", "tail"):
+                value = getattr(element, field)
+                if value:
+                    clean = redact_local_paths(value)
+                    redacted |= clean != value
+                    setattr(element, field, clean)
+        if removed or redacted:
             path.write_bytes(ET.tostring(root, encoding="utf-8", xml_declaration=True))
-        record(path, before, "remove_JUnit_hostnames_preserve_all_test_results")
+        record(path, before, "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results")
 
     path = ROOT / "artifacts/verification/build.txt"
     before = path.read_bytes()
-    text = before.decode().replace(str(ROOT), "<repo>")
-    text = re.sub(r"/home/[^/\s'\"]+", "<home>", text)
+    text = redact_local_paths(before.decode())
     if text.encode() != before:
         path.write_text(text)
     record(path, before, "replace_local_repository_and_home_paths")
@@ -196,6 +214,8 @@ def audit_public() -> dict:
         root = ET.fromstring(path.read_bytes())
         if root.tag in {"testsuite", "testsuites"}:
             assert all("hostname" not in element.attrib for element in root.iter())
+            for element in root.iter():
+                assert all(redact_local_paths(value) == value for value in [*element.attrib.values(), element.text or "", element.tail or ""])
             junit += 1
     assert not re.search(r"/home/[^/\s'\"]+", (ROOT / "artifacts/verification/build.txt").read_text())
     for name in ("artifacts/science/acceptance-results.json", "docs/science_traceability.json"):

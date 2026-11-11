@@ -38,6 +38,9 @@ class ParameterRegistry:
                 alpha_look REAL NOT NULL, metric_id TEXT NOT NULL, created_at TEXT NOT NULL,
                 PRIMARY KEY(family_id,data_hash,metric_id), UNIQUE(family_id,look_number));
         """)
+        if "binding_json" not in {row[1] for row in self.conn.execute("PRAGMA table_info(analysis_look)")}:
+            self.conn.execute("ALTER TABLE analysis_look ADD COLUMN binding_json TEXT NOT NULL DEFAULT '{}'")
+            self.conn.commit()
 
     def close(self) -> None:
         self.conn.close()
@@ -125,30 +128,73 @@ class ParameterRegistry:
             self.conn.execute("INSERT OR IGNORE INTO analysis_family VALUES(?,?,?)",
                               (family_id, alpha_total, json.dumps(protocol)))
 
-    def allocate_look(self, family_id: str, data_hash: str, metric_id: str) -> dict:
+    def allocate_look(self, family_id: str, data_hash: str, metric_id: str, *, data_version=None,
+                      task_id=None, cutoff_time=None) -> dict:
         # BEGIN IMMEDIATE prevents two concurrent page requests spending one look twice.
         self.conn.execute("BEGIN IMMEDIATE")
         try:
+            binding = {"data_version": str(data_version) if data_version is not None else None,
+                       "task_id": task_id, "cutoff_time": cutoff_time}
             old = self.conn.execute("SELECT * FROM analysis_look WHERE family_id=? AND data_hash=? AND metric_id=?",
                                     (family_id, data_hash, metric_id)).fetchone()
             if old:
+                if json.loads(old["binding_json"]) != binding:
+                    raise ValueError("look_binding_mismatch")
                 self.conn.commit()
-                return dict(old)
-            family = self.conn.execute("SELECT alpha_total FROM analysis_family WHERE family_id=?",
+                return {k: v for k, v in dict(old).items() if k != "binding_json"} | binding
+            family = self.conn.execute("SELECT alpha_total,protocol FROM analysis_family WHERE family_id=?",
                                        (family_id,)).fetchone()
             if not family:
                 raise ValueError("unregistered_analysis_family")
+            protocol = json.loads(family["protocol"])
+            if metric_id not in protocol.get("metrics", []):
+                raise ValueError("metric_not_registered_in_family")
             k = self.conn.execute("SELECT COUNT(*) FROM analysis_look WHERE family_id=?", (family_id,)).fetchone()[0] + 1
             alpha = family[0] / (k * (k + 1))
             out = {"family_id": family_id, "data_hash": data_hash, "look_number": k,
                    "alpha_look": alpha, "metric_id": metric_id,
                    "created_at": datetime.now(timezone.utc).isoformat()}
-            self.conn.execute("INSERT INTO analysis_look VALUES(:family_id,:data_hash,:look_number,:alpha_look,:metric_id,:created_at)", out)
+            self.conn.execute("INSERT INTO analysis_look(family_id,data_hash,look_number,alpha_look,metric_id,created_at,binding_json) VALUES(:family_id,:data_hash,:look_number,:alpha_look,:metric_id,:created_at,:binding_json)",
+                              {**out, "binding_json": json.dumps(binding, sort_keys=True)})
             self.conn.commit()
-            return out
+            return {**out, **binding}
         except Exception:
             self.conn.rollback()
             raise
+
+
+def verified_look(context: dict, metric_id: str, *, snapshot_hash: str, task_id: str,
+                  cutoff_time: str) -> tuple[Optional[dict], list[str]]:
+    allocation = context.get("look_allocation")
+    path = context.get("look_registry_path")
+    if not allocation or not path:
+        return None, ["registered_look_and_registry_required"]
+    target = context.get("look_metric_id", metric_id) if metric_id == "STR-24" else metric_id
+    expected = {"metric_id": target, "data_hash": snapshot_hash, "data_version": str(context.get("data_version")),
+                "task_id": task_id, "cutoff_time": cutoff_time}
+    if any(allocation.get(key) != value for key, value in expected.items()):
+        return None, ["registered_look_binding_mismatch"]
+    try:
+        conn = sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        try:
+            row = conn.execute("SELECT * FROM analysis_look WHERE family_id=? AND data_hash=? AND metric_id=?",
+                (allocation.get("family_id"), snapshot_hash, target)).fetchone()
+            family = conn.execute("SELECT * FROM analysis_family WHERE family_id=?", (allocation.get("family_id"),)).fetchone()
+        finally:
+            conn.close()
+    except (OSError, sqlite3.Error):
+        return None, ["registered_look_receipt_unverifiable"]
+    if not row or not family:
+        return None, ["registered_look_receipt_not_found"]
+    saved = {k: v for k, v in dict(row).items() if k != "binding_json"} | json.loads(row["binding_json"])
+    protocol = json.loads(family["protocol"])
+    if saved != allocation or target not in protocol.get("metrics", []) or instant(protocol["declared_before"]) > instant(row["created_at"]):
+        return None, ["registered_look_receipt_mismatch"]
+    alpha = family["alpha_total"] / (row["look_number"] * (row["look_number"] + 1))
+    if not 0 < alpha < 1 or abs(alpha - row["alpha_look"]) > 1e-15:
+        return None, ["registered_look_alpha_mismatch"]
+    return saved, []
 
 
 def calibration_matches(artifact: Optional[dict], *, metric_id: str, scope: dict,

@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 from lxml import etree
 
+from .rights import rights_for_node, rights_from_xml
 from .store import Libraries, now
 
 OAI = "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/"
@@ -57,59 +58,35 @@ def identity_check(expected: dict, actual: dict) -> tuple[str, list[str]]:
     return ("matched" if matched_id and title_b else "pending"), conflicts
 
 
-def rights_from_xml(root) -> dict:
-    licenses = root.xpath("//*[local-name()='license']")
-    text = " ".join(_text(n) for n in licenses)
-    urls = [v for n in licenses for v in n.attrib.values() if "creativecommons.org" in v]
-    urls.extend(re.findall(r"https?://creativecommons\.org/[^\s<>\"']+", text))
-    lower = (" ".join(urls) + " " + text).lower()
-    license_id = None
-    # Only terms explicitly allowing reuse of this version enable the public index.
-    for token, label in (("/publicdomain/zero/", "CC0"), ("/licenses/by/", "CC-BY"),
-                         ("/licenses/by-sa/", "CC-BY-SA"), ("/licenses/by-nc/", "CC-BY-NC"),
-                         ("/licenses/by-nc-sa/", "CC-BY-NC-SA"), ("/licenses/by-nc-nd/", "CC-BY-NC-ND"),
-                         ("/licenses/by-nd/", "CC-BY-ND")):
-        if token in lower:
-            license_id = label
-            break
-    if not license_id and "this file is available for text mining" in lower:
-        license_id = "PMC-explicit-text-mining-notice"
-    allowed = license_id is not None
-    return {"status": "license_identified" if allowed else "unknown_pending_review", "license_id": license_id,
-            "license_url": urls[0] if urls else None, "license_text": text,
-            "index_allowed": allowed, "redistribution_allowed": license_id in {"CC0", "CC-BY", "CC-BY-SA"},
-            "derivative_redistribution_allowed": license_id in {"CC0", "CC-BY", "CC-BY-SA"},
-            "usage_restriction": "Internal noncommercial retrieval only; no altered source text distributed. ND or text-mining permissions do not authorize derivative redistribution or commercial reuse.",
-            "declared_use": POLICY["declared_use"], "rights_scope": "this_article_version",
-            "evidence_locator": "//permissions/license", "review": "machine_license_detection_not_expert_review"}
-
-
 def parse_jats(raw: bytes) -> tuple[dict, list[dict], dict]:
     root = etree.fromstring(raw, parser=XML_PARSER)
     articles = root.xpath("//*[local-name()='article']")
     article = articles[0] if articles else root
     tree = article.getroottree()
+    rights = rights_from_xml(article)
+    meta_nodes = article.xpath("./*[local-name()='front']/*[local-name()='article-meta']")
+    meta = meta_nodes[0] if meta_nodes else article
     metadata: dict[str, Any] = {"publication_years": [], "authors": [], "relations": []}
-    titles = article.xpath(".//*[local-name()='article-title']")
+    titles = meta.xpath(".//*[local-name()='article-title']")
     metadata["title"] = _text(titles[0]) if titles else ""
-    for el in article.xpath(".//*[local-name()='article-id']"):
+    for el in meta.xpath(".//*[local-name()='article-id']"):
         kind = el.get("pub-id-type")
         if kind in {"doi", "pmid", "pmc"}:
             value = _text(el)
             metadata["pmcid" if kind == "pmc" else kind] = ("PMC" + value.removeprefix("PMC")) if kind == "pmc" else value
-    for node in article.xpath(".//*[local-name()='pub-date']"):
+    for node in meta.xpath(".//*[local-name()='pub-date']"):
         years = node.xpath("./*[local-name()='year']/text()")
         for year in years:
             if year.isdigit():
                 metadata["publication_years"].append(int(year))
-    for node in article.xpath(".//*[local-name()='contrib'][@contrib-type='author']"):
+    for node in meta.xpath(".//*[local-name()='contrib'][@contrib-type='author']"):
         metadata["authors"].append(_text(node))
     for node in article.xpath(".//*[local-name()='related-article']"):
         metadata["relations"].append(dict(node.attrib))
     spans = []
     # Preserve each evidence unit and its native source locator, including tables and equations.
     for node in article.xpath(".//*[local-name()='p' or local-name()='table-wrap' or local-name()='disp-formula']"):
-        if any(etree.QName(a).localname in {"table-wrap", "disp-formula"} for a in node.iterancestors()):
+        if any(etree.QName(a).localname in {"table-wrap", "disp-formula", "permissions", "license"} for a in node.iterancestors()):
             continue
         kind = {"p": "paragraph", "table-wrap": "table", "disp-formula": "formula"}[etree.QName(node).localname]
         text = _text(node)
@@ -136,8 +113,9 @@ def parse_jats(raw: bytes) -> tuple[dict, list[dict], dict]:
                       "locator": {"xpath": tree.getpath(node), "native_id": node.get("id"),
                                   "paragraph_id": len(spans), "start_offset": 0, "end_offset": len(text),
                                   "language": article.get("{http://www.w3.org/XML/1998/namespace}lang", "und"),
-                                  "extraction_method": "lxml_jats_no_entities"}, "structured": structured})
-    return metadata, spans, rights_from_xml(article)
+                                  "extraction_method": "lxml_jats_no_entities"}, "structured": structured,
+                      "rights": rights_for_node(node, article, rights)})
+    return metadata, spans, rights
 
 
 class Acquirer:
@@ -299,7 +277,7 @@ class Acquirer:
         status, conflicts = identity_check(source, metadata)
         if not root.xpath("//*[local-name()='body']"):
             return {"status": "fulltext_unavailable", "reason": "response has no article body"}
-        version = self.lib.record_version(sid, raw, "fulltext", receipt, metadata, rights, status, spans)
+        version = self.lib.record_version(sid, raw, "fulltext", receipt, metadata, rights, status, spans, "jats-scoped-1.4.0")
         return {"status": "fulltext_fetched", "version_id": version, "span_count": len(spans), "rights": rights,
                 "identity_status": status, "conflicts": conflicts, "theory_review": "pending"}
 
@@ -347,7 +325,7 @@ class Acquirer:
                     status, conflicts = identity_check(source, metadata)
                     metadata['identity_conflicts'] = conflicts
                     metadata['embedded_rights'] = embedded_rights
-                    parser_version = 'jats-1.3.0'
+                    parser_version = 'jats-scoped-1.4.0'
                 version = self.lib.record_version(source['source_id'], raw, 'fulltext', receipt, metadata, rights, status, spans, parser_version)
                 return {'status': 'fulltext_fetched', 'version_id': version, 'identity_status': status, 'span_count': len(spans), 'rights': rights,
                         'theory_review': 'pending'}

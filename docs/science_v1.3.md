@@ -1,5 +1,7 @@
 # v1.3 科学计算、验证与限制
 
+> 计算语义在 1.3.1 审查修复中更新，逐项证据见 [review_science_repairs.md](review_science_repairs.md)：结构化测量协议和每动作任务、登记后才展示的趋势区间、以 kcal 标记的窗口能量累计、明确主睡眠片段及独立历史睡眠序列。旧 `artifacts/science/` 和 `artifacts/demo/` 保留为初版历史证据；新版复验在 `artifacts/review/`。
+
 本模块实现执行包中的全部 77 项指标入口。数据可计算、软件测试通过、来源取得、理论审核和人体有效性是不同状态。下文的合成验收与校准不能赋予 `predictive_validated_for_scope` 或 `intervention_validated_for_scope` 身份。
 
 逐项映射见 [science_traceability.json](science_traceability.json)，规范见 [执行包](../specs/v1.3/Codex_Execution_Pack_v1.3/README.md)。实际来源及 TheoryCard 审核状态由 [知识模块](knowledge_v1.3.md) 单独记录。

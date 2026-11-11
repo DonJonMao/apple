@@ -35,6 +35,8 @@ ACTUAL_FIELDS = (
     "stop_reason",
     "started_at",
     "ended_at",
+    "rest_recorded_s",
+    "rest_recorded_method",
     "pain_flag",
     "quality_note",
     "quality_status",

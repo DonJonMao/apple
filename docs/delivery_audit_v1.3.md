@@ -1,6 +1,8 @@
 # v1.3 交付证据与剩余条件
 
-审计时间：2026-11-11。逐项追踪见根目录 `requirements_traceability.csv`：77 个指标及13项操作需求，共90行，每行分别记录 implementation、software_verification、corpus_acquisition、theory_review、scientific_validation。`python tools/build_delivery_traceability.py` 依据实际验收结果、来源获取清单和理论审核清单重建；正文可访问、软件通过、主张审核和个人有效性没有互相替代。
+> 历史交付审计：本文件的统计对应 `0a943b4`，不是v1.3.1当前验收。修复后整仓476项测试通过；11张旧理论卡为 `needs_review`、有效approved为0；新冻结RAG独立AI审阅7/10、独立人工分母0，当前开发集/固定留出gold召回为0/67、0/8。当前五维状态与证据见 [修复验收表](review_fixes_2026-11-11.md) 和 [实现状态](../IMPLEMENTATION_STATUS.md)。下文的旧评测统计保留为历史记录。
+
+审计时间：2026-11-11。逐项追踪见根目录 `requirements_traceability.csv`：77 个指标及13项操作需求，共90行，每行分别记录 implementation、software_verification、corpus_acquisition、theory_review、scientific_validation。该CSV现已追加v1.3.1修复证据并更新当前理论/RAG状态；`tools/build_delivery_traceability.py` 仍是旧基线生成器，直接运行会覆盖本轮人工核对的更新。正文可访问、软件通过、主张审核和个人有效性没有互相替代。
 
 ## 五个维度的实际状态
 
@@ -53,7 +55,7 @@ PYTHONPATH=src python -m healthzip.knowledge review reviewed-claim.json
 PYTHONPATH=src python -m healthzip.knowledge evaluate src/healthzip/knowledge/data/rag_eval_cases.json --with-synthetic-metrics --annotations annotations.json
 PYTHONPATH=src python -m healthzip.knowledge evaluate src/healthzip/knowledge/data/rag_holdout.json --split source_family_holdout
 PYTHONPATH=src pytest -q tests/unit/test_ai_client.py tests/unit/test_knowledge.py
-python tools/build_delivery_traceability.py
+# tools/build_delivery_traceability.py 仅用于重建旧基线，不覆盖当前追踪表。
 ```
 
 PDF文本层页序、坐标与表格已有可执行合成文件验证；扫描PDF仍明确无OCR，真实复杂表格/单位需人工核对。知识备份应完整包含两份SQLite和原始blobs；受限原文不随Git审计文件公开分发。个人数据仍与公共来源库分开。

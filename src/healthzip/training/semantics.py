@@ -165,6 +165,29 @@ def load_change(before: dict, after: dict, condition: dict) -> dict:
 
 def condition_snapshot(exercise: dict, condition: dict, user_id: str) -> dict:
     result = dict(condition)
+    protocol = result.get("reference_protocol")
+    if isinstance(protocol, str):
+        # A legacy note does not establish a complete measurement protocol.
+        result.setdefault("reference_protocol_note", protocol)
+        result["reference_protocol"] = None
+    elif protocol is not None:
+        if not isinstance(protocol, dict):
+            raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+        keys = {
+            "protocol_id",
+            "version",
+            "reference_policy_id",
+            "effort_protocol",
+            "tempo",
+            "rest_protocol",
+        }
+        if set(protocol) - keys or any(
+            value is not None and not isinstance(value, str) for value in protocol.values()
+        ):
+            raise TrainingError("参考协议字段须为明确文字或未知")
+        result["reference_protocol"] = {
+            key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+        }
     result.update(
         user_id=user_id,
         exercise_id=exercise["exercise_id"],

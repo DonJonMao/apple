@@ -6,6 +6,7 @@ import json
 import math
 from pathlib import Path
 
+from .adjudication import annotation_identity, validate_annotation
 from .retrieval import validate_answer
 from .store import digest, dumps, now
 
@@ -35,6 +36,8 @@ def evaluate(workbench, cases_path, *, split="visible_development", annotations_
               "gold_total": 0, "gold_available": 0, "answer_with_evidence": 0, "abstentions": 0,
               "semantic_pass": 0, "semantic_reviewed": 0, "route_pass": 0,
               "positive_cases": 0, "positive_abstentions": 0, "unsupported_numeric_actions": 0}
+    counts.update(independent_ai_semantic_reviewed=0, independent_ai_semantic_pass=0,
+                  rejected_annotations=0, related_material_only=0)
     records = []
     for case in cases:
         metrics = metric_provider(case) if metric_provider else []
@@ -64,23 +67,32 @@ def evaluate(workbench, cases_path, *, split="visible_development", annotations_
         counts["citation_total"] += len(result["citations"])
         counts["citation_valid"] += len(result["citations"]) if not validation else 0
         counts["answer_with_evidence"] += bool(result["citations"])
-        counts["abstentions"] += result["status"] == "insufficient_evidence"
+        abstained = result["status"] in {"insufficient_evidence", "related_material_only", "conflicting_evidence"}
+        counts["abstentions"] += abstained
+        counts["related_material_only"] += result["status"] == "related_material_only"
         counts["unsupported_numeric_actions"] += bool(result.get("numeric_actions"))
         if case.get("case_type") == "positive":
             counts["positive_cases"] += 1
-            counts["positive_abstentions"] += result["status"] == "insufficient_evidence"
+            counts["positive_abstentions"] += abstained
         adjudication = annotations.get(case["case_id"])
         semantic = "pending_independent_semantic_adjudication"
-        if adjudication and adjudication.get("reviewer") and adjudication.get("rationale"):
-            # Bind review to actual output; stale annotations are never reused for changed answers.
-            if adjudication.get("output_sha256") == digest(dumps(result).encode()):
-                semantic = adjudication.get("decision", "pending")
-                counts["semantic_reviewed"] += semantic in {"pass", "fail"}
+        validation_result = None
+        if adjudication:
+            validation_result = validate_annotation(adjudication, case["case_id"], case["query_zh"], result)
+            counts["rejected_annotations"] += not validation_result["accepted"]
+            if validation_result["human_semantic_denominator_increment"]:
+                semantic = validation_result["decision"]
+                counts["semantic_reviewed"] += 1
                 counts["semantic_pass"] += semantic == "pass"
+            if validation_result["ai_semantic_denominator_increment"]:
+                counts["independent_ai_semantic_reviewed"] += 1
+                counts["independent_ai_semantic_pass"] += validation_result["decision"] == "pass"
         records.append({"case_id": case["case_id"], "case_type": case.get("case_type"), "expected_outcome": case.get("expected_outcome"),
                         "actual_status": result["status"], "schema_errors": schema_errors, "citation_errors": validation,
                         "route_match": route_ok, "required_gold_groups": groups, "recalled_groups": recalled,
                         "reviewed_gold_groups_available": available, "semantic_adjudication": semantic,
+                        "annotation_validation": validation_result,
+                        "annotation_identity": annotation_identity(case["case_id"], case["query_zh"], result),
                         "output_sha256": digest(dumps(result).encode()), "output": result})
     return {"evaluation_version": "rag-eval-1.3.0", "run_at": now(), "split": split,
             "dataset_path": str(path), "dataset_sha256": digest(raw), "case_count": len(cases), "k": k,
@@ -90,6 +102,7 @@ def evaluate(workbench, cases_path, *, split="visible_development", annotations_
             "gold_group_recall_all_candidates": proportion(counts["gold_recalled"], counts["gold_total"]),
             "gold_group_corpus_coverage": proportion(counts["gold_available"], counts["gold_total"]),
             "semantic_support_rate": proportion(counts["semantic_pass"], counts["semantic_reviewed"]),
+            "independent_ai_support_rate": proportion(counts["independent_ai_semantic_pass"], counts["independent_ai_semantic_reviewed"]),
             "positive_abstention_rate": proportion(counts["positive_abstentions"], counts["positive_cases"]),
             "corpus_status": workbench.status(), "cases": records,
             "release_gate": "pending_corpus_and_semantic_review" if counts["semantic_reviewed"] < len(cases) else "inspect_case_failures",

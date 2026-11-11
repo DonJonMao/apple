@@ -1,51 +1,51 @@
 {
-  "projection_version": "public-artifacts-1.0.0",
+  "projection_version": "public-artifacts-1.1.0",
   "created_at": "2026-11-11T08:25:34.985804+00:00",
   "scope": "Public artifacts only; source bytes, private databases and core source code are untouched.",
   "files": {
     "artifacts/knowledge/visible_eval.json": {
       "original_file_sha256": "fbfc0cdaae1c4f99d21b0493c38b5e250626e9e4693881da4d117d8c07d7f4ec",
-      "public_file_sha256": "e3a2b1da9ffdec9b07dfa11b66a48ee53cc9aeb80fe508396be2789480c49e6f",
+      "public_file_sha256": "b25fce71bbce653ddcb3267e34ec9c295b08baa87a96646c79761e8441d3010f",
       "policy": "source_span_metadata_allowlist",
       "span_occurrences_projected": 200
     },
     "artifacts/knowledge/holdout_eval.json": {
       "original_file_sha256": "af5b8f221387a2362f167268d84671a2a901ad00256f4c6738a5f67d8f14872e",
-      "public_file_sha256": "1a373650f56eae2f11fc6192dc355f8307cc1ddc4a3c2dba7994eb2c6dbbabe6",
+      "public_file_sha256": "1af5012877bcfdbf3b7ad2958ee8574eb5307376f0dd18dc7b21b924a3d50857",
       "policy": "source_span_metadata_allowlist",
       "span_occurrences_projected": 36
     },
     "artifacts/knowledge/rag_eval_cases_latest_eval.json": {
-      "original_file_sha256": "a4357b6e3daa3ae90b8462b03a56cabf4c20ef2d0254fee2844321b3d8b0024b",
-      "public_file_sha256": "1273b9bdab36a9fdc1070865c223bf214f64b508a4f0dd4b3f01c28cc9cdbe47",
+      "original_file_sha256": "9102dbdd89d688ee4ec61fc5003ac6490f105777a4451314788bf2f21c4f1c7a",
+      "public_file_sha256": "9fdd59c64cd5041c9ca4a1c4a0dbb7263c8d911f3be2ee9cf570fc84033d2acc",
       "policy": "source_span_metadata_allowlist",
-      "span_occurrences_projected": 200
+      "span_occurrences_projected": 0
     },
     "artifacts/knowledge/rag_holdout_latest_eval.json": {
-      "original_file_sha256": "136bf0e5cc9343ce4cbc1ee0f20378b2b5b0ded483aff4ba332082fe18e177af",
-      "public_file_sha256": "ba647df8dfd8ae4873b7ab0aaaaa0e4204e0f019c2cf8df4d6c80f27c2417e88",
+      "original_file_sha256": "c125dc93f11abdc72d63949f6e2cf9e99995fbd8583365bf9da01fdb55312771",
+      "public_file_sha256": "d6737572f26a8cea580593fa581fba10bd56687aee1eb0a25b7db76de7deb7c4",
       "policy": "source_span_metadata_allowlist",
-      "span_occurrences_projected": 36
+      "span_occurrences_projected": 0
     },
     "artifacts/science/software-tests.xml": {
       "original_file_sha256": "29f69f35d3c925f88d3d354d7f24a0472ea549b3e1595782f3a648d6727b7371",
       "public_file_sha256": "2c895d15b601ca010e34365fbd9af173532c4fe15e3b2c8194372f97f357d640",
-      "policy": "remove_JUnit_hostnames_preserve_all_test_results"
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
     },
     "artifacts/verification/knowledge-ai-tests.xml": {
       "original_file_sha256": "f73061735757db24a6fa79d87056592808a3d257daafa0149184a3a7c6accab6",
       "public_file_sha256": "9efee373c6a6755b709aa572dd7cfa91241c3375b60f988c5a1edd41a68269e9",
-      "policy": "remove_JUnit_hostnames_preserve_all_test_results"
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
     },
     "artifacts/verification/pytest.xml": {
       "original_file_sha256": "01fd616b0c964b76c04dbbd8e8524c290a01a9921237ee951824573a4e81d52c",
       "public_file_sha256": "2437557ea0c7912020c8dd363acab2416ca561d8342b4aefa0a246e2e126e6e1",
-      "policy": "remove_JUnit_hostnames_preserve_all_test_results"
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
     },
     "artifacts/verification/training-tests.xml": {
       "original_file_sha256": "70cf9981aedf009dc504658da7f671aad03fc417257d634e315769d66f82046e",
       "public_file_sha256": "aa2e18ee18d5d3e0a521bb314ddddef1d945f0e389f4006d50419104478a54fe",
-      "policy": "remove_JUnit_hostnames_preserve_all_test_results"
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
     },
     "artifacts/verification/build.txt": {
       "original_file_sha256": "d0072a3790fdf540b697d2c0149cbe67817e2a81143075149a355221cae385f2",
@@ -61,14 +61,64 @@
       "original_file_sha256": "fe83aa416044de4e225cba23f8e89d03e0f5b5236f9e62e759bc97bbff0eca7d",
       "public_file_sha256": "9ef3728d225c4c4323f0bacd0c5397f06b0d5c44b96b4415beb4ebddb0f99354",
       "policy": "refresh_explicit_public_artifact_hash_references"
+    },
+    "artifacts/review/science-baseline.xml": {
+      "original_file_sha256": "e474b31db8a029c7ec86aa7e8800d0e1eac487b9644f69dd1fd4ea66061cb14a",
+      "public_file_sha256": "a40347d4a4f545cfb7ac6db5f985c5f98df04c626269925c2e6faed8ca1dea07",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/review/science-regressions.xml": {
+      "original_file_sha256": "8350bbcc4341f83e1d4075d75e77e476f480a5f4b51374474750584fc678d24c",
+      "public_file_sha256": "0d26d184706e0c5d6d7721544766c383146a4838d99f1c7dc703223c83199190",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/review/science-ui.xml": {
+      "original_file_sha256": "8e495db246924aa564721d669f7f9a1195a11a70442031d35d9791a67f84a91f",
+      "public_file_sha256": "8e495db246924aa564721d669f7f9a1195a11a70442031d35d9791a67f84a91f",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/verification/review-knowledge-fixed.xml": {
+      "original_file_sha256": "833607e64e6f0834963497d23cd83b392dbd4011e8a43896ed0c9659fe03b675",
+      "public_file_sha256": "3e52a707707d53fc435d483e8c0f134954138c3e2c74a8cc432313cbc4f29b36",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/verification/review-training-baseline.xml": {
+      "original_file_sha256": "84abc5a8f49529e12febb815e3660640b860f029a80c1d526f4366f2e1039446",
+      "public_file_sha256": "07c0dbda4f8cf36cfad301d70c4f0f866c565d581480b073a39e702a0d0325d0",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results;trim_trailing_whitespace_in_failure_traceback_only"
+    },
+    "artifacts/verification/review-training-current.xml": {
+      "original_file_sha256": "294258476c4221347edeb84305bcebce0c63b82c294e65205b116f21dcd344a8",
+      "public_file_sha256": "5013832e6eba3397043797b15027794744a9d13b00ab3957c7e0ad83b87d3463",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/verification/review-training-fixed.xml": {
+      "original_file_sha256": "4976b011f2929186a3a3615eef172d0072d50c56c13ce366b7d8ef560905e495",
+      "public_file_sha256": "ea515c5a276d460a28fd00b704aee44d51ac9e24509139f09bcb660079459b85",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/review/science-look-binding.xml": {
+      "original_file_sha256": "3b5bf5cbd7e5733d228d94facdc98cee571b02e338b05ff416e9955ef6fb2386",
+      "public_file_sha256": "3b5bf5cbd7e5733d228d94facdc98cee571b02e338b05ff416e9955ef6fb2386",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/review/science-ui-system-environment.xml": {
+      "original_file_sha256": "44c1ff5264013bf1760d204a3ee66c8f93b277a52ca70347efa4a9e07b1d9890",
+      "public_file_sha256": "44c1ff5264013bf1760d204a3ee66c8f93b277a52ca70347efa4a9e07b1d9890",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
+    },
+    "artifacts/verification/review-pytest.xml": {
+      "original_file_sha256": "41288235c645a43a6dc65d2e27614d12efd77d13f150525421c997f05a0e4d94",
+      "public_file_sha256": "618e0ea77cd0d94cb3861e2d07be8de9e739940403c7104608dfb967a72a89f3",
+      "policy": "redact_JUnit_hostnames_and_local_paths_preserve_all_test_results"
     }
   },
   "checks": {
     "status": "passed",
     "evaluation_files": 4,
     "case_outputs": 76,
-    "source_span_occurrences": 472,
-    "junit_files": 4,
+    "source_span_occurrences": 236,
+    "junit_files": 14,
     "source_text_in_retrieval_spans": 0,
     "junit_hostname_attributes": 0,
     "test_reference_hashes_match": true

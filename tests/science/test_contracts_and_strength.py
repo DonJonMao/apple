@@ -27,7 +27,8 @@ def row(index=1, **values):
             "load_basis_confirmed": True, "load_value": 60, "load_unit": "kg",
             "measurement_mode": "repetitions", "side": "bilateral", "repetition_semantics": "both_together",
             "rom_protocol": "full_declared", "settings": {}, "settings_confirmed": True,
-            "reference_protocol": "first_work_set", "reference_policy_id": "first-work-v1",
+            "reference_protocol": {"protocol_id": "first-work", "version": "1", "reference_policy_id": "first-work-v1",
+                "effort_protocol": "target-rir-2", "tempo": "controlled", "rest_protocol": "user-180s"}, "reference_policy_id": "first-work-v1",
             "set_position": 1, "effort_protocol": "target-rir-2", "tempo": "controlled", "rest_protocol": "user-180s",
             "role": "work", "status": "completed", "reps": 10, "rir": 2, "stop_reason": "target_rir_stop",
             "is_reference": True, "reference_declared_at": "2026-08-01T00:00:00+00:00", "quality_status": "acceptable", "event_end": moment.isoformat(),
@@ -217,6 +218,7 @@ def test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier():
     context["reviewed_principles"] = [reviewed_principle()]
     result = run("STR-25", [history], context)["value"]
     assert result["next_load"] == 32.5 and result["changes"]["plate_total_change_kg"] == 5
+    assert result["load_unit"] == "kg" and result["reference_set_id"] == history["set_id"]
     assert result["expected_success"] is None
     context["sleep_hours"] = 1
     assert run("STR-25", [history], context)["value"]["next_load"] == 32.5

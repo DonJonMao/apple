@@ -25,7 +25,6 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs" / "HealthZIP_使用手册.md"
 OUTPUT = ROOT / "output" / "pdf" / "HealthZIP_使用手册.pdf"
@@ -310,7 +309,7 @@ def build_story() -> list[object]:
             ),
         ),
         Spacer(1, 35 * mm),
-        Paragraph("本地优先 - 版本 1.3 - 2026-11-11", styles["ManualSmall"]),
+        Paragraph("本地优先 - 版本 1.3.1 - 2026-11-11", styles["ManualSmall"]),
         PageBreak(),
     ]
     return cover + story

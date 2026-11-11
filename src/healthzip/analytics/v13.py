@@ -54,15 +54,20 @@ def _outcome(recommendation, latest, records):
     reference = reference_rows(referenced, {})
     observed = reference[0] if len(reference) == 1 and latest.get("execution_state") == "executed" else {}
     expected_unit = change.get("load_unit")
-    semantic_match = bool(observed.get("condition_key") and observed["condition_key"] == condition.get("condition_key"))
+    def known_equal(first, second):
+        return None if first in (None, "", "unknown") or second in (None, "", "unknown") else first == second
+    checks = [known_equal(observed.get("condition_key"), condition.get("condition_key"))]
     if load is not None:
-        semantic_match = semantic_match and expected_unit is not None and observed.get("load_unit") == expected_unit
-        semantic_match = semantic_match and observed.get("load_basis") == change.get("load_basis")
+        checks.extend((known_equal(observed.get("load_unit"), expected_unit),
+                       known_equal(observed.get("load_basis"), change.get("load_basis"))))
+    checks.extend((known_equal(observed.get("quality_status"), "acceptable"),
+                   known_equal(observed.get("status"), "completed")))
+    quality_comparable = False if False in checks else None if None in checks else True
     return {"recommendation_id": recommendation["candidate_id"],
             "adoption": {"accepted": "adopted", "modified": "partially_adopted", "declined": "not_adopted"}.get(latest.get("user_choice")),
             "execution_state": latest.get("execution_state"), "nonexecution_reason": latest.get("nonexecution_reason"),
             "frozen_targets": targets, "actual": {k: finite(observed.get(k)) for k in targets},
-            "quality_comparable": semantic_match and observed.get("quality_status") == "acceptable" and observed.get("status") == "completed",
+            "quality_comparable": quality_comparable,
             "created_at": recommendation["created_at"], "feedback_missing": not bool(latest),
             "available_at": latest.get("recorded_at") or recommendation["created_at"],
             "event_end": latest.get("occurred_at") or recommendation["created_at"],
@@ -79,6 +84,9 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False):
             if row.get("record_status", "active") != "active":
                 continue
             row.update(record_kind=table, raw_id=row["id"], id=f"{table}:{row['id']}")
+            # CSV body measurements preserve an explicit source column. It is
+            # provenance, not an inferred scale or measurement protocol.
+            row["source_name"] = row.get("source_name") or row.get("source_bundle_id") or row.get("source")
             row["event_end"] = row.get("end_utc") or row.get("measured_at") or row.get("observed_at")
             row["event_start"] = row.get("start_utc") or row["event_end"]
             if retrospective:
@@ -171,10 +179,16 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
     merged = {**inherited, "plan_snapshot": {"sets": [s for p in plans for s in p["sets"]]} if plans else None, **(context or {})}
     metrics = evaluate_all(records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
                            window_end=end.isoformat(), context={**merged, "timezone": timezone_name})
+    strength_tasks = {}
+    for metric_id, metric in metrics.items():
+        for task in metric.get("task_results", []):
+            entry = strength_tasks.setdefault(task["task_id"], {k: v for k, v in task.items() if k != "metric"} | {"metrics": {}})
+            entry["metrics"][metric_id] = task["metric"]
     data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged}, sort_keys=True, default=str).encode()).hexdigest()
-    return {"metrics": metrics, "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
+    return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
+            "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.3",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.3.1",
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}
 
@@ -193,6 +207,53 @@ def persist(repo, result):
         service.mark_recomputed(result["algorithm_version"], max(x["id"] for x in pending))
     repo.conn.commit()
     return run_id
+
+
+def view_task_interval(repo, analysis, task_id: str, *, family_id: str, alpha_total: float,
+                       metric_id: str = "STR-20", context=None):
+    """An explicit local view spends one registered look for this exact snapshot."""
+    from healthzip.science import ParameterRegistry, evaluate
+    from healthzip.science.contracts import Window, canonical_hash, select_as_of
+    from healthzip.science.semantics import analysis_task, flatten_record
+
+    if metric_id not in {"STR-20", "STR-22"} or not family_id.strip():
+        raise ValueError("明确选择趋势区间或停滞复核，并填写共享分析家族标识")
+    service = TrainingService(repo)
+    if service.data_version() != analysis["data_version"]:
+        raise ValueError("记录已变化，请重新生成分析后再查看区间")
+    records, inherited = snapshot(repo, analysis["cutoff_time"], retrospective=analysis["retrospective"])
+    window = Window(analysis["window_start"], analysis["window_end"], analysis["cutoff_time"], analysis["timezone"])
+    available, _ = select_as_of([flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
+                                window, retrospective=analysis["retrospective"])
+    rows = [r for r in available if r.get("is_reference") and analysis_task(r)["task_id"] == task_id]
+    if not rows:
+        raise ValueError("所选任务没有已知参考记录")
+    digest = canonical_hash({"records": rows, "window": window.as_dict(), "cutoff_time": analysis["cutoff_time"],
+                             "data_version": str(analysis["data_version"])})
+    task = next((task for task in analysis.get("strength_tasks", []) if task["task_id"] == task_id), None)
+    if task is None or task["data_snapshot_hash"] != digest:
+        raise ValueError("任务快照已变化，请重新生成分析")
+    if repo.conn.in_transaction:
+        raise ValueError("存在尚未完成的记录事务，请先保存记录")
+    registry = ParameterRegistry(str(repo.path))
+    try:
+        old = registry.conn.execute("SELECT alpha_total FROM analysis_family WHERE family_id=?", (family_id,)).fetchone()
+        if old is None:
+            registry.register_family(family_id, alpha_total, {"declared_before": datetime.now(timezone.utc).isoformat(),
+                "metrics": ["STR-20", "STR-22"], "scope": "shared_across_actions_and_trend_decisions",
+                "origin": "explicit_local_analysis_view"})
+        elif old["alpha_total"] != alpha_total:
+            raise ValueError("该分析家族的总错误预算已冻结，不能修改")
+        allocation = registry.allocate_look(family_id, digest, metric_id, data_version=analysis["data_version"],
+                                           task_id=task_id, cutoff_time=analysis["cutoff_time"])
+    finally:
+        registry.close()
+    bound = {**inherited, **(context or {}), "timezone": analysis["timezone"], "look_allocation": allocation,
+             "look_registry_path": str(repo.path), "look_metric_id": metric_id, "task_id": task_id}
+    arguments = {"cutoff_time": analysis["cutoff_time"], "window_start": window.start, "window_end": window.end, "context": bound}
+    metric = evaluate(metric_id, rows, **arguments)
+    metric["look_audit"] = evaluate("STR-24", rows, **arguments)
+    return metric
 
 
 def metric_card(metric):

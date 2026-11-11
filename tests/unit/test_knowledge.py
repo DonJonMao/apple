@@ -34,7 +34,10 @@ def approve_test_claim(w, required=None, material="fulltext"):
         applicability={"required": required or {}, "scope": "synthetic"},
         evidence_links=[{"source_id": "S5", "source_version_id": version, "span_ids": [span_id]}],
         claims=[{"text": "在研究范围内，次数进阶是可选路径。", "span_ids": [span_id],
-                 "support_rationale": "Exact synthetic assertion; no personal dosing authority."}],
+                 "support_rationale": "Exact synthetic assertion; no personal dosing authority.",
+                 "answer_bindings": [{"question": "次数进阶", "target_claim": {
+                     "proposition": "次数进阶是可选路径", "scope": {"population": "synthetic_fixture"}},
+                     "relation": "supports", "rationale": "Explicit synthetic fixture relation, not independent semantic review."}]}],
     )
     return version, span_id
 

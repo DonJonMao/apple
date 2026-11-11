@@ -1,4 +1,4 @@
-# HealthZIP v1.3
+# HealthZIP v1.3.1
 
 HealthZIP 是本地 Apple Health 整理和训练记录工作台：安全读取健康 App 导出的 ZIP，保存至 SQLite，直接记录训练，查看可比表现、身体状态、能量背景和周月复盘。界面使用 Streamlit，另有 CLI、局域网增量接收器和可下载的离线训练记录器。
 
@@ -34,7 +34,9 @@ python3 -m venv .venv
 - 分析：六个功能页共用77项 MetricResult；数值、单位、截止时间、来源、版本、分母、缺项和区间均可展开。单边30→32.5kg对应两侧配重增加5kg，未知杆重不会补成含杆总重。
 - 候选：用户计划、可比记录、实际器械步长及匹配审核依据共同决定是否能给候选。缺少依据时保存缺项；采纳、执行和后续结果另记，不自动改写模板。
 
-完整操作、故障恢复和迁移说明见 [中文使用手册](docs/HealthZIP_使用手册.md) / [PDF](output/pdf/HealthZIP_使用手册.pdf)。
+参考比较需要在动作条件中填写结构化测量协议及版本，并在执行前指定参考组。同场多个动作分别分析。候选页面可选择当前组目标、双重进阶或可选策略试验；结束后从「历史 / 冲突」继续补录反馈和复核任务。只有解释权限的理论不能解锁数值候选。
+
+完整操作、故障恢复和迁移说明见 [中文使用手册](docs/HealthZIP_使用手册.md) / [PDF](output/pdf/HealthZIP_使用手册.pdf)。针对 `0a943b4` 的 R01–R15 与 RAG 修复逐项证据见 [审查修复验收表](docs/review_fixes_2026-11-11.md)。
 
 ## 常用 CLI
 
@@ -82,4 +84,4 @@ python -m pytest -q
 ruff check src app.py tests
 ```
 
-真实命令与结果见 [实现状态](IMPLEMENTATION_STATUS.md)、`artifacts/verification` 和 `artifacts/science/acceptance-results.json`。软件、语料取得、理论审核与科学验证分别列出。仓库内演示与测试使用合成数据；真实健康导出、数据库、个人CSV、日志与报告不提交。未自动 push、merge 或部署。
+真实命令与结果见 [实现状态](IMPLEMENTATION_STATUS.md)、[本次修复验收表](docs/review_fixes_2026-11-11.md) 和 `artifacts/verification`。软件、语料取得、理论审核与科学验证分别列出。仓库内演示与测试使用合成数据；真实健康导出、数据库、个人CSV、日志与报告不提交。

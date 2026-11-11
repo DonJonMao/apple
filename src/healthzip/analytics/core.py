@@ -448,9 +448,10 @@ def all_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     metrics = output["v13"]["metrics"]
     daily = metrics["REPORT-STATE-SUMMARY"].get("daily_facts", [])
     output["sleep"]["nights"] = [{"date": x["date"], "sleep_hours": x["value"] / 60,
+        "series_id": x.get("series_id"), "series_label": x.get("series_label"),
         "source": x.get("source_id"), "source_ids": x.get("source_record_ids", []),
         "episode_complete": x.get("episode_complete"), "algorithm_version": metrics["REPORT-STATE-SUMMARY"]["algorithm_version"]}
-        for x in daily if x["metric_id"] == "STATE-SLEEP-MAIN" and x.get("value") is not None]
+        for x in daily if x.get("series_id") == "observed_sleep_by_wake_date" and x.get("value") is not None]
     output["weight"]["daily"] = [{"date": x["date"], "kg": x["value"], "source": source,
         "source_ids": x["source_ids"], "algorithm_version": metrics["BODY-MASS-DAILY"]["algorithm_version"]}
         for source, values in (metrics["BODY-MASS-DAILY"]["value"] or {}).items() for x in values]

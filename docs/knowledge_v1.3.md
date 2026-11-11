@@ -1,5 +1,7 @@
 # HealthZIP v1.3：本地知识库、采集与评测
 
+> 2026-11-11 v1.3.1修复状态：本文中的原获取/审阅统计是 `0a943b4` 的历史基线。新许可作用域解析后，11张旧卡已置为 `needs_review`，当前有效approved为0，另9张仍为草稿；未授予真实数值候选权限。当前生命周期、许可范围和RAG支持语义见 [知识修复记录](review_knowledge_repairs.md) 与 [逐项验收表](review_fixes_2026-11-11.md)。
+
 知识功能默认只读取本地证据。公开文献采集与发送私人健康数据是不同操作：下面的采集命令只请求公开来源标识，不读取训练数据库，不调用模型。现有 AI 解释的联网授权不会因采集文献而自动开启。
 
 ## 存储与版本
@@ -8,7 +10,7 @@
 
 SourceLibrary 保存来源规范身份、别名、原始字节 SHA256、HTTP 记录、材料类型、解析器版本、许可、原文片段、表格、公式及获取/生命周期事件。DOI、PMID、PMCID 用于身份核对，题名近似不合并来源。R2/R3/E5 等组名展开为真实 canonical source IDs。同源在不同功能路由之间共享原文。
 
-TheoryLibrary 保存原始草稿、逐主张证据、适用条件、审阅身份与记录、解释或候选能力、冻结发布。采集成功不会自动批准理论或修改计算公式。当前批准仅覆盖审阅文件中的选定主张，原始卡片其他主张/公式不会随之全部激活。
+TheoryLibrary 保存原始草稿、逐主张证据、适用条件、审阅身份与记录、解释或候选能力、冻结发布。采集成功不会自动批准理论或修改计算公式。批准仅覆盖审阅文件中的选定主张，原始卡片其他主张/公式不会随之全部激活；历史批准还须满足当前生命周期及证据范围要求。
 
 `release` 保存当时理论审阅和其确切 SourceVersion；`query --release` 用该快照检索。撤稿、修正待复核或理论撤销仍会阻止当前使用旧引用，历史依赖保留。相同发布 ID 不可改写。
 
@@ -55,7 +57,7 @@ PYTHONPATH=src python -m healthzip.knowledge source-state S5 withdrawn --reason 
 
 已存在的审阅内容不可在相同 theory ID/version 下改写；完全相同的重试返回原审阅时间。修改主张或升级权限，先执行 `revise-theory revision.json`，其中包含 `theory_id`、`from_version`、`new_version`、`reviewer`、`rationale` 和可选 `card_patch`。新版本始终是未批准草稿，不继承旧权限；随后针对新版本执行 `review`。旧版本和已冻结发布的原审核内容保留。
 
-当前源文阅读审阅由 AI 辅助完成，身份明确记录，**不冒充独立专家审核**，权限为 `explanation_only`。`reviewed_principles(route, context)` 另外核对候选能力：仅显式 `progression_candidate`、`qualified_human_review`、实施验证引用、非空必要适用条件、当前实际可用证据全部满足时，才返回计算服务所需能力对象。该对象仅支持确定性、用户可选择的试验候选，不保证成功或最佳效果。解释卡、模拟通过和 citation 数量均不能自行升级权限。
+历史源文阅读审阅由 AI 辅助完成，身份明确记录，**不冒充独立专家审核**，权限为 `explanation_only`；本次11张旧卡均须复核。`reviewed_principles(route, context)` 另外核对候选能力：只有与所选策略匹配的显式 `progression_candidate` 或 `trial_candidate`、`qualified_human_review`、实施验证引用、非空必要适用条件、当前实际可用证据全部满足时，才返回计算服务所需能力对象。该对象仅支持确定性、用户可选择的试验候选，不保证成功或最佳效果。解释卡、模拟通过和 citation 数量均不能自行升级权限。
 
 ## 检索、AI 与离线降级
 
@@ -69,18 +71,19 @@ PYTHONPATH=src python -m healthzip.knowledge source-state S5 withdrawn --reason 
 
 本次已对清单 **43 项**来源执行获取尝试，**29 项**科学来源已取得身份元数据；取得 **14 项不同来源**的获许可/明确允许内部使用的全文。原始字节和全部事件留在 `.local/knowledge/`。二次获取和解析版本修订可能使 version 数大于来源数，不能把它们当成更多独立论文。
 
-**20 张**种子卡已逐项审计：**11 张**仅其明确定位的选定主张完成 AI 辅助阅读审阅，**9 张**仍为草稿。每卡理由、可取得来源与未激活内容见 `artifacts/knowledge/theory_audit.json`；每来源获取、许可、版本、失败原因与重试命令见 `source_audit.json`。S3/S4 等主文权限、E2/E3/E4 等 free-to-read 非 OA 全文、N1/N2/N3 原文，以及 Apple 文档的具体网络再用权限均未伪造完成。M2 有版本匹配 CC-BY 线索，但官方全文接口实际返回 403。
+**20 张**种子卡的历史审计中，**11 张**仅其明确定位的选定主张完成 AI 辅助阅读审阅，**9 张**为草稿。v1.3.1作用域迁移后，这11张旧卡均为 `needs_review`，当前有效批准为0；原审阅保留，见 `artifacts/review/theory_scope_upgrade.json`。历史每卡理由、可取得来源与未激活内容见 `artifacts/knowledge/theory_audit.json`；每来源获取、许可、版本、失败原因与重试命令见 `source_audit.json`。S3/S4 等主文权限、E2/E3/E4 等 free-to-read 非 OA 全文、N1/N2/N3 原文，以及 Apple 文档的具体网络再用权限均未伪造完成。M2 有版本匹配 CC-BY 线索，但官方全文接口实际返回 403。
 
 ```bash
-PYTHONPATH=src python -m healthzip.knowledge --output artifacts/knowledge/visible_eval_latest.json evaluate src/healthzip/knowledge/data/rag_eval_cases.json --split visible_development --with-synthetic-metrics
-PYTHONPATH=src python -m healthzip.knowledge --output artifacts/knowledge/holdout_eval_latest.json evaluate src/healthzip/knowledge/data/rag_holdout.json --split source_family_holdout
+PYTHONPATH=src python -m healthzip.knowledge --output artifacts/knowledge/rag_eval_cases_latest_eval.json evaluate src/healthzip/knowledge/data/rag_eval_cases.json --split visible_development --with-synthetic-metrics
+PYTHONPATH=src python -m healthzip.knowledge --output artifacts/knowledge/rag_holdout_latest_eval.json evaluate src/healthzip/knowledge/data/rag_holdout.json --split source_family_holdout
+python tools/prepare_public_artifacts.py
 PYTHONPATH=src pytest -q tests/unit/test_knowledge.py
 ruff check src/healthzip/knowledge tests/unit/test_knowledge.py
 ```
 
 30 个公开开发案例与 8 个单独编写并冻结的来源家族留出案例分开报告。留出集 SHA256：`62b2e34ece6a655341aad0b6751b3d577f10955a85c9333f208615a2ef97ca62`。留出来源家族与开发集不重合；作者仍是实现代理，因此不称作外部盲测。语料扩充后可重跑相同锁定集，不能用其结果调参再声称独立。
 
-评测报告分开列：结构字段、引用可定位、gold evidence groups 的实际召回与语料覆盖、有证据应答、正例拒答和人工语义裁决。引用都可定位也不证明其回答了当前问题；无引用时引用质量分母为零。当前语义裁决仍待独立审核，召回不足和缺失 gold 原文均保留为缺口，不用关键词匹配宣布语义通过。数值案例通过科学计算器的明确合成 fixture 生成，不在 RAG 中硬编码答案。RAG 软件测试不验证个人干预有效性。
+评测报告分开列：结构字段、引用可定位、gold evidence groups 的实际召回与语料覆盖、有证据应答、正例拒答和人工语义裁决。引用都可定位也不证明其回答了当前问题；无引用时引用质量分母为零。当前开发集/固定留出gold召回为0/67、0/8；新冻结10例的独立AI审阅为7通过、3失败，独立人工分母0，语义验收未通过。旧卡待审导致的拒答不代表准确性提升。数值案例通过科学计算器的明确合成 fixture 生成，不在 RAG 中硬编码答案。RAG 软件测试不验证个人干预有效性。评测结果公开前须运行上面的公开投影命令，移除受限原文与本机路径；不公开本地数据库和blobs。
 
 本次可重复验证包括知识契约测试、真实官方 API 获取、来源哈希检查和使用可选 pdfplumber 的合成 PDF 文本/页码/坐标验证。实际工件在 `artifacts/knowledge/`，状态字段分别表示 implementation、software_verification、corpus_acquisition、theory_review 和 scientific_validation，不能互相替代。
 

@@ -14,7 +14,10 @@ ASLEEP = {"asleep", "asleepunspecified", "asleepcore", "asleepdeep", "asleeprem"
 
 
 def stream_key(row: dict) -> tuple:
-    return (row.get("source_name", row.get("source_bundle_id")), row.get("device_id", row.get("device")),
+    source = row.get("source_name") or row.get("source_bundle_id") or row.get("source")
+    if source is None:
+        source = "unknown_source:" + str(row.get("_source_id", row.get("id", "unidentified")))
+    return (source, row.get("device_id") or row.get("device"),
             row.get("protocol_id"), row.get("source_version"))
 
 
@@ -103,7 +106,11 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             end = instant(window.cutoff_time)
             start = end - timedelta(hours=24)
         main = context.get("main_sleep_episode")
+        if metric_id == "STATE-SLEEP-MAIN" and not main:
+            return emit(None, "insufficient", reasons=["main_sleep_episode_not_declared"], valid_n=0)
         if metric_id == "STATE-SLEEP-MAIN" and main:
+            if not main.get("start") or not main.get("end") or not instant(main["start"]) < instant(main["end"]) <= instant(window.cutoff_time):
+                return emit(None, "insufficient", reasons=["main_sleep_episode_boundary_invalid_or_future"], valid_n=0)
             start, end = max(start, instant(main["start"])), min(end, instant(main["end"]))
         intervals, reasons = sleep_intervals(rows, start, end, context)
         if reasons and not intervals:
@@ -114,6 +121,7 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
                 return emit(None, "insufficient", reasons=["no_observed_asleep_intervals"])
             complete = metric_id == "STATE-SLEEP-MAIN" and bool(main and main.get("complete"))
             return emit({"observed_minutes": seconds(asleep) / 60, "complete_episode": complete,
+                         "attribution_date": (main.get("attribution_date") or instant(main["end"]).astimezone(ZoneInfo(window.timezone)).date().isoformat()) if main else None,
                          "intervals": [{"start": a.isoformat(), "end": b.isoformat()} for a, b in asleep]},
                         "valid" if complete else "partial", evidence_status="observed",
                         reasons=[] if complete else ["observed_sleep_not_proven_complete_episode"])

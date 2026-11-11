@@ -199,12 +199,12 @@ def test_metric_catalog(case, tmp_path):
             assert h.run(metric_id, context={"sessions": [session]})["value"][0]["duration_minutes"] == 60
     elif metric_id.startswith("BODY-MASS-"):
         if metric_id == "BODY-MASS-DAILY":
-            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "value": value, "unit": "lb" if number == 1 else "kg",
+            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "source_name": "synthetic_scale", "value": value, "unit": "lb" if number == 1 else "kg",
                      "event_end": f"2026-11-03T0{8+i}:00:00+00:00", "available_at": "2026-11-03T10:00:00+00:00"} for i, value in enumerate([100] if number == 1 else [79, 81])]
             value = list(h.run(metric_id, rows)["value"].values())[0][0]["value"]
             assert value == pytest.approx(45.359237 if number == 1 else 80)
         else:
-            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "normalized_value": value, "event_end": f"2026-10-{1+14*i:02d}T08:00:00+00:00", "available_at": f"2026-10-{1+14*i:02d}T09:00:00+00:00"} for i, value in enumerate([80, 79])]
+            rows = [{"id": str(i), "canonical_type": "body_mass_kg", "source_name": "synthetic_scale", "normalized_value": value, "event_end": f"2026-10-{1+14*i:02d}T08:00:00+00:00", "available_at": f"2026-10-{1+14*i:02d}T09:00:00+00:00"} for i, value in enumerate([80, 79])]
             value = s.run(metric_id, rows, {"body_mass_reference": {"value": 80, "definition": "declared_comparison_baseline"}})["value"][0]
             assert value["kg_per_week"] == -.5 and value["percent_per_week"] == -.625
             assert "body_fat_percent" not in value

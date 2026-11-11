@@ -1,0 +1,19 @@
+{
+  "review_baseline_commit": "0a943b49638247e16197cf7fa768cde33f5d0901",
+  "scope": "R03/R08 before corresponding production fixes; synthetic real Streamlit UI",
+  "command": ".venv/bin/python -m pytest -q tests/integration/test_review_candidate_flow.py",
+  "result": {
+    "failed": 2,
+    "passed": 0
+  },
+  "failures": [
+    {
+      "test": "test_r03_visible_strategy_choice",
+      "observed": "strategy_<instance_id> absent from selectbox keys"
+    },
+    {
+      "test": "test_r08_feedback_remains_after_finishing_session",
+      "observed": "history_feedback_<candidate_id> absent after normal end_session"
+    }
+  ]
+}

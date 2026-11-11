@@ -222,6 +222,15 @@ class TrainingService:
                 result = apply(current, event_id, recorded)
                 if result is None:
                     result = {}
+                if (
+                    kind == "set"
+                    and action in {"add_set", "edit_set", "delete_set", "undo_event"}
+                    and result.get("set_uuid")
+                ):
+                    self._rederive_session_rest(
+                        result["session_id"], event_id, recorded, result["id"]
+                    )
+                    result = {**result, **self.get_set(result["id"])}
                 result = {"status": "saved", **result, "event_id": event_id}
                 after, status = result, "applied"
                 if invalidates:
@@ -1032,6 +1041,8 @@ class TrainingService:
             "parent_set_uuid",
             "reference_set",
             "set_number",
+            "rest_recorded_s",
+            "rest_recorded_method",
         }
         if set(actual) - allowed:
             raise TrainingError("未识别的实际记录字段: " + ",".join(sorted(set(actual) - allowed)))
@@ -1050,6 +1061,7 @@ class TrainingService:
             "added_load_kg",
             "assistance_value",
             "set_number",
+            "rest_recorded_s",
         ):
             if field in result:
                 result[field] = numeric(
@@ -1067,6 +1079,10 @@ class TrainingService:
             raise TrainingError("停止原因无效")
         if result.get("quality_status") not in {None, "acceptable", "technique_limited", "unknown"}:
             raise TrainingError("动作质量须明确 acceptable/technique_limited/unknown")
+        if result.get("rest_recorded_method") is not None and not isinstance(
+            result["rest_recorded_method"], str
+        ):
+            raise TrainingError("主动记录休息的方法应为文字或未知")
         if result.get("pain_flag") not in {None, True, False}:
             raise TrainingError("疼痛标记必须是真/假或未知")
         for field in ("started_at", "ended_at"):
@@ -1114,7 +1130,11 @@ class TrainingService:
             if fields["completion_state"] not in {"draft", "in_progress"}:
                 raise TrainingError("参考组必须在完成或失败之前预先指定")
             fields["reference_declared_at"] = now
-        if fields["completion_state"] in {"completed", "aborted"} and not fields.get("ended_at"):
+        if (
+            fields["completion_state"] in {"completed", "aborted"}
+            and not fields.get("ended_at")
+            and "ended_at" not in actual
+        ):
             fields["ended_at"] = now
         number = fields.pop("set_number", None)
         if number is None:
@@ -1152,17 +1172,6 @@ class TrainingService:
             "source_method": "manual",
             **fields,
         }
-        if fields.get("started_at"):
-            prior = self.conn.execute(
-                "SELECT ended_at FROM strength_set WHERE session_id=? AND completion_state IN ('completed','aborted') AND deleted_at IS NULL AND ended_at IS NOT NULL ORDER BY ended_at DESC LIMIT 1",
-                (session["id"],),
-            ).fetchone()
-            if prior and datetime.fromisoformat(fields["started_at"]) >= datetime.fromisoformat(
-                prior[0]
-            ):
-                values["rest_actual_s"] = (
-                    datetime.fromisoformat(fields["started_at"]) - datetime.fromisoformat(prior[0])
-                ).total_seconds()
         columns = list(values)
         self.conn.execute(
             f"INSERT INTO strength_set({','.join(columns)}) VALUES({','.join('?' for _ in columns)})",
@@ -1254,6 +1263,8 @@ class TrainingService:
             "parent_set_uuid",
             "reference_set",
             "set_number",
+            "rest_recorded_s",
+            "rest_recorded_method",
         }
         if set(changes) - allowed:
             raise TrainingError("组条件不能通过数值编辑改变；替换动作需另建条件快照")
@@ -1273,8 +1284,11 @@ class TrainingService:
                 ] not in {"draft", "in_progress"}:
                     raise TrainingError("参考组必须在完成或失败之前预先指定")
                 checked["reference_declared_at"] = now
-            if checked["completion_state"] in {"completed", "aborted"} and not checked.get(
-                "ended_at"
+            if (
+                checked["completion_state"] in {"completed", "aborted"}
+                and not checked.get("ended_at")
+                and "ended_at" not in changes
+                and old.get("completion_state") not in {"completed", "aborted"}
             ):
                 checked["ended_at"] = now
             checked.update(
@@ -1282,22 +1296,6 @@ class TrainingService:
                 available_at=now,
                 warmup=int(checked["set_type"] == "warmup"),
             )
-            # Actual rest is derived from real endpoints, never timer target.
-            if checked.get("started_at"):
-                prior = self.conn.execute(
-                    "SELECT ended_at FROM strength_set WHERE session_id=? AND id<>? AND completion_state IN ('completed','aborted') AND deleted_at IS NULL AND ended_at IS NOT NULL ORDER BY ended_at DESC",
-                    (old["session_id"], old["id"]),
-                ).fetchall()
-                eligible = [
-                    datetime.fromisoformat(r[0])
-                    for r in prior
-                    if datetime.fromisoformat(r[0]) <= datetime.fromisoformat(checked["started_at"])
-                ]
-                checked["rest_actual_s"] = (
-                    (datetime.fromisoformat(checked["started_at"]) - max(eligible)).total_seconds()
-                    if eligible
-                    else None
-                )
             self.conn.execute(
                 "UPDATE strength_set SET " + ",".join(f"{k}=?" for k in checked) + " WHERE id=?",
                 (*checked.values(), old["id"]),
@@ -1315,6 +1313,112 @@ class TrainingService:
             before=lambda: self.get_set(identity),
             occurred_at=changes.get("ended_at") or changes.get("started_at"),
         )
+
+    def _rederive_session_rest(self, session_id, source_event_id, now, edited_id):
+        """Recompute dependent endpoints and audit each affected neighbour.
+
+        Missing endpoints never become timer targets or user-entered rest. A
+        previous unfinished/overlapping execution prevents using an older end.
+        """
+        rows = [
+            self.get_set(row["id"])
+            for row in self.conn.execute(
+                "SELECT id FROM strength_set WHERE session_id=? AND user_id=? AND set_uuid IS NOT NULL",
+                (session_id, self.user_id),
+            )
+        ]
+        executed = [
+            row
+            for row in rows
+            if not row.get("deleted_at")
+            and row.get("completion_state") in {"in_progress", "completed", "aborted"}
+        ]
+        unlocated = [
+            row for row in executed if not row.get("started_at") and not row.get("ended_at")
+        ]
+        for row in rows:
+            seconds = None
+            provenance = {
+                "algorithm_version": "adjacent_endpoints_v2",
+                "previous_set_uuid": None,
+                "previous_ended_at": None,
+                "current_started_at": row.get("started_at"),
+                "reason": "missing_current_start",
+            }
+            if row.get("deleted_at") or row.get("completion_state") not in {
+                "in_progress",
+                "completed",
+                "aborted",
+            }:
+                if row.get("rest_actual_s") is None and row.get("rest_derivation") is None:
+                    continue
+                provenance["reason"] = "not_executed"
+            elif row.get("started_at"):
+                start = datetime.fromisoformat(row["started_at"])
+                prior = [
+                    other
+                    for other in executed
+                    if other["id"] != row["id"]
+                    and (other.get("started_at") or other.get("ended_at"))
+                    and datetime.fromisoformat(other.get("started_at") or other["ended_at"]) < start
+                ]
+                predecessor = (
+                    max(
+                        prior,
+                        key=lambda other: datetime.fromisoformat(
+                            other.get("started_at") or other["ended_at"]
+                        ),
+                    )
+                    if prior
+                    else None
+                )
+                if any(other["id"] != row["id"] for other in unlocated):
+                    provenance["reason"] = "unlocated_other_execution"
+                elif predecessor is None:
+                    provenance["reason"] = "previous_endpoint_unknown"
+                else:
+                    provenance.update(
+                        previous_set_uuid=predecessor["set_uuid"],
+                        previous_ended_at=predecessor.get("ended_at"),
+                    )
+                    if not predecessor.get("ended_at"):
+                        provenance["reason"] = "missing_previous_end"
+                    else:
+                        difference = (
+                            start - datetime.fromisoformat(predecessor["ended_at"])
+                        ).total_seconds()
+                        if difference < 0:
+                            provenance["reason"] = "overlapping_endpoints"
+                        else:
+                            seconds = difference
+                            provenance["reason"] = "derived_from_adjacent_endpoints"
+            if row.get("rest_actual_s") == seconds and row.get("rest_derivation") == provenance:
+                continue
+            fields = {"rest_actual_s": seconds, "rest_derivation_json": json_text(provenance)}
+            if row["id"] == edited_id:
+                self.conn.execute(
+                    "UPDATE strength_set SET rest_actual_s=?,rest_derivation_json=? WHERE id=?",
+                    (seconds, json_text(provenance), edited_id),
+                )
+                continue
+
+            def apply(old, eid, recorded, fields=fields, identity=row["id"]):
+                self.conn.execute(
+                    "UPDATE strength_set SET rest_actual_s=?,rest_derivation_json=?,revision=revision+1,available_at=? WHERE id=?",
+                    (fields["rest_actual_s"], fields["rest_derivation_json"], recorded, identity),
+                )
+                return self.get_set(identity)
+
+            self._mutate(
+                "derive_rest",
+                "set",
+                row["set_uuid"],
+                {"source_event_id": source_event_id, **fields},
+                apply,
+                event_id=_uuid(source_event_id, "rest:" + row["set_uuid"]),
+                base_revision=row["revision"],
+                before=lambda identity=row["id"]: self.get_set(identity),
+            )
 
     def delete_set(self, set_id, *, base_revision: int, event_id=None) -> dict:
         original = self.get_set(set_id)
@@ -1568,12 +1672,43 @@ class TrainingService:
     def save_session_as_template(self, session_id, name: str, *, event_id=None) -> dict:
         session = self.get_session(session_id)
         items = [
-            {"exercise_id": x["catalog_id"], "condition": x["condition"], "targets": x["planned"]}
+            {
+                "exercise_id": x["catalog_id"],
+                "condition": x["condition"],
+                "targets": self.current_targets(x["id"])["targets"],
+            }
             for x in session["exercises"]
-            if not x.get("deleted_at")
+            if not x.get("deleted_at") and not x.get("replaced_by_instance_id")
         ]
         # Actual reps, failures, and RIR are deliberately not copied to targets.
         return self.create_template(name, items, event_id=event_id)
+
+    def current_targets(self, session_exercise_id: str) -> dict:
+        """Read explicitly edited targets without rewriting the original plan.
+
+        ``revision`` identifies target content, while each row's ``revision`` is
+        its optimistic record revision. Actual performance never fills targets.
+        """
+        instance = self.get_session_exercise(session_exercise_id)
+        rows = [
+            {
+                "set_uuid": row["set_uuid"],
+                "revision": row["revision"],
+                "completion_state": row["completion_state"],
+                "target": row.get("planned") or {},
+            }
+            for row in instance["sets"]
+            if not row.get("deleted_at")
+        ]
+        content = [{"set_uuid": row["set_uuid"], "target": row["target"]} for row in rows]
+        explicit = [row["target"] for row in rows if row["target"]]
+        return {
+            "session_exercise_id": session_exercise_id,
+            "revision": hashlib.sha256(json_text(content).encode()).hexdigest(),
+            "sets": rows,
+            "targets": {"sets": explicit} if explicit else {},
+            "original_targets": instance.get("planned") or {},
+        }
 
     def reorder_exercises(
         self, session_id, ordered_ids: list[str], *, base_revision: int, event_id=None
@@ -1885,6 +2020,10 @@ class TrainingService:
         """
         cutoff = datetime.fromisoformat(timestamp(cutoff_time))
         state, sessions, conflicts = {}, {}, {}
+        resolutions = {}
+        for conflict in self.list_conflicts(unresolved_only=False):
+            if conflict.get("resolved_by_event_id"):
+                resolutions.setdefault(conflict["resolved_by_event_id"], []).append(conflict["id"])
         for event in self.audit_events():
             if datetime.fromisoformat(event["recorded_at"]) > cutoff:
                 continue
@@ -1906,11 +2045,10 @@ class TrainingService:
                         state[child["set_uuid"]] = child
             elif event["entity_type"] == "set" and row.get("set_uuid"):
                 state[row["set_uuid"]] = row
-                conflicts = {
-                    key: identity
-                    for key, identity in conflicts.items()
-                    if identity != row["set_uuid"]
-                }
+                # An independent correction or derived-rest revision does not
+                # resolve a saved user conflict. Only its explicit decision can.
+                for conflict_id in resolutions.get(event["event_id"], []):
+                    conflicts.pop(conflict_id, None)
             elif event["entity_type"] == "conflict" and event["action"] == "resolve_conflict":
                 conflicts.pop(event["entity_id"], None)
         conflicting_ids = set(conflicts.values())
