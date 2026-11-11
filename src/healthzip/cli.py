@@ -77,13 +77,45 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--port", type=int, default=8765)
     s.add_argument("--token-env", default="HEALTHZIP_SYNC_TOKEN")
     s.add_argument("--max-body-mb", type=int, default=20)
+    s = sub.add_parser("analyze-v13", help="生成完整v1.3指标快照")
+    s.add_argument("--window-days", type=int, default=30)
+    s.add_argument("--cutoff-time")
+    s.add_argument("--timezone", default="Asia/Shanghai")
+    s.add_argument("--period", choices=["week", "month"], help="本地日历周/月；覆盖window-days")
+    s.add_argument("--context-json", help="本地用户计划/研究协议JSON；不外发")
+    s.add_argument("--output")
+    s = sub.add_parser("backup", help="在线SQLite备份，包含已提交WAL")
+    s.add_argument("output")
+    s = sub.add_parser("restore", help="恢复至新路径，不覆盖现有数据库")
+    s.add_argument("backup_path")
+    s.add_argument("output")
+    s = sub.add_parser("training-export", help="导出一场训练及修订信息")
+    s.add_argument("session_id")
+    s.add_argument("output")
+    s = sub.add_parser("training-import", help="预览或导入v1.3训练JSON/CSV，保留未知及修订冲突")
+    s.add_argument("path")
+    s.add_argument("--preview", action="store_true")
+    s.add_argument("--source", default="training_file")
+    s = sub.add_parser("training-export-all", help="导出v1.3训练交换文件")
+    s.add_argument("output")
+    s.add_argument("--session", action="append", help="可重复指定会话ID；省略则全部")
+    s.add_argument("--format", choices=["json", "csv"])
     return p
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command in {"backup", "restore"}:
+        from healthzip.db.backup import backup_database, restore_database
+        func = backup_database if args.command == "backup" else restore_database
+        print(func(args.db_path if args.command == "backup" else args.backup_path, args.output))
+        return 0
     if args.command == "inspect":
         _dump(inspect_zip(args.zip_path).as_dict())
+        return 0
+    if args.command == "training-import" and args.preview:
+        from healthzip.training.exchange import preview_import
+        _dump(preview_import(args.path))
         return 0
     if args.command == "serve":
         serve(
@@ -96,7 +128,37 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
     repo = _repo(args)
     try:
-        if args.command == "import-apple":
+        if args.command == "analyze-v13":
+            from pathlib import Path
+
+            from healthzip.analytics.v13 import analyze, persist
+            context = json.loads(Path(args.context_json).read_text()) if args.context_json else {}
+            result = analyze(repo, args.window_days, cutoff_time=args.cutoff_time,
+                             timezone_name=args.timezone, context=context, period=args.period)
+            result["analysis_run_id"] = persist(repo, result)
+            if args.output:
+                out = Path(args.output)
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str))
+                print(out)
+            else:
+                _dump(result)
+        elif args.command == "training-import":
+            from healthzip.training.exchange import import_training
+            _dump(import_training(repo, args.path, source_name=args.source))
+        elif args.command == "training-export-all":
+            from healthzip.training.exchange import export_training
+            print(export_training(repo, args.output, session_ids=args.session, format=args.format))
+        elif args.command == "training-export":
+            from pathlib import Path
+
+            from healthzip.training.service import TrainingService
+            result = TrainingService(repo).export_session(args.session_id)
+            out = Path(args.output)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str))
+            print(out)
+        elif args.command == "import-apple":
             _dump(
                 import_apple_zip(
                     args.zip_path,
@@ -118,7 +180,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             result = all_analysis(repo, 30)
             persist_analysis(repo, result)
             _dump(
-                explain_analysis(result, question=args.question, allow_network=args.allow_network)
+                explain_analysis({"metrics": result["v13"]["metrics"]}, question=args.question, allow_network=args.allow_network)
             )
         elif args.command == "import-strength":
             _dump(import_strength_csv(args.csv_path, repo))

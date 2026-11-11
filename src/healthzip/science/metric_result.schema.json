@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MetricResult v1.3 canonical contract",
+  "type": "object",
+  "required": [
+    "metric_id",
+    "algorithm_version",
+    "computed_at",
+    "cutoff_time",
+    "window",
+    "value",
+    "unit",
+    "data_status",
+    "evidence_status",
+    "valid_n",
+    "total_n",
+    "coverage",
+    "uncertainty",
+    "assumptions",
+    "reason_codes",
+    "source_record_ids",
+    "evidence_refs",
+    "parameter_set_id",
+    "calibration_artifact_id"
+  ],
+  "properties": {
+    "metric_id": {
+      "type": "string"
+    },
+    "algorithm_version": {
+      "type": "string"
+    },
+    "computed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cutoff_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "window": {
+      "type": "object",
+      "required": [
+        "start",
+        "end",
+        "timezone",
+        "closure"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "closure": {
+          "const": "[start,end)"
+        }
+      }
+    },
+    "user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "exercise_condition_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "value": {},
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "data_status": {
+      "enum": [
+        "valid",
+        "partial",
+        "insufficient",
+        "incompatible",
+        "conflicted",
+        "stale",
+        "not_identifiable",
+        "not_applicable"
+      ]
+    },
+    "evidence_status": {
+      "enum": [
+        "observed",
+        "definition_based",
+        "descriptive",
+        "model_conditional",
+        "research_only",
+        "predictive_validated_for_scope",
+        "intervention_validated_for_scope"
+      ]
+    },
+    "valid_n": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "total_n": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "n_sessions": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "numerator",
+          "denominator",
+          "definition"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "numerator": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "denominator": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "definition": {
+            "type": "string"
+          },
+          "exclusions": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": [
+        "kind",
+        "lower",
+        "upper",
+        "level",
+        "assumptions"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "not_estimated",
+            "measurement_interval",
+            "confidence_interval",
+            "prediction_interval",
+            "sensitivity_range",
+            "scenario_range"
+          ]
+        },
+        "lower": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "upper": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "level": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parameter_set_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "calibration_artifact_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "legacy_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true,
+  "x_semantic_invariants": [
+    "缺失或不适用 value=null；多分量结果可保留有值分量并逐项声明状态",
+    "valid_n<=total_n 当二者使用同一计数域且非null",
+    "所有决策输入 event_end<=cutoff_time 且 available_at<=cutoff_time",
+    "scenario_range/sensitivity_range 不得宣称固定覆盖概率；level=null",
+    "经验证状态必须关联匹配适用域的真实 calibration_artifact_id",
+    "unit/算法/样本数与显示/UI/report/AI一致"
+  ]
+}

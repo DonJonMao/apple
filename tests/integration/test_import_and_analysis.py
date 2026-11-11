@@ -22,8 +22,12 @@ def test_stream_import_persists_supported_data_and_is_idempotent(fixture_zip, db
     assert q["resting_heart_rate"]["status"] == "usable"
     result = all_analysis(repo)
     assert result["heart"]["cards"]
-    assert result["sleep"]["card"]["status"] == "usable"
-    assert result["weight"]["card"]["status"] == "usable"
+    # Historical nights remain visible, but no historical import is labelled
+    # usable sleep in the last 24 hours without observations in that window.
+    assert result["sleep"]["nights"]
+    assert result["sleep"]["card"]["facts"][0]["value"] == result["v13"]["metrics"]["STATE-SLEEP-24H"]["value"]
+    assert result["weight"]["card"]["status"] == "valid"
+    assert result["weight"]["card"]["facts"][0]["value"] == result["v13"]["metrics"]["BODY-MASS-TREND"]["value"]
     persist_analysis(repo, result)
     assert repo.one("SELECT COUNT(*) AS n FROM insight")["n"] >= 5
     assert repo.one("SELECT COUNT(*) AS n FROM daily_feature")["n"] > 0

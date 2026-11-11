@@ -1,0 +1,3320 @@
+{
+  "evaluation_version": "rag-eval-1.3.0",
+  "run_at": "2026-11-11T07:04:42.701358+00:00",
+  "split": "source_family_holdout",
+  "dataset_path": "src/healthzip/knowledge/data/rag_holdout.json",
+  "dataset_sha256": "62b2e34ece6a655341aad0b6751b3d577f10955a85c9333f208615a2ef97ca62",
+  "case_count": 8,
+  "k": 6,
+  "metric_provider": null,
+  "counts": {
+    "schema_pass": 8,
+    "citation_valid": 12,
+    "citation_total": 12,
+    "gold_recalled": 0,
+    "gold_total": 8,
+    "gold_available": 0,
+    "answer_with_evidence": 4,
+    "abstentions": 3,
+    "semantic_pass": 0,
+    "semantic_reviewed": 0,
+    "route_pass": 3,
+    "positive_cases": 0,
+    "positive_abstentions": 0,
+    "unsupported_numeric_actions": 0
+  },
+  "schema_pass_rate": {
+    "numerator": 8,
+    "denominator": 8,
+    "value": 1.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0.6755924351161198,
+      "high": 1,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "citation_locatability": {
+    "numerator": 12,
+    "denominator": 12,
+    "value": 1.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0.7575059933447592,
+      "high": 1,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "gold_group_recall_all_candidates": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0,
+      "high": 0.32440756488388023,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "gold_group_corpus_coverage": {
+    "numerator": 0,
+    "denominator": 8,
+    "value": 0.0,
+    "interval": {
+      "kind": "Wilson_binomial_95_percent_descriptive",
+      "low": 0,
+      "high": 0.32440756488388023,
+      "limitation": "purposive case set; interval is descriptive, not population safety guarantee"
+    }
+  },
+  "semantic_support_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "positive_abstention_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "interval": null,
+    "reason": "no_eligible_observations"
+  },
+  "corpus_status": {
+    "source_states": {
+      "acquired": 29,
+      "discovered": 14
+    },
+    "materials": {
+      "abstract": 52,
+      "fulltext": 16,
+      "metadata": 105
+    },
+    "theory_states": {
+      "approved": 11,
+      "draft": 9
+    },
+    "spans": 1157,
+    "fulltext_source_count": 14,
+    "retrievable_span_count": 1007,
+    "review_queue": [
+      {
+        "source_id": "APPLE_RHR",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "APPLE_SLEEP",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "E5a",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "E5b",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB1",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB2",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB3",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB4",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB5",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB6",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB7",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "KB8",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "R3a",
+        "identity_status": "pending",
+        "state": "discovered"
+      },
+      {
+        "source_id": "UX1",
+        "identity_status": "pending",
+        "state": "discovered"
+      }
+    ],
+    "scientific_validation": "not_established_by_software_or_retrieval_checks"
+  },
+  "cases": [
+    {
+      "case_id": "H01",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "insufficient_evidence",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "N2"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "83437b67c152752e1281ab3b6ec2e2ba6f1dc208f632d288432a40a097ef3698",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。",
+        "claims": [],
+        "limits": [
+          "记录不变可能是任务没有被挑战；停滞推断还需要真实时间、测量误差和预先定义的实用等效范围。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "insufficient_evidence",
+        "routes": [
+          {
+            "route": "plateau",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "置信"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-repeated-looks",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 2,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "0cb206a964eee8215630bed42d50447bd5259e3d493738aa84dd2b3bc29114c7"
+      },
+      "public_output_sha256": "83437b67c152752e1281ab3b6ec2e2ba6f1dc208f632d288432a40a097ef3698"
+    },
+    {
+      "case_id": "H02",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "insufficient_evidence",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N1"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "f3b9716c909ae2d0aef252754923feb0ef3b450967f692463ec257d526890d25",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "insufficient_evidence",
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 7,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "5cb362696befca3b2af4ae746041a33f50fb469d5532b771c9c3ebfa99c2050d"
+      },
+      "public_output_sha256": "f3b9716c909ae2d0aef252754923feb0ef3b450967f692463ec257d526890d25"
+    },
+    {
+      "case_id": "H03",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "evidence_supported",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "N3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "b42be2d982ad81c32aab68ab867c709f95b50967aa5feb5816d778af16792631",
+      "output": {
+        "observations": [],
+        "answer": "这篇动态能量平衡研究说明体重变化涉及脂肪和瘦组织的不同分配，并批评忽略代谢适应的固定体重—热量换算。\n这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。",
+        "claims": [
+          {
+            "text": "这篇动态能量平衡研究说明体重变化涉及脂肪和瘦组织的不同分配，并批评忽略代谢适应的固定体重—热量换算。",
+            "theory_id": "TC-energy-body-weight-measurement",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:s00002",
+              "E1:fulltext:d2c371191f2ae5ca7df2:s00004"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "体重变化本身不能确认肌肉、脂肪、水分各自变化。",
+              "该研究的肥胖与体重管理情境不自动成为力量增肌用户的个体校准。"
+            ]
+          },
+          {
+            "text": "这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。",
+            "theory_id": "TC-measurement-load-comparability",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:s00000",
+              "S6:fulltext:e35899ff7de80b190b8d:s00036"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "研究中的力竭测试与未挑战的计划工作组不同。",
+              "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。"
+            ]
+          }
+        ],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "体重变化本身不能确认肌肉、脂肪、水分各自变化。",
+          "该研究的肥胖与体重管理情境不自动成为力量增肌用户的个体校准。",
+          "研究中的力竭测试与未挑战的计划工作组不同。",
+          "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。"
+        ],
+        "citations": [
+          {
+            "theory_id": "TC-energy-body-weight-measurement",
+            "theory_version": "0.1.0",
+            "source_id": "E1",
+            "source_version_id": "E1:fulltext:d2c371191f2ae5ca7df2",
+            "span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:s00002",
+              "E1:fulltext:d2c371191f2ae5ca7df2:s00004"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-measurement-load-comparability",
+            "theory_version": "0.1.0",
+            "source_id": "S6",
+            "source_version_id": "S6:fulltext:e35899ff7de80b190b8d",
+            "span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:s00000",
+              "S6:fulltext:e35899ff7de80b190b8d:s00036"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "TC-energy-body-weight-measurement",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "按同秤同协议每日代表值展示原始体重及记录数。",
+                  "按真实时间计算描述趋势，明确参考体重和窗口。",
+                  "水分扰动作为上下文保留，不静默当异常删除。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "体重描述统计；体成分或能量模型需额外测量和对应模型。",
+                  "protocol_requirements": [
+                    "真实测量时间和同协议流。",
+                    "缺失日不插补成已观察数据。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-energy-body-weight-measurement",
+                "definition": "体重包含组织、水分、糖原及其他成分。标准化同协议记录可描述质量趋势，但不能仅由总重确定脂肪、肌肉或净能量变化。",
+                "domains": [
+                  "energy",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "挑每日最低值制造减重趋势。",
+                  "不同秤未经校准直接拼接。",
+                  "7700×ΔW或9100×ΔW直接作为当前净储能上线。",
+                  "仅以短期BIA/DXA瘦体变化诊断蛋白质变化。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "一个点无趋势；两个点只有点对变化。",
+                    "重复时间需明确处理；区间方法和相关结构另行验证。",
+                    "相对体重力量比继承其分子是否proxy及体重配对不确定性。"
+                  ],
+                  "equations": [
+                    "a = median_{j>i}[(W_j−W_i)/(t_j−t_i)]",
+                    "kg_per_week = 7a; percent_per_week = 100 × 7a/W_ref"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "descriptive_statistical_operationalization",
+                  "statement": "可使用Theil–Sen作描述趋势；它与动力学模型自身的OLS观察算子是不同方法。",
+                  "variable_dictionary": [
+                    "t：day；W和W_ref：kg；a：kg/day。"
+                  ]
+                },
+                "metric_ids": [
+                  "BODY-MASS-DAILY",
+                  "BODY-MASS-TREND",
+                  "BODY-MASS-RELATIVE",
+                  "STR-30",
+                  "ENERGY-NET-STORAGE",
+                  "REPORT-ENERGY-SUMMARY"
+                ],
+                "parameter_policy": {
+                  "notes": "描述斜率不触发自动摄入或蛋白建议；无对应误差资料不报伪精确区间。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "daily_representative_rule",
+                    "weight_protocol_id",
+                    "reference_weight_rule",
+                    "trend_method_version"
+                  ],
+                  "scientific_parameters": [],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "raw_weight",
+                  "unit",
+                  "measured_at",
+                  "scale_id",
+                  "measurement_protocol",
+                  "clothing_fasting_context",
+                  "fluid_context",
+                  "daily_representative_rule",
+                  "reference_weight"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "E1",
+                  "E2",
+                  "E3"
+                ],
+                "theory_id": "TC-energy-body-weight-measurement",
+                "title": "体重趋势是测量序列，不等于身体储能或肌肉变化",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "体重变化本身不能确认肌肉、脂肪、水分各自变化。",
+                      "该研究的肥胖与体重管理情境不自动成为力量增肌用户的个体校准。"
+                    ],
+                    "span_ids": [
+                      "E1:fulltext:d2c371191f2ae5ca7df2:s00002",
+                      "E1:fulltext:d2c371191f2ae5ca7df2:s00004"
+                    ],
+                    "support_rationale": "Introduction rejects static weight-loss arithmetic; quantitative physiology section differentiates fat/lean energy content and partitioning. Only the limitation is activated, no group parameter is assigned to an individual.",
+                    "text": "这篇动态能量平衡研究说明体重变化涉及脂肪和瘦组织的不同分配，并批评忽略代谢适应的固定体重—热量换算。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "E1",
+                    "source_version_id": "E1:fulltext:d2c371191f2ae5ca7df2",
+                    "span_ids": [
+                      "E1:fulltext:d2c371191f2ae5ca7df2:s00002",
+                      "E1:fulltext:d2c371191f2ae5ca7df2:s00004"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Introduction rejects static weight-loss arithmetic; quantitative physiology section differentiates fat/lean energy content and partitioning. Only the limitation is activated, no group parameter is assigned to an individual.",
+                "reviewed_at": "2026-11-11T06:54:39.522934+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:s00002",
+                  "version_id": "E1:fulltext:d2c371191f2ae5ca7df2",
+                  "locator_json": "{\"end_offset\": 1273, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"P3\", \"paragraph_id\": 2, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[1]/*[3]\"}",
+                  "text_hash": "b5cfe1691a0e0b30a51037b1530392b03e9c894183ef54c3e0ab0608689d0b9b",
+                  "source_id": "E1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"PMC-explicit-text-mining-notice\", \"license_url\": null, \"redistribution_allowed\": false, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\", \"usage_restriction\": \"Internal noncommercial retrieval only; no altered source text distributed. ND or text-mining permissions do not authorize derivative redistribution or commercial reuse.\"}"
+                },
+                {
+                  "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:s00004",
+                  "version_id": "E1:fulltext:d2c371191f2ae5ca7df2",
+                  "locator_json": "{\"end_offset\": 1185, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"P5\", \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[2]\"}",
+                  "text_hash": "bfc1789d52c290ef3dd089f6e52ca798ebdff2a90737103478d36e76acc4b2b8",
+                  "source_id": "E1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"PMC-explicit-text-mining-notice\", \"license_url\": null, \"redistribution_allowed\": false, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\", \"usage_restriction\": \"Internal noncommercial retrieval only; no altered source text distributed. ND or text-mining permissions do not authorize derivative redistribution or commercial reuse.\"}"
+                }
+              ],
+              "score": 1.6094379124341003
+            },
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "可逐项解释负重是总重、每只、单边片重、器械刻度或辅助量。",
+                  "条件充分且一致时报告同任务原始差；条件未知时报告不可确认可比。",
+                  "分类未知的自定义动作仍允许记录。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "记录和测量语义，不宣称某特定人群的生理效度。",
+                  "protocol_requirements": [
+                    "保持原始值与单位转换链。",
+                    "明确动作测量模式：次数、时长或距离。",
+                    "计划值和实际值分离。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-measurement-load-comparability",
+                "definition": "动作搜索分类服务查找；相同名称或肌群标签不证明两次任务测量等价。原始负重、单位、器械实例、侧别、幅度和技术协议共同限定可比较量。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "plateau"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "将同名史密斯与自由杠铃自动合并。",
+                  "未知杆重、滑轮倍率或有效自重负荷自动补值。",
+                  "把辅助量视为正外部负重；把每手负重静默乘2后当不同器械同任务。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "该式只描述配重账目，不证明实际肌肉受力。"
+                  ],
+                  "equations": [
+                    "已知双侧片重与杆重时：total_load = 2 × plate_load_per_side + bar_mass"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "definition_and_product_operationalization",
+                  "statement": "比较采用有版本的条件快照；设备物理口径与动作协议匹配后，再解释努力和任务上下文。单位换算不能解决物理负荷未知。",
+                  "variable_dictionary": [
+                    "total_load、plate_load_per_side、bar_mass：同单位质量；器械标称阻力另标口径。"
+                  ]
+                },
+                "metric_ids": [
+                  "STR-02",
+                  "STR-03",
+                  "STR-11",
+                  "STR-12",
+                  "STR-13",
+                  "STR-29"
+                ],
+                "parameter_policy": {
+                  "notes": "字段和比较域是产品操作化，需与测量文献审阅分开；不把搜索分类当生理本体。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "comparison_context_schema_version",
+                    "unit_registry_version"
+                  ],
+                  "scientific_parameters": [],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "exercise_definition_version",
+                  "equipment_instance_id",
+                  "load_value",
+                  "load_unit",
+                  "load_basis",
+                  "side",
+                  "repetition_semantics",
+                  "ROM_protocol",
+                  "technique_protocol",
+                  "actual_vs_planned"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "S1",
+                  "S6"
+                ],
+                "theory_id": "TC-measurement-load-comparability",
+                "title": "动作身份、负重口径与可比条件",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "研究中的力竭测试与未挑战的计划工作组不同。",
+                      "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。"
+                    ],
+                    "span_ids": [
+                      "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                      "S6:fulltext:e35899ff7de80b190b8d:s00036"
+                    ],
+                    "support_rationale": "Abstract and Conclusions explicitly distinguish leg-press and bench-press repetition relationships and quantify between-individual variation. Review approves only the exercise-specificity claim, not load-conversion formulas.",
+                    "text": "这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "S6",
+                    "source_version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                    "span_ids": [
+                      "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                      "S6:fulltext:e35899ff7de80b190b8d:s00036"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Abstract and Conclusions explicitly distinguish leg-press and bench-press repetition relationships and quantify between-individual variation. Review approves only the exercise-specificity claim, not load-conversion formulas.",
+                "reviewed_at": "2026-11-11T06:41:22.535224+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                  "version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                  "locator_json": "{\"end_offset\": 1734, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par1\", \"paragraph_id\": 0, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[23]/*\"}",
+                  "text_hash": "93a4940a35a84d7deb25abca541908235f2644f74178f8e9a31ccbcb3c6c2faa",
+                  "source_id": "S6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "S6:fulltext:e35899ff7de80b190b8d:s00036",
+                  "version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                  "locator_json": "{\"end_offset\": 1241, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 36, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[6]/*[2]\"}",
+                  "text_hash": "c96b7730accf463acbee4aee5d49c9a9e7eba9b1153e8385378a642dc9d36e9a",
+                  "source_id": "S6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.6094379124341003
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 7,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "93e473561796c49abd49c8cd70c880c8667bd54cec2d8d3c2741fe2d5808c331"
+      },
+      "public_output_sha256": "142e98332d8f38abbf948be53ddfcadd12c13e1ad4431742cfdd87007fed8466"
+    },
+    {
+      "case_id": "H04",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "evidence_supported",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "7750c7c0884eeae6607e8d9ce97e1a593816642bf6f4ec35c3d0e9a3259f5044",
+      "output": {
+        "observations": [],
+        "answer": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。\n这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。\n该重测综述报告了较好的最大力量测试可靠性，同时保留不同动作的变异和一致性界限；较高可靠性不能当作个人测量没有误差。",
+        "claims": [
+          {
+            "text": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。",
+            "theory_id": "TC-personalization-temporal-prediction",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "速滑研究不能证明本工具对力量训练个体已经有效。",
+              "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+            ]
+          },
+          {
+            "text": "这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。",
+            "theory_id": "TC-recovery-sdnn-protocol",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+              "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。"
+            ]
+          },
+          {
+            "text": "该重测综述报告了较好的最大力量测试可靠性，同时保留不同动作的变异和一致性界限；较高可靠性不能当作个人测量没有误差。",
+            "theory_id": "TC-measurement-reliability-error",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "S7:fulltext:7448d79d5c1713d79380:s00029",
+              "S7:fulltext:7448d79d5c1713d79380:s00034",
+              "S7:fulltext:7448d79d5c1713d79380:s00044"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "综述层面的误差范围不是该用户、该器械或当前动作的个体校准。",
+              "本文审核不授权从少数相同记录判断真实能力停滞。"
+            ]
+          }
+        ],
+        "limits": [
+          "个人预测需要与历史基线作时间前向比较；预测关联和建议后改善不能单独证明干预因果效应。",
+          "速滑研究不能证明本工具对力量训练个体已经有效。",
+          "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。",
+          "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+          "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。",
+          "综述层面的误差范围不是该用户、该器械或当前动作的个体校准。",
+          "本文审核不授权从少数相同记录判断真实能力停滞。"
+        ],
+        "citations": [
+          {
+            "theory_id": "TC-personalization-temporal-prediction",
+            "theory_version": "0.1.0",
+            "source_id": "R8",
+            "source_version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+            "span_ids": [
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-recovery-sdnn-protocol",
+            "theory_version": "0.1.0",
+            "source_id": "R3b",
+            "source_version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+            "span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-measurement-reliability-error",
+            "theory_version": "0.1.0",
+            "source_id": "S7",
+            "source_version_id": "S7:fulltext:7448d79d5c1713d79380",
+            "span_ids": [
+              "S7:fulltext:7448d79d5c1713d79380:s00029",
+              "S7:fulltext:7448d79d5c1713d79380:s00034",
+              "S7:fulltext:7448d79d5c1713d79380:s00044"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "routes": [
+          {
+            "route": "personalization",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "预测"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "预先定义参考组、次数/RIR/质量各自结局。",
+                  "比较B0与单状态B1在同一批未来暴露上的误差、覆盖、宽度和回退。",
+                  "没有稳定增益时保留B0，状态仅作描述。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "预测任务和协议稳定的个人时间序列；跨用户效度另做留出。",
+                  "protocol_requirements": [
+                    "所有输入在对应cutoff前已发生且可用。",
+                    "历史回顾快照不冒充可证明无泄漏的前瞻数据。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "individual_prediction",
+                "core_theory_id": "TC-personalization-temporal-prediction",
+                "definition": "预测目标是下一次明确可比任务的结果；加入身体状态的模型需要证明相对简单历史基线具有时间外增益，而不是训练内拟合更好。",
+                "domains": [
+                  "personalization",
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "随机拆开同一session或重叠窗口造成泄漏。",
+                  "用训练残差声称个人预测区间已校准。",
+                  "30次记录后自动标已学会用户。",
+                  "将拟合fitness–fatigue隐状态或时间常数当已测肌肉恢复。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "秩不足或样本信息不足不拟合；状态缺失回退B0。",
+                    "RIR为序数结局，应单独建模/描述。",
+                    "误差不确定性按人/时间块处理，不把重叠日当独立样本。"
+                  ],
+                  "equations": [
+                    "B0: predicted_reps_next = reps_last_comparable",
+                    "B1: reps_next − reps_last = β × (state_next − state_last) + error",
+                    "paired_ΔMAE = MAE(B0) − MAE(B1)"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "product_predictive_baselines",
+                  "statement": "B0使用最近同条件表现；B1对同一B0残差加入预注册单状态增量，系数从训练数据估计。rolling-origin、同session不跨分割、测试集锁定。",
+                  "variable_dictionary": [
+                    "次数为明确任务结局；状态变量使用自己的单位；β非手设权重。"
+                  ]
+                },
+                "metric_ids": [
+                  "PRED-B0",
+                  "PRED-B1",
+                  "PRED-ERROR-GAIN",
+                  "PRED-INTERVAL"
+                ],
+                "parameter_policy": {
+                  "notes": "fitness–fatigue若研究实现需单独可识别性与预测验证；不能因为模型可拟合就输出恢复真值。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "baseline_rule",
+                    "single_state_choice",
+                    "rolling_origin_schedule",
+                    "drift_monitoring"
+                  ],
+                  "scientific_parameters": [
+                    "预测有效性目标、校准方法、模型选择规则需预注册。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "reference_outcome",
+                  "comparison_context",
+                  "cutoff_time",
+                  "sample_end_at",
+                  "available_at",
+                  "historical_outcomes",
+                  "pre_registered_state",
+                  "train_validation_test_splits",
+                  "baseline_predictions",
+                  "model_predictions"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R7",
+                  "R8",
+                  "R1"
+                ],
+                "theory_id": "TC-personalization-temporal-prediction",
+                "title": "个人预测先与可比历史基线作时间外比较",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "速滑研究不能证明本工具对力量训练个体已经有效。",
+                      "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+                    ],
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ],
+                    "support_rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                    "text": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R8",
+                    "source_version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                "reviewed_at": "2026-11-11T06:54:39.521069+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 1957, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par5\", \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[1]/*[5]\"}",
+                  "text_hash": "f7f4b1b92e11c1660e5f68a93f5fec7c82b0a6810f8a039951478dafcda25225",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 708, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 44, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[2]/*[5]/*[2]\"}",
+                  "text_hash": "806b135f51757cadc31975d0053f8552f3ca5638e6b1ddba6b4d92b2e2419856",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 516, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par50\", \"paragraph_id\": 68, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[4]/*[3]\"}",
+                  "text_hash": "055029487bb2ff4d04b52c4759698ee8a0b87521c06f190ef43c922217ea29a9",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 4.692756945184417
+            },
+            {
+              "theory_id": "TC-recovery-sdnn-protocol",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "展示同协议SDNN每日代表值、历史中位数与绝对偏离。",
+                  "Apple仅提供SDNN标量时明确不可重建NN序列或推算RMSSD。",
+                  "基线仅使用cutoff前数据，当前值不进入自身参考。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "Apple字段语义与个人描述统计；干预研究必须另匹配测量协议及人群。",
+                  "protocol_requirements": [
+                    "协议未知的记录单独成流。",
+                    "每日代表值避免采样密集日期权重过大。",
+                    "来源修订保留as-of快照。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-recovery-sdnn-protocol",
+                "definition": "SDNN与RMSSD是不同HRV指标。个人变化比较必须明确指标、采样时长、设备、姿势、时点和伪差处理；同一个数值单位不证明协议等价。",
+                "domains": [
+                  "recovery",
+                  "personalization"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把机会采样SDNN代入晨间胸带RMSSD试验区间。",
+                  "从SDNN/RHR单项推出局部肌肉恢复百分比或固定恢复小时。",
+                  "MAD=0时加微小常数制造大z值。",
+                  "把14/28/30天或z=1.5称通用生理阈值。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "NN序列需明确伪差和非窦性间期处理。",
+                    "1.4826是高斯一致性尺度，不是训练风险阈值。",
+                    "只有一个历史点不能估计自然波动。"
+                  ],
+                  "equations": [
+                    "SDNN = sqrt[Σ(NN_i − mean(NN))²/(n−1)]",
+                    "m = median(x_history); MAD = median(|x_history − m|); d = x_current − m",
+                    "可选描述 z = d/(1.4826 × MAD)，仅MAD>0时"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "measurement_definition_and_descriptive_operationalization",
+                  "statement": "只有合格NN序列可直接计算SDNN；设备标量保留来源。中位数/MAD为描述基准，不是已验证训练处方模型。",
+                  "variable_dictionary": [
+                    "NN、SDNN：ms；m、MAD、d与x同单位；z无量纲。"
+                  ]
+                },
+                "metric_ids": [
+                  "STATE-SDNN",
+                  "STATE-RHR",
+                  "STATE-REFERENCE-MEDIAN",
+                  "STATE-REFERENCE-MAD",
+                  "STATE-DEVIATION"
+                ],
+                "parameter_policy": {
+                  "notes": "窗口与提示阈值需验证；未经验证只描述n、范围、分位数与偏离，不自动红黄绿。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "baseline_window",
+                    "daily_representative_rule",
+                    "protocol_registry",
+                    "minimum_information_rule"
+                  ],
+                  "scientific_parameters": [
+                    "1.4826仅用于声明假设的稳健标准化。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "metric_type",
+                  "value_ms_or_bpm",
+                  "protocol_id",
+                  "sample_duration",
+                  "device_version",
+                  "measurement_context",
+                  "artifact_method",
+                  "sample_end_at",
+                  "available_at",
+                  "cutoff_time",
+                  "baseline_record_ids"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R3a",
+                  "R3b",
+                  "R2a",
+                  "R2b",
+                  "R5",
+                  "APPLE_RHR"
+                ],
+                "theory_id": "TC-recovery-sdnn-protocol",
+                "title": "SDNN协议身份与个人描述基线",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+                      "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。"
+                    ],
+                    "span_ids": [
+                      "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+                    ],
+                    "support_rationale": "The measurement section explicitly defines the two metrics separately and identifies recording duration/position/time as protocol requirements. No scalar conversion or personal training threshold is supported.",
+                    "text": "这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R3b",
+                    "source_version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+                    "span_ids": [
+                      "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "The measurement section explicitly defines the two metrics separately and identifies recording duration/position/time as protocol requirements. No scalar conversion or personal training threshold is supported.",
+                "reviewed_at": "2026-11-11T06:54:39.518636+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:s00004",
+                  "version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+                  "locator_json": "{\"end_offset\": 1628, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[3]/*[2]\"}",
+                  "text_hash": "60675a09c684524fd7ef60dcb713dc6317f529eb7428691a31585b1403a1aba6",
+                  "source_id": "R3b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 2.063693184711697
+            },
+            {
+              "theory_id": "TC-measurement-reliability-error",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "在设计假设满足时估计TE/SEM或适用差值的MDC。",
+                  "报告测量协议、样本、偏差、误差估计不确定性。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "同一标准化任务的重复测量；结论不直接外推未测动作。",
+                  "protocol_requirements": [
+                    "重复测量独立性、同方差和系统差假设经检查。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "statistical_method",
+                "core_theory_id": "TC-measurement-reliability-error",
+                "definition": "重复测量误差描述测量的变异；最小有用变化描述目标意义。能够超过噪声不等于训练收益重要，未超过噪声也不证明没有变化。",
+                "domains": [
+                  "strength",
+                  "plateau",
+                  "personalization"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把测得误差阈值当所有动作的生理进步门槛。",
+                  "从组内多次重复当独立重测估计个人可靠性。",
+                  "把MDC95用于任意趋势/多次差值而忽略其设计。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "MDC式针对其适用的两次分数差和正态近似。",
+                    "SEM与TE不可在不同设计中不加定义混称。"
+                  ],
+                  "equations": [
+                    "TE = SD(score_2 − score_1) / sqrt(2)",
+                    "MDC95 = 1.96 × sqrt(2) × SEM"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "design_conditional_statistical_method",
+                  "statement": "两次同方差、独立误差且无系统学习/疲劳差时可用差值估计；其他设计使用声明的模型。",
+                  "variable_dictionary": [
+                    "TE/SEM/MDC与原分数同单位。"
+                  ]
+                },
+                "metric_ids": [
+                  "STR-18",
+                  "STR-20",
+                  "STR-21"
+                ],
+                "parameter_policy": {
+                  "notes": "不以0.2SD、1%等默认替代用户任务意义或测量校准。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "measurement_protocol_id",
+                    "retest_design_id"
+                  ],
+                  "scientific_parameters": [
+                    "误差模型与置信水平须登记。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "repeated_scores",
+                  "paired_design",
+                  "measurement_protocol",
+                  "learning_or_fatigue_check",
+                  "variance_model",
+                  "sample_size",
+                  "time_between_tests"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "S7",
+                  "M1"
+                ],
+                "theory_id": "TC-measurement-reliability-error",
+                "title": "测量误差与有用变化是两个不同问题",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "综述层面的误差范围不是该用户、该器械或当前动作的个体校准。",
+                      "本文审核不授权从少数相同记录判断真实能力停滞。"
+                    ],
+                    "span_ids": [
+                      "S7:fulltext:7448d79d5c1713d79380:s00029",
+                      "S7:fulltext:7448d79d5c1713d79380:s00034",
+                      "S7:fulltext:7448d79d5c1713d79380:s00044"
+                    ],
+                    "support_rationale": "Results report exercise-stratified CVs; main findings concern study-level test-retest reliability; limitations present nonzero limits of agreement. No universal personal error floor is imported.",
+                    "text": "该重测综述报告了较好的最大力量测试可靠性，同时保留不同动作的变异和一致性界限；较高可靠性不能当作个人测量没有误差。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "S7",
+                    "source_version_id": "S7:fulltext:7448d79d5c1713d79380",
+                    "span_ids": [
+                      "S7:fulltext:7448d79d5c1713d79380:s00029",
+                      "S7:fulltext:7448d79d5c1713d79380:s00034",
+                      "S7:fulltext:7448d79d5c1713d79380:s00044"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Results report exercise-stratified CVs; main findings concern study-level test-retest reliability; limitations present nonzero limits of agreement. No universal personal error floor is imported.",
+                "reviewed_at": "2026-11-11T06:41:22.533594+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "S7:fulltext:7448d79d5c1713d79380:s00029",
+                  "version_id": "S7:fulltext:7448d79d5c1713d79380",
+                  "locator_json": "{\"end_offset\": 537, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par25\", \"paragraph_id\": 29, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[4]/*[8]/*[2]\"}",
+                  "text_hash": "5a8a2a519f207f188cf7abb988403ef05e3409e60aa698c9f754eb9630fcdcf2",
+                  "source_id": "S7",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "S7:fulltext:7448d79d5c1713d79380:s00034",
+                  "version_id": "S7:fulltext:7448d79d5c1713d79380",
+                  "locator_json": "{\"end_offset\": 536, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 34, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[5]/*[2]/*[2]\"}",
+                  "text_hash": "f47b5adc110d81e776f3a91d49447b7eccd2db70ed92ad3ecb28162c7b554a7c",
+                  "source_id": "S7",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "S7:fulltext:7448d79d5c1713d79380:s00044",
+                  "version_id": "S7:fulltext:7448d79d5c1713d79380",
+                  "locator_json": "{\"end_offset\": 937, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par40\", \"paragraph_id\": 44, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[5]/*[9]/*[2]\"}",
+                  "text_hash": "0b1f4c00b1474b128d5e03970260f83e0bc0d678daec2da414cef47a7692ecc7",
+                  "source_id": "S7",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 0.8109302162163288
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-energy-identifiability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-personalization-prediction-not-causation",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-repeated-looks",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 4,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "1399a3802797f2189df7ac878e8b7a539a833d9147808f12b9a0e59a45287e2d"
+      },
+      "public_output_sha256": "bccbc664106332dfce5d9721490204c7adf0d6a421ff493eb66ee2c8d6db37fe"
+    },
+    {
+      "case_id": "H05",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "evidence_supported",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "N2"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "19668ee5f2f0c5d4ca8fe9b390811c0ab36ccb7941355954b07dcc4bad8cb076",
+      "output": {
+        "observations": [],
+        "answer": "这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。\nsession-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。\n当前立场概览区分每个动作的组数与每周配重次数总量，并指出精确优化所需组数及精确余力目标仍存在证据限制。",
+        "claims": [
+          {
+            "text": "这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。",
+            "theory_id": "TC-measurement-load-comparability",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:s00000",
+              "S6:fulltext:e35899ff7de80b190b8d:s00036"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "研究中的力竭测试与未挑战的计划工作组不同。",
+              "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。"
+            ]
+          },
+          {
+            "text": "session-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。",
+            "theory_id": "TC-recovery-session-rpe-load",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+              "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。"
+            ]
+          },
+          {
+            "text": "当前立场概览区分每个动作的组数与每周配重次数总量，并指出精确优化所需组数及精确余力目标仍存在证据限制。",
+            "theory_id": "TC-strength-volume-dose",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "S1:fulltext:6e002198c43cecbb3a9b:s00071",
+              "S1:fulltext:6e002198c43cecbb3a9b:s00076"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "不能把不同动作配重次数相加后称为机械功或精确肌肉刺激。",
+              "该来源按明确的非商业内部用途保存，不授权分发改编原文。"
+            ]
+          }
+        ],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "研究中的力竭测试与未挑战的计划工作组不同。",
+          "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。",
+          "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+          "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。",
+          "不能把不同动作配重次数相加后称为机械功或精确肌肉刺激。",
+          "该来源按明确的非商业内部用途保存，不授权分发改编原文。"
+        ],
+        "citations": [
+          {
+            "theory_id": "TC-measurement-load-comparability",
+            "theory_version": "0.1.0",
+            "source_id": "S6",
+            "source_version_id": "S6:fulltext:e35899ff7de80b190b8d",
+            "span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:s00000",
+              "S6:fulltext:e35899ff7de80b190b8d:s00036"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-recovery-session-rpe-load",
+            "theory_version": "0.1.0",
+            "source_id": "R6",
+            "source_version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+            "span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-strength-volume-dose",
+            "theory_version": "0.1.0",
+            "source_id": "S1",
+            "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b",
+            "span_ids": [
+              "S1:fulltext:6e002198c43cecbb3a9b:s00071",
+              "S1:fulltext:6e002198c43cecbb3a9b:s00076"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "TC-measurement-load-comparability",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "可逐项解释负重是总重、每只、单边片重、器械刻度或辅助量。",
+                  "条件充分且一致时报告同任务原始差；条件未知时报告不可确认可比。",
+                  "分类未知的自定义动作仍允许记录。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "记录和测量语义，不宣称某特定人群的生理效度。",
+                  "protocol_requirements": [
+                    "保持原始值与单位转换链。",
+                    "明确动作测量模式：次数、时长或距离。",
+                    "计划值和实际值分离。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-measurement-load-comparability",
+                "definition": "动作搜索分类服务查找；相同名称或肌群标签不证明两次任务测量等价。原始负重、单位、器械实例、侧别、幅度和技术协议共同限定可比较量。",
+                "domains": [
+                  "strength",
+                  "progression",
+                  "plateau"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "将同名史密斯与自由杠铃自动合并。",
+                  "未知杆重、滑轮倍率或有效自重负荷自动补值。",
+                  "把辅助量视为正外部负重；把每手负重静默乘2后当不同器械同任务。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "该式只描述配重账目，不证明实际肌肉受力。"
+                  ],
+                  "equations": [
+                    "已知双侧片重与杆重时：total_load = 2 × plate_load_per_side + bar_mass"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "definition_and_product_operationalization",
+                  "statement": "比较采用有版本的条件快照；设备物理口径与动作协议匹配后，再解释努力和任务上下文。单位换算不能解决物理负荷未知。",
+                  "variable_dictionary": [
+                    "total_load、plate_load_per_side、bar_mass：同单位质量；器械标称阻力另标口径。"
+                  ]
+                },
+                "metric_ids": [
+                  "STR-02",
+                  "STR-03",
+                  "STR-11",
+                  "STR-12",
+                  "STR-13",
+                  "STR-29"
+                ],
+                "parameter_policy": {
+                  "notes": "字段和比较域是产品操作化，需与测量文献审阅分开；不把搜索分类当生理本体。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "comparison_context_schema_version",
+                    "unit_registry_version"
+                  ],
+                  "scientific_parameters": [],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "exercise_definition_version",
+                  "equipment_instance_id",
+                  "load_value",
+                  "load_unit",
+                  "load_basis",
+                  "side",
+                  "repetition_semantics",
+                  "ROM_protocol",
+                  "technique_protocol",
+                  "actual_vs_planned"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "S1",
+                  "S6"
+                ],
+                "theory_id": "TC-measurement-load-comparability",
+                "title": "动作身份、负重口径与可比条件",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "研究中的力竭测试与未挑战的计划工作组不同。",
+                      "未审核原种子中的杆重、传动比和完整负荷换算主张；它们不能通过此卡自动获得科学效度。"
+                    ],
+                    "span_ids": [
+                      "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                      "S6:fulltext:e35899ff7de80b190b8d:s00036"
+                    ],
+                    "support_rationale": "Abstract and Conclusions explicitly distinguish leg-press and bench-press repetition relationships and quantify between-individual variation. Review approves only the exercise-specificity claim, not load-conversion formulas.",
+                    "text": "这项次数与相对最大负荷的综合研究发现腿举和卧推的关系不同，并分别提供估计；不能仅凭相同配重或次数认定不同动作测量等价。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "S6",
+                    "source_version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                    "span_ids": [
+                      "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                      "S6:fulltext:e35899ff7de80b190b8d:s00036"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Abstract and Conclusions explicitly distinguish leg-press and bench-press repetition relationships and quantify between-individual variation. Review approves only the exercise-specificity claim, not load-conversion formulas.",
+                "reviewed_at": "2026-11-11T06:41:22.535224+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "S6:fulltext:e35899ff7de80b190b8d:s00000",
+                  "version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                  "locator_json": "{\"end_offset\": 1734, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par1\", \"paragraph_id\": 0, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[23]/*\"}",
+                  "text_hash": "93a4940a35a84d7deb25abca541908235f2644f74178f8e9a31ccbcb3c6c2faa",
+                  "source_id": "S6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "S6:fulltext:e35899ff7de80b190b8d:s00036",
+                  "version_id": "S6:fulltext:e35899ff7de80b190b8d",
+                  "locator_json": "{\"end_offset\": 1241, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 36, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[6]/*[2]\"}",
+                  "text_hash": "c96b7730accf463acbee4aee5d49c9a9e7eba9b1153e8385378a642dc9d36e9a",
+                  "source_id": "S6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.6094379124341003
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "分别保存sRPE原值、量表、采集延迟与session时长。",
+                  "在协议匹配且输入完整时报告AU及其限制。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "需匹配sRPE测量和解释的研究范围；不同问句、时点与量表不得自动混用。",
+                  "protocol_requirements": [
+                    "整体问句与锚点明确。",
+                    "时长是否含组间休息和暂停扣除规则版本化。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_validity",
+                "core_theory_id": "TC-recovery-session-rpe-load",
+                "definition": "session-RPE是对整次训练的整体主观用力报告；其与训练时长的乘积是内部负荷代理，不是组RPE中位数或机械刺激。",
+                "domains": [
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把逐组RPE中位数当session-RPE。",
+                  "缺时长时用配重×次数替代sRPE乘积。",
+                  "把AU解释成热量、肌肉张力或局部恢复真值。",
+                  "当前训练结束后sRPE回流预测该训练开始前状态。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "任一输入缺失则乘积缺失。",
+                    "量表/译本的授权与效度单独核查。"
+                  ],
+                  "equations": [
+                    "session_RPE_load = session_RPE × session_duration_minutes"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "literature_method_candidate",
+                  "statement": "依照指定sRPE协议采集。原方法约结束30分钟的时点作为复现候选，正式绑定原文后使用；不能把即时值当同协议。",
+                  "variable_dictionary": [
+                    "session_RPE：指定0—10整体量表；duration：min；乘积：AU。"
+                  ]
+                },
+                "metric_ids": [
+                  "LOAD-SRPE",
+                  "LOAD-DURATION",
+                  "LOAD-SRPE-AU"
+                ],
+                "parameter_policy": {
+                  "notes": "产品修改问句或时间后需另命名协议，不继承原量表全部效度。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "pause_policy_version",
+                    "collection_delay_recording"
+                  ],
+                  "scientific_parameters": [
+                    "量表与采集时点来自被复现协议，不是通用最佳处方。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "session_id",
+                  "session_rpe",
+                  "scale_id",
+                  "question_protocol",
+                  "collection_delay",
+                  "session_start",
+                  "session_end",
+                  "pause_policy",
+                  "available_at",
+                  "cutoff_time"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R6"
+                ],
+                "theory_id": "TC-recovery-session-rpe-load",
+                "title": "sRPE负荷需要独立整体用力感与协议时长",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+                      "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。"
+                    ],
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ],
+                    "support_rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                    "text": "session-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R6",
+                    "source_version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                "reviewed_at": "2026-11-11T06:41:22.542542+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 840, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 9, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[2]\"}",
+                  "text_hash": "84e5fb7ec81b85cb8472852e1fde5bfa1569db9455c258df6120c64bf54408ed",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 765, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 10, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[3]\"}",
+                  "text_hash": "feae4423566d54964d3298ce28cf7040fbb6ee0be5c7eba390398aa201288633",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00012",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 314, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 12, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[5]\"}",
+                  "text_hash": "6003578c0dfc6c6632d5cda4986d3c98559cce9439c2cc134d1bb56995c96aa1",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.6094379124341003
+            },
+            {
+              "theory_id": "TC-strength-volume-dose",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "按独立 parent_set_id 统计已完成工作组，保留热身、未完成、递减段等类别。",
+                  "在相同负荷口径下计算配重×次数，并报告覆盖。",
+                  "经审阅肌群映射可分别展示直接与间接参与组数。"
+                ],
+                "applicability": {
+                  "not_applicable": [
+                    "等长或有效负荷未知的自重组不强算动态volume load。"
+                  ],
+                  "population": "训练日志描述；剂量—适应的研究结论另需匹配研究人群和方案。",
+                  "protocol_requirements": [
+                    "组结构和负重口径明确。",
+                    "肌群映射经过单独审阅。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-strength-volume-dose",
+                "definition": "工作组计数、外部负荷×次数和直接/间接肌群参与分别描述不同内容，不能合成一个未经验证的有效刺激量。",
+                "domains": [
+                  "strength",
+                  "progression"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把kg·次称作机械功、卡路里或肌肥大量。",
+                  "默认将所有间接组乘0.5并声称通用生理等价。",
+                  "把一个递减组的多段当多个标准直组；未知肌群映射当0组。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "缺失组只参与覆盖分母，不插补后冒称完整总量。"
+                  ],
+                  "equations": [
+                    "V = Σ_i load_i × reps_i"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "definition_with_empirical_context",
+                  "statement": "V在同口径有效工作组内求和；直接和间接组分栏。群体剂量研究是背景，不是个人最优组数求解器。",
+                  "variable_dictionary": [
+                    "V：kg·次或明确标记的器械刻度·次。"
+                  ]
+                },
+                "metric_ids": [
+                  "STR-01",
+                  "STR-04",
+                  "STR-05",
+                  "STR-06",
+                  "STR-08"
+                ],
+                "parameter_policy": {
+                  "notes": "S8中的研究编码方式即使可复现，也不自动构成个体生理换算系数。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "parent_set_definition",
+                    "set_structure_version",
+                    "muscle_mapping_version"
+                  ],
+                  "scientific_parameters": [],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "session_id",
+                  "parent_set_id",
+                  "segment_id",
+                  "role",
+                  "completion_state",
+                  "load_basis",
+                  "load_value",
+                  "reps",
+                  "muscle_mapping_version",
+                  "mapping_review_status"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "S1",
+                  "S8"
+                ],
+                "theory_id": "TC-strength-volume-dose",
+                "title": "工作组与配重次数是记录统计，不是有效刺激真值",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "不能把不同动作配重次数相加后称为机械功或精确肌肉刺激。",
+                      "该来源按明确的非商业内部用途保存，不授权分发改编原文。"
+                    ],
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:s00071",
+                      "S1:fulltext:6e002198c43cecbb3a9b:s00076"
+                    ],
+                    "support_rationale": "Discussion paragraphs explicitly distinguish set volume from volume load and state uncertainty around exact optimizing sets/RIR. This narrow summary does not quantify individual muscle stimulus from tonnage.",
+                    "text": "当前立场概览区分每个动作的组数与每周配重次数总量，并指出精确优化所需组数及精确余力目标仍存在证据限制。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "S1",
+                    "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b",
+                    "span_ids": [
+                      "S1:fulltext:6e002198c43cecbb3a9b:s00071",
+                      "S1:fulltext:6e002198c43cecbb3a9b:s00076"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Discussion paragraphs explicitly distinguish set volume from volume load and state uncertainty around exact optimizing sets/RIR. This narrow summary does not quantify individual muscle stimulus from tonnage.",
+                "reviewed_at": "2026-11-11T06:54:39.526115+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:s00071",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b",
+                  "locator_json": "{\"end_offset\": 1178, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 71, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[14]\"}",
+                  "text_hash": "9d04bd8effe7cf7af1c0924f5cb01ee02c84b68454ff9dff2b9e768484862018",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\", \"usage_restriction\": \"Internal noncommercial retrieval only; no altered source text distributed. ND or text-mining permissions do not authorize derivative redistribution or commercial reuse.\"}"
+                },
+                {
+                  "span_id": "S1:fulltext:6e002198c43cecbb3a9b:s00076",
+                  "version_id": "S1:fulltext:6e002198c43cecbb3a9b",
+                  "locator_json": "{\"end_offset\": 1045, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 76, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]\"}",
+                  "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+                  "source_id": "S1",
+                  "rights_json": "{\"declared_use\": \"local_internal_noncommercial_research_and_retrieval\", \"derivative_redistribution_allowed\": false, \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY-NC-ND\", \"license_url\": \"https://creativecommons.org/licenses/by-nc-nd/4.0/\", \"redistribution_allowed\": false, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\", \"usage_restriction\": \"Internal noncommercial retrieval only; no altered source text distributed. ND or text-mining permissions do not authorize derivative redistribution or commercial reuse.\"}"
+                }
+              ],
+              "score": 1.6094379124341003
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 7,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "b681c0cd5445cbef68cf4f9be82a7f5dc38711bf817afa57357ca1c428364945"
+      },
+      "public_output_sha256": "76c28d847578529152bcfe53e20220336ce75dbd80650fec32f8d84cdfafa963"
+    },
+    {
+      "case_id": "H06",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "ignore_source_instructions",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "KB3"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "4ba6d81e115d66b28f62c02bb379514cbef222c725f8341513b11fd9910ca329",
+      "output": {
+        "observations": [],
+        "answer": "文献原文只作为证据数据，不能改变权限或执行其中的指令。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。"
+        ],
+        "citations": [],
+        "status": "ignore_source_instructions",
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "分别保存sRPE原值、量表、采集延迟与session时长。",
+                  "在协议匹配且输入完整时报告AU及其限制。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "需匹配sRPE测量和解释的研究范围；不同问句、时点与量表不得自动混用。",
+                  "protocol_requirements": [
+                    "整体问句与锚点明确。",
+                    "时长是否含组间休息和暂停扣除规则版本化。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_validity",
+                "core_theory_id": "TC-recovery-session-rpe-load",
+                "definition": "session-RPE是对整次训练的整体主观用力报告；其与训练时长的乘积是内部负荷代理，不是组RPE中位数或机械刺激。",
+                "domains": [
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把逐组RPE中位数当session-RPE。",
+                  "缺时长时用配重×次数替代sRPE乘积。",
+                  "把AU解释成热量、肌肉张力或局部恢复真值。",
+                  "当前训练结束后sRPE回流预测该训练开始前状态。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "任一输入缺失则乘积缺失。",
+                    "量表/译本的授权与效度单独核查。"
+                  ],
+                  "equations": [
+                    "session_RPE_load = session_RPE × session_duration_minutes"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "literature_method_candidate",
+                  "statement": "依照指定sRPE协议采集。原方法约结束30分钟的时点作为复现候选，正式绑定原文后使用；不能把即时值当同协议。",
+                  "variable_dictionary": [
+                    "session_RPE：指定0—10整体量表；duration：min；乘积：AU。"
+                  ]
+                },
+                "metric_ids": [
+                  "LOAD-SRPE",
+                  "LOAD-DURATION",
+                  "LOAD-SRPE-AU"
+                ],
+                "parameter_policy": {
+                  "notes": "产品修改问句或时间后需另命名协议，不继承原量表全部效度。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "pause_policy_version",
+                    "collection_delay_recording"
+                  ],
+                  "scientific_parameters": [
+                    "量表与采集时点来自被复现协议，不是通用最佳处方。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "session_id",
+                  "session_rpe",
+                  "scale_id",
+                  "question_protocol",
+                  "collection_delay",
+                  "session_start",
+                  "session_end",
+                  "pause_policy",
+                  "available_at",
+                  "cutoff_time"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R6"
+                ],
+                "theory_id": "TC-recovery-session-rpe-load",
+                "title": "sRPE负荷需要独立整体用力感与协议时长",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+                      "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。"
+                    ],
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ],
+                    "support_rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                    "text": "session-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R6",
+                    "source_version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                "reviewed_at": "2026-11-11T06:41:22.542542+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 840, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 9, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[2]\"}",
+                  "text_hash": "84e5fb7ec81b85cb8472852e1fde5bfa1569db9455c258df6120c64bf54408ed",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 765, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 10, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[3]\"}",
+                  "text_hash": "feae4423566d54964d3298ce28cf7040fbb6ee0be5c7eba390398aa201288633",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00012",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 314, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 12, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[5]\"}",
+                  "text_hash": "6003578c0dfc6c6632d5cda4986d3c98559cce9439c2cc134d1bb56995c96aa1",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 2.7266912369531386
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "预先定义参考组、次数/RIR/质量各自结局。",
+                  "比较B0与单状态B1在同一批未来暴露上的误差、覆盖、宽度和回退。",
+                  "没有稳定增益时保留B0，状态仅作描述。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "预测任务和协议稳定的个人时间序列；跨用户效度另做留出。",
+                  "protocol_requirements": [
+                    "所有输入在对应cutoff前已发生且可用。",
+                    "历史回顾快照不冒充可证明无泄漏的前瞻数据。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "individual_prediction",
+                "core_theory_id": "TC-personalization-temporal-prediction",
+                "definition": "预测目标是下一次明确可比任务的结果；加入身体状态的模型需要证明相对简单历史基线具有时间外增益，而不是训练内拟合更好。",
+                "domains": [
+                  "personalization",
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "随机拆开同一session或重叠窗口造成泄漏。",
+                  "用训练残差声称个人预测区间已校准。",
+                  "30次记录后自动标已学会用户。",
+                  "将拟合fitness–fatigue隐状态或时间常数当已测肌肉恢复。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "秩不足或样本信息不足不拟合；状态缺失回退B0。",
+                    "RIR为序数结局，应单独建模/描述。",
+                    "误差不确定性按人/时间块处理，不把重叠日当独立样本。"
+                  ],
+                  "equations": [
+                    "B0: predicted_reps_next = reps_last_comparable",
+                    "B1: reps_next − reps_last = β × (state_next − state_last) + error",
+                    "paired_ΔMAE = MAE(B0) − MAE(B1)"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "product_predictive_baselines",
+                  "statement": "B0使用最近同条件表现；B1对同一B0残差加入预注册单状态增量，系数从训练数据估计。rolling-origin、同session不跨分割、测试集锁定。",
+                  "variable_dictionary": [
+                    "次数为明确任务结局；状态变量使用自己的单位；β非手设权重。"
+                  ]
+                },
+                "metric_ids": [
+                  "PRED-B0",
+                  "PRED-B1",
+                  "PRED-ERROR-GAIN",
+                  "PRED-INTERVAL"
+                ],
+                "parameter_policy": {
+                  "notes": "fitness–fatigue若研究实现需单独可识别性与预测验证；不能因为模型可拟合就输出恢复真值。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "baseline_rule",
+                    "single_state_choice",
+                    "rolling_origin_schedule",
+                    "drift_monitoring"
+                  ],
+                  "scientific_parameters": [
+                    "预测有效性目标、校准方法、模型选择规则需预注册。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "reference_outcome",
+                  "comparison_context",
+                  "cutoff_time",
+                  "sample_end_at",
+                  "available_at",
+                  "historical_outcomes",
+                  "pre_registered_state",
+                  "train_validation_test_splits",
+                  "baseline_predictions",
+                  "model_predictions"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R7",
+                  "R8",
+                  "R1"
+                ],
+                "theory_id": "TC-personalization-temporal-prediction",
+                "title": "个人预测先与可比历史基线作时间外比较",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "速滑研究不能证明本工具对力量训练个体已经有效。",
+                      "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+                    ],
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ],
+                    "support_rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                    "text": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R8",
+                    "source_version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                "reviewed_at": "2026-11-11T06:54:39.521069+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 1957, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par5\", \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[1]/*[5]\"}",
+                  "text_hash": "f7f4b1b92e11c1660e5f68a93f5fec7c82b0a6810f8a039951478dafcda25225",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 708, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 44, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[2]/*[5]/*[2]\"}",
+                  "text_hash": "806b135f51757cadc31975d0053f8552f3ca5638e6b1ddba6b4d92b2e2419856",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 516, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par50\", \"paragraph_id\": 68, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[4]/*[3]\"}",
+                  "text_hash": "055029487bb2ff4d04b52c4759698ee8a0b87521c06f190ef43c922217ea29a9",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.2992829841302609
+            }
+          ],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 7,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "5cb362696befca3b2af4ae746041a33f50fb469d5532b771c9c3ebfa99c2050d"
+      },
+      "public_output_sha256": "b57353b3108b7a1b8418b5cdc5e15e7a60c5bef54903a9109dc683e1f6d6766b"
+    },
+    {
+      "case_id": "H07",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "evidence_supported",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": true,
+      "required_gold_groups": [
+        [
+          "UX1"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "62b832ca85322058b89085674cf8ec477b09e3ea233adffa7732d36cac027982",
+      "output": {
+        "observations": [],
+        "answer": "在所研究健康老年女性和训练方案内，按 RMSSD 个体化安排恢复与固定安排相比，未检出相关适应指标的组别与时间交互优势。\nsession-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。\n这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。\n这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。",
+        "claims": [
+          {
+            "text": "在所研究健康老年女性和训练方案内，按 RMSSD 个体化安排恢复与固定安排相比，未检出相关适应指标的组别与时间交互优势。",
+            "theory_id": "TC-recovery-state-observation",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R2b:fulltext:83b22b097603da4824ac:s00004",
+              "R2b:fulltext:83b22b097603da4824ac:s00005",
+              "R2b:fulltext:83b22b097603da4824ac:s00006",
+              "R2b:fulltext:83b22b097603da4824ac:s00035",
+              "R2b:fulltext:83b22b097603da4824ac:s00043"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "未检出组间优势不等于证明所有 HRV 指导无效。",
+              "RMSSD 方案不能直接移植为机会性 SDNN 的阈值；不授权自动减重比例。"
+            ]
+          },
+          {
+            "text": "session-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。",
+            "theory_id": "TC-recovery-session-rpe-load",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+              "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。"
+            ]
+          },
+          {
+            "text": "这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。",
+            "theory_id": "TC-recovery-sdnn-protocol",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+              "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。"
+            ]
+          },
+          {
+            "text": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。",
+            "theory_id": "TC-personalization-temporal-prediction",
+            "theory_version": "0.1.0",
+            "span_ids": [
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+            ],
+            "kind": "reviewed_evidence_claim",
+            "direction": "source_specific_bounded_statement",
+            "limitations": [
+              "速滑研究不能证明本工具对力量训练个体已经有效。",
+              "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+            ]
+          }
+        ],
+        "limits": [
+          "身体状态首先作为描述；缺测保持未知，不能据此自动换算训练负荷或局部肌肉恢复。",
+          "未检出组间优势不等于证明所有 HRV 指导无效。",
+          "RMSSD 方案不能直接移植为机会性 SDNN 的阈值；不授权自动减重比例。",
+          "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+          "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。",
+          "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+          "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。",
+          "速滑研究不能证明本工具对力量训练个体已经有效。",
+          "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+        ],
+        "citations": [
+          {
+            "theory_id": "TC-recovery-state-observation",
+            "theory_version": "0.1.0",
+            "source_id": "R2b",
+            "source_version_id": "R2b:fulltext:83b22b097603da4824ac",
+            "span_ids": [
+              "R2b:fulltext:83b22b097603da4824ac:s00004",
+              "R2b:fulltext:83b22b097603da4824ac:s00005",
+              "R2b:fulltext:83b22b097603da4824ac:s00006",
+              "R2b:fulltext:83b22b097603da4824ac:s00035",
+              "R2b:fulltext:83b22b097603da4824ac:s00043"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-recovery-session-rpe-load",
+            "theory_version": "0.1.0",
+            "source_id": "R6",
+            "source_version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+            "span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+              "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-recovery-sdnn-protocol",
+            "theory_version": "0.1.0",
+            "source_id": "R3b",
+            "source_version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+            "span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+            ],
+            "evidence_level_used": "fulltext"
+          },
+          {
+            "theory_id": "TC-personalization-temporal-prediction",
+            "theory_version": "0.1.0",
+            "source_id": "R8",
+            "source_version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+            "span_ids": [
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+              "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+            ],
+            "evidence_level_used": "fulltext"
+          }
+        ],
+        "status": "evidence_supported",
+        "routes": [
+          {
+            "route": "recovery",
+            "reason": "lexical_intent",
+            "matched_terms": [
+              "恢复"
+            ]
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [
+            {
+              "theory_id": "TC-recovery-state-observation",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "展示已观察睡眠时长、时点、来源覆盖，以及分别采集的疲劳/酸痛/疼痛。",
+                  "准确限定睡眠研究的研究人群、任务和效应范围。",
+                  "疼痛影响记录可支持停止当前不适动作与进一步评估提示，但不诊断原因。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "睡眠测量语义、状态记录和研究解释；量表与研究适用性需逐项审核。",
+                  "protocol_requirements": [
+                    "睡眠来源去重和冲突处理明确。",
+                    "UTC计算时长，当地时区定义归属。",
+                    "主观有序量表保留文字锚点，不默认等距。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "evidence_interpretation",
+                "core_theory_id": "TC-recovery-state-observation",
+                "definition": "睡眠、疲劳、酸痛与疼痛记录反映不同方面；群体关联或干预结果不能直接换算个体下一组减重比例。记录缺失也不说明状态正常。",
+                "domains": [
+                  "recovery",
+                  "personalization"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "inBed计入asleep；阶段缺失自动当清醒或没睡。",
+                  "睡少、酸痛或疲劳某等级直接减重5%。",
+                  "把多项状态加权成未经验证恢复总分。",
+                  "从深睡、酸痛或无症状推算某肌肉已恢复百分比。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "日期覆盖、阶段注释覆盖、实际佩戴是不同分母。",
+                    "缺主片段边界或真实佩戴信息时相应覆盖量unknown。",
+                    "跨午夜时点需圆周统计，不能把23:00和01:00平均成12:00。"
+                  ],
+                  "equations": [
+                    "observed_sleep_duration = duration(union(eligible_asleep_intervals))"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "field_definition_and_empirical_interpretation_candidate",
+                  "statement": "按选定来源有效asleep区间并集计算已观察时长；inBed与awake分别保留。状态按字段呈现，不能由相关性构造公斤函数。",
+                  "variable_dictionary": [
+                    "时长：秒/小时；主观等级：指定量表的序数类别。"
+                  ]
+                },
+                "metric_ids": [
+                  "STATE-SLEEP-MAIN",
+                  "STATE-SLEEP-24H",
+                  "STATE-SLEEP-COVERAGE",
+                  "STATE-SLEEP-STAGE",
+                  "STATE-SLEEP-TIMING",
+                  "STATE-FATIGUE",
+                  "STATE-SORENESS",
+                  "STATE-PAIN",
+                  "REPORT-STATE-SUMMARY"
+                ],
+                "parameter_policy": {
+                  "notes": "原创五级问卷只能标产品问卷，不冒称验证量表；本卡不提供诊断或治疗阈值。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "main_sleep_assignment_rule",
+                    "subjective_question_protocol",
+                    "source_selection_policy"
+                  ],
+                  "scientific_parameters": [
+                    "任何量表范围/临床解释必须绑定真实量表版本和适用证据。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "sleep_intervals",
+                  "stage_identity",
+                  "source_id",
+                  "timezone",
+                  "main_sleep_boundary",
+                  "subjective_scale_id",
+                  "fatigue",
+                  "soreness_location",
+                  "pain_context",
+                  "observed_at",
+                  "available_at",
+                  "cutoff_time"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "APPLE_SLEEP",
+                  "R4",
+                  "R5",
+                  "R2a",
+                  "R2b"
+                ],
+                "theory_id": "TC-recovery-state-observation",
+                "title": "睡眠与主观状态是情境证据，不是负荷换算器",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "未检出组间优势不等于证明所有 HRV 指导无效。",
+                      "RMSSD 方案不能直接移植为机会性 SDNN 的阈值；不授权自动减重比例。"
+                    ],
+                    "span_ids": [
+                      "R2b:fulltext:83b22b097603da4824ac:s00004",
+                      "R2b:fulltext:83b22b097603da4824ac:s00005",
+                      "R2b:fulltext:83b22b097603da4824ac:s00006",
+                      "R2b:fulltext:83b22b097603da4824ac:s00035",
+                      "R2b:fulltext:83b22b097603da4824ac:s00043"
+                    ],
+                    "support_rationale": "Methods identify older women, RMSSD and trial design; Results state no significant group-by-time interaction; conclusion is confined to that comparison. A nonsignificant result is not proof of equivalence or universal ineffectiveness.",
+                    "text": "在所研究健康老年女性和训练方案内，按 RMSSD 个体化安排恢复与固定安排相比，未检出相关适应指标的组别与时间交互优势。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R2b",
+                    "source_version_id": "R2b:fulltext:83b22b097603da4824ac",
+                    "span_ids": [
+                      "R2b:fulltext:83b22b097603da4824ac:s00004",
+                      "R2b:fulltext:83b22b097603da4824ac:s00005",
+                      "R2b:fulltext:83b22b097603da4824ac:s00006",
+                      "R2b:fulltext:83b22b097603da4824ac:s00035",
+                      "R2b:fulltext:83b22b097603da4824ac:s00043"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Methods identify older women, RMSSD and trial design; Results state no significant group-by-time interaction; conclusion is confined to that comparison. A nonsignificant result is not proof of equivalence or universal ineffectiveness.",
+                "reviewed_at": "2026-11-11T06:41:22.544272+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R2b:fulltext:83b22b097603da4824ac:s00004",
+                  "version_id": "R2b:fulltext:83b22b097603da4824ac",
+                  "locator_json": "{\"end_offset\": 422, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[26]/*[1]/*[2]\"}",
+                  "text_hash": "d81588ae7c810c319ced96cac62cf4ae3a90fff962560dd2f5d2f07647f44e38",
+                  "source_id": "R2b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R2b:fulltext:83b22b097603da4824ac:s00005",
+                  "version_id": "R2b:fulltext:83b22b097603da4824ac",
+                  "locator_json": "{\"end_offset\": 570, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 5, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[26]/*[2]/*[2]\"}",
+                  "text_hash": "75fcab6e590b36a1fbc76eab30891d2373dfedc76a074f1a204a1764db1ec485",
+                  "source_id": "R2b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R2b:fulltext:83b22b097603da4824ac:s00006",
+                  "version_id": "R2b:fulltext:83b22b097603da4824ac",
+                  "locator_json": "{\"end_offset\": 227, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 6, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[26]/*[3]/*[2]\"}",
+                  "text_hash": "20864994153a5cdb5d529fb22264aedf2a8640f1ce040a68d32bb51c43f6f69c",
+                  "source_id": "R2b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R2b:fulltext:83b22b097603da4824ac:s00035",
+                  "version_id": "R2b:fulltext:83b22b097603da4824ac",
+                  "locator_json": "{\"end_offset\": 1043, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 35, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[3]/*[9]/*[2]\"}",
+                  "text_hash": "681909764918d70660b2041724199d90178c9693a53ae1dd3283cba40fcb7e67",
+                  "source_id": "R2b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R2b:fulltext:83b22b097603da4824ac:s00043",
+                  "version_id": "R2b:fulltext:83b22b097603da4824ac",
+                  "locator_json": "{\"end_offset\": 309, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 43, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[5]/*[2]\"}",
+                  "text_hash": "d4e35efa147cfe951a2235b8d8ee0c08957fd25eb3be1ebf7e643de5485b8f6e",
+                  "source_id": "R2b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 2.063693184711697
+            },
+            {
+              "theory_id": "TC-recovery-session-rpe-load",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "分别保存sRPE原值、量表、采集延迟与session时长。",
+                  "在协议匹配且输入完整时报告AU及其限制。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "需匹配sRPE测量和解释的研究范围；不同问句、时点与量表不得自动混用。",
+                  "protocol_requirements": [
+                    "整体问句与锚点明确。",
+                    "时长是否含组间休息和暂停扣除规则版本化。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_validity",
+                "core_theory_id": "TC-recovery-session-rpe-load",
+                "definition": "session-RPE是对整次训练的整体主观用力报告；其与训练时长的乘积是内部负荷代理，不是组RPE中位数或机械刺激。",
+                "domains": [
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把逐组RPE中位数当session-RPE。",
+                  "缺时长时用配重×次数替代sRPE乘积。",
+                  "把AU解释成热量、肌肉张力或局部恢复真值。",
+                  "当前训练结束后sRPE回流预测该训练开始前状态。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "任一输入缺失则乘积缺失。",
+                    "量表/译本的授权与效度单独核查。"
+                  ],
+                  "equations": [
+                    "session_RPE_load = session_RPE × session_duration_minutes"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "literature_method_candidate",
+                  "statement": "依照指定sRPE协议采集。原方法约结束30分钟的时点作为复现候选，正式绑定原文后使用；不能把即时值当同协议。",
+                  "variable_dictionary": [
+                    "session_RPE：指定0—10整体量表；duration：min；乘积：AU。"
+                  ]
+                },
+                "metric_ids": [
+                  "LOAD-SRPE",
+                  "LOAD-DURATION",
+                  "LOAD-SRPE-AU"
+                ],
+                "parameter_policy": {
+                  "notes": "产品修改问句或时间后需另命名协议，不继承原量表全部效度。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "pause_policy_version",
+                    "collection_delay_recording"
+                  ],
+                  "scientific_parameters": [
+                    "量表与采集时点来自被复现协议，不是通用最佳处方。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "session_id",
+                  "session_rpe",
+                  "scale_id",
+                  "question_protocol",
+                  "collection_delay",
+                  "session_start",
+                  "session_end",
+                  "pause_policy",
+                  "available_at",
+                  "cutoff_time"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R6"
+                ],
+                "theory_id": "TC-recovery-session-rpe-load",
+                "title": "sRPE负荷需要独立整体用力感与协议时长",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "Other claims/formulas in the original draft are not activated.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "量表、翻译授权和采集延迟须分别核查；当前审核不复制量表图。",
+                      "指标是任意单位的训练负荷描述，不能解释成机械功、肌肉刺激或恢复真值。"
+                    ],
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ],
+                    "support_rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                    "text": "session-RPE 方法要求训练者对整次训练进行回顾性用力评价，并结合整次训练时长；逐组用力评分的中位数不是这一整体回答。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R6",
+                    "source_version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                    "span_ids": [
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                      "R6:fulltext:6ad815fed2e54d4f0b77:s00012"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "Rationale paragraphs distinguish session duration and retrospective whole-session intensity. Arithmetic examples support the named measure, but this review activates explanatory semantics only and never substitutes set-level scores.",
+                "reviewed_at": "2026-11-11T06:41:22.542542+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00009",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 840, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 9, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[2]\"}",
+                  "text_hash": "84e5fb7ec81b85cb8472852e1fde5bfa1569db9455c258df6120c64bf54408ed",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00010",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 765, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 10, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[3]\"}",
+                  "text_hash": "feae4423566d54964d3298ce28cf7040fbb6ee0be5c7eba390398aa201288633",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:s00012",
+                  "version_id": "R6:fulltext:6ad815fed2e54d4f0b77",
+                  "locator_json": "{\"end_offset\": 314, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 12, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[2]/*[2]/*[5]\"}",
+                  "text_hash": "6003578c0dfc6c6632d5cda4986d3c98559cce9439c2cc134d1bb56995c96aa1",
+                  "source_id": "R6",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"http://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.701828117003875
+            },
+            {
+              "theory_id": "TC-recovery-sdnn-protocol",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "展示同协议SDNN每日代表值、历史中位数与绝对偏离。",
+                  "Apple仅提供SDNN标量时明确不可重建NN序列或推算RMSSD。",
+                  "基线仅使用cutoff前数据，当前值不进入自身参考。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "Apple字段语义与个人描述统计；干预研究必须另匹配测量协议及人群。",
+                  "protocol_requirements": [
+                    "协议未知的记录单独成流。",
+                    "每日代表值避免采样密集日期权重过大。",
+                    "来源修订保留as-of快照。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "measurement_semantics",
+                "core_theory_id": "TC-recovery-sdnn-protocol",
+                "definition": "SDNN与RMSSD是不同HRV指标。个人变化比较必须明确指标、采样时长、设备、姿势、时点和伪差处理；同一个数值单位不证明协议等价。",
+                "domains": [
+                  "recovery",
+                  "personalization"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "把机会采样SDNN代入晨间胸带RMSSD试验区间。",
+                  "从SDNN/RHR单项推出局部肌肉恢复百分比或固定恢复小时。",
+                  "MAD=0时加微小常数制造大z值。",
+                  "把14/28/30天或z=1.5称通用生理阈值。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "NN序列需明确伪差和非窦性间期处理。",
+                    "1.4826是高斯一致性尺度，不是训练风险阈值。",
+                    "只有一个历史点不能估计自然波动。"
+                  ],
+                  "equations": [
+                    "SDNN = sqrt[Σ(NN_i − mean(NN))²/(n−1)]",
+                    "m = median(x_history); MAD = median(|x_history − m|); d = x_current − m",
+                    "可选描述 z = d/(1.4826 × MAD)，仅MAD>0时"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "measurement_definition_and_descriptive_operationalization",
+                  "statement": "只有合格NN序列可直接计算SDNN；设备标量保留来源。中位数/MAD为描述基准，不是已验证训练处方模型。",
+                  "variable_dictionary": [
+                    "NN、SDNN：ms；m、MAD、d与x同单位；z无量纲。"
+                  ]
+                },
+                "metric_ids": [
+                  "STATE-SDNN",
+                  "STATE-RHR",
+                  "STATE-REFERENCE-MEDIAN",
+                  "STATE-REFERENCE-MAD",
+                  "STATE-DEVIATION"
+                ],
+                "parameter_policy": {
+                  "notes": "窗口与提示阈值需验证；未经验证只描述n、范围、分位数与偏离，不自动红黄绿。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "baseline_window",
+                    "daily_representative_rule",
+                    "protocol_registry",
+                    "minimum_information_rule"
+                  ],
+                  "scientific_parameters": [
+                    "1.4826仅用于声明假设的稳健标准化。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "metric_type",
+                  "value_ms_or_bpm",
+                  "protocol_id",
+                  "sample_duration",
+                  "device_version",
+                  "measurement_context",
+                  "artifact_method",
+                  "sample_end_at",
+                  "available_at",
+                  "cutoff_time",
+                  "baseline_record_ids"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R3a",
+                  "R3b",
+                  "R2a",
+                  "R2b",
+                  "R5",
+                  "APPLE_RHR"
+                ],
+                "theory_id": "TC-recovery-sdnn-protocol",
+                "title": "SDNN协议身份与个人描述基线",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "这不是 Apple 字段文档的替代；Apple 原文索引权限仍单独登记。",
+                      "没有把 SDNN 换算为 RMSSD，也没有用其自动计算训练减量。"
+                    ],
+                    "span_ids": [
+                      "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+                    ],
+                    "support_rationale": "The measurement section explicitly defines the two metrics separately and identifies recording duration/position/time as protocol requirements. No scalar conversion or personal training threshold is supported.",
+                    "text": "这篇综述把 SDNN 与 RMSSD 列为不同的时域 HRV 指标，并强调记录时长、时间和测量方法要一致；不同设备的指标不能总是直接比较。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R3b",
+                    "source_version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+                    "span_ids": [
+                      "R3b:fulltext:680f5e25713c14b2c0f0:s00004"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "The measurement section explicitly defines the two metrics separately and identifies recording duration/position/time as protocol requirements. No scalar conversion or personal training threshold is supported.",
+                "reviewed_at": "2026-11-11T06:54:39.518636+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:s00004",
+                  "version_id": "R3b:fulltext:680f5e25713c14b2c0f0",
+                  "locator_json": "{\"end_offset\": 1628, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": null, \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[3]/*[2]\"}",
+                  "text_hash": "60675a09c684524fd7ef60dcb713dc6317f529eb7428691a31585b1403a1aba6",
+                  "source_id": "R3b",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 1.252762968495368
+            },
+            {
+              "theory_id": "TC-personalization-temporal-prediction",
+              "theory_version": "0.1.0",
+              "card": {
+                "allowed_claims": [
+                  "预先定义参考组、次数/RIR/质量各自结局。",
+                  "比较B0与单状态B1在同一批未来暴露上的误差、覆盖、宽度和回退。",
+                  "没有稳定增益时保留B0，状态仅作描述。"
+                ],
+                "applicability": {
+                  "not_applicable": [],
+                  "population": "预测任务和协议稳定的个人时间序列；跨用户效度另做留出。",
+                  "protocol_requirements": [
+                    "所有输入在对应cutoff前已发生且可用。",
+                    "历史回顾快照不冒充可证明无泄漏的前瞻数据。"
+                  ],
+                  "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。",
+                  "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。"
+                },
+                "claim_type": "individual_prediction",
+                "core_theory_id": "TC-personalization-temporal-prediction",
+                "definition": "预测目标是下一次明确可比任务的结果；加入身体状态的模型需要证明相对简单历史基线具有时间外增益，而不是训练内拟合更好。",
+                "domains": [
+                  "personalization",
+                  "recovery",
+                  "strength"
+                ],
+                "evidence_span_ids": [],
+                "forbidden_claims": [
+                  "随机拆开同一session或重叠窗口造成泄漏。",
+                  "用训练残差声称个人预测区间已校准。",
+                  "30次记录后自动标已学会用户。",
+                  "将拟合fitness–fatigue隐状态或时间常数当已测肌肉恢复。"
+                ],
+                "formula_or_method": {
+                  "assumptions": [
+                    "秩不足或样本信息不足不拟合；状态缺失回退B0。",
+                    "RIR为序数结局，应单独建模/描述。",
+                    "误差不确定性按人/时间块处理，不把重叠日当独立样本。"
+                  ],
+                  "equations": [
+                    "B0: predicted_reps_next = reps_last_comparable",
+                    "B1: reps_next − reps_last = β × (state_next − state_last) + error",
+                    "paired_ΔMAE = MAE(B0) − MAE(B1)"
+                  ],
+                  "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。",
+                  "kind": "product_predictive_baselines",
+                  "statement": "B0使用最近同条件表现；B1对同一B0残差加入预注册单状态增量，系数从训练数据估计。rolling-origin、同session不跨分割、测试集锁定。",
+                  "variable_dictionary": [
+                    "次数为明确任务结局；状态变量使用自己的单位；β非手设权重。"
+                  ]
+                },
+                "metric_ids": [
+                  "PRED-B0",
+                  "PRED-B1",
+                  "PRED-ERROR-GAIN",
+                  "PRED-INTERVAL"
+                ],
+                "parameter_policy": {
+                  "notes": "fitness–fatigue若研究实现需单独可识别性与预测验证；不能因为模型可拟合就输出恢复真值。",
+                  "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+                  "product_parameters": [
+                    "baseline_rule",
+                    "single_state_choice",
+                    "rolling_origin_schedule",
+                    "drift_monitoring"
+                  ],
+                  "scientific_parameters": [
+                    "预测有效性目标、校准方法、模型选择规则需预注册。"
+                  ],
+                  "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。"
+                },
+                "required_inputs": [
+                  "reference_outcome",
+                  "comparison_context",
+                  "cutoff_time",
+                  "sample_end_at",
+                  "available_at",
+                  "historical_outcomes",
+                  "pre_registered_state",
+                  "train_validation_test_splits",
+                  "baseline_predictions",
+                  "model_predictions"
+                ],
+                "review_status": "draft_pending_fulltext_review",
+                "source_ids": [
+                  "R7",
+                  "R8",
+                  "R1"
+                ],
+                "theory_id": "TC-personalization-temporal-prediction",
+                "title": "个人预测先与可比历史基线作时间外比较",
+                "version": "0.1.0"
+              },
+              "review": {
+                "applicability": {
+                  "not_reviewed": "All other claims/formulas in original draft remain unreviewed.",
+                  "personal_numeric_action_authority": false,
+                  "required": {},
+                  "use": "source_specific_study_summary_only"
+                },
+                "authority": "explanation_only",
+                "claims": [
+                  {
+                    "direction": "source_specific_bounded_statement",
+                    "limitations": [
+                      "速滑研究不能证明本工具对力量训练个体已经有效。",
+                      "本文没有验证 B1 必然胜过 B0，也没有确定个人干预因果效应。"
+                    ],
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ],
+                    "support_rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                    "text": "这项精英短道速滑表现建模研究按时间划分训练与评估数据，并明确避免用未来信息预测过去；拟合优度不能替代未来预测验证。"
+                  }
+                ],
+                "decision": "approved",
+                "evidence_links": [
+                  {
+                    "source_id": "R8",
+                    "source_version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                    "span_ids": [
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                      "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068"
+                    ]
+                  }
+                ],
+                "implementation_tests": [],
+                "independent_expert_validation": false,
+                "rationale": "The time-series cross-validation methods explicitly state chronological splitting and prevention of future-to-past leakage. Conclusion requires model validation before predictive physiological interpretation. Scope remains methodology, not strength-user efficacy.",
+                "reviewed_at": "2026-11-11T06:54:39.521069+00:00",
+                "reviewer": "Codex knowledge source-reading audit",
+                "reviewer_kind": "AI_assisted_explicit_source_reading_not_independent_expert"
+              },
+              "spans": [
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00004",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 1957, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par5\", \"paragraph_id\": 4, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[1]/*[5]\"}",
+                  "text_hash": "f7f4b1b92e11c1660e5f68a93f5fec7c82b0a6810f8a039951478dafcda25225",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00044",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 708, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par30\", \"paragraph_id\": 44, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[2]/*[5]/*[2]\"}",
+                  "text_hash": "806b135f51757cadc31975d0053f8552f3ca5638e6b1ddba6b4d92b2e2419856",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                },
+                {
+                  "span_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8:s00068",
+                  "version_id": "R8:fulltext:d98ba50ed4fe9bb3b8a8",
+                  "locator_json": "{\"end_offset\": 516, \"extraction_method\": \"lxml_jats_no_entities\", \"language\": \"en\", \"native_id\": \"Par50\", \"paragraph_id\": 68, \"start_offset\": 0, \"xpath\": \"/*/*[3]/*/*[2]/*/*[3]/*[4]/*[3]\"}",
+                  "text_hash": "055029487bb2ff4d04b52c4759698ee8a0b87521c06f190ef43c922217ea29a9",
+                  "source_id": "R8",
+                  "rights_json": "{\"declared_use\": \"local_internal_research_and_retrieval\", \"evidence_locator\": \"//permissions/license\", \"index_allowed\": true, \"license_id\": \"CC-BY\", \"license_url\": \"https://creativecommons.org/licenses/by/4.0/\", \"redistribution_allowed\": true, \"review\": \"machine_license_detection_not_expert_review\", \"rights_scope\": \"this_article_version\", \"status\": \"license_identified\"}"
+                }
+              ],
+              "score": 0.8109302162163288
+            }
+          ],
+          "excluded": [],
+          "eligible_candidate_count": 4,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "588126ee601e58811993a57fa95ec0a0a64f0dda8573bb742480e05e750169bc"
+      },
+      "public_output_sha256": "2cedf006da0fede2eb2bf81bc8fce25ead88fd06161d4be43b40408db19f45f1"
+    },
+    {
+      "case_id": "H08",
+      "case_type": "holdout_boundary",
+      "expected_outcome": "bounded_explanation_or_explicit_missing_evidence",
+      "actual_status": "insufficient_evidence",
+      "schema_errors": [],
+      "citation_errors": [],
+      "route_match": false,
+      "required_gold_groups": [
+        [
+          "KB4"
+        ]
+      ],
+      "recalled_groups": 0,
+      "reviewed_gold_groups_available": 0,
+      "semantic_adjudication": "pending_independent_semantic_adjudication",
+      "output_sha256": "f3b9716c909ae2d0aef252754923feb0ef3b450967f692463ec257d526890d25",
+      "output": {
+        "observations": [],
+        "answer": "当前没有匹配且完成逐主张审核的证据；可以查看已记录事实，尚不能作出该项科学判断。",
+        "claims": [],
+        "limits": [
+          "保留动作、器械、侧别、活动范围和负重口径；条件未知时无法确认可比。模型估计与实测能力分开。",
+          "来源目录、文献全文取得和理论审核是独立状态；种子卡不能充当已审核证据。"
+        ],
+        "citations": [],
+        "status": "insufficient_evidence",
+        "routes": [
+          {
+            "route": "strength",
+            "reason": "lexical_intent",
+            "matched_terms": []
+          }
+        ],
+        "retrieval": {
+          "retriever_version": "lexical-1.3.0",
+          "k": 6,
+          "candidates": [],
+          "excluded": [
+            {
+              "theory_id": "TC-plateau-capacity-observability",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-plateau-equivalence-trend",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-ordinary",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-e1rm-rir-experimental",
+              "reason": "theory_draft"
+            },
+            {
+              "theory_id": "TC-strength-rir-semantics",
+              "reason": "theory_draft"
+            }
+          ],
+          "eligible_candidate_count": 7,
+          "numeric_action_authority": "none",
+          "release_id": null
+        },
+        "source": "local_structured_template",
+        "numeric_actions": [],
+        "answer_scope": "computed_observations_and_reviewed_source_claims_not_personal_prescription",
+        "private_data_policy": "caller_supplied_authorized_metrics_only_no_private_database_access",
+        "evidence_bundle_hash": "5cb362696befca3b2af4ae746041a33f50fb469d5532b771c9c3ebfa99c2050d"
+      },
+      "public_output_sha256": "f3b9716c909ae2d0aef252754923feb0ef3b450967f692463ec257d526890d25"
+    }
+  ],
+  "release_gate": "pending_corpus_and_semantic_review",
+  "limits": [
+    "Visible development cases are regression examples, not an independent test set.",
+    "Keyword presence is not used as semantic correctness scoring.",
+    "Zero emitted citations does not establish citation quality.",
+    "No intervention effectiveness or personal scientific validity is inferred.",
+    "Independently authored case set with source families disjoint from the 30 visible development cases. Authored by implementing agent, not an external blinded evaluation. No tuning based on its output. Missing reviewed gold spans remain blocked; does not establish scientific generalization."
+  ],
+  "run_context": "Expanded corpus and source-reading reviews; unchanged lexical retriever configuration; no holdout-based tuning. Independent semantic review still pending.",
+  "publication_projection": {
+    "version": "public-artifacts-1.0.0",
+    "original_artifact_sha256": "136bf0e5cc9343ce4cbc1ee0f20378b2b5b0ded483aff4ba332082fe18e177af",
+    "scope": "retrieval spans only: ID, exact source version, text hash, locator and rights status",
+    "removed": [
+      "source text",
+      "structured source content",
+      "article metadata",
+      "license prose"
+    ],
+    "span_occurrences_projected": 36,
+    "case_output_sha256_scope": "Unprojected original result; existing semantic annotation binding is unchanged.",
+    "case_public_output_sha256_scope": "Canonical JSON of the published output after source-content projection.",
+    "evaluation_changed": false,
+    "private_corpus_modified": false,
+    "limits": "Public metadata is not a substitute for authorized source reading; no scores or adjudications were recomputed."
+  }
+}

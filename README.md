@@ -1,163 +1,85 @@
-# Health ZIP Workbench
+# HealthZIP v1.3
 
-本项目是一个完全本地运行的 Apple Health 导出 ZIP 整理与分析原型。它读取 iPhone「健康」App 导出的 ZIP，在本机流式解析 `export.xml`，将规范化样本写入 SQLite，并生成数据盘点、质量状态、趋势分析和 Markdown Evidence Card 报告。
+HealthZIP 是本地 Apple Health 整理和训练记录工作台：安全读取健康 App 导出的 ZIP，保存至 SQLite，直接记录训练，查看可比表现、身体状态、能量背景和周月复盘。界面使用 Streamlit，另有 CLI、局域网增量接收器和可下载的离线训练记录器。
 
-它不接入 HealthKit、不开发 iPhone / Watch App，也不需要账号或云服务。默认情况下健康数据、周期记录、ZIP 和报告不会被上传；AI 解释是可选功能，只有用户明确勾选或使用 `--allow-network` 时才发送已经汇总的 Evidence Cards。
+核心不需要账号或 AI。公开文献与私人健康数据库分开；只有明确开启模型联网解释时，才发送当前结构化证据卡。模型不负责计算重量或补全缺失记录。
 
-## 最简单的使用方式
+## 安装与启动
 
-项目根目录的 `healthzip` 是一键入口。macOS / Linux 首次只需要：
+需要 Python 3.9+。macOS / Linux 在仓库根目录运行：
 
 ```bash
 ./healthzip setup
+./healthzip start
 ```
 
-它会创建 `.venv`、安装核心和 UI 依赖、创建 `.local`、生成本机保存的 REST token，并显示局域网地址。之后的常用操作只有：
+需要手机通过同一可信局域网打开网页时用 `./healthzip start --lan`。停止时按 Ctrl-C。Windows 可用 `py healthzip setup` 和 `py healthzip start`。查看连接配置用 `./healthzip doctor`，本机 token 用 `./healthzip token`。
 
-```bash
-./healthzip import /path/to/AppleHealthExport.zip  # 第一次历史回填
-./healthzip start                                 # 启动手机增量接收器和网页界面
-./healthzip status                                # 查看新增/更新/删除和数据盘点
-./healthzip report                                # 生成 reports/latest.md
-```
-
-`start` 会同时启动 REST 接收器和 Streamlit，并自动打开电脑上的网页。REST 默认监听可信局域网，网页默认只监听本机；需要用 iPhone Safari 打开网页时使用 `./healthzip start --lan`。按 `Ctrl-C` 会一起停止；电脑需要保持开机并运行它，Health Auto Export 才能每日推送。只想在电脑本机使用时可执行 `./healthzip start --local`。`./healthzip doctor` 检查环境，`./healthzip token` 显示应填入手机导出器的 token。文件夹同步备用方式使用 `./healthzip sync`，默认扫描 `.local/phone-sync`。
-
-Windows 可用 `py healthzip setup`、`py healthzip start` 等同样的子命令；也可以在 PowerShell 中把 `./healthzip` 换成 `py healthzip`。
-
-## 安装与启动（高级方式）
-
-需要 Python 3.9+。核心导入和 CLI 只使用标准库与 `lxml`；Streamlit 仅用于本地 UI。
+手动安装开发环境：
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-python -m pip install lxml pytest ruff
-python -m pip install -e '.[ui]'  # 可选：Streamlit + Plotly
+.venv/bin/python -m pip install -e '.[ui,dev,research]'
+.venv/bin/streamlit run app.py --server.address 127.0.0.1
 ```
 
-如果使用 `uv`，开发环境可以执行 `uv sync --extra dev --extra ui`；只运行 CLI 时执行 `uv sync` 即可。
+也可 `uv sync --extra ui --extra dev --extra research`。核心依赖 lxml；UI、统计研究、获准PDF解析分别为 `ui`、`research`、`knowledge-pdf` 可选依赖。没有研究依赖时，观测和记录继续可用，研究模型返回缺项。
 
-## CLI
+## 开始使用
 
-所有命令都支持 `--db-path`，默认写入 `.local/healthzip.sqlite3`。原始 ZIP 不会被复制到数据库目录。
+- 健康数据：`./healthzip import /path/to/export.zip` 进行首次回填；后续使用 ZIP、手机导出 JSON/JSONL 或 Health Auto Export 局域网同步。重复文件不会重复计数。
+- 训练：打开「力量」页，直接开始临时训练，或创建自选模板。动作可搜索、收藏和自定义；器械、侧别、动作幅度和负荷口径需要明确确认。计划目标与实际记录分开。
+- 每组记录实际重量/次数/时长/距离、RIR/RPE、停止原因与质量。上次值带入后仍是草稿，需要点击完成。失败尝试、跳过、修订、撤销和中断续记保留独立状态。
+- 断网记录：在力量页下载离线HTML；先联网缓存动作和模板，再打开本地文件。草稿及待同步事件保存在该浏览器，刷新可恢复；联网重试使用稳定事件ID。同重量的两个真实组保留为两组。
+- 分析：六个功能页共用77项 MetricResult；数值、单位、截止时间、来源、版本、分母、缺项和区间均可展开。单边30→32.5kg对应两侧配重增加5kg，未知杆重不会补成含杆总重。
+- 候选：用户计划、可比记录、实际器械步长及匹配审核依据共同决定是否能给候选。缺少依据时保存缺项；采纳、执行和后续结果另记，不自动改写模板。
+
+完整操作、故障恢复和迁移说明见 [中文使用手册](docs/HealthZIP_使用手册.md) / [PDF](output/pdf/HealthZIP_使用手册.pdf)。
+
+## 常用 CLI
+
+所有私人文件默认放 `.local/`，报告默认放 `reports/`；这些目录不提交。
 
 ```bash
-python -m healthzip.cli inspect fixtures/synthetic_apple_health_export.zip
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-apple fixtures/synthetic_apple_health_export.zip
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 inventory
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 quality --window-days 30
+python -m healthzip.cli inspect /path/to/export.zip
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-apple /path/to/export.zip
 python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-strength templates/strength_sets_template.csv
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-nutrition templates/nutrition_daily_template.csv
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-measurements templates/body_measurements_template.csv
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-subjective templates/subjective_log_template.csv
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 report --window-days 30 --output reports/latest.md
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 ai-explain --question "请解释最近的身体状态和训练趋势"
+python -m healthzip.cli training-import /path/to/training.json --preview
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 training-import /path/to/training.json
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 training-export-all reports/training.json
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 sync-folder .local/phone-sync
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 analyze-v13 --output reports/metrics.json
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 analyze-v13 --period week --output reports/week.json
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 report --output reports/latest.md
+python -m healthzip.cli --db-path .local/healthzip.sqlite3 backup .local/backups/healthzip-v3.sqlite3
+python -m healthzip.cli restore .local/backups/healthzip-v3.sqlite3 .local/restored.sqlite3
 ```
 
-### 手机增量同步（当前增量版本）
+周期数据仍默认关闭，需要时给 `import-apple` 加 `--include-cycle`。`analyze-v13 --cutoff-time` 要求带时区的时间，`--context-json` 可提供本地研究协议与用户计划；未知可见时间不能进入历史决策。
 
-全量 ZIP 仍用于第一次历史回填；日常数据可以由手机导出器写入一个本地 JSON/JSONL 同步目录，再按游标导入。当前适配 Health Auto Export 风格的
-`{"data":{"metrics":[...],"workouts":[...]}}` 结构，并保留来源、上游记录 ID、批次和新增 / 重复 / 更新 / 删除计数：
+## 公开知识与研究评测
 
 ```bash
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 \
-  sync-folder /path/to/phone-sync --source phone_export
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 sync-status
+python -m healthzip.knowledge seed
+python -m healthzip.knowledge acquire --fulltext
+python -m healthzip.knowledge status
+python -m healthzip.knowledge query '单边片重与总重有什么区别' --route strength
+python -m healthzip.science calibrate --output .local/science-evaluation --seed 1300 --repetitions 300
 ```
 
-JSONL 会保存上次读取位置；文件追加、重启和离线补传不会重复导入。JSON 文件按内容 hash 跳过未改变的文件；覆盖式滚动窗口重新扫描时依靠上游 ID 或逻辑 fingerprint 幂等。修改记录会保留旧版本并标记为 `superseded`，删除事件会标记为 `deleted`，默认分析只使用 `active` 记录。
+来源受限时逐项记录原因并继续其他来源；索引只接纳实际取得且权限允许的资料。原始字节及私有知识库保存在 `.local/knowledge`，公共获取/审核清单在 `artifacts/knowledge`。种子卡不等于已审核；AI辅助阅读性审核不授予数值候选权限。详见 [知识文档](docs/knowledge_v1.3.md) 和 [科学实现说明](docs/science_v1.3.md)。
 
-手机导出器的心率和 HRV 必须选择逐样本或高粒度格式。只有每日 `Min/Avg/Max` 汇总时，系统会拒绝将它伪装成原始心率样本，并在批次错误中说明原因。
+当前RAG仍存在明显召回不足；30个可见开发案例与8个固定留出案例分别报告，不据此宣称专业问答已充分验证。统计模拟标记 `simulation_only`，尚无真人时间外效果验证；绝对摄入、个人预测或停滞标签在条件不足时保留不可识别/证据不足。
 
-Streamlit 侧栏提供「手机增量同步目录」和「扫描增量数据」按钮。本机 REST 接收器已经可用；手机原生 companion App 属于后续迭代。同步目录和 REST inbox 里的原始健康数据不会提交到 Git。
+## 可选 AI 解释
 
-本机 REST 接收器也已提供，默认仅监听本机：
+自行配置 `HEALTHZIP_AI_BASE_URL`、`HEALTHZIP_AI_MODEL` 和 `HEALTHZIP_AI_API_KEY`；没有默认外部端点。CLI 必须加 `ai-explain --allow-network`，UI 必须勾选联网同意。数值、单位、窗口、行动、摘要或限制校验失败，回退本地结构化模板。不要把密钥写入仓库。
 
-```bash
-export HEALTHZIP_SYNC_TOKEN="请在本机保存的随机长 token"
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 serve \
-  --bind 127.0.0.1 --port 8765
-```
-
-需要手机通过同一局域网访问时才显式使用 `--bind 0.0.0.0`，并在导出器中配置
-`http://电脑局域网IP:8765/v1/ingest/health-auto-export`、请求头
-`X-HealthZip-Token` 和可选的 `X-HealthZip-Source`。接收器会先将原始 JSON 保存到数据库目录的 `inbox/`，再事务导入；不要把端口转发到公网。未设置环境变量时会临时生成 token，每次重启都会变化，正式使用应显式设置 `HEALTHZIP_SYNC_TOKEN`。
-
-周期数据默认关闭；只有用户明确选择时才导入：
+## 验证与交付证据
 
 ```bash
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 import-apple export.zip --include-cycle
-```
-
-同一个 ZIP 的 SHA-256 重复导入会返回 `already_imported`。如果第一次关闭周期、之后明确要重新扫描，可使用 `--recheck --include-cycle`；这会按 fingerprint 去重健康样本。
-
-### AI 解释（可选）
-
-AI 服务使用 OpenAI-compatible Chat Completions 接口。不要把 token 写入代码、README、数据库或报告，先在当前终端设置环境变量：
-
-```bash
-export HEALTHZIP_AI_BASE_URL="http://111.19.156.30:8006/v1/chat/completions"
-export HEALTHZIP_AI_MODEL="deepseek-v4-flash"
-export HEALTHZIP_AI_API_KEY="<your-token>"
-export HEALTHZIP_AI_TIMEOUT_SECONDS="20"  # 可选
-```
-
-命令行调用必须显式加 `--allow-network`；不加时只生成本地确定性回退：
-
-```bash
-python -m healthzip.cli --db-path .local/healthzip.sqlite3 ai-explain \
-  --question "结合睡眠、HRV 和力量训练给出下一步观察重点" --allow-network
-```
-
-AI 只接收本地计算后的 Evidence Cards（摘要、事实、窗口、限制和允许行动），不接收原始 ZIP/XML 或逐条健康样本。返回结果会校验证据 ID、数值事实和允许行动；请求失败、格式不合法或未配置 token 时自动回退到本地模板，并标明来源。
-
-## 本地 UI
-
-```bash
-streamlit run app.py --server.address 127.0.0.1
-```
-
-同一局域网内要用手机快速记录力量组时，可以显式监听局域网地址：
-
-```bash
-streamlit run app.py --server.address 0.0.0.0
-```
-
-手机访问电脑的局域网 IP；该模式只适用于可信局域网，不应直接暴露到公网。
-
-在侧栏输入本地 ZIP 路径和 SQLite 路径，先检查再点击「流式导入」。页面包含导入、总览、质量、心率 / HRV、睡眠、运动、体重 / 有氧、力量、营养、周期和报告页。大型 ZIP 使用路径输入，不通过内存型上传控件读取。
-
-力量页可以直接记录一次训练：填写训练日期和名称，在每一行填写动作、器械、变式、重量、次数、RIR/RPE、是否热身、活动范围和备注，然后点击「保存训练记录」。同一组重复提交会按 fingerprint 去重；最近训练可展开查看、编辑训练信息或勾选确认后删除。正式组会进入动作条件的 e1RM、同负重次数和训练量趋势。
-
-力量页还提供身体状态 × 做组质量的同日 / 相邻日配对表和描述性中位数汇总（睡眠、RHR / HRV 偏离、疲劳、酸痛等），当前周 / 月报告，以及今日训练起始重量范围。建议范围只参考近期同动作记录和已记录的状态信号，必须先热身和首组复评；它不是精确处方，单个 HRV 或心率读数不会自动决定重量。
-
-页面中的「AI 证据解释」默认不联网。只有勾选「允许把当前结构化摘要发送到已配置的 AI 服务」后才会尝试请求；未勾选时使用本地回退。页面会显示 endpoint 和 model，但不会显示 token。
-
-## 流式与安全行为
-
-- XML 由 `ZipFile.open()` 和 `lxml.etree.iterparse` 增量读取，不构造完整记录列表。
-- 禁止 DTD、外部实体和网络访问；ZIP 成员路径、符号链接、成员数、单成员大小、总解压大小和压缩比会检查。
-- 保留原始 type、value、unit、source、device、时间和 metadata，同时写入 canonical type / normalized value。
-- 未知 HealthKit type、缺失数据和无法确认的单位会登记或降级，不会静默伪造零值。
-- SQLite 通过样本 fingerprint 去重；不同来源的重叠 Workout 保留并标记 `suspected_duplicate`。
-
-## 测试与合成数据
-
-仓库中的 ZIP 和 CSV 都是合成数据。运行：
-
-```bash
-PYTHONPATH=src pytest -q
+python -m pytest -q
 ruff check src app.py tests
 ```
 
-使用 uv 时对应为 `uv run --extra dev pytest -q` 与 `uv run --extra dev ruff check src app.py tests`。
-
-大文件 fixture 已在 `fixtures/synthetic_apple_health_export_large.zip`，用于流式解析压力验证；它不代表真实用户数据。
-
-## 分析边界
-
-分析按功能独立判断 `usable / provisional / insufficient / not_imported / stale`。个人基线使用中位数、MAD 和分位数；睡眠区间去重；体重趋势使用稳健斜率；力量表现只比较动作 / 器械 / 变式一致的记录；营养部分记录不用于断言全天摄入不足。系统不生成恢复总分、疾病诊断、避孕 / 排卵判断、RED-S 诊断、肌肉损伤或精确增肌量结论。
-
-合成数据示例报告见 [examples/synthetic_report.md](examples/synthetic_report.md)。详见 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) 和项目设计说明 [DESIGN_SPEC.md](DESIGN_SPEC.md)。
+真实命令与结果见 [实现状态](IMPLEMENTATION_STATUS.md)、`artifacts/verification` 和 `artifacts/science/acceptance-results.json`。软件、语料取得、理论审核与科学验证分别列出。仓库内演示与测试使用合成数据；真实健康导出、数据库、个人CSV、日志与报告不提交。未自动 push、merge 或部署。

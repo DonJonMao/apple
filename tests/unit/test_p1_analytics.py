@@ -65,8 +65,9 @@ def test_p1_strength_quality_setup_and_persistence(db_path):
     )
 
     quality = strength_quality(repo)
-    assert quality["series"][0]["exposures"] == 3
-    assert quality["series"][0]["e1rm_change_kg"] > 0
+    assert sum(x["exposures"] for x in quality["series"]) == 3
+    assert all(x["comparability_status"] == "unknown" for x in quality["series"])
+    assert all(x["e1rm_change_kg"] is None for x in quality["series"])
     assert quality["card"]["source_feature_ids"]
 
     setup = today_training_setup(
@@ -76,26 +77,20 @@ def test_p1_strength_quality_setup_and_persistence(db_path):
         variation="平板",
         today=today.isoformat(),
     )
-    assert setup["range_kg"]["low"] == 60.8
-    assert setup["range_kg"]["high"] == 64.0
+    assert "range_kg" not in setup
+    assert setup["candidate"] is None
+    assert setup["reason_codes"] == ["confirmed_plan_and_condition_required"]
+    assert len(setup["recent_sets"]) == 3
 
     report = period_report(repo, "week", today.isoformat())
-    assert report["card"]["status"] == "usable"
+    assert report["card"]["status"] == "provisional"
     assert report["recommendations"]
-    assert report["association"]["paired_metrics"]
+    assert all(x["body_state"] is None for x in report["association"]["joins"])
     analysis = all_analysis(repo, 30)
     persist_analysis(repo, analysis)
     assert repo.one("SELECT COUNT(*) AS n FROM insight")["n"] >= 10
-    assert (
-        repo.one("SELECT COUNT(*) AS n FROM daily_feature WHERE metric='strength_volume'")["n"] > 0
-    )
-    feature = repo.one(
-        "SELECT algorithm_version,source_ids_json,sample_count FROM daily_feature "
-        "WHERE metric='strength_volume' ORDER BY local_date DESC LIMIT 1"
-    )
-    assert feature["algorithm_version"] == "p1-0.1.0"
-    assert "strength_set:" in feature["source_ids_json"]
-    assert feature["sample_count"] == 1
+    # Unknown legacy load meaning must never become a quantitative load proxy.
+    assert repo.one("SELECT COUNT(*) AS n FROM daily_feature WHERE metric='strength_volume'")["n"] == 0
     repo.close()
 
 

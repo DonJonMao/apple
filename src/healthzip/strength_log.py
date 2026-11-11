@@ -124,6 +124,7 @@ def append_quick_strength_set(
     rir: Any = None,
     rpe: Any = None,
     warmup: bool = False,
+    client_event_id: Optional[str] = None,
 ) -> dict[str, Any]:
     """Validate and append one mobile set to a stable quick-log session."""
     _, normalized = validate_strength_session(
@@ -150,6 +151,7 @@ def append_quick_strength_set(
         session_date=session_date,
         started_at=started_at,
         data=normalized[0],
+        client_event_id=client_event_id,
     )
 
 

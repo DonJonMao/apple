@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParameterRegistry v1.3",
+  "type": "object",
+  "required": [
+    "parameter_id",
+    "version",
+    "kind",
+    "definition",
+    "value_or_distribution",
+    "unit",
+    "provenance",
+    "scope",
+    "validation_status"
+  ],
+  "properties": {
+    "parameter_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "observation_definition",
+        "unit_conversion",
+        "user_plan",
+        "equipment_constraint",
+        "product_setting",
+        "statistical_design",
+        "literature_model",
+        "personal_estimate"
+      ]
+    },
+    "definition": {
+      "type": "string"
+    },
+    "value_or_distribution": {},
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "basis",
+        "source_ids",
+        "source_location"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source_location": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "scope": {
+      "type": "object"
+    },
+    "validation_status": {
+      "enum": [
+        "definition",
+        "user_declared",
+        "literature_replication_only",
+        "simulation_only",
+        "pending_target_validation",
+        "validated_for_scope"
+      ]
+    },
+    "sensitivity_report_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

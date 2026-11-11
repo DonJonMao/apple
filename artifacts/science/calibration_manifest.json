@@ -1,0 +1,182 @@
+{
+  "scope_status": "simulation_only",
+  "scientific_validation": "pending_real_data",
+  "seed": 1300,
+  "artifacts": [
+    {
+      "artifact_id": "simulation-trend-bf695954d89ceb64",
+      "model_version": "ols_true_time_student_t_v1",
+      "metric_ids": [
+        "STR-19",
+        "STR-20",
+        "STR-22"
+      ],
+      "scope": {
+        "population": "synthetic_generator",
+        "model": "trend",
+        "seed": 1300
+      },
+      "data_kind": "simulation",
+      "data_hash": "bf695954d89ceb64a02b5ba902d64f138bba7d85550faf160ee3a23f8173a894",
+      "training_window": null,
+      "validation_window": null,
+      "holdout_window": null,
+      "error_model": "declared simulation generator; see linked payload",
+      "coverage": {
+        "iid_gaussian": {
+          "repetitions": 300,
+          "intervals_defined": 300,
+          "undefined": 0,
+          "covered": 288,
+          "empirical_coverage": 0.96,
+          "mean_width": 4.070465657496886,
+          "nominal_coverage": 0.95,
+          "scope_status": "simulation_only",
+          "assumptions_satisfied_by_generator": true
+        },
+        "serial_correlation": {
+          "repetitions": 300,
+          "intervals_defined": 300,
+          "undefined": 0,
+          "covered": 168,
+          "empirical_coverage": 0.56,
+          "mean_width": 2.4807037199683397,
+          "nominal_coverage": 0.95,
+          "scope_status": "simulation_only",
+          "assumptions_satisfied_by_generator": false
+        },
+        "heteroskedastic": {
+          "repetitions": 300,
+          "intervals_defined": 300,
+          "undefined": 0,
+          "covered": 268,
+          "empirical_coverage": 0.8933333333333333,
+          "mean_width": 7.459816129842886,
+          "nominal_coverage": 0.95,
+          "scope_status": "simulation_only",
+          "assumptions_satisfied_by_generator": false
+        },
+        "rounded_count": {
+          "repetitions": 300,
+          "intervals_defined": 300,
+          "undefined": 0,
+          "covered": 287,
+          "empirical_coverage": 0.9566666666666667,
+          "mean_width": 4.281680672854118,
+          "nominal_coverage": 0.95,
+          "scope_status": "simulation_only",
+          "assumptions_satisfied_by_generator": false
+        },
+        "zero_residual_unknown_error": {
+          "repetitions": 300,
+          "intervals_defined": 0,
+          "undefined": 300,
+          "covered": 0,
+          "empirical_coverage": null,
+          "mean_width": null,
+          "nominal_coverage": 0.95,
+          "scope_status": "simulation_only",
+          "assumptions_satisfied_by_generator": false
+        }
+      },
+      "width": null,
+      "failure_scenarios": [
+        "unknown individual noise",
+        "nonidentifiable baseline",
+        "future unavailable feature",
+        "source protocol drift"
+      ],
+      "threshold_selection": "simulation design fixed before execution; no human threshold fitted",
+      "scope_status": "simulation_only",
+      "independent_holdout": false,
+      "validation_protocol": "reproducible generator tests; not real-world validation",
+      "payload_path": "artifacts/science/trend_simulation.json",
+      "missing_real_data": [
+        "consented longitudinal individual reference sessions",
+        "timestamped pre-session features and revisions",
+        "preregistered independent temporal and user holdouts",
+        "independent measurement-error and energy calibration"
+      ]
+    },
+    {
+      "artifact_id": "simulation-energy-fe48fd4e4d479d22",
+      "model_version": "energy-research-v1",
+      "metric_ids": [
+        "ENERGY-DELTA-INTAKE"
+      ],
+      "scope": {
+        "population": "synthetic_generator",
+        "model": "energy",
+        "seed": 1300
+      },
+      "data_kind": "simulation",
+      "data_hash": "fe48fd4e4d479d228ae3347a985d3e2256231fb0eb46a7a43a676c80a89c8185",
+      "training_window": null,
+      "validation_window": null,
+      "holdout_window": null,
+      "error_model": "declared simulation generator; see linked payload",
+      "coverage": 0.95,
+      "width": 405.4854745744184,
+      "failure_scenarios": [
+        "unknown individual noise",
+        "nonidentifiable baseline",
+        "future unavailable feature",
+        "source protocol drift"
+      ],
+      "threshold_selection": "simulation design fixed before execution; no human threshold fitted",
+      "scope_status": "simulation_only",
+      "independent_holdout": false,
+      "validation_protocol": "reproducible generator tests; not real-world validation",
+      "payload_path": "artifacts/science/energy_simulation.json",
+      "missing_real_data": [
+        "consented longitudinal individual reference sessions",
+        "timestamped pre-session features and revisions",
+        "preregistered independent temporal and user holdouts",
+        "independent measurement-error and energy calibration"
+      ]
+    },
+    {
+      "artifact_id": "simulation-prediction-6b116dbdde0750c6",
+      "model_version": "prediction-research-v1",
+      "metric_ids": [
+        "PRED-B0",
+        "PRED-B1",
+        "PRED-ERROR-GAIN",
+        "PRED-INTERVAL"
+      ],
+      "scope": {
+        "population": "synthetic_generator",
+        "model": "prediction",
+        "seed": 1300
+      },
+      "data_kind": "simulation",
+      "data_hash": "6b116dbdde0750c6e1014f3a809483891cfeaf0b160a4ca5010fe03cf913ace1",
+      "training_window": null,
+      "validation_window": null,
+      "holdout_window": null,
+      "error_model": "declared simulation generator; see linked payload",
+      "coverage": null,
+      "width": null,
+      "failure_scenarios": [
+        "unknown individual noise",
+        "nonidentifiable baseline",
+        "future unavailable feature",
+        "source protocol drift"
+      ],
+      "threshold_selection": "simulation design fixed before execution; no human threshold fitted",
+      "scope_status": "simulation_only",
+      "independent_holdout": false,
+      "validation_protocol": "reproducible generator tests; not real-world validation",
+      "payload_path": "artifacts/science/prediction_simulation.json",
+      "missing_real_data": [
+        "consented longitudinal individual reference sessions",
+        "timestamped pre-session features and revisions",
+        "preregistered independent temporal and user holdouts",
+        "independent measurement-error and energy calibration"
+      ]
+    }
+  ],
+  "commands": [
+    "python -m healthzip.science calibrate --output artifacts/science --seed 1300 --repetitions 300"
+  ]
+}

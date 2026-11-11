@@ -1,0 +1,285 @@
+* Getting build dependencies for wheel...
+running egg_info
+writing src/health_zip_workbench.egg-info/PKG-INFO
+writing dependency_links to src/health_zip_workbench.egg-info/dependency_links.txt
+writing entry points to src/health_zip_workbench.egg-info/entry_points.txt
+writing requirements to src/health_zip_workbench.egg-info/requires.txt
+writing top-level names to src/health_zip_workbench.egg-info/top_level.txt
+reading manifest file 'src/health_zip_workbench.egg-info/SOURCES.txt'
+writing manifest file 'src/health_zip_workbench.egg-info/SOURCES.txt'
+WARNING Support for `[tool.setuptools]` in `pyproject.toml` is still *beta*.
+WARNING 'entry-points' defined outside of `pyproject.toml` would be ignored.
+    !!
+
+
+    ##########################################################################
+    # configuration would be ignored/result in error due to `pyproject.toml` #
+    ##########################################################################
+
+    The following seems to be defined outside of `pyproject.toml`:
+
+    `entry-points = {'console_scripts': ['healthzip=healthzip.cli:main']}`
+
+    According to the spec (see the link below), however, setuptools CANNOT
+    consider this value unless 'entry-points' is listed as `dynamic`.
+
+    https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+
+    For the time being, `setuptools` will still consider the given value (as a
+    **transitional** measure), but please note that future releases of setuptools will
+    follow strictly the standard.
+
+    To prevent this warning, you can list 'entry-points' under `dynamic` or alternatively
+    remove the `[project]` table from your file and rely entirely on other means of
+    configuration.
+    
+
+!!
+    
+WARNING `install_requires` overwritten in `pyproject.toml` (dependencies)
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+copying src/healthzip/cli.py -> build/lib/healthzip
+copying src/healthzip/state_log.py -> build/lib/healthzip
+copying src/healthzip/ai/client.py -> build/lib/healthzip/ai
+copying src/healthzip/analytics/core.py -> build/lib/healthzip/analytics
+copying src/healthzip/analytics/v13.py -> build/lib/healthzip/analytics
+copying src/healthzip/db/temporal_schema.py -> build/lib/healthzip/db
+copying src/healthzip/reporting/markdown_report.py -> build/lib/healthzip/reporting
+copying src/healthzip/ui/training_page.py -> build/lib/healthzip/ui
+copying src/healthzip/ui/analysis_page.py -> build/lib/healthzip/ui
+copying src/healthzip/ui/recommendation_page.py -> build/lib/healthzip/ui
+copying src/healthzip/knowledge/store.py -> build/lib/healthzip/knowledge
+copying src/healthzip/knowledge/workbench.py -> build/lib/healthzip/knowledge
+copying src/healthzip/knowledge/__main__.py -> build/lib/healthzip/knowledge
+copying src/healthzip/training/service.py -> build/lib/healthzip/training
+copying src/healthzip/training/exchange.py -> build/lib/healthzip/training
+copying src/healthzip/science/contracts.py -> build/lib/healthzip/science
+copying src/healthzip/science/strength.py -> build/lib/healthzip/science
+copying src/healthzip/science/reports.py -> build/lib/healthzip/science
+copying src/healthzip/science/engine.py -> build/lib/healthzip/science
+running egg_info
+writing src/health_zip_workbench.egg-info/PKG-INFO
+writing dependency_links to src/health_zip_workbench.egg-info/dependency_links.txt
+writing entry points to src/health_zip_workbench.egg-info/entry_points.txt
+writing requirements to src/health_zip_workbench.egg-info/requires.txt
+writing top-level names to src/health_zip_workbench.egg-info/top_level.txt
+reading manifest file 'src/health_zip_workbench.egg-info/SOURCES.txt'
+writing manifest file 'src/health_zip_workbench.egg-info/SOURCES.txt'
+installing to build/bdist.linux-aarch64/wheel
+running install
+running install_lib
+creating build/bdist.linux-aarch64/wheel
+creating build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/__main__.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/config.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/strength_log.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/sync_server.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/temporal.py -> build/bdist.linux-aarch64/wheel/healthzip
+creating build/bdist.linux-aarch64/wheel/healthzip/ai
+copying build/lib/healthzip/ai/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/ai
+copying build/lib/healthzip/ai/client.py -> build/bdist.linux-aarch64/wheel/healthzip/ai
+creating build/bdist.linux-aarch64/wheel/healthzip/analytics
+copying build/lib/healthzip/analytics/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/analytics
+copying build/lib/healthzip/analytics/p1.py -> build/bdist.linux-aarch64/wheel/healthzip/analytics
+copying build/lib/healthzip/analytics/core.py -> build/bdist.linux-aarch64/wheel/healthzip/analytics
+copying build/lib/healthzip/analytics/v13.py -> build/bdist.linux-aarch64/wheel/healthzip/analytics
+creating build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/migrations.py -> build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/repository.py -> build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/backup.py -> build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/schema.sql -> build/bdist.linux-aarch64/wheel/healthzip/db
+copying build/lib/healthzip/db/temporal_schema.py -> build/bdist.linux-aarch64/wheel/healthzip/db
+creating build/bdist.linux-aarch64/wheel/healthzip/importers
+copying build/lib/healthzip/importers/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/importers
+copying build/lib/healthzip/importers/apple_xml.py -> build/bdist.linux-aarch64/wheel/healthzip/importers
+copying build/lib/healthzip/importers/apple_zip.py -> build/bdist.linux-aarch64/wheel/healthzip/importers
+copying build/lib/healthzip/importers/csv_importers.py -> build/bdist.linux-aarch64/wheel/healthzip/importers
+copying build/lib/healthzip/importers/incremental.py -> build/bdist.linux-aarch64/wheel/healthzip/importers
+creating build/bdist.linux-aarch64/wheel/healthzip/normalize
+copying build/lib/healthzip/normalize/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/normalize
+copying build/lib/healthzip/normalize/timestamps.py -> build/bdist.linux-aarch64/wheel/healthzip/normalize
+copying build/lib/healthzip/normalize/types.py -> build/bdist.linux-aarch64/wheel/healthzip/normalize
+copying build/lib/healthzip/normalize/units.py -> build/bdist.linux-aarch64/wheel/healthzip/normalize
+creating build/bdist.linux-aarch64/wheel/healthzip/quality
+copying build/lib/healthzip/quality/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/quality
+copying build/lib/healthzip/quality/coverage.py -> build/bdist.linux-aarch64/wheel/healthzip/quality
+creating build/bdist.linux-aarch64/wheel/healthzip/reporting
+copying build/lib/healthzip/reporting/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/reporting
+copying build/lib/healthzip/reporting/markdown_report.py -> build/bdist.linux-aarch64/wheel/healthzip/reporting
+creating build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/knowledge_page.py -> build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/offline_recorder.html -> build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/training_page.py -> build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/analysis_page.py -> build/bdist.linux-aarch64/wheel/healthzip/ui
+copying build/lib/healthzip/ui/recommendation_page.py -> build/bdist.linux-aarch64/wheel/healthzip/ui
+creating build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/acquisition.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/retrieval.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/evaluation.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/documents.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+creating build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/data/sources.json -> build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/data/knowledge_routes.json -> build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/data/theory_seed_cards.json -> build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/data/rag_eval_cases.json -> build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/data/rag_holdout.json -> build/bdist.linux-aarch64/wheel/healthzip/knowledge/data
+copying build/lib/healthzip/knowledge/store.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/workbench.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+copying build/lib/healthzip/knowledge/__main__.py -> build/bdist.linux-aarch64/wheel/healthzip/knowledge
+creating build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/schema.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/semantics.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/backup.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/offline.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/exercise_catalog_seed.json -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/service.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+copying build/lib/healthzip/training/exchange.py -> build/bdist.linux-aarch64/wheel/healthzip/training
+creating build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/semantics.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/formulas.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/registry.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/statistics.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/state.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/energy.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/prediction.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/evaluation.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/__init__.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/research.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/__main__.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/rag_fixtures.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/metric_result.schema.json -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/metrics.json -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/contracts.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/strength.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/reports.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/science/engine.py -> build/bdist.linux-aarch64/wheel/healthzip/science
+copying build/lib/healthzip/cli.py -> build/bdist.linux-aarch64/wheel/healthzip
+copying build/lib/healthzip/state_log.py -> build/bdist.linux-aarch64/wheel/healthzip
+running install_egg_info
+Copying src/health_zip_workbench.egg-info to build/bdist.linux-aarch64/wheel/health_zip_workbench-1.3.0-py3.11.egg-info
+running install_scripts
+creating build/bdist.linux-aarch64/wheel/health_zip_workbench-1.3.0.dist-info/WHEEL
+creating '<repo>/dist/tmpi4j8ijea/health_zip_workbench-1.3.0-py3-none-any.whl' and adding 'build/bdist.linux-aarch64/wheel' to it
+adding 'healthzip/__init__.py'
+adding 'healthzip/__main__.py'
+adding 'healthzip/cli.py'
+adding 'healthzip/config.py'
+adding 'healthzip/state_log.py'
+adding 'healthzip/strength_log.py'
+adding 'healthzip/sync_server.py'
+adding 'healthzip/temporal.py'
+adding 'healthzip/ai/__init__.py'
+adding 'healthzip/ai/client.py'
+adding 'healthzip/analytics/__init__.py'
+adding 'healthzip/analytics/core.py'
+adding 'healthzip/analytics/p1.py'
+adding 'healthzip/analytics/v13.py'
+adding 'healthzip/db/__init__.py'
+adding 'healthzip/db/backup.py'
+adding 'healthzip/db/migrations.py'
+adding 'healthzip/db/repository.py'
+adding 'healthzip/db/schema.sql'
+adding 'healthzip/db/temporal_schema.py'
+adding 'healthzip/importers/__init__.py'
+adding 'healthzip/importers/apple_xml.py'
+adding 'healthzip/importers/apple_zip.py'
+adding 'healthzip/importers/csv_importers.py'
+adding 'healthzip/importers/incremental.py'
+adding 'healthzip/knowledge/__init__.py'
+adding 'healthzip/knowledge/__main__.py'
+adding 'healthzip/knowledge/acquisition.py'
+adding 'healthzip/knowledge/documents.py'
+adding 'healthzip/knowledge/evaluation.py'
+adding 'healthzip/knowledge/retrieval.py'
+adding 'healthzip/knowledge/store.py'
+adding 'healthzip/knowledge/workbench.py'
+adding 'healthzip/knowledge/data/knowledge_routes.json'
+adding 'healthzip/knowledge/data/rag_eval_cases.json'
+adding 'healthzip/knowledge/data/rag_holdout.json'
+adding 'healthzip/knowledge/data/sources.json'
+adding 'healthzip/knowledge/data/theory_seed_cards.json'
+adding 'healthzip/normalize/__init__.py'
+adding 'healthzip/normalize/timestamps.py'
+adding 'healthzip/normalize/types.py'
+adding 'healthzip/normalize/units.py'
+adding 'healthzip/quality/__init__.py'
+adding 'healthzip/quality/coverage.py'
+adding 'healthzip/reporting/__init__.py'
+adding 'healthzip/reporting/markdown_report.py'
+adding 'healthzip/science/__init__.py'
+adding 'healthzip/science/__main__.py'
+adding 'healthzip/science/contracts.py'
+adding 'healthzip/science/energy.py'
+adding 'healthzip/science/engine.py'
+adding 'healthzip/science/evaluation.py'
+adding 'healthzip/science/formulas.py'
+adding 'healthzip/science/metric_result.schema.json'
+adding 'healthzip/science/metrics.json'
+adding 'healthzip/science/prediction.py'
+adding 'healthzip/science/rag_fixtures.py'
+adding 'healthzip/science/registry.py'
+adding 'healthzip/science/reports.py'
+adding 'healthzip/science/research.py'
+adding 'healthzip/science/semantics.py'
+adding 'healthzip/science/state.py'
+adding 'healthzip/science/statistics.py'
+adding 'healthzip/science/strength.py'
+adding 'healthzip/training/__init__.py'
+adding 'healthzip/training/backup.py'
+adding 'healthzip/training/exchange.py'
+adding 'healthzip/training/exercise_catalog_seed.json'
+adding 'healthzip/training/offline.py'
+adding 'healthzip/training/schema.py'
+adding 'healthzip/training/semantics.py'
+adding 'healthzip/training/service.py'
+adding 'healthzip/ui/__init__.py'
+adding 'healthzip/ui/analysis_page.py'
+adding 'healthzip/ui/knowledge_page.py'
+adding 'healthzip/ui/offline_recorder.html'
+adding 'healthzip/ui/recommendation_page.py'
+adding 'healthzip/ui/training_page.py'
+adding 'health_zip_workbench-1.3.0.dist-info/METADATA'
+adding 'health_zip_workbench-1.3.0.dist-info/WHEEL'
+adding 'health_zip_workbench-1.3.0.dist-info/entry_points.txt'
+adding 'health_zip_workbench-1.3.0.dist-info/top_level.txt'
+adding 'health_zip_workbench-1.3.0.dist-info/RECORD'
+removing build/bdist.linux-aarch64/wheel
+WARNING Support for `[tool.setuptools]` in `pyproject.toml` is still *beta*.
+WARNING 'entry-points' defined outside of `pyproject.toml` would be ignored.
+    !!
+
+
+    ##########################################################################
+    # configuration would be ignored/result in error due to `pyproject.toml` #
+    ##########################################################################
+
+    The following seems to be defined outside of `pyproject.toml`:
+
+    `entry-points = {'console_scripts': ['healthzip=healthzip.cli:main']}`
+
+    According to the spec (see the link below), however, setuptools CANNOT
+    consider this value unless 'entry-points' is listed as `dynamic`.
+
+    https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+
+    For the time being, `setuptools` will still consider the given value (as a
+    **transitional** measure), but please note that future releases of setuptools will
+    follow strictly the standard.
+
+    To prevent this warning, you can list 'entry-points' under `dynamic` or alternatively
+    remove the `[project]` table from your file and rely entirely on other means of
+    configuration.
+    
+
+!!
+    
+WARNING `install_requires` overwritten in `pyproject.toml` (dependencies)
+Successfully built health_zip_workbench-1.3.0-py3-none-any.whl

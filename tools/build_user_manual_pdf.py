@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -11,7 +12,8 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
-from reportlab.pdfbase import cidfonts, pdfmetrics
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     HRFlowable,
     LongTable,
@@ -27,9 +29,13 @@ from reportlab.platypus import (
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs" / "HealthZIP_使用手册.md"
 OUTPUT = ROOT / "output" / "pdf" / "HealthZIP_使用手册.pdf"
-FONT = "STSong-Light"
+FONT = "HealthZIPCJK"
 
-pdfmetrics.registerFont(cidfonts.UnicodeCIDFont(FONT))
+FONT_PATH = Path(os.environ.get("HEALTHZIP_MANUAL_FONT", str(ROOT / ".local/fonts/NotoSansSC.ttf")))
+if not FONT_PATH.is_file():
+    raise SystemExit("Set HEALTHZIP_MANUAL_FONT to an embeddable Chinese TrueType font; see docs/build_documents.md")
+pdfmetrics.registerFont(TTFont(FONT, str(FONT_PATH)))
+pdfmetrics.registerFontFamily(FONT, normal=FONT, bold=FONT, italic=FONT, boldItalic=FONT)
 styles = getSampleStyleSheet()
 styles.add(
     ParagraphStyle(
@@ -143,7 +149,7 @@ styles.add(
 def inline_markdown(value: str) -> str:
     value = value.replace("VO₂", "VO2").replace("HRV-SDNN", "HRV-SDNN").replace("·", "-")
     value = escape(value)
-    value = re.sub(r"`([^`]+)`", r'<font name="STSong-Light" backColor="#EEF3F6">\1</font>', value)
+    value = re.sub(r"`([^`]+)`", rf'<font name="{FONT}" backColor="#EEF3F6">\1</font>', value)
     value = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", value)
     value = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<i>\1</i>", value)
     return value
@@ -291,7 +297,7 @@ def build_story() -> list[object]:
     cover = [
         Spacer(1, 43 * mm),
         Paragraph("HealthZIP<br/>使用手册", styles["ManualTitle"]),
-        Paragraph("Apple Health 本地整理、每日增量同步与力量记录", styles["ManualSubtitle"]),
+        Paragraph("训练记录、可追溯分析与本地知识", styles["ManualSubtitle"]),
         Spacer(1, 13 * mm),
         Paragraph(
             "从一次性 ZIP 导入开始，让 iPhone 通过 Health Auto Export 每日把新增数据送到本机，再在网页中查看质量、趋势和训练记录。",
@@ -304,7 +310,7 @@ def build_story() -> list[object]:
             ),
         ),
         Spacer(1, 35 * mm),
-        Paragraph("本地优先 - 版本 1.0 - 2026-11-08", styles["ManualSmall"]),
+        Paragraph("本地优先 - 版本 1.3 - 2026-11-11", styles["ManualSmall"]),
         PageBreak(),
     ]
     return cover + story

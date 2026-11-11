@@ -145,7 +145,7 @@ def test_without_upstream_id_uses_logical_key_for_updates(tmp_path):
 def test_schema_v2_sync_tables_and_status(tmp_path):
     repo = Repository(tmp_path / "health.sqlite3")
     version = repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")
-    assert version[0] == "2"
+    assert version[0] == "3"
     status = repo.sync_status()
     assert status["sources"] == []
     repo.close()
@@ -195,7 +195,7 @@ def test_v1_database_is_upgraded_without_replacing_rows(tmp_path):
     conn.close()
 
     repo = Repository(path)
-    assert repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")[0] == "2"
+    assert repo.one("SELECT value FROM schema_meta WHERE key='schema_version'")[0] == "3"
     assert repo.one("SELECT COUNT(*) AS n FROM import_batch")["n"] == 1
     assert repo.one(
         "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_sample_source_record'"

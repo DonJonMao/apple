@@ -11,118 +11,9 @@ from typing import Any, Iterable, Optional, Union
 
 from healthzip.normalize import stable_fingerprint
 
-SCHEMA = """
-PRAGMA foreign_keys=ON;
-CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-INSERT OR IGNORE INTO schema_meta(key,value) VALUES ('schema_version','1');
-CREATE TABLE IF NOT EXISTS import_batch (
- id INTEGER PRIMARY KEY, file_sha256 TEXT NOT NULL, file_name TEXT, file_size_bytes INTEGER,
- exported_at TEXT, imported_at TEXT NOT NULL, status TEXT NOT NULL, xml_member_path TEXT,
- records_seen INTEGER DEFAULT 0, records_inserted INTEGER DEFAULT 0, records_deduplicated INTEGER DEFAULT 0,
- records_skipped INTEGER DEFAULT 0, errors_count INTEGER DEFAULT 0, date_min TEXT, date_max TEXT,
- unknown_type_counts_json TEXT DEFAULT '{}', error_samples_json TEXT DEFAULT '[]',
- source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_ref TEXT, received_at TEXT,
- records_new INTEGER DEFAULT 0, records_duplicate INTEGER DEFAULT 0,
- records_updated INTEGER DEFAULT 0, records_deleted INTEGER DEFAULT 0, records_invalid INTEGER DEFAULT 0
-);
-CREATE INDEX IF NOT EXISTS idx_batch_hash ON import_batch(file_sha256);
-CREATE TABLE IF NOT EXISTS health_sample (
- id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id),
- raw_type TEXT NOT NULL, canonical_type TEXT, raw_value TEXT, raw_unit TEXT, normalized_value REAL,
- normalized_unit TEXT, unit_status TEXT, category_value TEXT, start_utc TEXT, end_utc TEXT, creation_utc TEXT,
- local_datetime TEXT, local_date TEXT, utc_offset_minutes INTEGER, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', quality_flags_json TEXT DEFAULT '{}', created_at TEXT NOT NULL,
- source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
- record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_sample_type_date ON health_sample(canonical_type, local_date);
-CREATE INDEX IF NOT EXISTS idx_sample_start ON health_sample(start_utc);
-CREATE TABLE IF NOT EXISTS workout (
- id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id),
- activity_type TEXT, start_utc TEXT, end_utc TEXT, local_date TEXT, duration_seconds REAL,
- distance_value REAL, distance_unit TEXT, energy_value REAL, energy_unit TEXT, source_name TEXT, source_version TEXT,
- device TEXT, metadata_json TEXT DEFAULT '{}', suspected_duplicate INTEGER DEFAULT 0,
- source_kind TEXT NOT NULL DEFAULT 'apple_zip', source_record_id TEXT, logical_key TEXT,
- record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_workout_date ON workout(local_date);
-CREATE TABLE IF NOT EXISTS workout_statistic (
- id INTEGER PRIMARY KEY, workout_id INTEGER NOT NULL REFERENCES workout(id) ON DELETE CASCADE,
- raw_type TEXT, statistic_start TEXT, statistic_end TEXT, average_value REAL, minimum_value REAL,
- maximum_value REAL, sum_value REAL, unit TEXT
-);
-CREATE TABLE IF NOT EXISTS workout_event (
- id INTEGER PRIMARY KEY, workout_id INTEGER NOT NULL REFERENCES workout(id) ON DELETE CASCADE,
- event_type TEXT, event_date TEXT, duration_seconds REAL, metadata_json TEXT DEFAULT '{}'
-);
-CREATE TABLE IF NOT EXISTS activity_summary (
- id INTEGER PRIMARY KEY, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id), summary_date TEXT,
- active_energy REAL, active_energy_goal REAL, exercise_minutes REAL, exercise_minutes_goal REAL,
- stand_hours REAL, stand_hours_goal REAL, UNIQUE(import_batch_id, summary_date)
-);
-CREATE TABLE IF NOT EXISTS strength_session (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, session_date TEXT, started_at TEXT, name TEXT,
- source TEXT, notes TEXT, import_batch_id INTEGER
-);
-CREATE TABLE IF NOT EXISTS strength_set (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, session_id INTEGER REFERENCES strength_session(id),
- set_date TEXT, started_at TEXT, exercise_id TEXT, exercise_name TEXT, equipment TEXT, variation TEXT,
- side TEXT, set_number INTEGER, weight_kg REAL, reps INTEGER, rir REAL, rpe REAL, warmup INTEGER,
- range_of_motion TEXT, notes TEXT, import_batch_id INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_strength_key ON strength_set(exercise_name,equipment,variation,set_date);
-CREATE TABLE IF NOT EXISTS nutrition_day (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, day TEXT, energy_kcal REAL, protein_g REAL,
- carbohydrates_g REAL, fat_g REAL, log_status TEXT NOT NULL, source TEXT, notes TEXT, import_batch_id INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_nutrition_day ON nutrition_day(day);
-CREATE TABLE IF NOT EXISTS body_measurement (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, measured_at TEXT, local_date TEXT, body_part TEXT,
- value REAL, unit TEXT, canonical_type TEXT, source TEXT, notes TEXT, import_batch_id INTEGER
-);
-CREATE INDEX IF NOT EXISTS idx_measure_date ON body_measurement(canonical_type,local_date);
-CREATE TABLE IF NOT EXISTS subjective_log (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, day TEXT, energy_level REAL, fatigue REAL, soreness REAL,
- stress REAL, sleep_quality REAL, pain_location TEXT, pain_level REAL, illness_or_travel TEXT, notes TEXT,
- import_batch_id INTEGER
-);
-CREATE TABLE IF NOT EXISTS cycle_event (
- id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, event_date TEXT, canonical_type TEXT, category_value TEXT,
- intensity REAL, source TEXT, confirmed INTEGER, notes TEXT, import_batch_id INTEGER
-);
-CREATE TABLE IF NOT EXISTS daily_feature (
- id INTEGER PRIMARY KEY, feature_key TEXT UNIQUE, local_date TEXT, metric TEXT, value REAL, unit TEXT,
- sample_count INTEGER, quality_state TEXT, window_start TEXT, window_end TEXT, algorithm_version TEXT,
- source_ids_json TEXT DEFAULT '[]', limitations_json TEXT DEFAULT '[]', computed_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS insight (
- id TEXT PRIMARY KEY, title TEXT, status TEXT, window_start TEXT, window_end TEXT, summary TEXT,
- facts_json TEXT, limitations_json TEXT, allowed_actions_json TEXT, source_feature_ids_json TEXT,
- algorithm_version TEXT, created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS sync_source (
- id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, kind TEXT NOT NULL,
- config_json TEXT NOT NULL DEFAULT '{}', enabled INTEGER NOT NULL DEFAULT 1,
- last_cursor TEXT, last_success_at TEXT, last_error TEXT, created_at TEXT NOT NULL,
- updated_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS sync_file (
- id INTEGER PRIMARY KEY, source_id INTEGER NOT NULL REFERENCES sync_source(id) ON DELETE CASCADE,
- path TEXT NOT NULL, inode INTEGER, size_bytes INTEGER, mtime_ns INTEGER, content_hash TEXT,
- format TEXT NOT NULL, last_offset INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending',
- last_error TEXT, first_seen_at TEXT NOT NULL, last_seen_at TEXT NOT NULL,
- UNIQUE(source_id, path)
-);
-CREATE INDEX IF NOT EXISTS idx_sync_file_source ON sync_file(source_id, status);
-CREATE TABLE IF NOT EXISTS ingest_event (
- id INTEGER PRIMARY KEY, source_id INTEGER REFERENCES sync_source(id), batch_id INTEGER REFERENCES import_batch(id),
- upstream_id TEXT, event_kind TEXT NOT NULL, payload_hash TEXT, received_at TEXT NOT NULL,
- status TEXT NOT NULL, error TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_ingest_event_upstream ON ingest_event(source_id, upstream_id);
-"""
+SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 
-CURRENT_SCHEMA_VERSION = 2
+CURRENT_SCHEMA_VERSION = 3
 
 
 def _json(value: Any) -> str:
@@ -138,11 +29,41 @@ class Repository:
         self.conn = sqlite3.connect(str(self.path))
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.executescript(SCHEMA)
-        self._migrate_schema()
-        self.conn.commit()
+        self.conn.execute("PRAGMA foreign_keys=ON")
+        try:
+            self.conn.execute("BEGIN IMMEDIATE")
+            self._execute_schema(SCHEMA)
+            self._migrate_schema()
+            self.conn.commit()
+        except BaseException:
+            self.conn.rollback()
+            self.conn.close()
+            raise
+
+    def _execute_schema(self, script: str) -> None:
+        # sqlite3.executescript implicitly commits and would break rollback.
+        statement = ""
+        for char in script:
+            statement += char
+            if char == ";" and sqlite3.complete_statement(statement):
+                self.conn.execute(statement)
+                statement = ""
+        if statement.strip():
+            self.conn.execute(statement)
 
     def _migrate_schema(self) -> None:
+        from healthzip.db.temporal_schema import migrate_temporal
+        from healthzip.training.schema import migrate_training
+
+        existing = self.conn.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()
+        if existing and int(existing[0]) > CURRENT_SCHEMA_VERSION:
+            raise ValueError("database_schema_newer_than_application")
+        self._migrate_v2()
+        migrate_training(self.conn)
+        migrate_temporal(self.conn)
+        self.conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(CURRENT_SCHEMA_VERSION),))
+
+    def _migrate_v2(self) -> None:
         """Upgrade v1 databases without replacing user data.
 
         The original prototype executed a CREATE-only schema on every open.
@@ -189,7 +110,7 @@ class Repository:
                 if name not in existing:
                     self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
 
-        self.conn.executescript(
+        self._execute_schema(
             """
             CREATE INDEX IF NOT EXISTS idx_sample_source_record ON health_sample(source_kind, source_record_id);
             CREATE INDEX IF NOT EXISTS idx_sample_logical_key ON health_sample(source_kind, logical_key);
@@ -924,18 +845,34 @@ class Repository:
         notes: str = "",
         data: dict[str, Any],
         force_next: bool = True,
+        client_event_id: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Append one mobile set to a stable session, idempotently."""
+        """Append a real set; a supplied request UUID makes retries idempotent.
+
+        Callers creating a new real set must allocate a new client_event_id even
+        when every measurement equals the previous set. Old callers retain the
+        explicit set-number retry behavior with force_next=False.
+        """
         session_fingerprint = stable_fingerprint(["quick_strength_session", session_key])
+        payload = {
+            "session_key": session_key, "session_date": session_date,
+            "started_at": started_at, "name": name, "notes": notes,
+            "data": data, "force_next": force_next,
+        }
+        payload_hash = stable_fingerprint(payload)
+        request_key = "legacy_quick:" + client_event_id if client_event_id else None
         with self.transaction():
+            if request_key:
+                prior = self.one("SELECT * FROM training_event WHERE event_id=?", (request_key,))
+                if prior:
+                    if prior["payload_hash"] != payload_hash:
+                        raise ValueError("client_event_id was reused with different content")
+                    saved = json.loads(prior["result_json"])
+                    return {**saved, "set_inserted": False, "session_inserted": False, "replayed": True}
             session_id, session_inserted = self.create_strength_session(
-                session_date=session_date,
-                started_at=started_at or session_date,
-                name=name,
-                source="mobile_quick",
-                notes=notes,
-                fingerprint=session_fingerprint,
-                commit=False,
+                session_date=session_date, started_at=started_at or session_date,
+                name=name, source="mobile_quick", notes=notes,
+                fingerprint=session_fingerprint, commit=False,
             )
             next_number = self.one(
                 "SELECT COALESCE(MAX(set_number),0)+1 AS next_number FROM strength_set WHERE session_id=?",
@@ -943,14 +880,23 @@ class Repository:
             )["next_number"]
             item = dict(data)
             item["set_number"] = int(next_number if force_next else (item.get("set_number") or next_number))
-            set_id, inserted = self.insert_strength_set(session_id, item, commit=False)
-        return {
-            "session_id": session_id,
-            "session_inserted": session_inserted,
-            "set_id": set_id,
-            "set_inserted": inserted,
-            "set_number": item["set_number"],
-        }
+            fingerprint = stable_fingerprint([request_key]) if request_key else None
+            set_id, inserted = self.insert_strength_set(session_id, item, fingerprint=fingerprint, commit=False)
+            result = {
+                "session_id": session_id, "session_inserted": session_inserted,
+                "set_id": set_id, "set_inserted": inserted, "set_number": item["set_number"],
+                "client_event_id": client_event_id,
+            }
+            if request_key:
+                now = datetime.now(timezone.utc).isoformat()
+                self.conn.execute(
+                    "INSERT INTO training_event(event_id,user_id,device_id,entity_type,entity_id,action,"
+                    "payload_hash,payload_json,occurred_at,recorded_at,status,after_json,result_json) "
+                    "VALUES(?,'local','legacy_quick','set',?,'append_legacy_set',?,?,?,?,'applied',?,?)",
+                    (request_key, str(set_id), payload_hash, _json(payload), now, now,
+                     _json(dict(self.one("SELECT * FROM strength_set WHERE id=?", (set_id,)))), _json(result)),
+                )
+        return result
 
     def list_strength_sessions(self, limit: int = 30) -> list[sqlite3.Row]:
         return self.rows(

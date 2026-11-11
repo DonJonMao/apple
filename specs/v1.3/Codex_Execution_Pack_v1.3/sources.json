@@ -1,0 +1,3505 @@
+{
+  "schema_version": "1.3",
+  "generated_at": "2026-11-11",
+  "manifest_kind": "seed_acquisition_plan_not_download_receipt",
+  "source_count": 43,
+  "scientific_or_field_source_count": 34,
+  "notes": [
+    "29 个既有 source_id 全部保留。",
+    "本包没有批量下载或建立文献全文索引；所有 fetch_status 为 not_fetched。",
+    "research_verification 是读到何种网页材料；fetch_status 是是否保存受校验字节，两者独立。",
+    "未知 license 不据期刊名称或开放阅读状态猜测；source activation 需要逐源审阅。",
+    "最终合并已逐项核对原 29 来源的题名、年份、DOI 与官方元数据 URL；research_verification 按实际网页核查升级，fetch_status 一律仍 not_fetched。",
+    "APPLE_SDNN/BASAL/ACTIVE 通过 source_aliases 复用 R3a/E5a/E5b；不重复存同一官方文档。KB_API 展开为 KB2+KB3+KB4+KB8。"
+  ],
+  "state_enums": {
+    "research_verification": [
+      "discovered",
+      "metadata_verified",
+      "abstract_verified",
+      "fulltext_verified"
+    ],
+    "fetch_status": [
+      "not_fetched",
+      "metadata_fetched",
+      "abstract_fetched",
+      "fulltext_fetched",
+      "failed_retryable",
+      "unavailable",
+      "blocked_by_rights"
+    ],
+    "rights_status": [
+      "unknown",
+      "metadata_only_permitted",
+      "fulltext_reuse_permitted_for_declared_use",
+      "restricted_review_required",
+      "permission_granted",
+      "blocked"
+    ],
+    "activation_status": [
+      "blocked_pending_ingest_review",
+      "metadata_only",
+      "abstract_evidence_only",
+      "fulltext_evidence_reviewed",
+      "engineering_reference_only",
+      "withdrawn"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "S1",
+      "citation": "Currier BS, D’Souza AC, Fiatarone Singh MA, et al. American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews. Med Sci Sports Exerc. 2026;58(4):851-872.",
+      "source_kind": "position_stand",
+      "doi": "10.1249/MSS.0000000000003897",
+      "pmid": "41843416",
+      "pmcid": "PMC12965823",
+      "canonical_url": "https://doi.org/10.1249/MSS.0000000000003897",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "progression"
+      ],
+      "population_and_scope": "健康成年人；综述的综述，群体训练建议",
+      "critical_limit": "不能导出个人精确最优组数、负荷或 RIR 阈值",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/41843416/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": "CC-BY-NC-ND-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+      "license_scope": "article as stated on PMC; attachments/third-party assets require separate review",
+      "rights_evidence": {
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+        "section": "Copyright and license statement",
+        "checked_at": "2026-11-11",
+        "note": "公开声明为非商业、禁止演绎许可；商业检索/改编展示范围尚未授权审阅。"
+      },
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:12965823&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "year": 2026,
+      "publication_dates": {
+        "online": "2026-03-05",
+        "issue": "2026-04-01",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/41843416/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/"
+      ]
+    },
+    {
+      "source_id": "S2",
+      "citation": "American College of Sports Medicine. Progression Models in Resistance Training for Healthy Adults. Med Sci Sports Exerc. 2009;41(3):687-708.",
+      "source_kind": "historical_position_stand",
+      "doi": "10.1249/MSS.0b013e3181915670",
+      "pmid": "19204579",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1249/MSS.0b013e3181915670",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/19204579/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "progression"
+      ],
+      "population_and_scope": "健康成年人；历史进阶实务建议",
+      "critical_limit": "2009 版须与 S1 2026 版并列标历史，不是连续三次停滞诊断规则",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/19204579/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": [
+          "S1"
+        ]
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "American College of Sports Medicine position stand. Progression models in resistance training for healthy adults",
+      "year": 2009,
+      "publication_dates": {
+        "online": null,
+        "issue": "2009-03",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/19204579/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "S3",
+      "citation": "Zourdos MC, Klemp A, Dolan C, et al. Novel Resistance Training-Specific Rating of Perceived Exertion Scale Measuring Repetitions in Reserve. J Strength Cond Res. 2016;30(1):267-275.",
+      "source_kind": "original_measurement_study",
+      "doi": "10.1519/JSC.0000000000001049",
+      "pmid": "26049792",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1519/JSC.0000000000001049",
+      "discovery_url": "https://openrepository.aut.ac.nz/items/efef3b25-6701-4fb5-bb82-55fcd2a26027",
+      "fulltext_entry_url": "https://openrepository.aut.ac.nz/items/efef3b25-6701-4fb5-bb82-55fcd2a26027",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "progression"
+      ],
+      "population_and_scope": "29 名成人；深蹲 RIR 型 RPE 与杠速",
+      "critical_limit": "不验证普通 RPE 到 RIR 的转换，也不验证 RIR 修正 Epley",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://openrepository.aut.ac.nz/items/efef3b25-6701-4fb5-bb82-55fcd2a26027",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Novel Resistance Training-Specific Rating of Perceived Exertion Scale Measuring Repetitions in Reserve",
+      "year": 2016,
+      "publication_dates": {
+        "online": null,
+        "issue": "2016-01",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://openrepository.aut.ac.nz/items/efef3b25-6701-4fb5-bb82-55fcd2a26027",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "S4",
+      "citation": "Halperin I, Malleron T, Har-Nir I, et al. Accuracy in Predicting Repetitions to Task Failure in Resistance Exercise: A Scoping Review and Exploratory Meta-analysis. Sports Med. 2022;52:377-390.",
+      "source_kind": "systematic_review_meta_analysis",
+      "doi": "10.1007/s40279-021-01559-x",
+      "pmid": "34542869",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1007/s40279-021-01559-x",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/34542869/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "progression",
+        "plateau"
+      ],
+      "population_and_scope": "抗阻训练剩余次数预测误差",
+      "critical_limit": "群体平均误差不等于个人统一加 1 校正",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/34542869/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Accuracy in Predicting Repetitions to Task Failure in Resistance Exercise: A Scoping Review and Exploratory Meta-analysis",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2021-09-20",
+        "issue": "2022-02",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/34542869/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "S5",
+      "citation": "Plotkin D, Coleman M, Van Every D, et al. Progressive Overload Without Progressing Load? The Effects of Load or Repetition Progression on Muscular Adaptations. PeerJ. 2022;10:e14142.",
+      "source_kind": "randomized_trial",
+      "doi": "10.7717/peerj.14142",
+      "pmid": "36199287",
+      "pmcid": "PMC9528903",
+      "canonical_url": "https://doi.org/10.7717/peerj.14142",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9528903/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9528903/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "progression",
+        "plateau"
+      ],
+      "population_and_scope": "有训练经验者；8 周下肢监督训练",
+      "critical_limit": "不能声称某个停滞者或上斜史密斯的最优解锁策略",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/36199287/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:9528903&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Progressive overload without progressing load? The effects of load or repetition progression on muscular adaptations",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2022-09-30",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/36199287/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC9528903/"
+      ]
+    },
+    {
+      "source_id": "S6",
+      "citation": "Nuzzo JL, Pinto MD, Nosaka K, Steele J. Maximal Number of Repetitions at Percentages of the One Repetition Maximum: A Meta-Regression and Moderator Analysis of Sex, Age, Training Status, and Exercise. Sports Med. 2024;54:303-321.",
+      "source_kind": "meta_regression",
+      "doi": "10.1007/s40279-023-01937-7",
+      "pmid": "37792272",
+      "pmcid": "PMC10933212",
+      "canonical_url": "https://doi.org/10.1007/s40279-023-01937-7",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10933212/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10933212/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "plateau"
+      ],
+      "population_and_scope": "不同动作与人群的次数—相对负荷关系",
+      "critical_limit": "总体次数关系不是个人动作的 e1RM 校准",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/37792272/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:10933212&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Maximal Number of Repetitions at Percentages of the One Repetition Maximum: A Meta-Regression and Moderator Analysis of Sex, Age, Training Status, and Exercise",
+      "year": 2024,
+      "publication_dates": {
+        "online": "2023-10-04",
+        "issue": "2024-02",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/37792272/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10933212/"
+      ]
+    },
+    {
+      "source_id": "S7",
+      "citation": "Grgic J, Lazinica B, Schoenfeld BJ, Pedisic Z. Test-Retest Reliability of the One-Repetition Maximum (1RM) Strength Assessment: A Systematic Review. Sports Med Open. 2020;6:31.",
+      "source_kind": "systematic_review",
+      "doi": "10.1186/s40798-020-00260-z",
+      "pmid": "32681399",
+      "pmcid": "PMC7367986",
+      "canonical_url": "https://doi.org/10.1186/s40798-020-00260-z",
+      "discovery_url": "https://link.springer.com/article/10.1186/s40798-020-00260-z",
+      "fulltext_entry_url": "https://link.springer.com/article/10.1186/s40798-020-00260-z",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "plateau",
+        "personalization"
+      ],
+      "population_and_scope": "标准化直接 1RM 重测",
+      "critical_limit": "不能将 1RM 的 CV 套到全部工作组 e1RM",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/32681399/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:7367986&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Test-Retest Reliability of the One-Repetition Maximum (1RM) Strength Assessment: a Systematic Review",
+      "year": 2020,
+      "publication_dates": {
+        "online": "2020-07-17",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/32681399/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC7367986/"
+      ]
+    },
+    {
+      "source_id": "S8",
+      "citation": "Pelland JC, Remmert JF, Robinson ZP, Hinson SR, Zourdos MC. The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains. Sports Med. 2026;56(2):481-505.",
+      "source_kind": "meta_regression",
+      "doi": "10.1007/s40279-025-02344-w",
+      "pmid": "41343037",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1007/s40279-025-02344-w",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/41343037/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "progression",
+        "plateau"
+      ],
+      "population_and_scope": "周训练量/频率与力量和肌肥大剂量反应",
+      "critical_limit": "间接组 0.5 是研究计数模型，不能包装为个体生理刺激的固定真值",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/41343037/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "supplement_candidate_urls": [
+        "https://osf.io/6z3xu"
+      ],
+      "supplement_fetch_status": "not_fetched",
+      "title": "The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains",
+      "year": 2026,
+      "publication_dates": {
+        "online": "2025-12-04",
+        "issue": "2026-02",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/41343037/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "R1",
+      "citation": "Hellard P, Avalos M, Lacoste L, et al. Assessing the limitations of the Banister model in monitoring training. J Sports Sci. 2006;24(5):509-520.",
+      "source_kind": "model_identifiability_study",
+      "doi": "10.1080/02640410500244697",
+      "pmid": "16608765",
+      "pmcid": "PMC1974899",
+      "canonical_url": "https://doi.org/10.1080/02640410500244697",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1974899/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1974899/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery",
+        "personalization"
+      ],
+      "population_and_scope": "9 名国际级游泳运动员；Banister 模型识别性",
+      "critical_limit": "拟合适应/疲劳分量不等于直接测量局部肌肉恢复",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1974899/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:1974899&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Assessing the limitations of the Banister model in monitoring training",
+      "year": 2006,
+      "publication_dates": {
+        "online": null,
+        "issue": "2006-05",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1974899/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC1974899/"
+      ]
+    },
+    {
+      "source_id": "R2a",
+      "citation": "De Oliveira RM, Ugrinowitsch C, Kingsley JD, et al. Effect of individualized resistance training prescription with heart rate variability on individual muscle hypertrophy and strength responses. Eur J Sport Sci. 2019;19(8):1092-1100.",
+      "source_kind": "randomized_trial",
+      "doi": "10.1080/17461391.2019.1572227",
+      "pmid": "30702985",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1080/17461391.2019.1572227",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/30702985/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "年轻男性；按 RMSSD 调整抗阻训练间隔",
+      "critical_limit": "未检出优越性不等于等效；不验证 Apple SDNN 处方",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/30702985/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Effect of individualized resistance training prescription with heart rate variability on individual muscle hypertrophy and strength responses",
+      "year": 2019,
+      "publication_dates": {
+        "online": "2019-01-31",
+        "issue": "2019-09",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/30702985/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "R2b",
+      "citation": "Bittencourt D, de Oliveira RM, da Silva DG, et al. Effects of individualized resistance training prescription with heart rate variability on muscle strength, muscle size and functional performance in older women. Front Physiol. 2024;15:1472702.",
+      "source_kind": "randomized_trial",
+      "doi": "10.3389/fphys.2024.1472702",
+      "pmid": "39742158",
+      "pmcid": "PMC11685108",
+      "canonical_url": "https://doi.org/10.3389/fphys.2024.1472702",
+      "discovery_url": "https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2024.1472702/full",
+      "fulltext_entry_url": "https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2024.1472702/full",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "21 名健康老年女性；标准化胸带 RMSSD",
+      "critical_limit": "不能外推日常零散 SDNN 采样的精确减载",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/39742158/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:11685108&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Effects of individualized resistance training prescription with heart rate variability on muscle strength, muscle size and functional performance in older women",
+      "year": 2024,
+      "publication_dates": {
+        "online": "2024-12-17",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/39742158/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11685108/"
+      ]
+    },
+    {
+      "source_id": "R3a",
+      "citation": "Apple. heartRateVariabilitySDNN. HealthKit Documentation. 访问：2026-11-11。",
+      "source_kind": "official_field_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn",
+      "discovery_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn",
+      "fulltext_entry_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "HealthKit HRV SDNN 字段语义",
+      "critical_limit": "字段定义不是训练干预效度研究",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn.md",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": {
+        "url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn.md",
+        "observed_notice": "Copyright 2026 Apple Inc. All rights reserved; Terms of Use link",
+        "checked_at": "2026-11-11",
+        "note": "不是开放许可，不默认获准全文再分发或商业全文入库。"
+      },
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "field_semantics_after_documentation_version_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_intervention_efficacy"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "heartRateVariabilitySDNN",
+      "year": null,
+      "publication_dates": {
+        "online": null,
+        "issue": null,
+        "accessed": "2026-11-11"
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn.md",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "machine_readable_documentation_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/heartratevariabilitysdnn.md"
+    },
+    {
+      "source_id": "R3b",
+      "citation": "Addleman JS, Lackey NS, DeBlauw JA, Hajduczok AG. Heart Rate Variability Applications in Strength and Conditioning: A Narrative Review. J Funct Morphol Kinesiol. 2024;9(2):93.",
+      "source_kind": "narrative_review",
+      "doi": "10.3390/jfmk9020093",
+      "pmid": "38921629",
+      "pmcid": "PMC11204851",
+      "canonical_url": "https://doi.org/10.3390/jfmk9020093",
+      "discovery_url": "https://www.mdpi.com/2411-5142/9/2/93",
+      "fulltext_entry_url": "https://www.mdpi.com/2411-5142/9/2/93",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "HRV 在体能训练中的测量与解释",
+      "critical_limit": "叙述综述不能给统一恢复阈值",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://www.mdpi.com/2411-5142/9/2/93",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:11204851&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Heart Rate Variability Applications in Strength and Conditioning: A Narrative Review",
+      "year": 2024,
+      "publication_dates": {
+        "online": "2024-05-27",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://www.mdpi.com/2411-5142/9/2/93",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC11204851/"
+      ]
+    },
+    {
+      "source_id": "R4",
+      "citation": "Craven J, McCartney D, Desbrow B, et al. Effects of Acute Sleep Loss on Physical Performance: A Systematic and Meta-Analytical Review. Sports Med. 2022;52:2669-2690.",
+      "source_kind": "systematic_review_meta_analysis",
+      "doi": "10.1007/s40279-022-01706-y",
+      "pmid": "35708888",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1007/s40279-022-01706-y",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/35708888/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "急性睡眠损失与运动表现；研究人群有偏倚",
+      "critical_limit": "不能映射为某个用户睡少 1 小时就减重 5%",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://link.springer.com/article/10.1007/s40279-022-01706-y",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Effects of Acute Sleep Loss on Physical Performance: A Systematic and Meta-Analytical Review",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2022-06-16",
+        "issue": "2022-11",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://link.springer.com/article/10.1007/s40279-022-01706-y",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "R5",
+      "citation": "Saw AE, Main LC, Gastin PB. Monitoring the athlete training response: subjective self-reported measures trump commonly used objective measures: a systematic review. Br J Sports Med. 2016;50:281-291.",
+      "source_kind": "systematic_review",
+      "doi": "10.1136/bjsports-2015-094758",
+      "pmid": "26423706",
+      "pmcid": "PMC4789708",
+      "canonical_url": "https://doi.org/10.1136/bjsports-2015-094758",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4789708/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4789708/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "主观自报与常见客观指标的训练响应监测",
+      "critical_limit": "不能由综合疲劳分数诊断损伤或确定负荷比例",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:4789708&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Monitoring the athlete training response: subjective self-reported measures trump commonly used objective measures: a systematic review",
+      "year": 2016,
+      "publication_dates": {
+        "online": "2015-09-09",
+        "issue": "2016-03",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/26423706/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC4789708/"
+      ]
+    },
+    {
+      "source_id": "R6",
+      "citation": "Haddad M, Stylianides G, Djaoui L, Dellal A, Chamari K. Session-RPE Method for Training Load Monitoring: Validity, Ecological Usefulness, and Influencing Factors. Front Neurosci. 2017;11:612.",
+      "source_kind": "methods_review",
+      "doi": "10.3389/fnins.2017.00612",
+      "pmid": "29163016",
+      "pmcid": "PMC5673663",
+      "canonical_url": "https://doi.org/10.3389/fnins.2017.00612",
+      "discovery_url": "https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2017.00612/full",
+      "fulltext_entry_url": "https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2017.00612/full",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery",
+        "strength"
+      ],
+      "population_and_scope": "session-RPE × 时长的训练负荷记录",
+      "critical_limit": "任意单位不是能耗，不是局部肌肥大刺激",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/29163016/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:5673663&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Session-RPE Method for Training Load Monitoring: Validity, Ecological Usefulness, and Influencing Factors",
+      "year": 2017,
+      "publication_dates": {
+        "online": "2017-11-02",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/29163016/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC5673663/"
+      ]
+    },
+    {
+      "source_id": "R7",
+      "citation": "Robinson ZP, Helms ER, Trexler ET, et al. N of 1: Optimizing Methodology for the Detection of Individual Response Variation in Resistance Training. Sports Med. 2024;54:1979-1990.",
+      "source_kind": "methods_paper",
+      "doi": "10.1007/s40279-024-02050-z",
+      "pmid": "38878117",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1007/s40279-024-02050-z",
+      "discovery_url": "https://pure.solent.ac.uk/en/publications/n-of-1-optimizing-methodology-for-the-detection-of-individual-res/",
+      "fulltext_entry_url": "https://pure.solent.ac.uk/en/publications/n-of-1-optimizing-methodology-for-the-detection-of-individual-res/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "personalization"
+      ],
+      "population_and_scope": "抗阻训练个体响应检测与 N-of-1 方法",
+      "critical_limit": "普通前后对比不成为个人因果验证；长期适应存在携带效应",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://link.springer.com/article/10.1007/s40279-024-02050-z",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "N of 1: Optimizing Methodology for the Detection of Individual Response Variation in Resistance Training",
+      "year": 2024,
+      "publication_dates": {
+        "online": "2024-06-15",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://link.springer.com/article/10.1007/s40279-024-02050-z",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "R8",
+      "citation": "Imbach F, Perrey S, Chailan R, Meline T, Candau R. Training load responses modelling and model generalisation in elite sports. Sci Rep. 2022;12:1586.",
+      "source_kind": "prediction_generalization_study",
+      "doi": "10.1038/s41598-022-05392-8",
+      "pmid": "35091649",
+      "pmcid": "PMC8799698",
+      "canonical_url": "https://doi.org/10.1038/s41598-022-05392-8",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8799698/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8799698/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "personalization",
+        "recovery"
+      ],
+      "population_and_scope": "7 名精英短道运动员；时间外预测",
+      "critical_limit": "外运动项目的拟合效果不是力量训练处方效度",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8799698/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:8799698&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Training load responses modelling and model generalisation in elite sports",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2022-01-28",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8799698/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC8799698/"
+      ]
+    },
+    {
+      "source_id": "E1",
+      "citation": "Hall KD, Sacks G, Chandramohan D, et al. Quantification of the effect of energy imbalance on bodyweight. Lancet. 2011;378:826-837.",
+      "source_kind": "physiological_model",
+      "doi": "10.1016/S0140-6736(11)60812-X",
+      "pmid": "21872751",
+      "pmcid": "PMC3880593",
+      "canonical_url": "https://doi.org/10.1016/S0140-6736(11)60812-X",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3880593/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3880593/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "成人动态能量平衡与体重",
+      "critical_limit": "7700 kcal/kg 不能作长期线性精确预测",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/21872751/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:3880593&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Quantification of the effect of energy imbalance on bodyweight",
+      "year": 2011,
+      "publication_dates": {
+        "online": null,
+        "issue": "2011-08-27",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/21872751/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC3880593/"
+      ]
+    },
+    {
+      "source_id": "E2",
+      "citation": "Hall KD, Chow CC. Estimating changes in free-living energy intake and its confidence interval. Am J Clin Nutr. 2011;94:66-74.",
+      "source_kind": "physiological_model_validation",
+      "doi": "10.3945/ajcn.111.014399",
+      "pmid": "21562087",
+      "pmcid": "PMC3127505",
+      "canonical_url": "https://doi.org/10.3945/ajcn.111.014399",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3127505/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3127505/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "自由生活摄入变化与不确定性估计",
+      "critical_limit": "Delta EI 相对模型基线；不能无条件给绝对摄入",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/21562087/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:3127505&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Estimating changes in free-living energy intake and its confidence interval",
+      "year": 2011,
+      "publication_dates": {
+        "online": "2011-05-11",
+        "issue": "2011-07",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/21562087/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC3127505/"
+      ]
+    },
+    {
+      "source_id": "E3",
+      "citation": "Thomas DM, Schoeller DA, Redman LA, et al. A computational model to determine energy intake during weight loss. Am J Clin Nutr. 2010;92:1326-1331.",
+      "source_kind": "model_validation",
+      "doi": "10.3945/ajcn.2010.29687",
+      "pmid": "20962159",
+      "pmcid": "PMC2980958",
+      "canonical_url": "https://doi.org/10.3945/ajcn.2010.29687",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2980958/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2980958/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "23 名成人；24 周热量限制",
+      "critical_limit": "均值小偏差不等于个体误差小；不是增肌自由饮食校准",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/20962159/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:2980958&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "A computational model to determine energy intake during weight loss",
+      "year": 2010,
+      "publication_dates": {
+        "online": "2010-10-20",
+        "issue": "2010-12",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/20962159/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC2980958/"
+      ]
+    },
+    {
+      "source_id": "E4",
+      "citation": "Sanghvi A, Redman LM, Martin CK, Ravussin E, Hall KD. Validation of an inexpensive and accurate mathematical method to measure long-term changes in free-living energy intake. Am J Clin Nutr. 2015;102:353-358.",
+      "source_kind": "external_validation",
+      "doi": "10.3945/ajcn.115.111070",
+      "pmid": "26040640",
+      "pmcid": "PMC4515869",
+      "canonical_url": "https://doi.org/10.3945/ajcn.115.111070",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4515869/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4515869/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "CALERIE 长期摄入变化，双标水/DXA 对照",
+      "critical_limit": "组均误差与个体 RMS 分开，不能宣称个人每日摄入 ±40 kcal",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/26040640/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:4515869&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Validation of an inexpensive and accurate mathematical method to measure long-term changes in free-living energy intake",
+      "year": 2015,
+      "publication_dates": {
+        "online": "2015-06-03",
+        "issue": "2015-08",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/26040640/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC4515869/"
+      ]
+    },
+    {
+      "source_id": "E5a",
+      "citation": "Apple. basalEnergyBurned. HealthKit Documentation. 访问：2026-11-11。",
+      "source_kind": "official_field_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned",
+      "discovery_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned",
+      "fulltext_entry_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "HealthKit 静息能量字段",
+      "critical_limit": "字段定义不证明个体测量准确",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned.md",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": {
+        "url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned.md",
+        "observed_notice": "Copyright 2026 Apple Inc. All rights reserved; Terms of Use link",
+        "checked_at": "2026-11-11",
+        "note": "不是开放许可，不默认获准全文再分发或商业全文入库。"
+      },
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "field_semantics_after_documentation_version_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_intervention_efficacy"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "basalEnergyBurned",
+      "year": null,
+      "publication_dates": {
+        "online": null,
+        "issue": null,
+        "accessed": "2026-11-11"
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned.md",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "machine_readable_documentation_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/basalenergyburned.md"
+    },
+    {
+      "source_id": "E5b",
+      "citation": "Apple. activeEnergyBurned. HealthKit Documentation. 访问：2026-11-11。",
+      "source_kind": "official_field_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned",
+      "discovery_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned",
+      "fulltext_entry_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "HealthKit 活动能量字段",
+      "critical_limit": "运动记录能量不可再与已包含它的活动能量重复相加",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned.md",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": {
+        "url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned.md",
+        "observed_notice": "Copyright 2026 Apple Inc. All rights reserved; Terms of Use link",
+        "checked_at": "2026-11-11",
+        "note": "不是开放许可，不默认获准全文再分发或商业全文入库。"
+      },
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "field_semantics_after_documentation_version_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_intervention_efficacy"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "activeEnergyBurned",
+      "year": null,
+      "publication_dates": {
+        "online": null,
+        "issue": null,
+        "accessed": "2026-11-11"
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned.md",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "machine_readable_documentation_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/activeenergyburned.md"
+    },
+    {
+      "source_id": "E6",
+      "citation": "Yun JH, Ko JM, Lee TH. Criterion Validity of Smartwatches for Measuring Heart Rate and Energy Expenditure During Resistance Exercise. Bioengineering. 2026;13(10):1099.",
+      "source_kind": "criterion_validity_study",
+      "doi": "10.3390/bioengineering13101099",
+      "pmid": "42938956",
+      "pmcid": "PMC13701894",
+      "canonical_url": "https://doi.org/10.3390/bioengineering13101099",
+      "discovery_url": "https://www.mdpi.com/2306-5354/13/10/1099",
+      "fulltext_entry_url": "https://www.mdpi.com/2306-5354/13/10/1099",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "70 名健康年轻男性；抗阻训练手表心率与能耗",
+      "critical_limit": "抗阻运动能耗误差不等于全天所有场景相同误差",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/42938956/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:13701894&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Criterion Validity of Smartwatches for Measuring Heart Rate and Energy Expenditure During Resistance Exercise",
+      "year": 2026,
+      "publication_dates": {
+        "online": "2026-09-23",
+        "issue": "2026-10",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/42938956/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13701894/"
+      ]
+    },
+    {
+      "source_id": "E7",
+      "citation": "Lambe R, Baldwin M, O’Grady B, et al. The accuracy of Apple Watch measurements: a living systematic review and meta-analysis. npj Digit Med. 2026;9:63.",
+      "source_kind": "living_systematic_review",
+      "doi": "10.1038/s41746-025-02238-1",
+      "pmid": "41513748",
+      "pmcid": "PMC12823594",
+      "canonical_url": "https://doi.org/10.1038/s41746-025-02238-1",
+      "discovery_url": "https://www.nature.com/articles/s41746-025-02238-1",
+      "fulltext_entry_url": "https://www.nature.com/articles/s41746-025-02238-1",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy"
+      ],
+      "population_and_scope": "Apple Watch 效度；能耗有独立研究子集",
+      "critical_limit": "不能把全综述总样本当能耗子集，也不能推导每人固定校正系数",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/41513748/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:12823594&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "The accuracy of Apple Watch measurements: a living systematic review and meta-analysis",
+      "year": 2026,
+      "publication_dates": {
+        "online": "2026-01-10",
+        "issue": null,
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/41513748/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12823594/"
+      ]
+    },
+    {
+      "source_id": "E8",
+      "citation": "Argent R, Hetherington-Rauth M, Stang J, et al. Recommendations for Determining the Validity of Consumer Wearables and Smartphones for the Estimation of Energy Expenditure: Expert Statement and Checklist of the INTERLIVE Network. Sports Med. 2022;52:1817-1832.",
+      "source_kind": "expert_validation_framework",
+      "doi": "10.1007/s40279-022-01665-4",
+      "pmid": "35260991",
+      "pmcid": "PMC9325806",
+      "canonical_url": "https://doi.org/10.1007/s40279-022-01665-4",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9325806/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9325806/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "energy",
+        "personalization"
+      ],
+      "population_and_scope": "消费级设备能耗测量验证规范",
+      "critical_limit": "验证规范不是该 App 已完成有效性验证",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/35260991/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "pmc_oai_pmh_or_bioc_after_eligibility",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord&identifier=oai:pubmedcentral.nih.gov:9325806&metadataPrefix=pmc"
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Recommendations for Determining the Validity of Consumer Wearables and Smartphones for the Estimation of Energy Expenditure: Expert Statement and Checklist of the INTERLIVE Network",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2022-03-09",
+        "issue": "2022-08",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/35260991/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      },
+      "additional_fulltext_candidates": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC9325806/"
+      ]
+    },
+    {
+      "source_id": "M1",
+      "citation": "Weir JP. Quantifying test-retest reliability using the intraclass correlation coefficient and the SEM. J Strength Cond Res. 2005;19(1):231-240.",
+      "source_kind": "measurement_methods",
+      "doi": "10.1519/15184.1",
+      "pmid": "15705040",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1519/15184.1",
+      "discovery_url": "https://pubmed.ncbi.nlm.nih.gov/15705040/",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "plateau",
+        "personalization"
+      ],
+      "population_and_scope": "ICC、SEM 与重测误差",
+      "critical_limit": "总体 ICC 高不能证明个体变化真实；误差结构要同协议估计",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/15705040/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Quantifying test-retest reliability using the intraclass correlation coefficient and the SEM",
+      "year": 2005,
+      "publication_dates": {
+        "online": null,
+        "issue": "2005-02",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/15705040/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "M2",
+      "citation": "Mazzolari R, Porcelli S, Bishop DJ, Lakens D. Myths and methodologies: The use of equivalence and non-inferiority tests for interventional studies in exercise physiology and sport science. Exp Physiol. 2022;107(3):201-212.",
+      "source_kind": "statistical_methods",
+      "doi": "10.1113/EP090171",
+      "pmid": "35041233",
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1113/EP090171",
+      "discovery_url": "https://physoc.onlinelibrary.wiley.com/doi/full/10.1113/EP090171",
+      "fulltext_entry_url": "https://physoc.onlinelibrary.wiley.com/doi/full/10.1113/EP090171",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "plateau",
+        "personalization"
+      ],
+      "population_and_scope": "等效性与非劣效性推断",
+      "critical_limit": "不显著不等于无变化；等效界值须有测量/实践依据",
+      "research_verification": {
+        "status": "metadata_verified",
+        "metadata_basis": "2026-11-11 official PubMed/publisher/author-repository bibliographic audit; official Apple .md page for fields",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://pubmed.ncbi.nlm.nih.gov/35041233/",
+        "note": "此状态仅描述本次网页核查深度。未保存 corpus 原文字节、未建立可引用 span，fetch_status 仍 not_fetched。"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review",
+        "fulltext_index_after_rights_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "pubmed_eutilities_or_crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "follow permitted official links only; otherwise metadata/abstract or user-provided authorized copy",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "title": "Myths and methodologies: The use of equivalence and non-inferiority tests for interventional studies in exercise physiology and sport science",
+      "year": 2022,
+      "publication_dates": {
+        "online": "2022-01-26",
+        "issue": "2022-03",
+        "accessed": null
+      },
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "checked_at": "2026-11-11",
+        "official_metadata_url": "https://pubmed.ncbi.nlm.nih.gov/35041233/",
+        "checks": [
+          "title matches ignoring capitalization/dashes",
+          "publication year distinguished from online year and DOI string year",
+          "DOI and identifiers consistent with the listed study",
+          "official metadata URL identifies intended source"
+        ],
+        "scope": "metadata identity only; not fulltext ingest or scientific card approval"
+      }
+    },
+    {
+      "source_id": "KB1",
+      "citation": "NCBI E-utilities: A General Introduction",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://www.ncbi.nlm.nih.gov/books/NBK25497/",
+      "discovery_url": "https://www.ncbi.nlm.nih.gov/books/NBK25497/",
+      "fulltext_entry_url": "https://www.ncbi.nlm.nih.gov/books/NBK25497/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "PubMed 元数据/摘要；API 配额、批量与联系人要求",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB2",
+      "citation": "PMC For Developers",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://pmc.ncbi.nlm.nih.gov/tools/developers/",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/tools/developers/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/tools/developers/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "PMC 允许自动获取的接口与逐篇许可要求",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB3",
+      "citation": "PMC OAI-PMH API",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://pmc.ncbi.nlm.nih.gov/tools/oai/",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/tools/oai/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/tools/oai/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "现行 OAI 基地址、pmc/pmc_fm 与 pmc-open、限速与禁止并发",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB4",
+      "citation": "PMC OA Web Service API retirement",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://pmc.ncbi.nlm.nih.gov/tools/oa-service/",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/tools/oa-service/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/tools/oa-service/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "2026-08-25 旧 OA Web Service 停用；不得生成 oa.fcgi 管线",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB5",
+      "citation": "Crossref REST API",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+      "discovery_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+      "fulltext_entry_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "元数据、许可线索和更新信息；不是全文许可授予",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB6",
+      "citation": "Europe PMC RESTful Web Service",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://europepmc.org/RestfulWebService",
+      "discovery_url": "https://europepmc.org/RestfulWebService",
+      "fulltext_entry_url": "https://europepmc.org/RestfulWebService",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "生产文档本次网页读取 403；官方 dev 镜像已查到 REST/search/resultType=core；生产端点须 smoke test",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "discovered",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt",
+        "official_dev_documentation_read": "https://dev.europepmc.org/RestfulWebService"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB7",
+      "citation": "Crossref REST API filters",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/rest-api-filters/",
+      "discovery_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/rest-api-filters/",
+      "fulltext_entry_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/rest-api-filters/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "has-license、has-update、update-type、全文链接线索；缺失元数据不证明未撤稿",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "KB8",
+      "citation": "PMC Article Datasets",
+      "source_kind": "official_acquisition_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://pmc.ncbi.nlm.nih.gov/tools/textmining/",
+      "discovery_url": "https://pmc.ncbi.nlm.nih.gov/tools/textmining/",
+      "fulltext_entry_url": "https://pmc.ncbi.nlm.nih.gov/tools/textmining/",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "knowledge_ingestion"
+      ],
+      "population_and_scope": "经官方开发者目录链接核实的新数据集入口；禁止假定旧 FTP/旧 cloud 布局",
+      "critical_limit": "仅支持采集实现和来源合规；不得作为运动训练效度证据",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "metadata_basis": "official documentation web inspection",
+        "note": "web inspection is separate from local ingest receipt"
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "allowed_roles": [
+        "ingestion_design_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "physiological_claim_evidence"
+      ],
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "N1",
+      "citation": "Achim Zeileis. Econometric Computing with HC and HAC Covariance Matrix Estimators. 2004. DOI: 10.18637/jss.v011.i10",
+      "title": "Econometric Computing with HC and HAC Covariance Matrix Estimators",
+      "year": 2004,
+      "source_kind": "statistical_methods",
+      "doi": "10.18637/jss.v011.i10",
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.18637/jss.v011.i10",
+      "discovery_url": "https://www.jstatsoft.org/article/view/v011i10",
+      "fulltext_entry_url": "https://www.jstatsoft.org/article/view/v011i10",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "plateau",
+        "personalization"
+      ],
+      "population_and_scope": "说明异方差/自相关协方差估计及其方法条件；不是力量小样本保证。",
+      "critical_limit": "方法条件与原研究场景必须审阅；不是本产品小样本/全部动作有效性保证",
+      "research_verification": {
+        "status": "abstract_verified",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://www.jstatsoft.org/article/view/v011i10",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "authors": "Achim Zeileis",
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "official_metadata_url": "https://www.jstatsoft.org/article/view/v011i10",
+        "checked_at": "2026-11-11"
+      }
+    },
+    {
+      "source_id": "N2",
+      "citation": "Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, Jasjeet Sekhon. Time-uniform, nonparametric, nonasymptotic confidence sequences. 2021. DOI: 10.1214/20-AOS1991",
+      "title": "Time-uniform, nonparametric, nonasymptotic confidence sequences",
+      "year": 2021,
+      "source_kind": "statistical_methods",
+      "doi": "10.1214/20-AOS1991",
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1214/20-AOS1991",
+      "discovery_url": "https://doi.org/10.1214/20-AOS1991",
+      "fulltext_entry_url": "https://projecteuclid.org/journals/annals-of-statistics/volume-49/issue-2/Time-uniform-nonparametric-nonasymptotic-confidence-sequences/10.1214/20-AOS1991.full",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "plateau",
+        "personalization"
+      ],
+      "population_and_scope": "说明固定时点CI与时间一致有效推断的区别；本产品简单alpha分配为独立可审计推导，并非直接实现该文所有算法。",
+      "critical_limit": "方法条件与原研究场景必须审阅；不是本产品小样本/全部动作有效性保证",
+      "research_verification": {
+        "status": "metadata_verified",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://doi.org/10.1214/20-AOS1991",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "authors": "Steven R. Howard, Aaditya Ramdas, Jon McAuliffe, Jasjeet Sekhon",
+      "additional_fulltext_candidates": [
+        "https://www.imstat.org/publications/aos/aos_49_2/aos_49_2.pdf"
+      ],
+      "bibliographic_audit": {
+        "status": "title_year_doi_url_consistent",
+        "official_metadata_url": "https://www.imstat.org/publications/aos/aos_49_2/aos_49_2.pdf",
+        "checked_at": "2026-11-11",
+        "volume": 49,
+        "issue": 2,
+        "pages": "1055-1080"
+      }
+    },
+    {
+      "source_id": "N3",
+      "citation": "Dale A. LeSuer, James H. McCormick, Jerry L. Mayhew, Ronald L. Wasserstein, Michael D. Arnold. The Accuracy of Prediction Equations for Estimating 1-RM Performance in the Bench Press, Squat, and Deadlift. 1997. DOI: 10.1519/00124278-199711000-00001",
+      "title": "The Accuracy of Prediction Equations for Estimating 1-RM Performance in the Bench Press, Squat, and Deadlift",
+      "year": 1997,
+      "source_kind": "original_prediction_validation",
+      "doi": "10.1519/00124278-199711000-00001",
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://doi.org/10.1519/00124278-199711000-00001",
+      "discovery_url": "https://doi.org/10.1519/00124278-199711000-00001",
+      "fulltext_entry_url": null,
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "strength",
+        "plateau"
+      ],
+      "population_and_scope": "67名未训练大学生在卧推、深蹲、硬拉上验证7种公式；表1 Epley常数为0.0333。只支持该形式与测试情境，非所有动作/未力竭组/RIR修正的验证；高相关不等于无偏或个人预测准确。",
+      "critical_limit": "方法条件与原研究场景必须审阅；不是本产品小样本/全部动作有效性保证",
+      "research_verification": {
+        "status": "discovered",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://doi.org/10.1519/00124278-199711000-00001",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_fetched",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "unknown",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "bibliographic_discovery",
+        "manual_source_review"
+      ],
+      "conditional_roles": [
+        "claim_evidence_after_identity_access_rights_and_span_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review"
+      ],
+      "acquisition": {
+        "metadata_route": "crossref",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "blocked_pending_ingest_review",
+      "authors": "Dale A. LeSuer, James H. McCormick, Jerry L. Mayhew, Ronald L. Wasserstein, Michael D. Arnold",
+      "unapproved_mirror_url": "https://paulogentil.com/pdf/The%20Accuracy%20of%20Prediction%20Equations%20for%20Estimating%201-RM%20Performance%20in%20the%20Bench%20Press%2C%20Squat%2C%20and%20Deadlift.pdf",
+      "mirror_fetch_allowed": false,
+      "bibliographic_audit": {
+        "status": "primary_article_mirror_matches_title_year_authors; official_metadata_fetch_pending",
+        "checked_at": "2026-11-11",
+        "official_doi_resolver_result": "not_accessible_via_current_web_tool",
+        "paper_inspection_basis": "strength_metrics agent reports original paper pages rendered and checked; public mirror is not permission",
+        "next_step": "Resolve DOI via Crossref/publisher in acquisition environment; verify exact source identity and reuse rights before activation."
+      }
+    },
+    {
+      "source_id": "UX1",
+      "citation": "训记 - 训练计划专家：官方 App Store 描述与版本记录. 访问：2026-11-11。",
+      "title": "训记 - 训练计划专家：官方 App Store 描述与版本记录",
+      "year": null,
+      "source_kind": "official_product_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://apps.apple.com/cn/app/训记-训练计划专家/id1464915553",
+      "discovery_url": "https://apps.apple.com/cn/app/训记-训练计划专家/id1464915553",
+      "fulltext_entry_url": "https://apps.apple.com/cn/app/训记-训练计划专家/id1464915553",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "training_recording",
+        "exercise_catalog"
+      ],
+      "population_and_scope": "公开功能与交互：逐组重量/次数、自由记录、自定义计划和输入",
+      "critical_limit": "产品营销和评论不构成运动训练理论；不复制完整分类树、动作数据或媒体；评论与开发者说明须区分",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://apps.apple.com/cn/app/训记-训练计划专家/id1464915553",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": null,
+      "allowed_roles": [
+        "ux_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "short_attributed_product_summary"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_claim_evidence",
+        "exercise_media_or_paid_catalog_scraping"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "engineering_reference_only"
+    },
+    {
+      "source_id": "APPLE_RHR",
+      "citation": "restingHeartRate. 访问：2026-11-11。",
+      "title": "restingHeartRate",
+      "year": null,
+      "source_kind": "official_field_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate",
+      "discovery_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate.md",
+      "fulltext_entry_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate.md",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "HealthKit 离散静息心率估计；Apple Watch 可删除并替换当日/前日样本；需 available_at、源版本及删除墓碑",
+      "critical_limit": "静坐普通心率不自动等于 RHR；字段语义不证明训练减载阈值",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate.md",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": {
+        "url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate.md",
+        "observed_notice": "Copyright 2026 Apple Inc. All rights reserved; Terms of Use link",
+        "checked_at": "2026-11-11"
+      },
+      "allowed_roles": [
+        "field_semantics_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_intervention_efficacy"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "engineering_reference_only",
+      "machine_readable_documentation_url": "https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier/restingheartrate.md"
+    },
+    {
+      "source_id": "APPLE_SLEEP",
+      "citation": "HKCategoryValueSleepAnalysis. 访问：2026-11-11。",
+      "title": "HKCategoryValueSleepAnalysis",
+      "year": null,
+      "source_kind": "official_field_documentation",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "canonical_url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis",
+      "discovery_url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis.md",
+      "fulltext_entry_url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis.md",
+      "fulltext_entry_is_candidate_only": true,
+      "feature_domains": [
+        "recovery"
+      ],
+      "population_and_scope": "inBed 可与睡眠阶段重叠；awake 样本仅在睡眠样本之间记录，入睡/结束边界可不完整",
+      "critical_limit": "不能把 inBed 与 asleep 相加；边界不全不能直接推出全部清醒、潜伏期或睡眠效率",
+      "research_verification": {
+        "status": "fulltext_verified",
+        "checked_at": "2026-11-11",
+        "verification_url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis.md",
+        "metadata_basis": "official documentation/publisher bibliographic inspection; see audit notes",
+        "note": "Web verification is not a local corpus receipt; no active evidence spans exist."
+      },
+      "fetch_status": "not_fetched",
+      "abstract_fetch_status": "not_applicable",
+      "fulltext_fetch_status": "not_fetched",
+      "rights_status": "restricted_review_required",
+      "license_id": null,
+      "license_url": null,
+      "license_scope": null,
+      "rights_evidence": {
+        "url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis.md",
+        "observed_notice": "Copyright 2026 Apple Inc. All rights reserved; Terms of Use link",
+        "checked_at": "2026-11-11"
+      },
+      "allowed_roles": [
+        "field_semantics_reference",
+        "bibliographic_discovery"
+      ],
+      "conditional_roles": [
+        "documentation_snapshot_after_terms_review"
+      ],
+      "prohibited_roles": [
+        "autonomous_numeric_prescription",
+        "bulk_fulltext_fetch_without_rights",
+        "commercial_fulltext_reuse_without_rights_review",
+        "physiological_intervention_efficacy"
+      ],
+      "acquisition": {
+        "metadata_route": "official_provider_documentation",
+        "preferred_fulltext_route": "resolve_publisher_or_author_repository_license_first",
+        "publisher_fallback": "permitted official or authorized user-supplied copy only",
+        "candidate_pmc_oai_request": null
+      },
+      "corpus_receipt": {
+        "retrieved_at": null,
+        "sha256": null,
+        "byte_length": null,
+        "http_etag": null,
+        "parser_version": null,
+        "source_version": null
+      },
+      "publication_updates": {
+        "status": "not_checked_for_ingest",
+        "checked_at": null,
+        "retracted": null,
+        "corrected": null,
+        "supersedes": [],
+        "superseded_by": []
+      },
+      "activation_status": "engineering_reference_only",
+      "machine_readable_documentation_url": "https://developer.apple.com/documentation/healthkit/hkcategoryvaluesleepanalysis.md"
+    }
+  ],
+  "source_aliases": {
+    "R2": [
+      "R2a",
+      "R2b"
+    ],
+    "R3": [
+      "R3a",
+      "R3b"
+    ],
+    "E5": [
+      "E5a",
+      "E5b"
+    ],
+    "APPLE_SDNN": [
+      "R3a"
+    ],
+    "APPLE_BASAL": [
+      "E5a"
+    ],
+    "APPLE_ACTIVE": [
+      "E5b"
+    ],
+    "KB_API": [
+      "KB2",
+      "KB3",
+      "KB4",
+      "KB8"
+    ]
+  },
+  "alias_policy": "Aliases resolve to canonical source records before indexing/citation. Single-source aliases do not create duplicate raw documents; group aliases expand to explicit source_ids.",
+  "original_seed_source_count": 29,
+  "counts_by_role": {
+    "original_scientific_or_field_sources": 29,
+    "new_method_papers": 3,
+    "new_apple_field_docs": 2,
+    "official_ingestion_docs": 8,
+    "ux_reference": 1
+  },
+  "bibliographic_audit_summary": {
+    "checked_at": "2026-11-11",
+    "original_sources_checked": 29,
+    "title_year_doi_url_conflicts_found": 0,
+    "online_vs_issue_year_preserved": [
+      "S4",
+      "S6",
+      "S8",
+      "R5"
+    ],
+    "doi_string_year_not_publication_year": [
+      "E7"
+    ],
+    "all_fetch_status": "not_fetched",
+    "new_source_exception": "N3 official resolver unavailable in current tool; original-paper mirror inspected by strength agent but DOI/rights activation remains pending"
+  }
+}

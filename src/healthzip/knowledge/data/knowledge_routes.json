@@ -1,0 +1,414 @@
+{
+  "schema_version": "1.3",
+  "aliases": {
+    "R2": [
+      "R2a",
+      "R2b"
+    ],
+    "R3": [
+      "R3a",
+      "R3b"
+    ],
+    "E5": [
+      "E5a",
+      "E5b"
+    ],
+    "APPLE_SDNN": [
+      "R3a"
+    ],
+    "APPLE_BASAL": [
+      "E5a"
+    ],
+    "APPLE_ACTIVE": [
+      "E5b"
+    ],
+    "KB_API": [
+      "KB2",
+      "KB3",
+      "KB4",
+      "KB8"
+    ]
+  },
+  "stores": {
+    "TheoryLibrary": "reviewed claim cards and explicit applicability; separate release lifecycle",
+    "SourceLibrary": "raw documents + versions + spans + tables + bibliographic records",
+    "ExerciseCatalog": "structured canonical exercise/variant/equipment/alias records",
+    "PrivateTrainingSQL": "user-isolated records, health data and personal derived facts; never public vector corpus"
+  },
+  "global_rules": [
+    "source and theory releases independently versioned but linked by exact source_version_id + span_id",
+    "retrieved text is untrusted content, not executable tool instruction",
+    "withdrawn or rights-blocked sources excluded from active retrieval",
+    "population mismatch and measurement mismatch cannot be hidden by high embedding similarity",
+    "no retrieved evidence => explanation of missing evidence, not invented numeric output",
+    "do not combine disparate evidence into weighted readiness score without a validated measurement model"
+  ],
+  "routes": [
+    {
+      "route_id": "strength",
+      "theory_namespace": "theory.strength",
+      "evidence_namespace": "evidence.strength",
+      "source_ids": [
+        "S1",
+        "S3",
+        "S4",
+        "S6",
+        "S7",
+        "S8",
+        "R6",
+        "M1",
+        "N3"
+      ],
+      "theory_topics": [
+        "raw_set_comparison",
+        "RIR_semantics",
+        "e1RM_uncertainty",
+        "volume_definition"
+      ],
+      "applicability_context": [
+        "exercise_variant_id",
+        "equipment_id",
+        "load_convention",
+        "set_type",
+        "ROM_protocol",
+        "effort_scale"
+      ],
+      "private_sql_tables": [
+        "sets",
+        "exercise_variants",
+        "equipment_instances"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "直接记录与模型估计分开",
+        "量表不混用；未知负重不填 0"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    },
+    {
+      "route_id": "progression",
+      "theory_namespace": "theory.progression",
+      "evidence_namespace": "evidence.progression",
+      "source_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S8"
+      ],
+      "theory_topics": [
+        "progressive_overload",
+        "load_or_repetition_options",
+        "dose_response_boundaries"
+      ],
+      "applicability_context": [
+        "goal",
+        "training_status",
+        "exercise_variant_id",
+        "equipment_increment",
+        "prescribed_stop"
+      ],
+      "private_sql_tables": [
+        "plans",
+        "sets",
+        "exercise_variants",
+        "equipment_instances"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "已完成目标且保留余力时可生成可选方案",
+        "精确新负荷需设备可实现且用户确认；没有文献证明自动唯一最优"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    },
+    {
+      "route_id": "plateau",
+      "theory_namespace": "theory.plateau",
+      "evidence_namespace": "evidence.plateau",
+      "source_ids": [
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "M1",
+        "M2",
+        "N1",
+        "N2",
+        "N3"
+      ],
+      "theory_topics": [
+        "measurement_error",
+        "equivalence_not_nonsignificance",
+        "observability"
+      ],
+      "applicability_context": [
+        "comparable_sessions",
+        "protocol_stability",
+        "measurement_error_model",
+        "target_outcome",
+        "meaningful_change_basis"
+      ],
+      "private_sql_tables": [
+        "sets",
+        "session_protocols",
+        "measurement_models"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "先判数据可比/覆盖，再做趋势与不确定性",
+        "三次不涨不是通用生理阈值；无证据不能推断刺激不足"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    },
+    {
+      "route_id": "recovery",
+      "theory_namespace": "theory.recovery",
+      "evidence_namespace": "evidence.recovery",
+      "source_ids": [
+        "R1",
+        "R2a",
+        "R2b",
+        "R3a",
+        "R3b",
+        "R4",
+        "R5",
+        "R6",
+        "APPLE_RHR",
+        "APPLE_SLEEP"
+      ],
+      "theory_topics": [
+        "HRV_protocol",
+        "sleep_association",
+        "subjective_state",
+        "fitness_fatigue_identifiability"
+      ],
+      "applicability_context": [
+        "HRV_metric",
+        "sample_duration",
+        "device",
+        "measurement_context",
+        "sleep_source",
+        "population"
+      ],
+      "private_sql_tables": [
+        "health_samples",
+        "checkins",
+        "sessions"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "SDNN 不替代 RMSSD",
+        "状态异常描述不得自动变为 -5% 或固定恢复小时"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    },
+    {
+      "route_id": "energy",
+      "theory_namespace": "theory.energy",
+      "evidence_namespace": "evidence.energy",
+      "source_ids": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5a",
+        "E5b",
+        "E6",
+        "E7",
+        "E8"
+      ],
+      "theory_topics": [
+        "dynamic_energy_balance",
+        "delta_EI",
+        "identifiability",
+        "wearable_validity"
+      ],
+      "applicability_context": [
+        "baseline_definition",
+        "weight_protocol",
+        "wearable_source",
+        "activity_change",
+        "fluid_confounders",
+        "population"
+      ],
+      "private_sql_tables": [
+        "body_weight",
+        "health_samples",
+        "energy_model_runs"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "绝对摄入与摄入变化分开",
+        "手表不构成独立真实消耗校准；体重变化不能诊断蛋白不足"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    },
+    {
+      "route_id": "personalization",
+      "theory_namespace": "theory.personalization",
+      "evidence_namespace": "evidence.personalization",
+      "source_ids": [
+        "R1",
+        "R7",
+        "R8",
+        "S7",
+        "M1",
+        "M2",
+        "E8",
+        "N1",
+        "N2"
+      ],
+      "theory_topics": [
+        "temporal_validation",
+        "individual_response",
+        "causal_vs_predictive",
+        "measurement_error"
+      ],
+      "applicability_context": [
+        "outcome_definition",
+        "protocol",
+        "baseline_model",
+        "temporal_split",
+        "intervention_assignment"
+      ],
+      "private_sql_tables": [
+        "model_runs",
+        "interventions",
+        "evaluation_results"
+      ],
+      "shared_source_storage": "one raw/versioned copy per canonical source; namespace membership is metadata",
+      "retrieval_order": [
+        "resolve intent and required context",
+        "SQL personal Evidence Card",
+        "approved active TheoryCards",
+        "linked SourceSpans for the selected claims",
+        "optional additional evidence in same route; cross-route only explicit need"
+      ],
+      "output_contract": [
+        "observed_facts",
+        "derived_metrics_with_units_and_model_version",
+        "applicable_claims_with_span_citations",
+        "limits_and_uncertainty",
+        "action_candidates_or_insufficient_evidence"
+      ],
+      "route_rules": [
+        "未来时间切分和按人评估",
+        "建议后改善不是因果证明；研究模型不可冒充已验证处方"
+      ],
+      "numeric_action_authority": "validated deterministic/model service only; LLM can explain and rank only under documented protocol"
+    }
+  ],
+  "knowledge_ingestion_route": {
+    "source_ids": [
+      "KB1",
+      "KB2",
+      "KB3",
+      "KB4",
+      "KB5",
+      "KB6",
+      "KB7",
+      "KB8"
+    ],
+    "allowed_role": "engineering_reference_only",
+    "source_alias": "KB_API"
+  },
+  "cross_route_examples": [
+    {
+      "intent": "睡少且卧推没涨是否减重",
+      "routes": [
+        "plateau",
+        "recovery"
+      ],
+      "must_preserve": "分开描述表现证据和状态关联，不构造未验证的因果连接或减重比例"
+    },
+    {
+      "intent": "减重期力量下降是否吃得少",
+      "routes": [
+        "strength",
+        "energy",
+        "recovery"
+      ],
+      "must_preserve": "体重和表现的观察不能单独识别摄入或下降原因"
+    }
+  ],
+  "alias_resolution_policy": "Aliases resolve to canonical source records before indexing/citation. Single-source aliases do not create duplicate raw documents; group aliases expand to explicit source_ids.",
+  "ux_reference_route": {
+    "source_ids": [
+      "UX1"
+    ],
+    "allowed_role": "public UX pattern reference only; no physiological evidence",
+    "catalog_policy": "original structured catalog; user-defined exercises private until reviewed"
+  }
+}

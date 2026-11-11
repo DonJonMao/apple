@@ -1,4 +1,4 @@
-
+-- Baseline tables. Repository._migrate_schema applies v2 and v1.3 additions atomically.
 PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 INSERT OR IGNORE INTO schema_meta(key,value) VALUES ('schema_version','1');
@@ -24,8 +24,6 @@ CREATE TABLE IF NOT EXISTS health_sample (
 );
 CREATE INDEX IF NOT EXISTS idx_sample_type_date ON health_sample(canonical_type, local_date);
 CREATE INDEX IF NOT EXISTS idx_sample_start ON health_sample(start_utc);
-CREATE INDEX IF NOT EXISTS idx_sample_source_record ON health_sample(source_kind, source_record_id);
-CREATE INDEX IF NOT EXISTS idx_sample_logical_key ON health_sample(source_kind, logical_key);
 CREATE TABLE IF NOT EXISTS workout (
  id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, import_batch_id INTEGER NOT NULL REFERENCES import_batch(id),
  activity_type TEXT, start_utc TEXT, end_utc TEXT, local_date TEXT, duration_seconds REAL,
@@ -35,8 +33,6 @@ CREATE TABLE IF NOT EXISTS workout (
  record_status TEXT NOT NULL DEFAULT 'active', supersedes_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_workout_date ON workout(local_date);
-CREATE INDEX IF NOT EXISTS idx_workout_source_record ON workout(source_kind, source_record_id);
-CREATE INDEX IF NOT EXISTS idx_workout_logical_key ON workout(source_kind, logical_key);
 CREATE TABLE IF NOT EXISTS workout_statistic (
  id INTEGER PRIMARY KEY, workout_id INTEGER NOT NULL REFERENCES workout(id) ON DELETE CASCADE,
  raw_type TEXT, statistic_start TEXT, statistic_end TEXT, average_value REAL, minimum_value REAL,

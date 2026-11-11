@@ -1,0 +1,1731 @@
+{
+  "schema_version": "1.3.0",
+  "artifact_kind": "original_theory_card_seed_drafts",
+  "generated_at": "2026-11-11",
+  "card_count": 20,
+  "review_status": "draft_pending_fulltext_review",
+  "activation_status": "inactive_seed_only",
+  "field_aliases": {
+    "theory_id": "core_theory_id",
+    "permitted_conclusions": "allowed_claims",
+    "forbidden_inferences": "forbidden_claims",
+    "claim": "definition"
+  },
+  "contract_notes": [
+    "theory_id与core_theory_id数值完全相同，仅为与知识手册示例对接的字段别名；不创建两个理论实体。",
+    "allowed_claims是拟议允许结论的审阅范围，不表示本卡已经审核或获准上线。",
+    "source_ids是待逐主张核对的来源候选；方法定义、原创建模推导和产品操作化不冒充来源已验证的经验结论。",
+    "所有evidence_span_ids为空；本文件未声称下载/保存原文，未声称完成逐卡全文审阅；不得转为approved/active。",
+    "正式激活需绑定source_version_id与非空EvidenceSpan，完成身份、许可、适用性、公式/量纲和实现验证，并记录审阅者与时间。",
+    "缺失与不适用保留null和原因；参数来源分为测量定义、文献参数、个人估计、用户目标和工程设置，不混成生理阈值。",
+    "六功能路由采用strength/progression/plateau/recovery/energy/personalization；同源原文只存一份版本化对象。",
+    "metric_ids绑定v13_strength_metrics.json与v13_state_energy_metrics.json；source_ids绑定v13_sources.json。"
+  ],
+  "cards": [
+    {
+      "core_theory_id": "TC-measurement-load-comparability",
+      "theory_id": "TC-measurement-load-comparability",
+      "version": "0.1.0",
+      "title": "动作身份、负重口径与可比条件",
+      "domains": [
+        "strength",
+        "progression",
+        "plateau"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "动作搜索分类服务查找；相同名称或肌群标签不证明两次任务测量等价。原始负重、单位、器械实例、侧别、幅度和技术协议共同限定可比较量。",
+      "allowed_claims": [
+        "可逐项解释负重是总重、每只、单边片重、器械刻度或辅助量。",
+        "条件充分且一致时报告同任务原始差；条件未知时报告不可确认可比。",
+        "分类未知的自定义动作仍允许记录。"
+      ],
+      "forbidden_claims": [
+        "将同名史密斯与自由杠铃自动合并。",
+        "未知杆重、滑轮倍率或有效自重负荷自动补值。",
+        "把辅助量视为正外部负重；把每手负重静默乘2后当不同器械同任务。"
+      ],
+      "required_inputs": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_value",
+        "load_unit",
+        "load_basis",
+        "side",
+        "repetition_semantics",
+        "ROM_protocol",
+        "technique_protocol",
+        "actual_vs_planned"
+      ],
+      "metric_ids": [
+        "STR-02",
+        "STR-03",
+        "STR-11",
+        "STR-12",
+        "STR-13",
+        "STR-29"
+      ],
+      "source_ids": [
+        "S1",
+        "S6"
+      ],
+      "applicability": {
+        "population": "记录和测量语义，不宣称某特定人群的生理效度。",
+        "protocol_requirements": [
+          "保持原始值与单位转换链。",
+          "明确动作测量模式：次数、时长或距离。",
+          "计划值和实际值分离。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "definition_and_product_operationalization",
+        "statement": "比较采用有版本的条件快照；设备物理口径与动作协议匹配后，再解释努力和任务上下文。单位换算不能解决物理负荷未知。",
+        "equations": [
+          "已知双侧片重与杆重时：total_load = 2 × plate_load_per_side + bar_mass"
+        ],
+        "variable_dictionary": [
+          "total_load、plate_load_per_side、bar_mass：同单位质量；器械标称阻力另标口径。"
+        ],
+        "assumptions": [
+          "该式只描述配重账目，不证明实际肌肉受力。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [],
+        "product_parameters": [
+          "comparison_context_schema_version",
+          "unit_registry_version"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "字段和比较域是产品操作化，需与测量文献审阅分开；不把搜索分类当生理本体。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-strength-volume-dose",
+      "theory_id": "TC-strength-volume-dose",
+      "version": "0.1.0",
+      "title": "工作组与配重次数是记录统计，不是有效刺激真值",
+      "domains": [
+        "strength",
+        "progression"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "工作组计数、外部负荷×次数和直接/间接肌群参与分别描述不同内容，不能合成一个未经验证的有效刺激量。",
+      "allowed_claims": [
+        "按独立 parent_set_id 统计已完成工作组，保留热身、未完成、递减段等类别。",
+        "在相同负荷口径下计算配重×次数，并报告覆盖。",
+        "经审阅肌群映射可分别展示直接与间接参与组数。"
+      ],
+      "forbidden_claims": [
+        "把kg·次称作机械功、卡路里或肌肥大量。",
+        "默认将所有间接组乘0.5并声称通用生理等价。",
+        "把一个递减组的多段当多个标准直组；未知肌群映射当0组。"
+      ],
+      "required_inputs": [
+        "session_id",
+        "parent_set_id",
+        "segment_id",
+        "role",
+        "completion_state",
+        "load_basis",
+        "load_value",
+        "reps",
+        "muscle_mapping_version",
+        "mapping_review_status"
+      ],
+      "metric_ids": [
+        "STR-01",
+        "STR-04",
+        "STR-05",
+        "STR-06",
+        "STR-08"
+      ],
+      "source_ids": [
+        "S1",
+        "S8"
+      ],
+      "applicability": {
+        "population": "训练日志描述；剂量—适应的研究结论另需匹配研究人群和方案。",
+        "protocol_requirements": [
+          "组结构和负重口径明确。",
+          "肌群映射经过单独审阅。"
+        ],
+        "not_applicable": [
+          "等长或有效负荷未知的自重组不强算动态volume load。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "definition_with_empirical_context",
+        "statement": "V在同口径有效工作组内求和；直接和间接组分栏。群体剂量研究是背景，不是个人最优组数求解器。",
+        "equations": [
+          "V = Σ_i load_i × reps_i"
+        ],
+        "variable_dictionary": [
+          "V：kg·次或明确标记的器械刻度·次。"
+        ],
+        "assumptions": [
+          "缺失组只参与覆盖分母，不插补后冒称完整总量。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [],
+        "product_parameters": [
+          "parent_set_definition",
+          "set_structure_version",
+          "muscle_mapping_version"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "S8中的研究编码方式即使可复现，也不自动构成个体生理换算系数。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-strength-rir-semantics",
+      "theory_id": "TC-strength-rir-semantics",
+      "version": "0.1.0",
+      "title": "RIR与RIR型RPE的量表语义及误差",
+      "domains": [
+        "strength",
+        "progression",
+        "plateau"
+      ],
+      "claim_type": "measurement_validity",
+      "definition": "RIR是对还能完成多少标准重复的自评；量表名称、任务和停止条件决定其含义。量表的效度证据不意味着每次自评等于客观余力。",
+      "allowed_claims": [
+        "保留直接RIR、区间式RIR与原始RPE量表。",
+        "同负重、次数和量表下的RIR变化可作主观支持证据。",
+        "精确RIR与阈值/区间回答按各自信息量处理。"
+      ],
+      "forbidden_claims": [
+        "对Borg或session-RPE统一使用10−RPE。",
+        "缺失RIR填0或把RIR=0必然等同已验证向心力竭。",
+        "把RIR增加1直接当实做次数增加1。"
+      ],
+      "required_inputs": [
+        "rir_value_or_interval",
+        "rpe_value",
+        "scale_id",
+        "scale_version",
+        "exercise_condition",
+        "reps",
+        "question_timing",
+        "stop_reason"
+      ],
+      "metric_ids": [
+        "STR-10",
+        "STR-14",
+        "STR-17",
+        "STR-23"
+      ],
+      "source_ids": [
+        "S3",
+        "S4"
+      ],
+      "applicability": {
+        "population": "需逐来源核对训练经验、动作、重复范围及提问协议。",
+        "protocol_requirements": [
+          "量表类型及锚点已定义。",
+          "记录自评发生时间和标准重复条件。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "measurement_semantics_and_empirical_review_candidate",
+        "statement": "仅对已定义的RIR型RPE对应区间进行明示映射，原始输入不被覆盖。准确性依据待全文逐主张核对。",
+        "equations": [],
+        "variable_dictionary": [],
+        "assumptions": [
+          "自评误差与任务经验相关，不能用群体平均误差宣称单人保证。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "量表合法范围来自特定量表版本。"
+        ],
+        "product_parameters": [
+          "question_protocol_id",
+          "scale_mapping_version"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "不得自设统一RIR截断上限，再把被截断值当真实值。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-strength-e1rm-ordinary",
+      "theory_id": "TC-strength-e1rm-ordinary",
+      "version": "0.1.0",
+      "title": "普通e1RM公式与实测1RM分离",
+      "domains": [
+        "strength",
+        "plateau"
+      ],
+      "claim_type": "measurement_validity",
+      "definition": "e1RM是由特定重复任务预测最大单次负荷的模型输出；不是实测1RM，也不是肌肉量。公式形式、常数、动作和停止条件必须独立核验。",
+      "allowed_claims": [
+        "可展示已登记公式下的任务表现代理，并列原始负重和次数。",
+        "仅在校准适用域内将其作为估计，明确误差和方法版本。",
+        "实测最大单次作为独立measured_1RM记录。"
+      ],
+      "forbidden_claims": [
+        "把高相关等同无偏、个体准确或所有动作普适。",
+        "高次数通过min(reps,15)等静默裁剪输入以制造适用性。",
+        "r=1的实测最大单次再乘公式增益并称实测1RM。",
+        "把w×(1+0.0333r)和w×(1+r/30)标为数值常数完全相同。"
+      ],
+      "required_inputs": [
+        "load_value",
+        "load_basis",
+        "reps",
+        "exercise_condition",
+        "stop_reason",
+        "formula_id",
+        "formula_version",
+        "calibration_scope",
+        "measurement_protocol"
+      ],
+      "metric_ids": [
+        "STR-16",
+        "STR-30"
+      ],
+      "source_ids": [
+        "N3",
+        "S6",
+        "S7"
+      ],
+      "applicability": {
+        "population": "N3候选校验范围为其研究动作与样本；其他人群、动作、未力竭组和器械须另审。",
+        "protocol_requirements": [
+          "完整负重口径已知。",
+          "输入次数和停止协议属于注册适用域。"
+        ],
+        "not_applicable": [
+          "等长、器械未知负荷或自重有效负荷未知不得直接代入。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "literature_formula_candidate",
+        "statement": "按N3候选表格形式建立注册方法；未经校准仅可作为research/proxy视图，不成为进阶或停滞主判定。",
+        "equations": [
+          "Epley_N3_candidate = w × (1 + 0.0333 × r)",
+          "Common_Epley_variant = w × (1 + r/30)"
+        ],
+        "variable_dictionary": [
+          "w：同口径负荷；r：实际完成次数；输出沿用负荷单位。"
+        ],
+        "assumptions": [
+          "两个形式有不同formula_id。",
+          "N3源表位置须在正式SourceVersion与非空EvidenceSpan中复核绑定。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "0.0333和1/30分别属于所选公式的固定常数，不能无记录替换。"
+        ],
+        "product_parameters": [
+          "formula_registry_version",
+          "calibration_scope_id"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "不预设一个普适允许重复数区间；域边界来自来源/校准方案。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-strength-e1rm-rir-experimental",
+      "theory_id": "TC-strength-e1rm-rir-experimental",
+      "version": "0.1.0",
+      "title": "RIR修正e1RM是独立的待验证组合模型",
+      "domains": [
+        "strength",
+        "plateau",
+        "personalization"
+      ],
+      "claim_type": "unvalidated_hypothesis",
+      "definition": "将自报RIR加入已完成次数后再套e1RM公式是一项额外建模假设，其误差包括RIR误差、任务变化及原公式误差。",
+      "allowed_claims": [
+        "在明确实验分支计算并与普通e1RM和原始表现并列。",
+        "通过独立个体外/时间外验证比较其误差、偏差与区间覆盖。"
+      ],
+      "forbidden_claims": [
+        "把RIR量表研究当作组合公式已验证证据。",
+        "使用该实验值覆盖普通e1RM或实测1RM。",
+        "把预测提升自动解释为处方有效或容量真值。"
+      ],
+      "required_inputs": [
+        "load_value",
+        "load_basis",
+        "reps",
+        "rir_value_or_interval",
+        "scale_id",
+        "exercise_condition",
+        "formula_version",
+        "validation_dataset"
+      ],
+      "metric_ids": [
+        "STR-17"
+      ],
+      "source_ids": [
+        "S3",
+        "S4",
+        "S6"
+      ],
+      "applicability": {
+        "population": "仅研究候选；实际适用人群与动作尚待直接验证。",
+        "protocol_requirements": [
+          "RIR测量协议明确且值不是缺失默认。",
+          "与基础公式作同数据划分比较。"
+        ],
+        "not_applicable": [
+          "缺失/不兼容量表、自重有效负荷未知不能给伪精确结果。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "product_hypothesis_not_established_formula",
+        "statement": "该式为待检验操作化，不声称来源直接验证。RIR为区间时保留输入区间和传播方案，不取任意中点当真实值。",
+        "equations": [
+          "e1RM_RIR_experimental = w × [1 + (r + RIR)/30]"
+        ],
+        "variable_dictionary": [
+          "w：负荷；r与RIR：次数尺度但信息来源不同。"
+        ],
+        "assumptions": [
+          "完成次数+自评剩余次数可代表同任务极限重复数的假设需要检验。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "原式常数只用于该研究分支的可复现定义。"
+        ],
+        "product_parameters": [
+          "experimental_formula_version",
+          "validation_protocol_id"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "默认research_only，未经直接校准不得驱动公斤调整。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-plateau-capacity-observability",
+      "theory_id": "TC-plateau-capacity-observability",
+      "version": "0.1.0",
+      "title": "完成同一计划任务不等于观测到能力上限",
+      "domains": [
+        "strength",
+        "progression",
+        "plateau"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "固定任务完成情况受计划停止、目标RIR停止、技术限制和自主力竭等不同停止机制影响；相同重复记录可能只是任务未改变。",
+      "allowed_claims": [
+        "区分capacity_unobserved、submaximal_reference、technical_limit与volitional_failure等观察机制。",
+        "使用预先定义的参考组位置比较任务表现。",
+        "连续相同任务可解释为未观察到任务变化，不能据此宣告能力停滞。"
+      ],
+      "forbidden_claims": [
+        "三次同重量同次数直接诊断生理停滞。",
+        "把力竭设为唯一有效观察或要求用户为测量必须力竭。",
+        "参考组缺失后事后挑最强组替代却不标改变。"
+      ],
+      "required_inputs": [
+        "plan_snapshot",
+        "target_reps",
+        "target_rir",
+        "actual_reps",
+        "actual_rir",
+        "stop_reason",
+        "reference_set_position",
+        "technique_quality",
+        "comparison_context"
+      ],
+      "metric_ids": [
+        "STR-09",
+        "STR-11",
+        "STR-12",
+        "STR-23"
+      ],
+      "source_ids": [
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "applicability": {
+        "population": "训练任务记录及能力解释。",
+        "protocol_requirements": [
+          "记录目标和实际的分离。",
+          "停止原因缺失时允许unknown。",
+          "参考观察在看结果前定义。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "product_operationalization_from_measurement_principle",
+        "statement": "先判任务停止机制和观察机会，再允许趋势解释；可比次最大任务同样有价值，但其结论限定为该协议下表现。",
+        "equations": [],
+        "variable_dictionary": [],
+        "assumptions": [
+          "不同停止机制不能仅因次数相同就认为同等努力。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [],
+        "product_parameters": [
+          "reference_set_rule",
+          "stop_reason_schema",
+          "comparison_episode"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "停止分类是测量解释，不是固定增重或失败诊断规则。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-progression-load-repetition-options",
+      "theory_id": "TC-progression-load-repetition-options",
+      "version": "0.1.0",
+      "title": "进阶是条件性任务选择，不是唯一最优负重",
+      "domains": [
+        "progression",
+        "strength"
+      ],
+      "claim_type": "group_intervention_evidence",
+      "definition": "负荷、次数、组数和频率改变是不同的训练安排选择。群体研究与指南可支持候选原则，不能确定用户下一组唯一最优公斤数。",
+      "allowed_claims": [
+        "根据用户目标、同条件完成情况和实际器械档位形成增次数或下一档负荷候选。",
+        "下一档不可执行或跨度过大时保留当前任务、调整重复目标或暂不量化。",
+        "所有候选保留依据、冲突、未知与用户选择。"
+      ],
+      "forbidden_claims": [
+        "把指南中的群体区间自动转成个人必需增幅。",
+        "以任意综合评分优化负荷/次数/组数。",
+        "目标缺失时虚构8–12次、RIR2或固定百分比。"
+      ],
+      "required_inputs": [
+        "user_goal",
+        "training_status",
+        "plan_version",
+        "target_range",
+        "actual_reps",
+        "actual_rir",
+        "quality",
+        "stop_reason",
+        "available_loads",
+        "equipment_instance_id"
+      ],
+      "metric_ids": [
+        "STR-25",
+        "STR-26",
+        "STR-27"
+      ],
+      "source_ids": [
+        "S1",
+        "S2",
+        "S5",
+        "S8"
+      ],
+      "applicability": {
+        "population": "逐项核对指南/研究的人群、训练经验、结局和干预。",
+        "protocol_requirements": [
+          "实际设备负荷集合已配置。",
+          "用户计划与可比执行信息存在。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "literature_principle_with_product_candidate_generation",
+        "statement": "从设备可用值产生可执行下一档，再按用户明确计划形成可选方案；档位事实不等于个人适宜性。",
+        "equations": [
+          "next_load = min{w ∈ available_loads : w > current_load}"
+        ],
+        "variable_dictionary": [
+          "available_loads：同口径实际设备档位集合。"
+        ],
+        "assumptions": [
+          "集合为空时返回无下一档，而非外推百分比。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "文献建议仅在明确来源版本和适用范围内引用。"
+        ],
+        "product_parameters": [
+          "user_target_range",
+          "available_loads",
+          "candidate_generation_version"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "旧与新指南关系需审阅；旧来源不得被新指南存在而自动当撤稿。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-measurement-reliability-error",
+      "theory_id": "TC-measurement-reliability-error",
+      "version": "0.1.0",
+      "title": "测量误差与有用变化是两个不同问题",
+      "domains": [
+        "strength",
+        "plateau",
+        "personalization"
+      ],
+      "claim_type": "statistical_method",
+      "definition": "重复测量误差描述测量的变异；最小有用变化描述目标意义。能够超过噪声不等于训练收益重要，未超过噪声也不证明没有变化。",
+      "allowed_claims": [
+        "在设计假设满足时估计TE/SEM或适用差值的MDC。",
+        "报告测量协议、样本、偏差、误差估计不确定性。"
+      ],
+      "forbidden_claims": [
+        "把测得误差阈值当所有动作的生理进步门槛。",
+        "从组内多次重复当独立重测估计个人可靠性。",
+        "把MDC95用于任意趋势/多次差值而忽略其设计。"
+      ],
+      "required_inputs": [
+        "repeated_scores",
+        "paired_design",
+        "measurement_protocol",
+        "learning_or_fatigue_check",
+        "variance_model",
+        "sample_size",
+        "time_between_tests"
+      ],
+      "metric_ids": [
+        "STR-18",
+        "STR-20",
+        "STR-21"
+      ],
+      "source_ids": [
+        "S7",
+        "M1"
+      ],
+      "applicability": {
+        "population": "同一标准化任务的重复测量；结论不直接外推未测动作。",
+        "protocol_requirements": [
+          "重复测量独立性、同方差和系统差假设经检查。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "design_conditional_statistical_method",
+        "statement": "两次同方差、独立误差且无系统学习/疲劳差时可用差值估计；其他设计使用声明的模型。",
+        "equations": [
+          "TE = SD(score_2 − score_1) / sqrt(2)",
+          "MDC95 = 1.96 × sqrt(2) × SEM"
+        ],
+        "variable_dictionary": [
+          "TE/SEM/MDC与原分数同单位。"
+        ],
+        "assumptions": [
+          "MDC式针对其适用的两次分数差和正态近似。",
+          "SEM与TE不可在不同设计中不加定义混称。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "误差模型与置信水平须登记。"
+        ],
+        "product_parameters": [
+          "measurement_protocol_id",
+          "retest_design_id"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "不以0.2SD、1%等默认替代用户任务意义或测量校准。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-plateau-equivalence-trend",
+      "theory_id": "TC-plateau-equivalence-trend",
+      "version": "0.1.0",
+      "title": "停滞候选需要可比变化区间与预定义等效范围",
+      "domains": [
+        "plateau",
+        "strength"
+      ],
+      "claim_type": "statistical_method",
+      "definition": "没有检出显著改善不等于变化足够小。实质无变化候选需要在可比、能力观察充分且区间有效的条件下，对预先定义的实用等效范围作判断。",
+      "allowed_claims": [
+        "使用真实时间与预定义参考表现计算局部趋势。",
+        "区间完全落入等效范围时报告与该范围内变化相容的候选结论。",
+        "区间跨越多个结论区域时返回uncertain。"
+      ],
+      "forbidden_claims": [
+        "把p>0.05或三次不涨当停滞证据。",
+        "把一周数据外推一个月后称已持续一个月停滞。",
+        "条件不足时用更多经验阈值强制分类。"
+      ],
+      "required_inputs": [
+        "comparable_reference_observations",
+        "actual_timestamps",
+        "measurement_error_model",
+        "comparison_episode",
+        "predefined_horizon",
+        "delta_lower",
+        "delta_upper",
+        "stop_reason"
+      ],
+      "metric_ids": [
+        "STR-07",
+        "STR-19",
+        "STR-20",
+        "STR-21",
+        "STR-22"
+      ],
+      "source_ids": [
+        "M1",
+        "M2",
+        "N1"
+      ],
+      "applicability": {
+        "population": "满足已登记模型假设的可比参考任务序列。",
+        "protocol_requirements": [
+          "两端回顾时点位于观测支持内。",
+          "任务意义界值在看结果前指定。"
+        ],
+        "not_applicable": [
+          "容量观察机会未验证时先返回opportunity_unchecked。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "product_statistical_operationalization",
+        "statement": "局部OLS仅为可审计基准；区间基于明确误差假设。异方差/序列相关必须另注册模型与验证，HAC或bootstrap不提供自动小样本保证。",
+        "equations": [
+          "y_i = a + β(t_i − t0) + ε_i; Δ_H = βH",
+          "C_H = H × [β_hat ± t_(1−α_look/2,n−2) × SE(β_hat)]",
+          "C_H ⊂ [−δL,+δU] ⇒ no_material_change_candidate"
+        ],
+        "variable_dictionary": [
+          "t、H：真实时间；y与δ：同一任务结局单位；β：结局/时间。"
+        ],
+        "assumptions": [
+          "经典t区间需独立同方差正态误差及局部线性设定。",
+          "区间完全高于+δU/低于−δL可分别标实质改善/下降；其余不确定。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "误差模型、α及等效检验解释需预注册。"
+        ],
+        "product_parameters": [
+          "δL/δU来自用户任务目标或研究协议，不自动填数。",
+          "episode_definition",
+          "reference_outcome"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "不把产品决策分类冒称M2直接验证了本应用。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-plateau-repeated-looks",
+      "theory_id": "TC-plateau-repeated-looks",
+      "version": "0.1.0",
+      "title": "重复查看与多指标判断需要控制累计误报",
+      "domains": [
+        "plateau",
+        "personalization"
+      ],
+      "claim_type": "statistical_method",
+      "definition": "在固定时点有效的区间，反复查看并择机下结论时不自动维持原错误率。需要明确分析episode、正式查看次数和同时作出的结论族。",
+      "allowed_claims": [
+        "可用预注册alpha分配作为保守、可审计基准。",
+        "重复打开同一数据快照只展示同一结果，不计新的正式分析。",
+        "报告单次和整个声明结论族的错误率含义。"
+      ],
+      "forbidden_claims": [
+        "每天使用同一个95%区间并宣称全程仍有95%覆盖。",
+        "每个动作重复使用全部family预算却宣称总体控制。",
+        "新建计划或换窗口自动清零累计查看而不说明新episode。"
+      ],
+      "required_inputs": [
+        "analysis_episode_id",
+        "look_index",
+        "data_hash",
+        "alpha_total",
+        "conclusion_family",
+        "per_look_interval_method",
+        "previous_looks"
+      ],
+      "metric_ids": [
+        "STR-24",
+        "STR-20",
+        "STR-22"
+      ],
+      "source_ids": [
+        "N2",
+        "M2"
+      ],
+      "applicability": {
+        "population": "正式连续判断，且每次区间在对应条件和数据生成机制下有效。",
+        "protocol_requirements": [
+          "时间查看规则和结论族预定义。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "original_union_bound_operationalization",
+        "statement": "下面的alpha分配是可独立核对的并集界构造，不声称复现N2的所有confidence sequence算法。",
+        "equations": [
+          "α_k = α_total / [k(k+1)]",
+          "Σ_(k≥1) α_k = α_total",
+          "P(任一由区间失覆盖导致的错误强结论) ≤ Σ_k α_k ≤ α_total"
+        ],
+        "variable_dictionary": [
+          "k：正式查看编号；α：无量纲错误概率预算。"
+        ],
+        "assumptions": [
+          "每次区间必须至少有1−α_k覆盖；若固定时点模型在自适应采样下失效，并集界不能修复。",
+          "同时多结论需分配同一family预算。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "α_total由预注册评估协议指定，不默认为生理常数。"
+        ],
+        "product_parameters": [
+          "look_registry",
+          "family_definition",
+          "episode_policy"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "时间一致方法需要单独实现证明和检验，不应只改UI标识。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-recovery-sdnn-protocol",
+      "theory_id": "TC-recovery-sdnn-protocol",
+      "version": "0.1.0",
+      "title": "SDNN协议身份与个人描述基线",
+      "domains": [
+        "recovery",
+        "personalization"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "SDNN与RMSSD是不同HRV指标。个人变化比较必须明确指标、采样时长、设备、姿势、时点和伪差处理；同一个数值单位不证明协议等价。",
+      "allowed_claims": [
+        "展示同协议SDNN每日代表值、历史中位数与绝对偏离。",
+        "Apple仅提供SDNN标量时明确不可重建NN序列或推算RMSSD。",
+        "基线仅使用cutoff前数据，当前值不进入自身参考。"
+      ],
+      "forbidden_claims": [
+        "把机会采样SDNN代入晨间胸带RMSSD试验区间。",
+        "从SDNN/RHR单项推出局部肌肉恢复百分比或固定恢复小时。",
+        "MAD=0时加微小常数制造大z值。",
+        "把14/28/30天或z=1.5称通用生理阈值。"
+      ],
+      "required_inputs": [
+        "metric_type",
+        "value_ms_or_bpm",
+        "protocol_id",
+        "sample_duration",
+        "device_version",
+        "measurement_context",
+        "artifact_method",
+        "sample_end_at",
+        "available_at",
+        "cutoff_time",
+        "baseline_record_ids"
+      ],
+      "metric_ids": [
+        "STATE-SDNN",
+        "STATE-RHR",
+        "STATE-REFERENCE-MEDIAN",
+        "STATE-REFERENCE-MAD",
+        "STATE-DEVIATION"
+      ],
+      "source_ids": [
+        "R3a",
+        "R3b",
+        "R2a",
+        "R2b",
+        "R5",
+        "APPLE_RHR"
+      ],
+      "applicability": {
+        "population": "Apple字段语义与个人描述统计；干预研究必须另匹配测量协议及人群。",
+        "protocol_requirements": [
+          "协议未知的记录单独成流。",
+          "每日代表值避免采样密集日期权重过大。",
+          "来源修订保留as-of快照。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "measurement_definition_and_descriptive_operationalization",
+        "statement": "只有合格NN序列可直接计算SDNN；设备标量保留来源。中位数/MAD为描述基准，不是已验证训练处方模型。",
+        "equations": [
+          "SDNN = sqrt[Σ(NN_i − mean(NN))²/(n−1)]",
+          "m = median(x_history); MAD = median(|x_history − m|); d = x_current − m",
+          "可选描述 z = d/(1.4826 × MAD)，仅MAD>0时"
+        ],
+        "variable_dictionary": [
+          "NN、SDNN：ms；m、MAD、d与x同单位；z无量纲。"
+        ],
+        "assumptions": [
+          "NN序列需明确伪差和非窦性间期处理。",
+          "1.4826是高斯一致性尺度，不是训练风险阈值。",
+          "只有一个历史点不能估计自然波动。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "1.4826仅用于声明假设的稳健标准化。"
+        ],
+        "product_parameters": [
+          "baseline_window",
+          "daily_representative_rule",
+          "protocol_registry",
+          "minimum_information_rule"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "窗口与提示阈值需验证；未经验证只描述n、范围、分位数与偏离，不自动红黄绿。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-recovery-state-observation",
+      "theory_id": "TC-recovery-state-observation",
+      "version": "0.1.0",
+      "title": "睡眠与主观状态是情境证据，不是负荷换算器",
+      "domains": [
+        "recovery",
+        "personalization"
+      ],
+      "claim_type": "evidence_interpretation",
+      "definition": "睡眠、疲劳、酸痛与疼痛记录反映不同方面；群体关联或干预结果不能直接换算个体下一组减重比例。记录缺失也不说明状态正常。",
+      "allowed_claims": [
+        "展示已观察睡眠时长、时点、来源覆盖，以及分别采集的疲劳/酸痛/疼痛。",
+        "准确限定睡眠研究的研究人群、任务和效应范围。",
+        "疼痛影响记录可支持停止当前不适动作与进一步评估提示，但不诊断原因。"
+      ],
+      "forbidden_claims": [
+        "inBed计入asleep；阶段缺失自动当清醒或没睡。",
+        "睡少、酸痛或疲劳某等级直接减重5%。",
+        "把多项状态加权成未经验证恢复总分。",
+        "从深睡、酸痛或无症状推算某肌肉已恢复百分比。"
+      ],
+      "required_inputs": [
+        "sleep_intervals",
+        "stage_identity",
+        "source_id",
+        "timezone",
+        "main_sleep_boundary",
+        "subjective_scale_id",
+        "fatigue",
+        "soreness_location",
+        "pain_context",
+        "observed_at",
+        "available_at",
+        "cutoff_time"
+      ],
+      "metric_ids": [
+        "STATE-SLEEP-MAIN",
+        "STATE-SLEEP-24H",
+        "STATE-SLEEP-COVERAGE",
+        "STATE-SLEEP-STAGE",
+        "STATE-SLEEP-TIMING",
+        "STATE-FATIGUE",
+        "STATE-SORENESS",
+        "STATE-PAIN",
+        "REPORT-STATE-SUMMARY"
+      ],
+      "source_ids": [
+        "APPLE_SLEEP",
+        "R4",
+        "R5",
+        "R2a",
+        "R2b"
+      ],
+      "applicability": {
+        "population": "睡眠测量语义、状态记录和研究解释；量表与研究适用性需逐项审核。",
+        "protocol_requirements": [
+          "睡眠来源去重和冲突处理明确。",
+          "UTC计算时长，当地时区定义归属。",
+          "主观有序量表保留文字锚点，不默认等距。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "field_definition_and_empirical_interpretation_candidate",
+        "statement": "按选定来源有效asleep区间并集计算已观察时长；inBed与awake分别保留。状态按字段呈现，不能由相关性构造公斤函数。",
+        "equations": [
+          "observed_sleep_duration = duration(union(eligible_asleep_intervals))"
+        ],
+        "variable_dictionary": [
+          "时长：秒/小时；主观等级：指定量表的序数类别。"
+        ],
+        "assumptions": [
+          "日期覆盖、阶段注释覆盖、实际佩戴是不同分母。",
+          "缺主片段边界或真实佩戴信息时相应覆盖量unknown。",
+          "跨午夜时点需圆周统计，不能把23:00和01:00平均成12:00。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "任何量表范围/临床解释必须绑定真实量表版本和适用证据。"
+        ],
+        "product_parameters": [
+          "main_sleep_assignment_rule",
+          "subjective_question_protocol",
+          "source_selection_policy"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "原创五级问卷只能标产品问卷，不冒称验证量表；本卡不提供诊断或治疗阈值。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-recovery-session-rpe-load",
+      "theory_id": "TC-recovery-session-rpe-load",
+      "version": "0.1.0",
+      "title": "sRPE负荷需要独立整体用力感与协议时长",
+      "domains": [
+        "recovery",
+        "strength"
+      ],
+      "claim_type": "measurement_validity",
+      "definition": "session-RPE是对整次训练的整体主观用力报告；其与训练时长的乘积是内部负荷代理，不是组RPE中位数或机械刺激。",
+      "allowed_claims": [
+        "分别保存sRPE原值、量表、采集延迟与session时长。",
+        "在协议匹配且输入完整时报告AU及其限制。"
+      ],
+      "forbidden_claims": [
+        "把逐组RPE中位数当session-RPE。",
+        "缺时长时用配重×次数替代sRPE乘积。",
+        "把AU解释成热量、肌肉张力或局部恢复真值。",
+        "当前训练结束后sRPE回流预测该训练开始前状态。"
+      ],
+      "required_inputs": [
+        "session_id",
+        "session_rpe",
+        "scale_id",
+        "question_protocol",
+        "collection_delay",
+        "session_start",
+        "session_end",
+        "pause_policy",
+        "available_at",
+        "cutoff_time"
+      ],
+      "metric_ids": [
+        "LOAD-SRPE",
+        "LOAD-DURATION",
+        "LOAD-SRPE-AU"
+      ],
+      "source_ids": [
+        "R6"
+      ],
+      "applicability": {
+        "population": "需匹配sRPE测量和解释的研究范围；不同问句、时点与量表不得自动混用。",
+        "protocol_requirements": [
+          "整体问句与锚点明确。",
+          "时长是否含组间休息和暂停扣除规则版本化。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "literature_method_candidate",
+        "statement": "依照指定sRPE协议采集。原方法约结束30分钟的时点作为复现候选，正式绑定原文后使用；不能把即时值当同协议。",
+        "equations": [
+          "session_RPE_load = session_RPE × session_duration_minutes"
+        ],
+        "variable_dictionary": [
+          "session_RPE：指定0—10整体量表；duration：min；乘积：AU。"
+        ],
+        "assumptions": [
+          "任一输入缺失则乘积缺失。",
+          "量表/译本的授权与效度单独核查。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "量表与采集时点来自被复现协议，不是通用最佳处方。"
+        ],
+        "product_parameters": [
+          "pause_policy_version",
+          "collection_delay_recording"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "产品修改问句或时间后需另命名协议，不继承原量表全部效度。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-energy-device-reporting",
+      "theory_id": "TC-energy-device-reporting",
+      "version": "0.1.0",
+      "title": "设备总能量是来源报告，不是真实总消耗",
+      "domains": [
+        "energy"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "Apple basal与active字段可在相同窗口和去重口径下组成设备报告总能量D；该D不是未经校准的真实总能量消耗E。",
+      "allowed_claims": [
+        "完整同窗口分量可求设备D并标来源。",
+        "Workout能量作为明细，防止重复叠加。",
+        "报告覆盖与部分日状态分别展示。"
+      ],
+      "forbidden_claims": [
+        "缺basal或active填0后宣称全天总消耗。",
+        "把Workout能量再次加到已含该活动的active。",
+        "额外固定加10%食物热效应而无字段/模型依据。",
+        "能量样本覆盖24小时等同实际佩戴24小时。"
+      ],
+      "required_inputs": [
+        "basal_energy_intervals",
+        "active_energy_intervals",
+        "source_id",
+        "device_version",
+        "window_start",
+        "window_end",
+        "record_status",
+        "source_overlap_semantics",
+        "local_day",
+        "cutoff_time"
+      ],
+      "metric_ids": [
+        "ENERGY-BASAL",
+        "ENERGY-ACTIVE",
+        "ENERGY-DEVICE-TOTAL",
+        "ENERGY-RECORD-COVERAGE",
+        "REPORT-ENERGY-SUMMARY"
+      ],
+      "source_ids": [
+        "E5a",
+        "E5b",
+        "E6",
+        "E7",
+        "E8"
+      ],
+      "applicability": {
+        "population": "平台字段定义与设备测量效度；设备/算法/活动类型须匹配验证研究。",
+        "protocol_requirements": [
+          "相同时间窗、来源选择与去重规则。",
+          "区间重叠语义明确。"
+        ],
+        "not_applicable": [
+          "无法判断区间重叠时返回conflicted，不假设匀速分摊。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "platform_definition_with_validity_boundary",
+        "statement": "先消除重复/冲突，再按字段语义求和；正在进行的日标partial。设备偏差应另有校准或明确未知。",
+        "equations": [
+          "D = device_basal_energy + device_active_energy"
+        ],
+        "variable_dictionary": [
+          "D与分量：kcal/同一窗口；不能混合日总量与瞬时功率。"
+        ],
+        "assumptions": [
+          "平台字段对齐不消除设备系统误差。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "任何设备偏差须绑定独立验证和版本。"
+        ],
+        "product_parameters": [
+          "source_priority_policy",
+          "window_alignment_policy"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "E6/E7/E8是效度审阅候选，不提供通用个人修正系数。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-energy-identifiability",
+      "theory_id": "TC-energy-identifiability",
+      "version": "0.1.0",
+      "title": "手表与体重不能单独识别真实摄入和设备偏差",
+      "domains": [
+        "energy",
+        "personalization"
+      ],
+      "claim_type": "algebraic_identifiability",
+      "definition": "观察到设备能量与体重，不足以同时确定真实能量摄入、真实消耗、设备偏差和身体储能变化；更多同类历史不能消除结构不可识别。",
+      "allowed_claims": [
+        "明确返回not_identifiable并列出尚需独立信息。",
+        "区分设备D、净储能Q、相对摄入变化ΔEI与绝对摄入I。",
+        "额外基线/校准/组成假设成立时提供标明条件的模型结果。"
+      ],
+      "forbidden_claims": [
+        "宣称只用秤和手表长期学习即可得到个人真实摄入。",
+        "把体重稳定直接当Q=0。",
+        "从体重/手表诊断蛋白不足、肌肉流失、低能量可用性或RED-S。",
+        "以先验得到一个数值冒充个人数据校准。"
+      ],
+      "required_inputs": [
+        "device_energy_D",
+        "body_weight_series",
+        "body_composition_if_available",
+        "bias_calibration_if_available",
+        "intake_baseline_if_available",
+        "model_assumptions"
+      ],
+      "metric_ids": [
+        "ENERGY-IDENTIFIABILITY",
+        "ENERGY-NET-STORAGE",
+        "ENERGY-ABSOLUTE-INTAKE"
+      ],
+      "source_ids": [
+        "E1",
+        "E2",
+        "E8"
+      ],
+      "applicability": {
+        "population": "由能量平衡与观察模型进行可识别性分析；不是特定实验的效应量结论。",
+        "protocol_requirements": [
+          "清楚区分观察量与潜在量。",
+          "任何外部约束注明来源与误差。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "original_algebraic_derivation",
+        "statement": "以下等价变换给出一类观测不变解，用于说明独立校准缺失时不可唯一识别；不是引用文献中的个人估计器。",
+        "equations": [
+          "D = E + b + η; dS/dt = I − E",
+          "I + b = D + dS/dt − η",
+          "任意c：I′=I+c，E′=E+c，b′=b−c，D与dS/dt保持不变"
+        ],
+        "variable_dictionary": [
+          "D：设备能量率；E：真实消耗率；I：摄入率；b：设备系统偏差；η：随机误差；S：身体储能。"
+        ],
+        "assumptions": [
+          "观察到体重W不等于观察到S；体成分/水分改变仍需模型。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [],
+        "product_parameters": [
+          "identifiability_reason_codes",
+          "external_evidence_registry"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "该推导是原创建模审查；source_ids提供相关模型与效度背景，不表示来源逐字给出本推导。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-energy-hall-relative-intake",
+      "theory_id": "TC-energy-hall-relative-intake",
+      "version": "0.1.0",
+      "title": "Hall–Chow摄入变化与rho有效动力学参数",
+      "domains": [
+        "energy"
+      ],
+      "claim_type": "model_method_candidate",
+      "definition": "Hall–Chow简化形式估计相对初始能量平衡摄入的变化；其中rho是包含组织划分、合成成本及模型反馈的有效动力学参数，不是纯组织能量密度。",
+      "allowed_claims": [
+        "在初始平衡、参数和人群适用条件明确时复现相对ΔEI。",
+        "把9100/22限定为原研究平均示例/模拟复现参数。",
+        "分别保存模型版本、基线、参数来源与验证状态。"
+      ],
+      "forbidden_claims": [
+        "把ΔEI称当前净热量缺口。",
+        "把注册首日体重自动当平衡基线W0。",
+        "用rho×体重变化直接估净储能。",
+        "把减重研究平均参数当力量增肌用户已校准参数。"
+      ],
+      "required_inputs": [
+        "body_weight_W",
+        "time_slope_a",
+        "initial_equilibrium_W0",
+        "initial_intake_I0_context",
+        "parameter_registry",
+        "initial_body_composition",
+        "activity_context",
+        "model_version"
+      ],
+      "metric_ids": [
+        "ENERGY-DELTA-INTAKE",
+        "ENERGY-NET-STORAGE",
+        "ENERGY-ABSOLUTE-INTAKE"
+      ],
+      "source_ids": [
+        "E1",
+        "E2",
+        "E4"
+      ],
+      "applicability": {
+        "population": "原模型研究主要为减重/体重管理情境；目标人群适用性与初始条件须重新核对。",
+        "protocol_requirements": [
+          "W0关联初始平衡摄入，而非任意首条记录。",
+          "同一版本完整参数方案。"
+        ],
+        "not_applicable": [
+          "初始条件或合格参数方案缺失时只显示体重趋势。"
+        ],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "literature_model_candidate",
+        "statement": "保留简化公式与附录参数结构以防误读。正式卡激活前需绑定E2公式图、变量定义与适用范围EvidenceSpan。",
+        "equations": [
+          "ΔEI(t) = ρa + ε[W(t) − W0]",
+          "ρ = (η_F + ρ_F + αη_L + αρ_L)/[(1−β)(1+α)]",
+          "ε = {[(γ_F+αγ_L)/(1+α)] + δ}/(1−β)"
+        ],
+        "variable_dictionary": [
+          "a=dW/dt：kg/day；ρ：kcal/kg（有效动力学系数）；ε：kcal/(kg·day)。",
+          "α=dL/dF：组成划分；η：组织合成成本；ρ_F/ρ_L：储能密度；γ：质量与静息消耗项；δ：活动项；β：食物热效应/摄入相关适应项。"
+        ],
+        "assumptions": [
+          "参数符号与量纲必须按同一来源版本核对，不跨论文拼接。",
+          "rho量纲为能量/质量不代表它就是纯储能密度。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "研究复现配置可用ρ=9100 kcal/kg、ε=22 kcal/(kg·day)，只能标hall_chow_2011_replication/research_only。",
+          "产品参数需独立来源、初始组成/活动要求及目标人群验证。"
+        ],
+        "product_parameters": [
+          "parameter_registry_id",
+          "baseline_id",
+          "model_release"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "拟合好不等于参数已被个人数据识别；不提供默认个人卡路里处方。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-energy-uncertainty-propagation",
+      "theory_id": "TC-energy-uncertainty-propagation",
+      "version": "0.1.0",
+      "title": "能量估计的误差传播必须包含基线、参数与模型条件",
+      "domains": [
+        "energy"
+      ],
+      "claim_type": "statistical_method",
+      "definition": "体重斜率、末端体重、基线与参数共享数据时通常相关；仅报告OLS残差区间会遗漏基线、参数和系统模型不确定性。",
+      "allowed_claims": [
+        "对明确观察算子使用协方差传播并标条件。",
+        "不规则采样使用真实时间和对应权重。",
+        "有偏差/储能边界时给明确条件场景范围，不冒称置信区间。"
+      ],
+      "forbidden_claims": [
+        "Theil–Sen点估计配OLS闭式方差。",
+        "把同批样本产生的W0和拟合结果假定独立。",
+        "没有误差资料用任意±10%代替。",
+        "把情景区间标为95%置信区间。"
+      ],
+      "required_inputs": [
+        "weight_vector_w",
+        "actual_times",
+        "endpoint_operator_l",
+        "slope_operator_q",
+        "baseline_W0",
+        "joint_covariance",
+        "parameter_distribution_or_fixed_values",
+        "bias_bounds_if_used",
+        "storage_bounds_if_used"
+      ],
+      "metric_ids": [
+        "ENERGY-DELTA-INTAKE",
+        "ENERGY-ABSOLUTE-INTAKE",
+        "BODY-MASS-TREND"
+      ],
+      "source_ids": [
+        "E2",
+        "E4",
+        "E7",
+        "E8"
+      ],
+      "applicability": {
+        "population": "在注册模型和协方差假设下的条件推断；不自动构成目标人群已验证预测区间。",
+        "protocol_requirements": [
+          "观察定义、基线来源和参数方案固定。",
+          "序列相关/异方差与体液扰动纳入方法评估。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "original_linear_propagation_of_candidate_model",
+        "statement": "用明确线性算子推广观察方式，并通过模拟与独立数据验证覆盖。该矩阵形式为产品推导，不声称逐字复现E2不规则采样方法。",
+        "equations": [
+          "q_i=(t_i−mean(t))/Σ_j(t_j−mean(t))²; a=qᵀw",
+          "h=ρq+εl; ΔEI=hᵀw−εW0",
+          "Var(ΔEI)=hᵀΣh+ε²Var(W0)−2εCov(hᵀw,W0)（固定参数条件）",
+          "若D固定且忽略随机误差：I ∈ [D−b_U+Q_L, D−b_L+Q_U]"
+        ],
+        "variable_dictionary": [
+          "l：明确原始/拟合末端体重的线性权重；Σ：体重观察协方差。",
+          "b区间：设备偏差情景；Q区间：净储能率情景；单位与D相同。"
+        ],
+        "assumptions": [
+          "还需传播参数及模型误差；无法量化时明确uncertainty unavailable。",
+          "同批样本基线可构造联合权重，不能重复/遗漏协方差。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "协方差模型和参数分布必须来源明确。"
+        ],
+        "product_parameters": [
+          "endpoint_definition",
+          "interval_method_id",
+          "simulation_validation_protocol"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "区间水平与场景边界必须具名，不能把参数敏感性范围包装成频率学覆盖。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-personalization-temporal-prediction",
+      "theory_id": "TC-personalization-temporal-prediction",
+      "version": "0.1.0",
+      "title": "个人预测先与可比历史基线作时间外比较",
+      "domains": [
+        "personalization",
+        "recovery",
+        "strength"
+      ],
+      "claim_type": "individual_prediction",
+      "definition": "预测目标是下一次明确可比任务的结果；加入身体状态的模型需要证明相对简单历史基线具有时间外增益，而不是训练内拟合更好。",
+      "allowed_claims": [
+        "预先定义参考组、次数/RIR/质量各自结局。",
+        "比较B0与单状态B1在同一批未来暴露上的误差、覆盖、宽度和回退。",
+        "没有稳定增益时保留B0，状态仅作描述。"
+      ],
+      "forbidden_claims": [
+        "随机拆开同一session或重叠窗口造成泄漏。",
+        "用训练残差声称个人预测区间已校准。",
+        "30次记录后自动标已学会用户。",
+        "将拟合fitness–fatigue隐状态或时间常数当已测肌肉恢复。"
+      ],
+      "required_inputs": [
+        "reference_outcome",
+        "comparison_context",
+        "cutoff_time",
+        "sample_end_at",
+        "available_at",
+        "historical_outcomes",
+        "pre_registered_state",
+        "train_validation_test_splits",
+        "baseline_predictions",
+        "model_predictions"
+      ],
+      "metric_ids": [
+        "PRED-B0",
+        "PRED-B1",
+        "PRED-ERROR-GAIN",
+        "PRED-INTERVAL"
+      ],
+      "source_ids": [
+        "R7",
+        "R8",
+        "R1"
+      ],
+      "applicability": {
+        "population": "预测任务和协议稳定的个人时间序列；跨用户效度另做留出。",
+        "protocol_requirements": [
+          "所有输入在对应cutoff前已发生且可用。",
+          "历史回顾快照不冒充可证明无泄漏的前瞻数据。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "product_predictive_baselines",
+        "statement": "B0使用最近同条件表现；B1对同一B0残差加入预注册单状态增量，系数从训练数据估计。rolling-origin、同session不跨分割、测试集锁定。",
+        "equations": [
+          "B0: predicted_reps_next = reps_last_comparable",
+          "B1: reps_next − reps_last = β × (state_next − state_last) + error",
+          "paired_ΔMAE = MAE(B0) − MAE(B1)"
+        ],
+        "variable_dictionary": [
+          "次数为明确任务结局；状态变量使用自己的单位；β非手设权重。"
+        ],
+        "assumptions": [
+          "秩不足或样本信息不足不拟合；状态缺失回退B0。",
+          "RIR为序数结局，应单独建模/描述。",
+          "误差不确定性按人/时间块处理，不把重叠日当独立样本。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "预测有效性目标、校准方法、模型选择规则需预注册。"
+        ],
+        "product_parameters": [
+          "baseline_rule",
+          "single_state_choice",
+          "rolling_origin_schedule",
+          "drift_monitoring"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "fitness–fatigue若研究实现需单独可识别性与预测验证；不能因为模型可拟合就输出恢复真值。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-personalization-prediction-not-causation",
+      "theory_id": "TC-personalization-prediction-not-causation",
+      "version": "0.1.0",
+      "title": "建议后改善与预测关联都不能单独证明干预有效",
+      "domains": [
+        "personalization",
+        "progression"
+      ],
+      "claim_type": "causal_inference_method",
+      "definition": "某状态能够预测表现，或用户采纳建议后表现改善，并不识别改变该状态/训练安排对结果的因果效应；自选择、时间趋势和共同原因仍可能存在。",
+      "allowed_claims": [
+        "分别汇总建议采纳、实际执行、目标达成和后续可比变化。",
+        "将基于观察的策略列为候选并保留未验证状态。",
+        "需要个体干预效果时预先设计相应比较、结局与误差评估。"
+      ],
+      "forbidden_claims": [
+        "把睡眠预测系数直接用于增加一小时睡眠的个人收益处方。",
+        "建议后变好即标策略有效或强化学习奖励真值。",
+        "采纳率/满意度抵消生理有效性缺证据。",
+        "未执行者当失败、结果缺失者当成功或零变化。"
+      ],
+      "required_inputs": [
+        "recommendation_id",
+        "pre_registered_goal",
+        "input_snapshot",
+        "proposed_action",
+        "user_choice",
+        "actual_execution",
+        "nonadherence_reason",
+        "followup_outcome",
+        "concurrent_changes",
+        "assignment_design"
+      ],
+      "metric_ids": [
+        "STR-26",
+        "STR-27",
+        "STR-28",
+        "REPORT-RECOMMENDATION-FOLLOWUP",
+        "PRED-ERROR-GAIN"
+      ],
+      "source_ids": [
+        "R7",
+        "R8",
+        "M1"
+      ],
+      "applicability": {
+        "population": "建议反馈与个体反应研究；因果结论取决于实际设计和识别假设。",
+        "protocol_requirements": [
+          "原目标不可事后重写。",
+          "已知执行与未知随访分母分开。",
+          "任何个体试验需评估学习、携带效应和任务稳定性。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "causal_identification_boundary",
+        "statement": "先保留可复核的反馈账目。若提出个体干预比较，另外登记分配/时间安排、可比条件、反事实对照和测量误差，不以预测准确率代替干预效果。",
+        "equations": [
+          "采纳率 = 明确采纳数/明确响应数（另报未响应）",
+          "执行目标达成率 = 满足预设目标数/完整执行结果数（另报缺结果）"
+        ],
+        "variable_dictionary": [
+          "比例的分子分母是记录定义；不是生理效应量。"
+        ],
+        "assumptions": [
+          "观察性前后差不能独自排除混杂、回归均值或自然进步。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [
+          "因果效应需相应设计与识别假设，不产生默认个人反应阈值。"
+        ],
+        "product_parameters": [
+          "goal_version",
+          "feedback_window",
+          "outcome_definition"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "将工程实现、预测验证与干预有效性三个状态分开发布。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    },
+    {
+      "core_theory_id": "TC-energy-body-weight-measurement",
+      "theory_id": "TC-energy-body-weight-measurement",
+      "version": "0.1.0",
+      "title": "体重趋势是测量序列，不等于身体储能或肌肉变化",
+      "domains": [
+        "energy",
+        "strength"
+      ],
+      "claim_type": "measurement_semantics",
+      "definition": "体重包含组织、水分、糖原及其他成分。标准化同协议记录可描述质量趋势，但不能仅由总重确定脂肪、肌肉或净能量变化。",
+      "allowed_claims": [
+        "按同秤同协议每日代表值展示原始体重及记录数。",
+        "按真实时间计算描述趋势，明确参考体重和窗口。",
+        "水分扰动作为上下文保留，不静默当异常删除。"
+      ],
+      "forbidden_claims": [
+        "挑每日最低值制造减重趋势。",
+        "不同秤未经校准直接拼接。",
+        "7700×ΔW或9100×ΔW直接作为当前净储能上线。",
+        "仅以短期BIA/DXA瘦体变化诊断蛋白质变化。"
+      ],
+      "required_inputs": [
+        "raw_weight",
+        "unit",
+        "measured_at",
+        "scale_id",
+        "measurement_protocol",
+        "clothing_fasting_context",
+        "fluid_context",
+        "daily_representative_rule",
+        "reference_weight"
+      ],
+      "metric_ids": [
+        "BODY-MASS-DAILY",
+        "BODY-MASS-TREND",
+        "BODY-MASS-RELATIVE",
+        "STR-30",
+        "ENERGY-NET-STORAGE",
+        "REPORT-ENERGY-SUMMARY"
+      ],
+      "source_ids": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "applicability": {
+        "population": "体重描述统计；体成分或能量模型需额外测量和对应模型。",
+        "protocol_requirements": [
+          "真实测量时间和同协议流。",
+          "缺失日不插补成已观察数据。"
+        ],
+        "not_applicable": [],
+        "unknown_context": "关键适用项未知时保留未知，不能把 unknown 视为满足；原始记录仍可保存。",
+        "supported_output_stage": "草稿仅供审阅与实现设计，不进入已审核理论索引或个人数值决策。"
+      },
+      "formula_or_method": {
+        "kind": "descriptive_statistical_operationalization",
+        "statement": "可使用Theil–Sen作描述趋势；它与动力学模型自身的OLS观察算子是不同方法。",
+        "equations": [
+          "a = median_{j>i}[(W_j−W_i)/(t_j−t_i)]",
+          "kg_per_week = 7a; percent_per_week = 100 × 7a/W_ref"
+        ],
+        "variable_dictionary": [
+          "t：day；W和W_ref：kg；a：kg/day。"
+        ],
+        "assumptions": [
+          "一个点无趋势；两个点只有点对变化。",
+          "重复时间需明确处理；区间方法和相关结构另行验证。",
+          "相对体重力量比继承其分子是否proxy及体重配对不确定性。"
+        ],
+        "execution_authority": "需要确定性实现、单位与适用域测试；草稿卡本身不授权生产数值建议。"
+      },
+      "parameter_policy": {
+        "scientific_parameters": [],
+        "product_parameters": [
+          "daily_representative_rule",
+          "weight_protocol_id",
+          "reference_weight_rule",
+          "trend_method_version"
+        ],
+        "unknown_policy": "未列参数不得由工程实现补默认生理阈值；无法识别/缺测/不适用分别返回原因与 null。",
+        "numeric_action_policy": "不得从该卡自行生成固定 −5%、任意加权分或未经验证的精确处方。",
+        "notes": "描述斜率不触发自动摄入或蛋白建议；无对应误差资料不报伪精确区间。"
+      },
+      "review_status": "draft_pending_fulltext_review",
+      "evidence_span_ids": []
+    }
+  ]
+}

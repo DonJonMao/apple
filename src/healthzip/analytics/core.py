@@ -45,14 +45,13 @@ def evidence_card(
 
 
 def _values(repo: Repository, canonical: str, window_days: int = 30) -> list[dict[str, Any]]:
-    return [
-        dict(r)
-        for r in repo.rows(
-            "SELECT * FROM health_sample WHERE canonical_type=? AND normalized_value IS NOT NULL "
-            "AND record_status='active' ORDER BY local_date,start_utc",
-            (canonical,),
-        )
-    ]
+    end = date.today()
+    start = end - timedelta(days=max(1, int(window_days)) - 1)
+    return [dict(r) for r in repo.rows(
+        "SELECT * FROM health_sample WHERE canonical_type=? AND normalized_value IS NOT NULL "
+        "AND record_status='active' AND local_date BETWEEN ? AND ? ORDER BY local_date,start_utc",
+        (canonical, start.isoformat(), end.isoformat()),
+    )]
 
 
 def heart_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
@@ -63,7 +62,7 @@ def heart_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     ]:
         rows = _values(repo, canonical, window_days)
         grouped: dict[str, list[float]] = {}
-        for r in rows[-window_days:]:
+        for r in rows:
             grouped.setdefault(r["local_date"], []).append(float(r["normalized_value"]))
         daily = [median(v) for _, v in sorted(grouped.items())]
         if not daily:
@@ -131,43 +130,14 @@ def heart_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
 
 
 def sleep_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
-    rows = [
-        dict(r)
-        for r in repo.rows(
-            "SELECT * FROM health_sample WHERE canonical_type='sleep_stage' "
-            "AND record_status='active' ORDER BY start_utc"
-        )
-    ]
-    nights: dict[str, list[tuple[datetime, datetime, str]]] = {}
-    for r in rows:
-        try:
-            st = datetime.fromisoformat((r["start_utc"] or "").replace("Z", "+00:00"))
-            en = datetime.fromisoformat((r["end_utc"] or "").replace("Z", "+00:00"))
-        except (ValueError, TypeError):
-            continue
-        if en <= st:
-            continue
-        stage = (r.get("category_value") or "").replace("HKCategoryValueSleepAnalysis", "").lower()
-        if stage in {"inbed", "in_bed"}:
-            stage = "in_bed"
-        if stage in {"asleep", "asleepcore", "asleepdeep", "asleeprem", "core", "deep", "rem"}:
-            stage = "asleep"
-        if stage == "awake":
-            continue
-        # Wake-date assignment: intervals ending after midnight belong to end date.
-        day = (en.date()).isoformat()
-        nights.setdefault(day, []).append((st, en, stage))
-    values = []
-    for day, segs in sorted(nights.items()):
-        segs = sorted(segs)
-        merged: list[tuple[datetime, datetime]] = []
-        for st, en, _ in segs:
-            if merged and st <= merged[-1][1]:
-                merged[-1] = (merged[-1][0], max(merged[-1][1], en))
-            else:
-                merged.append((st, en))
-        seconds = sum((en - st).total_seconds() for st, en in merged)
-        values.append({"date": day, "sleep_hours": round(seconds / 3600, 3), "segments": len(segs)})
+    from healthzip.temporal import sleep_nights
+
+    end = date.today()
+    start = end - timedelta(days=max(1, int(window_days)) - 1)
+    values = sleep_nights(
+        [dict(r) for r in repo.rows("SELECT * FROM health_sample WHERE canonical_type='sleep_stage'")],
+        start.isoformat(), end.isoformat(),
+    )
     status = (
         "usable"
         if len(values) >= 14
@@ -268,11 +238,14 @@ def weight_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
             "SELECT local_date,value,source FROM body_measurement WHERE canonical_type='body_mass_kg' AND value IS NOT NULL ORDER BY local_date"
         )
     )
+    end = date.today()
+    start = end - timedelta(days=max(1, int(window_days)) - 1)
+    rows = [r for r in rows if r["local_date"] and start.isoformat() <= r["local_date"] <= end.isoformat()]
     by_day: dict[str, list[float]] = {}
     for r in rows:
         by_day.setdefault(r["local_date"], []).append(float(r["normalized_value"]))
     daily = [(d, median(v)) for d, v in sorted(by_day.items())]
-    points = [(i, y) for i, (_, y) in enumerate(daily)]
+    points = [(date.fromisoformat(d).toordinal(), y) for d, y in daily]
     slope = _theil_sen(points)
     status = (
         "usable"
@@ -356,59 +329,11 @@ def vo2_analysis(repo: Repository) -> dict[str, Any]:
 
 
 def strength_analysis(repo: Repository) -> dict[str, Any]:
-    rows = [
-        dict(r)
-        for r in repo.rows(
-            "SELECT * FROM strength_set WHERE warmup=0 ORDER BY set_date,exercise_name"
-        )
-    ]
-    groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
-    for r in rows:
-        groups.setdefault((r["exercise_name"], r["equipment"], r["variation"]), []).append(r)
-    series = []
-    for key, vals in groups.items():
-        exposures = sorted({v["set_date"] for v in vals})
-        series.append(
-            {
-                "exercise_name": key[0],
-                "equipment": key[1],
-                "variation": key[2],
-                "exposures": len(exposures),
-                "records": len(vals),
-                "points": [
-                    {
-                        "date": v["set_date"],
-                        "weight_kg": v["weight_kg"],
-                        "reps": v["reps"],
-                        "e1rm": float(v["weight_kg"]) * (1 + int(v["reps"]) / 30)
-                        if v["weight_kg"] is not None and v["reps"] is not None
-                        else None,
-                    }
-                    for v in vals
-                ],
-            }
-        )
-    usable = sum(1 for s in series if s["exposures"] >= 3)
-    status = "usable" if usable else ("provisional" if series else "not_imported")
-    card = evidence_card(
-        "strength_performance",
-        "力量表现趋势",
-        status,
-        f"有 {len(series)} 个动作条件，其中 {usable} 个达到三次可比训练暴露。"
-        if series
-        else "尚未导入力量组记录。",
-        facts=[
-            {"metric": "exercise_conditions", "value": len(series), "unit": "conditions"},
-            {"metric": "usable_conditions", "value": usable, "unit": "conditions"},
-        ],
-        limitations=[
-            "e1RM 只是近似估计，不是测得 1RM，也不是肌肉量。",
-            "动作技术、活动范围、器械或 RIR 改变后可能不可比。",
-        ]
-        if series
-        else ["需要导入力量训练 CSV。"],
-    )
-    return {"card": card, "series": series}
+    # A single implementation owns load semantics and formula applicability.
+    from healthzip.analytics.p1 import strength_quality
+
+    result = strength_quality(repo)
+    return {"card": result["card"], "groups": result["series"], "series": result["series"]}
 
 
 def nutrition_analysis(repo: Repository) -> dict[str, Any]:
@@ -495,7 +420,7 @@ def all_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
     p1_strength = strength_quality(repo, start.isoformat(), end.isoformat())
     p1_state = body_state(repo, start.isoformat(), end.isoformat())
     p1_joined = body_state_strength(repo, start.isoformat(), end.isoformat())
-    return {
+    output = {
         "heart": heart_analysis(repo, window_days),
         "sleep": sleep_analysis(repo, window_days),
         "workouts": workout_analysis(repo, window_days),
@@ -515,10 +440,35 @@ def all_analysis(repo: Repository, window_days: int = 30) -> dict[str, Any]:
         "month_report": period_report(repo, "month"),
     }
 
+    from healthzip.analytics.v13 import analyze, metric_card
+    output["v13"] = analyze(repo, window_days)
+    cutoff = output["v13"]["cutoff_time"]
+    output["period_snapshots"] = {period: analyze(repo, cutoff_time=cutoff, period=period)
+                                  for period in ("week", "month")}
+    metrics = output["v13"]["metrics"]
+    daily = metrics["REPORT-STATE-SUMMARY"].get("daily_facts", [])
+    output["sleep"]["nights"] = [{"date": x["date"], "sleep_hours": x["value"] / 60,
+        "source": x.get("source_id"), "source_ids": x.get("source_record_ids", []),
+        "episode_complete": x.get("episode_complete"), "algorithm_version": metrics["REPORT-STATE-SUMMARY"]["algorithm_version"]}
+        for x in daily if x["metric_id"] == "STATE-SLEEP-MAIN" and x.get("value") is not None]
+    output["weight"]["daily"] = [{"date": x["date"], "kg": x["value"], "source": source,
+        "source_ids": x["source_ids"], "algorithm_version": metrics["BODY-MASS-DAILY"]["algorithm_version"]}
+        for source, values in (metrics["BODY-MASS-DAILY"]["value"] or {}).items() for x in values]
+    output["heart"]["cards"] = [metric_card(metrics[k]) for k in ("STATE-RHR", "STATE-SDNN")]
+    for key, metric_id in (("sleep", "STATE-SLEEP-24H"), ("weight", "BODY-MASS-TREND"),
+                           ("strength", "STR-01")):
+        output[key]["card"] = metric_card(metrics[metric_id])
+    return output
+
 
 def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
     """Persist Evidence Cards and selected daily/weekly features for rebuildability."""
     now = datetime.now(timezone.utc).isoformat()
+    if analysis.get("v13"):
+        from healthzip.analytics.v13 import persist
+        persist(repo, analysis["v13"])
+        for period_result in analysis.get("period_snapshots", {}).values():
+            persist(repo, period_result)
 
     def walk_cards(value: Any):
         if isinstance(value, dict):
@@ -584,7 +534,7 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             repo.conn.execute(
                 "INSERT OR REPLACE INTO daily_feature(feature_key,local_date,metric,value,unit,sample_count,quality_state,window_start,window_end,algorithm_version,source_ids_json,limitations_json,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    f"{key}_{day}",
+                    f"{key}_{day}_{algorithm_version}_{row.get('session_id', 'daily')}_{row.get('source', '')}",
                     day,
                     metric,
                     row[value_field],
@@ -637,7 +587,7 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
                 metric,
                 metric,
                 unit,
-                algorithm_version="p1-0.1.0",
+                algorithm_version="p1-1.3.0",
             )
     for session in analysis.get("strength_quality", {}).get("sessions", []):
         save_daily(
@@ -645,7 +595,7 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             "strength",
             "strength_volume",
             "volume_kg",
-            "kg",
-            algorithm_version="p1-0.1.0",
+            "kg·reps",
+            algorithm_version="p1-1.3.0",
         )
     repo.conn.commit()

@@ -1,0 +1,3447 @@
+{
+  "schema_version": "1.3.0",
+  "catalog_version": "seed-2026-11-11",
+  "language": "zh-CN",
+  "origin": "Original editorial seed authored for this project; not exported from Xunji",
+  "status": "prototype_catalog_not_scientifically_reviewed",
+  "created_date": "2026-11-11",
+  "policy": {
+    "taxonomy_use": "navigation_only",
+    "muscle_mapping_use": "review_queue_only_until_supported_and_approved",
+    "dose_weighting": "none",
+    "quantitative_inference_authorized": false,
+    "custom_exercise_support": "required; missing catalog entry must not block recording",
+    "unknown_condition_handling": "never treat as wildcard for trend merging",
+    "media_policy": "no copied media included; external assets require explicit item-level license",
+    "review_promotion": "Each muscle participation and technical cue needs source_id, locator, permitted_use, reviewer, reviewed_at, and version before approval; changing review state alone without evidence is invalid",
+    "exercise_seed_count": 46
+  },
+  "display_regions": [
+    {
+      "id": "chest",
+      "label": "胸"
+    },
+    {
+      "id": "back",
+      "label": "背"
+    },
+    {
+      "id": "shoulders",
+      "label": "肩"
+    },
+    {
+      "id": "arms",
+      "label": "上臂/前臂"
+    },
+    {
+      "id": "glutes",
+      "label": "臀"
+    },
+    {
+      "id": "legs",
+      "label": "腿"
+    },
+    {
+      "id": "calves",
+      "label": "小腿"
+    },
+    {
+      "id": "core",
+      "label": "躯干/核心"
+    },
+    {
+      "id": "whole_body",
+      "label": "全身/搬运"
+    }
+  ],
+  "equipment_types": [
+    "barbell",
+    "dumbbell",
+    "smith",
+    "selectorized_machine",
+    "plate_loaded_machine",
+    "cable",
+    "bodyweight",
+    "bodyweight_with_load",
+    "assisted_machine",
+    "elastic_band",
+    "kettlebell",
+    "other"
+  ],
+  "exercises": [
+    {
+      "exercise_id": "psa.ex.barbell_bench_press",
+      "definition_version": 1,
+      "name_zh": "杠铃平板卧推",
+      "aliases_zh": [
+        "平板杠铃卧推",
+        "卧推"
+      ],
+      "display_regions": [
+        "chest"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "horizontal_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.dumbbell_incline_press",
+      "definition_version": 1,
+      "name_zh": "上斜哑铃卧推",
+      "aliases_zh": [
+        "哑铃上斜卧推"
+      ],
+      "display_regions": [
+        "chest"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "horizontal_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "paired",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "bench_angle"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.smith_incline_press",
+      "definition_version": 1,
+      "name_zh": "上斜史密斯卧推",
+      "aliases_zh": [
+        "史密斯上斜卧推"
+      ],
+      "display_regions": [
+        "chest"
+      ],
+      "equipment_type": "smith",
+      "movement_patterns": [
+        "horizontal_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "plates_per_side_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "bar_mass_or_counterbalance_known",
+        "rail_angle",
+        "bench_or_foot_setup",
+        "bench_angle"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.machine_chest_press",
+      "definition_version": 1,
+      "name_zh": "器械坐姿推胸",
+      "aliases_zh": [
+        "坐姿推胸",
+        "推胸机"
+      ],
+      "display_regions": [
+        "chest"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "horizontal_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.cable_chest_fly",
+      "definition_version": 1,
+      "name_zh": "绳索夹胸",
+      "aliases_zh": [
+        "龙门架夹胸"
+      ],
+      "display_regions": [
+        "chest"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "shoulder_adduction"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.push_up",
+      "definition_version": 1,
+      "name_zh": "俯卧撑",
+      "aliases_zh": [
+        "标准俯卧撑"
+      ],
+      "display_regions": [
+        "chest",
+        "core"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "horizontal_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "bodyweight_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "bodyweight_no_external",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.pull_up",
+      "definition_version": 1,
+      "name_zh": "引体向上",
+      "aliases_zh": [
+        "正握引体向上"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "vertical_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "bodyweight_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "bodyweight_no_external",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.assisted_pull_up",
+      "definition_version": 1,
+      "name_zh": "辅助引体向上",
+      "aliases_zh": [
+        "助力引体向上"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "assisted_machine",
+      "movement_patterns": [
+        "vertical_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "assisted_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "assistance_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional",
+        "assistance_value",
+        "assistance_unit"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.weighted_pull_up",
+      "definition_version": 1,
+      "name_zh": "负重引体向上",
+      "aliases_zh": [
+        "加重引体向上"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "bodyweight_with_load",
+      "movement_patterns": [
+        "vertical_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "bodyweight_plus_load_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "added_load_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional",
+        "added_load_kg"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.lat_pulldown",
+      "definition_version": 1,
+      "name_zh": "高位下拉",
+      "aliases_zh": [
+        "坐姿高位下拉"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "vertical_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.seated_cable_row",
+      "definition_version": 1,
+      "name_zh": "坐姿绳索划船",
+      "aliases_zh": [
+        "坐姿划船"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "horizontal_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "posterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_bent_over_row",
+      "definition_version": 1,
+      "name_zh": "杠铃俯身划船",
+      "aliases_zh": [
+        "杠铃划船"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "horizontal_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.single_arm_dumbbell_row",
+      "definition_version": 1,
+      "name_zh": "单臂哑铃划船",
+      "aliases_zh": [
+        "单手哑铃划船"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "horizontal_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "unilateral",
+      "default_load_basis": "single_implement_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_overhead_press",
+      "definition_version": 1,
+      "name_zh": "杠铃站姿推举",
+      "aliases_zh": [
+        "站姿杠铃推举",
+        "肩上推举"
+      ],
+      "display_regions": [
+        "shoulders"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "vertical_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "deltoid",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.dumbbell_seated_shoulder_press",
+      "definition_version": 1,
+      "name_zh": "坐姿哑铃推举",
+      "aliases_zh": [
+        "哑铃肩推"
+      ],
+      "display_regions": [
+        "shoulders"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "vertical_push"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "paired",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "deltoid",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.dumbbell_lateral_raise",
+      "definition_version": 1,
+      "name_zh": "哑铃侧平举",
+      "aliases_zh": [
+        "侧平举"
+      ],
+      "display_regions": [
+        "shoulders"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "shoulder_abduction"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "paired",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "middle_deltoid",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.machine_reverse_fly",
+      "definition_version": 1,
+      "name_zh": "器械反向飞鸟",
+      "aliases_zh": [
+        "反向蝴蝶机"
+      ],
+      "display_regions": [
+        "shoulders",
+        "back"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "shoulder_horizontal_abduction"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "posterior_deltoid",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.cable_face_pull",
+      "definition_version": 1,
+      "name_zh": "绳索面拉",
+      "aliases_zh": [
+        "面拉"
+      ],
+      "display_regions": [
+        "shoulders",
+        "back"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "horizontal_pull",
+        "shoulder_external_rotation"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "posterior_deltoid",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "shoulder_external_rotators",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_curl",
+      "definition_version": 1,
+      "name_zh": "杠铃弯举",
+      "aliases_zh": [
+        "站姿杠铃弯举"
+      ],
+      "display_regions": [
+        "arms"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "elbow_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.dumbbell_hammer_curl",
+      "definition_version": 1,
+      "name_zh": "哑铃锤式弯举",
+      "aliases_zh": [
+        "锤式弯举"
+      ],
+      "display_regions": [
+        "arms"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "elbow_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "paired_or_alternating",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.cable_triceps_pushdown",
+      "definition_version": 1,
+      "name_zh": "绳索肱三头下压",
+      "aliases_zh": [
+        "三头下压",
+        "绳索下压"
+      ],
+      "display_regions": [
+        "arms"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "elbow_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.cable_overhead_triceps_extension",
+      "definition_version": 1,
+      "name_zh": "绳索过顶臂屈伸",
+      "aliases_zh": [
+        "过顶绳索臂屈伸"
+      ],
+      "display_regions": [
+        "arms"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "elbow_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_back_squat",
+      "definition_version": 1,
+      "name_zh": "杠铃后蹲",
+      "aliases_zh": [
+        "杠铃深蹲",
+        "后蹲"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_front_squat",
+      "definition_version": 1,
+      "name_zh": "杠铃前蹲",
+      "aliases_zh": [
+        "前蹲"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.smith_squat",
+      "definition_version": 1,
+      "name_zh": "史密斯深蹲",
+      "aliases_zh": [
+        "史密斯机深蹲"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "smith",
+      "movement_patterns": [
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "plates_per_side_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "bar_mass_or_counterbalance_known",
+        "rail_angle",
+        "bench_or_foot_setup"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.leg_press",
+      "definition_version": 1,
+      "name_zh": "器械腿举",
+      "aliases_zh": [
+        "腿举",
+        "倒蹬"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "plate_loaded_machine",
+      "movement_patterns": [
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.goblet_squat",
+      "definition_version": 1,
+      "name_zh": "高脚杯深蹲",
+      "aliases_zh": [
+        "酒杯深蹲"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "single_implement_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.rear_foot_elevated_split_squat",
+      "definition_version": 1,
+      "name_zh": "后脚抬高分腿蹲",
+      "aliases_zh": [
+        "保加利亚分腿蹲",
+        "保加利亚蹲"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "single_leg",
+        "knee_dominant",
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "unilateral",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.machine_leg_extension",
+      "definition_version": 1,
+      "name_zh": "器械腿屈伸",
+      "aliases_zh": [
+        "坐姿腿屈伸"
+      ],
+      "display_regions": [
+        "legs"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "knee_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_romanian_deadlift",
+      "definition_version": 1,
+      "name_zh": "杠铃罗马尼亚硬拉",
+      "aliases_zh": [
+        "罗马尼亚硬拉",
+        "RDL"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "hip_hinge"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "hamstrings",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "spinal_erectors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_conventional_deadlift",
+      "definition_version": 1,
+      "name_zh": "杠铃传统硬拉",
+      "aliases_zh": [
+        "传统硬拉"
+      ],
+      "display_regions": [
+        "legs",
+        "glutes",
+        "back"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "hip_hinge",
+        "knee_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "hamstrings",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "quadriceps",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "spinal_erectors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.barbell_hip_thrust",
+      "definition_version": 1,
+      "name_zh": "杠铃臀推",
+      "aliases_zh": [
+        "臀推"
+      ],
+      "display_regions": [
+        "glutes"
+      ],
+      "equipment_type": "barbell",
+      "movement_patterns": [
+        "hip_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "external_total_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.seated_leg_curl",
+      "definition_version": 1,
+      "name_zh": "坐姿腿弯举",
+      "aliases_zh": [
+        "坐姿腘绳肌弯举"
+      ],
+      "display_regions": [
+        "legs"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "knee_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "hamstrings",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.lying_leg_curl",
+      "definition_version": 1,
+      "name_zh": "俯卧腿弯举",
+      "aliases_zh": [
+        "俯卧腿屈曲"
+      ],
+      "display_regions": [
+        "legs"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "knee_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "hamstrings",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.standing_calf_raise",
+      "definition_version": 1,
+      "name_zh": "站姿提踵",
+      "aliases_zh": [
+        "站姿小腿提踵"
+      ],
+      "display_regions": [
+        "calves"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "ankle_plantarflexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "gastrocnemius",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "soleus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.seated_calf_raise",
+      "definition_version": 1,
+      "name_zh": "坐姿提踵",
+      "aliases_zh": [
+        "坐姿小腿提踵"
+      ],
+      "display_regions": [
+        "calves"
+      ],
+      "equipment_type": "plate_loaded_machine",
+      "movement_patterns": [
+        "ankle_plantarflexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "soleus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gastrocnemius",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.machine_hip_abduction",
+      "definition_version": 1,
+      "name_zh": "器械髋外展",
+      "aliases_zh": [
+        "坐姿髋外展"
+      ],
+      "display_regions": [
+        "glutes"
+      ],
+      "equipment_type": "selectorized_machine",
+      "movement_patterns": [
+        "hip_abduction"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "hip_abductors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.cable_crunch",
+      "definition_version": 1,
+      "name_zh": "绳索卷腹",
+      "aliases_zh": [
+        "跪姿绳索卷腹"
+      ],
+      "display_regions": [
+        "core"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "trunk_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "abdominals",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.plank",
+      "definition_version": 1,
+      "name_zh": "平板支撑",
+      "aliases_zh": [
+        "前臂平板支撑"
+      ],
+      "display_regions": [
+        "core"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "anti_extension"
+      ],
+      "recording_mode": "duration",
+      "contraction_or_task_type": "isometric_hold",
+      "laterality": "bilateral",
+      "default_load_basis": "bodyweight_no_external",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "duration_s",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "abdominals",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.side_plank",
+      "definition_version": 1,
+      "name_zh": "侧平板支撑",
+      "aliases_zh": [
+        "侧桥"
+      ],
+      "display_regions": [
+        "core"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "anti_lateral_flexion"
+      ],
+      "recording_mode": "duration",
+      "contraction_or_task_type": "isometric_hold",
+      "laterality": "unilateral",
+      "default_load_basis": "bodyweight_no_external",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "duration_s",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "lateral_trunk",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.pallof_press",
+      "definition_version": 1,
+      "name_zh": "帕洛夫抗旋转推",
+      "aliases_zh": [
+        "Pallof Press",
+        "抗旋转推"
+      ],
+      "display_regions": [
+        "core"
+      ],
+      "equipment_type": "cable",
+      "movement_patterns": [
+        "anti_rotation"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "unilateral",
+      "default_load_basis": "machine_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "pulley_configuration",
+        "attachment",
+        "cable_height",
+        "distance_from_anchor",
+        "stance",
+        "hold_duration_if_any"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "abdominals",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.hanging_knee_raise",
+      "definition_version": 1,
+      "name_zh": "悬垂举膝",
+      "aliases_zh": [
+        "悬垂屈膝举腿"
+      ],
+      "display_regions": [
+        "core"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "hip_flexion",
+        "trunk_flexion"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "bodyweight_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "bodyweight_no_external",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "hip_flexors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "abdominals",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.back_extension",
+      "definition_version": 1,
+      "name_zh": "背伸",
+      "aliases_zh": [
+        "山羊挺身",
+        "罗马椅背伸"
+      ],
+      "display_regions": [
+        "back",
+        "glutes"
+      ],
+      "equipment_type": "bodyweight",
+      "movement_patterns": [
+        "hip_extension",
+        "trunk_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "bodyweight_plus_load_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "added_load_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional",
+        "added_load_kg"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "spinal_erectors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "gluteus_maximus",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "hamstrings",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.farmer_carry",
+      "definition_version": 1,
+      "name_zh": "农夫行走",
+      "aliases_zh": [
+        "农夫走"
+      ],
+      "display_regions": [
+        "whole_body",
+        "arms"
+      ],
+      "equipment_type": "dumbbell",
+      "movement_patterns": [
+        "loaded_carry"
+      ],
+      "recording_mode": "distance",
+      "contraction_or_task_type": "loaded_locomotion",
+      "laterality": "paired",
+      "default_load_basis": "per_dumbbell_kg",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "distance_m",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "load_value",
+        "load_unit",
+        "load_basis"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "grip",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "trunk_stabilizers",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.elastic_band_row",
+      "definition_version": 1,
+      "name_zh": "弹力带划船",
+      "aliases_zh": [
+        "弹力绳划船"
+      ],
+      "display_regions": [
+        "back"
+      ],
+      "equipment_type": "elastic_band",
+      "movement_patterns": [
+        "horizontal_pull"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "band_configuration",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "band_id",
+        "band_grade",
+        "stretch_protocol"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "band_id",
+        "anchor",
+        "starting_length_or_stretch_protocol"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "latissimus_dorsi",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "scapular_retractors",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "elbow_flexors",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    },
+    {
+      "exercise_id": "psa.ex.assisted_dip",
+      "definition_version": 1,
+      "name_zh": "辅助双杠臂屈伸",
+      "aliases_zh": [
+        "助力双杠臂屈伸"
+      ],
+      "display_regions": [
+        "chest",
+        "arms"
+      ],
+      "equipment_type": "assisted_machine",
+      "movement_patterns": [
+        "vertical_push",
+        "elbow_extension"
+      ],
+      "recording_mode": "repetitions",
+      "contraction_or_task_type": "assisted_dynamic",
+      "laterality": "bilateral",
+      "default_load_basis": "assistance_setting",
+      "load_basis_must_be_user_confirmed": true,
+      "required_actual_fields": [
+        "reps",
+        "completion_state"
+      ],
+      "optional_actual_fields": [
+        "rir",
+        "rpe_with_scale",
+        "stop_reason",
+        "quality_note",
+        "pain_flag",
+        "actual_rest_s"
+      ],
+      "load_fields": [
+        "body_mass_kg_optional",
+        "assistance_value",
+        "assistance_unit"
+      ],
+      "comparability_dimensions": [
+        "exercise_definition_version",
+        "equipment_instance_id",
+        "load_basis",
+        "laterality_and_rep_semantics",
+        "rom_protocol",
+        "mechanically_relevant_settings",
+        "seat_or_pad_setting",
+        "load_label_unit"
+      ],
+      "muscle_participation_proposals": [
+        {
+          "muscle_id": "triceps_brachii",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "pectoralis_major",
+          "proposed_role": "direct",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        },
+        {
+          "muscle_id": "anterior_deltoid",
+          "proposed_role": "indirect",
+          "review_status": "unreviewed",
+          "source_ids": [],
+          "quantitative_use_allowed": false
+        }
+      ],
+      "scientific_review": {
+        "status": "unreviewed",
+        "source_ids": [],
+        "reviewer": null,
+        "reviewed_at": null
+      },
+      "media": [],
+      "technique_cues": [],
+      "e1rm_policy": "not_authorized_by_catalog; route through measurement eligibility contract",
+      "history_display_policy": "preserve raw records; compare only within reviewed or explicit user-confirmed measurement conditions"
+    }
+  ],
+  "references": [
+    {
+      "source_id": "UX-S1",
+      "type": "official_app_store_listing",
+      "url": "https://apps.apple.com/cn/app/%E8%AE%AD%E8%AE%B0-%E8%AE%AD%E7%BB%83%E8%AE%A1%E5%88%92%E4%B8%93%E5%AE%B6/id1464915553",
+      "usage": "interaction reference only; not anatomy or per-exercise scientific support",
+      "accessed_on": "2026-11-11"
+    },
+    {
+      "source_id": "UX-S2",
+      "type": "official_demo_site",
+      "url": "https://trains.xunjiapp.cn/",
+      "usage": "identity and public feature demo reference only",
+      "accessed_on": "2026-11-11"
+    }
+  ]
+}

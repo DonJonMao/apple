@@ -65,14 +65,16 @@ def render_report(
                 yield from walk(value)
 
     seen = set()
-    for card in walk(analysis):
+    card_source = ({key: analysis[key] for key in ("workouts", "vo2", "nutrition", "cycle") if key in analysis}
+                   if analysis.get("v13") else analysis)
+    for card in walk(card_source):
         if card["id"] in seen:
             continue
         seen.add(card["id"])
         lines.append(_card(card))
         lines.append("")
     strength_quality = analysis.get("strength_quality") or {}
-    if strength_quality.get("series") or strength_quality.get("sessions"):
+    if not analysis.get("v13") and (strength_quality.get("series") or strength_quality.get("sessions")):
         lines += ["## P1 力量与身体状态", ""]
         lines.append("### 可比动作条件")
         lines.append("")
@@ -85,8 +87,8 @@ def render_report(
                 f"{item.get('e1rm_change_kg') if item.get('e1rm_change_kg') is not None else '—'}|"
                 f"{item.get('e1rm_slope_kg_per_exposure') if item.get('e1rm_slope_kg_per_exposure') is not None else '—'}|"
             )
-        lines += ["", "### 训练日质量", ""]
-        lines.append("|日期|正式组|训练量（kg）|最高 e1RM（kg）|中位 RPE|中位 RIR|负荷算法|")
+        lines += ["", "### 逐场训练记录", ""]
+        lines.append("|日期|正式组|同条件负荷×次数（kg·次）|最高 e1RM（kg）|中位 RPE|中位 RIR|负荷算法|")
         lines.append("|---|---:|---:|---:|---:|---:|---|")
         for item in strength_quality.get("sessions", []):
             lines.append(
@@ -101,7 +103,7 @@ def render_report(
         joins = association.get("joins") or []
         lines += ["", "### 身体状态对齐", ""]
         lines.append(
-            f"已对齐 {sum(1 for row in joins if row.get('body_state'))} / {len(joins)} 次力量训练（同日或相邻日）。"
+            f"已对齐 {sum(1 for row in joins if row.get('body_state'))} / {len(joins)} 次力量训练（训练前已发生且当时已知）。"
         )
         lines.append(
             "该表是时间邻近的描述性关联，不证明身体状态导致训练表现变化；缺失记录保持未知。"
@@ -109,7 +111,7 @@ def render_report(
         if association.get("paired_metrics"):
             lines += ["", "配对状态与做组质量的描述统计：", ""]
             lines.append(
-                "|身体指标|配对样本|身体中位数|训练量中位数（kg）|最高 e1RM 中位数（kg）|中位 RPE|中位 RIR|"
+                "|身体指标|配对样本|身体中位数|同条件负荷×次数中位数（kg·次）|最高 e1RM 中位数（kg）|中位 RPE|中位 RIR|"
             )
             lines.append("|---|---:|---:|---:|---:|---:|---:|")
             for item in association["paired_metrics"]:
@@ -129,11 +131,26 @@ def render_report(
             comparison = report.get("comparison") or {}
             lines.append(
                 f"周期：{report.get('start', '—')} 至 {report.get('end', '—')}；"
-                f"训练量变化：{comparison.get('volume_delta_kg') if comparison.get('volume_delta_kg') is not None else '无法比较'} kg。"
+                f"同条件负荷×次数变化：{comparison.get('volume_delta_kg') if comparison.get('volume_delta_kg') is not None else '无法比较'} kg·次。"
             )
             if report.get("recommendations"):
                 lines.append("下一周期建议：")
                 lines.extend(f"- {item}" for item in report["recommendations"])
+    snapshots = [("v1.3 统一指标", analysis.get("v13"))]
+    snapshots.extend(("本周完整指标" if period == "week" else "本月完整指标", value)
+                     for period, value in analysis.get("period_snapshots", {}).items())
+    for title, v13 in snapshots:
+        if not v13:
+            continue
+        import json
+        lines += [f"## {title}", "", f"数据截止：{v13['cutoff_time']}；算法：{v13['algorithm_version']}；窗口：{v13['window_start']} 至 {v13['window_end']}", "",
+                  "|指标|数值|单位|数据状态|证据身份|有效/总数|原因|", "|---|---|---|---|---|---|---|"]
+        metrics = v13["metrics"].values() if isinstance(v13["metrics"], dict) else v13["metrics"]
+        for metric in metrics:
+            value = "未知" if metric["value"] is None else json.dumps(metric["value"], ensure_ascii=False)
+            lines.append(f"|{metric['metric_id']}|{value.replace('|', '/')}|{metric['unit'] or '—'}|{metric['data_status']}|{metric['evidence_status']}|{metric['valid_n']}/{metric['total_n']}|{'；'.join(metric['reason_codes'])}|")
+        lines += ["", "完整合同（含窗口、记录ID、参数、区间、证据和算法版本）：", "", "```json",
+                  json.dumps(v13, ensure_ascii=False, indent=2, default=str), "```", ""]
     lines += ["## 质量与缺口", ""]
     for key, value in analysis.get("readiness", {}).items():
         lines.append(

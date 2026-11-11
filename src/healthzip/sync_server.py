@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 from healthzip.db.repository import Repository
 from healthzip.importers.incremental import import_json_payload
 from healthzip.strength_log import save_strength_log
+from healthzip.training.offline import apply_event_batch, browser_bootstrap, recorder_html
 
 
 def _token(headers: Any) -> str:
@@ -49,6 +50,8 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self._cors_headers()
         self.end_headers()
         self.wfile.write(body)
 
@@ -57,8 +60,74 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
             _token(self.headers), self.server.token
         )
 
+    def _cors_headers(self) -> None:
+        # A downloaded standalone recorder has Origin:null. It still must send
+        # the secret token; arbitrary website origins receive no CORS permission.
+        origin = self.headers.get("Origin")
+        if origin == "null":
+            self.send_header("Access-Control-Allow-Origin", "null")
+            self.send_header("Vary", "Origin")
+
+    def _training_origin_allowed(self) -> bool:
+        origin = self.headers.get("Origin")
+        if not origin or origin == "null":
+            return True
+        parsed = urlparse(origin)
+        return parsed.scheme in {"http", "https"} and parsed.netloc == self.headers.get("Host")
+
+    def do_OPTIONS(self) -> None:  # noqa: N802
+        if (
+            not urlparse(self.path).path.startswith("/v1/training/")
+            or not self._training_origin_allowed()
+        ):
+            self._respond(403, {"error": "origin_not_allowed"})
+            return
+        self.send_response(204)
+        self._cors_headers()
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-HealthZip-Token")
+        self.send_header("Access-Control-Max-Age", "600")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_GET(self) -> None:  # noqa: N802
-        if urlparse(self.path).path == "/health":
+        path = urlparse(self.path).path
+        if path == "/training/offline":
+            body = recorder_html()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src http: https:; base-uri 'none'; form-action 'none'",
+            )
+            if "download=1" in self.path:
+                self.send_header(
+                    "Content-Disposition", 'attachment; filename="HealthZIP-offline.html"'
+                )
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if path in {"/v1/training/bootstrap", "/v1/training/catalog", "/v1/training/sessions"}:
+            if not self._authorized() or not self._training_origin_allowed():
+                self._respond(401, {"error": "unauthorized"})
+                return
+            repo = Repository(self.server.db_path)
+            try:
+                result = browser_bootstrap(repo)
+                if path.endswith("/catalog"):
+                    result = {
+                        key: result[key]
+                        for key in ("schema_version", "catalog", "equipment", "templates")
+                    }
+                elif path.endswith("/sessions"):
+                    result = {"sessions": result["sessions"], "conflicts": result["conflicts"]}
+                self._respond(200, result)
+            finally:
+                repo.close()
+            return
+        if path == "/health":
             self._respond(200, {"status": "ok", "service": "healthzip-sync"})
             return
         self._respond(404, {"error": "not_found"})
@@ -72,8 +141,12 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
             "/v1/ingest/health",
             "/v1/ingest/health-auto-export",
             "/v1/ingest/strength",
+            "/v1/training/events",
         }:
             self._respond(404, {"error": "not_found"})
+            return
+        if path == "/v1/training/events" and not self._training_origin_allowed():
+            self._respond(403, {"error": "origin_not_allowed"})
             return
         length_text = self.headers.get("Content-Length", "")
         try:
@@ -93,9 +166,17 @@ class _HealthZipHandler(BaseHTTPRequestHandler):
             self._respond(400, {"error": "invalid_json", "message": str(exc)[:300]})
             return
 
-        source_name = self.headers.get("X-HealthZip-Source", "phone_export").strip() or "phone_export"
+        source_name = (
+            self.headers.get("X-HealthZip-Source", "phone_export").strip() or "phone_export"
+        )
         repo = Repository(self.server.db_path)
         try:
+            if path == "/v1/training/events":
+                result = apply_event_batch(
+                    repo, payload.get("events"), device_id=payload.get("device_id", "browser-local")
+                )
+                self._respond(200, result)
+                return
             inbox = _inbox_path(self.server.db_path, raw, source_name)
             if path == "/v1/ingest/strength":
                 session = payload.get("session") or {}
