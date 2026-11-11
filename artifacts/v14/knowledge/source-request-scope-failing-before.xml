@@ -1,0 +1,76 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.321" timestamp="2026-11-11T23:17:57.292351+08:00"><testcase classname="tests.unit.test_v14_source_request_scope" name="test_registered_document_type_is_available_after_upgrading_legacy_metadata" time="0.159"><failure message="AssertionError: assert 'unavailable' == 'available'&#10;  &#10;  - available&#10;  + unavailable&#10;  ? ++">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa03f6c10&gt;
+
+    def test_registered_document_type_is_available_after_upgrading_legacy_metadata(library):
+        source = "CORE-US-HHS-PAG-2"
+        with library.lib.sources:
+            manifest = library.lib.source(source)["manifest"]
+            manifest.pop("document_kind", None)
+            library.lib.sources.execute("UPDATE source SET manifest_json=? WHERE source_id=?", (json.dumps(manifest), source))
+        library.lib.record_version(source, b"Synthetic HHS guideline body", "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": "Synthetic adult public health guidance.", "locator": {"chapter_id": "4"}}], "synthetic")
+        question = "根据HHS指南，解释身体活动建议。"
+        task = parse_task(question, resolve_named_sources(library, question, {}))
+&gt;       assert requested_material(library, task, {"core"})["status"] == "available"
+E       AssertionError: assert 'unavailable' == 'available'
+E
+E         - available
+E         + unavailable
+E         ? ++
+
+tests/unit/test_v14_source_request_scope.py:31: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_two_chapters_are_not_silently_reduced_to_the_first" time="0.003"><failure message="KeyError: 'requested_chapter_numbers'">def test_two_chapters_are_not_silently_reduced_to_the_first():
+        task = parse_task("HHS第二版第4章说明成人年龄范围，第7章说明安全建议适用范围。")
+&gt;       assert task["source_constraints"]["requested_chapter_numbers"] == ["4", "7"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'requested_chapter_numbers'
+
+tests/unit/test_v14_source_request_scope.py:46: KeyError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary[\u8bf7\u76f4\u63a5\u7528M2\u66ff\u6211\u5224\u5b9a\u6700\u8fd1\u56db\u5468\u8bad\u7ec3\u662f\u4e0d\u662f\u505c\u6ede\uff0c\u5e76\u7ed9\u51fa\u505c\u6ede\u7684\u6982\u7387\u548c\u4e2a\u4eba\u7b49\u6548\u754c\u503c\u3002]" time="0.004"><failure message="AssertionError: assert 'statistical_calculation' in {'practical_equivalence'}">question = '请直接用M2替我判定最近四周训练是不是停滞，并给出停滞的概率和个人等效界值。'
+
+    @pytest.mark.parametrize("question", [
+        "请直接用M2替我判定最近四周训练是不是停滞，并给出停滞的概率和个人等效界值。",
+        "Use this equivalence method to decide whether my training has plateaued and give me a probability.",
+        "为我的训练选择个人等效界值。",
+    ])
+    def test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary(question):
+        task = parse_task(question)
+&gt;       assert "statistical_calculation" in {part["part_id"] for part in task["required_answer_parts"]}
+E       AssertionError: assert 'statistical_calculation' in {'practical_equivalence'}
+
+tests/unit/test_v14_source_request_scope.py:57: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary[Use this equivalence method to decide whether my training has plateaued and give me a probability.]" time="0.002"><failure message="AssertionError: assert 'statistical_calculation' in {'practical_equivalence'}">question = 'Use this equivalence method to decide whether my training has plateaued and give me a probability.'
+
+    @pytest.mark.parametrize("question", [
+        "请直接用M2替我判定最近四周训练是不是停滞，并给出停滞的概率和个人等效界值。",
+        "Use this equivalence method to decide whether my training has plateaued and give me a probability.",
+        "为我的训练选择个人等效界值。",
+    ])
+    def test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary(question):
+        task = parse_task(question)
+&gt;       assert "statistical_calculation" in {part["part_id"] for part in task["required_answer_parts"]}
+E       AssertionError: assert 'statistical_calculation' in {'practical_equivalence'}
+
+tests/unit/test_v14_source_request_scope.py:57: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary[\u4e3a\u6211\u7684\u8bad\u7ec3\u9009\u62e9\u4e2a\u4eba\u7b49\u6548\u754c\u503c\u3002]" time="0.001"><failure message="AssertionError: assert 'statistical_calculation' in {'equivalence_margin_basis'}">question = '为我的训练选择个人等效界值。'
+
+    @pytest.mark.parametrize("question", [
+        "请直接用M2替我判定最近四周训练是不是停滞，并给出停滞的概率和个人等效界值。",
+        "Use this equivalence method to decide whether my training has plateaued and give me a probability.",
+        "为我的训练选择个人等效界值。",
+    ])
+    def test_personal_statistical_decisions_are_not_satisfied_by_a_method_summary(question):
+        task = parse_task(question)
+&gt;       assert "statistical_calculation" in {part["part_id"] for part in task["required_answer_parts"]}
+E       AssertionError: assert 'statistical_calculation' in {'equivalence_margin_basis'}
+
+tests/unit/test_v14_source_request_scope.py:57: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_public_health_minimum_is_not_retargeted_as_two_optimization_claims" time="0.002"><failure message="AssertionError: assert {'hypertrophy', 'strength'} == {'public_health'}&#10;  &#10;  Extra items in the left set:&#10;  'strength'&#10;  'hypertrophy'&#10;  Extra items in the right set:&#10;  'public_health'&#10;  Use -v to get more diff">def test_public_health_minimum_is_not_retargeted_as_two_optimization_claims():
+        task = parse_task("HHS要求每周至少两天肌力活动，是在讲健康收益，还是已经找到了力量和增肌的唯一最佳频次？")
+        parts = task["required_answer_parts"]
+&gt;       assert {part.get("requested_goal") for part in parts if part.get("outcome") == "frequency"} == {"public_health"}
+E       AssertionError: assert {'hypertrophy', 'strength'} == {'public_health'}
+E
+E         Extra items in the left set:
+E         'strength'
+E         'hypertrophy'
+E         Extra items in the right set:
+E         'public_health'
+E         Use -v to get more diff
+
+tests/unit/test_v14_source_request_scope.py:63: AssertionError</failure></testcase></testsuite></testsuites>

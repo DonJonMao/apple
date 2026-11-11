@@ -1,0 +1,96 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.690" timestamp="2026-11-11T23:27:58.229280+08:00"><testcase classname="tests.unit.test_answer_revision_selection" name="test_current_answer_uses_revision_while_frozen_answer_and_candidate_keep_exact_old_ref" time="0.173"><failure message="AssertionError: assert {'1', '2'} == {'2'}&#10;  &#10;  Extra items in the left set:&#10;  '1'&#10;  Use -v to get more diff">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff87b48cd0&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+
+    def test_current_answer_uses_revision_while_frozen_answer_and_candidate_keep_exact_old_ref(revisions):
+        w, old, new, review = revisions
+        w.review_claim(new, review)
+        release = w.release_core("after")
+        assert len(release["claims"]) == 2 and len(release["rules"]) == 1
+        for selected in (None, "after"):
+            answer = query(w, selected)
+            assert answer["answer_status"] == "answered_with_support"
+&gt;           assert {c["theory_version"] for c in answer["claims"]} == {"2"}
+E           AssertionError: assert {'1', '2'} == {'2'}
+E
+E             Extra items in the left set:
+E             '1'
+E             Use -v to get more diff
+
+tests/unit/test_answer_revision_selection.py:55: AssertionError</failure></testcase><testcase classname="tests.unit.test_answer_revision_selection" name="test_revoked_revision_does_not_silently_restore_old_current_answer" time="0.076"><failure message="AssertionError: assert not [{'text': 'Synthetic old answer', 'theory_id': 'SYNTH-REVISION', 'theory_version': '1', 'span_ids': ['S5:fulltext:d521ff748f2889e95610:synthetic:s00000'], ...}]">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff852096d0&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+
+    def test_revoked_revision_does_not_silently_restore_old_current_answer(revisions):
+        w, _, new, review = revisions
+        w.review_claim(new, review)
+        w.release_core("after")
+        core_state(w, "claim", new["claim_id"], "2", "revoked", actor="Synthetic fixture", rationale="Test revocation")
+&gt;       assert not query(w)["claims"]
+E       AssertionError: assert not [{'text': 'Synthetic old answer', 'theory_id': 'SYNTH-REVISION', 'theory_version': '1', 'span_ids': ['S5:fulltext:d521ff748f2889e95610:synthetic:s00000'], ...}]
+
+tests/unit/test_answer_revision_selection.py:68: AssertionError</failure></testcase><testcase classname="tests.unit.test_answer_revision_selection" name="test_revision_requires_an_existing_same_claim_and_same_answer_target[other_claim]" time="0.066"><failure message="Failed: DID NOT RAISE ValueError">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff851d5690&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+change = 'other_claim'
+
+    @pytest.mark.parametrize("change", ["other_claim", "missing_version", "same_version", "different_target"])
+    def test_revision_requires_an_existing_same_claim_and_same_answer_target(revisions, change):
+        w, _, new, review = revisions
+        if change == "other_claim":
+            new["answer_revision_of"]["claim_id"] = "OTHER"
+        elif change == "missing_version":
+            new["answer_revision_of"]["version"] = "404"
+        elif change == "same_version":
+            new["answer_revision_of"]["version"] = "2"
+        else:
+            new["answer_task"]["outcome"] = "frequency"
+&gt;       with pytest.raises(ValueError, match="answer revision"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_answer_revision_selection.py:85: Failed</failure></testcase><testcase classname="tests.unit.test_answer_revision_selection" name="test_revision_requires_an_existing_same_claim_and_same_answer_target[missing_version]" time="0.066"><failure message="Failed: DID NOT RAISE ValueError">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff84ed5710&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+change = 'missing_version'
+
+    @pytest.mark.parametrize("change", ["other_claim", "missing_version", "same_version", "different_target"])
+    def test_revision_requires_an_existing_same_claim_and_same_answer_target(revisions, change):
+        w, _, new, review = revisions
+        if change == "other_claim":
+            new["answer_revision_of"]["claim_id"] = "OTHER"
+        elif change == "missing_version":
+            new["answer_revision_of"]["version"] = "404"
+        elif change == "same_version":
+            new["answer_revision_of"]["version"] = "2"
+        else:
+            new["answer_task"]["outcome"] = "frequency"
+&gt;       with pytest.raises(ValueError, match="answer revision"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_answer_revision_selection.py:85: Failed</failure></testcase><testcase classname="tests.unit.test_answer_revision_selection" name="test_revision_requires_an_existing_same_claim_and_same_answer_target[same_version]" time="0.066"><failure message="Failed: DID NOT RAISE ValueError">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff84ef08d0&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+change = 'same_version'
+
+    @pytest.mark.parametrize("change", ["other_claim", "missing_version", "same_version", "different_target"])
+    def test_revision_requires_an_existing_same_claim_and_same_answer_target(revisions, change):
+        w, _, new, review = revisions
+        if change == "other_claim":
+            new["answer_revision_of"]["claim_id"] = "OTHER"
+        elif change == "missing_version":
+            new["answer_revision_of"]["version"] = "404"
+        elif change == "same_version":
+            new["answer_revision_of"]["version"] = "2"
+        else:
+            new["answer_task"]["outcome"] = "frequency"
+&gt;       with pytest.raises(ValueError, match="answer revision"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_answer_revision_selection.py:85: Failed</failure></testcase><testcase classname="tests.unit.test_answer_revision_selection" name="test_revision_requires_an_existing_same_claim_and_same_answer_target[different_target]" time="0.066"><failure message="Failed: DID NOT RAISE ValueError">revisions = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff84f05050&gt;, {'claim_id': 'SYNTH-REVISION', 'version'...c fixture', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00Z', 'content_checked': True, ...})
+change = 'different_target'
+
+    @pytest.mark.parametrize("change", ["other_claim", "missing_version", "same_version", "different_target"])
+    def test_revision_requires_an_existing_same_claim_and_same_answer_target(revisions, change):
+        w, _, new, review = revisions
+        if change == "other_claim":
+            new["answer_revision_of"]["claim_id"] = "OTHER"
+        elif change == "missing_version":
+            new["answer_revision_of"]["version"] = "404"
+        elif change == "same_version":
+            new["answer_revision_of"]["version"] = "2"
+        else:
+            new["answer_task"]["outcome"] = "frequency"
+&gt;       with pytest.raises(ValueError, match="answer revision"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_answer_revision_selection.py:85: Failed</failure></testcase></testsuite></testsuites>

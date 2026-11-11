@@ -1,0 +1,3363 @@
+{
+  "schema": "round4_development_semantic_review_v1",
+  "review_kind": "implementer_development_replay_not_independent_evaluation",
+  "reviewed_at_utc": "2026-11-11T15:37:31.961934+00:00",
+  "run": "1.4.9-initial",
+  "release_id": "core-refined-source-explanations-1.4.9",
+  "release_sha256": "696686f13402b6ee42216acfe842eff65f6c97f627192879d1fc1addd89bd351",
+  "source_code_sha256": {
+    "src/healthzip/knowledge/__init__.py": "0b4db7313543e4546dcbf2a12844ba5b2c91f34177af89e65a8df5487fb5cf0d",
+    "src/healthzip/knowledge/__main__.py": "0b2ba36644613f835d6257b85bf029b4206da14f5335c9ba3c61104550e5ce1a",
+    "src/healthzip/knowledge/acquisition.py": "a96dbf53b05213fad0a04ab0c5514e6cc9965f8db8b4a4bafe812dda16fd6513",
+    "src/healthzip/knowledge/adjudication.py": "4650512f47e8cf48d114d387b4f4cc8396829d570a8b558386a2f046f5ce67ca",
+    "src/healthzip/knowledge/applicability.py": "613562f7e89c4eb8739916212a6a7d764447d35e2107a8d677a7fd866bb76931",
+    "src/healthzip/knowledge/core.py": "bc8a8f74df5137d9884ab1cc8af6f807d1c5c748971f921ccd94cb3ab2725527",
+    "src/healthzip/knowledge/data/activity_safety_scope_1_4_8.json": "4a18fd6da325c0d4ff56881d0a133902ba687576b87d164c3ceff156170306dc",
+    "src/healthzip/knowledge/data/core_extension.json": "23fc066cc645b4f5642043917317a20dc914a1313db23fc029d3fb5cfe35c116",
+    "src/healthzip/knowledge/data/core_rules.json": "1b260eec151d69173481488bb31cfa2d2fa6a2248c1cddb25cd3609d4788e56d",
+    "src/healthzip/knowledge/data/core_sources.json": "3d8dfb475538e2770876f3fb6458d8eced4cf1a2cd1cba00a9aaf214263ee609",
+    "src/healthzip/knowledge/data/hhs_goal_scope.json": "41eb0de4bfcdba890c7e0b3edc8955a7672ab60e341014a35da280083071e259",
+    "src/healthzip/knowledge/data/knowledge_routes.json": "d681978e76048df721b73fd3c5d282994da8f0eb655713d32dc7e3f66b91173d",
+    "src/healthzip/knowledge/data/method_equivalence.json": "c727acf4c0d44beb28e1da394e449f9ea8783de3eb4a9d41b0a7c535048b2bd6",
+    "src/healthzip/knowledge/data/rag_eval_cases.json": "94d0d1233659501a92c4130d7289767aebef3b62ce6337fe21c44449b0abe9d8",
+    "src/healthzip/knowledge/data/rag_holdout.json": "62b2e34ece6a655341aad0b6751b3d577f10955a85c9333f208615a2ef97ca62",
+    "src/healthzip/knowledge/data/refined_explanations_1_4_9.json": "e92539742e291bdbae4680e0f628dac76b2e76548c3599cf7cf351ee11e99487",
+    "src/healthzip/knowledge/data/regression_covariance_1_4_7.json": "fbad991f3840e771c25fb2b47385970ef375ed04aada452de8d5b80f6373b735",
+    "src/healthzip/knowledge/data/source_explanations_1_4_6.json": "4ce2ed5de66e5d3468d0f367076422fbda7c2743b4b9f46a5fdf1f50f80a2eab",
+    "src/healthzip/knowledge/data/sources.json": "4572b4837c99706dec0ad99865547d164f211072a6669e7511d13978da4f9b7f",
+    "src/healthzip/knowledge/data/theory_seed_cards.json": "4ac1da804ec33a9e695b13efd0ac85ed6b22de8493e299f6f302bcd334eac4e2",
+    "src/healthzip/knowledge/documents.py": "16f47dfe038c7f554edc6a7e51cb5c936497eaef75377ec1141a7b746f9bbe33",
+    "src/healthzip/knowledge/evaluation.py": "926b616e91f6a8775f424dc4da5472787e9dcf8aae547759e1251386dcb57470",
+    "src/healthzip/knowledge/quality.py": "30233865caf0a8cef930e9d779d78ba2e6d29acb6afa6d6a7f19597560d3ec98",
+    "src/healthzip/knowledge/question_parts.py": "10e589f65ed2e37577df1cfa3d2ad0c6761e765844a51ace2a10467a4666ef7a",
+    "src/healthzip/knowledge/retrieval.py": "bada7b7de4fe2573aea83d3e2f3b0142f278d8d71821f28b45517a92a6b26427",
+    "src/healthzip/knowledge/rights.py": "11034d26820e995813733d653784bce5d51003b92a0313dd51eb0f6176ef16bb",
+    "src/healthzip/knowledge/store.py": "ba010fd04281236b88a6df97d038c88041c6ac58cf9dcf604573a067a0f8717e",
+    "src/healthzip/knowledge/support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+    "src/healthzip/knowledge/tasks.py": "b0511e1a469f01f39241588f0ad8331107469b2697288b484141eba426a5a42c",
+    "src/healthzip/knowledge/workbench.py": "a30660dc36a3883b62e76c6e964b0f12434f9b3c3180934d8b774ab217c1f35c",
+    "src/healthzip/ui/knowledge_page.py": "a7f674251f74751d6d925a9fa056cb285e2b3f2207ec4ac3da500d258a793210"
+  },
+  "raw_development_output_sha256": "1cb9c3edcf83b74fa771bd8f0a26a02d9be76f9a5d2031138c727be6f2a834d7",
+  "original_frozen_artifact_sha256": {
+    "cases.json": "e091f447dd08844e05ba464005e2a49771194620ab8c77b82c951a2f9ffdd62d",
+    "outputs.raw.json": "a5c90682ad9626b9cf9d7e1704e0277407c383170722c58ae41dc4cdda3451aa",
+    "annotations.json": "77af375a709107830e4b16d134d9dfccac7cf8090751dbf42fb300f0be1e9475",
+    "results.json": "cd96b05006de94b15c271fbfd8c0231133dc231787aca170f1e91cf0060e4920",
+    "report.md": "8c5942b3a85908570ad9c06c8462fbc1539b685c98450e14942f9fa35a0b56f9"
+  },
+  "original_independent_counts_preserved": {
+    "denominator": 24,
+    "pass": 10,
+    "partial": 6,
+    "fail": 8
+  },
+  "development_counts": {
+    "denominator": 24,
+    "pass": 22,
+    "partial": 2,
+    "fail": 0
+  },
+  "independent_ai_denominator": 0,
+  "independent_human_or_expert_denominator": 0,
+  "source_access": "read_only_sqlite_with_query_only_and_read_transactions",
+  "cases": [
+    {
+      "case_id": "R4-01",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-01-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-01-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-01-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "定义、必要性与精确余力边界均已回答，并保留力量与肌肥大两个目标。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "effort_precision:hypertrophy",
+          "label": "余力与努力程度的精度边界（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "effort_precision",
+          "requested_relation": "precision",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "effort_precision:strength",
+          "label": "余力与努力程度的精度边界（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "effort_precision",
+          "requested_relation": "precision",
+          "requested_goal": "strength"
+        },
+        {
+          "part_id": "failure_definition",
+          "label": "瞬时肌肉力竭的定义",
+          "subject": "resistance_training",
+          "outcome": "failure_definition",
+          "requested_relation": "explanation"
+        },
+        {
+          "part_id": "failure_necessity:hypertrophy",
+          "label": "是否必须达到力竭（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "failure_necessity",
+          "requested_relation": "necessity",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "failure_necessity:strength",
+          "label": "是否必须达到力竭（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "failure_necessity",
+          "requested_relation": "necessity",
+          "requested_goal": "strength"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-RIR",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:72",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "text_hash": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              }
+            },
+            {
+              "anchor": "S1:76",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-FAILURE",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:72",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "text_hash": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              }
+            },
+            {
+              "anchor": "S1:76",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-S1-FAILURE-DEFINITION",
+          "theory_version": "1.4.6",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:13",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013",
+              "text_hash": "80cce4682c57c68b242574d2298fdc8606c4af7cd6a51a797819108a8bac9800",
+              "locator": {
+                "end_offset": 2772,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": "T2",
+                "paragraph_id": 13,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[4]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "b84bbe35abdeed70a5592d063b986a4a9eb7b1bc1edc196dbb73e299939879b0"
+    },
+    {
+      "case_id": "R4-02",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-02-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-02-P2",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "第4章成人范围与第7章多数安全建议的范围分别回答，引用分别绑定对应章节。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "activity_safety_scope",
+          "label": "安全活动建议的年龄适用范围（第7章）",
+          "subject": "physical_activity",
+          "outcome": "activity_safety_scope",
+          "requested_relation": "scope",
+          "source_constraints": {
+            "requested_chapter_number": "7"
+          }
+        },
+        {
+          "part_id": "adult_guideline_scope",
+          "label": "身体活动指南的成人范围（第4章）",
+          "subject": "physical_activity",
+          "outcome": "adult_guideline_scope",
+          "requested_relation": "scope",
+          "source_constraints": {
+            "requested_chapter_number": "4"
+          }
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+          "theory_version": "1.4.9",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:12",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+              "text_hash": "e5d9159430071f67932edf90a472f8065d6d63997e19b00f0b65f5af20beda02",
+              "locator": {
+                "bounding_box": [
+                  0.0,
+                  0.0,
+                  612.0,
+                  792.0
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 87,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "88",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 12
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-HHS-ADULT-SCOPE",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-HHS-ADULT-SCOPE",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            },
+            {
+              "anchor": "HHS:7",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+              "text_hash": "e55ede46b8869ff716403c5827256bedf48024078b8ad43669b1b722f2ed0fce",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 61,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "62",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 7
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "0726df7b798b49749979f7cc1fc8f967a8771877c2dcc9104b4c837d2db1324d"
+    },
+    {
+      "case_id": "R4-03",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-03-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-03-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-03-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "低起点、逐步增加与健康目标背景均覆盖，没有把最低建议当作首周统一要求。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "frequency",
+          "label": "训练频次及其适用目标",
+          "subject": "resistance_training",
+          "outcome": "frequency",
+          "requested_relation": "options"
+        },
+        {
+          "part_id": "muscle_strengthening_start",
+          "label": "开始肌力活动的一般任务",
+          "subject": "resistance_training",
+          "outcome": "muscle_strengthening_start",
+          "requested_relation": "options"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-HHS-MUSCLE-START",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:8",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008",
+              "text_hash": "eb31ed903a5525522cdd540c4ae4d8e30d21a11aba680d4de70bd2c329854d6d",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 62,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "63",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 8
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-HHS-MUSCLE-START",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:7",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+              "text_hash": "e55ede46b8869ff716403c5827256bedf48024078b8ad43669b1b722f2ed0fce",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 61,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "62",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 7
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+          "theory_version": "1.4.3",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "8ca4f1eb286397fe66a9e815fbcc020f487b23e066459c0bb67ee99d425cc07d"
+    },
+    {
+      "case_id": "R4-04",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-04-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-04-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-04-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "绝对增加量与相对增幅区分、适应恢复及不可推广固定百分比均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "activity_increment_size",
+          "label": "身体活动增量的大小",
+          "subject": "physical_activity",
+          "outcome": "activity_increment_size",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-HHS-ACTIVITY-INCREMENT",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:14",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+              "text_hash": "60cf6806bd96e1b1bea2319a6db316702ba467872eebf58ccf4a3f5fb6572934",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 89,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "90",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 14
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "83fa2ab9b93358f870df60badef42caa7307e7a6e10208fc6f6234ae32cb366f"
+    },
+    {
+      "case_id": "R4-05",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-05-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-05-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-05-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "年龄、体能与既往经验分别解释，未作个人病因或恢复时间诊断。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "progression_rate_factors",
+          "label": "身体活动增加速度的影响因素",
+          "subject": "physical_activity",
+          "outcome": "progression_rate_factors",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-HHS-PROGRESSION-FACTORS",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:14",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+              "text_hash": "60cf6806bd96e1b1bea2319a6db316702ba467872eebf58ccf4a3f5fb6572934",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 89,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "90",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 14
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-HHS-PROGRESSION-FACTORS",
+          "theory_version": "1.4.6",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:15",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015",
+              "text_hash": "35009d45f751973fa90862dddae7b118dc042648fcfa0b6fa7771f20b8924e4a",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 90,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "91",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 15
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "7e6485674ca96831178daac873738994be5d6adce8cb5082e3e5cb5d83130736"
+    },
+    {
+      "case_id": "R4-06",
+      "case_type": "source_sufficient",
+      "development_grade": "partial",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-06-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-06-P2",
+          "verdict": "partial"
+        }
+      ],
+      "summary": "中心否定判断正确，但原冻结P2要求的相应等效检验与界值说明未展开；保留此漏项，不降低原预期。",
+      "must_not_violations": [],
+      "false_complete_label": true,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "non_significance_interpretation",
+          "label": "差异检验不显著的解释边界",
+          "subject": "statistical_inference",
+          "outcome": "non_significance_interpretation",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-M2-NON-SIGNIFICANCE",
+          "theory_version": "1.4.6",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:1",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+              "text_hash": "02ba296b5d11010d11410f10fd6979ad64f23be38ed88e15f4c5630d2eb11b6f",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  252,
+                  554,
+                  472
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1159,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "f8278e786847c0a069d32575cd716b025dc95d22f3fda5d367eba317f8604484"
+    },
+    {
+      "case_id": "R4-07",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-07-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-07-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-07-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "界值需依情境、排除实际重要差异而非证明绝对相同及确定困难均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "equivalence_margin_basis",
+          "label": "等效界值与最小重要效应的依据",
+          "subject": "statistical_inference",
+          "outcome": "equivalence_margin_basis",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-M2-EQUIVALENCE-MARGINS",
+          "theory_version": "1.4.6",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:0",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+              "text_hash": "706d441cfce9fdd6ed149aabb793b704e8d4685fc1a0693b5f02ea426a29b577",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  110,
+                  554,
+                  252
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 689,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-M2-EQUIVALENCE-MARGINS",
+          "theory_version": "1.4.6",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:2",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+              "text_hash": "6a12613203d36a36af1fff483db3af016e384549569950767ec53d2a2af8bb5e",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  538,
+                  554,
+                  604
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 341,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "c73a8ab3924f1a425a50370d0fb747af08aa30385402432bb547b6a10580ef31"
+    },
+    {
+      "case_id": "R4-08",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-08-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-08-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-08-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "两项单侧检验、完整区间判据和非绝对相同边界均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "equivalence_test_logic",
+          "label": "双单侧检验与置信区间判据",
+          "subject": "statistical_inference",
+          "outcome": "equivalence_test_logic",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+          "theory_version": "1.4.6",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:3",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003",
+              "text_hash": "6d397fb24f600535f504030e7ebb97efabc599b56dbcfc6218b8ec131b4eaa94",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  46,
+                  292,
+                  263
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1145,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 4,
+                "language": "en",
+                "printed_page": 204,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+          "theory_version": "1.4.6",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:2",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+              "text_hash": "6a12613203d36a36af1fff483db3af016e384549569950767ec53d2a2af8bb5e",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  538,
+                  554,
+                  604
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 341,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:3",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003",
+              "text_hash": "6d397fb24f600535f504030e7ebb97efabc599b56dbcfc6218b8ec131b4eaa94",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  46,
+                  292,
+                  263
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1145,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 4,
+                "language": "en",
+                "printed_page": 204,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "f753c9d65696776f1f6eadea5126c481318647ee9daeaaa0fbccff4392cf9053"
+    },
+    {
+      "case_id": "R4-09",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-09-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-09-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-09-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "独立随机样本、正态观测、平行组设计及个人时序外推边界均覆盖；附带通用方法背景。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "practical_equivalence",
+          "label": "统计不显著与实用等效的区别",
+          "subject": "statistical_inference",
+          "outcome": "practical_equivalence",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:1",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+              "text_hash": "02ba296b5d11010d11410f10fd6979ad64f23be38ed88e15f4c5630d2eb11b6f",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  252,
+                  554,
+                  472
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1159,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "additional_background"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:0",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+              "text_hash": "706d441cfce9fdd6ed149aabb793b704e8d4685fc1a0693b5f02ea426a29b577",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  110,
+                  554,
+                  252
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 689,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:2",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+              "text_hash": "6a12613203d36a36af1fff483db3af016e384549569950767ec53d2a2af8bb5e",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  538,
+                  554,
+                  604
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 341,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:3",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003",
+              "text_hash": "6d397fb24f600535f504030e7ebb97efabc599b56dbcfc6218b8ec131b4eaa94",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  46,
+                  292,
+                  263
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1145,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 4,
+                "language": "en",
+                "printed_page": 204,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "additional_background"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:4",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+              "text_hash": "c3055785aea537d8f545d3e1bcdf96ef1f47ad676f09b88bbcd735343426f487",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  677,
+                  554,
+                  731
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 263,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 8,
+                "language": "en",
+                "printed_page": 208,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:5",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005",
+              "text_hash": "ad5762334bebc4ac44fa5acc00ddc33ffdba9260acde39eec866b9603cf91565",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  305,
+                  292,
+                  369
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 273,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 9,
+                "language": "en",
+                "printed_page": 209,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "428f469bb92aff6aebc0cc4b9ad1555aa741259a98de8d75a66a8be2bac43100"
+    },
+    {
+      "case_id": "R4-10",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-10-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-10-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-10-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "健康最低频次、个人最优目标及不能反推无收益均明确说明。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "frequency:public_health",
+          "label": "训练频次及其适用目标（总体健康目标）",
+          "subject": "resistance_training",
+          "outcome": "frequency",
+          "requested_relation": "options",
+          "requested_goal": "public_health"
+        },
+        {
+          "part_id": "goal_scope",
+          "label": "不同训练目标",
+          "subject": "resistance_training",
+          "outcome": "goal_scope",
+          "requested_relation": "scope"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-HHS-GOAL-SCOPE",
+          "theory_version": "1.4.5",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            },
+            {
+              "anchor": "HHS:2",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002",
+              "text_hash": "56192e54121f8c7d93760dcd4093119208469c603e6d2bfdd9ff5970c386f487",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 56,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "57",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 2
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-HHS-GOAL-SCOPE",
+          "theory_version": "1.4.5",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            },
+            {
+              "anchor": "HHS:6",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006",
+              "text_hash": "08de52a1bfd3007479fa9311310486c8ab368df96be0d77bf14348321c18f138",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 60,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "61",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 6
+              }
+            },
+            {
+              "anchor": "HHS:8",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008",
+              "text_hash": "eb31ed903a5525522cdd540c4ae4d8e30d21a11aba680d4de70bd2c329854d6d",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 62,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "63",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 8
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-HHS-GOAL-SCOPE",
+          "theory_version": "1.4.5",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:6",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006",
+              "text_hash": "08de52a1bfd3007479fa9311310486c8ab368df96be0d77bf14348321c18f138",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 60,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "61",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 6
+              }
+            },
+            {
+              "anchor": "HHS:7",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+              "text_hash": "e55ede46b8869ff716403c5827256bedf48024078b8ad43669b1b722f2ed0fce",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 61,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "62",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 7
+              }
+            },
+            {
+              "anchor": "HHS:8",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008",
+              "text_hash": "eb31ed903a5525522cdd540c4ae4d8e30d21a11aba680d4de70bd2c329854d6d",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 62,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "63",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 8
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 4,
+          "theory_id": "CORE-CLAIM-PUBLIC-FREQUENCY",
+          "theory_version": "1.4.3",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:1",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "text_hash": "e9b1a4a3463d4798712d935b8b946bfc26330e20cac727072ba94ca001046a9f",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "4",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 55,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "56",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 1
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "e0c3b9de6a1a320902d284dc35479232ea7d5d815a5ab59032aab0e5c7205d00"
+    },
+    {
+      "case_id": "R4-11",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-11-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-11-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-11-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "已有收益与长期进展区分，五类可调变量及个人选择和数字边界均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "progression_necessity",
+          "label": "持续进阶与初始收益",
+          "subject": "resistance_training",
+          "outcome": "progression_necessity",
+          "requested_relation": "necessity"
+        },
+        {
+          "part_id": "progression_options",
+          "label": "渐进训练的任务选择",
+          "subject": "resistance_training",
+          "outcome": "progression_options",
+          "requested_relation": "options"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "theory_version": "1.4.9",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "theory_version": "1.4.9",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            },
+            {
+              "anchor": "S1:62",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              }
+            },
+            {
+              "anchor": "S1:70",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+              "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+              "locator": {
+                "end_offset": 795,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 70,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-PROGRESSION-NECESSITY",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:60",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060",
+              "text_hash": "f0da87e4f3ce2f2e045a0f0f051de6f9c3dd9e9dbc6ad4b8957617ce230a5d7d",
+              "locator": {
+                "end_offset": 708,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 60,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[3]"
+              }
+            },
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            },
+            {
+              "anchor": "S1:62",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "3c8a50647c64a79b956894a383947bffd1d16a9de301992ca4b34fd911cd7d60"
+    },
+    {
+      "case_id": "R4-12",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-12-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-12-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-12-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "力量与肌肥大分别回答，资料不足未写成无效，未给个人精确间歇。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "rest:hypertrophy",
+          "label": "组间休息及其适用边界（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "rest",
+          "requested_relation": "options",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "rest:strength",
+          "label": "组间休息及其适用边界（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "rest",
+          "requested_relation": "options",
+          "requested_goal": "strength"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-REST-HYPERTROPHY",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:25",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+              "text_hash": "6c8e7ec98383fad93a8951f975fc381f396c932ab2c04e545e15d58eb75fb66f",
+              "locator": {
+                "end_offset": 1692,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 25,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[4]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:69",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+              "text_hash": "b44052a993e19ea726b467062e86ba67a0373cecc9f7e2b344904436a0b76684",
+              "locator": {
+                "end_offset": 617,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 69,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[12]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-REST",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:24",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00024",
+              "text_hash": "be4f1cdc3351b00e34365c38fe6cdca887d824dcd3a2e2cf707082241de51c81",
+              "locator": {
+                "end_offset": 1289,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 24,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[3]/*[6]"
+              }
+            },
+            {
+              "anchor": "S1:69",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+              "text_hash": "b44052a993e19ea726b467062e86ba67a0373cecc9f7e2b344904436a0b76684",
+              "locator": {
+                "end_offset": 617,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 69,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[12]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "f54d1f18381896558e46859b31eac03c13e8e3bf294337c6cdb3d95955421021"
+    },
+    {
+      "case_id": "R4-13",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-13-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-13-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-13-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "同总量下两个训练目标的频次证据分别解释，保留完整剂量反应与个人最优未知。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "frequency:hypertrophy",
+          "label": "训练频次及其适用目标（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "frequency",
+          "requested_relation": "options",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "frequency:strength",
+          "label": "训练频次及其适用目标（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "frequency",
+          "requested_relation": "options",
+          "requested_goal": "strength"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:25",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025",
+              "text_hash": "6c8e7ec98383fad93a8951f975fc381f396c932ab2c04e545e15d58eb75fb66f",
+              "locator": {
+                "end_offset": 1692,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 25,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[4]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:26",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00026",
+              "text_hash": "4eda190596b34bc7e73ec9a5acbcc2be840010af5367a08cc0a3abe46b7f1432",
+              "locator": {
+                "end_offset": 694,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 26,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[4]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:69",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+              "text_hash": "b44052a993e19ea726b467062e86ba67a0373cecc9f7e2b344904436a0b76684",
+              "locator": {
+                "end_offset": 617,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 69,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[12]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "cd8a5f1f0164b6b1f00291bb0507c61322aace9c0e5780d91dccd3bfe0d160f2"
+    },
+    {
+      "case_id": "R4-14",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-14-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-14-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-14-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "负荷次数关系、退步推断的可比条件及力量的来源测量定义均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "comparability",
+          "label": "训练与测量任务可比性",
+          "subject": "resistance_training",
+          "outcome": "comparability",
+          "requested_relation": "scope"
+        },
+        {
+          "part_id": "load_repetition_relation",
+          "label": "负荷和可完成次数的关系",
+          "subject": "resistance_training",
+          "outcome": "load_repetition_relation",
+          "requested_relation": "explanation"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-LOAD-REPETITION",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:62",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              }
+            },
+            {
+              "anchor": "S1:70",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+              "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+              "locator": {
+                "end_offset": 795,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 70,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-SPECIFICITY",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:62",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              }
+            },
+            {
+              "anchor": "S1:70",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+              "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+              "locator": {
+                "end_offset": 795,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 70,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]"
+              }
+            },
+            {
+              "anchor": "S1:75",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075",
+              "text_hash": "7ae2fe0dc8913e952d7fb981b772828b1b91698906cd266a762802a6cfc88d05",
+              "locator": {
+                "end_offset": 2506,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 75,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[18]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "559a8a1d36e9018e44c4cb346bcdc0c7d9afdab9d69487e48da0a047fbe9a51d"
+    },
+    {
+      "case_id": "R4-15",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-15-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-15-P2",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "组量积极关系、收益递减和精确最优未知均覆盖；渐进变量段落为有依据的额外背景。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "progression_options:hypertrophy",
+          "label": "渐进训练的任务选择（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "progression_options",
+          "requested_relation": "options",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "progression_options:strength",
+          "label": "渐进训练的任务选择（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "progression_options",
+          "requested_relation": "options",
+          "requested_goal": "strength"
+        },
+        {
+          "part_id": "volume:hypertrophy",
+          "label": "训练组量及其适用边界（肌肥大目标）",
+          "subject": "resistance_training",
+          "outcome": "volume",
+          "requested_relation": "options",
+          "requested_goal": "hypertrophy"
+        },
+        {
+          "part_id": "volume:strength",
+          "label": "训练组量及其适用边界（力量目标）",
+          "subject": "resistance_training",
+          "outcome": "volume",
+          "requested_relation": "options",
+          "requested_goal": "strength"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:71",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+              "text_hash": "9d04bd8effe7cf7af1c0924f5cb01ee02c84b68454ff9dff2b9e768484862018",
+              "locator": {
+                "end_offset": 1178,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 71,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[14]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "theory_version": "1.4.9",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "additional_background"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-PROGRESSION",
+          "theory_version": "1.4.9",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            },
+            {
+              "anchor": "S1:62",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+              "text_hash": "57bb9e076b8a6cec6f1c3383ce7a143627b2ea752241dd1f587308c316abc9fb",
+              "locator": {
+                "end_offset": 932,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 62,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[5]"
+              }
+            },
+            {
+              "anchor": "S1:70",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+              "text_hash": "01b69ee892747381aef1619514eca0c5af367ec68c9044191ca49462314a92e6",
+              "locator": {
+                "end_offset": 795,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 70,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[13]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "additional_background"
+        }
+      ],
+      "raw_output_sha256": "e8b2c89bd4cb4cd3ea00d34bc96db747488c460609eb35dae1ff76979e708cc2"
+    },
+    {
+      "case_id": "R4-16",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-16-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-16-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-16-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "周期组织定义、非普遍必要及结论强度限制均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "variation",
+          "label": "变化和周期组织是否必要",
+          "subject": "resistance_training",
+          "outcome": "variation",
+          "requested_relation": "necessity"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-VARIATION",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:61",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+              "text_hash": "8e6b6981e4e6cec59d2682d03c31045e1c4d0fd2cdc500f3cccc3d7ace13cf3c",
+              "locator": {
+                "end_offset": 1689,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 61,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[4]"
+              }
+            },
+            {
+              "anchor": "S1:63",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00063",
+              "text_hash": "0988438c9485d0e47188990254d550e41f908fba33822805e55ce9a694df3a82",
+              "locator": {
+                "end_offset": 1320,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 63,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[6]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            },
+            {
+              "anchor": "S1:75",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075",
+              "text_hash": "7ae2fe0dc8913e952d7fb981b772828b1b91698906cd266a762802a6cfc88d05",
+              "locator": {
+                "end_offset": 2506,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 75,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[18]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "231f158d260d69a119bcbc953494e115f184246979d61e670b61202ff33a058e"
+    },
+    {
+      "case_id": "R4-17",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-17-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-17-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-17-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "健康成人定义、经验分布与不能自动外推或补全个人情况均覆盖。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "population_scope",
+          "label": "来源的人群适用范围",
+          "subject": "resistance_training",
+          "outcome": "population_scope",
+          "requested_relation": "scope"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-ADULT-SCOPE",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:67",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00067",
+              "text_hash": "140eda41640a6ad85b4820ac3ca025832adc35a0d6067227bff733475e397a70",
+              "locator": {
+                "end_offset": 1498,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 67,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[10]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            },
+            {
+              "anchor": "S1:75",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075",
+              "text_hash": "7ae2fe0dc8913e952d7fb981b772828b1b91698906cd266a762802a6cfc88d05",
+              "locator": {
+                "end_offset": 2506,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 75,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[18]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "5647de7f173376928b9b28a05183811947a4d03afb534e17bcd1aff76610e054"
+    },
+    {
+      "case_id": "R4-18",
+      "case_type": "source_sufficient",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-18-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-18-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-18-P3",
+          "verdict": "covered_core"
+        }
+      ],
+      "summary": "群体证据、完整方案排名与单次个人因果边界均覆盖；未复述最短时长，与原初评判读一致记辅助省略。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "individual_effect",
+          "label": "个人效果与因果边界",
+          "subject": "resistance_training",
+          "outcome": "individual_effect",
+          "requested_relation": "inference"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+          "theory_version": "1.4.2",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            },
+            {
+              "anchor": "S1:75",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075",
+              "text_hash": "7ae2fe0dc8913e952d7fb981b772828b1b91698906cd266a762802a6cfc88d05",
+              "locator": {
+                "end_offset": 2506,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 75,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[18]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "3f5225825fd5d884da4a8e2e186ecb22216312422f45d550a3a3f1f8b3bc8a08"
+    },
+    {
+      "case_id": "R4-19",
+      "case_type": "explicit_boundary",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-19-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-19-P2",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "解释组量及余力的一般边界，并明确将个人参数保留为未支持，未输出数字处方。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "partial_answer_support",
+      "product_answer_status": "partially_answered",
+      "actual_answer_parts": [
+        {
+          "part_id": "effort_precision",
+          "label": "余力与努力程度的精度边界",
+          "subject": "resistance_training",
+          "outcome": "effort_precision",
+          "requested_relation": "precision"
+        },
+        {
+          "part_id": "volume",
+          "label": "训练组量及其适用边界",
+          "subject": "resistance_training",
+          "outcome": "volume",
+          "requested_relation": "options"
+        },
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-VOLUME",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:71",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+              "text_hash": "9d04bd8effe7cf7af1c0924f5cb01ee02c84b68454ff9dff2b9e768484862018",
+              "locator": {
+                "end_offset": 1178,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 71,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[14]"
+              }
+            },
+            {
+              "anchor": "S1:74",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+              "text_hash": "7f7f784087deafb2057307b02a180781a35802a402693de0b6a5dbd12c0c598d",
+              "locator": {
+                "end_offset": 714,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 74,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[17]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-RIR",
+          "theory_version": "1.4.3",
+          "source_id": "S1",
+          "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "spans": [
+            {
+              "anchor": "S1:11",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+              "text_hash": "9a6eaf068556d7bddee3140da05ce298318ea957ec8c05cef56d4c37280def28",
+              "locator": {
+                "end_offset": 2425,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 11,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[6]/*[3]/*[2]"
+              }
+            },
+            {
+              "anchor": "S1:72",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+              "text_hash": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+              "locator": {
+                "end_offset": 716,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 72,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+              }
+            },
+            {
+              "anchor": "S1:76",
+              "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+              "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+              "locator": {
+                "end_offset": 1045,
+                "extraction_method": "jats-owned-text-1.4.1",
+                "language": "en",
+                "native_id": null,
+                "paragraph_id": 76,
+                "start_offset": 0,
+                "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "144801188689610c73c63730692ef3ad051b0b3aeb808a0a0a80c99a044cf743"
+    },
+    {
+      "case_id": "R4-20",
+      "case_type": "explicit_boundary",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-20-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-20-P2",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "新症状咨询与个体评估边界明确，没有诊断或固定减重比例。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "evidence_supported",
+      "product_answer_status": "answered_with_support",
+      "actual_answer_parts": [
+        {
+          "part_id": "symptoms",
+          "label": "症状及活动范围",
+          "subject": "resistance_training",
+          "outcome": "symptoms",
+          "requested_relation": "scope"
+        }
+      ],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-SYMPTOM-SCOPE",
+          "theory_version": "1.4.2",
+          "source_id": "CORE-US-HHS-PAG-2",
+          "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+          "spans": [
+            {
+              "anchor": "HHS:12",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+              "text_hash": "e5d9159430071f67932edf90a472f8065d6d63997e19b00f0b65f5af20beda02",
+              "locator": {
+                "bounding_box": [
+                  0.0,
+                  0.0,
+                  612.0,
+                  792.0
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 87,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "88",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 12
+              }
+            },
+            {
+              "anchor": "HHS:17",
+              "span_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017",
+              "text_hash": "4c2566e302a5d99bf63eaa0beeede48d44a3f97cc28afd133dc2f003cb0b1e64",
+              "locator": {
+                "bounding_box": [
+                  0,
+                  0,
+                  612,
+                  792
+                ],
+                "chapter_id": "7",
+                "edition_id": "CORE-US-HHS-PAG-2:edition-2",
+                "extraction_method": "pdfplumber_page_text_v1.4",
+                "file_page_index": 92,
+                "ocr_status": "not_used_text_layer",
+                "original_language": "en",
+                "printed_page_label": "93",
+                "printed_page_verification": "footer/page-sequence checked against Chapter 4 and 7 headings",
+                "reading_order": 17
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "93bb2da76b5f4717d5298266ce358454953588c46ba3dff7fb0cd506fd25290c"
+    },
+    {
+      "case_id": "R4-21",
+      "case_type": "explicit_boundary",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-21-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-21-P2",
+          "verdict": "covered_core"
+        }
+      ],
+      "summary": "诚实报告缺少指定第6章正文，不伪造页码或要求；与原规则一致不强求重复其他章节指引。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "insufficient_evidence",
+      "product_answer_status": "missing_source_content",
+      "actual_answer_parts": [],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [],
+      "raw_output_sha256": "c7270745571af60ee78339a1fba75834f64127bed296b0d0855ba5c61a0b8891"
+    },
+    {
+      "case_id": "R4-22",
+      "case_type": "explicit_boundary",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-22-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-22-P2",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "诚实保留缺失第5章正文，不拿其他章节冒充。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "insufficient_evidence",
+      "product_answer_status": "missing_source_content",
+      "actual_answer_parts": [],
+      "uncovered_parts": [],
+      "numeric_actions_empty": true,
+      "citation_reviews": [],
+      "raw_output_sha256": "8f5e36f90cff6173b885a34816bc5eac5e89b19e0a0b496be3d5d4a4c314fc10"
+    },
+    {
+      "case_id": "R4-23",
+      "case_type": "explicit_boundary",
+      "development_grade": "pass",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-23-P1",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-23-P2",
+          "verdict": "covered"
+        },
+        {
+          "expected_point_id": "R4-23-P3",
+          "verdict": "covered"
+        }
+      ],
+      "summary": "一般方法与个人统计决策已分开，明确保留数据、界值和模型缺项，不再标成完整个人判断。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "partial_answer_support",
+      "product_answer_status": "partially_answered",
+      "actual_answer_parts": [
+        {
+          "part_id": "practical_equivalence",
+          "label": "统计不显著与实用等效的区别",
+          "subject": "statistical_inference",
+          "outcome": "practical_equivalence",
+          "requested_relation": "explanation"
+        },
+        {
+          "part_id": "statistical_calculation",
+          "label": "具体数据的统计计算",
+          "reason": "statistical_data_and_model_required"
+        }
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "statistical_calculation",
+          "label": "具体数据的统计计算",
+          "reason": "statistical_data_and_model_required"
+        }
+      ],
+      "numeric_actions_empty": true,
+      "citation_reviews": [
+        {
+          "citation_index": 1,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:1",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+              "text_hash": "02ba296b5d11010d11410f10fd6979ad64f23be38ed88e15f4c5630d2eb11b6f",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  252,
+                  554,
+                  472
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1159,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 2,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:0",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+              "text_hash": "706d441cfce9fdd6ed149aabb793b704e8d4685fc1a0693b5f02ea426a29b577",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  110,
+                  554,
+                  252
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 689,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:2",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+              "text_hash": "6a12613203d36a36af1fff483db3af016e384549569950767ec53d2a2af8bb5e",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  538,
+                  554,
+                  604
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 341,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 3,
+                "language": "en",
+                "printed_page": 203,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:3",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003",
+              "text_hash": "6d397fb24f600535f504030e7ebb97efabc599b56dbcfc6218b8ec131b4eaa94",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  46,
+                  292,
+                  263
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 1145,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 4,
+                "language": "en",
+                "printed_page": 204,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        },
+        {
+          "citation_index": 3,
+          "theory_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+          "theory_version": "1.4.4",
+          "source_id": "M2",
+          "source_version_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0",
+          "spans": [
+            {
+              "anchor": "M2:4",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+              "text_hash": "c3055785aea537d8f545d3e1bcdf96ef1f47ad676f09b88bbcd735343426f487",
+              "locator": {
+                "bounding_box": [
+                  302,
+                  677,
+                  554,
+                  731
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 263,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 8,
+                "language": "en",
+                "printed_page": 208,
+                "start_offset": 0
+              }
+            },
+            {
+              "anchor": "M2:5",
+              "span_id": "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005",
+              "text_hash": "ad5762334bebc4ac44fa5acc00ddc33ffdba9260acde39eec866b9603cf91565",
+              "locator": {
+                "bounding_box": [
+                  40,
+                  305,
+                  292,
+                  369
+                ],
+                "coordinate_system": "pdf_points_top_left",
+                "end_offset": 273,
+                "extraction_method": "pdfplumber_reviewed_single_column_region",
+                "file_page_index": 9,
+                "language": "en",
+                "printed_page": 209,
+                "start_offset": 0
+              }
+            }
+          ],
+          "identity_verified": true,
+          "semantic_support": "supports_attached_statement_at_source_scope",
+          "question_role": "requested_explanation_or_boundary"
+        }
+      ],
+      "raw_output_sha256": "74b27f0b079b9ecead861a269ef210870a89b034c42ae05ee05a97d6937b963c"
+    },
+    {
+      "case_id": "R4-24",
+      "case_type": "explicit_boundary",
+      "development_grade": "partial",
+      "point_reviews": [
+        {
+          "expected_point_id": "R4-24-P1",
+          "verdict": "partial"
+        },
+        {
+          "expected_point_id": "R4-24-P2",
+          "verdict": "partial"
+        }
+      ],
+      "summary": "保留个人数字边界，但未识别跨品牌器械换算的可比性目标，缺具体解释和直接引用。",
+      "must_not_violations": [],
+      "false_complete_label": false,
+      "product_status": "related_material_only",
+      "product_answer_status": "unresolved_question_target",
+      "actual_answer_parts": [
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "uncovered_parts": [
+        {
+          "part_id": "personal_numeric_request",
+          "label": "个人具体训练参数",
+          "reason": "personal_numeric_authority_unavailable"
+        }
+      ],
+      "numeric_actions_empty": true,
+      "citation_reviews": [],
+      "raw_output_sha256": "c8bcf311bf8e0e08657fb0d2a90dece67f2e58470a9997a236d3191a709d06c3"
+    }
+  ],
+  "citation_audit": {
+    "direct_entries": 44,
+    "span_references": 105,
+    "fabricated_or_outside_frozen_source_packet": 0,
+    "original_33_source_paragraphs_read": true,
+    "related_materials_credited_as_answers": false
+  },
+  "limitations": [
+    "Same frozen questions after implementation changes; not new independent evaluation.",
+    "Manual semantic judgments use the original expected points; no original expectations or judgments changed.",
+    "R4-06 and R4-24 remain partial; this initial development run must not be overwritten."
+  ]
+}

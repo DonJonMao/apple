@@ -9,8 +9,10 @@ from __future__ import annotations
 import json
 import math
 import re
+from functools import lru_cache
+from pathlib import Path
 
-from .question_parts import lexical_concepts, requested_parts
+from .question_parts import covariance_method_context, lexical_concepts, requested_parts
 
 CONCEPTS = {
     "resistance_training": ["力量", "抗阻", "练", "训练", "重复", "次数", "负重", "重量", "方案", "身体活动", "运动", "锻炼", "rir", "resistance", "repetition", "lifting", "training", "exercise", "workout", "physical activity"],
@@ -30,6 +32,7 @@ CONCEPTS = {
 ENGLISH_ORDINALS = {name: str(index) for index, name in enumerate(
     ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth",
      "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth"), 1)}
+CHAPTER_REFERENCE = r"第\s*([\d零一二三四五六七八九十]+)\s*章|chapter\s+(\d+)"
 
 
 def _ordinal(value):
@@ -59,6 +62,13 @@ def request_constraints(question, context):
         if ids:
             source["source_ids"] = ids
     for label, chinese, english in (("edition", "版", "edition"), ("chapter", "章", "chapter")):
+        if label == "chapter":
+            numbers = {_ordinal(value) for groups in re.findall(CHAPTER_REFERENCE, text)
+                       for value in groups if value}
+            if len(numbers) > 1 and None not in numbers:
+                source["requested_chapter_numbers"] = sorted(numbers, key=int)
+                source.pop("requested_chapter_number", None)
+                continue
         match = re.search(r"第\s*([\d零一二三四五六七八九十]+)\s*" + chinese, text)
         english_match = re.search(r"(\d+|" + "|".join(ENGLISH_ORDINALS) + r")(?:st|nd|rd|th)?\s+edition" if label == "edition" else r"chapter\s+(\d+)", text)
         if match or english_match:
@@ -97,7 +107,7 @@ def request_constraints(question, context):
     numeric = False
     for clause in clauses:
         personal = bool(re.search(r"我|个人|\bi\b|\bmy\b|\bme\b|\bindividual\b", clause))
-        quantity = bool(re.search(r"次数|组数|组量|余力|休息|间歇|频率|天数|公斤|重量|负荷|秒数|\b(?:reps?|repetitions?|sets?|rir|rest|interval|frequency|load|weight|seconds?|minutes?)\b", clause))
+        quantity = bool(re.search(r"次数|组数|组量|余力|休息|间歇|频率|天数|公斤|重量|负荷|配重|负重|秒数|\b(?:reps?|repetitions?|sets?|rir|rest|interval|frequency|loads?|weights?|seconds?|minutes?)\b", clause))
         choose = bool(re.search(r"多少|几次|几组|几天|多久|多长|最优|最好|精确|\b(?:how (?:much|many|long)|optimal|best|exact(?:ly)?)\b|\bwhich\b.{0,30}\b(?:rest|interval|duration|load|weight)\b", clause))
         numeric |= personal and quantity and choose
         numeric |= bool(re.search(r"(?:应该|该用|能否|可不可以|可以|建议|\bshould\b|\bcan i\b).{0,20}\d+(?:\.\d+)?\s*(?:公斤|千克|磅|kg|lbs?)(?![a-z])", clause))
@@ -106,7 +116,15 @@ def request_constraints(question, context):
                       and (len(set(re.findall(r"\b(?:19|20)\d{2}\b", text))) > 1
                            or re.search(r"(?:不同|两|各|旧|新).{0,5}(?:来源|版本|指南|版次)|(?:source|edition|guideline|paper)s\b", text)))
     statistical_calculation = bool(re.search(r"计算|算出|求出|\b(?:calculate|compute|estimate)\b", text)
-                                   and re.search(r"统计量|p值|等效|置信区间|斜率|\b(?:statistic|equivalence|p-value|confidence interval|slope)\b", text))
+                                   and re.search(r"统计量|p值|等效|置信区间|斜率|协方差|标准误|\b(?:statistic|equivalence|p-value|confidence interval|slope|covariance|standard errors?)\b", text))
+    statistical_calculation |= bool(covariance_method_context(text, context.get("named_source_task_subjects"))
+        and re.search(r"我|个人|\b(?:my|me|individual)\b", text)
+        and re.search(r"选择|设定|决定|确定|\b(?:choose|select|set|pick|determine)\b", text)
+        and re.search(r"带宽|滞后|核函数|预白化|\b(?:bandwidth|lags?|kernel|prewhitening)\b", text))
+    statistical_calculation |= bool(
+        re.search(r"我|个人|\b(?:my|me|individual)\b", text)
+        and re.search(r"判定|判断|选择|设定|确定|给出|提供|\b(?:decide|determine|choose|select|give|provide)\b", text)
+        and re.search(r"等效界|等效范围|停滞.{0,8}概率|\b(?:equivalence (?:bounds?|margins?)|probability)\b", text))
     population = context.get("population")
     age = context.get("age")
     if not isinstance(age, (int, float)) or isinstance(age, bool) or not math.isfinite(age):
@@ -166,11 +184,23 @@ def _document_kind(text):
     return None
 
 
+@lru_cache(maxsize=1)
+def _registered_document_kinds():
+    sources = json.loads((Path(__file__).parent / "data/core_sources.json").read_text())["sources"]
+    return {entry.get("canonical_source_id", entry["source_id"]): entry.get("document_kind") for entry in sources}
+
+
+def _source_document_kind(w, source_id):
+    # Upgraded read-only libraries may predate this bibliographic field. Use
+    # the exact registered identity, never the issuer/authority as a book type.
+    return w.lib.source(source_id)["manifest"].get("document_kind") or _registered_document_kinds().get(source_id)
+
+
 def _allowed_source_ids(w, constraints):
     ids = constraints.get("source_ids") or constraints.get("issuer_source_ids", [])
     allowed = {sid for alias in ids for sid in w.lib.resolve(alias)}
     if constraints.get("document_kind"):
-        allowed = {sid for sid in allowed if w.lib.source(sid)["manifest"].get("document_kind") == constraints["document_kind"]}
+        allowed = {sid for sid in allowed if _source_document_kind(w, sid) == constraints["document_kind"]}
     return allowed
 
 
@@ -262,7 +292,7 @@ def source_constraints_match(w, evidence, constraints):
     allowed = _allowed_source_ids(w, constraints)
     if ids and (not allowed or any(s["source_id"] not in allowed for s in evidence)):
         return False
-    if constraints.get("document_kind") and any(w.lib.source(s["source_id"])["manifest"].get("document_kind") != constraints["document_kind"] for s in evidence):
+    if constraints.get("document_kind") and any(_source_document_kind(w, s["source_id"]) != constraints["document_kind"] for s in evidence):
         return False
     for field in ("edition_id", "chapter_id"):
         if constraints.get(field) is not None and any(str(s["locator"].get(field)) != str(constraints[field]) for s in evidence):
@@ -270,6 +300,8 @@ def source_constraints_match(w, evidence, constraints):
     if "requested_edition_number" in constraints and any(str(w.lib.source(s["source_id"])["manifest"].get("edition")) != constraints["requested_edition_number"] for s in evidence):
         return False
     if "requested_chapter_number" in constraints and any(str(s["locator"].get("chapter_id")) != constraints["requested_chapter_number"] for s in evidence):
+        return False
+    if "requested_chapter_numbers" in constraints and any(str(s["locator"].get("chapter_id")) not in constraints["requested_chapter_numbers"] for s in evidence):
         return False
     for kind in ("printed", "file"):
         ranges = constraints.get("requested_" + kind + "_page_ranges", [])
@@ -317,7 +349,7 @@ def requested_material(w, task, roles):
         span = w.lib.span(row["span_id"])
         evidence = [{"source_id": span["source_id"], "locator": json.loads(span["locator_json"])}]
         local_constraints = dict(constraints)
-        for kind in ("appendix", "table"):
+        for kind in ("appendix", "table", "chapter"):
             key = "requested_" + kind + "_numbers"
             if key not in constraints:
                 continue
@@ -333,13 +365,60 @@ def requested_material(w, task, roles):
             partition_excluded = True
             continue
         matching.append(span["span_id"])
-        for kind in ("appendix", "table"):
+        for kind in ("appendix", "table", "chapter"):
             components.setdefault(kind, set()).update(local_constraints.get("requested_" + kind + "_numbers", []))
     missing = {kind: sorted(set(constraints["requested_" + kind + "_numbers"]) - components.get(kind, set()))
-               for kind in ("appendix", "table") if constraints.get("requested_" + kind + "_numbers")}
+               for kind in ("appendix", "table", "chapter") if constraints.get("requested_" + kind + "_numbers")}
     missing = {kind: numbers for kind, numbers in missing.items() if numbers}
     return {"status": ("partially_available" if missing else "available") if matching else "partition_excluded" if partition_excluded else "unavailable",
             "matching_span_ids": matching, "missing_components": missing, "coverage": "matching_spans_only_not_complete_document_or_answer"}
+
+
+def _chapter_parts(question, parts, context, constraints):
+    """Bind explicit chapter references to their local targets, never just an OR.
+
+    A repeated target in different chapters needs evidence for each chapter.
+    When the grammar leaves the binding unclear, retain every requested
+    chapter instead of silently declaring one chapter sufficient.
+    """
+    chapters = constraints.get("requested_chapter_numbers", [])
+    if len(chapters) < 2:
+        return parts
+    assignments = {}
+    for clause in re.split(r"[。？！!?;；,，]|(?<!\d)\.(?!\d)", question.lower()):
+        local_chapters = {_ordinal(value) for groups in re.findall(CHAPTER_REFERENCE, clause)
+                          for value in groups if value} - {None}
+        if not local_chapters:
+            continue
+        for local in requested_parts(clause, lexical_concepts(clause, CONCEPTS, context), context):
+            assignments.setdefault(local["outcome"], set()).update(local_chapters)
+    scoped = []
+    for part in parts:
+        if not part.get("outcome"):
+            scoped.append(part)
+            continue
+        selected = sorted(assignments.get(part["outcome"], set(chapters)), key=int)
+        for chapter in selected:
+            scoped.append({**part, "source_constraints": {"requested_chapter_number": chapter},
+                           "part_id": part["part_id"] + (":chapter:" + chapter if len(selected) > 1 else ""),
+                           "label": part["label"] + "（第" + chapter + "章）"})
+    return scoped
+
+
+def _part_source_matches(w, evidence, definition, constraints):
+    if not constraints:
+        return True
+    # A qualifying comparison to another requested chapter is not itself an
+    # answer from that chapter. Require a directly supporting answer block.
+    direct = [answer for answer in definition["answer_parts"]
+              if answer.get("evidence_relation", definition.get("evidence_relation", "supports")) in {"supports", "refutes"}]
+    # A wholly qualified answer can itself be the reviewed scope statement;
+    # mixed contracts must anchor on their direct blocks, regardless of default.
+    for answer in direct or definition["answer_parts"]:
+        spans = [span for span in evidence if span["span_id"] in answer["span_ids"]]
+        if spans and source_constraints_match(w, spans, constraints):
+            return True
+    return False
 
 
 def parse_task(question, context=None):
@@ -366,6 +445,7 @@ def parse_task(question, context=None):
         scoped = requested_parts(semantic, {contract["subject"], contract["outcome"]}, context)
         parts = [{**part, **{k: v for k, v in p.items() if k in {"part_id", "label", "requested_goal"}}}
                  for p in scoped if p["outcome"] == contract["outcome"]] or [part]
+        parts = _chapter_parts(semantic, parts, context, constraints["source_constraints"])
         if constraints["personal_numeric_request"]:
             parts.append({"part_id": "personal_numeric_request", "label": "个人具体训练参数", "reason": "personal_numeric_authority_unavailable"})
         elif constraints["compound_request"]:
@@ -377,6 +457,7 @@ def parse_task(question, context=None):
         return {**contract, **constraints, "required_answer_parts": parts + extra_parts, "resolution": "explicit_structured_task", "issues": []}
     found = lexical_concepts(semantic, CONCEPTS, context)
     parts = requested_parts(semantic, found, context)
+    parts = _chapter_parts(semantic, parts, context, constraints["source_constraints"])
     outcomes = {p["outcome"] for p in parts}
     subject = parts[0]["subject"] if parts else None
     outcome = parts[0]["outcome"] if len(parts) == 1 else None
@@ -398,18 +479,29 @@ def parse_task(question, context=None):
 
 
 def core_candidates(w, question, context, roles, allowed_refs=None):
-    from .core import _claim
+    from .core import _answer_revision, _claim
     task = parse_task(question, context)
     candidates, excluded = [], []
     if allowed_refs is None:
-        rows = w.lib.theories.execute("SELECT * FROM source_claim WHERE status='verified' ORDER BY claim_id,version")
+        rows = list(w.lib.theories.execute("SELECT * FROM source_claim ORDER BY claim_id,version"))
     else:
         # Frozen membership uses current records so revocation and source checks
         # still run; the snapshot cannot restore old scientific validity.
         rows = [w.lib.theories.execute("SELECT * FROM source_claim WHERE claim_id=? AND version=?", ref).fetchone()
                 for ref in sorted(allowed_refs)]
         rows = [row for row in rows if row is not None]
+    replaced = set()
     for row in rows:
+        try:
+            predecessor = _answer_revision(w, json.loads(row["payload_json"]))
+        except ValueError:
+            continue
+        if predecessor:
+            replaced.add((predecessor["claim_id"], predecessor["version"]))
+    for row in rows:
+        if (row["claim_id"], row["version"]) in replaced:
+            excluded.append({"theory_id": row["claim_id"], "version": row["version"], "reason": "answer_version_replaced"})
+            continue
         payload = json.loads(row["payload_json"])
         definition = payload.get("answer_task", {})
         if not definition:
@@ -427,14 +519,15 @@ def core_candidates(w, question, context, roles, allowed_refs=None):
         matching_parts = [part for part in task["required_answer_parts"]
                           if all(part.get(k) is not None and part.get(k) == definition.get(k)
                                  for k in ("subject", "outcome", "requested_relation"))
-                          and (not part.get("requested_goal") or part["requested_goal"] in goals)]
+                          and (not part.get("requested_goal") or part["requested_goal"] in goals)
+                          and _part_source_matches(w, evidence, definition, part.get("source_constraints"))]
         matches = bool(matching_parts)
         if task["specific_source_unresolved"] or not source_constraints_match(w, evidence, task["source_constraints"]):
             excluded.append({"theory_id": row["claim_id"], "reason": "candidate_source_constraints_mismatch", "target_matched": matches})
             matches = False
         requested_population = task.get("requested_population")
         source_population = claim["scope"].get("population")
-        scope_question = definition["outcome"] in {"population_scope", "adult_guideline_scope"}
+        scope_question = definition["outcome"] in {"population_scope", "adult_guideline_scope", "activity_safety_scope"}
         population_matches = (scope_question or requested_population is None
                               or requested_population == source_population
                               or (source_population == "adults" and requested_population == "healthy_adults"))
@@ -456,7 +549,9 @@ def core_candidates(w, question, context, roles, allowed_refs=None):
                          "requested_part_ids": [p["part_id"] for p in matching_parts],
                          "rationale": review["rationale"], "target_resolution": task["resolution"]}]
         parts = [{"text": p["text"], "span_ids": p["span_ids"], "support_rationale": review["rationale"],
-                  "limitations": claim["limitations"], "answer_bindings": bindings} for p in definition["answer_parts"]]
+                  "limitations": claim["limitations"], "answer_bindings": [
+                      {**binding, "relation": p.get("evidence_relation", binding["relation"])} for binding in bindings
+                  ]} for p in definition["answer_parts"]]
         candidates.append({"theory_id": row["claim_id"], "theory_version": row["version"],
             "card": {"title": claim["statement"], "domains": definition.get("routes", ["progression"]), "kind": "source_claim"},
             "review": {"claims": parts, "evidence_links": claim["evidence_links"], "applicability": {"required": claim.get("conditions", [])},

@@ -1,47 +1,62 @@
 {
   "status": "passed",
-  "checked_at": "2026-11-11T14:36:15.722621+00:00",
-  "frozen_at": "2026-11-11T14:32:35.012214+00:00",
+  "checked_at": "2026-11-11T15:32:17.014523+00:00",
+  "frozen_at": "2026-11-11T15:27:57.766537+00:00",
   "catalog_snapshot_id": "wger.e9327e0394fd185d41d4b7f929e166a90730521f78b3c06207883d0a3f302414",
   "single_frozen_public_database_used_for_install_package_and_coverage": true,
   "frozen_ready_media": {
     "image": 389,
-    "video": 71
+    "video": 75
   },
   "frozen_ready_exercise_coverage": {
     "image": 282,
-    "video": 44
+    "video": 46
   },
-  "frozen_pending_media": 7,
-  "ready_objects": 460,
-  "unique_ready_files": 426,
-  "coverage_install_manifest_and_package_counts_agree": true,
+  "frozen_pending_media": 2,
+  "frozen_failed_media": 1,
+  "frozen_not_ready_media": 3,
+  "ready_objects": 464,
+  "unique_ready_files": 430,
+  "coverage_install_manifest_and_package_ready_ids_and_hashes_agree": true,
+  "coverage_manifest_and_package_all_object_statuses_agree": true,
+  "default_install_status_limitation": {
+    "installer_attaches_ready_objects_only": true,
+    "source_unavailable_statuses": {
+      "failed": 1,
+      "pending": 2
+    },
+    "default_install_unavailable_statuses": {
+      "pending": 3
+    },
+    "both_have_three_unavailable_videos": true,
+    "failed_source_status_not_propagated_to_default_install": true
+  },
   "packages": [
     {
       "filename": "HealthZIP-catalog-offline.zip",
       "ready_objects_by_type": {
         "image": 389,
-        "video": 71
+        "video": 75
       },
-      "included_media_objects": 460,
-      "unique_packaged_files": 426,
+      "included_media_objects": 464,
+      "unique_packaged_files": 430,
       "CRC_and_all_packaged_file_SHA256_checked_by_packager": true,
       "all_references_exist": true,
-      "bytes": 2093348046,
-      "sha256": "e003c5d5b0c32d31f6082d229efef3cfd9171c32285d16034b16de22fb98c3e1"
+      "bytes": 2531174191,
+      "sha256": "9a405962c2a60bb6ca24757b727568cefb042d8590a0b900c2e37f3016b7eecd"
     },
     {
       "filename": "HealthZIP-catalog-text-only.zip",
       "ready_objects_by_type": {
         "image": 389,
-        "video": 71
+        "video": 75
       },
       "included_media_objects": 0,
       "unique_packaged_files": 0,
       "CRC_and_all_packaged_file_SHA256_checked_by_packager": true,
       "all_references_exist": true,
-      "bytes": 806914,
-      "sha256": "c82ac3fbabf0b2c2979bf5d3d083a541c219367f8040fbdca7794dd85520c756"
+      "bytes": 807636,
+      "sha256": "c779bf275fe4013cb12eeda6458210cc4f317fc8bf396015ea1af1de3a20512e"
     }
   ],
   "default_install_backup_created": true,
@@ -53,39 +68,32 @@
   "played_codec": "H.264",
   "packaged_name_provenance_distinct": true,
   "name_provenance_reload_export_artifact": "offline-name-status-after.json",
-  "live_catalog_counts_at_check": [
-    {
-      "media_type": "image",
-      "fetch_status": "ready",
-      "count": 389
-    },
-    {
-      "media_type": "video",
-      "fetch_status": "pending",
-      "count": 6
-    },
-    {
-      "media_type": "video",
-      "fetch_status": "ready",
-      "count": 72
-    }
-  ],
   "existing_download_process": {
     "pid": 680165,
     "still_running": true,
     "restarted": false
   },
+  "local_one_time_resume_schedule": {
+    "status": "waiting_for_existing_process",
+    "scheduler_pid": 1042942,
+    "existing_process_interrupted": false,
+    "duplicate_inflight_worker_started": false,
+    "waits_for_process_identity_and_downloader_lock": true,
+    "automatic_retry_completed": false,
+    "local_script_and_logs_not_published": true
+  },
+  "previous_delivery": {
+    "frozen_at": "2026-11-11T14:32:35.012214+00:00",
+    "ready_videos": 71,
+    "full_package_sha256": "e003c5d5b0c32d31f6082d229efef3cfd9171c32285d16034b16de22fb98c3e1"
+  },
   "git_isolation": {
-    "tracked_or_staged_downloaded_media_or_databases": [],
     "media_and_databases_remain_under_ignored_local_directory": true
   },
-  "verification": {
-    "pytest_artifact": "provenance-regression-pytest.xml",
-    "pytest_passed": 27,
-    "ruff": "passed"
-  },
   "limitations": [
-    "Seven source videos were pending at freeze time; later downloads do not silently change this package.",
+    "Two source videos were pending and one failed due to truncated response at freeze time; none of their partial bytes are packaged.",
+    "The ready-only installer leaves the failed source video pending in the default application database; the complete per-object failure status remains in the frozen public package and media manifest.",
+    "The local follow-up worker is only scheduled, not completed; it waits until the current process ends and uses the original downloader lock.",
     "Browser verification establishes playback of the packaged H.264 sample, not HEVC compatibility.",
     "Recovered blobs retain documented partial-origin-comparison limitations; no remote whole-file checksum claim.",
     "Chinese AI drafts, upstream translations and historical project labels remain without new human professional review."

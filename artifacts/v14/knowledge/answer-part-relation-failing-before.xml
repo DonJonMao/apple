@@ -1,0 +1,39 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.644" timestamp="2026-11-11T23:08:10.608978+08:00"><testcase classname="tests.unit.test_regression_covariance_contract" name="test_rendered_n1_answer_preserves_the_reviewed_qualifier_relation" time="0.280"><failure message="AssertionError: assert ['supports', ...', 'supports'] == ['supports', ..., 'qualifies']&#10;  &#10;  At index 3 diff: 'supports' != 'qualifies'&#10;  Use -v to get more diff">n1_library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9477e8d0&gt;, {'contract_version': 'regression-covaria...test', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00+00:00', 'content_checked': True, ...})
+
+    def test_rendered_n1_answer_preserves_the_reviewed_qualifier_relation(n1_library):
+        w, _, claim, rule, review = n1_library
+        w.review_claim(claim, review)
+        w.review_rule(rule, review)
+        result = w.query("What is the difference between HC and HAC standard errors?", "plateau")
+        assert result["answer_status"] == "answered_with_support"
+&gt;       assert [part["evidence_relation"] for part in result["claims"]] == ["supports", "supports", "supports", "qualifies"]
+E       AssertionError: assert ['supports', ...', 'supports'] == ['supports', ..., 'qualifies']
+E
+E         At index 3 diff: 'supports' != 'qualifies'
+E         Use -v to get more diff
+
+tests/unit/test_regression_covariance_contract.py:120: AssertionError</failure></testcase><testcase classname="tests.unit.test_regression_covariance_contract" name="test_unknown_evidence_relation_is_rejected_before_claim_publication[task]" time="0.096"><failure message="Failed: DID NOT RAISE ValueError">n1_library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff947bee10&gt;, {'contract_version': 'regression-covaria...test', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00+00:00', 'content_checked': True, ...})
+where = 'task'
+
+    @pytest.mark.parametrize("where", ["task", "part"])
+    def test_unknown_evidence_relation_is_rejected_before_claim_publication(n1_library, where):
+        w, _, claim, _, review = n1_library
+        invalid = copy.deepcopy(claim)
+        target = invalid["answer_task"] if where == "task" else invalid["answer_task"]["answer_parts"][0]
+        target["evidence_relation"] = "unknown_relation"
+&gt;       with pytest.raises(ValueError, match="evidence relation"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_regression_covariance_contract.py:135: Failed</failure></testcase><testcase classname="tests.unit.test_regression_covariance_contract" name="test_unknown_evidence_relation_is_rejected_before_claim_publication[part]" time="0.095"><failure message="Failed: DID NOT RAISE ValueError">n1_library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff947eded0&gt;, {'contract_version': 'regression-covaria...test', 'reviewer_kind': 'synthetic_fixture', 'reviewed_at': '2026-11-11T00:00:00+00:00', 'content_checked': True, ...})
+where = 'part'
+
+    @pytest.mark.parametrize("where", ["task", "part"])
+    def test_unknown_evidence_relation_is_rejected_before_claim_publication(n1_library, where):
+        w, _, claim, _, review = n1_library
+        invalid = copy.deepcopy(claim)
+        target = invalid["answer_task"] if where == "task" else invalid["answer_task"]["answer_parts"][0]
+        target["evidence_relation"] = "unknown_relation"
+&gt;       with pytest.raises(ValueError, match="evidence relation"):
+E       Failed: DID NOT RAISE ValueError
+
+tests/unit/test_regression_covariance_contract.py:135: Failed</failure></testcase></testsuite></testsuites>

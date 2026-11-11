@@ -49,16 +49,18 @@ def _render(workbench):
                 "实用等效界值如何论证": ("equivalence_margin_basis", "explanation"),
                 "等效方法的研究设计范围": ("equivalence_design_scope", "scope"),
                 "成人身体活动指南的年龄范围": ("adult_guideline_scope", "scope"),
+                "安全活动建议的年龄范围": ("activity_safety_scope", "scope"),
                 "力量训练的起步安排": ("muscle_strengthening_start", "options"),
                 "身体活动增量的大小": ("activity_increment_size", "explanation"),
                 "身体活动进阶速度的影响因素": ("progression_rate_factors", "explanation"),
-                "力竭的定义": ("failure_definition", "explanation")}
+                "力竭的定义": ("failure_definition", "explanation"),
+                "回归协方差与HC/HAC适用范围": ("regression_covariance_scope", "scope")}
             chosen = st.selectbox("本次要回答", list(choices))
             confirmed = st.checkbox("我确认本次只查询所选目标；原问题中的其他目标需要另查", key="knowledge_target_confirmed")
             if confirmed:
                 outcome, relation = choices[chosen]
-                statistical = {"practical_equivalence", "non_significance_interpretation", "equivalence_test_logic", "equivalence_margin_basis", "equivalence_design_scope"}
-                physical_activity = {"adult_guideline_scope", "activity_increment_size", "progression_rate_factors"}
+                statistical = {"practical_equivalence", "non_significance_interpretation", "equivalence_test_logic", "equivalence_margin_basis", "equivalence_design_scope", "regression_covariance_scope"}
+                physical_activity = {"adult_guideline_scope", "activity_increment_size", "progression_rate_factors", "activity_safety_scope"}
                 subject = "statistical_inference" if outcome in statistical else "physical_activity" if outcome in physical_activity else "resistance_training"
                 context["question_contract"] = {"subject": subject, "outcome": outcome,
                     "requested_relation": relation, "user_confirmed": True}

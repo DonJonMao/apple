@@ -1,0 +1,919 @@
+{
+  "contract_version": "regression-covariance-explanation-1.4.7",
+  "version": "1.4.7",
+  "release_id": "core-regression-covariance-explanation-1.4.7",
+  "previous_release_id": "core-source-explanations-1.4.6",
+  "reviewer_kind": "ai_assisted",
+  "source_id": "N1",
+  "source_version_id": "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0",
+  "raw_sha256": "194d6fc4b1e58f6312bcd0eaff136e12ffc9d272165413af6e5316e99931c053",
+  "rights_evidence_sha256": "5247f37193e4791b6b386c25f203dd262a3155f43d8d5ab018f066125ba9d08c",
+  "corpus_roles": [
+    "research"
+  ],
+  "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+  "subject": "statistical_inference",
+  "outcome": "regression_covariance_scope",
+  "requested_relation": "scope",
+  "routes": [
+    "strength",
+    "progression",
+    "plateau",
+    "personalization"
+  ],
+  "scope": {
+    "topic": "hc_hac_regression_covariance_assumptions",
+    "model": "general_linear_regression_with_stated_regularity_and_dependence_conditions",
+    "individual_inference": "not_authorized",
+    "formula_or_parameter_activation": false
+  },
+  "limitations": [
+    "仅解释N1所讨论的HC/HAC回归协方差方法与适用范围；不执行个人模型、不选择个人参数、不产生训练候选或停滞判定权限。",
+    "N1是计量统计方法研究来源，保持research分区；不是训练指南、同任务重测研究或个人校准数据。",
+    "没有提供个人训练任务的ICC、SEM、重测误差、实用等效界值、任意时点有效的重复查看协议或真实个人时间外覆盖率。",
+    "有限样本修正和软件默认选项不等于任意短序列的有效性保证；具体估计量、观测单位、时间顺序和依赖条件需要另行核对。",
+    "原PDF公式抽取存在字符/顺序瑕疵；本合同只核对连续段落的非数值方法含义，不核准公式转录、表格数值或执行参数。",
+    "来源取得、实现者内容审核、软件验证和个人有效性分别记账；独立AI、人工或专家验证未由本合同产生。"
+  ],
+  "answer_parts": [
+    {
+      "part_id": "model_and_covariance_assumptions",
+      "text": "N1主要以普通最小二乘拟合的一般线性回归说明协方差估计，讨论零均值误差及相应正则条件。普通回归协方差估计采用误差独立、同方差的假设；这些假设被破坏时，沿用该估计进行推断会受到影响。",
+      "span_indices": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143
+      ],
+      "evidence_relation": "supports",
+      "evidence_groups": [
+        "linear_model_conditions",
+        "ordinary_covariance_assumptions"
+      ]
+    },
+    {
+      "part_id": "hc_hac_distinction",
+      "text": "文中HC估计处理的是误差相互独立、但方差可能不同的情形。HAC则进一步考虑误差间的自相关；它通过估计函数的滞后乘积加权构造协方差估计。文中讨论随滞后增大而减弱的相关性等条件，不能把HAC理解为允许任意依赖结构。",
+      "span_indices": [
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262
+      ],
+      "evidence_relation": "supports",
+      "evidence_groups": [
+        "hc_independent_errors",
+        "hac_dependence_and_weights",
+        "hac_model_options_and_order"
+      ]
+    },
+    {
+      "part_id": "hac_configuration_scope",
+      "text": "HAC并不是一个没有选择项的开关：实际方法涉及已拟合模型、数据排序、权重或核、带宽或截断滞后，以及是否预白化和作有限样本修正。N1介绍这些方法选项，不替具体训练任务选择其中的设置。",
+      "span_indices": [
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374
+      ],
+      "evidence_relation": "supports",
+      "evidence_groups": [
+        "hac_dependence_and_weights",
+        "hac_model_options_and_order",
+        "hac_weighting_framework"
+      ]
+    },
+    {
+      "part_id": "finite_sample_and_personal_limits",
+      "text": "N1区分渐近依据、为改善小样本表现提出的不同估计方式，以及可选的有限样本修正。因此，仅把方法名称改成HC或HAC，不能据此认定任意短训练序列的区间已经有效；这份方法说明也不提供同任务重测误差、个人校准或反复查看协议。",
+      "span_indices": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262
+      ],
+      "evidence_relation": "qualifies",
+      "evidence_groups": [
+        "linear_model_conditions",
+        "hc_asymptotic_and_small_sample",
+        "hac_dependence_and_weights",
+        "hac_model_options_and_order"
+      ]
+    }
+  ],
+  "reviewed_evidence_groups": [
+    {
+      "group_id": "linear_model_conditions",
+      "span_indices": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110
+      ],
+      "file_page_indices": [
+        2
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "ordinary_covariance_assumptions",
+      "span_indices": [
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143
+      ],
+      "file_page_indices": [
+        3
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "hc_independent_errors",
+      "span_indices": [
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153
+      ],
+      "file_page_indices": [
+        3
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "hc_asymptotic_and_small_sample",
+      "span_indices": [
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188
+      ],
+      "file_page_indices": [
+        3
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "hac_dependence_and_weights",
+      "span_indices": [
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238
+      ],
+      "file_page_indices": [
+        4
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "hac_model_options_and_order",
+      "span_indices": [
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262
+      ],
+      "file_page_indices": [
+        5
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    },
+    {
+      "group_id": "hac_weighting_framework",
+      "span_indices": [
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374
+      ],
+      "file_page_indices": [
+        7
+      ],
+      "binding": "Complete contiguous paragraph evidence, including intervening mathematical tokens; formulas are not activated."
+    }
+  ],
+  "reviewed_spans": [
+    {
+      "span_index": 97,
+      "text_hash": "11297fa10ff36f1ee2c6fe19fa77451249a0c44b0cc814dad15f60951d74e54b"
+    },
+    {
+      "span_index": 98,
+      "text_hash": "52b1382b4f2a57d705db53aa0c755710dd24f0794979c32ffb41326a8b6699ff"
+    },
+    {
+      "span_index": 99,
+      "text_hash": "9308dba20fd0bc4dd4248e75a8d0ce9daa09d624c0a98716ed4a24294e098946"
+    },
+    {
+      "span_index": 100,
+      "text_hash": "0024ce7628d1f8b8c12234b794a9da189895837c3b9166ae180e3af5f74bdae4"
+    },
+    {
+      "span_index": 101,
+      "text_hash": "6b189eaba34c974178ddb416e03c89d5a5d4b7bacd712a0342739b86f63cd49f"
+    },
+    {
+      "span_index": 102,
+      "text_hash": "0780967a42f73ee6705c2fac83f567d2a2a069415ff8e7967f23ab00035f4a3c"
+    },
+    {
+      "span_index": 103,
+      "text_hash": "2baa71af9e82e5ff2f45441f551405bdcf4f8fd6bf190a6d5c09605b55d04deb"
+    },
+    {
+      "span_index": 104,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 105,
+      "text_hash": "2606c220ba36cc5864aeb8a43d3231dc6d05bfd8dfea0979896716a3dabefa25"
+    },
+    {
+      "span_index": 106,
+      "text_hash": "564a18f98a10d28043d03bd4ab822c381d11451e77b27729fdbbb832ae9126a3"
+    },
+    {
+      "span_index": 107,
+      "text_hash": "662fd28cfdf2ae06e4217ae9c564f71f9d701dd3ff8d553abe3186b0e1b56e60"
+    },
+    {
+      "span_index": 108,
+      "text_hash": "cdb8f618cc66d73dfd6890549b93f83551306b6728ded6050bffc41f4f2d3af8"
+    },
+    {
+      "span_index": 109,
+      "text_hash": "b3007c9cfff00aaa6c54940582dd3a3ea3806a62743e31686c66ad2893763111"
+    },
+    {
+      "span_index": 110,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 131,
+      "text_hash": "44cd6946ccf2689363c3cce93dcdb3c488461e0d5dca98cec19c5c9121574b84"
+    },
+    {
+      "span_index": 132,
+      "text_hash": "5c3455d8e0d4a0ce9baf1d04a566cc67f9a8824f4ce88b92f3a5ac385d7f8db8"
+    },
+    {
+      "span_index": 133,
+      "text_hash": "45f370411781b7a2859e6f7ebe92d37160156a75980e8d94e1f3e776a4143630"
+    },
+    {
+      "span_index": 134,
+      "text_hash": "0eb6aa87b6bb6a0bfeb21e20f4a066a2d4e2029019687a312010ed10bbfa596d"
+    },
+    {
+      "span_index": 135,
+      "text_hash": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9"
+    },
+    {
+      "span_index": 136,
+      "text_hash": "c484f16674440453b70bdd22eb4a2c49f57aba36282bb89a5ace64a0901f3e04"
+    },
+    {
+      "span_index": 137,
+      "text_hash": "d0a556d20a45ff033de3317106c715277c3f71830c04fd3b7af47aaddc3cc02a"
+    },
+    {
+      "span_index": 138,
+      "text_hash": "9a2ee47d9c2449a57182f94f093d03dd5a769ea1927cbcdeef09885f4654aa46"
+    },
+    {
+      "span_index": 139,
+      "text_hash": "f75c6596507878933aa2bc17dfd9a8689ad0da4f85427ba457666ae5917fa631"
+    },
+    {
+      "span_index": 140,
+      "text_hash": "ef19bae970e4ab1f14de14b88e8c0165756bc8820cc799a741c971ee6bf2b142"
+    },
+    {
+      "span_index": 141,
+      "text_hash": "1741e3b0ca148168c526d610c98b8510a42af5d80dbafa8ea8797d7c9ab054fa"
+    },
+    {
+      "span_index": 142,
+      "text_hash": "7032a3611b09b05e3e9a385097f4c515471544008dbc50668ae6e42c4011f699"
+    },
+    {
+      "span_index": 143,
+      "text_hash": "698a38204124439ea1a44ea8d9a0ef39226050cb1494ec724909630a86792c41"
+    },
+    {
+      "span_index": 145,
+      "text_hash": "6d81c4849134e7177da4e5b1e7563d2e4524730d3295ae71d9f2e106e4116f0d"
+    },
+    {
+      "span_index": 146,
+      "text_hash": "924e2fc2796dd48a1c043c829f20cb2504b2d1945e82cafd846275bbcf00f970"
+    },
+    {
+      "span_index": 147,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 148,
+      "text_hash": "5e7f5715a1d689f1c3f055a5c547287cd0c69d23142b488c83dc46f9742e80b1"
+    },
+    {
+      "span_index": 149,
+      "text_hash": "ac2acb7952ee2ac5647ed80e77a9a7e86297e3a63bcdd05a35f42ecc2f9953f6"
+    },
+    {
+      "span_index": 150,
+      "text_hash": "616e8cc2cc762815bce92ba8e817da87e92c98b3e3e5c42697caaa76e18c6129"
+    },
+    {
+      "span_index": 151,
+      "text_hash": "fe493bbbb377899c2b752722594c6020e20d11ed5a0aa93136094588fca92cc3"
+    },
+    {
+      "span_index": 152,
+      "text_hash": "f90b91cfb2b4f36e990ba3cb24d2be5b6f883c56ff8e963265e7b45499e21c46"
+    },
+    {
+      "span_index": 153,
+      "text_hash": "118829bc0eefb1c63cb23fa116d0e3cd32bcd2c8fd3244f951a9eaa4c5bc504f"
+    },
+    {
+      "span_index": 179,
+      "text_hash": "b36712fa42a2e6d67fe14448e97677e14a80c2f69b2d7e011408308ae1fe4cd0"
+    },
+    {
+      "span_index": 180,
+      "text_hash": "f75c6596507878933aa2bc17dfd9a8689ad0da4f85427ba457666ae5917fa631"
+    },
+    {
+      "span_index": 181,
+      "text_hash": "6e88dd751468341540cb1aea016f053b8c14b23aff90df53e76ef0c185ea3655"
+    },
+    {
+      "span_index": 182,
+      "text_hash": "21660050bef0e4476cd68d02559d76c8bf678f3488ebdd3626328cb4b6fe3ca6"
+    },
+    {
+      "span_index": 183,
+      "text_hash": "5af71388321483048047539bd1c6039d23cfd31e3203e8ca7ce8af3b019f5b05"
+    },
+    {
+      "span_index": 184,
+      "text_hash": "867d04e8c38eae541986350bda12988f4252c93c138849397c316dc8a3b7a9e2"
+    },
+    {
+      "span_index": 185,
+      "text_hash": "8d94f32a0974f9820e2aeced418494a3627256b4bdb43e0292ac7d315c7cc3f6"
+    },
+    {
+      "span_index": 186,
+      "text_hash": "b4dabae9256fccf1dc8b319ac0abbd0ddce246af83aa55a36cdda8fcaf80c2d6"
+    },
+    {
+      "span_index": 187,
+      "text_hash": "c7e406adf5a064a471d3aba894ef7a831df8bf4a645eb0ab92b6d3f3087d62ba"
+    },
+    {
+      "span_index": 188,
+      "text_hash": "d241b5148d2508419876420c1469d7aea6da9349887b99aa387455a372423372"
+    },
+    {
+      "span_index": 211,
+      "text_hash": "9aa213cd92114b667a78ec1c364c09aff8e481c1cf68db78aadfc3b02cbe99c5"
+    },
+    {
+      "span_index": 212,
+      "text_hash": "9e0f18dbe9bb3630155d7350ffa0ef3aed301a08ff353c8fd8dc890c9a5f426f"
+    },
+    {
+      "span_index": 213,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 214,
+      "text_hash": "ac9e5f10fe7d9e269815b3f969091039e9ff464f311eaaf3d6024758d18871ff"
+    },
+    {
+      "span_index": 215,
+      "text_hash": "2bd0b920572de8bbf6900c4a704ec42d219b1bf1285980405069a5cc3f314169"
+    },
+    {
+      "span_index": 216,
+      "text_hash": "5a7da6fa5e3c9b89d9cd34fb5857e898560d4535f5edbfc315b620909deacf98"
+    },
+    {
+      "span_index": 217,
+      "text_hash": "076d8207d76b1e8bf4e4475615ddc00d086af928b8a4e81e12953e2b31d7d824"
+    },
+    {
+      "span_index": 218,
+      "text_hash": "90f6686e6d40174adf30eaa25685cd9c1635e4cf78f11c8f29db83918f69e940"
+    },
+    {
+      "span_index": 219,
+      "text_hash": "aa6966396ae32d5e1799e236ccc59664fa4dc895b3cd493bb0e442e42b6274b9"
+    },
+    {
+      "span_index": 220,
+      "text_hash": "cad1a990e749a1341cafa4592b8a8e34550f10c0a9af673d7af4f0c9d34f0109"
+    },
+    {
+      "span_index": 221,
+      "text_hash": "96ef7c109728ad8501010b976bcaf7685eb32b7e93de4042681efd98c9034fbf"
+    },
+    {
+      "span_index": 222,
+      "text_hash": "ae475d6631facb3f7eab32703576edf626d7259e57c505924dd640f19ad06597"
+    },
+    {
+      "span_index": 223,
+      "text_hash": "aba6070dfdfe36c6c0c233f401d2c39416ded1a4e74e5c36a08711128356a1f7"
+    },
+    {
+      "span_index": 224,
+      "text_hash": "e0ecc2c615b5d6ecff939dfb1c6addda9e3a926de791472f2e6342efd735d086"
+    },
+    {
+      "span_index": 225,
+      "text_hash": "065302e895b093399c7fa16ea6419a7e1eceefa30b4b654b68d1b71f2d3fcd6e"
+    },
+    {
+      "span_index": 226,
+      "text_hash": "3362be486adcda01f23f8cd0a0558904edfa76d19b23c56043708bd98432265e"
+    },
+    {
+      "span_index": 227,
+      "text_hash": "096a1965b0c5ee40d78598ab45cd5aedd5c8b62f1a4f44eba740e09e4a349d8c"
+    },
+    {
+      "span_index": 228,
+      "text_hash": "342143c24170288e7bd1b0b8a2fad12d0fe5511ff9e05dc52133000e6426ed8e"
+    },
+    {
+      "span_index": 229,
+      "text_hash": "ba29466502cd10866097bea469d1f99cd94cf150a3b719986b8d8ae6908dea3c"
+    },
+    {
+      "span_index": 230,
+      "text_hash": "644626ee08fa6894dca4d7b0f08773681bc40277ac10cf5271177056dbde2669"
+    },
+    {
+      "span_index": 231,
+      "text_hash": "d9aef6bed4c25ddd255b30a18dcee381f75814a265b8f83b3a2c64ef28d3c606"
+    },
+    {
+      "span_index": 232,
+      "text_hash": "53962c279a5d877dfbe118169c6c3e4f54b181d84117a7a4352aa22cf147adc0"
+    },
+    {
+      "span_index": 233,
+      "text_hash": "44bfe0faf1fd63b1c65446935a87d73628b2721547d0b5ea3113e26afe1764f0"
+    },
+    {
+      "span_index": 234,
+      "text_hash": "80bd9e1bb2c76b8277f369411034a09ae4d3820a811b83b9f43790d4459ea9e9"
+    },
+    {
+      "span_index": 235,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 236,
+      "text_hash": "0f2c36a5a5e77cc9f703b55da71b85926401cb2eaa0fc0ea440a813551725f62"
+    },
+    {
+      "span_index": 237,
+      "text_hash": "ca1f8b3114b5607376c1b08b929a3f010a1b717a19412c5c69389cfb39aafcce"
+    },
+    {
+      "span_index": 238,
+      "text_hash": "c32a973b0a1251653207255cf6032f60c5c12586137784393f162707440b1725"
+    },
+    {
+      "span_index": 243,
+      "text_hash": "2ab3c5f0a67d9034e4e65120a09e9b51607b0645225cc5ba67a19214911aa169"
+    },
+    {
+      "span_index": 244,
+      "text_hash": "7298dfd84cce1fbdfb7760d19c681886c9be9f2c897f1928d7bc9065c2aa92ea"
+    },
+    {
+      "span_index": 245,
+      "text_hash": "08ea7ff8a225a6a914da483b9e34b82a8932296f675ec7d4a1687b5c7ab91d35"
+    },
+    {
+      "span_index": 246,
+      "text_hash": "293bc0ab026796f35d7a4451330fbceb8baaaf47cab6426602696150d4bb51f7"
+    },
+    {
+      "span_index": 247,
+      "text_hash": "418abab20c7ff768d012ebc87570852f6143ed565137f32a1e85cf8986a7b833"
+    },
+    {
+      "span_index": 248,
+      "text_hash": "1d5e39bbb8c1671efaec433e85aab608740d03b42f7089c18599ae0f762db868"
+    },
+    {
+      "span_index": 249,
+      "text_hash": "10621913bfe8c9261600abe8b043c4de57a943d7cf496601370bb65cacffd353"
+    },
+    {
+      "span_index": 250,
+      "text_hash": "f9a1a93155fa2307ee4db7ca8e4b4d08ac5fbfbf334f776af23db0c2d96404f9"
+    },
+    {
+      "span_index": 251,
+      "text_hash": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7"
+    },
+    {
+      "span_index": 252,
+      "text_hash": "d3960022383e4cccc35193153674d6c9c89e548f615aa7c59969fc8fde6169c7"
+    },
+    {
+      "span_index": 253,
+      "text_hash": "768b62e30f5a62643bc345b1e250f867ff86ec810345bb431a4057933c7b7701"
+    },
+    {
+      "span_index": 254,
+      "text_hash": "bb09906bd018c684685a4e7ee92e3d5f28b49ddc506f2c4677d8939ced0450e2"
+    },
+    {
+      "span_index": 255,
+      "text_hash": "1d5dcf8ddf2a5656266f86bee61a229fa60f79f5aa3eac5406dd8b4199a82bb2"
+    },
+    {
+      "span_index": 256,
+      "text_hash": "82cfd11bcf013f18f6c2998f895e6f0d0552476c77a0484a41b19b81696e3d23"
+    },
+    {
+      "span_index": 257,
+      "text_hash": "90f6686e6d40174adf30eaa25685cd9c1635e4cf78f11c8f29db83918f69e940"
+    },
+    {
+      "span_index": 258,
+      "text_hash": "9fa22d2fc5bf209e3a2933739282595ba3e11b81b317019d7b57310b66519b24"
+    },
+    {
+      "span_index": 259,
+      "text_hash": "c7264bdd8662a78d806b609038fe4989528766249cb40dd0ce80ea461900f31b"
+    },
+    {
+      "span_index": 260,
+      "text_hash": "cd329fbf734d869544995a3d5f98ca22e0531cbee13fa116a7f57409f41f8a2a"
+    },
+    {
+      "span_index": 261,
+      "text_hash": "d4416f4782e8b2748444ee22c1f525b6c7412d887b4b577afee1a11596b6109f"
+    },
+    {
+      "span_index": 262,
+      "text_hash": "466a136194d5583485b98628a4555213359cf3b6a020a63d896148d0995c5638"
+    },
+    {
+      "span_index": 363,
+      "text_hash": "7cd8884e42408d1b2c5c38059874c66edb168c7b01e6025f07b9832215aa0575"
+    },
+    {
+      "span_index": 364,
+      "text_hash": "c53ea705c47f057e44d7eab194d2a2d930ca4f3d5f449d8e872191c5e3e7e681"
+    },
+    {
+      "span_index": 365,
+      "text_hash": "6f2ff1166a770eb8ab66a3067207b71882b33061f63cefafbdab9ff14797f68d"
+    },
+    {
+      "span_index": 366,
+      "text_hash": "46792660ddf2e3cac4ae78d7f9de1c77408831b537f59a21ad01dbf5a73d092f"
+    },
+    {
+      "span_index": 367,
+      "text_hash": "7aa3e8955212c275c35882f57a3ab36fc40e729e804b874fbf1b51ad4347d450"
+    },
+    {
+      "span_index": 368,
+      "text_hash": "543dee6d96b57bc95e7b5150384b55e6a622f0f9f719c110a7207b8ba491f273"
+    },
+    {
+      "span_index": 369,
+      "text_hash": "3aa90df939a404c5b4c43b77ae8564c0b7670c73f4e8d5c1a619224d84e71c82"
+    },
+    {
+      "span_index": 370,
+      "text_hash": "64f434c31854a78d7164c2765ff26aa0275921b4b5d18ac35cf6044f38f1f28e"
+    },
+    {
+      "span_index": 371,
+      "text_hash": "18fe58b0a52d6f2fa0b69e60f969fd64cf5bb2e35525ec42b84ab0d926e4e052"
+    },
+    {
+      "span_index": 372,
+      "text_hash": "328bb8259dd0b39e02f7a3ed9b8ced578dc7aea9baefc39c0215e106e0fae54b"
+    },
+    {
+      "span_index": 373,
+      "text_hash": "7e59206dcfd73813bbf4f5979a406674c9dca3f4130d21649a77d5eb8cbd5a30"
+    },
+    {
+      "span_index": 374,
+      "text_hash": "057077cf9c08c8aca9cb8d5e9657e4320762646787a35544e64db8472bde327b"
+    }
+  ],
+  "read_file_page_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    7
+  ],
+  "review_rationale": "Reread actual N1 PDF pages 2-6 and 8. Section 2 states the general linear regression model and regularity conditions; Section 3.1 distinguishes independent heteroskedastic errors; Section 3.2 states the HAC dependence, weighting and ordering framework. The article discusses asymptotic justification and finite-sample corrections, not calibration for personal training. The final personal-task limitation is a bounded applicability interpretation, not a source claim that HC/HAC methods can never be useful for training data. Continuous paragraph groups retain the conditions missing from isolated PDF lines; no formulas or table values are activated.",
+  "functional_gap": {
+    "existing_release": "core-source-explanations-1.4.6",
+    "existing_n1_contract_count": 0,
+    "related_matrix_rules": [
+      "CORE-F3-MEASUREMENT-UNCERTAINTY",
+      "CORE-F3-PLATEAU-CANDIDATE"
+    ],
+    "new_user_benefit": "Explains why ordinary regression uncertainty needs assumption checks and how HC differs from HAC when errors vary or correlate over time. It fills a source-explanation gap without activating the matrix model-inference capabilities."
+  }
+}

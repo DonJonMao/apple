@@ -735,10 +735,12 @@ def test_adult_guideline_scope_question_does_not_apply_advice_to_children(kb):
     ("实用等效界值如何论证", "equivalence_margin_basis", "statistical_inference"),
     ("等效方法的研究设计范围", "equivalence_design_scope", "statistical_inference"),
     ("成人身体活动指南的年龄范围", "adult_guideline_scope", "physical_activity"),
+    ("安全活动建议的年龄范围", "activity_safety_scope", "physical_activity"),
     ("力量训练的起步安排", "muscle_strengthening_start", "resistance_training"),
     ("身体活动增量的大小", "activity_increment_size", "physical_activity"),
     ("身体活动进阶速度的影响因素", "progression_rate_factors", "physical_activity"),
     ("力竭的定义", "failure_definition", "resistance_training"),
+    ("回归协方差与HC/HAC适用范围", "regression_covariance_scope", "statistical_inference"),
 ])
 def test_source_topic_ui_selects_the_right_domain_and_requires_confirmation(kb, label, outcome, subject):
     from streamlit.testing.v1 import AppTest

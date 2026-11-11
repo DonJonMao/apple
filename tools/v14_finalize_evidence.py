@@ -65,7 +65,10 @@ def main():
                 value = ET.tostring(document, encoding="unicode")
         else:
             value = local_path_projection(original_text)
-        value = "\n".join(line.rstrip() for line in value.splitlines()).rstrip() + "\n"
+        # Clean XML is frozen evidence, including its serialization and whether
+        # it has a final newline. Normalize only diagnostics that needed edits.
+        if path.suffix != ".xml" or value != original_text:
+            value = "\n".join(line.rstrip() for line in value.splitlines()).rstrip() + "\n"
         if value != original_text:
             path.write_text(value)
         relative = str(path.relative_to(ROOT))
@@ -94,7 +97,7 @@ def main():
         limits = "See item-level evidence; software checks do not establish professional review or scientific efficacy."
         if identifier in {"KB-05", "E2E-09"}:
             state = "partial_semantic_coverage_independent_review_failed"
-            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric. Subsequent guard replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
+            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric; round 4 10/24 pass, 6 partial, 8 fail. Subsequent replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
         elif identifier in {"KB-01", "KB-02", "KB-03"}:
             state = "software_contract_verified_actual_textbook_body_gaps"
             limits = "Edition/chapter/rights gates work; paid source chapters not acquired."

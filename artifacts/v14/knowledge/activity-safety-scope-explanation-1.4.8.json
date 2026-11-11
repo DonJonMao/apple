@@ -1,0 +1,151 @@
+{
+  "release_id": "core-activity-safety-scope-explanation-1.4.8",
+  "release_sha256": "0fe32a6b8693745e42008d71acb7cda7e54a2e5e435b1b505898d7625bb7d2cb",
+  "previous_release_id": "core-regression-covariance-explanation-1.4.7",
+  "previous_release_sha256": "748dbfe6528aad9fc431d252c623d145a209927801e001c87bc5d1d2fb0365a1",
+  "new_contracts": [
+    {
+      "claim": {
+        "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+        "version": "1.4.8",
+        "statement": "HHS第二版第7章“Active and Safe”的导言说明，本章关键指导帮助人们安全进行身体活动，其中多数建议适用于所有年龄的人；本章也提供针对特定年龄组和某些健康状况人群的具体指导。\n这里的“多数”不能省略，也不能理解为每一条建议都对所有人无例外适用。第4章成人指导明确面向18至64岁，与第7章多数安全建议的跨年龄范围不同；两章的适用范围需要分别核对。",
+        "scope": {
+          "topic": "chapter_7_safety_guidance_age_scope",
+          "population": "most_advice_all_ages_with_specific_guidance_for_age_groups_and_conditions",
+          "chapters": [
+            "7",
+            "4"
+          ],
+          "individual_inference": "not_authorized"
+        },
+        "limitations": [
+          "仅提供所引来源的一般范围解释，不提供个人模型、参数选择、训练候选或临床处方。",
+          "来源取得、实现者内容审核、软件验证和个人有效性分别记账；本合同不增加独立AI、人工或专家验证分母。",
+          "仅解释HHS第二版第7章安全活动建议的年龄范围，并与第4章成人范围作区分；不授予个人训练候选、诊断或临床处方权限。",
+          "“多数建议适用于所有年龄”不等于每条建议对所有年龄、健康状况均无例外；第7章另有特定年龄组和某些健康状况的具体指导。",
+          "一般范围解释不能替代个人适用条件核对，也不证明个体活动没有风险。"
+        ],
+        "numeric": false,
+        "evidence_links": [
+          {
+            "source_id": "CORE-US-HHS-PAG-2",
+            "source_version_id": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0",
+            "span_ids": [
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+              "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+            ]
+          }
+        ],
+        "answer_task": {
+          "subject": "physical_activity",
+          "outcome": "activity_safety_scope",
+          "requested_relation": "scope",
+          "evidence_relation": "supports",
+          "answer_complete": true,
+          "required_answer_parts": [
+            "most_safety_advice_all_ages",
+            "chapter_specific_scope_limits"
+          ],
+          "routes": [
+            "strength",
+            "progression",
+            "plateau",
+            "recovery",
+            "personalization"
+          ],
+          "answer_parts": [
+            {
+              "part_id": "most_safety_advice_all_ages",
+              "text": "HHS第二版第7章“Active and Safe”的导言说明，本章关键指导帮助人们安全进行身体活动，其中多数建议适用于所有年龄的人；本章也提供针对特定年龄组和某些健康状况人群的具体指导。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+              ],
+              "evidence_relation": "supports"
+            },
+            {
+              "part_id": "chapter_specific_scope_limits",
+              "text": "这里的“多数”不能省略，也不能理解为每一条建议都对所有人无例外适用。第4章成人指导明确面向18至64岁，与第7章多数安全建议的跨年龄范围不同；两章的适用范围需要分别核对。",
+              "span_ids": [
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+                "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+              ],
+              "evidence_relation": "qualifies"
+            }
+          ]
+        }
+      },
+      "content_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T15:21:39.391808+00:00",
+        "independent_expert_validation": false,
+        "content_checked": true,
+        "rationale": "The opening prose of Chapter 7 on printed page 88 explicitly states Most advice applies to people of all ages and immediately preserves specific guidance for particular age groups and people with certain conditions. Chapter 4 page 56 separately states ages 18-64. The second answer part is a bounded scope qualification from the two exact passages, not clinical or candidate authority. Only source explanation is authorized; no personal numerical model or candidate authority."
+      },
+      "rule": {
+        "rule_id": "RULE-HHS-ACTIVITY-SAFETY-SCOPE-EXPLANATION",
+        "rule_version": "1.4.8",
+        "requested_capability": "source_explanation",
+        "capability_policy_version": "personal-trial-policy-1.4.0",
+        "claim_refs": [
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+            "version": "1.4.8"
+          }
+        ],
+        "routes": [
+          "strength",
+          "progression",
+          "plateau",
+          "recovery",
+          "personalization"
+        ],
+        "permitted_actions": [],
+        "numeric_provenance": [],
+        "conditions": [
+          {
+            "field": "requested_capability",
+            "op": "eq",
+            "value": "source_explanation",
+            "origin": "product_scope"
+          }
+        ],
+        "coverage_scope": "activity_safety_scope",
+        "application_logic": "仅解释明确匹配的来源主题与范围；保持出处、每段证据和限制，不据此计算个人模型、选择个人参数或产生训练候选。",
+        "limits": [
+          "仅提供所引来源的一般范围解释，不提供个人模型、参数选择、训练候选或临床处方。",
+          "来源取得、实现者内容审核、软件验证和个人有效性分别记账；本合同不增加独立AI、人工或专家验证分母。",
+          "仅解释HHS第二版第7章安全活动建议的年龄范围，并与第4章成人范围作区分；不授予个人训练候选、诊断或临床处方权限。",
+          "“多数建议适用于所有年龄”不等于每条建议对所有年龄、健康状况均无例外；第7章另有特定年龄组和某些健康状况的具体指导。",
+          "一般范围解释不能替代个人适用条件核对，也不证明个体活动没有风险。"
+        ],
+        "forbidden": [
+          "numeric_training_candidate",
+          "individual_equivalence_inference",
+          "individual_prediction",
+          "causal_effect",
+          "automatic_clinical_prescription"
+        ],
+        "implementation_validation_refs": [
+          "tests/unit/test_activity_safety_scope_contract.py",
+          "src/healthzip/knowledge/core.py::core_principles"
+        ]
+      },
+      "application_review": {
+        "reviewer": "Codex source topic and application review",
+        "reviewer_kind": "ai_assisted",
+        "reviewed_at": "2026-11-11T15:21:39.391884+00:00",
+        "independent_expert_validation": false,
+        "application_checked": true,
+        "rationale": "The opening prose of Chapter 7 on printed page 88 explicitly states Most advice applies to people of all ages and immediately preserves specific guidance for particular age groups and people with certain conditions. Chapter 4 page 56 separately states ages 18-64. The second answer part is a bounded scope qualification from the two exact passages, not clinical or candidate authority. Only source explanation is authorized; no personal numerical model or candidate authority."
+      }
+    }
+  ],
+  "claims_in_release": 30,
+  "rules_in_release": 30,
+  "previous_members_unchanged": true,
+  "independent_ai_denominator": 0,
+  "independent_human_or_expert_denominator": 0,
+  "personal_calibration_supplied": false,
+  "source_library_mutations": 0
+}

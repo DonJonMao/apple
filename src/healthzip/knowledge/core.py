@@ -136,11 +136,39 @@ def _spans(w, links, *, numeric=False):
     return resolved
 
 
+def _answer_relations(claim):
+    from .support import RELATIONS
+    task = claim.get("answer_task") or {}
+    default = task.get("evidence_relation", "supports")
+    relations = [default, *(part.get("evidence_relation", default) for part in task.get("answer_parts", []))]
+    if not all(isinstance(relation, str) and relation in RELATIONS for relation in relations):
+        raise ValueError("answer task and parts require a valid evidence relation")
+
+
+def _answer_revision(w, claim):
+    reference = claim.get("answer_revision_of")
+    if reference is None:
+        return None
+    if (not isinstance(reference, dict) or reference.get("claim_id") != claim["claim_id"]
+            or not isinstance(reference.get("version"), str) or reference["version"] == claim["version"]):
+        raise ValueError("answer revision requires a different version of the same claim")
+    old = w.lib.theories.execute("SELECT payload_json FROM source_claim WHERE claim_id=? AND version=?",
+                                (reference["claim_id"], reference["version"])).fetchone()
+    if old is None:
+        raise ValueError("answer revision requires an existing predecessor")
+    old_task, task = json.loads(old[0]).get("answer_task", {}), claim.get("answer_task", {})
+    if not all(task.get(key) and task[key] == old_task.get(key) for key in ("subject", "outcome", "requested_relation")):
+        raise ValueError("answer revision must retain the same answer target")
+    return reference
+
+
 def review_claim(w, claim, review):
     _review(review)
     if not all(claim.get(key) for key in ("claim_id", "version", "statement", "scope", "limitations", "evidence_links")):
         raise ValueError("claim identity, statement, scope, limits and exact evidence required")
     _spans(w, claim["evidence_links"], numeric=claim.get("numeric", False))
+    _answer_relations(claim)
+    _answer_revision(w, claim)
     if claim.get("answer_task"):
         task = claim["answer_task"]
         if not task.get("subject") or not task.get("outcome") or not task.get("requested_relation") or not task.get("answer_parts"):
@@ -164,6 +192,8 @@ def _claim(w, reference):
     if not row or row["status"] != "verified":
         raise ValueError("claim_missing_or_not_current")
     claim, review = json.loads(row["payload_json"]), json.loads(row["review_json"])
+    _answer_relations(claim)
+    _answer_revision(w, claim)
     spans = _spans(w, claim["evidence_links"], numeric=claim.get("numeric", False))
     if review["reviewer_kind"] == "synthetic_fixture" and w.environment_kind != "synthetic_test":
         raise ValueError("synthetic_claim_not_production_authority")

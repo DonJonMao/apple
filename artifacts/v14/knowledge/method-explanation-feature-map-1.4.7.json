@@ -1,0 +1,114 @@
+{
+  "map_version": "method-explanation-feature-map-1.4.7",
+  "created_at": "2026-11-11T15:12:12.842696+00:00",
+  "scope": "Additive relationship map from one N1 explanation to two existing planned feature topics. This is not a replacement matrix or an activation of personal inference.",
+  "historical_matrix": {
+    "artifact": "artifacts/v14/knowledge/source_rule_feature_matrix.csv",
+    "sha256": "040084c5c6826c3cbfdc7f1dfcf5802087a26bf25ae46f677d136cfa4694f26d",
+    "row_count": 21,
+    "unchanged": true
+  },
+  "release": {
+    "release_id": "core-regression-covariance-explanation-1.4.7",
+    "sha256": "748dbfe6528aad9fc431d252c623d145a209927801e001c87bc5d1d2fb0365a1",
+    "artifact": "artifacts/v14/knowledge/release-1.4.7.json"
+  },
+  "source": {
+    "source_id": "N1",
+    "source_version_id": "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0",
+    "raw_sha256": "194d6fc4b1e58f6312bcd0eaff136e12ffc9d272165413af6e5316e99931c053",
+    "corpus_roles": [
+      "research"
+    ],
+    "review_artifact": "artifacts/v14/knowledge/regression-covariance-review-1.4.7.json"
+  },
+  "answer_task": {
+    "subject": "statistical_inference",
+    "outcome": "regression_covariance_scope",
+    "requested_relation": "scope"
+  },
+  "relationships": [
+    {
+      "matrix_rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+      "feature": "F3",
+      "relation": "general_method_background_only",
+      "new_user_benefit": "Explains why the ordinary regression covariance assumption matters, distinguishes HC under independent heteroskedastic errors from HAC with serial dependence, and preserves the relevant model and dependence conditions.",
+      "remaining_inference_requirements": [
+        "Evidence that the selected estimator, observation unit and dependence structure fit the actual measurement task.",
+        "Same-task test-retest error data and any required personal calibration; N1 does not supply ICC or SEM for training records.",
+        "Actual finite-sample interval performance and a separately justified useful-change threshold."
+      ],
+      "explanation_claim_ref": {
+        "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+        "version": "1.4.7"
+      },
+      "explanation_rule_ref": {
+        "rule_id": "RULE-N1-REGRESSION-COVARIANCE-EXPLANATION",
+        "version": "1.4.7"
+      },
+      "explanation_capability": "source_explanation",
+      "matrix_planned_capability": "model_conditional_inference",
+      "matrix_inference_rule_activated": false,
+      "effective_model_inference_capability": "none"
+    },
+    {
+      "matrix_rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+      "feature": "F3",
+      "relation": "general_method_background_only",
+      "new_user_benefit": "Explains why selecting HC/HAC or a software default alone cannot certify a short training-series interval or turn a descriptive trend into a plateau conclusion.",
+      "remaining_inference_requirements": [
+        "A prespecified comparable observation task and appropriate uncertainty model.",
+        "Substantively justified practical-equivalence bounds and a valid repeated-look protocol where needed.",
+        "Task-specific calibration and validation; N1 neither labels a personal plateau nor establishes why performance changed."
+      ],
+      "explanation_claim_ref": {
+        "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+        "version": "1.4.7"
+      },
+      "explanation_rule_ref": {
+        "rule_id": "RULE-N1-REGRESSION-COVARIANCE-EXPLANATION",
+        "version": "1.4.7"
+      },
+      "explanation_capability": "source_explanation",
+      "matrix_planned_capability": "model_conditional_inference",
+      "matrix_inference_rule_activated": false,
+      "effective_model_inference_capability": "none"
+    }
+  ],
+  "personal_method_permissions": [
+    {
+      "matrix_rule_id": "CORE-F3-MEASUREMENT-UNCERTAINTY",
+      "planned_capability": "model_conditional_inference",
+      "activated_by_this_release": false,
+      "effective_capability": "none"
+    },
+    {
+      "matrix_rule_id": "CORE-F3-PRACTICAL-EQUIVALENCE",
+      "planned_capability": "model_conditional_inference",
+      "activated_by_this_release": false,
+      "effective_capability": "none"
+    },
+    {
+      "matrix_rule_id": "CORE-F3-REPEATED-LOOKS",
+      "planned_capability": "model_conditional_inference",
+      "activated_by_this_release": false,
+      "effective_capability": "none"
+    },
+    {
+      "matrix_rule_id": "CORE-F3-PLATEAU-CANDIDATE",
+      "planned_capability": "model_conditional_inference",
+      "activated_by_this_release": false,
+      "effective_capability": "none"
+    }
+  ],
+  "new_numeric_actions": 0,
+  "new_personal_parameters": 0,
+  "new_personal_calibration_count": 0,
+  "independent_ai_denominator": 0,
+  "independent_human_or_expert_denominator": 0,
+  "limits": [
+    "The N1 contract is a bounded source explanation reviewed by its implementer; it is not independent scientific acceptance.",
+    "The matrix references planned personal-method capabilities. Related explanatory material does not fill all of their activation requirements.",
+    "N1 remains a research-method source, distinct from the core training guidelines and from actual personal measurement data."
+  ]
+}

@@ -1,0 +1,67 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="0.594" timestamp="2026-11-11T23:39:14.198309+08:00"><testcase classname="tests.unit.test_v14_source_request_scope" name="test_qualifying_reference_cannot_answer_another_chapter[supports-False]" time="0.179" /><testcase classname="tests.unit.test_v14_source_request_scope" name="test_qualifying_reference_cannot_answer_another_chapter[supports-True]" time="0.083" /><testcase classname="tests.unit.test_v14_source_request_scope" name="test_qualifying_reference_cannot_answer_another_chapter[qualifies-False]" time="0.078"><failure message="AssertionError: assert 'answered_with_support' == 'partially_answered'&#10;  &#10;  - partially_answered&#10;  + answered_with_support">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8149b3d0&gt;
+confirmed = False, default_relation = 'qualifies'
+
+    @pytest.mark.parametrize("confirmed", [False, True])
+    @pytest.mark.parametrize("default_relation", ["supports", "qualifies"])
+    def test_qualifying_reference_cannot_answer_another_chapter(library, confirmed, default_relation):
+        source = "CORE-US-HHS-PAG-2"
+        version = library.lib.record_version(source, b"Synthetic chapter binding", "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": "Synthetic frequency statement.", "locator": {"chapter_id": "4"}},
+             {"text": "Synthetic qualification only.", "locator": {"chapter_id": "7"}}], "synthetic")
+        spans = [version + f":s{i:05d}" for i in range(2)]
+        library.review_claim({"claim_id": "SYNTH-CHAPTER-FREQUENCY", "version": "1", "statement": "Synthetic only",
+            "scope": {"population": "synthetic"}, "limitations": ["No scientific authority"],
+            "evidence_links": [{"source_id": source, "source_version_id": version, "span_ids": spans}],
+            "answer_task": {"subject": "resistance_training", "outcome": "frequency", "requested_relation": "options",
+                "evidence_relation": default_relation,
+                "answer_parts": [{"text": "Synthetic frequency statement.", "span_ids": spans[:1], "evidence_relation": "supports"},
+                                 {"text": "Synthetic qualification only.", "span_ids": spans[1:], "evidence_relation": "qualifies"}]}},
+            {"reviewer": "Synthetic fixture", "reviewer_kind": "synthetic_fixture", "reviewed_at": "2026-11-11T00:00:00Z",
+             "content_checked": True, "rationale": "Tests only binding of source chapters."})
+        context = {"corpus_roles": ["core"]}
+        if confirmed:
+            context["question_contract"] = {"subject": "resistance_training", "outcome": "frequency",
+                                            "requested_relation": "options", "user_confirmed": True}
+        question = "HHS第4章的训练频次怎样？第7章的训练频次怎样？"
+        answer = library.query(question, route="strength", context=context)
+&gt;       assert answer["answer_status"] == "partially_answered"
+E       AssertionError: assert 'answered_with_support' == 'partially_answered'
+E
+E         - partially_answered
+E         + answered_with_support
+
+tests/unit/test_v14_source_request_scope.py:121: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_source_request_scope" name="test_qualifying_reference_cannot_answer_another_chapter[qualifies-True]" time="0.077"><failure message="AssertionError: assert 'answered_with_support' == 'partially_answered'&#10;  &#10;  - partially_answered&#10;  + answered_with_support">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff81498a10&gt;
+confirmed = True, default_relation = 'qualifies'
+
+    @pytest.mark.parametrize("confirmed", [False, True])
+    @pytest.mark.parametrize("default_relation", ["supports", "qualifies"])
+    def test_qualifying_reference_cannot_answer_another_chapter(library, confirmed, default_relation):
+        source = "CORE-US-HHS-PAG-2"
+        version = library.lib.record_version(source, b"Synthetic chapter binding", "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": "Synthetic frequency statement.", "locator": {"chapter_id": "4"}},
+             {"text": "Synthetic qualification only.", "locator": {"chapter_id": "7"}}], "synthetic")
+        spans = [version + f":s{i:05d}" for i in range(2)]
+        library.review_claim({"claim_id": "SYNTH-CHAPTER-FREQUENCY", "version": "1", "statement": "Synthetic only",
+            "scope": {"population": "synthetic"}, "limitations": ["No scientific authority"],
+            "evidence_links": [{"source_id": source, "source_version_id": version, "span_ids": spans}],
+            "answer_task": {"subject": "resistance_training", "outcome": "frequency", "requested_relation": "options",
+                "evidence_relation": default_relation,
+                "answer_parts": [{"text": "Synthetic frequency statement.", "span_ids": spans[:1], "evidence_relation": "supports"},
+                                 {"text": "Synthetic qualification only.", "span_ids": spans[1:], "evidence_relation": "qualifies"}]}},
+            {"reviewer": "Synthetic fixture", "reviewer_kind": "synthetic_fixture", "reviewed_at": "2026-11-11T00:00:00Z",
+             "content_checked": True, "rationale": "Tests only binding of source chapters."})
+        context = {"corpus_roles": ["core"]}
+        if confirmed:
+            context["question_contract"] = {"subject": "resistance_training", "outcome": "frequency",
+                                            "requested_relation": "options", "user_confirmed": True}
+        question = "HHS第4章的训练频次怎样？第7章的训练频次怎样？"
+        answer = library.query(question, route="strength", context=context)
+&gt;       assert answer["answer_status"] == "partially_answered"
+E       AssertionError: assert 'answered_with_support' == 'partially_answered'
+E
+E         - partially_answered
+E         + answered_with_support
+
+tests/unit/test_v14_source_request_scope.py:121: AssertionError</failure></testcase></testsuite></testsuites>

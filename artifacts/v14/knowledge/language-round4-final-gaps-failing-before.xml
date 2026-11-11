@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="13" time="0.424" timestamp="2026-11-11T23:39:05.983003+08:00"><testcase classname="tests.unit.test_v14_question_language" name="test_non_significance_to_equal_effect_inference_requests_equivalence_explanation[\u8bad\u7ec3\u7814\u7a76\u6ca1\u6709\u53d1\u73b0\u663e\u8457\u5dee\u5f02\uff0c\u80fd\u8bf4\u4e24\u4e2a\u65b9\u6848\u6548\u679c\u76f8\u540c\u5417\uff1f]" time="0.053"><failure message="AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}&#10;  &#10;  Extra items in the left set:&#10;  'non_significance_interpretation'&#10;  Extra items in the right set:&#10;  'practical_equivalence'&#10;  Use -v to get more diff">question = '训练研究没有发现显著差异，能说两个方案效果相同吗？'
+
+    @pytest.mark.parametrize("question", [
+        "训练研究没有发现显著差异，能说两个方案效果相同吗？",
+        "统计检验不显著是否意味着两种干预有一样的效果？",
+        "研究未发现显著差别，就能认定干预效果一样吗？",
+    ])
+    def test_non_significance_to_equal_effect_inference_requests_equivalence_explanation(question):
+&gt;       assert outcomes(question) == {"practical_equivalence"}
+E       AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}
+E
+E         Extra items in the left set:
+E         'non_significance_interpretation'
+E         Extra items in the right set:
+E         'practical_equivalence'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:591: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_non_significance_to_equal_effect_inference_requests_equivalence_explanation[\u7edf\u8ba1\u68c0\u9a8c\u4e0d\u663e\u8457\u662f\u5426\u610f\u5473\u7740\u4e24\u79cd\u5e72\u9884\u6709\u4e00\u6837\u7684\u6548\u679c\uff1f]" time="0.003"><failure message="AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}&#10;  &#10;  Extra items in the left set:&#10;  'non_significance_interpretation'&#10;  Extra items in the right set:&#10;  'practical_equivalence'&#10;  Use -v to get more diff">question = '统计检验不显著是否意味着两种干预有一样的效果？'
+
+    @pytest.mark.parametrize("question", [
+        "训练研究没有发现显著差异，能说两个方案效果相同吗？",
+        "统计检验不显著是否意味着两种干预有一样的效果？",
+        "研究未发现显著差别，就能认定干预效果一样吗？",
+    ])
+    def test_non_significance_to_equal_effect_inference_requests_equivalence_explanation(question):
+&gt;       assert outcomes(question) == {"practical_equivalence"}
+E       AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}
+E
+E         Extra items in the left set:
+E         'non_significance_interpretation'
+E         Extra items in the right set:
+E         'practical_equivalence'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:591: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_non_significance_to_equal_effect_inference_requests_equivalence_explanation[\u7814\u7a76\u672a\u53d1\u73b0\u663e\u8457\u5dee\u522b\uff0c\u5c31\u80fd\u8ba4\u5b9a\u5e72\u9884\u6548\u679c\u4e00\u6837\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}&#10;  &#10;  Extra items in the left set:&#10;  'non_significance_interpretation'&#10;  Extra items in the right set:&#10;  'practical_equivalence'&#10;  Use -v to get more diff">question = '研究未发现显著差别，就能认定干预效果一样吗？'
+
+    @pytest.mark.parametrize("question", [
+        "训练研究没有发现显著差异，能说两个方案效果相同吗？",
+        "统计检验不显著是否意味着两种干预有一样的效果？",
+        "研究未发现显著差别，就能认定干预效果一样吗？",
+    ])
+    def test_non_significance_to_equal_effect_inference_requests_equivalence_explanation(question):
+&gt;       assert outcomes(question) == {"practical_equivalence"}
+E       AssertionError: assert {'non_signifi...terpretation'} == {'practical_equivalence'}
+E
+E         Extra items in the left set:
+E         'non_significance_interpretation'
+E         Extra items in the right set:
+E         'practical_equivalence'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:591: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_equipment_load_conversion_requests_comparability[\u4e0d\u540c\u54c1\u724c\u5668\u68b0\u4e4b\u95f4\u7684\u914d\u91cd\u80fd\u7cbe\u786e\u6362\u7b97\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'comparability'}&#10;  &#10;  Extra items in the right set:&#10;  'comparability'&#10;  Use -v to get more diff">question = '不同品牌器械之间的配重能精确换算吗？'
+
+    @pytest.mark.parametrize("question", [
+        "不同品牌器械之间的配重能精确换算吗？",
+        "跨品牌训练器械的负重怎么换算？",
+        "负重在不同器械之间如何换算？",
+    ])
+    def test_equipment_load_conversion_requests_comparability(question):
+&gt;       assert outcomes(question) == {"comparability"}
+E       AssertionError: assert set() == {'comparability'}
+E
+E         Extra items in the right set:
+E         'comparability'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:600: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_equipment_load_conversion_requests_comparability[\u8de8\u54c1\u724c\u8bad\u7ec3\u5668\u68b0\u7684\u8d1f\u91cd\u600e\u4e48\u6362\u7b97\uff1f]" time="0.001"><failure message="AssertionError: assert set() == {'comparability'}&#10;  &#10;  Extra items in the right set:&#10;  'comparability'&#10;  Use -v to get more diff">question = '跨品牌训练器械的负重怎么换算？'
+
+    @pytest.mark.parametrize("question", [
+        "不同品牌器械之间的配重能精确换算吗？",
+        "跨品牌训练器械的负重怎么换算？",
+        "负重在不同器械之间如何换算？",
+    ])
+    def test_equipment_load_conversion_requests_comparability(question):
+&gt;       assert outcomes(question) == {"comparability"}
+E       AssertionError: assert set() == {'comparability'}
+E
+E         Extra items in the right set:
+E         'comparability'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:600: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_equipment_load_conversion_requests_comparability[\u8d1f\u91cd\u5728\u4e0d\u540c\u5668\u68b0\u4e4b\u95f4\u5982\u4f55\u6362\u7b97\uff1f]" time="0.001"><failure message="AssertionError: assert set() == {'comparability'}&#10;  &#10;  Extra items in the right set:&#10;  'comparability'&#10;  Use -v to get more diff">question = '负重在不同器械之间如何换算？'
+
+    @pytest.mark.parametrize("question", [
+        "不同品牌器械之间的配重能精确换算吗？",
+        "跨品牌训练器械的负重怎么换算？",
+        "负重在不同器械之间如何换算？",
+    ])
+    def test_equipment_load_conversion_requests_comparability(question):
+&gt;       assert outcomes(question) == {"comparability"}
+E       AssertionError: assert set() == {'comparability'}
+E
+E         Extra items in the right set:
+E         'comparability'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:600: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_personal_equipment_conversion_keeps_numeric_authority_unresolved" time="0.002"><failure message="AssertionError: assert set() == {'comparabili...eric_request'}&#10;  &#10;  Extra items in the right set:&#10;  'comparability'&#10;  'personal_numeric_request'&#10;  Use -v to get more diff">def test_personal_equipment_conversion_keeps_numeric_authority_unresolved():
+        task = parse_task("请给我不同品牌腿推器械之间精确的配重换算表。")
+&gt;       assert {part["part_id"] for part in task["required_answer_parts"]} == {
+            "comparability", "personal_numeric_request",
+        }
+E       AssertionError: assert set() == {'comparabili...eric_request'}
+E
+E         Extra items in the right set:
+E         'comparability'
+E         'personal_numeric_request'
+E         Use -v to get more diff
+
+tests/unit/test_v14_question_language.py:605: AssertionError</failure></testcase><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u4e24\u79cd\u7f51\u9875\u6ee4\u955c\u7684\u6548\u679c\u4e00\u6837\u5417\uff1f-practical_equivalence]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u4e24\u4e2a\u6587\u4ef6\u7684\u91d1\u989d\u76f8\u540c\uff0c\u6c47\u7387\u600e\u6837\u6362\u7b97\uff1f-practical_equivalence]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u7f8e\u5143\u91d1\u989d\u600e\u6837\u6309\u6c47\u7387\u8f6c\u6362\u6210\u4eba\u6c11\u5e01\uff1f-comparability]" time="0.002" /><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u516c\u65a4\u548c\u78c5\u7684\u91cd\u91cf\u5355\u4f4d\u600e\u6837\u6362\u7b97\uff1f-comparability]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u4e0d\u540c\u5668\u68b0\u663e\u793a\u7684\u91cd\u91cf\u5355\u4f4d\u5982\u4f55\u6362\u7b97\uff1f-comparability]" time="0.001" /><testcase classname="tests.unit.test_v14_question_language" name="test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards[\u8bad\u7ec3\u7814\u7a76\u6ca1\u6709\u53d1\u73b0\u663e\u8457\u5dee\u5f02\uff0c\u80fd\u591f\u8bf4\u660e\u4ec0\u4e48\uff1f-practical_equivalence]" time="0.001" /></testsuite></testsuites>

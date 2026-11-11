@@ -492,3 +492,128 @@ def test_increment_magnitude_and_progression_rate_remain_independent_targets(que
 ])
 def test_classifier_age_and_magnitude_words_keep_domain_and_relation_guards(question, unexpected):
     assert unexpected not in outcomes(question)
+
+
+@pytest.mark.parametrize("question", [
+    "抗阻训练的力竭指到了什么状态？每组必须做到这种状态吗？能精确确定余力吗？",
+    "练到力竭究竟是什么状态？想长力气和长肌肉，必须练到那里吗？精确余力是多少？",
+])
+def test_failure_definition_anaphoric_necessity_and_precision_are_separate(question):
+    assert outcomes(question) == {"failure_definition", "failure_necessity", "effort_precision"}
+
+
+def test_colloquial_training_goals_are_preserved_for_both_requested_tasks():
+    task = parse_task("想长力气和长肌肉，训练必须力竭吗？能确定精确余力吗？")
+    assert {part["part_id"] for part in task["required_answer_parts"]} == {
+        "failure_necessity:strength", "failure_necessity:hypertrophy",
+        "effort_precision:strength", "effort_precision:hypertrophy",
+    }
+
+
+@pytest.mark.parametrize("question,expected", [
+    ("身体活动都多出相同的分钟数，为何增加的负担可能不同？", "activity_increment_size"),
+    ("身体活动每周增长的百分比是否能统一规定？", "activity_increment_size"),
+    ("身体活动量要加得快还是慢，应考虑什么因素？", "progression_rate_factors"),
+    ("年龄和既往经验怎样影响身体活动加得快慢？", "progression_rate_factors"),
+    ("过去按某个速度增加身体活动的经验有什么意义？", "progression_rate_factors"),
+    ("研究未发现显著差异能证明没有效果吗？", "non_significance_interpretation"),
+    ("试验没有检出两种干预的统计显著差别，这说明什么？", "non_significance_interpretation"),
+    ("为什么不能用通用效应量分界来设研究的等效界？", "equivalence_margin_basis"),
+    ("等效检验中的界值要排除什么差异？", "equivalence_margin_basis"),
+    ("抗阻训练不每次加负重，就完全没有收益吗？", "progression_necessity"),
+    ("训练没有每回增加重量是否也能取得效果？", "progression_necessity"),
+    ("训练是否一定得安排线性或波动周期？", "variation"),
+    ("周期安排对抗阻训练是必要的吗？", "variation"),
+    ("训练综述里健康成人的范围怎么定？", "population_scope"),
+    ("抗阻证据包含有训练经验的人吗？", "population_scope"),
+])
+def test_development_chinese_relation_families(question, expected):
+    assert outcomes(question) == {expected}
+
+
+@pytest.mark.parametrize("question", [
+    "训练不每次加重量就没收益吗？长期继续进步时，哪些变量可能需要改变？",
+    "不持续增加训练刺激也会有收益吗？另外，长期进展可改变哪些训练变量？",
+])
+def test_progression_necessity_does_not_consume_separate_long_term_choices(question):
+    assert outcomes(question) == {"progression_necessity", "progression_options"}
+
+
+@pytest.mark.parametrize("question", [
+    "在训练总量相同时，把训练分到更多天，对力量和肌肥大各有什么影响？",
+    "如果训练总量一样，将训练分散到更多天，对力量和肌肥大各有何影响？",
+])
+def test_equal_volume_is_background_to_distribution_across_more_days(question):
+    task = parse_task(question)
+    assert {part["part_id"] for part in task["required_answer_parts"]} == {
+        "frequency:strength", "frequency:hypertrophy",
+    }
+
+
+def test_separate_volume_question_survives_equal_volume_frequency_background():
+    assert outcomes("在训练总量相同时，把训练分到更多天有何影响？另外，训练总量怎样选择？") == {
+        "frequency", "volume",
+    }
+
+
+@pytest.mark.parametrize("question", [
+    "抗阻训练换成更重的配重后，完成次数少了，为何不能就说力量退步？",
+    "训练使用较重的负荷，重复次数下降有什么原因？",
+])
+def test_prenominal_heavier_load_and_fewer_repetitions_are_related(question):
+    assert outcomes(question) == {"load_repetition_relation"}
+
+
+def test_named_source_strength_measurement_and_load_relation_remain_separate():
+    question = "换成更重的负重，一组次数少了说明什么？该综述的力量通常是怎么测的？"
+    context = {"named_source_task_subjects": {"comparability": "resistance_training"}}
+    assert outcomes(question, context) == {"load_repetition_relation", "comparability"}
+
+
+@pytest.mark.parametrize("question,unexpected", [
+    ("训练结束后到了什么状态？", "failure_definition"),
+    ("力竭是什么状态？保存训练记录必须填写哪些字段？", "failure_necessity"),
+    ("身体活动的动作做得快还是慢？", "progression_rate_factors"),
+    ("两人身体活动的时间相同，怎么记录？", "activity_increment_size"),
+    ("给数据清洗设阈值，需要排除什么记录？", "equivalence_margin_basis"),
+    ("健康成人每周训练几天？", "population_scope"),
+])
+def test_development_relation_words_do_not_create_unasked_targets(question, unexpected):
+    assert unexpected not in outcomes(question)
+
+
+@pytest.mark.parametrize("question", [
+    "训练研究没有发现显著差异，能说两个方案效果相同吗？",
+    "统计检验不显著是否意味着两种干预有一样的效果？",
+    "研究未发现显著差别，就能认定干预效果一样吗？",
+])
+def test_non_significance_to_equal_effect_inference_requests_equivalence_explanation(question):
+    assert outcomes(question) == {"practical_equivalence"}
+
+
+@pytest.mark.parametrize("question", [
+    "不同品牌器械之间的配重能精确换算吗？",
+    "跨品牌训练器械的负重怎么换算？",
+    "负重在不同器械之间如何换算？",
+])
+def test_equipment_load_conversion_requests_comparability(question):
+    assert outcomes(question) == {"comparability"}
+
+
+def test_personal_equipment_conversion_keeps_numeric_authority_unresolved():
+    task = parse_task("请给我不同品牌腿推器械之间精确的配重换算表。")
+    assert {part["part_id"] for part in task["required_answer_parts"]} == {
+        "comparability", "personal_numeric_request",
+    }
+
+
+@pytest.mark.parametrize("question,unexpected", [
+    ("两种网页滤镜的效果一样吗？", "practical_equivalence"),
+    ("两个文件的金额相同，汇率怎样换算？", "practical_equivalence"),
+    ("美元金额怎样按汇率转换成人民币？", "comparability"),
+    ("公斤和磅的重量单位怎样换算？", "comparability"),
+    ("不同器械显示的重量单位如何换算？", "comparability"),
+    ("训练研究没有发现显著差异，能够说明什么？", "practical_equivalence"),
+])
+def test_effect_equivalence_and_equipment_conversion_keep_local_relation_guards(question, unexpected):
+    assert unexpected not in outcomes(question)
