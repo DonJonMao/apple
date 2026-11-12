@@ -1,0 +1,14 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.212" timestamp="2026-11-12T10:35:30.841126+08:00"><testcase classname="tests.unit.test_round6_question_composition" name="test_equivalence_bounds_do_not_consume_a_separate_test_criterion[\u7b49\u6548\u754c\u503c\u600e\u4e48\u5b9a\uff0cTOST\u9700\u8981\u6ee1\u8db3\u54ea\u4e9b\u6761\u4ef6\u624d\u80fd\u652f\u6301\u7b49\u6548\uff1f]" time="0.060"><failure message="AssertionError: assert {'equivalence...e_test_logic'} &lt;= {'equivalence_test_logic'}&#10;  &#10;  Extra items in the left set:&#10;  'equivalence_margin_basis'">question = '等效界值怎么定，TOST需要满足哪些条件才能支持等效？'
+
+    @pytest.mark.parametrize("question", [
+        "等效界值怎么定，TOST需要满足哪些条件才能支持等效？",
+        "How should equivalence margins be chosen, and what criteria must TOST meet to support equivalence?",
+    ])
+    def test_equivalence_bounds_do_not_consume_a_separate_test_criterion(question):
+&gt;       assert {"equivalence_margin_basis", "equivalence_test_logic"} &lt;= outcomes(question)
+E       AssertionError: assert {'equivalence...e_test_logic'} &lt;= {'equivalence_test_logic'}
+E
+E         Extra items in the left set:
+E         'equivalence_margin_basis'
+
+tests/unit/test_round6_question_composition.py:56: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_equivalence_bounds_do_not_consume_a_separate_test_criterion[How should equivalence margins be chosen, and what criteria must TOST meet to support equivalence?]" time="0.002" /></testsuite></testsuites>

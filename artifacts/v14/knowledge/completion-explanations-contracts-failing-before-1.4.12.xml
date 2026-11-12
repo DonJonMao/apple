@@ -1,0 +1,161 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="14" time="1.827" timestamp="2026-11-12T10:42:45.688571+08:00"><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_append_only_activation_preserves_all_four_candidate_dependencies" time="0.190"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffabec70d0&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+
+    def test_append_only_activation_preserves_all_four_candidate_dependencies(library):
+        w, data, frozen = library
+        before = COMPLETION.TOPICS.HHS.snapshot(w)
+        sources = COMPLETION.TOPICS.source_snapshot(w)
+&gt;       release, _, _, _ = COMPLETION.activate(w, data)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_completion_explanation_contracts.py:74:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[0]" time="0.174"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffabdd4510&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 0
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[1]" time="0.174"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffae6ba310&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 1
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[2]" time="0.174"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffabb57550&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 2
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[3]" time="0.174"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffabb02910&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 3
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[4]" time="0.175"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffaba34c50&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 4
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[action]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[capability]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[dependency]" time="0.007" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[condition]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[claim_target]" time="0.007" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[predecessor]" time="0.007" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_general_hhs_quantities_do_not_authorize_personal_numeric_candidates" time="0.176"><failure message="KeyError: 'release_id'">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffab873d10&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+
+    def test_general_hhs_quantities_do_not_authorize_personal_numeric_candidates(library):
+        w, data, _ = library
+&gt;       COMPLETION.activate(w, data)
+
+tests/unit/test_completion_explanation_contracts.py:123:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools/v14_complete_source_explanations.py:130: in activate
+    rules = validate_contracts(previous, data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+previous = {'claims': [{'claim_id': 'CORE-CLAIM-N1-REGRESSION-COVARIANCE', 'payload_json': '{"answer_task": {"answer_complete": t...viewer_kind": "synthetic_fixture"}', 'rule_id': 'RULE-N1-REGRESSION-COVARIANCE-EXPLANATION', 'status': 'active', ...}]}
+data = {'version': '1.4.12', 'release_id': 'core-completion-source-explanations-1.4.12', 'previous_release_id': 'core-boundar...planations-1.4.11', 'previous_release_sha256': '0f2d1de6954dfeb7d0e3fe296206945bac9c300228771593992b677b59cd534f', ...}
+
+    def validate_contracts(previous, data):
+&gt;       if previous["release_id"] != data["previous_release_id"]:
+           ^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'release_id'
+
+tools/v14_complete_source_explanations.py:54: KeyError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_source_byte_mismatch_cannot_be_reviewed" time="0.243" /></testsuite></testsuites>

@@ -128,3 +128,6 @@ PYTHONPATH=src .venv/bin/python tools/v14_package_browser.py
 真实浏览器验证首次显示、本机保存、断网重启、全新上下文打开导出的独立 HTML，三类名称状态均保留，HTTP 请求与页面错误均为 0，见 [修复后回执](../artifacts/v14/catalog/offline-name-status-after.json)。视频保留来源编码；播放失败时明确说明格式/编码支持或文件可用性原因，并提示使用兼容播放器打开包内原文件。这里的错误分支使用合成不可播放文件验证，不证明 HEVC 可播放。目录/离线 27 项回归通过，见 [定点回归](../artifacts/v14/catalog/provenance-regression-pytest.xml)。
 
 [本轮独立核查](../artifacts/v14/catalog/independent-audit-20261111.json) 仅使用公开目录 SQL、进程状态和公开媒体日志；四个活动片段在两次实测间均增长，排队大文件保留的旧片段时间不能据此认定停滞。CAT-01 至 CAT-18 的其他边界继续沿用前述实际证据。本轮未改写历史 `acceptance.json` 的早期 4 个视频 ready 结论；当前交付分母统一以 `media-delivery-refresh.json`、默认安装、覆盖报告及正式离线包回执为准。
+
+
+2026-11-12目录连续性复核：同一已确认来源只改变非审阅语言译名、别名、媒体或获取时间时，继续使用原动作ID，收藏、私有别名、历史条件和本地媒体保留。必须找到且校验最初核对的源记录哈希；比较不随逐次更新滚动。已审阅语言的原名、正文、器械和其他身份字段变化仍进入待复核。修前反例、过宽原名分支的再次修正及最终47项组合回归分别保留于 `artifacts/v14/catalog/identity-continuity-*.json/xml`；冻结公共快照、原媒体和离线包均未重写。

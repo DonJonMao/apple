@@ -899,7 +899,8 @@
         "真实Apple ZIP体重与训练记录经分析UI选择、计算并持久保存",
         "缺体重/缺总负荷时valid_n与coverage为0/1，excluded_n为1",
         "改变选择隐藏旧结果，选择参考变更时清除体重与确认",
-        "迟到、未来、删除、协议未知及无效单位记录不可被ID选择绕过"
+        "迟到、未来、删除、协议未知及无效单位记录不可被ID选择绕过",
+        "同日切换体重来源清除旧确认；未重新确认时STR30未知而B0仍可用"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "kg/kg",
@@ -913,12 +914,14 @@
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-30-T01]",
         "tests/science/test_v14_science.py::test_metric_matrix_relative_strength_requires_verified_mass_and_numerator_unit",
-        "tests/integration/test_reference_target_selection.py"
+        "tests/integration/test_reference_target_selection.py",
+        "tests/integration/test_reference_mass_confirmation.py::test_switching_body_mass_source_requires_new_confirmation"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
       "coverage_limit": "The 16 synthetic Repository/adapter/UI cases cover the specified source-binding operations and boundaries; they do not establish personal predictive calibration, physiological load equivalence or causal training benefit.",
       "integration_verification_ref": "artifacts/v14/science/reference-target-selection-verification.xml",
-      "failing_before_ref": "artifacts/v14/science/reference-target-selection-failing-before.xml"
+      "failing_before_ref": "artifacts/v14/science/reference-target-selection-failing-before.xml",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml"
     },
     {
       "metric_id": "STATE-SLEEP-MAIN",
@@ -930,23 +933,36 @@
       "targeted_acceptance_reviewed": [
         "iPhone inBed 与 Watch asleep 并存时可得显式 Watch 主睡眠",
         "只有多夜睡眠无主 episode→insufficient",
-        "未来结束片段不能泄漏"
+        "未来结束片段不能泄漏",
+        "真实Apple ZIP→普通分析页明确来源/逐晚边界/归属日期→保存结果，主睡眠不默认选择",
+        "声明按实际时间可用，源修订/删除失效不替换为另一来源；切换来源清除旧声明",
+        "精确窗口终点及±1微秒，旧月不被保存按钮静默迁到当前月",
+        "已选择参考负荷/体重的context在睡眠重算中保留",
+        "自动刷新跨分钟与无关另晚修订不清当前声明；实际离窗、周/月换期或主动改窗口明确失效"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "min",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/state.py"
+        "src/healthzip/science/state.py",
+        "src/healthzip/analytics/sleep_selection.py",
+        "src/healthzip/ui/sleep_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T02]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T03]",
         "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
-        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch"
+        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch",
+        "tests/integration/test_sleep_episode_selection.py",
+        "tests/integration/test_sleep_draft_refresh.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "Explicit user-declared per-night boundaries, attribution dates and selected source revisions now have a normal Repository/UI producer, persisted analysis snapshots and exports. Unknown episode completeness remains partial; no automatic main-sleep detection or measured sleep-onset claim is made. Source version changes require reconfirmation. Declaration time is never backdated to an old cutoff; a fresh current-time analysis may be generated only when the selected intervals remain in its window. Episode-end half-open membership remains the timing contract. These synthetic tests verify software bookkeeping, not device accuracy, clinical sleep classification or recovery prediction.",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "current_ui_failing_before_ref": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml"
     },
     {
       "metric_id": "STATE-SLEEP-24H",
@@ -958,22 +974,35 @@
       "targeted_acceptance_reviewed": [
         "iPhone 8h inBed + Watch 7h asleep→420 min 而非 incompatible",
         "两个真实 asleep 设备仍要求来源处理",
-        "DST 下按真实 24h 而非固定当地日历日"
+        "DST 下按真实 24h 而非固定当地日历日",
+        "真实Apple ZIP→普通分析页明确来源/逐晚边界/归属日期→保存结果，主睡眠不默认选择",
+        "声明按实际时间可用，源修订/删除失效不替换为另一来源；切换来源清除旧声明",
+        "精确窗口终点及±1微秒，旧月不被保存按钮静默迁到当前月",
+        "已选择参考负荷/体重的context在睡眠重算中保留",
+        "自动刷新跨分钟与无关另晚修订不清当前声明；实际离窗、周/月换期或主动改窗口明确失效"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "min",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/state.py"
+        "src/healthzip/science/state.py",
+        "src/healthzip/analytics/sleep_selection.py",
+        "src/healthzip/ui/sleep_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T02]",
         "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
-        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch"
+        "tests/integration/test_v14_science_import.py::test_f09_actual_zip_with_inbed_phone_and_asleep_watch",
+        "tests/integration/test_sleep_episode_selection.py",
+        "tests/integration/test_sleep_draft_refresh.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "Explicit user-declared per-night boundaries, attribution dates and selected source revisions now have a normal Repository/UI producer, persisted analysis snapshots and exports. Unknown episode completeness remains partial; no automatic main-sleep detection or measured sleep-onset claim is made. Source version changes require reconfirmation. Declaration time is never backdated to an old cutoff; a fresh current-time analysis may be generated only when the selected intervals remain in its window. Episode-end half-open membership remains the timing contract. These synthetic tests verify software bookkeeping, not device accuracy, clinical sleep classification or recovery prediction.",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "current_ui_failing_before_ref": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml"
     },
     {
       "metric_id": "STATE-SLEEP-COVERAGE",
@@ -985,22 +1014,35 @@
       "targeted_acceptance_reviewed": [
         "[D00,D+100) 内 D01–06 与 D23–D+100 只占允许日期，不崩溃且分子≤分母",
         "精确端点及±1微秒、UTC/非UTC/DST 均回归",
-        "空窗保持未知"
+        "空窗保持未知",
+        "真实Apple ZIP→普通分析页明确来源/逐晚边界/归属日期→保存结果，主睡眠不默认选择",
+        "声明按实际时间可用，源修订/删除失效不替换为另一来源；切换来源清除旧声明",
+        "精确窗口终点及±1微秒，旧月不被保存按钮静默迁到当前月",
+        "已选择参考负荷/体重的context在睡眠重算中保留",
+        "自动刷新跨分钟与无关另晚修订不清当前声明；实际离窗、周/月换期或主动改窗口明确失效"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "ratio",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/state.py"
+        "src/healthzip/science/state.py",
+        "src/healthzip/analytics/sleep_selection.py",
+        "src/healthzip/ui/sleep_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T02]",
         "tests/science/test_v14_science.py::test_f02_sleep_coverage_uses_clipped_half_open_local_dates",
-        "tests/science/test_v14_science.py::test_f02_one_metric_failure_does_not_abort_independent_analysis"
+        "tests/science/test_v14_science.py::test_f02_one_metric_failure_does_not_abort_independent_analysis",
+        "tests/integration/test_sleep_episode_selection.py",
+        "tests/integration/test_sleep_draft_refresh.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "Explicit user-declared per-night boundaries, attribution dates and selected source revisions now have a normal Repository/UI producer, persisted analysis snapshots and exports. Unknown episode completeness remains partial; no automatic main-sleep detection or measured sleep-onset claim is made. Source version changes require reconfirmation. Declaration time is never backdated to an old cutoff; a fresh current-time analysis may be generated only when the selected intervals remain in its window. Episode-end half-open membership remains the timing contract. These synthetic tests verify software bookkeeping, not device accuracy, clinical sleep classification or recovery prediction.",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "current_ui_failing_before_ref": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml"
     },
     {
       "metric_id": "STATE-SLEEP-STAGE",
@@ -1013,22 +1055,35 @@
       "targeted_acceptance_reviewed": [
         "阶段缺失时总睡眠仍可用而分期未知",
         "重叠矛盾明确冲突",
-        "inBed 不进入睡眠分期分母"
+        "inBed 不进入睡眠分期分母",
+        "真实Apple ZIP→普通分析页明确来源/逐晚边界/归属日期→保存结果，主睡眠不默认选择",
+        "声明按实际时间可用，源修订/删除失效不替换为另一来源；切换来源清除旧声明",
+        "精确窗口终点及±1微秒，旧月不被保存按钮静默迁到当前月",
+        "已选择参考负荷/体重的context在睡眠重算中保留",
+        "自动刷新跨分钟与无关另晚修订不清当前声明；实际离窗、周/月换期或主动改窗口明确失效"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "min; ratio",
       "empty_input_data_status": "partial",
       "implementation_paths": [
-        "src/healthzip/science/state.py"
+        "src/healthzip/science/state.py",
+        "src/healthzip/analytics/sleep_selection.py",
+        "src/healthzip/ui/sleep_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T02]",
         "tests/science/test_v14_science.py::test_f09_irrelevant_inbed_source_does_not_block_asleep_observation",
-        "tests/science/test_v14_sleep_context_time.py::test_sleep_stage_annotations_use_the_declared_episode_support"
+        "tests/science/test_v14_sleep_context_time.py::test_sleep_stage_annotations_use_the_declared_episode_support",
+        "tests/integration/test_sleep_episode_selection.py",
+        "tests/integration/test_sleep_draft_refresh.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. An explicit main episode now bounds the stage-annotation numerator; two nights cannot be divided by one night to produce annotation coverage greater than one. This validates interval bookkeeping, not device stage accuracy. Before/after: sleep-context-before.xml and sleep-context-regressions.xml."
+      "coverage_limit": "Explicit user-declared per-night boundaries, attribution dates and selected source revisions now have a normal Repository/UI producer, persisted analysis snapshots and exports. Unknown episode completeness remains partial; no automatic main-sleep detection or measured sleep-onset claim is made. Source version changes require reconfirmation. Declaration time is never backdated to an old cutoff; a fresh current-time analysis may be generated only when the selected intervals remain in its window. Episode-end half-open membership remains the timing contract. These synthetic tests verify software bookkeeping, not device accuracy, clinical sleep classification or recovery prediction.",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "current_ui_failing_before_ref": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml"
     },
     {
       "metric_id": "STATE-SLEEP-TIMING",
@@ -1040,7 +1095,12 @@
       "targeted_acceptance_reviewed": [
         "23:30–07:30 中点跨午夜正确",
         "无主 episode 不输出主睡眠规律性",
-        "夏令时切换真实时长与钟面中点各按定义"
+        "夏令时切换真实时长与钟面中点各按定义",
+        "真实Apple ZIP→普通分析页明确来源/逐晚边界/归属日期→保存结果，主睡眠不默认选择",
+        "声明按实际时间可用，源修订/删除失效不替换为另一来源；切换来源清除旧声明",
+        "精确窗口终点及±1微秒，旧月不被保存按钮静默迁到当前月",
+        "已选择参考负荷/体重的context在睡眠重算中保留",
+        "自动刷新跨分钟与无关另晚修订不清当前声明；实际离窗、周/月换期或主动改窗口明确失效"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "timestamp; clock_min",
@@ -1048,7 +1108,10 @@
       "implementation_paths": [
         "src/healthzip/science/state.py",
         "src/healthzip/science/engine.py",
-        "src/healthzip/science/contracts.py"
+        "src/healthzip/science/contracts.py",
+        "src/healthzip/analytics/sleep_selection.py",
+        "src/healthzip/ui/sleep_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T01]",
@@ -1057,10 +1120,15 @@
         "tests/science/test_v14_sleep_context_time.py::test_timing_unknown_availability_requires_explicit_retrospective_mode",
         "tests/science/test_v14_sleep_context_time.py::test_timing_keeps_original_endpoints_and_actual_time_midpoint",
         "tests/science/test_v14_sleep_context_time.py::test_timing_revisions_do_not_revive_an_old_in_window_episode",
-        "tests/science/test_v14_sleep_context_time.py::test_visible_revision_invalidates_older_record_before_event_filter"
+        "tests/science/test_v14_sleep_context_time.py::test_visible_revision_invalidates_older_record_before_event_filter",
+        "tests/integration/test_sleep_episode_selection.py",
+        "tests/integration/test_sleep_draft_refresh.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit. Explicit sleep_episodes are currently a science-API context, not automatically derived or confirmed by the Repository/UI. Episode end determines half-open window membership. Unknown availability is retrospective-only and labelled; original offset-bearing endpoints, source identity, availability and timezone are preserved. No clinical sleep-episode identification is claimed. Before/after: sleep-context-before.xml and sleep-context-regressions.xml."
+      "coverage_limit": "Explicit user-declared per-night boundaries, attribution dates and selected source revisions now have a normal Repository/UI producer, persisted analysis snapshots and exports. Unknown episode completeness remains partial; no automatic main-sleep detection or measured sleep-onset claim is made. Source version changes require reconfirmation. Declaration time is never backdated to an old cutoff; a fresh current-time analysis may be generated only when the selected intervals remain in its window. Episode-end half-open membership remains the timing contract. These synthetic tests verify software bookkeeping, not device accuracy, clinical sleep classification or recovery prediction.",
+      "current_ui_verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "current_ui_failing_before_ref": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml"
     },
     {
       "metric_id": "STATE-RHR",
@@ -1924,5 +1992,14 @@
     }
   ],
   "verification_test_cases_scope": "Original scoped science run; subsequent item-level regression evidence is listed per metric. Final unique repository test count is separate.",
-  "final_repository_verification_ref": "artifacts/v14/final-manifest.json"
+  "final_repository_verification_ref": "artifacts/v14/final-manifest.json",
+  "current_ui_integration_addendum": {
+    "algorithm_version": "healthzip-science-1.4.3",
+    "verification_ref": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+    "verification_test_cases": 44,
+    "independent_scientific_validation_cases": 0,
+    "prior_verification_counts_unchanged": true,
+    "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml",
+    "draft_refresh_bounded_test_cases": 15
+  }
 }

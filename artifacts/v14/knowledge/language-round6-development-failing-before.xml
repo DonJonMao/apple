@@ -1,0 +1,418 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="24" skipped="0" tests="30" time="0.699" timestamp="2026-11-12T10:32:21.591239+08:00"><testcase classname="tests.unit.test_round6_question_composition" name="test_reserve_effort_is_not_consumed_by_failure_necessity[\u4fdd\u75592\u52303\u6b21\u91cd\u590d\u4e0e\u5fc5\u987b\u505a\u5230\u529b\u7aed\u6709\u4ec0\u4e48\u533a\u522b\uff1f]" time="0.053"><failure message="AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}&#10;  &#10;  Extra items in the left set:&#10;  'effort_precision'">question = '保留2到3次重复与必须做到力竭有什么区别？'
+
+    @pytest.mark.parametrize("question", [
+        "保留2到3次重复与必须做到力竭有什么区别？",
+        "是不是必须力竭？接近力竭、RIR2分别如何理解？",
+        "Must every set reach failure, or can two repetitions in reserve describe sufficient effort?",
+    ])
+    def test_reserve_effort_is_not_consumed_by_failure_necessity(question):
+&gt;       assert {"failure_necessity", "effort_precision"} &lt;= outcomes(question)
+E       AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}
+E
+E         Extra items in the left set:
+E         'effort_precision'
+
+tests/unit/test_round6_question_composition.py:20: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_reserve_effort_is_not_consumed_by_failure_necessity[\u662f\u4e0d\u662f\u5fc5\u987b\u529b\u7aed\uff1f\u63a5\u8fd1\u529b\u7aed\u3001RIR2\u5206\u522b\u5982\u4f55\u7406\u89e3\uff1f]" time="0.005"><failure message="AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}&#10;  &#10;  Extra items in the left set:&#10;  'effort_precision'">question = '是不是必须力竭？接近力竭、RIR2分别如何理解？'
+
+    @pytest.mark.parametrize("question", [
+        "保留2到3次重复与必须做到力竭有什么区别？",
+        "是不是必须力竭？接近力竭、RIR2分别如何理解？",
+        "Must every set reach failure, or can two repetitions in reserve describe sufficient effort?",
+    ])
+    def test_reserve_effort_is_not_consumed_by_failure_necessity(question):
+&gt;       assert {"failure_necessity", "effort_precision"} &lt;= outcomes(question)
+E       AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}
+E
+E         Extra items in the left set:
+E         'effort_precision'
+
+tests/unit/test_round6_question_composition.py:20: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_reserve_effort_is_not_consumed_by_failure_necessity[Must every set reach failure, or can two repetitions in reserve describe sufficient effort?]" time="0.004"><failure message="AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}&#10;  &#10;  Extra items in the left set:&#10;  'effort_precision'">question = 'Must every set reach failure, or can two repetitions in reserve describe sufficient effort?'
+
+    @pytest.mark.parametrize("question", [
+        "保留2到3次重复与必须做到力竭有什么区别？",
+        "是不是必须力竭？接近力竭、RIR2分别如何理解？",
+        "Must every set reach failure, or can two repetitions in reserve describe sufficient effort?",
+    ])
+    def test_reserve_effort_is_not_consumed_by_failure_necessity(question):
+&gt;       assert {"failure_necessity", "effort_precision"} &lt;= outcomes(question)
+E       AssertionError: assert {'effort_prec...re_necessity'} &lt;= {'failure_necessity'}
+E
+E         Extra items in the left set:
+E         'effort_precision'
+
+tests/unit/test_round6_question_composition.py:20: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_personal_effort_and_activity_parameters_remain_unanswered[\u8bf7\u89e3\u91ca\u4fdd\u7559\u51e0\u6b21\u91cd\u590d\u7684\u9650\u5236\uff0c\u6211\u80fd\u628a\u6bcf\u7ec4\u6070\u597d2RIR\u5f53\u4f5c\u6700\u4f73\u5b89\u6392\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert 'personal_numeric_request' in {'effort_precision'}">question = '请解释保留几次重复的限制，我能把每组恰好2RIR当作最佳安排吗？'
+
+    @pytest.mark.parametrize("question", [
+        "请解释保留几次重复的限制，我能把每组恰好2RIR当作最佳安排吗？",
+        "我的训练每组固定RIR2是否最佳？",
+        "活动时间一般如何增加？能替我确定下周跑多快、跑多久吗？",
+        "Can this general advice determine my exact running pace and duration?",
+    ])
+    def test_personal_effort_and_activity_parameters_remain_unanswered(question):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert "personal_numeric_request" in {p["part_id"] for p in parts}
+E       AssertionError: assert 'personal_numeric_request' in {'effort_precision'}
+
+tests/unit/test_round6_question_composition.py:31: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_personal_effort_and_activity_parameters_remain_unanswered[\u6211\u7684\u8bad\u7ec3\u6bcf\u7ec4\u56fa\u5b9aRIR2\u662f\u5426\u6700\u4f73\uff1f]" time="0.001"><failure message="AssertionError: assert 'personal_numeric_request' in set()">question = '我的训练每组固定RIR2是否最佳？'
+
+    @pytest.mark.parametrize("question", [
+        "请解释保留几次重复的限制，我能把每组恰好2RIR当作最佳安排吗？",
+        "我的训练每组固定RIR2是否最佳？",
+        "活动时间一般如何增加？能替我确定下周跑多快、跑多久吗？",
+        "Can this general advice determine my exact running pace and duration?",
+    ])
+    def test_personal_effort_and_activity_parameters_remain_unanswered(question):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert "personal_numeric_request" in {p["part_id"] for p in parts}
+E       AssertionError: assert 'personal_numeric_request' in set()
+
+tests/unit/test_round6_question_composition.py:31: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_personal_effort_and_activity_parameters_remain_unanswered[\u6d3b\u52a8\u65f6\u95f4\u4e00\u822c\u5982\u4f55\u589e\u52a0\uff1f\u80fd\u66ff\u6211\u786e\u5b9a\u4e0b\u5468\u8dd1\u591a\u5feb\u3001\u8dd1\u591a\u4e45\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert 'personal_numeric_request' in set()">question = '活动时间一般如何增加？能替我确定下周跑多快、跑多久吗？'
+
+    @pytest.mark.parametrize("question", [
+        "请解释保留几次重复的限制，我能把每组恰好2RIR当作最佳安排吗？",
+        "我的训练每组固定RIR2是否最佳？",
+        "活动时间一般如何增加？能替我确定下周跑多快、跑多久吗？",
+        "Can this general advice determine my exact running pace and duration?",
+    ])
+    def test_personal_effort_and_activity_parameters_remain_unanswered(question):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert "personal_numeric_request" in {p["part_id"] for p in parts}
+E       AssertionError: assert 'personal_numeric_request' in set()
+
+tests/unit/test_round6_question_composition.py:31: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_personal_effort_and_activity_parameters_remain_unanswered[Can this general advice determine my exact running pace and duration?]" time="0.002"><failure message="AssertionError: assert 'personal_numeric_request' in set()">question = 'Can this general advice determine my exact running pace and duration?'
+
+    @pytest.mark.parametrize("question", [
+        "请解释保留几次重复的限制，我能把每组恰好2RIR当作最佳安排吗？",
+        "我的训练每组固定RIR2是否最佳？",
+        "活动时间一般如何增加？能替我确定下周跑多快、跑多久吗？",
+        "Can this general advice determine my exact running pace and duration?",
+    ])
+    def test_personal_effort_and_activity_parameters_remain_unanswered(question):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert "personal_numeric_request" in {p["part_id"] for p in parts}
+E       AssertionError: assert 'personal_numeric_request' in set()
+
+tests/unit/test_round6_question_composition.py:31: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_repeated_personal_comparisons_require_meaning_and_design_explanations[\u6211\u7684\u8fde\u7eed\u8bad\u7ec3\u8bb0\u5f55\u524d\u540e\u5dee\u5f02\u4e0d\u663e\u8457\uff0c\u53ef\u4ee5\u8bf4\u660e\u6ca1\u6709\u5b9e\u8d28\u8fdb\u6b65\u5417\uff1f\u8fd9\u79cd\u5206\u6790\u6846\u67b6\u9002\u7528\u4e8e\u4e2a\u4eba\u8bb0\u5f55\u5417\uff1f]" time="0.005"><failure message="AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}&#10;  &#10;  Extra items in the left set:&#10;  'equivalence_design_scope'&#10;  'practical_equivalence'">question = '我的连续训练记录前后差异不显著，可以说明没有实质进步吗？这种分析框架适用于个人记录吗？'
+
+    @pytest.mark.parametrize("question", [
+        "我的连续训练记录前后差异不显著，可以说明没有实质进步吗？这种分析框架适用于个人记录吗？",
+        "把我最近几次训练成绩划为前后两段，差异检验不显著就能断言没有有意义的变化吗？",
+        "Does a non-significant comparison of my repeated training measurements before and after establish no meaningful change? Is this design appropriate?",
+    ])
+    def test_repeated_personal_comparisons_require_meaning_and_design_explanations(question):
+&gt;       assert {"practical_equivalence", "equivalence_design_scope"} &lt;= outcomes(question)
+E       AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}
+E
+E         Extra items in the left set:
+E         'equivalence_design_scope'
+E         'practical_equivalence'
+
+tests/unit/test_round6_question_composition.py:40: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_repeated_personal_comparisons_require_meaning_and_design_explanations[\u628a\u6211\u6700\u8fd1\u51e0\u6b21\u8bad\u7ec3\u6210\u7ee9\u5212\u4e3a\u524d\u540e\u4e24\u6bb5\uff0c\u5dee\u5f02\u68c0\u9a8c\u4e0d\u663e\u8457\u5c31\u80fd\u65ad\u8a00\u6ca1\u6709\u6709\u610f\u4e49\u7684\u53d8\u5316\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}&#10;  &#10;  Extra items in the left set:&#10;  'equivalence_design_scope'&#10;  'practical_equivalence'">question = '把我最近几次训练成绩划为前后两段，差异检验不显著就能断言没有有意义的变化吗？'
+
+    @pytest.mark.parametrize("question", [
+        "我的连续训练记录前后差异不显著，可以说明没有实质进步吗？这种分析框架适用于个人记录吗？",
+        "把我最近几次训练成绩划为前后两段，差异检验不显著就能断言没有有意义的变化吗？",
+        "Does a non-significant comparison of my repeated training measurements before and after establish no meaningful change? Is this design appropriate?",
+    ])
+    def test_repeated_personal_comparisons_require_meaning_and_design_explanations(question):
+&gt;       assert {"practical_equivalence", "equivalence_design_scope"} &lt;= outcomes(question)
+E       AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}
+E
+E         Extra items in the left set:
+E         'equivalence_design_scope'
+E         'practical_equivalence'
+
+tests/unit/test_round6_question_composition.py:40: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_repeated_personal_comparisons_require_meaning_and_design_explanations[question2]" time="0.003"><failure message="AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}&#10;  &#10;  Extra items in the left set:&#10;  'equivalence_design_scope'&#10;  'practical_equivalence'">question = 'Does a non-significant comparison of my repeated training measurements before and after establish no meaningful change? Is this design appropriate?'
+
+    @pytest.mark.parametrize("question", [
+        "我的连续训练记录前后差异不显著，可以说明没有实质进步吗？这种分析框架适用于个人记录吗？",
+        "把我最近几次训练成绩划为前后两段，差异检验不显著就能断言没有有意义的变化吗？",
+        "Does a non-significant comparison of my repeated training measurements before and after establish no meaningful change? Is this design appropriate?",
+    ])
+    def test_repeated_personal_comparisons_require_meaning_and_design_explanations(question):
+&gt;       assert {"practical_equivalence", "equivalence_design_scope"} &lt;= outcomes(question)
+E       AssertionError: assert {'equivalence..._equivalence'} &lt;= {'non_signifi...terpretation'}
+E
+E         Extra items in the left set:
+E         'equivalence_design_scope'
+E         'practical_equivalence'
+
+tests/unit/test_round6_question_composition.py:40: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_record_storage_alone_does_not_request_statistical_design[\u6211\u7684\u8fde\u7eed\u8bad\u7ec3\u8bb0\u5f55\u6309\u524d\u540e\u5206\u6bb5\u4fdd\u5b58\u5728\u4ec0\u4e48\u4f4d\u7f6e\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round6_question_composition" name="test_record_storage_alone_does_not_request_statistical_design[The training log has a before and after tab. Where are my records?]" time="0.002" /><testcase classname="tests.unit.test_round6_question_composition" name="test_covariance_estimator_validity_does_not_invent_an_equivalence_request" time="0.004"><failure message="AssertionError: assert {'equivalence...riance_scope'} == {'regression_...riance_scope'}&#10;  &#10;  Extra items in the left set:&#10;  'equivalence_design_scope'&#10;  'practical_equivalence'&#10;  Use -v to get more diff">def test_covariance_estimator_validity_does_not_invent_an_equivalence_request():
+        question = "HC3改善小样本表现是什么意思？能保证我少量连续记录的训练成绩正确判断是否停滞吗？"
+&gt;       assert outcomes(question) == {"regression_covariance_scope"}
+E       AssertionError: assert {'equivalence...riance_scope'} == {'regression_...riance_scope'}
+E
+E         Extra items in the left set:
+E         'equivalence_design_scope'
+E         'practical_equivalence'
+E         Use -v to get more diff
+
+tests/unit/test_round6_question_composition.py:53: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_activity_progression_order_is_not_resistance_load_progression[\u6211\u5f88\u5c11\u6d3b\u52a8\u800c\u4e14\u5173\u8282\u75bc\u75db\uff0c\u589e\u52a0\u6d3b\u52a8\u4e3a\u4ec0\u4e48\u8981\u5faa\u5e8f\u6e10\u8fdb\uff1f\u4e00\u822c\u5e94\u5148\u589e\u52a0\u4ec0\u4e48\uff1f]" time="0.002"><failure message="AssertionError: assert 'gradual_progression' in {'progression_options', 'symptoms'}&#10; +  where {'progression_options', 'symptoms'} = outcomes('我很少活动而且关节疼痛，增加活动为什么要循序渐进？一般应先增加什么？')">question = '我很少活动而且关节疼痛，增加活动为什么要循序渐进？一般应先增加什么？'
+
+    @pytest.mark.parametrize("question", [
+        "我很少活动而且关节疼痛，增加活动为什么要循序渐进？一般应先增加什么？",
+        "身体活动应如何慢慢增加，通常先加时长还是强度？",
+        "When building up physical activity, what should usually increase first: duration or intensity?",
+    ])
+    def test_activity_progression_order_is_not_resistance_load_progression(question):
+&gt;       assert "gradual_progression" in outcomes(question)
+E       AssertionError: assert 'gradual_progression' in {'progression_options', 'symptoms'}
+E        +  where {'progression_options', 'symptoms'} = outcomes('我很少活动而且关节疼痛，增加活动为什么要循序渐进？一般应先增加什么？')
+
+tests/unit/test_round6_question_composition.py:62: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_activity_progression_order_is_not_resistance_load_progression[\u8eab\u4f53\u6d3b\u52a8\u5e94\u5982\u4f55\u6162\u6162\u589e\u52a0\uff0c\u901a\u5e38\u5148\u52a0\u65f6\u957f\u8fd8\u662f\u5f3a\u5ea6\uff1f]" time="0.002" /><testcase classname="tests.unit.test_round6_question_composition" name="test_activity_progression_order_is_not_resistance_load_progression[When building up physical activity, what should usually increase first: duration or intensity?]" time="0.002"><failure message="AssertionError: assert 'gradual_progression' in set()&#10; +  where set() = outcomes('When building up physical activity, what should usually increase first: duration or intensity?')">question = 'When building up physical activity, what should usually increase first: duration or intensity?'
+
+    @pytest.mark.parametrize("question", [
+        "我很少活动而且关节疼痛，增加活动为什么要循序渐进？一般应先增加什么？",
+        "身体活动应如何慢慢增加，通常先加时长还是强度？",
+        "When building up physical activity, what should usually increase first: duration or intensity?",
+    ])
+    def test_activity_progression_order_is_not_resistance_load_progression(question):
+&gt;       assert "gradual_progression" in outcomes(question)
+E       AssertionError: assert 'gradual_progression' in set()
+E        +  where set() = outcomes('When building up physical activity, what should usually increase first: duration or intensity?')
+
+tests/unit/test_round6_question_composition.py:62: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[\u6297\u963b\u953b\u70bc\u7684\u4e0d\u540c\u5f62\u5f0f\u662f\u5426\u90fd\u6709\u6548\uff0c\u9009\u62e9\u65f6\u600e\u6837\u8003\u8651\u4e2a\u4eba\u504f\u597d\u548c\u575a\u6301\uff1f-training_modality_adherence-resistance_training]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ed3f0&gt;)">question = '抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？'
+topic = 'training_modality_adherence', subject = 'resistance_training'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ed3f0&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[How do preferences and adherence matter when choosing a resistance training modality?-training_modality_adherence-resistance_training]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ed8a0&gt;)">question = 'How do preferences and adherence matter when choosing a resistance training modality?'
+topic = 'training_modality_adherence', subject = 'resistance_training'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ed8a0&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[\u5feb\u8d70\u901a\u52e4\u548c\u77ed\u65f6\u6709\u6c27\u6d3b\u52a8\u5982\u4f55\u7d2f\u8ba1\u5230\u6bcf\u5468\u6d3b\u52a8\u76ee\u6807\uff1f-aerobic_activity_volume-physical_activity]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ede40&gt;)">question = '快走通勤和短时有氧活动如何累计到每周活动目标？', topic = 'aerobic_activity_volume'
+subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ede40&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[Can short bouts of aerobic activity during commuting count toward weekly activity targets?-aerobic_activity_volume-physical_activity]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ee2f0&gt;)">question = 'Can short bouts of aerobic activity during commuting count toward weekly activity targets?'
+topic = 'aerobic_activity_volume', subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ee2f0&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[\u6709\u6c27\u548c\u808c\u529b\u6d3b\u52a8\u5206\u522b\u6709\u4ec0\u4e48\u4f5c\u7528\uff1f\u62c9\u4f38\u53ef\u4ee5\u66ff\u4ee3\u5b83\u4eec\u5417\uff1f-activity_type_complementarity-physical_activity]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ee890&gt;)">question = '有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？', topic = 'activity_type_complementarity'
+subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffa88ee890&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topics_have_source_independent_structured_tasks[Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?-activity_type_complementarity-physical_activity]" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffab80bb50&gt;)">question = 'Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?'
+topic = 'activity_type_complementarity', subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("抗阻锻炼的不同形式是否都有效，选择时怎样考虑个人偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("How do preferences and adherence matter when choosing a resistance training modality?", "training_modality_adherence", "resistance_training"),
+        ("快走通勤和短时有氧活动如何累计到每周活动目标？", "aerobic_activity_volume", "physical_activity"),
+        ("Can short bouts of aerobic activity during commuting count toward weekly activity targets?", "aerobic_activity_volume", "physical_activity"),
+        ("有氧和肌力活动分别有什么作用？拉伸可以替代它们吗？", "activity_type_complementarity", "physical_activity"),
+        ("Can stretching replace aerobic and muscle-strengthening activity, and what does each contribute?", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topics_have_source_independent_structured_tasks(question, topic, subject):
+        parts = parse_task(question)["required_answer_parts"]
+&gt;       assert any(p.get("outcome") == topic and p.get("subject") == subject
+                   and p.get("requested_relation") == "explanation" for p in parts)
+E       assert False
+E        +  where False = any(&lt;generator object test_new_topics_have_source_independent_structured_tasks.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffab80bb50&gt;)
+
+tests/unit/test_round6_question_composition.py:76: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_similar_words_outside_topic_relations_do_not_create_new_targets[My preferences for the training app's display are not saved.]" time="0.002" /><testcase classname="tests.unit.test_round6_question_composition" name="test_similar_words_outside_topic_relations_do_not_create_new_targets[\u6bcf\u5468\u6d3b\u52a8\u65e5\u5fd7\u6587\u4ef6\u80fd\u5408\u5e76\u8ba1\u5165\u5b58\u50a8\u91cf\u5417\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round6_question_composition" name="test_similar_words_outside_topic_relations_do_not_create_new_targets[\u5728\u56fe\u7247\u7f16\u8f91\u4e2d\u62c9\u4f38\u548c\u7f29\u653e\u80fd\u4e92\u76f8\u66ff\u4ee3\u5417\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round6_question_composition" name="test_answer_status_does_not_hide_a_missing_effort_explanation" time="0.095"><failure message="AssertionError: assert 'answered_with_support' == 'partially_answered'&#10;  &#10;  - partially_answered&#10;  + answered_with_support">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffab538c50&gt;
+
+    def test_answer_status_does_not_hide_a_missing_effort_explanation(kb):
+        add_claim(kb, "failure_necessity", "resistance_training")
+        result = kb.query("每组必须力竭吗，保留两次重复该如何理解？")
+&gt;       assert result["answer_status"] == "partially_answered"
+E       AssertionError: assert 'answered_with_support' == 'partially_answered'
+E
+E         - partially_answered
+E         + answered_with_support
+
+tests/unit/test_round6_question_composition.py:92: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_personal_series_cannot_be_fully_answered_by_a_significance_summary" time="0.047"><failure message="AssertionError: assert 'answered_with_support' == 'partially_answered'&#10;  &#10;  - partially_answered&#10;  + answered_with_support">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa8954710&gt;
+
+    def test_personal_series_cannot_be_fully_answered_by_a_significance_summary(kb):
+        add_claim(kb, "non_significance_interpretation", "statistical_inference")
+        result = kb.query("我的连续训练记录分为前后两段，差异不显著。能说明没有实质进步吗，分析框架能直接对应个人记录吗？")
+&gt;       assert result["answer_status"] == "partially_answered"
+E       AssertionError: assert 'answered_with_support' == 'partially_answered'
+E
+E         - partially_answered
+E         + answered_with_support
+
+tests/unit/test_round6_question_composition.py:100: AssertionError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topic_requires_eligible_source_support_and_keeps_partition_gate[\u4e0d\u540c\u6297\u963b\u8bad\u7ec3\u5f62\u5f0f\u7684\u9009\u62e9\u4e3a\u4f55\u8981\u8003\u8651\u504f\u597d\u548c\u575a\u6301\uff1f-training_modality_adherence-resistance_training]" time="0.043"><failure message="KeyError: 'training_modality_adherence'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa89542d0&gt;
+question = '不同抗阻训练形式的选择为何要考虑偏好和坚持？', topic = 'training_modality_adherence'
+subject = 'resistance_training'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("不同抗阻训练形式的选择为何要考虑偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("短时有氧活动如何计入每周目标？", "aerobic_activity_volume", "physical_activity"),
+        ("有氧活动、肌力活动和拉伸能互相替代吗？", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topic_requires_eligible_source_support_and_keeps_partition_gate(kb, question, topic, subject):
+        assert kb.query(question)["answer_status"] != "answered_with_support"
+&gt;       add_claim(kb, topic, subject)
+
+tests/unit/test_round6_question_composition.py:112:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa89542d0&gt;
+outcome = 'training_modality_adherence', subject = 'resistance_training'
+source_id = 'S5', scope = None
+
+    def add_claim(w, outcome, subject, *, source_id="S5", scope=None):
+        text = "Synthetic explanation for " + outcome
+        vid = w.lib.record_version(source_id, text.encode(), "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": text, "locator": {"chapter_id": "4"}}], "synthetic-round5")
+        sid = vid + ":s00000"
+        w.review_claim({"claim_id": source_id + "-" + outcome, "version": "1", "statement": text,
+            "scope": scope or {"population": "adults"}, "limitations": ["Synthetic fixture only"],
+            "evidence_links": [{"source_id": source_id, "source_version_id": vid, "span_ids": [sid]}],
+            "answer_task": {"subject": subject, "outcome": outcome,
+&gt;               "requested_relation": RELATIONS[outcome], "answer_complete": True,
+                                      ^^^^^^^^^^^^^^^^^^
+                "answer_parts": [{"text": text, "span_ids": [sid]}]}},
+            {"reviewer": "Synthetic fixture", "reviewer_kind": "synthetic_fixture",
+             "rationale": "Software check, no scientific authority", "reviewed_at": "2026-11-12",
+             "content_checked": True})
+E       KeyError: 'training_modality_adherence'
+
+tests/unit/test_round5_question_language.py:95: KeyError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topic_requires_eligible_source_support_and_keeps_partition_gate[\u77ed\u65f6\u6709\u6c27\u6d3b\u52a8\u5982\u4f55\u8ba1\u5165\u6bcf\u5468\u76ee\u6807\uff1f-aerobic_activity_volume-physical_activity]" time="0.043"><failure message="KeyError: 'aerobic_activity_volume'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa89bc550&gt;
+question = '短时有氧活动如何计入每周目标？', topic = 'aerobic_activity_volume'
+subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("不同抗阻训练形式的选择为何要考虑偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("短时有氧活动如何计入每周目标？", "aerobic_activity_volume", "physical_activity"),
+        ("有氧活动、肌力活动和拉伸能互相替代吗？", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topic_requires_eligible_source_support_and_keeps_partition_gate(kb, question, topic, subject):
+        assert kb.query(question)["answer_status"] != "answered_with_support"
+&gt;       add_claim(kb, topic, subject)
+
+tests/unit/test_round6_question_composition.py:112:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa89bc550&gt;
+outcome = 'aerobic_activity_volume', subject = 'physical_activity'
+source_id = 'S5', scope = None
+
+    def add_claim(w, outcome, subject, *, source_id="S5", scope=None):
+        text = "Synthetic explanation for " + outcome
+        vid = w.lib.record_version(source_id, text.encode(), "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": text, "locator": {"chapter_id": "4"}}], "synthetic-round5")
+        sid = vid + ":s00000"
+        w.review_claim({"claim_id": source_id + "-" + outcome, "version": "1", "statement": text,
+            "scope": scope or {"population": "adults"}, "limitations": ["Synthetic fixture only"],
+            "evidence_links": [{"source_id": source_id, "source_version_id": vid, "span_ids": [sid]}],
+            "answer_task": {"subject": subject, "outcome": outcome,
+&gt;               "requested_relation": RELATIONS[outcome], "answer_complete": True,
+                                      ^^^^^^^^^^^^^^^^^^
+                "answer_parts": [{"text": text, "span_ids": [sid]}]}},
+            {"reviewer": "Synthetic fixture", "reviewer_kind": "synthetic_fixture",
+             "rationale": "Software check, no scientific authority", "reviewed_at": "2026-11-12",
+             "content_checked": True})
+E       KeyError: 'aerobic_activity_volume'
+
+tests/unit/test_round5_question_language.py:95: KeyError</failure></testcase><testcase classname="tests.unit.test_round6_question_composition" name="test_new_topic_requires_eligible_source_support_and_keeps_partition_gate[\u6709\u6c27\u6d3b\u52a8\u3001\u808c\u529b\u6d3b\u52a8\u548c\u62c9\u4f38\u80fd\u4e92\u76f8\u66ff\u4ee3\u5417\uff1f-activity_type_complementarity-physical_activity]" time="0.042"><failure message="KeyError: 'activity_type_complementarity'">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa8956550&gt;
+question = '有氧活动、肌力活动和拉伸能互相替代吗？', topic = 'activity_type_complementarity'
+subject = 'physical_activity'
+
+    @pytest.mark.parametrize("question,topic,subject", [
+        ("不同抗阻训练形式的选择为何要考虑偏好和坚持？", "training_modality_adherence", "resistance_training"),
+        ("短时有氧活动如何计入每周目标？", "aerobic_activity_volume", "physical_activity"),
+        ("有氧活动、肌力活动和拉伸能互相替代吗？", "activity_type_complementarity", "physical_activity"),
+    ])
+    def test_new_topic_requires_eligible_source_support_and_keeps_partition_gate(kb, question, topic, subject):
+        assert kb.query(question)["answer_status"] != "answered_with_support"
+&gt;       add_claim(kb, topic, subject)
+
+tests/unit/test_round6_question_composition.py:112:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffa8956550&gt;
+outcome = 'activity_type_complementarity', subject = 'physical_activity'
+source_id = 'S5', scope = None
+
+    def add_claim(w, outcome, subject, *, source_id="S5", scope=None):
+        text = "Synthetic explanation for " + outcome
+        vid = w.lib.record_version(source_id, text.encode(), "fulltext", {}, {},
+            {"index_allowed": True, "license_id": "CC0"}, "matched",
+            [{"text": text, "locator": {"chapter_id": "4"}}], "synthetic-round5")
+        sid = vid + ":s00000"
+        w.review_claim({"claim_id": source_id + "-" + outcome, "version": "1", "statement": text,
+            "scope": scope or {"population": "adults"}, "limitations": ["Synthetic fixture only"],
+            "evidence_links": [{"source_id": source_id, "source_version_id": vid, "span_ids": [sid]}],
+            "answer_task": {"subject": subject, "outcome": outcome,
+&gt;               "requested_relation": RELATIONS[outcome], "answer_complete": True,
+                                      ^^^^^^^^^^^^^^^^^^
+                "answer_parts": [{"text": text, "span_ids": [sid]}]}},
+            {"reviewer": "Synthetic fixture", "reviewer_kind": "synthetic_fixture",
+             "rationale": "Software check, no scientific authority", "reviewed_at": "2026-11-12",
+             "content_checked": True})
+E       KeyError: 'activity_type_complementarity'
+
+tests/unit/test_round5_question_language.py:95: KeyError</failure></testcase></testsuite></testsuites>

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -344,6 +345,81 @@ def published_snapshot(conn):
     return row[0] if row else None
 
 
+def mapping_continuity(conn, mapping, raw):
+    """Keep an exact identity only while its original reviewed evidence still agrees.
+
+    Other-language labels, aliases, media and timestamps are presentation data.
+    The name in the reviewed language can identify a physical variant and must
+    remain unchanged alongside its description. The stored, hashed
+    source record remains the comparison baseline; a sequence of small updates
+    must not gradually replace the evidence that was actually reviewed.
+    """
+    if not raw:
+        return None
+    evidence = mapping["evidence"]
+    reviewed_hash = evidence["source_record_sha256"]
+    current_hash = digest(raw)
+    if current_hash == reviewed_hash:
+        return {"basis": "exact_reviewed_record", "source_record_sha256": current_hash}
+    if mapping["status"] != "confirmed" or mapping["relation"] != "exact_identity":
+        return None
+    locator = re.fullmatch(r"exerciseinfo/(\d+)/translations/language=(\d+)", evidence["locator"])
+    if not locator or raw["id"] != int(locator[1]):
+        return None
+    row = conn.execute(
+        "SELECT record_json FROM catalog_source_record WHERE provider='wger' "
+        "AND source_uuid=? AND raw_sha256=? LIMIT 1",
+        (mapping["source_uuid"], reviewed_hash),
+    ).fetchone()
+    if not row:
+        return None
+    reviewed = json.loads(row[0])
+    if digest(reviewed) != reviewed_hash:
+        return None
+
+    def identity(record):
+        translations = [
+            item
+            for item in record.get("translations", [])
+            if item.get("language") == int(locator[2])
+        ]
+        if len(translations) != 1:
+            return None
+        return {
+            "record": {
+                key: value
+                for key, value in record.items()
+                if key
+                not in {
+                    "created",
+                    "last_update",
+                    "last_update_global",
+                    "images",
+                    "videos",
+                    "translations",
+                    "author_history",
+                    "total_authors_history",
+                }
+            },
+            "identity_translation": {
+                key: value
+                for key, value in translations[0].items()
+                if key not in {"aliases", "created", "author_history"}
+            },
+        }
+
+    before, after = identity(reviewed), identity(raw)
+    if before is None or before != after:
+        return None
+    return {
+        "basis": "unchanged_reviewed_identity_evidence",
+        "reviewed_source_record_sha256": reviewed_hash,
+        "current_source_record_sha256": current_hash,
+        "identity_projection_sha256": digest(before),
+        "locator": evidence["locator"],
+    }
+
+
 def publish_snapshot(repo, folder):
     from .catalog_media import media_metadata
     from .service import TrainingService
@@ -387,12 +463,8 @@ def publish_snapshot(repo, folder):
             if not mapping["source_uuid"]:
                 continue
             raw = source_by_uuid.get(mapping["source_uuid"])
-            # A mapping is only confirmed for the source evidence actually reviewed.
-            status = (
-                mapping["status"]
-                if raw and digest(raw) == mapping["evidence"]["source_record_sha256"]
-                else "needs_identity_review"
-            )
+            continuity = mapping_continuity(repo.conn, mapping, raw)
+            status = mapping["status"] if continuity else "needs_identity_review"
             repo.conn.execute(
                 "INSERT OR REPLACE INTO catalog_source_mapping VALUES('wger',?,?,?,?,?)",
                 (
@@ -400,7 +472,7 @@ def publish_snapshot(repo, folder):
                     mapping["local_exercise_id"],
                     mapping["relation"],
                     status,
-                    encoded(mapping),
+                    encoded({**mapping, "current_evidence_check": continuity}),
                 ),
             )
         for raw, item in zip(objects["exerciseinfo"], definitions):

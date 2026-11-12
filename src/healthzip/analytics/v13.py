@@ -239,6 +239,12 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     )
     window = Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name)
     options = reference_options(records, window)
+    from healthzip.analytics.sleep_selection import selected_sleep_metrics, sleep_options
+    sleep_choices = sleep_options(records, window)
+    sleep_audit = None
+    if context and isinstance(context.get("sleep_selection"), dict):
+        sleep_metrics, sleep_audit = selected_sleep_metrics(records, window, context["sleep_selection"])
+        metrics.update(sleep_metrics)
     selection_audit = None
     if context and isinstance(context.get("reference_selection"), dict):
         selected_metrics, selection_audit = selected_reference_metrics(
@@ -257,9 +263,11 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged}, sort_keys=True, default=str).encode()).hexdigest()
     return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
             "window_days": window_days, "reference_options": options, "reference_selection": selection_audit,
+            "sleep_options": sleep_choices, "sleep_selection": sleep_audit,
+            "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.2",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.3",
             "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}

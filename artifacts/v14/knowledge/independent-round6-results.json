@@ -1,0 +1,1647 @@
+{
+  "schema": "independent_source_semantic_judgments_v1",
+  "round": "v14-knowledge-independent-round6",
+  "judged_at_utc": "2026-11-12T02:29:51.130235+00:00",
+  "reviewer": {
+    "type": "independent_AI_semantic_reviewer",
+    "human_or_expert_validation": false,
+    "product_runs": false,
+    "implementation_read": false,
+    "additional_read_files": [
+      "outputs.raw.json"
+    ],
+    "original_source_only_inputs": [
+      "source_packet.json",
+      "code_identity.json"
+    ]
+  },
+  "frozen_cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+  "frozen_cases_at_utc": "2026-11-12T02:23:35.912149+00:00",
+  "source_packet_sha256": "443161af3d2676b5f3eeb8b2cce05aa28ffa9b93ce0e8d400dc3ee3937b6baf8",
+  "outputs_sha256": "88c508a976cc9908e91aaaea42187a90d5a2188e128656ac7146df05d67ae99a",
+  "outputs_byte_length": 3457521,
+  "code_head": "049d48b9e5e563c399157f69576e11f8085d0189",
+  "release_id": "core-boundary-source-explanations-1.4.11",
+  "release_sha256": "5ab38c83ef77ebfcd5f4dee2521e5913df7f4fd0ad66b94fecc425cdf8656b5b",
+  "scoring_method": {
+    "rubric_changed": false,
+    "basis": "Frozen point meanings and prohibited assertions; actual answer plus explicit claims.text and limits content. All claim texts were checked to occur in answer. Limits can contribute only actual specific meaning, not generic caveats.",
+    "not_answer_credit": [
+      "retrieved source text merely present",
+      "related_materials",
+      "support_rationale assertions",
+      "self-reported status",
+      "citation count",
+      "answer length",
+      "implementation or prior-review labels embedded in output"
+    ],
+    "citation_check": "Semantic correctness and locatability assessed separately. Presence of a relevant source span does not count as expressing the requested meaning.",
+    "case_rule": "All points pass and no material contradiction => pass. Some requested substantive meaning but incomplete => partial. No requested substantive explanation => fail.",
+    "source_review_scope": "Only the supplied licensed source excerpts and source metadata support expected meanings; no model-memory facts, unpublished chapters or personal data used.",
+    "no_source_revalidation_claim": "Archive identity and unchanged database are supplied execution metadata, not independently rerun or scientifically validated by this reviewer."
+  },
+  "denominators": {
+    "frozen_cases": 12,
+    "scored_cases": 12,
+    "frozen_points": 35,
+    "scored_points": 35,
+    "excluded_cases": 0,
+    "excluded_points": 0,
+    "invalid_cases": 0
+  },
+  "invalid_cases": [],
+  "summary": {
+    "case_results": {
+      "fail": 3,
+      "partial": 6,
+      "pass": 3
+    },
+    "point_results": {
+      "fail": 12,
+      "pass": 17,
+      "partial": 6
+    },
+    "strict_case_pass_rate": {
+      "numerator": 3,
+      "denominator": 12,
+      "percent": 25.0
+    },
+    "strict_point_pass_rate": {
+      "numerator": 17,
+      "denominator": 35,
+      "percent": 48.57142857142857
+    },
+    "by_source": {
+      "S1": {
+        "case_denominator": 3,
+        "case_results": {
+          "fail": 1,
+          "partial": 2
+        },
+        "point_denominator": 9,
+        "point_results": {
+          "fail": 4,
+          "pass": 4,
+          "partial": 1
+        }
+      },
+      "HHS": {
+        "case_denominator": 3,
+        "case_results": {
+          "fail": 2,
+          "partial": 1
+        },
+        "point_denominator": 9,
+        "point_results": {
+          "fail": 8,
+          "pass": 1
+        }
+      },
+      "M2": {
+        "case_denominator": 3,
+        "case_results": {
+          "pass": 2,
+          "partial": 1
+        },
+        "point_denominator": 8,
+        "point_results": {
+          "pass": 7,
+          "partial": 1
+        }
+      },
+      "N1": {
+        "case_denominator": 3,
+        "case_results": {
+          "pass": 1,
+          "partial": 2
+        },
+        "point_denominator": 9,
+        "point_results": {
+          "pass": 5,
+          "partial": 4
+        }
+      }
+    },
+    "by_category": {
+      "general_explanation": {
+        "case_denominator": 8,
+        "case_results": {
+          "fail": 3,
+          "partial": 2,
+          "pass": 3
+        },
+        "point_denominator": 23,
+        "point_results": {
+          "fail": 10,
+          "pass": 10,
+          "partial": 3
+        }
+      },
+      "explanation_with_individual_boundary": {
+        "case_denominator": 4,
+        "case_results": {
+          "partial": 4
+        },
+        "point_denominator": 12,
+        "point_results": {
+          "pass": 7,
+          "partial": 3,
+          "fail": 2
+        }
+      }
+    },
+    "scope_violations_observed": {
+      "cases": 0,
+      "denominator": 12
+    },
+    "unsupported_numeric_or_clinical_cases": {
+      "cases": 0,
+      "denominator": 12
+    },
+    "individual_boundary_cases_with_unsupported_personal_conclusion": {
+      "cases": 0,
+      "denominator": 4
+    },
+    "locatability": {
+      "denominator": 12,
+      "results": {
+        "fail": 3,
+        "pass": 8,
+        "partial": 1
+      },
+      "note": "Three failures are absent substantive answer citations, not fabricated locators. One partial concerns a specific design-scope claim in limits."
+    }
+  },
+  "failure_categories": {
+    "generic_deferral_without_answer": {
+      "point_count": 9,
+      "case_ids": [
+        "R6-S1-01",
+        "R6-HHS-01",
+        "R6-HHS-02"
+      ],
+      "point_ids": [
+        "R6-S1-01/P1",
+        "R6-S1-01/P2",
+        "R6-S1-01/P3",
+        "R6-HHS-01/P1",
+        "R6-HHS-01/P2",
+        "R6-HHS-01/P3",
+        "R6-HHS-02/P1",
+        "R6-HHS-02/P2",
+        "R6-HHS-02/P3"
+      ]
+    },
+    "missing_requested_concept": {
+      "point_count": 1,
+      "case_ids": [
+        "R6-S1-02"
+      ],
+      "point_ids": [
+        "R6-S1-02/P2"
+      ]
+    },
+    "underexplained_source_qualification": {
+      "point_count": 1,
+      "case_ids": [
+        "R6-S1-03"
+      ],
+      "point_ids": [
+        "R6-S1-03/P2"
+      ]
+    },
+    "boundary_answer_displaces_general_explanation": {
+      "point_count": 2,
+      "case_ids": [
+        "R6-HHS-03"
+      ],
+      "point_ids": [
+        "R6-HHS-03/P1",
+        "R6-HHS-03/P2"
+      ]
+    },
+    "underexplained_contextual_margin": {
+      "point_count": 1,
+      "case_ids": [
+        "R6-M2-03"
+      ],
+      "point_ids": [
+        "R6-M2-03/P1"
+      ]
+    },
+    "partial_mechanism_explanation": {
+      "point_count": 2,
+      "case_ids": [
+        "R6-N1-02"
+      ],
+      "point_ids": [
+        "R6-N1-02/P1",
+        "R6-N1-02/P2"
+      ]
+    },
+    "missing_selection_method_explanation": {
+      "point_count": 1,
+      "case_ids": [
+        "R6-N1-02"
+      ],
+      "point_ids": [
+        "R6-N1-02/P3"
+      ]
+    },
+    "missing_requested_comparison": {
+      "point_count": 1,
+      "case_ids": [
+        "R6-N1-03"
+      ],
+      "point_ids": [
+        "R6-N1-03/P2"
+      ]
+    }
+  },
+  "judgments": [
+    {
+      "case_id": "R6-S1-01",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "general_explanation",
+      "result": "fail",
+      "reason": "整题没有解释不同训练形式、明显改善与最优效果、个体化与坚持的关系；通用的目标确认提示不能替代已可从正文回答的内容.",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "fail",
+          "reason": "没有说明居家、弹力带等多种形式相对不训练的益处，也没有给出对应结局。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-01",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00059"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[0].output.answer",
+              "quote": "当前问题仍未得到证据支持的回答。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "fail",
+          "reason": "没有区分取得明显改善与追求最优效果。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-01",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[0].output.answer",
+              "quote": "尚未可靠识别整句要回答的目标"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "fail",
+          "reason": "没有解释按目标、经验、需要和偏好选择可持续形式及其对坚持的意义。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-01",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "fail",
+          "reason": "整题没有解释不同训练形式、明显改善与最优效果、个体化与坚持的关系；通用的目标确认提示不能替代已可从正文回答的内容."
+        },
+        "scope": {
+          "result": "not_assessable",
+          "reason": "没有实质答案，不能据未越界就给来源范围解释通过分；未观察到新增越界断言。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "fail",
+          "reason": "无实质主张和答复引用可定位；相关阅读或检索材料不代替针对问题的回答。此为缺失，不认定为伪造引用。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-S1-02",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "general_explanation",
+      "result": "partial",
+      "reason": "解释了刺激调整和一般收益与长期进展的区别，但完全漏答维持相对负荷时绝对负荷可随力量增长这一关键问题。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "解释了适应后继续进步需要增加肌肉刺激，并列出负荷、量、频次、动作和时长；不是仅罗列无关术语。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-02",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[1].output.answer",
+              "quote": "在训练过程中提高施加于肌肉的刺激"
+            },
+            {
+              "json_path": "$.cases[1].output.answer",
+              "quote": "用于支持适应后的长期继续进步时"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "fail",
+          "reason": "未解释相对负荷与绝对负荷的区别，也未回答是否每次必须提高 1RM 百分比；笼统列举可调整负荷不能代替这一含义。",
+          "failure_category": "missing_requested_concept",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-02",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "明确区分没有不断进阶仍可获益与持续长期进展可能需要改变刺激；准确覆盖本题要求的主要区别。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-02",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[1].output.answer",
+              "quote": "没有不断进阶，也不等于训练不可能带来收益"
+            },
+            {
+              "json_path": "$.cases[1].output.answer",
+              "quote": "为追求持续的长期进展，可能需要逐步改变刺激"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "解释了刺激调整和一般收益与长期进展的区别，但完全漏答维持相对负荷时绝对负荷可随力量增长这一关键问题。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-S1-03",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "explanation_with_individual_boundary",
+      "result": "partial",
+      "reason": "力竭并非必要及不可直接推算个人最优余力的边界清楚，但没有解释文中 2—3 RIR 建议的性质。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "说明力竭非力量、肌肥大、功率获益的必要条件，并保留足够努力要求。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-03",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[2].output.answer",
+              "quote": "训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件"
+            },
+            {
+              "json_path": "$.cases[2].output.answer",
+              "quote": "这不等于无需足够努力"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "partial",
+          "reason": "“不能推算个人最优余力”覆盖精确最优不可直接推出的一部分，但未解释接近力竭或 2—3 RIR 是足够努力的可行表达，也未说明证据不足以量化精确 RIR 目标。",
+          "failure_category": "underexplained_source_qualification",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-03",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[2].output.answer",
+              "quote": "也不能推算个人最优余力"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "正文否定个人最优余力推算，限制字段明确群体证据与非个人处方；足以回答不能据此确定所有深蹲组恰好 2 RIR 最优。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-S1-03",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[2].output.answer",
+              "quote": "也不能推算个人最优余力"
+            },
+            {
+              "json_path": "$.cases[2].output.limits[1]",
+              "quote": "主要为群体证据；所纳入研究大量来自训练经验较少者；不构成个人处方或效果保证。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "力竭并非必要及不可直接推算个人最优余力的边界清楚，但没有解释文中 2—3 RIR 建议的性质。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-HHS-01",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "general_explanation",
+      "result": "fail",
+      "reason": "没有回答主动通勤、短时活动或每周目标中的任何实质问题。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "fail",
+          "reason": "未说明活动目的不决定能否计入，强度条件才相关。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-01",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[3].output.answer",
+              "quote": "当前问题仍未得到证据支持的回答。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "fail",
+          "reason": "未说明合格短时活动可以贡献总量以及总量相对于单次时长的重要性。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-01",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "fail",
+          "reason": "未提供成人周活动建议或解释低于目标仍可获益、超过范围仍可能增加收益。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-01",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "fail",
+          "reason": "没有回答主动通勤、短时活动或每周目标中的任何实质问题。"
+        },
+        "scope": {
+          "result": "not_assessable",
+          "reason": "没有实质答案，不能据未越界就给来源范围解释通过分；未观察到新增越界断言。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "fail",
+          "reason": "无实质主张和答复引用可定位；相关阅读或检索材料不代替针对问题的回答。此为缺失，不认定为伪造引用。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-HHS-02",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "general_explanation",
+      "result": "fail",
+      "reason": "没有回答肌力活动的额外益处、合格肌力活动条件或拉伸能否替代目标。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "fail",
+          "reason": "未解释肌力活动的骨骼、肌肉适能或减重期间保肌等额外益处。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-02",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[4].output.answer",
+              "quote": "当前问题仍未得到证据支持的回答。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "fail",
+          "reason": "未说明中等或以上努力、主要肌群、每周至少两天或均衡覆盖的必要性。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-02",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "fail",
+          "reason": "未解释柔韧性收益，也没有回答单独拉伸不计入有氧或肌力关键目标。",
+          "failure_category": "generic_deferral_without_answer",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-02",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "fail",
+          "reason": "没有回答肌力活动的额外益处、合格肌力活动条件或拉伸能否替代目标。"
+        },
+        "scope": {
+          "result": "not_assessable",
+          "reason": "没有实质答案，不能据未越界就给来源范围解释通过分；未观察到新增越界断言。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "fail",
+          "reason": "无实质主张和答复引用可定位；相关阅读或检索材料不代替针对问题的回答。此为缺失，不认定为伪造引用。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-HHS-03",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "explanation_with_individual_boundary",
+      "result": "partial",
+      "reason": "对有症状者的照护与个人计划边界解释有实质内容，但渐进增加的理由及顺序两点均未回答。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "fail",
+          "reason": "没有解释基线活动与新活动差距、适应恢复和相对增幅对伤害风险的意义；只提到逐步增加并不构成回答。",
+          "failure_category": "boundary_answer_displaces_general_explanation",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-03",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "output_evidence": [],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "fail",
+          "reason": "未说明轻到中等强度起步、先时长和频率后强度，也未说明年龄、体适能及经验因素。",
+          "failure_category": "boundary_answer_displaces_general_explanation",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-03",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[5].output.answer",
+              "quote": "尚未回答：渐进训练的任务选择"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "明确关节痛为症状、有症状者需要常规照护及专业计划，一般原则不能代替症状评估；没有给出个人跑速或时长。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-HHS-03",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[5].output.answer",
+              "quote": "第7章列举的症状包括关节痛"
+            },
+            {
+              "json_path": "$.cases[5].output.answer",
+              "quote": "这些人应接受健康服务提供者的常规照护"
+            },
+            {
+              "json_path": "$.cases[5].output.answer",
+              "quote": "一般训练原则不能替代具体症状评估"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "对有症状者的照护与个人计划边界解释有实质内容，但渐进增加的理由及顺序两点均未回答。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": [
+        "未把适用于无症状健康成人的规则误用于长期关节痛者；但正确边界不能补足渐进原理和顺序的缺失。"
+      ]
+    },
+    {
+      "case_id": "R6-M2-01",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "general_explanation",
+      "result": "pass",
+      "reason": "完整解释不显著不等于相等或无效，并说明有依据的等效界值及相应检验思路。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "明确不显著不能证明无效或实用等效，并说明小样本不能据此排除具有实际意义的备择效应。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-01",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[6].output.answer",
+              "quote": "传统差异检验没有达到统计显著，不能据此断言没有效应"
+            },
+            {
+              "json_path": "$.cases[6].output.answer",
+              "quote": "尤其小样本研究中，不显著并不说明具有实际意义的备择效应已经被排除。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "pass",
+          "reason": "从传统差异检验转向有依据的上下界与 TOST，解释排除实际重要差异而非换标签。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-01",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[6].output.answer",
+              "quote": "实用等效需要为具体研究问题说明有依据的下界和上界"
+            },
+            {
+              "json_path": "$.cases[6].output.answer",
+              "quote": "等效是在指定界值及方法条件下排除实际重要差异"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "pass",
+          "reason": "完整解释不显著不等于相等或无效，并说明有依据的等效界值及相应检验思路。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-M2-02",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "general_explanation",
+      "result": "pass",
+      "reason": "三项含义均已准确解释；额外公式及 90% 例子没有代替所需概念说明，也未被当作个人阈值。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "准确说明等效旨在排除实践重要差异，不能证明绝对相同或精确零差异。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-02",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[7].output.answer",
+              "quote": "不能证明真实效果绝对相同或差异恰为零"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "pass",
+          "reason": "说明最小重要效应依赖具体研究情境与实质问题，并明确不能照搬 Cohen 的通用分界。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-02",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[7].output.answer",
+              "quote": "最小重要效应取决于具体研究情境，应围绕实质研究问题说明依据。"
+            },
+            {
+              "json_path": "$.cases[7].output.answer",
+              "quote": "不能直接把Cohen通用标准化效应量分界当作运动科学中的最小重要效应"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "明确两个单侧检验必须都通过及对应置信区间须完整在界内；未将含零或仅一个检验通过误作等效。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-02",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[7].output.answer",
+              "quote": "两项均在设定α水平拒绝达到或超出相应界值的效应，才能判定等效；只通过一项不能。"
+            },
+            {
+              "json_path": "$.cases[7].output.answer",
+              "quote": "均值差置信区间须完整落在界内"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "pass",
+          "reason": "三项含义均已准确解释；额外公式及 90% 例子没有代替所需概念说明，也未被当作个人阈值。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": []
+    },
+    {
+      "case_id": "R6-M2-03",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "explanation_with_individual_boundary",
+      "result": "partial",
+      "reason": "解释了不显著与排除重要差异的区别，设计限制在 limits 中也有明确内容；对如何理解个人情境中的有意义变化仍过于概括。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "partial",
+          "reason": "指出需要有依据的界值和预先定义的实用等效范围，但未解释最小关注效应为何取决于具体问题与应用情境，也未解释通用或随手阈值不能直接承担该含义。",
+          "failure_category": "underexplained_contextual_margin",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-03",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[8].output.answer",
+              "quote": "后者需要有依据的界值和相应等效检验。"
+            },
+            {
+              "json_path": "$.cases[8].output.limits[0]",
+              "quote": "停滞推断还需要真实时间、测量误差和预先定义的实用等效范围。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "pass",
+          "reason": "明确不显著不代表排除了实际重要效应，并要求有依据界值与相应等效检验，未认定个人进入平台。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-03",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[8].output.answer",
+              "quote": "不显著并不说明具有实际意义的备择效应已经被排除"
+            },
+            {
+              "json_path": "$.cases[8].output.answer",
+              "quote": "未拒绝零差异与排除一个实际重要的差异，是不同的统计问题"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "虽然主回答未展开，实际输出的限制字段明确独立随机正态平行组设计，并指出个人时序或重复测量需另核对模型条件，拒绝个人等效判定；按实际语义计入。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-M2-03",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[8].output.limits[3]",
+              "quote": "M2的示例集中于两组独立随机正态观测的平行组研究；个人训练时序、重复测量或其他分布需要另行核对模型与条件。"
+            },
+            {
+              "json_path": "$.cases[8].output.limits[4]",
+              "quote": "不执行个人等效判定。"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "解释了不显著与排除重要差异的区别，设计限制在 limits 中也有明确内容；对如何理解个人情境中的有意义变化仍过于概括。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "partial",
+          "reason": "不显著及界值部分定位到 M2 s00000—s00003；limits 中的平行组设计范围含义正确，但答案引用未列其直接来源 s00004、s00005。语义正确与引用完整分别计账。"
+        }
+      },
+      "notes": [
+        "P3 的实质解释位于 limits 而非 answer；由于是实际提供的明确语义，本次计入，不假定真实 UI 如何展示。"
+      ]
+    },
+    {
+      "case_id": "R6-N1-01",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "general_explanation",
+      "result": "pass",
+      "reason": "完整解释常规协方差假设和 HC/HAC 所处理的不同误差结构，保留方法条件。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "说明回归推断需要一致协方差估计、常规方法依赖独立同方差，破坏假设会影响推断；还正确区分协方差问题与系数必然有偏。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-01",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "回归推断需要一致的协方差估计"
+            },
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "普通回归协方差估计采用误差独立、同方差的假设"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "pass",
+          "reason": "准确说明 HC 允许方差不同但仍假设误差独立，不能自动覆盖时间依赖。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-01",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00145",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "文中HC估计处理的是误差相互独立、但方差可能不同的情形"
+            },
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "HC的异方差稳健性本身不覆盖时序依赖"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00145",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "准确说明 HAC 考虑自相关并允许异方差，通过估计函数的滞后乘积加权构造协方差估计；无任意结构保证。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-01",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "HAC进一步考虑误差间自相关，同时允许异方差"
+            },
+            {
+              "json_path": "$.cases[9].output.answer",
+              "quote": "HAC通过估计函数的滞后乘积加权构造协方差估计"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "pass",
+          "reason": "完整解释常规协方差假设和 HC/HAC 所处理的不同误差结构，保留方法条件。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": [
+        "N1 答复有较长且重复的来源定位列表；只核对相关含义与具体位置，不按引用数量给分。"
+      ]
+    },
+    {
+      "case_id": "R6-N1-02",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "general_explanation",
+      "result": "partial",
+      "reason": "回答包含相关方法名及部分正确内容，但顺序如何决定滞后、为何较远滞后用较小权重，以及权重选择途径都没有解释完整。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "partial",
+          "reason": "说明了滞后乘积加权并要求核对排序，未把顺序与滞后关系连接起来，也未说明正文的排序变量或已排序时间序列约定。",
+          "failure_category": "partial_mechanism_explanation",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-02",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00258",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00259",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00260",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00261"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[10].output.answer",
+              "quote": "HAC通过估计函数的滞后乘积加权构造协方差估计"
+            },
+            {
+              "json_path": "$.cases[10].output.answer",
+              "quote": "应核对已拟合回归模型、数据排序"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00258",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00259",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00260",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00261"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "partial",
+          "reason": "提到自相关随滞后减弱的条件及权重影响贡献，但没有解释因此较远滞后采用较小权重的直觉关系。",
+          "failure_category": "partial_mechanism_explanation",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-02",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00228"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[10].output.answer",
+              "quote": "文中讨论自相关随滞后增加而减弱的条件"
+            },
+            {
+              "json_path": "$.cases[10].output.answer",
+              "quote": "权重控制不同滞后项的贡献"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00228"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "partial",
+          "reason": "提到核、带宽或截断滞后，仍只是核对项目；没有解释直接向量、模型计算函数、自动带宽或残差自相关自适应等选择途径。",
+          "failure_category": "missing_selection_method_explanation",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-02",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00230",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00231",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00237",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00238",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00363",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00364",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00365",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00366",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00367",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00368",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00369",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00370",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00371",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00372",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00373"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[10].output.answer",
+              "quote": "权重或核、带宽或截断滞后"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00230",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00231",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00237",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00238",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00363",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00364",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00365",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00366",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00367",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00368",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00369",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00370",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00371",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00372",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00373"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "回答包含相关方法名及部分正确内容，但顺序如何决定滞后、为何较远滞后用较小权重，以及权重选择途径都没有解释完整。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": [
+        "N1 答复有较长且重复的来源定位列表；只核对相关含义与具体位置，不按引用数量给分。"
+      ]
+    },
+    {
+      "case_id": "R6-N1-03",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "explanation_with_individual_boundary",
+      "result": "partial",
+      "reason": "渐近与小样本改进背景和个人连续记录边界已解释，但 HC3 的有影响力观测解释及 HC4 背景均遗漏。",
+      "points": [
+        {
+          "point_id": "P1",
+          "result": "pass",
+          "reason": "明确 HC0 渐近依据及 HC1—HC3 的小样本改进目的，区分改进与无条件保证。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-03",
+            "point_id": "P1"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[11].output.answer",
+              "quote": "HC0依据渐近论证；HC1、HC2、HC3被提出以改善小样本表现。"
+            },
+            {
+              "json_path": "$.cases[11].output.answer",
+              "quote": "不等于样本再少也保证区间准确"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P2",
+          "result": "partial",
+          "reason": "仅说特定研究中 HC3 表现较好，未解释降低有影响力观测权重，也完全没有回答 HC4 进一步改善小样本、尤其有影响力观测场景的背景。",
+          "failure_category": "missing_requested_comparison",
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-03",
+            "point_id": "P2"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00188"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[11].output.answer",
+              "quote": "N1转述特定小样本研究中HC3较好的表现"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00188"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        },
+        {
+          "point_id": "P3",
+          "result": "pass",
+          "reason": "明确 HC 独立误差条件与 HAC 自相关范围，并拒绝由 HC3 或 HC/HAC 名称保证短个人序列有效，未判定个人停滞。",
+          "failure_category": null,
+          "rubric_reference": {
+            "cases_sha256": "4a0d3da8696855761fea41e103e029cd2e525555624fb0076cd688dbfe3a1cfb",
+            "case_id": "R6-N1-03",
+            "point_id": "P3"
+          },
+          "rubric_evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "output_evidence": [
+            {
+              "json_path": "$.cases[11].output.answer",
+              "quote": "HC3也不会自动解决时间依赖"
+            },
+            {
+              "json_path": "$.cases[11].output.answer",
+              "quote": "HC/HAC名称和有限样本修正不能认证任意短训练序列"
+            }
+          ],
+          "rubric_spans_also_present_in_output_citations": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "prohibited_assertion_observed": false,
+          "locator_overlap_is_not_semantic_credit": true
+        }
+      ],
+      "dimensions": {
+        "answer_completeness": {
+          "result": "partial",
+          "reason": "渐近与小样本改进背景和个人连续记录边界已解释，但 HC3 的有影响力观测解释及 HC4 背景均遗漏。"
+        },
+        "scope": {
+          "result": "pass",
+          "reason": "已作出的实质解释保留来源人群、研究设计或方法条件；未观察到越界的个人处方、诊断或统计保证。"
+        },
+        "unsupported_numeric_or_clinical_assertions": {
+          "observed": false,
+          "reason": "检查了实际 answer、claims.text 与 limits；没有给出未经支持的个人训练数值、临床诊断、个人平台或统计有效性保证。"
+        },
+        "locatability": {
+          "result": "pass",
+          "reason": "已回答的主要实质主张带有可对应已读来源版本的精确 span_id；遗漏要点不会因它们也出现在引用清单中而获分。"
+        }
+      },
+      "notes": [
+        "末尾称尚未回答的等效方法范围及不显著问题并非本题所问重点；这是目标标注偏移，不据该自报状态加减语义分。",
+        "N1 答复有较长且重复的来源定位列表；只核对相关含义与具体位置，不按引用数量给分。"
+      ]
+    }
+  ],
+  "overall_conclusion": "本轮主要失败在回答完整性：三题完全未答，其余六题漏掉部分可由已给正文解释的内容。三题完整通过。未观察到无依据个人数字、临床结论或个人统计保证；这不弥补未答，也不是个人有效性验证。"
+}

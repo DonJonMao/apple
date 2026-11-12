@@ -104,5 +104,6 @@ def _render(workbench):
             st.write({"source_id": row["source_id"], "title": manifest["title"], "edition": manifest.get("edition"),
                       "source_kind": manifest.get("source_kind"), "official_urls": manifest.get("official_urls")})
         st.write({"registered_rule_count": core["distinct_rule_count"], "effective_rule_count": core["effective_rule_count"]})
-        st.json(core["chapter_coverage"])
+        st.caption("当前正文状态按有效解析、许可和来源状态重新核对。预置主题尚未逐项关联时，已取得正文也不代表该主题完整覆盖；主张及规则审核另列。原始登记状态保留供追溯。")
+        st.json(core["current_chapter_coverage"])
         st.json(core["rules"])

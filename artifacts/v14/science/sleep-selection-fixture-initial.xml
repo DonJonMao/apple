@@ -1,0 +1,33 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="8" time="7.253" timestamp="2026-11-12T10:24:23.703265+08:00"><testcase classname="tests.integration.test_sleep_episode_selection" name="test_normal_page_can_declare_two_nights_without_guessing_main_episode" time="3.541" /><testcase classname="tests.integration.test_sleep_episode_selection" name="test_declaration_cannot_appear_at_an_earlier_cutoff" time="0.624" /><testcase classname="tests.integration.test_sleep_episode_selection" name="test_source_change_requires_reconfirmation_without_substituting_another_watch[revision]" time="0.623"><failure message="sqlite3.OperationalError: no such column: operation">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-374/test_source_change_requires_re0')
+change = 'revision'
+
+    @pytest.mark.parametrize("change", ["revision", "deleted"])
+    def test_source_change_requires_reconfirmation_without_substituting_another_watch(tmp_path, change):
+        repo = sleep_repo(tmp_path)
+        selected = declaration_selection(repo)
+        before = analyze(repo, cutoff_time="2026-11-21T00:00:00Z", timezone_name="UTC", context={"sleep_selection": selected})
+        assert before["metrics"]["STATE-SLEEP-MAIN"]["value"]["observed_minutes"] == 420
+        if change == "revision":
+            repo.conn.execute("UPDATE health_sample SET end_utc='2026-11-18T05:00:00Z' WHERE source_name='Synthetic Watch A' AND end_utc LIKE '2026-11-18%'")
+        else:
+            repo.conn.execute("UPDATE health_sample SET record_status='deleted' WHERE source_name='Synthetic Watch A'")
+&gt;       repo.conn.execute("UPDATE source_revision SET available_at='2026-11-21T01:00:00Z' WHERE table_name='health_sample' AND record_id IN (SELECT id FROM health_sample WHERE source_name='Synthetic Watch A') AND operation='update'")
+E       sqlite3.OperationalError: no such column: operation
+
+tests/integration/test_sleep_episode_selection.py:128: OperationalError</failure></testcase><testcase classname="tests.integration.test_sleep_episode_selection" name="test_source_change_requires_reconfirmation_without_substituting_another_watch[deleted]" time="0.622"><failure message="sqlite3.OperationalError: no such column: operation">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-374/test_source_change_requires_re1')
+change = 'deleted'
+
+    @pytest.mark.parametrize("change", ["revision", "deleted"])
+    def test_source_change_requires_reconfirmation_without_substituting_another_watch(tmp_path, change):
+        repo = sleep_repo(tmp_path)
+        selected = declaration_selection(repo)
+        before = analyze(repo, cutoff_time="2026-11-21T00:00:00Z", timezone_name="UTC", context={"sleep_selection": selected})
+        assert before["metrics"]["STATE-SLEEP-MAIN"]["value"]["observed_minutes"] == 420
+        if change == "revision":
+            repo.conn.execute("UPDATE health_sample SET end_utc='2026-11-18T05:00:00Z' WHERE source_name='Synthetic Watch A' AND end_utc LIKE '2026-11-18%'")
+        else:
+            repo.conn.execute("UPDATE health_sample SET record_status='deleted' WHERE source_name='Synthetic Watch A'")
+&gt;       repo.conn.execute("UPDATE source_revision SET available_at='2026-11-21T01:00:00Z' WHERE table_name='health_sample' AND record_id IN (SELECT id FROM health_sample WHERE source_name='Synthetic Watch A') AND operation='update'")
+E       sqlite3.OperationalError: no such column: operation
+
+tests/integration/test_sleep_episode_selection.py:128: OperationalError</failure></testcase><testcase classname="tests.integration.test_sleep_episode_selection" name="test_duplicate_episodes_and_invalid_attribution_cannot_gain_extra_nights" time="0.618" /><testcase classname="tests.integration.test_sleep_episode_selection" name="test_main_sleep_support_allows_exact_window_end_without_future_support[2026-11-18T05:59:59.999999Z-True-419.99999998333334]" time="0.092" /><testcase classname="tests.integration.test_sleep_episode_selection" name="test_main_sleep_support_allows_exact_window_end_without_future_support[2026-11-18T06:00:00Z-True-420]" time="0.183" /><testcase classname="tests.integration.test_sleep_episode_selection" name="test_main_sleep_support_allows_exact_window_end_without_future_support[2026-11-18T06:00:00.000001Z-False-None]" time="0.094" /></testsuite></testsuites>

@@ -1,0 +1,30 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.929" timestamp="2026-11-12T10:14:17.310882+08:00"><testcase classname="tests.integration.test_reference_mass_confirmation" name="test_switching_body_mass_source_requires_new_confirmation" time="4.177"><failure message="AssertionError: assert True is False&#10; +  where True = Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较').value&#10; +    where Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较') = WidgetList(_list=[Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较'), Checkbox(label='允许把当前结构化证据发送至已配置 AI 服务')])(key='analysis_reference_mass_confirm')&#10;[+1 more line; full report in element text]">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-362/test_switching_body_mass_sourc0')
+
+    def test_switching_body_mass_source_requires_new_confirmation(tmp_path):
+        path = tmp_path / "mass-confirmation.sqlite3"
+        repo = Repository(path)
+        references, masses = populated(repo, tmp_path)
+        repo.close()
+        app = AppTest.from_string(
+            "from healthzip.db.repository import Repository\n"
+            "from healthzip.analytics.v13 import analyze\n"
+            "from healthzip.ui.analysis_page import render_analysis\n"
+            f"repo=Repository({str(path)!r})\n"
+            f"render_analysis(repo, {{'v13':analyze(repo,cutoff_time={CUTOFF!r},timezone_name='UTC')}})\n"
+            "repo.close()"
+        ).run(timeout=30)
+        app.selectbox(key="analysis_reference_record").select("strength_set:" + references[1]["set_uuid"]).run(timeout=30)
+        app.selectbox(key="analysis_reference_mass").select("health_sample:" + str(masses[1]["id"])).run(timeout=30)
+        app.checkbox(key="analysis_reference_mass_confirm").check().run(timeout=30)
+        app.button(key="analysis_reference_submit").click().run(timeout=30)
+        assert app.session_state["analysis_reference_result"]["metrics"]["STR-30"]["value"]["ratio"] == pytest.approx(.75)
+    
+        # A different scale is a different observation even on the same local day.
+        app.selectbox(key="analysis_reference_mass").select("health_sample:" + str(masses[2]["id"])).run(timeout=30)
+&gt;       assert app.checkbox(key="analysis_reference_mass_confirm").value is False
+E       AssertionError: assert True is False
+E        +  where True = Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较').value
+E        +    where Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较') = WidgetList(_list=[Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较'), Checkbox(label='允许把当前结构化证据发送至已配置 AI 服务')])(key='analysis_reference_mass_confirm')
+E        +      where WidgetList(_list=[Checkbox(key='analysis_reference_mass_confirm', label='已核对所选体重适合与该次负荷记录并列比较'), Checkbox(label='允许把当前结构化证据发送至已配置 AI 服务')]) = AppTest(\n    _script_path='/tmp/tmpxxt_tn2d/bb83cec25e0c4fef905e34de7e7348bd',\n    default_timeout=3,\n    _session_sta...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).checkbox
+
+tests/integration/test_reference_mass_confirmation.py:31: AssertionError</failure></testcase></testsuite></testsuites>

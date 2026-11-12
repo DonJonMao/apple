@@ -288,7 +288,10 @@ def core_principles(w, route, context, release_id=None):
 
 
 def core_status(w):
+    from .coverage import current_chapter_coverage
+
     claims = [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version,status FROM source_claim")]
+    registered_coverage = [dict(r) for r in w.lib.sources.execute("SELECT * FROM chapter_coverage")]
     rules = []
     for row in w.lib.theories.execute("SELECT * FROM application_rule ORDER BY rule_id,version"):
         payload = json.loads(row["payload_json"])
@@ -310,7 +313,8 @@ def core_status(w):
             "effective_candidate_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] in {"plan_candidate", "trial_candidate"}}),
             "effective_explanation_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] == "source_explanation"}),
             "effective_record_rule_count": len({r["rule_id"] for r in rules if r["effective"] and r["capability"] in RECORD_POLICY["capabilities"]}),
-            "chapter_coverage": [dict(r) for r in w.lib.sources.execute("SELECT * FROM chapter_coverage")],
+            "chapter_coverage": registered_coverage,
+            "current_chapter_coverage": current_chapter_coverage(w, registered_coverage),
             "independent_human_review_count": 0}
 
 

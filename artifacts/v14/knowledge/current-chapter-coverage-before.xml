@@ -1,0 +1,142 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="2.873" timestamp="2026-11-12T10:15:35.103800+08:00"><testcase classname="tests.unit.test_current_chapter_coverage" name="test_actual_knowledge_page_distinguishes_available_body_from_unmapped_seed_topic" time="1.710"><failure message="assert False&#10; +  where False = any(&lt;generator object test_actual_knowledge_page_distinguishes_available_body_from_unmapped_seed_topic.&lt;locals&gt;.&lt;genexpr&gt; at 0xffff9add8820&gt;)">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9ad5b310&gt;
+
+    def test_actual_knowledge_page_distinguishes_available_body_from_unmapped_seed_topic(library):
+        old = library.lib.sources.execute("SELECT * FROM chapter_coverage").fetchall()
+        content(library)
+        app = AppTest.from_string(f'''from healthzip.knowledge import KnowledgeWorkbench
+    from healthzip.ui.knowledge_page import _render
+    w=KnowledgeWorkbench({str(library.root)!r}, environment_kind="synthetic_test")
+    try: _render(w)
+    finally: w.close()
+    ''').run()
+        assert not app.exception
+        displayed = [json.loads(item.value) for item in app.json]
+&gt;       assert any(isinstance(value, list) and any(isinstance(row, dict)
+            and row.get("source_id") == "S1"
+            and row.get("material_status") == "source_content_available_topic_mapping_pending"
+            for row in value) for value in displayed)
+E       assert False
+E        +  where False = any(&lt;generator object test_actual_knowledge_page_distinguishes_available_body_from_unmapped_seed_topic.&lt;locals&gt;.&lt;genexpr&gt; at 0xffff9add8820&gt;)
+
+tests/unit/test_current_chapter_coverage.py:45: AssertionError</failure></testcase><testcase classname="tests.unit.test_current_chapter_coverage" name="test_current_coverage_uses_material_depth_and_actual_rights[metadata-True-missing_source_content]" time="0.063"><failure message="KeyError: 'current_chapter_coverage'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedbdfb710&gt;
+material = 'metadata', allowed = True, status = 'missing_source_content'
+
+    @pytest.mark.parametrize("material,allowed,status", [
+        ("metadata", True, "missing_source_content"),
+        ("fulltext", False, "source_content_present_unavailable"),
+        ("fulltext", True, "source_content_available_topic_mapping_pending"),
+    ])
+    def test_current_coverage_uses_material_depth_and_actual_rights(library, material, allowed, status):
+        content(library, material=material, allowed=allowed)
+&gt;       assert current(library)["material_status"] == status
+               ^^^^^^^^^^^^^^^^
+
+tests/unit/test_current_chapter_coverage.py:64:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedbdfb710&gt;
+source = 'S1', chapter = 'section-1'
+
+    def current(w, source="S1", chapter="section-1"):
+&gt;       return next(r for r in w.core_status()["current_chapter_coverage"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if r["source_id"] == source and r["chapter_id"] == chapter)
+E       KeyError: 'current_chapter_coverage'
+
+tests/unit/test_current_chapter_coverage.py:30: KeyError</failure></testcase><testcase classname="tests.unit.test_current_chapter_coverage" name="test_current_coverage_uses_material_depth_and_actual_rights[fulltext-False-source_content_present_unavailable]" time="0.060"><failure message="KeyError: 'current_chapter_coverage'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9adaad50&gt;
+material = 'fulltext', allowed = False
+status = 'source_content_present_unavailable'
+
+    @pytest.mark.parametrize("material,allowed,status", [
+        ("metadata", True, "missing_source_content"),
+        ("fulltext", False, "source_content_present_unavailable"),
+        ("fulltext", True, "source_content_available_topic_mapping_pending"),
+    ])
+    def test_current_coverage_uses_material_depth_and_actual_rights(library, material, allowed, status):
+        content(library, material=material, allowed=allowed)
+&gt;       assert current(library)["material_status"] == status
+               ^^^^^^^^^^^^^^^^
+
+tests/unit/test_current_chapter_coverage.py:64:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff9adaad50&gt;
+source = 'S1', chapter = 'section-1'
+
+    def current(w, source="S1", chapter="section-1"):
+&gt;       return next(r for r in w.core_status()["current_chapter_coverage"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if r["source_id"] == source and r["chapter_id"] == chapter)
+E       KeyError: 'current_chapter_coverage'
+
+tests/unit/test_current_chapter_coverage.py:30: KeyError</failure></testcase><testcase classname="tests.unit.test_current_chapter_coverage" name="test_current_coverage_uses_material_depth_and_actual_rights[fulltext-True-source_content_available_topic_mapping_pending]" time="0.063"><failure message="KeyError: 'current_chapter_coverage'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53bdd0&gt;
+material = 'fulltext', allowed = True
+status = 'source_content_available_topic_mapping_pending'
+
+    @pytest.mark.parametrize("material,allowed,status", [
+        ("metadata", True, "missing_source_content"),
+        ("fulltext", False, "source_content_present_unavailable"),
+        ("fulltext", True, "source_content_available_topic_mapping_pending"),
+    ])
+    def test_current_coverage_uses_material_depth_and_actual_rights(library, material, allowed, status):
+        content(library, material=material, allowed=allowed)
+&gt;       assert current(library)["material_status"] == status
+               ^^^^^^^^^^^^^^^^
+
+tests/unit/test_current_chapter_coverage.py:64:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53bdd0&gt;
+source = 'S1', chapter = 'section-1'
+
+    def current(w, source="S1", chapter="section-1"):
+&gt;       return next(r for r in w.core_status()["current_chapter_coverage"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if r["source_id"] == source and r["chapter_id"] == chapter)
+E       KeyError: 'current_chapter_coverage'
+
+tests/unit/test_current_chapter_coverage.py:30: KeyError</failure></testcase><testcase classname="tests.unit.test_current_chapter_coverage" name="test_superseded_parse_never_counts_as_current_material" time="0.063"><failure message="KeyError: 'current_chapter_coverage'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53b210&gt;
+
+    def test_superseded_parse_never_counts_as_current_material(library):
+        old = content(library)
+        new = content(library, allowed=False, parser="synthetic-coverage-2")
+        with library.lib.sources:
+            library.lib.sources.execute("INSERT INTO parse_supersession VALUES(?,?,?,?)",
+                (old, new, "Synthetic corrected parse", now()))
+&gt;       row = current(library)
+              ^^^^^^^^^^^^^^^^
+
+tests/unit/test_current_chapter_coverage.py:79:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53b210&gt;
+source = 'S1', chapter = 'section-1'
+
+    def current(w, source="S1", chapter="section-1"):
+&gt;       return next(r for r in w.core_status()["current_chapter_coverage"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if r["source_id"] == source and r["chapter_id"] == chapter)
+E       KeyError: 'current_chapter_coverage'
+
+tests/unit/test_current_chapter_coverage.py:30: KeyError</failure></testcase><testcase classname="tests.unit.test_current_chapter_coverage" name="test_authorized_chapter_import_keeps_exact_edition_gaps_and_current_state" time="0.061"><failure message="KeyError: 'current_chapter_coverage'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53af90&gt;
+
+    def test_authorized_chapter_import_keeps_exact_edition_gaps_and_current_state(library):
+        source = "CORE-NSCA-ESTC-5"
+        edition = source + ":edition-5"
+        content(library, source, locator={"chapter_id": "2", "edition_id": "other-edition"})
+&gt;       assert current(library, source, "2")["material_status"] == "missing_source_content"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_current_chapter_coverage.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+w = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffedb53af90&gt;
+source = 'CORE-NSCA-ESTC-5', chapter = '2'
+
+    def current(w, source="S1", chapter="section-1"):
+&gt;       return next(r for r in w.core_status()["current_chapter_coverage"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if r["source_id"] == source and r["chapter_id"] == chapter)
+E       KeyError: 'current_chapter_coverage'
+
+tests/unit/test_current_chapter_coverage.py:30: KeyError</failure></testcase></testsuite></testsuites>

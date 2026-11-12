@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-11-12T02:20:08.006813+00:00",
+  "supersedes_interpretation_of": "identity-continuity-audit.json",
+  "previous_evidence_preserved": true,
+  "review_finding": "The first fix ignored the name in the language used for identity review. Such a name may contain a physical variant (for example incline); unchanged description alone cannot establish continuity.",
+  "corrected_policy": "The identity-locator translation name and description both remain in the comparison against the original reviewed raw record. Changes to other-language labels, aliases, media and timestamps remain presentation changes. Equipment/variation and other identity fields must also agree.",
+  "test_revision": "The previous translation_name positive case was overly broad because it renamed the reviewed-language source title. It is retained in the first historical test receipt; the current positive case changes the non-reviewed Chinese translation, while a new identity_name negative case changes the reviewed-language title and must require review. No old test/evaluation receipt was overwritten.",
+  "verification": [
+    {
+      "file": "identity-continuity-name-before.xml",
+      "raw_sha256": "dfef8e5d85ab6fce8109f7cbc50ab39dc976a7c0ea6b4acd81262e09c71d8ea5",
+      "published_sha256": "fee64187c914b5bc0c6257ce9eb5d3a8541022f9d1ba765581713a7c28bc597b",
+      "tests": 6,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.09
+    },
+    {
+      "file": "identity-continuity-name-regression.xml",
+      "raw_sha256": "3aea2a65522dd82d5e06b410361344ad87574f79215d31a7278815ac65f3902f",
+      "published_sha256": "3aea2a65522dd82d5e06b410361344ad87574f79215d31a7278815ac65f3902f",
+      "tests": 47,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 13.902
+    }
+  ],
+  "ruff": "Passed for changed source/test files.",
+  "source_sha256": {
+    "src/healthzip/training/catalog_import.py": "fea5c9f312bfbb16356112a6754304a22147f91c1591a6a19bbb6450521b8359",
+    "tests/training/test_v14_catalog.py": "5656d4f393aa0f25bd86413bb85e3269049f44b4475af524c3d8d2efe0e3df67"
+  },
+  "limitations": [
+    "A newly installed snapshot lacking the originally reviewed source bytes still requires identity review.",
+    "This change grants no scientific or professional approval.",
+    "Frozen snapshots, local/private databases, offline ZIPs and earlier evidence were not regenerated."
+  ]
+}

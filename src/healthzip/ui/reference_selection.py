@@ -35,6 +35,10 @@ def render_reference_selection(repo, analysis):
             key="analysis_reference_mass", placeholder="明确选择体重来源",
             format_func=lambda key: (f"{masses[key]['observed_at']} · {masses[key]['normalization']['value']:.3f} kg · "
                 f"{masses[key]['source_name'] or '来源未记录'} · {key}"))
+        confirmed_pair = (*binding, mass_id)
+        if st.session_state.get("analysis_reference_confirmed_pair") != confirmed_pair:
+            st.session_state["analysis_reference_confirmed_pair"] = confirmed_pair
+            st.session_state["analysis_reference_mass_confirm"] = False
         confirmed = st.checkbox("已核对所选体重适合与该次负荷记录并列比较", key="analysis_reference_mass_confirm")
         st.caption("只列同一本地日且单位已验证的体重；这是一项时间对齐规则，不证明测量条件相同。不会自动选择最近记录或合并不同秤。")
         if reference:
@@ -48,7 +52,7 @@ def render_reference_selection(repo, analysis):
             from healthzip.analytics.v13 import analyze, persist
             selected = analyze(repo, window_days=analysis.get("window_days", 30), cutoff_time=analysis["cutoff_time"],
                 timezone_name=analysis["timezone"], retrospective=analysis.get("retrospective", False),
-                period=analysis.get("period"), context={"reference_selection": selection})
+                period=analysis.get("period"), context={**analysis.get("selection_context", {}), "reference_selection": selection})
             persist(repo, selected)
             st.session_state["analysis_reference_result"] = selected
             st.session_state["analysis_reference_signature"] = signature

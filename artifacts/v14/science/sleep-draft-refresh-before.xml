@@ -1,0 +1,37 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="8.312" timestamp="2026-11-12T10:34:26.229743+08:00"><testcase classname="tests.integration.test_sleep_draft_refresh" name="test_automatic_minute_refresh_preserves_declared_night_and_main_choice" time="3.148"><failure message="AssertionError: assert [] == [{'id': 'slee...-11-18', ...}]&#10;  &#10;  Right contains one more item: {'id': 'sleep-declaration:d5a20081f290703e6890436d1c8c8fdddafde6dfd5c45c6375923df9538d9721', 'start': '2026-11-17T23:00:00Z', 'end': '2026-11-18T06:00:00Z', 'attribution_date': '2026-11-18', ...}&#10;  Use -v to get more diff">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-380/test_automatic_minute_refresh_0')
+
+    def test_automatic_minute_refresh_preserves_declared_night_and_main_choice(tmp_path):
+        app = draft_app(tmp_path)
+        original = app.session_state["analysis_sleep_declarations"]
+        app.selectbox(key="analysis_sleep_main").select(original[0]["id"]).run(timeout=30)
+        app.session_state["test_clock"] = "2026-11-18T12:01:01+00:00"
+        app.run(timeout=30)
+&gt;       assert app.session_state["analysis_sleep_declarations"] == original
+E       AssertionError: assert [] == [{'id': 'slee...-11-18', ...}]
+E         
+E         Right contains one more item: {'id': 'sleep-declaration:d5a20081f290703e6890436d1c8c8fdddafde6dfd5c45c6375923df9538d9721', 'start': '2026-11-17T23:00:00Z', 'end': '2026-11-18T06:00:00Z', 'attribution_date': '2026-11-18', ...}
+E         Use -v to get more diff
+
+tests/integration/test_sleep_draft_refresh.py:46: AssertionError</failure></testcase><testcase classname="tests.integration.test_sleep_draft_refresh" name="test_rolling_episode_really_leaving_window_is_explicitly_invalidated" time="2.195"><failure message="assert False&#10; +  where False = any(&lt;generator object test_rolling_episode_really_leaving_window_is_explicitly_invalidated.&lt;locals&gt;.&lt;genexpr&gt; at 0xfffec40f7920&gt;)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-380/test_rolling_episode_really_le0')
+
+    def test_rolling_episode_really_leaving_window_is_explicitly_invalidated(tmp_path):
+        app = draft_app(tmp_path, days=1)
+        app.session_state["test_clock"] = "2026-11-18T23:00:00.000001+00:00"
+        app.run(timeout=30)
+        assert app.session_state["analysis_sleep_declarations"] == []
+&gt;       assert any("窗口" in warning.value for warning in app.warning)
+E       assert False
+E        +  where False = any(&lt;generator object test_rolling_episode_really_leaving_window_is_explicitly_invalidated.&lt;locals&gt;.&lt;genexpr&gt; at 0xfffec40f7920&gt;)
+
+tests/integration/test_sleep_draft_refresh.py:62: AssertionError</failure></testcase><testcase classname="tests.integration.test_sleep_draft_refresh" name="test_user_window_change_clears_draft_with_explanation" time="2.205"><failure message="assert False&#10; +  where False = any(&lt;generator object test_user_window_change_clears_draft_with_explanation.&lt;locals&gt;.&lt;genexpr&gt; at 0xfffec409dff0&gt;)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-380/test_user_window_change_clears0')
+
+    def test_user_window_change_clears_draft_with_explanation(tmp_path):
+        app = draft_app(tmp_path)
+        app.session_state["test_days"] = 7
+        app.run(timeout=30)
+        assert app.session_state["analysis_sleep_declarations"] == []
+&gt;       assert any("窗口" in warning.value for warning in app.warning)
+E       assert False
+E        +  where False = any(&lt;generator object test_user_window_change_clears_draft_with_explanation.&lt;locals&gt;.&lt;genexpr&gt; at 0xfffec409dff0&gt;)
+
+tests/integration/test_sleep_draft_refresh.py:72: AssertionError</failure></testcase></testsuite></testsuites>

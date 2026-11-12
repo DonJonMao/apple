@@ -1,0 +1,129 @@
+{
+  "baseline_commit": "049d48b9e5e563c399157f69576e11f8085d0189",
+  "scope": "Fresh bounded audit of ordinary training/review/analysis entry points, then fixes for two confirmed UI integration defects; not a claim of all 77 scientific capabilities being validated.",
+  "findings": [
+    {
+      "id": "UI-MASS-CONFIRMATION",
+      "trigger": "Confirm scale A then select scale B on the same date.",
+      "cause": "Confirmation reset was bound to the reference record and analysis snapshot, but not to the selected mass record.",
+      "fix": "Bind confirmation to snapshot + reference ID + mass ID; source change clears confirmation and hides stale output. B0 remains available without a confirmed mass.",
+      "before": "reference-mass-confirmation-before.xml",
+      "verification": "tests/integration/test_reference_mass_confirmation.py"
+    },
+    {
+      "id": "UI-SLEEP-DECLARATIONS",
+      "trigger": "Import valid sleep data and use the normal analysis page without direct context injection.",
+      "cause": "STATE-SLEEP-MAIN and STATE-SLEEP-TIMING had only science-API context consumers and no normal declaration producer.",
+      "fix": "Explicit source and nonoverlapping per-night boundary/date declarations; optional main episode; real declaration time, source revision binding, persisted analysis context and downloadable result.",
+      "before": "sleep-selection-entry-before.xml",
+      "verification": "tests/integration/test_sleep_episode_selection.py",
+      "boundaries": [
+        "No inferred main episode or complete-night claim.",
+        "No pooling across selected watches.",
+        "Future declarations or unavailable/deleted/corrected source versions require review.",
+        "Current-time reanalysis never silently moves an old month; out-of-window selection keeps the old visible result.",
+        "Exact window end is allowed as interval support; timing still uses episode-end half-open membership.",
+        "Declared boundary midpoints do not claim measured sleep onset."
+      ]
+    },
+    {
+      "id": "UI-SLEEP-DRAFT-REFRESH",
+      "trigger": "Add a sleep declaration through the normal automatic analysis page, then cross a one-minute analysis refresh without changing the source records.",
+      "cause": "The draft identity included exact moving window_start and the complete source inventory, clearing drafts on harmless refresh or unrelated records.",
+      "fix": "Bind drafts to logical mode/window days/period/timezone/source; validate only each episode’s actual supporting versions. Preserve unchanged declarations and main selection; explicitly remove truly out-of-window or revised-source episodes. Calendar and user-selected window changes clear drafts with an explanation.",
+      "before": "sleep-draft-refresh-before.xml",
+      "verification": "tests/integration/test_sleep_draft_refresh.py",
+      "independent_scientific_validation_cases": 0
+    }
+  ],
+  "fixture_correction": {
+    "artifact": "sleep-selection-fixture-initial.xml",
+    "details": "Two new tests initially referenced nonexistent source_revision.operation; corrected fixture to the actual before/after revision_id boundary. Business assertions unchanged."
+  },
+  "remaining_performance_boundary": {
+    "status": "identified_by_source_audit_not_new_benchmark",
+    "details": "analytics.v13.snapshot bounds health-source rows but history_as_of, sessions_as_of, audit_events and recommendation loading still replay training history. Candidate current-use/feedback rendering can repeat this work. Existing Apple 10k/100k/1m benchmarks do not establish large training-event throughput.",
+    "paths": [
+      "src/healthzip/analytics/v13.py",
+      "src/healthzip/training/service.py",
+      "src/healthzip/ui/recommendation_page.py",
+      "src/healthzip/advice.py"
+    ]
+  },
+  "new_human_reviews": 0,
+  "new_real_personal_calibration": 0,
+  "independent_scientific_validation_cases": 0,
+  "evidence": [
+    {
+      "path": "artifacts/v14/science/reference-mass-confirmation-before.xml",
+      "raw_private_sha256": "5591da84e412c0495fc98cd604f774e0696fd0e7e6903fc3fb8284e25fb3e78e",
+      "public_sha256": "e9cbd5d04ac106f716d6a1e0a8f4919f34f6c402b274c8a7ab62faf8138edf52",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 4.929,
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/science/sleep-selection-entry-before.xml",
+      "raw_private_sha256": "756a7479cd2ebd5205289126f4f8b52eab550c309ffbf8eb3e8d89fb35285635",
+      "public_sha256": "6f9fe35c2ca64bbb3517f45fd5f16da683e9716ecb7b99574416d0f191c9b421",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.03,
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/science/sleep-selection-fixture-initial.xml",
+      "raw_private_sha256": "88aa3f9907c683dde0fa4e56db678861c1de77882fb233fa44f1b9afb5ff555e",
+      "public_sha256": "fc2b3dd833d7be397e5088665112d8cb38592b252dd915375034246da40d19bc",
+      "tests": 8,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 7.253,
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/science/sleep-selection-reference-verification.xml",
+      "raw_private_sha256": "340b9b4675921a991e062ac12d610fece36e53de86a0a958b90ef81cad3b05cc",
+      "public_sha256": "12d681b38187c8a1d25ce35f5a8c931b4b146d20579019e3e1327d673bdf1cb1",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 39.401,
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/science/sleep-draft-refresh-before.xml",
+      "raw_private_sha256": "e7e76935f55feecefc918bbeca0a908a46d64691236c1d99afbf28f2f123e9e8",
+      "public_sha256": "d91b3a6d8865345f527782db86a68bf6cad09cdeabbe703322c03c5d8960258c",
+      "tests": 3,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 8.312,
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/science/sleep-draft-refresh-verification.xml",
+      "raw_private_sha256": "a0d1211d703d622ea56ab501608cf9fce70f29bd0b7f98a2dd9e2151fa8c2053",
+      "public_sha256": "501500ddbdf5159f58fe2b5df66367c7b0ddf66e573f86866fec55bb7c53366f",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 27.772,
+      "test_results_changed": false
+    }
+  ],
+  "versions": {
+    "science": "healthzip-science-1.4.3",
+    "analysis": "healthzip-v1.4.3",
+    "cache": "analysis-cache-v1.4.3"
+  }
+}

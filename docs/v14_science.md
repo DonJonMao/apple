@@ -37,7 +37,7 @@ STR28 `strata` 按 strategy/task_id/rule_versions 保存分母与未知；缺元
 
 后续记录须在用户窗口内、晚于执行且来自另一场次；条件、协议、负荷层和有效参考资格匹配才给出观察差值，换器械、换负荷与质量问题列出排除原因。未执行、部分或未知执行、窗口待观察、已观察及窗口结束无可比记录分别计数；采纳、明确执行及完整目标结果使用各自分母。跨月候选按 `predeclared_followup_overlap` 明确进入窗口重叠的报告，未伪造新的事件时间。新修订或删除只影响相应可见截止时点；较晚派生快照不能复用到较早截止点。`causal_effect` 始终为空，完成或后续改善不代表策略导致改善。
 
-当前新增语义统一使用 `healthzip-science-1.4.2`、`healthzip-v1.4.2` 和 `analysis-cache-v1.4.2`，旧冻结结果及旧验证工件保持原身份。实际 Repository 与页面验证见 `tests/integration/test_v14_followup_report.py`、`followup-final-tests-20261112.xml`（220项相关回归）及其后单位一致性补充 `followup-units-final-tests-20261112.xml`（17项）；前后结果见 `followup-completion-after-20261112.json`、`followup-unit-conversion-20261112.json`。这些均为实现作者的合成软件证据，独立科学验证分母为0。
+上述随访语义首次发布使用 `healthzip-science-1.4.2`、`healthzip-v1.4.2` 和 `analysis-cache-v1.4.2`，旧冻结结果及旧验证工件保持原身份。实际 Repository 与页面验证见 `tests/integration/test_v14_followup_report.py`、`followup-final-tests-20261112.xml`（220项相关回归）及其后单位一致性补充 `followup-units-final-tests-20261112.xml`（17项）；前后结果见 `followup-completion-after-20261112.json`、`followup-unit-conversion-20261112.json`。这些均为实现作者的合成软件证据，独立科学验证分母为0。
 
 知识原则的 `permitted_actions` 与用户请求动作取交集；STR25 必须显式有 `double_progression`，STR26 必须有对应的具体动作。缺失字段不继承宽泛 capability 的全部权限；每个输出动作列出对应规则版本。隔离正例明确声明测试动作许可，不修改生产规则的审阅事实。
 
@@ -59,7 +59,17 @@ STR05/06 的历史映射要求改为实际逐组合同：只消费 `reviewed_ana
 
 补充睡眠上下文审计修复了三条时间路径。`STATE-SLEEP-TIMING` 的显式 `sleep_episodes` 现在先按可用时间选可见修订，再按结束时刻落入半开窗口；缺 `available_at` 只能在明确回顾模式使用并标记，未来可用、窗外和被更正的旧会话不能进入。中点仍按真实时间跨度计算，原始带偏移的开始/结束时间、指定时区、来源ID及可用时间分别保留，计数域为睡眠会话。`STATE-SLEEP-STAGE` 指定主睡眠会话时先将分期支持裁剪到该会话，防止多夜分子除以单夜分母形成超过1的覆盖率。统一 `select_as_of` 将事件时间过滤放到最新可见修订之后：已知的未来时间更正、未知端点修订和无端点删除都使旧值失效；截止后才获知的修订不改变过去。
 
-这些睡眠会话声明目前由科学API的显式上下文接入；Repository/页面不自动把普通 asleep 区间认作主睡眠。新增12个反例见 `sleep-context-before.xml`，修后与合同、既有指标验收、真实ZIP/Repository及建议时间路径的定点回归为274项通过，见 `sleep-context-regressions.xml`。既有中点/跨时区正例只补上显式合成来源ID和可用时间，原断言未放宽；迁移前3失败/259通过另留 `sleep-context-regressions-initial.xml`。这不构成主睡眠识别算法或设备睡眠分期的临床验证。
+上述睡眠时间修复最初只通过科学API显式上下文接入；新增12个反例见 `sleep-context-before.xml`，修后与合同、既有指标验收、真实ZIP/Repository及建议时间路径的定点回归为274项通过，见 `sleep-context-regressions.xml`。既有中点/跨时区正例只补上显式合成来源ID和可用时间，原断言未放宽；迁移前3失败/259通过另留 `sleep-context-regressions-initial.xml`。这不构成主睡眠识别算法或设备睡眠分期的临床验证。
+
+2026-11-12 对 `049d48b` 的普通入口复核另确认两项缺口：同日切换体重来源会沿用旧来源的匹配确认；睡眠主片段与时点指标虽有API，但普通页面无法声明片段。首次实际失败分别保存在 `reference-mass-confirmation-before.xml`、`sleep-selection-entry-before.xml`。前者现将确认绑定到具体分析快照、参考组和体重记录；改来源必须重新确认，B0仍可独立查看。
+
+分析页新增「声明睡眠片段与主睡眠」：用户明确选择来源，逐晚填写带时区的起止和归属日期，再选择本次主睡眠，或留空只看逐晚边界中点。不会自动把多夜合并或最长片段标为主睡眠。声明保存真实 `declared_at/available_at`、来源记录ID及版本哈希，写入独立分析快照并可下载；原始睡眠资料不修改。来源修订、删除或不可见会使原选择失效，不用另一台设备补位。同一来源仍不重叠计晚；声明的当地日期须落在该片段所涉及日期。主睡眠的区间支持允许终点恰等于窗口终点；时点统计仍按片段结束时刻落入半开窗口，两个计数对象没有混用。
+
+声明不得早于片段结束或所用来源可见时间。保存明确生成当前截止的新分析，保留原快照；若截止更新使旧片段不在新的滚动或周/月窗口内，页面保留旧结果并报告缺项。已有参考负荷/体重选择的上下文会随睡眠重算保留。主睡眠已观察时长仍为 `partial`，不把用户声明解释为整夜设备覆盖证明；边界中点不是实测入睡时间。来源切换、晚到修订、删除、重复片段、等界及±1微秒、旧月拒绝迁移、正常UI保存及参考选择串联由 `test_sleep_episode_selection.py` 等44项回归验证，见 `sleep-selection-reference-verification.xml`。新增来源修订夹具最初使用不存在的数据库列导致2失败/6通过，已按实际revision_id边界修正，诊断保留为 `sleep-selection-fixture-initial.xml`，没有改变业务断言。
+
+本次新增入口使用 `healthzip-science-1.4.3`、`healthzip-v1.4.3`、`analysis-cache-v1.4.3`。完整限定审计及原始/公开诊断哈希见 `product-ui-completion-audit-20261112.json`。未新增专业审核、真人校准或独立科学验证。另一个性能边界仍保留：健康源查询已经按窗口过滤，但训练事件与候选反馈仍可多次重放全训练历史；既有Apple数据规模基准不能外推为大规模训练事件吞吐已验证。
+
+最后的普通页面时钟复核发现睡眠草稿绑定了精确滚动起点，自动分析每分钟刷新会无提示清空已填声明。补充修前3个真实AppTest失败保留为 `sleep-draft-refresh-before.xml`。现以窗口模式、天数、周期、时区和所选来源建立稳定绑定；每个声明只重核实际支持源版本。正常跨分钟刷新及另一晚的无关修订保持声明时间和主睡眠选择；片段确实离开窗口或支持记录改变时明确提示并移除该声明，用户改窗口及周/月换期同样解释清除原因。5个刷新用例与原10个睡眠集成用例共15项通过，见 `sleep-draft-refresh-verification.xml`；前述44项工件保持原结果，未冒充覆盖这一新增边界。
 
 实际服务将映射作为 `condition_json` 的独立冻结注释保存，不改变物理条件键。历史版本回归见 `test_v14_anatomy_history.py`：直接创建并持久化两个版本、较早 cutoff 回放、未知旧记录、另存模板及导出/导入后保留原快照。参数接口可显式采用已有审阅事实，没有自动批准生产肌肉映射。
 

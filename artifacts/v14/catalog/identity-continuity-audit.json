@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-11-12T02:18:01.091582+00:00",
+  "base_commit": "049d48b9e5e563c399157f69576e11f8085d0189",
+  "scope": [
+    "CAT-03",
+    "CAT-04",
+    "CAT-06",
+    "CAT-07",
+    "CAT-08",
+    "CAT-12",
+    "CAT-16"
+  ],
+  "finding": "A whole-record hash invalidated an exact legacy identity after label, media, or timestamp-only source updates, creating a duplicate public ID and removing media from the original ID.",
+  "fix": "Compare against the immutable stored source record originally reviewed, allowing explicit presentation-field changes only; the identity-bearing source fields and review-locator translation body must remain equal. Keep original mapping evidence and add a current comparison receipt.",
+  "regression_boundaries": [
+    "Original ID, definition version, historical condition/name snapshot, private alias, favorites and ready local media survive display refresh.",
+    "Repeated refresh still compares with the original reviewed hash rather than the latest refreshed row.",
+    "Equipment or reviewed identity body changes still require identity review.",
+    "No original reviewed source bytes means no automatic continuity approval."
+  ],
+  "verification": [
+    {
+      "file": "identity-continuity-before.xml",
+      "raw_sha256": "d21aa6bcd10bcd46cc404c01e4c4d3be8e818b9edd798c336e709e3469230ce7",
+      "published_sha256": "ae7acf4e12c5f60e62eaec1a61734dc4bc9dae8ab2862ea4d1ffe6d36d372117",
+      "tests": 5,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.92,
+      "redaction": "synthetic temporary/root path placeholders only"
+    },
+    {
+      "file": "identity-continuity-regression.xml",
+      "raw_sha256": "ab1bf740301094592b2c9ed095978d022c007892909df45219914f3299503971",
+      "published_sha256": "ab1bf740301094592b2c9ed095978d022c007892909df45219914f3299503971",
+      "tests": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 13.222,
+      "redaction": "synthetic temporary/root path placeholders only"
+    }
+  ],
+  "ruff": "Passed for changed source/test files.",
+  "public_snapshot_read_only_recheck": "identity-continuity-public-recheck.json",
+  "audit_notes": {
+    "CAT01_02": "Fresh validate_snapshot checked all 60 pages, raw hashes, completed chain, unique IDs and required foreign keys; 966 unique source entities.",
+    "CAT03_08": "Inspected separate presentation/definition paths, tombstones and historical freeze. Fixed concrete legacy identity continuity regression.",
+    "CAT09_16": "Inspected current Chinese search, stable-ID paging, explicit user recording-mode adoption, local-media details, private-only custom definitions, public export whitelist, offline installed catalog export. Existing real AppTest and browser evidence remains separately frozen; this regression run includes catalog UI AppTest.",
+    "CAT17": "Upstream muscle navigation remains distinct from reviewed anatomy. No production anatomy approval added.",
+    "CAT18_F13": "Existing import/cache/migration tests rerun within 46-test suite; window query resolves cutoff-visible latest revision before final support filtering. Historical 10k/100k/1m benchmark remains explicitly synthetic and was not rerun.",
+    "external_limits": [
+      "AI name drafts remain without human terminology review.",
+      "Four authorized textbook bodies unavailable; professional anatomy relationships not established.",
+      "Existing offline H.264 browser evidence does not establish HEVC compatibility.",
+      "No private full-history export or user target-device performance benchmark performed."
+    ]
+  },
+  "unchanged": [
+    "Frozen source snapshot/database and offline ZIPs",
+    "Default private database",
+    "Original media and independent knowledge evaluation evidence"
+  ]
+}

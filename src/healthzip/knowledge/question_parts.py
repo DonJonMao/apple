@@ -26,6 +26,9 @@ RELATIONS = {
     "failure_definition": "explanation",
     "regression_covariance_scope": "scope",
     "activity_safety_scope": "scope",
+    "training_modality_adherence": "explanation",
+    "aerobic_activity_volume": "explanation",
+    "activity_type_complementarity": "explanation",
 }
 
 LABELS = {
@@ -51,6 +54,9 @@ LABELS = {
     "failure_definition": "瞬时肌肉力竭的定义",
     "regression_covariance_scope": "回归协方差与HC/HAC的适用范围",
     "activity_safety_scope": "安全活动建议的年龄适用范围",
+    "training_modality_adherence": "抗阻训练形式、偏好与坚持",
+    "aerobic_activity_volume": "有氧活动的计入、累计与每周目标",
+    "activity_type_complementarity": "有氧、肌力与柔韧活动的作用和替代边界",
 }
 
 # Finite grammatical families describe concepts and local relations, never whole
@@ -80,8 +86,16 @@ ACTIVITY_SUBJECTS = {
     "adult_guideline_scope": "physical_activity", "activity_increment_size": "physical_activity",
     "progression_rate_factors": "physical_activity", "muscle_strengthening_start": "resistance_training",
     "activity_safety_scope": "physical_activity",
+    "aerobic_activity_volume": "physical_activity",
+    "activity_type_complementarity": "physical_activity",
 }
-ACTIVITY_CONTEXT = r"身体活动|体力活动|肌力活动|肌力训练|肌肉强化|有氧活动|\b(?:physical activity|muscle strengthening|aerobic activity)\b"
+ACTIVITY_CONTEXT = r"身体活动|体力活动|肌力活动|肌力训练|肌肉强化|有氧|\b(?:physical activity|muscle[- ]strengthening|aerobic)\b"
+RESERVE_EFFORT = (
+    r"(?:还|尚|剩|保留).{0,10}(?:能做|能完成|做得了|重复|次数|[一二两三四五六七八九十\d]+次)|"
+    r"储备次数|余次|留几次|接近力竭|足够努力|努力程度|"
+    r"(?<![a-z])rir\s*\d*(?![a-z])|\b(?:reps?|repetitions?) (?:left|remaining|in reserve)\b|"
+    r"\b(?:near failure|sufficient effort)\b"
+)
 PROGRESSION_CHOICE = (
     r"(?:哪些|什么).{0,6}(?:变量|方面|参数).{0,8}(?:改变|调整|增加)|"
     r"(?:改变|调整|增加).{0,4}(?:哪些|什么).{0,6}(?:变量|方面|参数)"
@@ -101,7 +115,7 @@ PATTERNS = {
         r"\b(?:no further|no more|not another)\b.{0,16}\brepetitions?\b.{0,20}\bcompleted?\b",
         r"\b(?:reps?|repetitions?)\b.{0,12}\b(?:cannot|can't|can no longer)\b.{0,16}\bcompleted?\b",
         r"(?:举|推|拉|做|抬|完成)不(?:起来|动|了)", r"不能再完成", r"筋疲力尽", r"\b(?:failure|exhaustion)\b", r"\b(?:cannot|can't|unable to)\b.{0,25}\b(?:rep|repetition|lift)\b"],
-    "effort_precision": [r"(?:还|尚|剩|保留).{0,6}(?:能做|能完成|做得了|重复|次数)", r"储备次数|余次|留几次|接近力竭程度|足够努力|努力程度", r"\b(?:reps?|repetitions?) (?:left|remaining|in reserve)\b"],
+    "effort_precision": [RESERVE_EFFORT],
     "volume": [r"\bhow many\s+(?:(?:training|working|work)\s+)?sets?\b", r"训练总量|总组量|工作组|每个(?:动作|肌群).{0,5}组", r"\b(?:set count|number of sets|training volume|weekly sets|how many sets|sets per)\b", r"\b(?:many|more|fewer|additional|multiple|single|one|two|three|\d+) (?:work |working )?sets?\b"],
     "frequency": [
         r"频次|频率|(?:每周|一周|每星期|一星期).{0,12}(?:练|训练|进行|做|至少|最少).{0,6}(?:几|多少|两|二|三|四|五|六|七|\d+)(?:次|天|日|回)",
@@ -187,6 +201,8 @@ def _lexical_hits(text, vocabulary):
             if outcome == "capability_change" and term in {"一样", "unchanged"}:
                 continue
             pattern = r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])" if term.isascii() else re.escape(term)
+            if outcome == "progression_options" and term == "渐进":
+                pattern = r"(?<!循序)渐进"
             if re.search(pattern, text):
                 found.add(outcome)
                 break
@@ -258,7 +274,9 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         equivalent = True
     negligible = bool(re.search(
         r"(?:差异|差别).{0,22}(?:没有实际重要性|不重要|实际意义很小)|"
-        r"\bdiffer(?:ence|ences)?\b.{0,35}\b(?:unimportant|negligible|not meaningful)\b", clause
+        r"(?:没有|无).{0,5}(?:实质|实际|有意义).{0,6}(?:进步|变化|差异)|有意义的?(?:变化|差异)|"
+        r"\bdiffer(?:ence|ences)?\b.{0,35}\b(?:unimportant|negligible|not meaningful)\b|"
+        r"\b(?:no meaningful (?:change|progress)|meaningful change)\b", clause
     ))
     if not method_context:
         return {"practical_equivalence"} if equivalent else set()
@@ -273,7 +291,7 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         r"repeated (?:measures|measurements)|paired (?:designs?|samples?)|within[- ]subjects?|time series)\b", clause
     ))
     bounds = bool(re.search(
-        r"\bsmallest effect size of interest\b|最小重要效应|小效应.{0,10}(?:分界|界值)|(?:等效界|等效范围).{0,20}(?:依据|设定|确定|选择)|"
+        r"\bsmallest effect size of interest\b|最小重要效应|小效应.{0,10}(?:分界|界值)|(?:等效界|等效范围).{0,20}(?:依据|设定|确定|选择|(?:怎么|怎样|如何).{0,6}[定设选])|"
         r"(?:依据|设(?:定|置)?|确定|选择).{0,20}(?:等效界|等效范围)|"
         r"\bequivalence margins?\b|\bsmall(?:est)?\b.{0,30}\beffects?\b.{0,45}\b(?:boundary|bounds?|meaningful|important|cut[- ]offs?)\b|"
         r"\b(?:justify|justified|choose|chosen|specify|specified|basis)\b.{0,30}\b(?:bounds?|margins?)\b", clause
@@ -292,13 +310,55 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         topics.add("equivalence_design_scope")
     if bounds:
         topics.add("equivalence_margin_basis")
-    if interval or (logic and (not (design or bounds) or re.search(r"逻辑|原理|\blogic\b", clause))):
+    test_criterion = re.search(
+        r"(?:" + TWO_ONE_SIDED_TESTS + r").{0,20}(?:满足|通过|支持|判定|拒绝)|"
+        r"\b(?:criteria|requirements)\b.{0,30}\b(?:tost|two one[- ]sided tests?)\b", clause)
+    if interval or (logic and (not (design or bounds) or test_criterion
+                              or re.search(r"逻辑|原理|\blogic\b", clause))):
         topics.add("equivalence_test_logic")
     if not topics:
         if equivalent or negligible:
             topics.add("practical_equivalence")
         elif non_significant:
             topics.add("non_significance_interpretation")
+    return topics
+
+
+def _personal_series(text):
+    personal = re.search(r"我|个人|同一(?:个)?人|\b(?:my|individual|one person)\b", text)
+    repeated = re.search(
+        r"(?:连续|重复|反复).{0,10}(?:记录|测量|观测)|"
+        r"(?:最近|近期).{0,4}(?:几|多|[二三四五六七八九十\d]+)次.{0,8}(?:表现|成绩|记录)|"
+        r"\b(?:time series|(?:repeated|serial|consecutive) (?:training )?(?:measurements|records|observations))\b", text)
+    split = re.search(r"(?:分|划).{0,6}前后.{0,5}(?:段|组)|\b(?:before and after|pre[- /]?post)\b", text)
+    records = re.search(r"记录|测量|表现|成绩|\b(?:records|measurements|observations|performance)\b", text)
+    return bool(personal and (repeated or (split and records)))
+
+
+def _general_explanation_topics(text, named_subjects):
+    """Require a domain object and a relation, not isolated topic words."""
+    topics = set()
+    resistance = bool(re.search(
+        r"抗阻|力量训练|弹力带|居家训练|\b(?:resistance|strength) training\b|\b(?:resistance bands?|home training)\b", text))
+    resistance |= bool(named_subjects.get("training_modality_adherence") == "resistance_training"
+                       and re.search(r"训练|锻炼|\btraining\b", text))
+    modality = re.search(r"形式|方式|偏好|坚持|依从|\b(?:modalit\w*|forms?|preferences?|adherence)\b", text)
+    selection = re.search(r"选择|考虑|有效|改善|进步|收益|最优|作用|\b(?:choos\w*|select\w*|consider\w*|matter|effective|improv\w*|benefits?|optimal)\b", text)
+    if resistance and modality and selection:
+        topics.add("training_modality_adherence")
+    aerobic = bool(re.search(r"有氧|快走|\b(?:aerobic|brisk walking)\b", text))
+    accumulation = re.search(r"计入|算进|累计|积累|零碎|短时|每周.{0,8}(?:目标|总量)|\b(?:count\w*|accumulat\w*|short bouts?|weekly (?:activity )?(?:targets?|amounts?))\b", text)
+    if aerobic and accumulation:
+        topics.add("aerobic_activity_volume")
+    muscle = bool(re.search(r"肌力活动|肌力训练|肌肉强化|\b(?:muscle[- ]strengthening|strength training)\b", text))
+    flexibility = bool(re.search(r"拉伸|柔韧|\b(?:stretching|flexibility)\b", text))
+    complementary = re.search(r"替代|代替|取代|需要|益处|作用|满足|\b(?:replace\w*|substitut\w*|need|benefits?|contribut\w*|satisf\w*|meet)\b", text)
+    if sum((aerobic, muscle, flexibility)) >= 2 and complementary:
+        topics.add("activity_type_complementarity")
+    activity = re.search(ACTIVITY_CONTEXT + r"|(?:增加|提高)活动|\bactivity\b", text)
+    order = re.search(r"先.{0,6}(?:增加|提高|加)|(?:增加|提高).{0,8}(?:先后|顺序)|\b(?:increase|increasing)\b.{0,20}\bfirst\b", text)
+    if activity and order:
+        topics.add("gradual_progression")
     return topics
 
 
@@ -335,6 +395,8 @@ def _activity_topics(clause, named_subjects):
 def _semantic_roles(text, found, vocabulary, context):
     clauses = [clause for clause in re.split(REQUEST_BOUNDARY, text) if clause.strip()]
     named_subjects = context.get("named_source_task_subjects", {})
+    explanation_topics = _general_explanation_topics(text, named_subjects)
+    found |= explanation_topics
     method_context = bool(re.search(STATISTICAL_METHOD, text)) or covariance_method_context(text, named_subjects) or any(
         named_subjects.get(outcome) == "statistical_inference" for outcome in METHOD_OUTCOMES
     )
@@ -362,9 +424,8 @@ def _semantic_roles(text, found, vocabulary, context):
             method_clauses.append(clause)
         if activity:
             activity_clauses.append(clause)
-    if (covariance_context
-            and re.search(r"我|个人|同一(?:个)?人|\b(?:my|individual|one person)\b", text)
-            and re.search(r"(?:连续|重复|反复).{0,10}(?:记录|测量|观测)|\b(?:time series|(?:repeated|serial|consecutive) (?:training )?(?:measurements|records|observations))\b", text)
+    if (covariance_context and re.search(r"区间|\bintervals?\b", text)
+            and _personal_series(text)
             and re.search(r"停滞|平台期|\b(?:plateau(?:ed|ing)?|stagnation)\b", text)
             and re.search(r"判断|判定|确认|认定|确定|\b(?:determine|decide|infer|detect|confirm)\b", text)):
         # A covariance estimate alone does not define negligible change or
@@ -372,6 +433,10 @@ def _semantic_roles(text, found, vocabulary, context):
         # These are explanation prerequisites, still subject to source filters;
         # no personal plateau decision or statistical parameter is authorized.
         found |= {"practical_equivalence", "equivalence_design_scope"}
+    if (_personal_series(text) and method_context
+            and found & {"practical_equivalence", "non_significance_interpretation", "equivalence_test_logic"}
+            and re.search(r"对应|适用|直接|宣布|断言|说明|判断|判定|\b(?:apply|appropriate|establish|conclude|determine|decide)\b", text)):
+        found.add("equivalence_design_scope")
     if method_clauses:
         independent = set()
         for clause in clauses:
@@ -385,7 +450,7 @@ def _semantic_roles(text, found, vocabulary, context):
             found.discard("individual_error_bound")
     if activity_clauses:
         for generic in ("gradual_progression", "population_scope"):
-            if not any(generic in _lexical_hits(clause, vocabulary)
+            if generic not in explanation_topics and not any(generic in _lexical_hits(clause, vocabulary)
                        for clause in clauses if clause not in activity_clauses):
                 found.discard(generic)
     if "resistance_training" in found or named_subjects.get("progression_options") == "resistance_training":
@@ -522,7 +587,7 @@ def requested_parts(question, found, context):
         if not independent_progression:
             outcomes.discard("progression_options")
     if "effort_precision" in outcomes and "failure_necessity" in outcomes:
-        if re.search(r"是否必须|一定要|必须.*力竭|非得|\bmust\b|\bnecessary\b", text) and not re.search(r"(?:多少|几次|精确|量化).{0,8}(?:余力|rir)|(?:余力|rir).{0,8}(?:多少|精确)|足够努力|努力程度|\bexact\b", text):
+        if re.search(r"是否必须|一定要|必须.*力竭|非得|\bmust\b|\bnecessary\b", text) and not re.search(RESERVE_EFFORT + r"|(?:多少|几次|精确|量化).{0,8}余力|余力.{0,8}(?:多少|精确)|\bexact\b", text):
             outcomes.discard("effort_precision")
     inference = outcomes & {"longevity", "personal_temperature", "individual_error_bound"}
     if inference and not re.search(r"分别|同时回答|两件事|also explain|and separately", text):
@@ -567,6 +632,8 @@ def requested_parts(question, found, context):
         if outcome in ACTIVITY_SUBJECTS:
             part_subject = (ACTIVITY_SUBJECTS[outcome] if re.search(ACTIVITY_CONTEXT, text)
                             else context.get("named_source_task_subjects", {}).get(outcome))
+        if outcome == "training_modality_adherence":
+            part_subject = "resistance_training"
         part_goals = {"public_health"} if health_boundary and outcome == "frequency" else goals
         for goal in sorted(part_goals) if outcome in sensitive and part_goals else [None]:
             parts.append({"part_id": outcome + (":" + goal if goal else ""),

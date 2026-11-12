@@ -1,0 +1,193 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="0.920" timestamp="2026-11-12T10:14:49.968170+08:00"><testcase classname="tests.training.test_v14_catalog" name="test_legacy_mapping_survives_only_presentation_changes[translation_name]" time="0.203"><failure message="AssertionError: assert 'needs_identity_review' == 'confirmed'&#10;  &#10;  - confirmed&#10;  + needs_identity_review">repo = &lt;healthzip.db.repository.Repository object at 0xffff80c6c450&gt;
+tmp_path = PosixPath('&lt;synthetic-test-root&gt;/test_legacy_mapping_survives_o0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff80e8b3d0&gt;
+change = 'translation_name'
+
+    @pytest.mark.parametrize("change", ["translation_name", "media", "timestamp", "equipment", "description"])
+    def test_legacy_mapping_survives_only_presentation_changes(repo, tmp_path, monkeypatch, change):
+        """A reviewed identity survives label/media refresh, not changed identity evidence."""
+        from copy import deepcopy
+
+        original = source()
+        legacy_id = "psa.ex.barbell_bench_press"
+        mapping = {
+            "source_uuid": original["uuid"],
+            "local_exercise_id": legacy_id,
+            "relation": "exact_identity",
+            "status": "confirmed",
+            "evidence": {
+                "source_record_sha256": digest(original),
+                "locator": "exerciseinfo/101/translations/language=2",
+            },
+            "reviewer_kind": "synthetic_identity_mapping_fixture",
+        }
+        read_text = Path.read_text
+
+        def read_mapping(path, *args, **kwargs):
+            if path.name == "catalog_legacy_mapping.json":
+                return encoded({"mappings": [mapping]})
+            return read_text(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", read_mapping)
+        publish_snapshot(repo, snapshot(tmp_path, [original]))
+        svc = TrainingService(repo)
+        session = svc.start_session("synthetic mapped history")
+        instance = svc.add_exercise(session["id"], legacy_id, {})
+        svc.favorite(legacy_id)
+        svc.add_alias(legacy_id, "本地私人名称")
+        changed = deepcopy(original)
+        if change == "translation_name":
+            changed["translations"][0]["name"] = "Renamed Synthetic Row"
+            changed["translations"][0]["aliases"].append({"alias": "新版显示别名"})
+        elif change == "media":
+            changed["images"] = [{"id": 9001, "image": "https://wger.de/media/new.png"}]
+        elif change == "timestamp":
+            changed["last_update_global"] = "2026-11-12T01:00:00Z"
+        elif change == "equipment":
+            changed["equipment"] = [{"id": 2, "name": "Kettlebell"}]
+        else:
+            changed["translations"][0]["description"] = "A different physical task"
+        publish_snapshot(repo, snapshot(tmp_path, [changed], suffix="updated"))
+        actual = repo.conn.execute(
+            "SELECT status FROM catalog_source_mapping WHERE source_uuid=? AND local_exercise_id=?",
+            (original["uuid"], legacy_id),
+        ).fetchone()[0]
+        if change in {"equipment", "description"}:
+            assert actual == "needs_identity_review"
+            assert svc.search_exercises("catalog.wger.synthetic-row")
+        else:
+&gt;           assert actual == "confirmed"
+E           AssertionError: assert 'needs_identity_review' == 'confirmed'
+E
+E             - confirmed
+E             + needs_identity_review
+
+tests/training/test_v14_catalog.py:617: AssertionError</failure></testcase><testcase classname="tests.training.test_v14_catalog" name="test_legacy_mapping_survives_only_presentation_changes[media]" time="0.098"><failure message="AssertionError: assert 'needs_identity_review' == 'confirmed'&#10;  &#10;  - confirmed&#10;  + needs_identity_review">repo = &lt;healthzip.db.repository.Repository object at 0xffff80d13c10&gt;
+tmp_path = PosixPath('&lt;synthetic-test-root&gt;/test_legacy_mapping_survives_o1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff80e8bb10&gt;
+change = 'media'
+
+    @pytest.mark.parametrize("change", ["translation_name", "media", "timestamp", "equipment", "description"])
+    def test_legacy_mapping_survives_only_presentation_changes(repo, tmp_path, monkeypatch, change):
+        """A reviewed identity survives label/media refresh, not changed identity evidence."""
+        from copy import deepcopy
+
+        original = source()
+        legacy_id = "psa.ex.barbell_bench_press"
+        mapping = {
+            "source_uuid": original["uuid"],
+            "local_exercise_id": legacy_id,
+            "relation": "exact_identity",
+            "status": "confirmed",
+            "evidence": {
+                "source_record_sha256": digest(original),
+                "locator": "exerciseinfo/101/translations/language=2",
+            },
+            "reviewer_kind": "synthetic_identity_mapping_fixture",
+        }
+        read_text = Path.read_text
+
+        def read_mapping(path, *args, **kwargs):
+            if path.name == "catalog_legacy_mapping.json":
+                return encoded({"mappings": [mapping]})
+            return read_text(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", read_mapping)
+        publish_snapshot(repo, snapshot(tmp_path, [original]))
+        svc = TrainingService(repo)
+        session = svc.start_session("synthetic mapped history")
+        instance = svc.add_exercise(session["id"], legacy_id, {})
+        svc.favorite(legacy_id)
+        svc.add_alias(legacy_id, "本地私人名称")
+        changed = deepcopy(original)
+        if change == "translation_name":
+            changed["translations"][0]["name"] = "Renamed Synthetic Row"
+            changed["translations"][0]["aliases"].append({"alias": "新版显示别名"})
+        elif change == "media":
+            changed["images"] = [{"id": 9001, "image": "https://wger.de/media/new.png"}]
+        elif change == "timestamp":
+            changed["last_update_global"] = "2026-11-12T01:00:00Z"
+        elif change == "equipment":
+            changed["equipment"] = [{"id": 2, "name": "Kettlebell"}]
+        else:
+            changed["translations"][0]["description"] = "A different physical task"
+        publish_snapshot(repo, snapshot(tmp_path, [changed], suffix="updated"))
+        actual = repo.conn.execute(
+            "SELECT status FROM catalog_source_mapping WHERE source_uuid=? AND local_exercise_id=?",
+            (original["uuid"], legacy_id),
+        ).fetchone()[0]
+        if change in {"equipment", "description"}:
+            assert actual == "needs_identity_review"
+            assert svc.search_exercises("catalog.wger.synthetic-row")
+        else:
+&gt;           assert actual == "confirmed"
+E           AssertionError: assert 'needs_identity_review' == 'confirmed'
+E
+E             - confirmed
+E             + needs_identity_review
+
+tests/training/test_v14_catalog.py:617: AssertionError</failure></testcase><testcase classname="tests.training.test_v14_catalog" name="test_legacy_mapping_survives_only_presentation_changes[timestamp]" time="0.098"><failure message="AssertionError: assert 'needs_identity_review' == 'confirmed'&#10;  &#10;  - confirmed&#10;  + needs_identity_review">repo = &lt;healthzip.db.repository.Repository object at 0xffff80d32010&gt;
+tmp_path = PosixPath('&lt;synthetic-test-root&gt;/test_legacy_mapping_survives_o2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff801ec550&gt;
+change = 'timestamp'
+
+    @pytest.mark.parametrize("change", ["translation_name", "media", "timestamp", "equipment", "description"])
+    def test_legacy_mapping_survives_only_presentation_changes(repo, tmp_path, monkeypatch, change):
+        """A reviewed identity survives label/media refresh, not changed identity evidence."""
+        from copy import deepcopy
+
+        original = source()
+        legacy_id = "psa.ex.barbell_bench_press"
+        mapping = {
+            "source_uuid": original["uuid"],
+            "local_exercise_id": legacy_id,
+            "relation": "exact_identity",
+            "status": "confirmed",
+            "evidence": {
+                "source_record_sha256": digest(original),
+                "locator": "exerciseinfo/101/translations/language=2",
+            },
+            "reviewer_kind": "synthetic_identity_mapping_fixture",
+        }
+        read_text = Path.read_text
+
+        def read_mapping(path, *args, **kwargs):
+            if path.name == "catalog_legacy_mapping.json":
+                return encoded({"mappings": [mapping]})
+            return read_text(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", read_mapping)
+        publish_snapshot(repo, snapshot(tmp_path, [original]))
+        svc = TrainingService(repo)
+        session = svc.start_session("synthetic mapped history")
+        instance = svc.add_exercise(session["id"], legacy_id, {})
+        svc.favorite(legacy_id)
+        svc.add_alias(legacy_id, "本地私人名称")
+        changed = deepcopy(original)
+        if change == "translation_name":
+            changed["translations"][0]["name"] = "Renamed Synthetic Row"
+            changed["translations"][0]["aliases"].append({"alias": "新版显示别名"})
+        elif change == "media":
+            changed["images"] = [{"id": 9001, "image": "https://wger.de/media/new.png"}]
+        elif change == "timestamp":
+            changed["last_update_global"] = "2026-11-12T01:00:00Z"
+        elif change == "equipment":
+            changed["equipment"] = [{"id": 2, "name": "Kettlebell"}]
+        else:
+            changed["translations"][0]["description"] = "A different physical task"
+        publish_snapshot(repo, snapshot(tmp_path, [changed], suffix="updated"))
+        actual = repo.conn.execute(
+            "SELECT status FROM catalog_source_mapping WHERE source_uuid=? AND local_exercise_id=?",
+            (original["uuid"], legacy_id),
+        ).fetchone()[0]
+        if change in {"equipment", "description"}:
+            assert actual == "needs_identity_review"
+            assert svc.search_exercises("catalog.wger.synthetic-row")
+        else:
+&gt;           assert actual == "confirmed"
+E           AssertionError: assert 'needs_identity_review' == 'confirmed'
+E
+E             - confirmed
+E             + needs_identity_review
+
+tests/training/test_v14_catalog.py:617: AssertionError</failure></testcase><testcase classname="tests.training.test_v14_catalog" name="test_legacy_mapping_survives_only_presentation_changes[equipment]" time="0.100" /><testcase classname="tests.training.test_v14_catalog" name="test_legacy_mapping_survives_only_presentation_changes[description]" time="0.099" /></testsuite></testsuites>

@@ -1,0 +1,718 @@
+{
+  "schema": "independent_source_semantic_cases_v1",
+  "round": "v14-knowledge-independent-round6",
+  "created_at_utc": "2026-11-12T02:23:35.910684+00:00",
+  "reviewer": {
+    "type": "independent_AI_semantic_reviewer",
+    "human_or_expert_review": false,
+    "external_queries_or_product_runs": false,
+    "read_scope": [
+      "source_packet.json",
+      "code_identity.json"
+    ],
+    "prior_cases_outputs_or_implementation_seen": false
+  },
+  "source_packet_sha256": "443161af3d2676b5f3eeb8b2cce05aa28ffa9b93ce0e8d400dc3ee3937b6baf8",
+  "code_identity_sha256": "61312479aee17d677729efe0b7a4b67a300c420539995e757ae5c294813277c5",
+  "code_identity": {
+    "frozen_at": "2026-11-12T02:14:32.353835+00:00",
+    "head": "049d48b9e5e563c399157f69576e11f8085d0189",
+    "archive_sha256": "d460e7e28b01460ef2a40f693603b78d8de0d2f2cc77c083b4f4c8f233885b72",
+    "release_id": "core-boundary-source-explanations-1.4.11",
+    "release_sha256": "5ab38c83ef77ebfcd5f4dee2521e5913df7f4fd0ad66b94fecc425cdf8656b5b",
+    "source_packet_sha256": "443161af3d2676b5f3eeb8b2cce05aa28ffa9b93ce0e8d400dc3ee3937b6baf8",
+    "sources": 4,
+    "spans": 139,
+    "generated_claims_or_answers_supplied": false
+  },
+  "case_count": 12,
+  "scoring_policy": {
+    "unit": "Each scoring point receives pass, partial or fail based on actual answer meaning and source support.",
+    "pass": "Meaning accurately and substantively covered, with no directly conflicting prohibited assertion.",
+    "partial": "Some relevant meaning is covered, but a material requested explanation is missing, vague, or qualified incorrectly.",
+    "fail": "Requested meaning is absent, contradicted, replaced with generic deferral, or a directly conflicting prohibited assertion is made.",
+    "all_cases_included": true,
+    "do_not_score_by": [
+      "system self-reported status",
+      "number of citations",
+      "answer length",
+      "presence of a safety refusal alone"
+    ],
+    "general_explanation_required": "A boundary response alone cannot pass a case with requested substantive explanation. Source text is sufficient for the general points; an unsubstantiated claim of insufficient evidence for all content fails those points.",
+    "case_aggregation": "pass only when every point passes and there is no material source contradiction; partial when some substantive requested meaning is answered but not all points pass; fail when no substantive requested explanation is answered or a central false conclusion defeats it.",
+    "evidence_policy": "Exact evidence_span_ids identify source basis; semantic paraphrase is acceptable and citing every listed span is not itself required. No formulas, unpublished sections, model memory or unstated personal data are required."
+  },
+  "cases": [
+    {
+      "case_id": "R6-S1-01",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "general_explanation",
+      "question": "ACSM 2026 抗阻训练立场声明为什么认为，健康成年人用弹力带、居家训练等不同形式也能取得进步？请解释“取得明显改善”和“追求最优效果”的区别，以及选择训练方式时为什么要考虑个人偏好和坚持程度。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "多种抗阻训练形式相对不训练能改善肌肉功能；正文具体列举居家、弹力带、循环等形式，不能把有效训练局限为某一种器械或场所。至少说明不同形式可以有效，并给出一个正文内例子或一项改善结局。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00059"
+          ],
+          "prohibited_assertions": [
+            "只有健身房杠铃训练才能改善力量或肌肉功能",
+            "所有训练形式在所有结局上效果完全相同"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "取得明显改善与把增益优化至最大是不同目标；很多训练方案足以带来改善，只有部分处方变量的调整有助于优化特定适应，不能把复杂或最优方案当成开始受益的前提。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060"
+          ],
+          "prohibited_assertions": [
+            "必须先确定最优训练变量才会取得有益改善",
+            "任何处方变量的改变都会进一步优化所有结局"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "个体化应结合目标、需要、经验和表现水平，以提高坚持、乐趣、安全及目标相关效果；选择可持续的形式是合理的一般原则。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "prohibited_assertions": [
+            "个人偏好和依从性不影响训练方式的选择",
+            "文中已经量化了适用于每个人的依从性收益"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00059",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+      ]
+    },
+    {
+      "case_id": "R6-S1-02",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "general_explanation",
+      "question": "ACSM 2026 所说的渐进超负荷到底在“增加”什么？是不是每次训练都必须提高 1RM 百分比，或者不加重量就完全没有收益？请区分一般获益和继续长期进步。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "渐进超负荷是随适应增加施加于肌肉的刺激；负荷、训练量、频率、动作选择或时长等都可作为调整途径，并非只能加重量。回答须解释刺激与适应的关系，而不只是罗列术语。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertions": [
+            "渐进超负荷唯一指提高外部重量",
+            "所有人每次训练都必须同时增加所有训练变量"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "相对负荷不必不断升高；随力量增长提高绝对负荷，也能维持相同的相对负荷，并支持超负荷。正文提到定期力量测试或主观用力量表来配合这一调整。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertions": [
+            "保持同一 1RM 百分比意味着绝对训练刺激永远无法增加",
+            "每次训练都必须提高 1RM 百分比"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "取得有益结果不一定要求持续进阶；增加刺激更可能是希望继续长期适应进步时的需要。正文也承认起始负荷因经验或安全而很低的人群可能需要进阶才能取得有意义收益。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "prohibited_assertions": [
+            "没有进阶就绝不可能获益",
+            "任何人长期使用同样刺激都必然持续获得同等进步"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+      ]
+    },
+    {
+      "case_id": "R6-S1-03",
+      "source_id": "S1",
+      "source_alias": "S1",
+      "category": "explanation_with_individual_boundary",
+      "question": "ACSM 2026 提到接近力竭和保留 2—3 次重复。请解释这与“每组必须力竭”有什么区别；我能否据此把自己所有深蹲组固定为恰好 2 RIR，并断定这是我的最佳安排？",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "做到瞬时肌肉力竭并非力量、肌肥大或功率获益的必要条件；仍需足够的训练努力或刺激，不能把不必力竭解释为无需努力。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "prohibited_assertions": [
+            "每组必须做到力竭才能有效",
+            "不需要力竭等于随意轻松活动即可获得同等抗阻适应"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "接近力竭或保留 2—3 次是作者用来说明足够努力的可行表达；正文同时指出，现有证据不足以量化精确 RIR 或主观用力目标，因此它不是已被确定的普遍最优阈值。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "prohibited_assertions": [
+            "2 RIR 已证实是所有动作或人群的精确最优值",
+            "来源完全没有讨论接近力竭或 2—3 RIR"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "该综述给出汇总的群体证据，训练需按个人需要和目标调整；仅凭此文不能确定提问者所有深蹲组的精确个人最优 RIR。边界说明须与前两点的一般解释并存。",
+          "evidence_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "prohibited_assertions": [
+            "可直接断言提问者所有深蹲组恰好 2 RIR 最优",
+            "用未给出的个人训练或医疗信息推算精确处方"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+      ]
+    },
+    {
+      "case_id": "R6-HHS-01",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "general_explanation",
+      "question": "HHS 第二版身体活动指南里，上下班快走和一天中零碎的活动时间能算进成人有氧活动量吗？请解释计算时看什么，以及每周活动目标应怎样理解。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "活动的目的不决定是否计入：主动通勤或体力工作等，只要达到足够的有氧活动强度，也可以计入；不能仅按是否为专门健身来区分。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "prohibited_assertions": [
+            "只有专门安排的健身或体育课才算有氧活动",
+            "所有散步或体力劳动无论强度都自动计入中高强度目标"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "对健康收益而言，中高强度活动总量比单次活动持续时长更重要；一天中较短的合格活动也能贡献总量。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "prohibited_assertions": [
+            "每次不足十分钟一律不能计入",
+            "只要单次足够长，总活动量就不重要"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "成人指南为每周 150—300 分钟中等强度，或 75—150 分钟高强度，或等量组合，宜分散到一周；这不是达到前完全无益的门槛，也不是超过后不再获益的硬上限。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "prohibited_assertions": [
+            "不到每周 150 分钟就完全没有健康收益",
+            "300 分钟是不可超过的统一安全上限"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+      ]
+    },
+    {
+      "case_id": "R6-HHS-02",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "general_explanation",
+      "question": "按照 HHS 第二版，已经经常快走或骑车的人为什么还需要肌力活动？哪些肌力活动才算满足指南，单独拉伸能不能替代它或有氧活动？",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "肌力活动提供有氧活动之外的益处，包括骨骼强度、肌肉适能，并有助于减重期间维持肌肉量；不能认为有氧训练自动涵盖全部这类益处。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "prohibited_assertions": [
+            "有氧活动能够完全替代肌力活动的所有额外益处"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "肌力活动应达到中等或更高强度或努力程度、涉及全身主要肌群，并至少每周两天；力量适应与使用的肌肉有关，因此需要不同活动实现较均衡覆盖。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "prohibited_assertions": [
+            "只训练一个局部肌群即可满足全身主要肌群建议",
+            "任何强度的动作都等同于满足肌力指南"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "拉伸可提高柔韧性和关节活动范围，但单独的柔韧性活动时间不计入有氧或肌力关键目标；正文对其健康益处及降低伤害风险仍存在不确定性。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "prohibited_assertions": [
+            "单独拉伸可直接替代有氧或肌力目标",
+            "来源已明确证明拉伸必然预防运动损伤"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+      ]
+    },
+    {
+      "case_id": "R6-HHS-03",
+      "source_id": "CORE-US-HHS-PAG-2",
+      "source_alias": "HHS",
+      "category": "explanation_with_individual_boundary",
+      "question": "我平时活动很少，也有长期关节疼痛。HHS 为什么强调增加活动要循序渐进，通常先增加什么？这些一般原则能否直接确定我下周该跑多快、跑多久？",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "损伤风险与平常活动水平和新水平的差距有关；增加小而可适应的负荷并留出适应恢复时间能降低风险，同样的绝对增加量对不同基线的人并不相同。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "prohibited_assertions": [
+            "同样增加二十分钟对所有人代表相同风险",
+            "渐进增加可保证绝不会受伤"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "低活动或低体适能者通常从相对轻到中等强度开始，先逐步增加每次时长及每周频率，再视需要增加强度；进度还要考虑年龄、体适能及经验。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "prohibited_assertions": [
+            "低体适能者应该优先直接开始高强度跑步",
+            "指南要求所有人按同一个固定比例增加训练"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "关节痛属于正文列举的症状；有症状或已知慢性状况者应接受医疗照护并与专业人员商定合适活动类型和数量。因此这段一般指南不足以给出此人下周精确跑速与时长。",
+          "evidence_span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "prohibited_assertions": [
+            "据一般指南直接给出提问者确定适宜的跑速和时长",
+            "有症状者也一律无需就适宜活动接受专业评估"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+        "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+      ]
+    },
+    {
+      "case_id": "R6-M2-01",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "general_explanation",
+      "question": "M2 这篇运动科学统计方法文章为什么说，两种训练干预比较得到 P 大于 0.05，不能直接写成“两者效果一样”或“都没有作用”？如果研究确实关心差异是否小到不重要，应该改变什么推断思路？",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不显著表示传统差异检验未能拒绝相应零假设，并不构成没有效应或两干预相等的证据；尤其小样本，不显著对是否能排除有意义差异的信息有限。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "prohibited_assertions": [
+            "P 大于 0.05 证明无效或相等",
+            "样本越小，不显著越能证明差异不存在"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "要研究有意义效应的缺失，需要明确可排除的有实践意义差异，并使用等效性等相应检验补充传统优效或劣效判断；不能只给传统 P 值换个标签。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertions": [
+            "传统差异检验不显著本身就完成了等效性检验",
+            "等效性只要求把显著性阈值改得更宽松"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+      ]
+    },
+    {
+      "case_id": "R6-M2-02",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "general_explanation",
+      "question": "M2 中“统计等效”究竟是在证明完全相同，还是在排除某种差异？等效界值应该怎样确定，TOST 又要满足什么才算支持等效？请用概念说明，不必推导公式。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "统计上不能证明两干预效果完全相同；等效性检验要排除达到实践重要程度的差异，上下等效界值界定这个范围。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "prohibited_assertions": [
+            "统计等效等于两个干预的真实效果精确相等",
+            "任何非零差异都必然不等效"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "最小关注效应或等效界值依赖具体研究问题和应用情境；正文不建议直接把 Cohen 的通用基准当作运动科学中确定最小关注效应的依据。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "prohibited_assertions": [
+            "Cohen 的通用小中大效应阈值能自动决定所有运动研究的等效界值",
+            "本文给出了通用于所有运动指标的唯一数值界限"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "TOST 要求两个单侧检验都拒绝达到或越过相应等效界值的效应；等价表述为对应的置信区间完整落在上下界值之间。接受任一正确完整表述，不要求公式或指定数值置信水平。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertions": [
+            "只通过其中一个单侧检验即可宣布双侧等效",
+            "只要置信区间包含零就能宣布等效"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+      ]
+    },
+    {
+      "case_id": "R6-M2-03",
+      "source_id": "M2",
+      "source_alias": "M2",
+      "category": "explanation_with_individual_boundary",
+      "question": "如果我把自己最近几次训练表现分成前后两段，差异检验不显著，能直接用 M2 宣布自己已经进入“没有实质进步的平台期”吗？请先解释应怎样理解有意义的变化，再说明本文分析框架与这种个人记录是否能直接对应。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "“有意义的变化”需要基于具体问题和情境确定最小关注效应或等效范围；不能直接把某个通用效应大小或随手选的数值当作此人的实质变化阈值。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "prohibited_assertions": [
+            "来源提供适用于所有个人训练日志的统一进步阈值"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "前后差异不显著不等于排除了有实际意义的改善；支持无实质差异需要针对等效界值的适当检验依据，而不是仅看传统 P 值。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "prohibited_assertions": [
+            "个人前后 P 大于 0.05 就证明进入平台期",
+            "任何等效性结论都证明精确零变化"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "正文聚焦平行组、两组独立随机样本以及正态分布观察；同一个人的连续训练记录不自动满足此设计，其他设计或分布可能需要不同分析。因此不能据几条记录和这篇方法文直接认定个人平台期。",
+          "evidence_span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "prohibited_assertions": [
+            "把同一人的连续记录分段即可自动视为两组独立随机样本",
+            "本文已经验证了个人训练平台检测的准确性"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+        "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+      ]
+    },
+    {
+      "case_id": "R6-N1-01",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "general_explanation",
+      "question": "N1 为什么说回归做推断时要关心误差的异方差和自相关？请解释常规协方差估计依赖什么假设，以及 HC 和 HAC 分别想解决哪类问题，不需要写矩阵公式。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "回归推断需要合适且一致的系数协方差估计；经典方法依赖误差独立、同方差，若这些条件被违反，沿用常规估计会使推断有偏。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140"
+          ],
+          "prohibited_assertions": [
+            "只要拟合出回归系数，协方差估计便与推断无关",
+            "传统协方差估计对任意异方差及依赖结构都可靠"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "HC 面向误差仍独立但可能异方差的情形：误差方差可以随观测变化；它不是自动处理时间依赖的通用办法。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00145",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151"
+          ],
+          "prohibited_assertions": [
+            "HC 的独立误差框架本身已保证解决任意自相关"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "HAC 处理误差不独立或存在自相关，同时允许未知形式的异方差；它通过估计相关协方差结构改进回归推断所需的协方差估计。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "prohibited_assertions": [
+            "HAC 保证任意回归模型及样本都正确",
+            "HAC 的工作是证明原始数据完全没有自相关"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00145",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+      ]
+    },
+    {
+      "case_id": "R6-N1-02",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "general_explanation",
+      "question": "N1 讨论的 HAC 估计为什么还需要观测顺序和滞后权重？这些权重一般表达什么想法，正文介绍了哪些确定权重的途径？请说明直觉，不必推导或计算。",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "HAC 利用拟合回归模型对应估计函数的滞后乘积加权求和；观测按何种顺序排列会决定滞后关系。正文允许指定排序变量，时间序列通常默认已经排序。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00258",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00259",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00260",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00261"
+          ],
+          "prohibited_assertions": [
+            "任意打乱时间顺序都不会影响滞后关系或 HAC 计算",
+            "HAC 不需要模型或观测顺序信息"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "很多数据结构可合理假设自相关随滞后增加而减弱，因此给予较远滞后较小权重有直观依据；这是条件性方法思路，而非所有数据必然满足的定律。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00228"
+          ],
+          "prohibited_assertions": [
+            "所有数据的自相关都必然严格随滞后单调下降",
+            "正文保证无需任何相关结构假设仍然有效"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "权重可直接以向量给出，也可由函数从模型数据计算；正文介绍核函数配合自动带宽选择，以及依据残差自相关选择权重的自适应方法。无需准确背诵软件函数名。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00230",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00231",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00237",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00238",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00363",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00364",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00365",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00366",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00367",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00368",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00369",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00370",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00371",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00372",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00373"
+          ],
+          "prohibited_assertions": [
+            "HAC 只有一套固定权重且所有情形相同",
+            "自动带宽选择证明获得了适用于个人训练序列的唯一最优估计"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00258",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00259",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00260",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00261",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00228",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00230",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00231",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00237",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00238",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00363",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00364",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00365",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00366",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00367",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00368",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00369",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00370",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00371",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00372",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00373"
+      ]
+    },
+    {
+      "case_id": "R6-N1-03",
+      "source_id": "N1",
+      "source_alias": "N1",
+      "category": "explanation_with_individual_boundary",
+      "question": "N1 提到 HC3 在小样本中的表现，这句话应怎样理解？HC0、HC1—HC3 和 HC4 的提出背景有什么区别？能否因此保证，用 HC3 分析我少量、按时间连续记录的训练成绩就一定能正确判断是否停滞？",
+      "scoring_points": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "HC0 的依据主要是渐近论证；HC1、HC2、HC3 被提出以改善小样本表现。改善有限样本表现与无条件保证任何极小样本正确是不同含义。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184"
+          ],
+          "prohibited_assertions": [
+            "HC0 已被证明在所有有限样本中精确有效",
+            "HC1—HC3 的改进意味着任何样本量都得到保证"
+          ]
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "正文转述的研究认为 HC3 小样本表现较好，理由涉及降低有影响力观测的权重；HC4 又被提出进一步改善小样本尤其有影响力观测下的表现。这是文中方法比较的结论，不是个人序列的普遍效度证明。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00188"
+          ],
+          "prohibited_assertions": [
+            "文中证明 HC3 在所有数据结构中永远优于所有方法",
+            "HC4 或 HC3 已在提问者的训练记录上得到验证"
+          ]
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "HC 所述框架假设误差独立而可异方差；连续个人记录可能有依赖，本文另以 HAC 讨论自相关。单凭 HC3 的小样本说明，不能保证个人平台判断正确，也不能直接改用 HAC 就宣称获得保证。",
+          "evidence_span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "prohibited_assertions": [
+            "按时间连续的个人记录天然满足 HC 的独立误差假设",
+            "采用 HC3 或 HAC 就能保证少量训练记录的平台识别准确"
+          ]
+        }
+      ],
+      "required_span_ids": [
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00188",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+        "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+      ]
+    }
+  ]
+}

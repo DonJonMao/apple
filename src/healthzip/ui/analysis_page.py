@@ -26,6 +26,8 @@ def render_analysis(repo, value):
     st.caption(f"数据截止 {result['cutoff_time']} · 版本 {result['algorithm_version']}。未知保留为空；模型有效性与数据可用性分别显示。")
     from healthzip.ui.reference_selection import render_reference_selection
     result = render_reference_selection(repo, result)
+    from healthzip.ui.sleep_selection import render_sleep_selection
+    result = render_sleep_selection(repo, result)
     metrics = result["metrics"]
     if isinstance(metrics, list):
         metrics = {x["metric_id"]: x for x in metrics}

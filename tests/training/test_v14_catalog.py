@@ -45,7 +45,7 @@ def source(identity=101, *, name="Synthetic Row", uuid="synthetic-row", equipmen
     }
 
 
-def snapshot(tmp_path, rows=None, *, images=None, videos=None, suffix="first"):
+def snapshot(tmp_path, rows=None, *, images=None, videos=None, languages=None, suffix="first"):
     path = tmp_path / suffix
     path.mkdir()
     rows = rows if rows is not None else [source()]
@@ -56,7 +56,7 @@ def snapshot(tmp_path, rows=None, *, images=None, videos=None, suffix="first"):
             "exercise-translation": [
                 {"id": row["id"] + 100, "exercise": row["id"], "language": 2} for row in rows
             ],
-            "language": [{"id": 2, "short_name": "en"}],
+            "language": languages or [{"id": 2, "short_name": "en"}],
             "license": [
                 {
                     "id": 1,
@@ -559,3 +559,100 @@ def test_template_and_exchange_preserve_original_display_and_semantics(repo, tmp
     assert imported["exercises"][0]["exercise"]["name"] == "历史名称"
     assert imported["sets"][0]["duration_s"] == 30
     target.close()
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["translation_name", "media", "timestamp", "equipment", "description", "identity_name"],
+)
+def test_legacy_mapping_survives_only_presentation_changes(repo, tmp_path, monkeypatch, change):
+    """A reviewed identity survives label/media refresh, not changed identity evidence."""
+    from copy import deepcopy
+
+    original = source()
+    original["translations"].append(
+        {
+            "id": 301,
+            "language": 3,
+            "name": "原始中文译名",
+            "description": "非身份核对原文语言的译文",
+            "aliases": [],
+        }
+    )
+    languages = [{"id": 2, "short_name": "en"}, {"id": 3, "short_name": "zh-cn"}]
+    legacy_id = "psa.ex.barbell_bench_press"
+    mapping = {
+        "source_uuid": original["uuid"],
+        "local_exercise_id": legacy_id,
+        "relation": "exact_identity",
+        "status": "confirmed",
+        "source_name": original["translations"][0]["name"],
+        "evidence": {
+            "source_record_sha256": digest(original),
+            "locator": "exerciseinfo/101/translations/language=2",
+        },
+        "reviewer_kind": "synthetic_identity_mapping_fixture",
+    }
+    read_text = Path.read_text
+
+    def read_mapping(path, *args, **kwargs):
+        if path.name == "catalog_legacy_mapping.json":
+            return encoded({"mappings": [mapping]})
+        return read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read_mapping)
+    publish_snapshot(repo, snapshot(tmp_path, [original], images=[picture()], languages=languages))
+    fetch_media(repo, tmp_path / "blobs", downloader=lambda _: (png(), "image/png"))
+    svc = TrainingService(repo)
+    session = svc.start_session("synthetic mapped history")
+    instance = svc.add_exercise(session["id"], legacy_id, {})
+    svc.favorite(legacy_id)
+    svc.add_alias(legacy_id, "本地私人名称")
+    changed = deepcopy(original)
+    if change == "translation_name":
+        changed["translations"][1]["name"] = "新版中文译名"
+        changed["translations"][0]["aliases"].append({"alias": "新版显示别名"})
+    elif change == "media":
+        changed["images"] = [{"id": 9001, "image": "https://wger.de/media/new.png"}]
+    elif change == "timestamp":
+        changed["last_update_global"] = "2026-11-12T01:00:00Z"
+    elif change == "equipment":
+        changed["equipment"] = [{"id": 2, "name": "Kettlebell"}]
+    elif change == "identity_name":
+        changed["translations"][0]["name"] = "Different Incline Variant"
+    else:
+        changed["translations"][0]["description"] = "A different physical task"
+    publish_snapshot(
+        repo,
+        snapshot(tmp_path, [changed], images=[picture()], languages=languages, suffix="updated"),
+    )
+    actual = repo.conn.execute(
+        "SELECT status FROM catalog_source_mapping WHERE source_uuid=? AND local_exercise_id=?",
+        (original["uuid"], legacy_id),
+    ).fetchone()[0]
+    if change in {"equipment", "description", "identity_name"}:
+        assert actual == "needs_identity_review"
+        assert svc.search_exercises("catalog.wger.synthetic-row")
+    else:
+        assert actual == "confirmed"
+        assert not svc.search_exercises("catalog.wger.synthetic-row")
+        assert svc.search_exercises("本地私人名称")[0]["favorite"]
+        assert svc.get_exercise(legacy_id)["definition_version"] == 1
+        assert media_for(repo.conn, legacy_id)[0]["fetch_status"] == "ready"
+        # Repeated display refresh still binds to the original reviewed bytes.
+        changed["last_update_global"] = "2026-11-12T02:00:00Z"
+        publish_snapshot(
+            repo,
+            snapshot(tmp_path, [changed], images=[picture()], languages=languages, suffix="again"),
+        )
+        saved = repo.conn.execute(
+            "SELECT evidence_json FROM catalog_source_mapping WHERE source_uuid=? "
+            "AND local_exercise_id=?",
+            (original["uuid"], legacy_id),
+        ).fetchone()[0]
+        assert json.loads(saved)["current_evidence_check"][
+            "reviewed_source_record_sha256"
+        ] == digest(original)
+        assert not svc.search_exercises("catalog.wger.synthetic-row")
+    assert svc.get_session_exercise(instance["id"])["condition_key"] == instance["condition_key"]
+    assert svc.get_session_exercise(instance["id"])["exercise"] == instance["exercise"]

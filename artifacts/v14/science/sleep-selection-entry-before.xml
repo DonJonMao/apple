@@ -1,0 +1,16 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="3.030" timestamp="2026-11-12T10:19:19.051340+08:00"><testcase classname="tests.integration.test_sleep_episode_selection" name="test_normal_page_can_declare_two_nights_without_guessing_main_episode" time="2.259"><failure message="AssertionError: A normal input for explicit sleep source/episode declarations is required.&#10;assert False&#10; +  where False = any(&lt;generator object test_normal_page_can_declare_two_nights_without_guessing_main_episode.&lt;locals&gt;.&lt;genexpr&gt; at 0xffff822e7100&gt;)">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-371/test_normal_page_can_declare_t0')
+
+    def test_normal_page_can_declare_two_nights_without_guessing_main_episode(tmp_path):
+        repo = sleep_repo(tmp_path)
+        default = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC")
+        assert default["metrics"]["STATE-SLEEP-MAIN"]["value"] is None
+        assert default["metrics"]["STATE-SLEEP-TIMING"]["value"] is None
+        path = repo.path
+        repo.close()
+        app = open_app(path)
+&gt;       assert any(box.key == "analysis_sleep_stream" for box in app.selectbox), "A normal input for explicit sleep source/episode declarations is required."
+E       AssertionError: A normal input for explicit sleep source/episode declarations is required.
+E       assert False
+E        +  where False = any(&lt;generator object test_normal_page_can_declare_two_nights_without_guessing_main_episode.&lt;locals&gt;.&lt;genexpr&gt; at 0xffff822e7100&gt;)
+
+tests/integration/test_sleep_episode_selection.py:52: AssertionError</failure></testcase></testsuite></testsuites>

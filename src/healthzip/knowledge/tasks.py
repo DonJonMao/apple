@@ -107,8 +107,10 @@ def request_constraints(question, context):
     numeric = False
     for clause in clauses:
         personal = bool(re.search(r"我|个人|\bi\b|\bmy\b|\bme\b|\bindividual\b", clause))
-        quantity = bool(re.search(r"次数|组数|组量|余力|休息|间歇|频率|天数|公斤|重量|负荷|配重|负重|秒数|\b(?:reps?|repetitions?|sets?|rir|rest|interval|frequency|loads?|weights?|seconds?|minutes?)\b", clause))
-        choose = bool(re.search(r"多少|几次|几组|几天|多久|多长|最优|最好|精确|\b(?:how (?:much|many|long)|optimal|best|exact(?:ly)?)\b|\bwhich\b.{0,30}\b(?:rest|interval|duration|load|weight)\b", clause))
+        quantity = bool(re.search(r"次数|组数|组量|余力|休息|间歇|频率|天数|公斤|重量|负荷|配重|负重|秒数|时长|速度|配速|跑.{0,4}(?:多久|多快|多远)|(?<![a-z])rir\s*\d*(?![a-z])|\b(?:reps?|repetitions?|sets?|rest|interval|frequency|loads?|weights?|seconds?|minutes?|pace|speed|duration|distance)\b", clause))
+        choose = bool(re.search(r"多少|几次|几组|几天|多久|多长|多快|多远|最优|最好|恰好|精确|\b(?:how (?:much|many|long|fast|far)|optimal|best|exact(?:ly)?)\b|\bwhich\b.{0,30}\b(?:rest|interval|duration|load|weight)\b", clause))
+        choose |= bool(re.search(r"最佳|固定", clause) and re.search(
+            r"\d+(?:\.\d+)?\s*(?:rir|次|组|秒|分钟|公斤|千克|kg)\b|(?<![a-z])rir\s*\d+", clause))
         numeric |= personal and quantity and choose
         numeric |= bool(re.search(r"(?:应该|该用|能否|可不可以|可以|建议|\bshould\b|\bcan i\b).{0,20}\d+(?:\.\d+)?\s*(?:公斤|千克|磅|kg|lbs?)(?![a-z])", clause))
     compound = bool(re.search(r"两件事|分别(?=.{0,8}(?:回答|解释|说明|讨论|计算|给出))|一方面.*另一方面|(?:再|然后)\s*(?:给我|帮我|为我)?\s*(?:计算|算出|求出|列出|选择)|\band\s+then\b", semantic))

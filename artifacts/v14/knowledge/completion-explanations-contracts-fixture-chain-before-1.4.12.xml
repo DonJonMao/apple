@@ -1,0 +1,22 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="14" time="2.999" timestamp="2026-11-12T10:43:17.220628+08:00"><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_append_only_activation_preserves_all_four_candidate_dependencies" time="0.416" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[0]" time="0.417" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[1]" time="0.371" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[2]" time="0.353" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[3]" time="0.348"><failure message="AssertionError: assert {'1.4.12', '1.4.3'} == {'1.4.12'}&#10;  &#10;  Extra items in the left set:&#10;  '1.4.3'&#10;  Use -v to get more diff">library = (&lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff87998b90&gt;, {'version': '1.4.12', 'release_id': 'cor...采用何种调整，应结合个人目标、需要与特点；增加次数和调整负荷是不同任务选择。仅凭这项原则不能选定个人下一次的精确重量、次数或其他参数，也不能保证完成或获得某种效果。", "version": "1.4.9"}', ...}], ...})
+index = 3
+
+    @pytest.mark.parametrize("index", range(5))
+    def test_explicit_contracts_resolve_new_versions_without_numeric_actions(library, index):
+        w, data, _ = library
+        COMPLETION.activate(w, data)
+        claim = (data["claims"] + data["claim_revisions"])[index]["claim"]
+        task = claim["answer_task"]
+        context = {"question_contract": {**{k: task[k] for k in ("subject", "outcome", "requested_relation")},
+                                         "user_confirmed": True},
+                   "corpus_roles": ["research"] if task["subject"] == "statistical_inference" else ["core"]}
+        result = w.query("解释选定来源主题。", route="strength", context=context, release_id=data["release_id"])
+        assert result["answer_status"] == "answered_with_support"
+&gt;       assert {c["theory_version"] for c in result["claims"]} == {data["version"]}
+E       AssertionError: assert {'1.4.12', '1.4.3'} == {'1.4.12'}
+E
+E         Extra items in the left set:
+E         '1.4.3'
+E         Use -v to get more diff
+
+tests/unit/test_completion_explanation_contracts.py:96: AssertionError</failure></testcase><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_explicit_contracts_resolve_new_versions_without_numeric_actions[4]" time="0.358" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[action]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[capability]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[dependency]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[condition]" time="0.008" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[claim_target]" time="0.007" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_preflight_rejects_authority_or_predecessor_tampering[predecessor]" time="0.007" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_general_hhs_quantities_do_not_authorize_personal_numeric_candidates" time="0.306" /><testcase classname="tests.unit.test_completion_explanation_contracts" name="test_source_byte_mismatch_cannot_be_reviewed" time="0.238" /></testsuite></testsuites>
