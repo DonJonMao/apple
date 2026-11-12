@@ -14,6 +14,43 @@ GROUPS = {"可比力量表现": ("STR-",), "每日训练候选": ("STR-25", "STR
           "复盘与个体学习": ("REPORT-", "PRED-", "QAL-")}
 
 
+def _render_period_training(metrics):
+    st.write("本周期训练执行")
+    work_metric, plan_metric = metrics["STR-01"], metrics["STR-09"]
+    work, plan = work_metric["value"], plan_metric["value"]
+    if work is None:
+        st.info("本周期尚无可计数的已完成工作组记录；缺少记录不代表没有训练。")
+    else:
+        st.dataframe([{
+            "已记录完成工作组": work["completed_work_parent_sets"],
+            "已完成工作组片段": work["segments"],
+            "完成但资料不足的工作组": work["unknown_work_sets"],
+        }], hide_index=True, use_container_width=True)
+    st.caption("工作组按原组身份计数，递减片段另列；不同负荷只汇总执行数量，不合成力量或能力变化。")
+    if plan is None:
+        st.info("未记录本周期的冻结计划，不能计算原计划完成比例；实际工作组仍单独列出。")
+    else:
+        st.dataframe([{
+            "原计划组数": plan["planned"], "已完成计划组": plan["completed"],
+            "已跳过计划组": plan["skipped"], "尚未确认完成的计划组": plan["unknown"],
+            "额外完成组": plan["extra_sets"], "已完成占原计划": plan["completed_fraction_of_plan"],
+        }], hide_index=True, use_container_width=True)
+        st.caption("原计划分母保留开始时冻结的所有目标组（包括计划热身）；额外完成组不加入完成比例。尚未确认完成不等于失败。")
+        endpoints = []
+        for endpoint, counts in plan.get("target_attainment", {}).items():
+            endpoints.append({
+                "目标项": {"load": "负荷", "reps": "次数", "rir": "RIR"}.get(endpoint, endpoint),
+                "原计划组数": counts["planned_n"], "有明确目标组数": counts["target_n"],
+                "已满足": counts["met_n"], "未满足": counts["not_met_n"],
+                "尚不能判断": counts["unknown_n"], "未设此项目标": counts["no_target_n"],
+            })
+        if endpoints:
+            st.write("原计划各项目标的记录核对")
+            st.dataframe(endpoints, hide_index=True, use_container_width=True)
+            st.caption("目标核对与整组完成分开；没有明确目标或实际记录不足时保持未知，不表示策略产生了训练效果。")
+    st.caption(f"工作组资料状态：{work_metric['data_status']}；计划执行可判定 {plan_metric['valid_n']}/{plan_metric['total_n']} 组。完整记录来源、窗口及缺项随本周期结果下载。")
+
+
 def render_analysis(repo, value):
     from healthzip.science import definitions
     names = definitions()
@@ -138,6 +175,7 @@ def render_analysis(repo, value):
                                                                                   timezone_name=result["timezone"])
             persist(repo, period_result)
             st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
+            _render_period_training(period_result["metrics"])
             period_layers = []
             for task in period_result.get("strength_tasks", []):
                 classifications = {s["outcome_series_id"]: (s["metric"].get("value") or {}).get("classification")

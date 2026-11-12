@@ -29,6 +29,7 @@ RELATIONS = {
     "training_modality_adherence": "explanation",
     "aerobic_activity_volume": "explanation",
     "activity_type_complementarity": "explanation",
+    "physical_performance_evidence": "explanation",
 }
 
 LABELS = {
@@ -57,6 +58,7 @@ LABELS = {
     "training_modality_adherence": "抗阻训练形式、偏好与坚持",
     "aerobic_activity_volume": "有氧活动的计入、累计与每周目标",
     "activity_type_complementarity": "有氧、肌力与柔韧活动的作用和替代边界",
+    "physical_performance_evidence": "抗阻训练与综合及分项体能表现的证据",
 }
 
 # Finite grammatical families describe concepts and local relations, never whole
@@ -89,10 +91,13 @@ ACTIVITY_SUBJECTS = {
     "aerobic_activity_volume": "physical_activity",
     "activity_type_complementarity": "physical_activity",
 }
-ACTIVITY_CONTEXT = r"身体活动|体力活动|肌力活动|肌力训练|肌肉强化|有氧|\b(?:physical activity|muscle[- ]strengthening|aerobic)\b"
+AEROBIC_ACTIVITY = r"有氧|快走|慢跑|跑步|步行通勤|骑车通勤|\b(?:aerobic|brisk walking|jogging|running|active commuting)\b"
+MUSCLE_ACTIVITY = r"肌力活动|肌力训练|肌肉强化|力量训练|练力量|\b(?:muscle[- ]strengthening|strength training)\b"
+ACTIVITY_CONTEXT = r"身体活动|体力活动|\bphysical activity\b|" + AEROBIC_ACTIVITY + "|" + MUSCLE_ACTIVITY
 RESERVE_EFFORT = (
     r"(?:还|尚|剩|保留).{0,10}(?:能做|能完成|做得了|重复|次数|[一二两三四五六七八九十\d]+次)|"
     r"储备次数|余次|留几次|接近力竭|足够努力|努力程度|"
+    r"(?:留|保留).{0,8}余力|"
     r"(?<![a-z])rir\s*\d*(?![a-z])|\b(?:reps?|repetitions?) (?:left|remaining|in reserve)\b|"
     r"\b(?:near failure|sufficient effort)\b"
 )
@@ -126,6 +131,7 @@ PATTERNS = {
         r"\b(?:distribut(?:e[sd]?|ing|ion)|spread(?:ing)?|spac(?:e[sd]?|ing))\b.{0,30}\b(?:sessions?|workouts?|training)\b.{0,30}\b(?:week|days)\b",
         r"(?:训练|锻炼).{0,12}(?:分配|分布|分散|安排).{0,12}(?:周内|一周|每周|天)|(?:周内|一周|每周).{0,12}(?:分配|分布|分散|安排).{0,12}(?:训练|锻炼)",
         r"(?:训练|锻炼).{0,12}(?:分到|分在|分散到|分配到|拆成).{0,8}(?:更多|更少|几|多少|\d+)(?:个)?(?:天|日)",
+        r"从[一二两三四五六七八九十\d]+天.{0,6}(?:拆成|分到|分成)[一二两三四五六七八九十\d]+天",
     ],
     "rest": [r"两组之间|组与组之间|组间歇|歇多久|间歇时长", r"\b(?:between sets|interset|inter-set|rest intervals?|rest periods?)\b"],
     "capability_change": [r"记录.{0,4}(?:不变|一样|没变化)|表现.{0,4}(?:不变|一样|没变化)|(?:同|一样的)重量.{0,5}(?:同|一样的)次数", r"\b(?:same|unchanged)\b.{0,18}\b(?:load|weight|performance|reps|repetitions)\b"],
@@ -291,9 +297,9 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         r"repeated (?:measures|measurements)|paired (?:designs?|samples?)|within[- ]subjects?|time series)\b", clause
     ))
     bounds = bool(re.search(
-        r"\bsmallest effect size of interest\b|最小重要效应|小效应.{0,10}(?:分界|界值)|(?:等效界|等效范围).{0,20}(?:依据|设定|确定|选择|(?:怎么|怎样|如何).{0,6}[定设选])|"
+        r"\bsmallest effect size of interest\b|最小重要效应|小效应.{0,30}(?:分界|界值|界限)|(?:等效界|等效范围).{0,20}(?:依据|设定|确定|选择|(?:怎么|怎样|如何).{0,6}[定设选])|"
         r"(?:依据|设(?:定|置)?|确定|选择).{0,20}(?:等效界|等效范围)|"
-        r"\bequivalence margins?\b|\bsmall(?:est)?\b.{0,30}\beffects?\b.{0,45}\b(?:boundary|bounds?|meaningful|important|cut[- ]offs?)\b|"
+        r"\bequivalence margins?\b|\bsmall(?:est)?\b.{0,30}\beffects?\b.{0,45}\b(?:boundary|bounds?|meaningful|important|cut[- ]offs?|thresholds?)\b|"
         r"\b(?:justify|justified|choose|chosen|specify|specified|basis)\b.{0,30}\b(?:bounds?|margins?)\b", clause
     ))
     if equivalence_context and re.search(r"界值|边界|上下界", clause) and re.search(
@@ -339,26 +345,35 @@ def _general_explanation_topics(text, named_subjects):
     """Require a domain object and a relation, not isolated topic words."""
     topics = set()
     resistance = bool(re.search(
-        r"抗阻|力量训练|弹力带|居家训练|\b(?:resistance|strength) training\b|\b(?:resistance bands?|home training)\b", text))
+        r"抗阻|力量训练|练力量|弹力带|居家训练|\b(?:resistance|strength) training\b|\b(?:resistance bands?|home training)\b", text))
     resistance |= bool(named_subjects.get("training_modality_adherence") == "resistance_training"
                        and re.search(r"训练|锻炼|\btraining\b", text))
-    modality = re.search(r"形式|方式|偏好|坚持|依从|\b(?:modalit\w*|forms?|preferences?|adherence)\b", text)
-    selection = re.search(r"选择|考虑|有效|改善|进步|收益|最优|作用|\b(?:choos\w*|select\w*|consider\w*|matter|effective|improv\w*|benefits?|optimal)\b", text)
+    modality = re.search(r"形式|方式|偏好|坚持|依从|养成习惯|\b(?:modalit\w*|forms?|preferences?|adherence|habits?)\b", text)
+    selection = re.search(r"选择|考虑|有效|改善|进步|收益|最优|作用|起步|先从|\b(?:choos\w*|select\w*|consider\w*|matter|effective|improv\w*|benefits?|optimal|starting)\b", text)
     if resistance and modality and selection:
         topics.add("training_modality_adherence")
-    aerobic = bool(re.search(r"有氧|快走|\b(?:aerobic|brisk walking)\b", text))
+    performance = re.search(r"(?<![a-z])sppb(?![a-z])|综合体能|体能表现|\bphysical performance\b", text)
+    evidence = re.search(r"证据|综述|结论|改善|帮助|效果|\b(?:evidence|review|conclusions?|improv\w*|benefits?|effects?)\b", text)
+    if resistance and performance and evidence:
+        topics.add("physical_performance_evidence")
+    aerobic = bool(re.search(AEROBIC_ACTIVITY, text))
     accumulation = re.search(r"计入|算进|累计|积累|零碎|短时|每周.{0,8}(?:目标|总量)|\b(?:count\w*|accumulat\w*|short bouts?|weekly (?:activity )?(?:targets?|amounts?))\b", text)
-    if aerobic and accumulation:
+    health_benefits = re.search(r"健康(?:益处|收益|获益)|收益的?上限|\bhealth benefits?\b", text)
+    if aerobic and (accumulation or health_benefits):
         topics.add("aerobic_activity_volume")
-    muscle = bool(re.search(r"肌力活动|肌力训练|肌肉强化|\b(?:muscle[- ]strengthening|strength training)\b", text))
+    muscle = bool(re.search(MUSCLE_ACTIVITY, text))
     flexibility = bool(re.search(r"拉伸|柔韧|\b(?:stretching|flexibility)\b", text))
-    complementary = re.search(r"替代|代替|取代|需要|益处|作用|满足|\b(?:replace\w*|substitut\w*|need|benefits?|contribut\w*|satisf\w*|meet)\b", text)
+    complementary = re.search(r"替代|代替|取代|需要|益处|作用|满足|计入|算进|算作|\b(?:replace\w*|substitut\w*|need|benefits?|contribut\w*|satisf\w*|meet|count\w*)\b", text)
     if sum((aerobic, muscle, flexibility)) >= 2 and complementary:
         topics.add("activity_type_complementarity")
     activity = re.search(ACTIVITY_CONTEXT + r"|(?:增加|提高)活动|\bactivity\b", text)
     order = re.search(r"先.{0,6}(?:增加|提高|加)|(?:增加|提高).{0,8}(?:先后|顺序)|\b(?:increase|increasing)\b.{0,20}\bfirst\b", text)
     if activity and order:
         topics.add("gradual_progression")
+    # Starting a training habit is a task, not starting an app or a clock.
+    start = re.search(r"起步|初学|先从|(?:开始|初次).{0,12}(?:肌力|力量|训练)|\b(?:beginning|starting|start)\b.{0,20}\b(?:with|muscle|strength|training)\b", text)
+    if muscle and start:
+        topics.add("muscle_strengthening_start")
     return topics
 
 
@@ -383,6 +398,8 @@ def _activity_topics(clause, named_subjects):
         r"增量|增幅|增加的幅度|(?:同等|相同|不同)幅度|(?:小|大)幅(?:度)?(?:地)?增加|"
         r"(?:增加|增长|新增)的?(?:量|负担|比例|百分比)|"
         r"(?:多|增加).{0,8}(?:相同|同样|一样).{0,8}(?:分钟|时长|时间|活动量)|"
+        r"都.{0,12}(?:加|增加).{0,8}(?:分钟|时长|时间)|"
+        r"\b(?:add(?:ing)?|increase)\b.{0,20}\b(?:same|equal)\b.{0,20}\b(?:time|minutes?|duration)\b|"
         r"\b(?:increments?|size of (?:the )?increase)\b", clause
     ):
         topics.add("activity_increment_size")
@@ -492,6 +509,11 @@ def _semantic_roles(text, found, vocabulary, context):
     if conditioned != text:
         retained = _lexical_hits(conditioned, vocabulary)
         found -= (ORGANIZED_VARIABLES & found) - retained
+    if "frequency" in found:
+        # A matched dose can be a noun phrase, not only an 'if/when' clause.
+        remaining = re.sub(r"(?:相同|相等|固定|不变)的?.{0,10}(?:总组数|总组量|总训练量|训练总量)", "", conditioned)
+        if "volume" not in _lexical_hits(remaining, vocabulary):
+            found.discard("volume")
     return found
 
 
@@ -605,17 +627,19 @@ def requested_parts(question, found, context):
     else:
         subject = None
     goals = set()
-    for goal, pattern in {
+    goal_patterns = {
         "hypertrophy": r"增肌|肌肥大|长肌肉|\bhypertroph(?:y|ic)\b|\bmuscle growth\b",
         "strength": r"(?:提高|提升|增加|最大|以|对)力量|力量(?!训练)|长力气|\bstrength\b(?!\s+training)",
         "public_health": r"公共健康|总体健康|一般健康|\bpublic health\b|\bgeneral health\b",
         "power": r"爆发力|功率收益|\bpower (?:gains|outcomes?|goals?)\b",
-    }.items():
+    }
+    for goal, pattern in goal_patterns.items():
         if re.search(pattern, text):
             goals.add(goal)
-    if len(goals) > 1 and re.search(
-        r"推及|推出|直接用于|套用|推广|也能|\b(?:carried over|carry over|generali[sz](?:e|ed)|extend(?:ed)?|imply|transfer)\b", text
-    ):
+    if len(goals) > 1 and any(re.search(
+        r"推及|推出|直接用于|套用|推广|也能|\b(?:carried over|carry over|generali[sz](?:e|ed)|extend(?:ed)?|imply|transfer)\b", clause
+    ) and sum(bool(re.search(pattern, clause)) for pattern in goal_patterns.values()) > 1
+            for clause in re.split(REQUEST_BOUNDARY, text)):
         outcomes.add("goal_scope")
     if not goals and context.get("training_goal") in {"hypertrophy", "strength", "public_health", "power"}:
         goals.add(context["training_goal"])
@@ -632,7 +656,11 @@ def requested_parts(question, found, context):
         if outcome in ACTIVITY_SUBJECTS:
             part_subject = (ACTIVITY_SUBJECTS[outcome] if re.search(ACTIVITY_CONTEXT, text)
                             else context.get("named_source_task_subjects", {}).get(outcome))
-        if outcome == "training_modality_adherence":
+        if outcome == "gradual_progression" and re.search(ACTIVITY_CONTEXT, text):
+            # Preserve the existing reviewed task identity, which includes HHS
+            # general activity progression despite its legacy subject name.
+            part_subject = "resistance_training"
+        if outcome in {"training_modality_adherence", "physical_performance_evidence"}:
             part_subject = "resistance_training"
         part_goals = {"public_health"} if health_boundary and outcome == "frequency" else goals
         for goal in sorted(part_goals) if outcome in sensitive and part_goals else [None]:

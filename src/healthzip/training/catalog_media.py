@@ -401,7 +401,9 @@ def offline_package(repo, destination, *, include_media=True):
     catalog = public_catalog(repo)
     media = []
     with ZipFile(destination, "w", ZIP_DEFLATED) as archive:
-        archive.writestr("index.html", recorder_html(repo))
+        archive.writestr(
+            "index.html", recorder_html(repo, include_packaged_media=include_media)
+        )
         for item in catalog["items"]:
             item["media"] = []
             for entry in media_for(repo.conn, item["exercise_id"]):

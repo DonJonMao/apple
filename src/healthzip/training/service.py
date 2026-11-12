@@ -1030,6 +1030,34 @@ class TrainingService:
                     "SELECT COALESCE(MAX(position),-1)+1 FROM training_session_exercise WHERE session_id=?",
                     (session["id"],),
                 ).fetchone()[0]
+            frozen_exercise = None
+            plan = session.get("plan_snapshot") or {}
+            if "client_plan_slots" in plan:
+                items = plan.get("items", [])
+                slot_items = [
+                    item for item in items for _ in item.get("targets", {}).get("sets", [])
+                ]
+                matches = [
+                    item
+                    for slot, item in zip(plan["client_plan_slots"], slot_items)
+                    if slot["session_exercise_id"] == identity
+                ]
+                planned_item = matches[0] if matches else None
+                if any(item is not planned_item for item in matches):
+                    raise TrainingError("离线动作身份对应多个模板动作")
+                # Templates without planned sets have no set-slot identity. Their
+                # initial exercise order still identifies the frozen template item.
+                if planned_item is None and index < len(items):
+                    candidate = items[index]
+                    if not candidate.get("targets", {}).get("sets"):
+                        planned_item = candidate
+                if planned_item is not None:
+                    if (
+                        planned_item["exercise_id"] != exercise_id
+                        or planned_item["definition_version"] != snapshot["definition_version"]
+                    ):
+                        raise TrainingError("离线动作与冻结模板身份或定义版本不一致")
+                    frozen_exercise = planned_item.get("exercise_snapshot")
             self._insert_exercise(
                 session["id"],
                 identity,
@@ -1040,6 +1068,7 @@ class TrainingService:
                 version=definition_version,
                 replaced_from=replaced_from_exercise_id,
                 reason=replacement_reason,
+                exercise_snapshot=frozen_exercise,
                 reviewed_anatomy_snapshot=reviewed_anatomy_snapshot,
                 bound_at=now,
             )

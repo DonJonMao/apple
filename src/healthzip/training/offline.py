@@ -35,12 +35,14 @@ def browser_bootstrap(repo) -> dict:
     svc = TrainingService(repo)
     sessions = svc.list_sessions()[:30]
     templates = svc.list_templates()
-    definitions = {
-        (item["exercise_id"], item["definition_version"]): item.get("exercise_snapshot")
+    # A presentation can change without changing the physical definition version.
+    # Keep each template's frozen view; the browser uses its own item snapshot first.
+    definitions = [
+        item.get("exercise_snapshot")
         or svc.get_exercise(item["exercise_id"], item["definition_version"])
         for template in templates
         for item in template["items"]
-    }
+    ]
     catalog = svc.search_exercises()
     for item in catalog:
         item["media"] = [
@@ -52,7 +54,7 @@ def browser_bootstrap(repo) -> dict:
         "catalog": catalog,
         "catalog_snapshot_id": published_snapshot(repo.conn),
         "catalog_public_ids": [x["exercise_id"] for x in public_catalog(repo)["items"]],
-        "catalog_definitions": list(definitions.values()),
+        "catalog_definitions": definitions,
         "equipment": svc.list_equipment(),
         "templates": templates,
         "sessions": [svc.get_session(row["id"]) for row in sessions],
@@ -96,11 +98,11 @@ def apply_event_batch(repo, events: list, *, device_id: str = "browser-local") -
     return {"results": results, "processed": len(results), "submitted": len(events)}
 
 
-def recorder_html(repo=None) -> bytes:
+def recorder_html(repo=None, *, include_packaged_media=True) -> bytes:
     """Embed installed public catalog; seed fallback only before any installation."""
     from .catalog_import import public_catalog
     from .catalog_media import MEDIA_STATUS_LABELS, media_for
-    from .catalog_terms import CHINESE_NAME_STATUS_LABELS
+    from .catalog_terms import CHINESE_NAME_STATUS_LABELS, EQUIPMENT_LABELS, PATTERN_LABELS
 
     template = Path(__file__).parents[1] / "ui" / "offline_recorder.html"
     seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
@@ -120,11 +122,15 @@ def recorder_html(repo=None) -> bytes:
                 "equipment_type",
                 "default_load_basis",
                 "display_regions",
+                "movement_patterns",
+                "side",
+                "variant_notes",
                 "aliases_zh",
                 "name_en",
                 "source",
                 "names",
                 "description",
+                "description_language",
             )
         }
         for item in public_data["items"]
@@ -134,7 +140,10 @@ def recorder_html(repo=None) -> bytes:
             item["media"] = [
                 {
                     **{k: v for k, v in media.items() if k not in {"local_path", "error"}},
-                    "package_path": "media/" + media["blob_hash"] if media["local_path"] else None,
+                    **(
+                        {"package_path": "media/" + media["blob_hash"]}
+                        if include_packaged_media and media["local_path"] else {}
+                    ),
                 }
                 for media in media_for(repo.conn, item["exercise_id"])
             ]
@@ -149,6 +158,12 @@ def recorder_html(repo=None) -> bytes:
         .replace(
             "__CHINESE_NAME_STATUS_LABELS_JSON__",
             json.dumps(CHINESE_NAME_STATUS_LABELS, ensure_ascii=False),
+        )
+        .replace("__EQUIPMENT_LABELS_JSON__", json.dumps(EQUIPMENT_LABELS, ensure_ascii=False))
+        .replace("__PATTERN_LABELS_JSON__", json.dumps(PATTERN_LABELS, ensure_ascii=False))
+        .replace(
+            "__REGION_LABELS_JSON__",
+            json.dumps({x["id"]: x["label"] for x in seed["display_regions"]}, ensure_ascii=False),
         )
         .encode("utf-8")
     )

@@ -1,0 +1,795 @@
+{
+  "schema": "independent_knowledge_round7_cases_v1",
+  "frozen_at": "2026-11-12T04:58:01.748492+00:00",
+  "reviewer_kind": "ai_independent_source_only_semantic_review_not_human_expert",
+  "source_packet_sha256": "54a2435101954ee242880acf41d3f781a8aaa3219f876dc151d6e9ee1c54be85",
+  "case_set_revision": 1,
+  "grading_contract": {
+    "unit": "atomic_expected_point",
+    "point_score": "1仅在用户实际可见回答明确传达该点实质时给分，否则0；缺失、含糊或与该点相反均保留记录。",
+    "semantic_acceptance": "接受同义表达、不同顺序和非逐字表述；不因缺少特定词语扣分。只评价用户实际看得懂的实质回答，不替产品补充未说出的推理或知识。",
+    "case_pass": "全部expected_points满足，且未出现unacceptable_claims或其他实质性来源矛盾。",
+    "boundary_handling": "遇到证据不足的部分，准确说明可知内容和边界可获满分；一概拒答不能替代已可回答的内容。",
+    "citation_handling": "expected_points的span_ids用于预期溯源；仅缺少特定引用格式不影响内容得分。错误引用另记，不用格式替代语义。",
+    "retention": "冻结后不删除、改写或替换题目及预期点；所有初始题和失败均进入评分。"
+  },
+  "cases": [
+    {
+      "case_id": "r7-k01",
+      "question": "我平时靠快走上下班，每次只有几分钟；晚上再拉伸一会儿，跑步前也会走路热身。哪些时间能算进每周的有氧活动量，哪些不能直接算？",
+      "source_ids": [
+        "CORE-US-HHS-PAG-2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k01-p1",
+          "expected_content": "上下班步行只要达到足够的有氧活动强度就可以计入；是否专门为锻炼而做不决定能否计入。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "support_reason": "该段明确把主动通勤列为可计入的活动，并把计入条件放在活动强度上。"
+        },
+        {
+          "point_id": "r7-k01-p2",
+          "expected_content": "不能仅因每次只有几分钟就排除这些活动；健康获益更看重中高强度活动的总量，而不是单次持续时间。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "support_reason": "原文直接比较总活动量和每次活动时长的重要性，没有给出每段必须很长的条件。"
+        },
+        {
+          "point_id": "r7-k01-p3",
+          "expected_content": "单独拉伸的时间不计入有氧或肌肉强化活动指标。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "support_reason": "柔韧性活动部分把单独拉伸与有氧、肌肉强化指南的计时区分开。"
+        },
+        {
+          "point_id": "r7-k01-p4",
+          "expected_content": "热身中的步行只有达到至少中等强度才可计入有氧活动量，并非所有热身时间都算。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+          ],
+          "support_reason": "热身段给出的计入条件是至少中等强度，并以慢跑前快走为例。"
+        }
+      ],
+      "unacceptable_claims": [
+        "一律排除通勤活动或所有不足十分钟的活动。",
+        "把单独拉伸全部算成有氧活动量。",
+        "无论强度如何，所有热身时间均计入有氧指标。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k02",
+      "question": "我现在每周慢跑40分钟，朋友已经跑200分钟，我们都准备下周加20分钟。这样增加的风险一样吗？如果体能还差，下一步优先加时间、加天数，还是加速度？",
+      "source_ids": [
+        "CORE-US-HHS-PAG-2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k02-p1",
+          "expected_content": "相同的20分钟并不代表相同的相对增幅：40分钟基础上增加是50%，200分钟基础上增加是10%，较低基础者这一增量相对更激进。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "support_reason": "原文直接用40、200和20分钟说明相对增幅与损伤风险的关系。"
+        },
+        {
+          "point_id": "r7-k02-p2",
+          "expected_content": "负荷变化宜小，并给身体适应和恢复的时间；原有活动与新活动的差距越大，相关损伤风险越值得注意。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "support_reason": "该段把超负荷界定为新旧活动差距，并说明小幅变化和等待适应有助降低风险。"
+        },
+        {
+          "point_id": "r7-k02-p3",
+          "expected_content": "低活动或低体能者通常先增加中等强度活动的单次时长与每周频率，之后按需要再提高强度；体能很差时可以从轻强度或轻至中等强度开始。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "support_reason": "原文列出的顺序是先时长和频率，后强度，且单独给出低体能者较轻起步的选项。"
+        },
+        {
+          "point_id": "r7-k02-p4",
+          "expected_content": "增加速度要结合年龄、体能和既往经验个体化，不能把这个10%的例子当成人人适用的强制周增量。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "support_reason": "原文要求依据三项个体因素调整，并建议有过用量过度损伤的人下次更慢；百分比只是风险比较例子。"
+        }
+      ],
+      "unacceptable_claims": [
+        "二人增加的时间一样，所以风险相同。",
+        "任何人都应严格每周增加10%，这是原文给出的统一安全上限。",
+        "体能差者应先显著提速，再增加时间或频率。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k03",
+      "question": "我是健康成年人，每周已有150分钟中等强度有氧运动，也练两天力量，但体重没降。是不是运动没有健康收益了？如果把有氧逐渐加到300分钟，300分钟又是不是收益的上限？",
+      "source_ids": [
+        "CORE-US-HHS-PAG-2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k03-p1",
+          "expected_content": "即使体重没有下降，规律活动仍可带来重要健康获益；健康获益总体不依赖体重变化。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "support_reason": "体重讨论明确把健康获益与体重变化分开，避免把体重不变等同于运动无效。"
+        },
+        {
+          "point_id": "r7-k03-p2",
+          "expected_content": "每周150分钟中等强度有氧运动已对应显著健康获益。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002"
+          ],
+          "support_reason": "成人建议及其解释均把150分钟列为有显著获益的活动量。"
+        },
+        {
+          "point_id": "r7-k03-p3",
+          "expected_content": "从150分钟逐渐增加到300分钟，可获得更广泛的健康益处，例如进一步降低某些疾病风险。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "support_reason": "原文比较150与300分钟，并建议已达到最低量者朝300分钟增加。"
+        },
+        {
+          "point_id": "r7-k03-p4",
+          "expected_content": "300分钟不是已知的健康获益上限，更多活动仍可能带来额外收益；这不构成无限加量或保证零风险的依据。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00002",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "support_reason": "前两段明确指出超过300分钟仍有获益且尚未找到获益停止的总量上界；安全段同时要求逐渐增加。"
+        }
+      ],
+      "unacceptable_claims": [
+        "体重不降说明活动没有健康收益。",
+        "300分钟是已证实的获益硬上限。",
+        "既然没有找到获益上限，就可无限增加并保证安全。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k04",
+      "question": "一个没有慢性病、也没有不适的成年人想从轻松活动慢慢练起来，必须先做医疗咨询才能开始吗？如果后来加量时出现以前没有的胸部不适，建议会不会改变？",
+      "source_ids": [
+        "CORE-US-HHS-PAG-2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k04-p1",
+          "expected_content": "无已诊断慢性病且无相关症状的成年人，若逐步开始活动，一般不必先取得医疗咨询才能锻炼。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "support_reason": "两段均对健康、无症状且逐步增加活动者说明通常无需事先咨询。"
+        },
+        {
+          "point_id": "r7-k04-p2",
+          "expected_content": "增加活动后出现新的症状，应咨询医疗服务提供者；前述一般无需咨询的建议不再可直接照用。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "support_reason": "该段明确区分无症状起步和加量中出现新症状这两种情况。"
+        },
+        {
+          "point_id": "r7-k04-p3",
+          "expected_content": "已有症状或已知慢性病者应接受医疗服务提供者的常规照护，并与专业人员制定适合的活动类型和量。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "support_reason": "安全指南和医疗建议都把症状或慢性病者置于专业照护和个体活动计划的范围内。"
+        }
+      ],
+      "unacceptable_claims": [
+        "所有无症状健康成年人都必须先得到医生许可才能开始轻度活动。",
+        "只要是逐渐加量，出现新的胸部不适也无需医疗咨询。",
+        "仅凭这些资料给出胸部不适的具体诊断或保证其无害。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可回答一般咨询指引及新症状带来的变化；来源不足以诊断假设中的胸部不适。"
+      }
+    },
+    {
+      "case_id": "r7-k05",
+      "question": "按2026年ACSM这篇综述，健康成年人练力量时每组一定要做到再也举不动才有效吗？如果留两三次余力，这是不是已经被证实为人人都最合适的精确标准？",
+      "source_ids": [
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k05-p1",
+          "expected_content": "做到瞬时肌肉力竭不是获得力量、增肌或功率收益的必要条件，综述也未显示这样做会进一步增强这些收益。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "support_reason": "该段同时说明力竭没有增强这些适应，且不是产生收益所必需。"
+        },
+        {
+          "point_id": "r7-k05-p2",
+          "expected_content": "仍需要足够的努力或刺激；接近力竭、保留约2至3次重复能力是作者提出的实现足够努力的一种做法。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "support_reason": "原文在否定必须力竭后提出足够刺激，并将2至3次余力作为可用目标，而非无需用力。"
+        },
+        {
+          "point_id": "r7-k05-p3",
+          "expected_content": "精确的余力次数或主观用力目标证据不足，不能把2至3次余力称为对所有人都已验证的唯一最优标准。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "support_reason": "限制讨论明确指出尚不能用证据量化精确的RIR或主观用力目标。"
+        }
+      ],
+      "unacceptable_claims": [
+        "每组不做到力竭就不能增肌或增强力量。",
+        "保留两三次余力是对所有人严格验证的唯一最优方案。",
+        "既然无需力竭，任意低努力都保证产生同样适应。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可解释力竭的非必要性和足够努力；精确且普适的余力目标超出原文证据。"
+      }
+    },
+    {
+      "case_id": "r7-k06",
+      "question": "我把一周相同的增肌训练总组数，从两天拆成五天做。朋友说训练天数多了，肌肉一定长得更多，力量也会按天数同比增长。这两个判断能从2026年ACSM综述推出吗？",
+      "source_ids": [
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k06-p1",
+          "expected_content": "总训练量相同时，综述没有发现较高训练频率能进一步提高肌肉肥大，因此不能保证拆成更多天就长更多肌肉。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00026"
+          ],
+          "support_reason": "该段明确把频率比较的增肌结论限定在总量相等条件下。"
+        },
+        {
+          "point_id": "r7-k06-p2",
+          "expected_content": "力量与增肌的证据不能混为一谈：综述报告频率可以影响力量，高于或等于每周两天的训练与较好力量结果有关。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00024",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069"
+          ],
+          "support_reason": "力量总结报告频率作用，后续讨论也确认频率曾影响力量。"
+        },
+        {
+          "point_id": "r7-k06-p3",
+          "expected_content": "现有证据不足以确定训练频率与力量之间的剂量反应，且总量相等时频率影响减弱，不能推成力量随训练天数同比增长。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069"
+          ],
+          "support_reason": "原文明确指出剂量反应证据不足及等量条件下影响减弱。"
+        }
+      ],
+      "unacceptable_claims": [
+        "总组数相同时，只要频率更高就必定获得更多增肌。",
+        "力量收益可以按每周训练天数作同比换算。",
+        "由于增肌的等量频率比较无差异，所以频率对力量也绝不可能有作用。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可区分增肌和力量证据；不能为两天改五天预测个体增长数值或线性倍数。"
+      }
+    },
+    {
+      "case_id": "r7-k07",
+      "question": "我练了一段时间后变强了，但仍按当前最大力量的同一百分比训练。这算完全没有增加刺激吗？如果暂时不继续进阶，是不是之前的方案就一点好处也没有？",
+      "source_ids": [
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k07-p1",
+          "expected_content": "相对负荷比例保持不变，不代表绝对负重不变；随力量提高并重新测试或用用力程度调节，绝对负荷仍可增加。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "support_reason": "渐进负荷段明确允许保持相同相对比例，同时随力量增长提高绝对重量。"
+        },
+        {
+          "point_id": "r7-k07-p2",
+          "expected_content": "进一步增加刺激不只限于加重量，还可以通过训练量、频率、动作选择或持续时间等方式实现。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "support_reason": "原文给出多种刺激调整维度，说明渐进负荷并非只看重量百分比。"
+        },
+        {
+          "point_id": "r7-k07-p3",
+          "expected_content": "继续进阶不是获得任何有益结果的必要条件，原有方案没有持续加量不等于毫无益处。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "support_reason": "原文直接区分有益结果与持续进阶的必要性。"
+        },
+        {
+          "point_id": "r7-k07-p4",
+          "expected_content": "随着适应继续追求长期进步时，通常需要以某种方式增加刺激；是否继续进阶也应按个人目标和情况决定。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062"
+          ],
+          "support_reason": "渐进段将增加刺激与持续长期适应联系起来，个体化段要求结合目标和特点。"
+        }
+      ],
+      "unacceptable_claims": [
+        "相对负荷百分比不变就绝不可能实现渐进增加刺激。",
+        "只有提高重量百分比才算进阶。",
+        "只要某段时间不增加训练负荷，训练就完全无益。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k08",
+      "question": "健康成年人做抗阻训练时，每个动作做两组是不是就到顶了？如果想继续加组，2026年这篇综述能给出人人适用的最优组数吗？",
+      "source_ids": [
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k08-p1",
+          "expected_content": "增加组数可改善力量和增肌；综述指出一组优于不练、两组优于一组，并建议健康成年人每个动作至少做两组。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071"
+          ],
+          "support_reason": "组数讨论用零、一、两组的比较支持至少两组的实用建议。"
+        },
+        {
+          "point_id": "r7-k08-p2",
+          "expected_content": "超过两组仍可能有额外好处，但追加组数的收益可能逐渐减小，不能把两组视为绝对效果上限。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071"
+          ],
+          "support_reason": "原文允许两组以上的进一步收益，同时提出边际收益递减。"
+        },
+        {
+          "point_id": "r7-k08-p3",
+          "expected_content": "不能从此确定人人适用的精确最优组数；综述明确说无法确定优化适应所需的确切组数。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "support_reason": "组数段明确限制最优数值的确定，局限段又指出这是群体证据且须个体化。"
+        }
+      ],
+      "unacceptable_claims": [
+        "两组后再加组绝不会有额外益处。",
+        "每加一组收益都等量增加，因而组数越多越好且没有平台。",
+        "综述已经证明一个对所有人和所有目标都精确最优的组数。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可解释两组建议和加组的潜在收益；精确且普适的最优组数未被确定。"
+      }
+    },
+    {
+      "case_id": "r7-k09",
+      "question": "看到综述没有得出抗阻训练能改善SPPB综合体能评分的结论，我能据此说它对走路、平衡和起立都没帮助吗？这个综合评分的证据有什么需要注意的？",
+      "source_ids": [
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k09-p1",
+          "expected_content": "不能把SPPB综合评分缺乏改善结论直接解释为训练确实无效；作者认为这很可能反映证据稀少。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "support_reason": "局限段把表面无效结论解释为可能来自稀疏证据而非真实零效应。"
+        },
+        {
+          "point_id": "r7-k09-p2",
+          "expected_content": "只有两篇符合条件的综述综合了SPPB结果，是该综合评分结论受限的重要原因。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "support_reason": "原文给出SPPB可用综述数量，直接支持证据量限制。"
+        },
+        {
+          "point_id": "r7-k09-p3",
+          "expected_content": "相较之下，步行速度、平衡和椅子起立这些组成项目有较充分的证据，且抗阻训练改善了这些项目。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00059",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "support_reason": "总体结果和局限段均报告这些具体体能项目改善。"
+        }
+      ],
+      "unacceptable_claims": [
+        "综合评分未显示改善，就证明其所有组成项目都无益。",
+        "SPPB已有充足证据证实抗阻训练的真实效果为零。",
+        "把来源谨慎的可能解释改成必然证明SPPB一定显著改善。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可以说明证据稀疏及组成项目结果，但不能保证未被充分研究的综合评分必定改善。"
+      }
+    },
+    {
+      "case_id": "r7-k10",
+      "question": "一项比较两种训练方案的小样本研究，常规差异检验得到P=0.23。作者写“二者效果一样”。这个结论够充分吗？如果做等效检验，通过后又能证明到什么程度？",
+      "source_ids": [
+        "M2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k10-p1",
+          "expected_content": "P=0.23这种常规差异检验不显著不能证明没有效果或两方案等效，小样本中的不显著结果尤其不足以排除有意义差异。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "support_reason": "原文指出不拒绝原假设并非相等证据，且强调小样本不能由此排除备择。"
+        },
+        {
+          "point_id": "r7-k10-p2",
+          "expected_content": "要支持足够接近的结论，应明确有实际意义差异的界限，并用适当的等效检验评估是否排除达到该界限的差异。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "support_reason": "等效论述要求事先明确可检验的差异范围，并检验界限而非只看普通P值。"
+        },
+        {
+          "point_id": "r7-k10-p3",
+          "expected_content": "等效检验能支持的是排除足够大、具有实际意义的差异，不能证明两种干预在效果上精确完全相等。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "support_reason": "原文把统计上不能证明精确相等与可以排除实质差异明确区分。"
+        }
+      ],
+      "unacceptable_claims": [
+        "P大于0.05即可确认两方案完全相等。",
+        "小样本不显著就能排除实际重要差异。",
+        "通过等效检验就是证明真实差异严格等于零。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k11",
+      "question": "我想检验两种训练的效果是否足够接近。能直接拿Cohen的“小效应”标准当作可忽略差异的界限吗？界限定好后，在显著性水平0.05下，TOST应该怎样判断通过，置信区间要满足什么条件？",
+      "source_ids": [
+        "M2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k11-p1",
+          "expected_content": "不宜直接把Cohen通用效应量标准当作运动生理或运动科学中的最小重要效应界限；应根据具体研究问题和实际情境确定。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "support_reason": "原文不推荐该跨情境套用，理由是实际重要效应依赖具体研究问题。"
+        },
+        {
+          "point_id": "r7-k11-p2",
+          "expected_content": "TOST的两个单侧检验都要在规定的显著性水平拒绝达到或超出各自等效边界的差异，才可判为等效。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "support_reason": "原文要求两个单侧检验同时通过，而不是任选其中一个。"
+        },
+        {
+          "point_id": "r7-k11-p3",
+          "expected_content": "当α为0.05时，应查看双侧90%置信区间是否整个落在上下等效界限之内；仅跨零或点估计在界内不够。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "support_reason": "原文给出双侧100(1−2α)%区间的完全包含判据，代入0.05得到90%。"
+        }
+      ],
+      "unacceptable_claims": [
+        "Cohen小效应阈值在任何运动研究中都自动等同于可忽略差异。",
+        "两个单侧检验有一个通过就能判等效。",
+        "只要区间包含零，或点估计落在等效界内，就能通过TOST。",
+        "α=0.05时，TOST对应区间必定是双侧95%，90%不适用。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k12",
+      "question": "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+      "source_ids": [
+        "M2"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k12-p1",
+          "expected_content": "文中为简明起见聚焦平行组研究，均值和方差来自成对的相互独立随机样本，观测服从正态分布。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "support_reason": "相邻两段共同列出文章演示的研究设计、独立性和分布前提。"
+        },
+        {
+          "point_id": "r7-k12-p2",
+          "expected_content": "同一人的前后测及明显不同的分布不自动符合这些示范前提；其他设计或分布可能需要不同分析处理，不能由此保证原样照搬正确。",
+          "span_ids": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "support_reason": "原文明确提醒不同设计或概率分布的分析方法可能变化；该题只需保留这一方法适用边界。"
+        }
+      ],
+      "unacceptable_claims": [
+        "文章中的方法不论是否配对、无论分布如何都可原样套用。",
+        "因为不符合示范前提，就断言配对或偏态数据绝不可能做任何等效检验。",
+        "声称仅凭这些节选即可给出已验证、适用于该用户数据的完整替代公式或个体计算结果。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可指出演示假设和不能机械外推的边界；包内没有配对偏态数据的完整替代推导。"
+      }
+    },
+    {
+      "case_id": "r7-k13",
+      "question": "我有两份线性回归数据：一份是彼此独立的人，只是误差大小不一样；另一份按时间排列，误差还会前后相关。通常的标准误为什么可能出问题，HC和HAC各自适合处理哪一种情形？",
+      "source_ids": [
+        "N1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k13-p1",
+          "expected_content": "传统线性回归的这类常规协方差估计依赖误差独立且同方差；这些假设被破坏时，据此作推断会产生偏差。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00134",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140"
+          ],
+          "support_reason": "连续原文把推断所需的协方差一致估计与独立同方差假设联系起来，并指出违反假设后的偏差。"
+        },
+        {
+          "point_id": "r7-k13-p2",
+          "expected_content": "对于误差相互独立但方差不同的情形，HC是针对异方差的协方差估计；此时误差协方差矩阵为对角矩阵但对角元素不必相同。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00145",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151"
+          ],
+          "support_reason": "HC段直接设定误差独立而可能异方差，并描述相应矩阵结构。"
+        },
+        {
+          "point_id": "r7-k13-p3",
+          "expected_content": "误差还存在时间相关时，应考虑能处理异方差和自相关的HAC，而不能仅把异方差修正当成对自相关的充分处理。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "support_reason": "HAC部分转向非独立误差，并以未知异方差与自相关形式说明该估计的任务。"
+        },
+        {
+          "point_id": "r7-k13-p4",
+          "expected_content": "这里需要修正的是回归推断所依赖的协方差估计；不能仅凭误差不独立或不等方差就笼统断言OLS系数在所有情况下必然不一致。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00106",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00107",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00108",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132"
+          ],
+          "support_reason": "原文分别讨论适当正则条件下OLS系数的一致性与推断用协方差的一致性，二者不能混为一谈。"
+        }
+      ],
+      "unacceptable_claims": [
+        "HC能够无条件同时解决任意时间自相关。",
+        "误差独立但方差不同也必然满足常规同方差标准误的条件。",
+        "只要出现异方差，OLS系数必定有偏或必定不一致。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k14",
+      "question": "小样本回归里有几个影响特别大的观测。文献为什么还区分HC0、HC3和HC4，而不是把“稳健标准误”当成一个完全相同的东西？",
+      "source_ids": [
+        "N1"
+      ],
+      "natural_compound_question": false,
+      "expected_points": [
+        {
+          "point_id": "r7-k14-p1",
+          "expected_content": "HC类估计并非完全相同，它们对误差方差或权重的构造不同。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00151",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00153"
+          ],
+          "support_reason": "原文说明这些估计器通过不同的ω选择形成不同HC估计。"
+        },
+        {
+          "point_id": "r7-k14-p2",
+          "expected_content": "HC0主要由渐近论证支持，而HC1、HC2、HC3是为改善小样本表现而提出的。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184"
+          ],
+          "support_reason": "介绍段明确区分HC0的渐近依据和后续小样本修正的动机。"
+        },
+        {
+          "point_id": "r7-k14-p3",
+          "expected_content": "文中引用的小样本比较认为HC3表现较好，并介绍HC4进一步改善小样本、尤其存在高影响观测时的表现；这不是所有数据下某估计器必胜的保证。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00188"
+          ],
+          "support_reason": "原文将HC3结论归于特定研究，再交代HC4针对小样本和影响观测的改进目的，未给出无条件支配定理。"
+        }
+      ],
+      "unacceptable_claims": [
+        "HC0、HC3、HC4仅名字不同，计算和有限样本表现完全一样。",
+        "HC0的渐近依据意味着它在任意小样本里都最可靠。",
+        "HC3或HC4被证明对所有数据与设计始终最优。"
+      ],
+      "answerability": {
+        "expected": "supported_with_boundary",
+        "reason": "可解释估计器差别及文献中小样本动机，不能对给定数据保证哪一种必然最佳。"
+      }
+    },
+    {
+      "case_id": "r7-k15",
+      "question": "做时间序列回归时，HAC为什么通常让相隔越远的观测权重越小？文中说的预白化又是在处理什么，它能起什么作用？",
+      "source_ids": [
+        "N1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k15-p1",
+          "expected_content": "在许多数据结构中，认为自相关随滞后增大而减弱是合理假设，因此让较大滞后的权重减小有相应依据，而非对所有序列的无条件定律。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00228"
+          ],
+          "support_reason": "原文先限定许多数据结构，再由自相关随滞后衰减引出权重也衰减的直觉。"
+        },
+        {
+          "point_id": "r7-k15-p2",
+          "expected_content": "HAC估计使用拟合回归的估计函数在不同滞后上的乘积加权求和。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00245"
+          ],
+          "support_reason": "该段直接概括各HAC估计器共享的加权滞后乘积结构。"
+        },
+        {
+          "point_id": "r7-k15-p3",
+          "expected_content": "预白化可先对估计函数拟合VAR(p)，再把相应估计应用于VAR残差；文中指出这可以降低估计器偏差。",
+          "span_ids": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00233",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00234",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00236"
+          ],
+          "support_reason": "原文具体给出预白化对象、VAR步骤和降低偏差的作用，不能替换为保证消除全部依赖。"
+        }
+      ],
+      "unacceptable_claims": [
+        "任何时间序列的相关性都必定随滞后单调下降。",
+        "HAC把所有滞后永远赋予完全相同的权重。",
+        "预白化保证所有自相关与估计偏差彻底为零。",
+        "把文中的预白化仅解释成对原始因变量减去均值。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    },
+    {
+      "case_id": "r7-k16",
+      "question": "我以前完全不练力量，现在想先从每周一天、比较轻松的训练养成习惯。但指南又常说至少两天，这是不是意味着第一阶段白练了？从起步到长期安排，该怎样理解这两个说法？",
+      "source_ids": [
+        "CORE-US-HHS-PAG-2",
+        "S1"
+      ],
+      "natural_compound_question": true,
+      "expected_points": [
+        {
+          "point_id": "r7-k16-p1",
+          "expected_content": "起步每周一天并不因此毫无价值；HHS明确允许初始以每周一天、轻至中等努力开始肌肉强化活动。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "support_reason": "原文直接提出一天作为渐进起步安排，因此不能把长期频率目标理解成第一阶段零收益。"
+        },
+        {
+          "point_id": "r7-k16-p2",
+          "expected_content": "应随适应逐步把频率增加到每周两天，努力程度逐渐达到中等或以上；长期建议也要覆盖主要肌群。",
+          "span_ids": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "support_reason": "成人总体建议要求至少两天及主要肌群，起步段则说明如何从一天逐渐达到这一水平。"
+        },
+        {
+          "point_id": "r7-k16-p3",
+          "expected_content": "2026年ACSM把许多可带来改善的训练方案与追求最优效果区分开，并重视按个人目标与特点设计、支持参与和坚持；起步安排和长期目标因此可以并存。",
+          "span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00067"
+          ],
+          "support_reason": "综述区分显著改善与最优化，同时强调个体化和参与；这支持渐进起步而不把单一处方门槛等同于全部有效性。"
+        }
+      ],
+      "unacceptable_claims": [
+        "不到每周两天就完全没有任何收益，起步一天纯属无效。",
+        "允许一天起步说明健康成年人无需再考虑每周至少两天的长期建议。",
+        "初始较轻训练与长期高努力建议相互矛盾，因此必须删除其中一项。"
+      ],
+      "answerability": {
+        "expected": "fully_supported",
+        "reason": "问题中的实质结论均可由所列原文充分回答；允许自然中文同义表达。"
+      }
+    }
+  ]
+}

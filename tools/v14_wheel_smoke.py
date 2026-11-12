@@ -28,7 +28,8 @@ def main():
         assert files("healthzip.training").joinpath(name).is_file(), name
     for name in ("core_sources.json", "core_rules.json", "method_equivalence.json", "hhs_goal_scope.json", "source_explanations_1_4_6.json",
                  "regression_covariance_1_4_7.json", "activity_safety_scope_1_4_8.json", "refined_explanations_1_4_9.json",
-                 "detailed_explanations_1_4_10.json", "boundary_explanations_1_4_11.json", "completion_explanations_1_4_12.json"):
+                 "detailed_explanations_1_4_10.json", "boundary_explanations_1_4_11.json", "completion_explanations_1_4_12.json",
+                 "practical_source_explanations_1_4_14.json"):
         assert files("healthzip.knowledge").joinpath("data", name).is_file(), name
     with tempfile.TemporaryDirectory(prefix="healthzip-v14-wheel-synthetic-") as folder:
         repo = Repository(Path(folder) / "synthetic.sqlite3")

@@ -105,7 +105,7 @@ def main():
         limits = "See item-level evidence; software checks do not establish professional review or scientific efficacy."
         if identifier in {"KB-05", "E2E-09"}:
             state = "partial_semantic_coverage_independent_review_failed"
-            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric; round 4 10/24 pass, 6 partial, 8 fail; round 5 8/30 pass, 15 partial, 7 fail (87 points: 41 pass, 15 partial, 31 fail); round 6 3/12 pass, 6 partial, 3 fail (35 points: 17 pass, 6 partial, 12 fail). Subsequent replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
+            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric; round 4 10/24 pass, 6 partial, 8 fail; round 5 8/30 pass, 15 partial, 7 fail (87 points: 41 pass, 15 partial, 31 fail); round 6 3/12 pass, 6 partial, 3 fail (35 points: 17 pass, 6 partial, 12 fail); round 7 7/16 pass, 5 partial, 4 fail (52 points: 32 supported, 20 unanswered). Subsequent replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
         elif identifier in {"KB-01", "KB-02", "KB-03"}:
             state = "software_contract_verified_actual_textbook_body_gaps"
             limits = "Edition/chapter/rights gates work; paid source chapters not acquired."

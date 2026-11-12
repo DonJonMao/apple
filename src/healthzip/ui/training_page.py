@@ -51,6 +51,22 @@ REGIONS = {
 }
 
 
+def _set_target_fields(mode):
+    measured = (
+        [("reps_min", "target_low", "本组目标次数下限"),
+         ("reps_max", "target_high", "本组目标次数上限")]
+        if mode == "repetitions" else
+        [("duration_s", "target_quantity", "本组目标时长（秒）")]
+        if mode == "duration" else
+        [("distance_m", "target_quantity", "本组目标距离（米）")]
+    )
+    return measured + [
+        ("rir", "target_rir", "本组目标 RIR"),
+        ("rest_seconds", "target_rest", "本组目标休息（秒）"),
+        ("load_value", "target_load", "本组目标重量 / 刻度"),
+    ]
+
+
 def _now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -122,15 +138,15 @@ def _set_form_fields(row, mode):
         if field == "pain_flag" and value is not None:
             value = bool(value)
         values[field] = value if field in select_fields else ("" if value is None else str(value))
-    for field, suffix in (
-        ("reps_min", "target_low"),
-        ("reps_max", "target_high"),
-        ("rir", "target_rir"),
-    ):
+    for field, suffix, _ in _set_target_fields(mode):
         key = "planned." + field
         suffixes[key] = suffix
         value = (row.get("planned") or {}).get(field)
         values[key] = "" if value is None else str(value)
+    for field in ("load_unit", "load_basis"):
+        key = "planned." + field
+        suffixes[key] = "target_" + field
+        values[key] = (row.get("planned") or {}).get(field)
     return suffixes, values
 
 
@@ -150,6 +166,10 @@ def _form_dirty(prefix, baseline):
         "planned.reps_min",
         "planned.reps_max",
         "planned.rir",
+        "planned.duration_s",
+        "planned.distance_m",
+        "planned.rest_seconds",
+        "planned.load_value",
     }
     for field, suffix in baseline["suffixes"].items():
         before = baseline["values"][field]
@@ -843,36 +863,31 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
             st.info("没有修改实际字段；当前记录保持不变。")
     if row.get("completion_state") in {"draft", "in_progress"}:
         with st.expander("本组目标（与实际完成分开）"):
-            target_low = st.text_input(
-                "本组目标次数下限",
-                value="" if planned.get("reps_min") is None else str(planned["reps_min"]),
-                key=prefix + "_target_low",
-            )
-            target_high = st.text_input(
-                "本组目标次数上限",
-                value="" if planned.get("reps_max") is None else str(planned["reps_max"]),
-                key=prefix + "_target_high",
-            )
-            target_rir = st.text_input(
-                "本组目标 RIR",
-                value="" if planned.get("rir") is None else str(planned["rir"]),
-                key=prefix + "_target_rir",
-            )
+            st.caption("目标可留空；只修改本组的有效目标，原计划与实际记录分别保留。负荷单位和口径须明确填写，不从实际值推定。")
+            targets = {}
+            for field, suffix, label in _set_target_fields(mode):
+                targets[field] = st.text_input(label, key=prefix + "_" + suffix) or None
+            for field, label, options in (
+                ("load_unit", "本组目标负荷单位", [None, "kg", "lb", "stack_level", "level"]),
+                ("load_basis", "本组目标负荷口径", [None, *LOAD_LABELS]),
+            ):
+                existing = planned.get(field)
+                if existing not in options:
+                    options.append(existing)
+                targets[field] = st.selectbox(
+                    label, options, key=prefix + "_target_" + field,
+                    format_func=lambda value: "未明确" if value is None else LOAD_LABELS.get(value, value),
+                )
             if st.button("保存本组目标", key=prefix + "_target_save"):
                 saved = _act(
                     svc.update_set_target,
                     identity,
-                    {
-                        **planned,
-                        "reps_min": target_low or None,
-                        "reps_max": target_high or None,
-                        "rir": target_rir or None,
-                    },
+                    {**planned, **targets},
                     base_revision=revision,
                 )
                 if saved:
                     _accept_set_form(
-                        saved, prefix, mode, {"planned.reps_min", "planned.reps_max", "planned.rir"}
+                        saved, prefix, mode, {"planned." + field for field in targets}
                     )
                     st.rerun()
     for label, state in [

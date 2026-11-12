@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "audited_baseline_commit": "68747b2",
+  "checked_at": "2026-11-12T05:16:22.537194+00:00",
+  "status": "source_and_targeted_verification_complete",
+  "scope": "Existing local public catalog/media plus isolated synthetic training; no production database access, source redownload, transcode or external upload.",
+  "requirement_basis": {
+    "source": "Apple_v1.4_Codex_Execution_Pack/catalog_plan.md",
+    "sections": [
+      "5 自定义动作与变式",
+      "7 中文检索、媒体展示与离线",
+      "CAT-06",
+      "CAT-09",
+      "CAT-10",
+      "CAT-11",
+      "CAT-13",
+      "CAT-15",
+      "CAT-16"
+    ],
+    "custom_definition_contract": "The existing offline creation entry uses the same minimum fields as the main page: regions, multiple movement patterns, equipment, side and variant notes, recording mode and load basis. A copied public exercise keeps derived_from and receives no inherited scientific approval."
+  },
+  "findings": [
+    {
+      "id": "offline_private_alias_search",
+      "before": {
+        "retained_aliases": [
+          "合成私人别名唯一标记"
+        ],
+        "matching_options": [
+          {
+            "value": "custom",
+            "text": "＋ 自定义动作"
+          }
+        ]
+      },
+      "after": {
+        "search_after_restart": "psa.ex.plank",
+        "public_export_excludes_private_alias": true
+      }
+    },
+    {
+      "id": "offline_description_persistence",
+      "before": {
+        "description_count_initial": 944,
+        "description_count_after_restart": 0
+      },
+      "after": {
+        "items": 1004,
+        "descriptions_before": 944,
+        "descriptions_after": 944,
+        "all_persisted_catalog_fields_match": true,
+        "local_storage_utf16_bytes_with_training_draft": 3935670,
+        "quota_error": false,
+        "chinese_name_status_counts": {
+          "draft": 873,
+          "upstream_unreviewed": 85,
+          "existing_project_label": 8
+        }
+      }
+    },
+    {
+      "id": "template_same_definition_version_different_presentation",
+      "before": {
+        "template_snapshots": [
+          {
+            "template": "A旧名模板",
+            "definition_version": 1,
+            "name": "合成旧名称"
+          },
+          {
+            "template": "B新名模板",
+            "definition_version": 1,
+            "name": "合成新名称"
+          }
+        ],
+        "bootstrap_definitions": [
+          {
+            "definition_version": 1,
+            "name": "合成新名称"
+          }
+        ],
+        "offline_old_template_used_name": "合成新名称",
+        "offline_old_template_used_version": 1
+      },
+      "after": {
+        "name": "合成旧名称",
+        "definition_version": 1,
+        "recording_mode": "duration",
+        "load_basis": "per_dumbbell_kg",
+        "actual_duration_s": 30,
+        "actual_load_value": "12",
+        "replayed_without_duplicate_sets": true
+      },
+      "implementation": "Use the template item snapshot; server binds offline exercise events to its stored plan slots and validates exercise ID/definition version. No client-supplied arbitrary snapshot override."
+    },
+    {
+      "id": "hevc_audio_only_without_picture",
+      "before": {
+        "media_id": "wger.video.7",
+        "browser": "158.0.8127.18",
+        "width": 0,
+        "height": 0,
+        "readyState": 4,
+        "currentTime": 0.524106,
+        "error": null,
+        "paused": false,
+        "hevcCanPlayType": ""
+      },
+      "after": {
+        "media_id": "wger.video.7",
+        "unavailable_picture_message": true,
+        "original_download_sha256_matches": true
+      },
+      "original_media_unchanged": true,
+      "universal_hevc_support_claimed": false
+    },
+    {
+      "id": "text_only_html_missing_media_references",
+      "before": {
+        "status": "reproduced",
+        "scope": "Read-only current public text-only package; no production database access",
+        "package_sha256": "fd36ca117ae0342bdb9fb590642cdd8f45b798cf1a98f9deb3b2d3027ec85993",
+        "catalog_items": 1004,
+        "html_media_path_references": 467,
+        "catalog_media_path_references": 0,
+        "included_media_files": 0,
+        "missing_html_media_paths": 467,
+        "synthetic_test_before": {
+          "failed": 1,
+          "passed": 1,
+          "failure": "text-only HTML includes package_path while the ZIP omits media"
+        }
+      },
+      "after_evidence": "offline-text-package-browser.json",
+      "implementation": "HTML, catalog JSON and attribution include package_path only for included media. Ready source-media metadata and attribution remain distinct from files shipped in this package."
+    },
+    {
+      "id": "offline_custom_definition_fields",
+      "before": {
+        "display_regions": [],
+        "movement_patterns": [],
+        "side": null,
+        "variant_notes": null,
+        "derived_from": null,
+        "recording_mode": "repetitions",
+        "equipment_type": "dumbbell",
+        "default_load_basis": "per_dumbbell_kg"
+      },
+      "before_event_fields": [
+        "equipment_type",
+        "exercise_id",
+        "load_basis",
+        "name",
+        "recording_mode"
+      ],
+      "after_evidence": "offline-custom-completion-browser.json",
+      "paths_verified": [
+        "new private distance definition",
+        "public exercise copied as private duration variant",
+        "unknown source mode explicitly adopted as private repetitions definition"
+      ],
+      "scientific_status": "All resulting private definitions are unreviewed with no anatomy approval or muscle participation proposals."
+    },
+    {
+      "id": "unsynced_custom_lost_on_connect",
+      "before": {
+        "before_connect": {
+          "custom_count": 1,
+          "queued_create_events": 1,
+          "catalog_count": 47,
+          "session_exercise_name": "合成未同步新动作"
+        },
+        "after_connect": {
+          "custom_count": 0,
+          "queued_create_events": 1,
+          "catalog_count": 46,
+          "session_exercise_name": "合成未同步新动作"
+        },
+        "after_reload": {
+          "custom_count": 0,
+          "queued_create_events": 1,
+          "catalog_count": 46,
+          "session_exercise_name": "合成未同步新动作"
+        }
+      },
+      "after": {
+        "pending_private_definitions_searchable_after_reconnect": true,
+        "retries_without_duplicate_definitions_or_sets": true,
+        "private_definitions_and_notes_excluded_from_public_html": true
+      },
+      "implementation": "Keep catalog entries referenced by unsent create_exercise events when absent from the refreshed server catalog; public IDs remain server controlled."
+    }
+  ],
+  "actual_media_cache_integrity_at_audit": {
+    "catalog_items": 1004,
+    "media_objects": {
+      "image": 389,
+      "video": 78
+    },
+    "source_exercise_coverage": {
+      "image": 282,
+      "video": 46
+    },
+    "unique_blob_files": 433,
+    "local_blob_sha256_failures": [],
+    "codecs": {
+      "avc1": 24,
+      "hvc1": 54
+    },
+    "package_bytes": 3693916328,
+    "package_sha256": "bfcda8d76e5a4b1369344cab137a5b7f338193035666cc71d07e01ce01f5d4ec",
+    "package_matches_published_sha256": true,
+    "all_referenced_package_paths_exist": true
+  },
+  "validation": {
+    "targeted_pytest_passed": 54,
+    "junit": "offline-completion-pytest.xml",
+    "ruff": "passed",
+    "diff_whitespace_check": "passed",
+    "complete_catalog_browser": "offline-completion-browser.json",
+    "private_definition_browser": "offline-custom-completion-browser.json",
+    "text_package_browser": "offline-text-package-browser.json",
+    "whole_repository_tests_run": false
+  },
+  "evidence_boundaries": [
+    "Full catalog browser verification renders the current source template from the existing public catalog.json; final rebuilt ZIP delivery is separately validated by the package receipts.",
+    "All 433 existing local content hashes were checked; 389 image and 78 video objects retain their actual 282/46 source-exercise coverage. No additional network acquisition was performed.",
+    "One actual H.264 file is decoded from file and data URLs. One actual HEVC file demonstrates the no-picture fallback and byte-identical original download in Chromium 158; this is not proof of universal codec support.",
+    "The 3,935,670 UTF-16 bytes measurement covers the complete current public directory and one synthetic draft. Further private history may still reach browser-specific quota limits; failures remain explicit and backup is available.",
+    "The existing 873 project drafts, 85 upstream names and 8 legacy labels retain separate statuses; no new human translation or anatomy approval is asserted.",
+    "Raw stage diagnostics, synthetic databases, public source media and old ZIP backups remain local; four input PDFs and private media are excluded."
+  ],
+  "source_sha256": {
+    "src/healthzip/training/offline.py": "4ca48eaf5e09374f3314491559df2b9afde40062d799d48ac87b4ee24af19f03",
+    "src/healthzip/training/catalog_media.py": "a87e61a40ecaa725a6eefbc43f50eeb0bbd10d5d00b0a89b1864afb7713a43cb",
+    "src/healthzip/training/service.py": "434641b3546d43291c8a3f46e03d0aa9d8a4a6929b3125150542bd5a70798bbe",
+    "src/healthzip/ui/offline_recorder.html": "cb273fa8e37b92717bcee02c8f0fff09aece90ad025bc300cb1506a0e76754a6",
+    "tests/training/test_offline_catalog_snapshots.py": "51f6adf6a38e2fe98c654b960f5a7b948fd274d7d35c70b4cbd4ca37a3e834c0",
+    "tests/training/test_offline_text_package.py": "2736d35b4f26c7324d38cb74c9d3d821f5c3816da1f81dbdc3815f2bd57f7c59",
+    "tests/training/offline_catalog_browser_check.py": "9ceee1517bd26d723097d1985d1a98dbcdb87c1a3a0702a7e2749547397e625d",
+    "tests/training/offline_custom_browser_check.py": "339ff42f88785ca158953c11ac86d3004bd5d5658fcd9f462ec7936154f5e6e4"
+  }
+}

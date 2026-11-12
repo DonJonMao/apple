@@ -1,0 +1,67 @@
+{
+  "audit_version": "product-entry-targets-period-1.4.0",
+  "created_at": "2026-11-12T05:01:25.204631+00:00",
+  "baseline_commit": "68747b2",
+  "kind": "synthetic_software_ui_verification",
+  "scope": [
+    "mode-specific current per-set targets",
+    "calendar-period training execution facts"
+  ],
+  "initial_reproduction": {
+    "source_unchanged": true,
+    "new_ui_tests": 9,
+    "failed": 9,
+    "cases": [
+      "Duration and distance sets exposed only repetition target controls; real service rejected those edits",
+      "Week/month analysis computed original-plan execution but omitted it from ordinary period output"
+    ],
+    "raw_diagnostics": "retained locally, not published"
+  },
+  "first_fix": {
+    "passed": 6,
+    "failed": 3,
+    "remaining_failure": "The new table locator matched both summary and endpoint denominator tables; refined to the summary-exclusive completed-plan column without changing business expectations"
+  },
+  "behavior": {
+    "targets": [
+      "Frozen session measurement mode selects repetitions, duration_s or distance_m controls",
+      "Rest, RIR, load value, load unit and load basis stay explicit; blanks remain unknown and zero remains zero",
+      "Existing TrainingService target normalization, mode validation and optimistic revision conflict handling remain authoritative",
+      "Actual fields and original frozen plan are unchanged by current-target edits"
+    ],
+    "period": [
+      "Reads STR-01 and STR-09 from the selected calendar period_result",
+      "Shows completed work parents and segments; original planned/completed/skipped/unknown and extra completed sets",
+      "Shows original endpoint target counts separately from whole-group completion",
+      "Empty or draft-only periods do not infer no training; mixed loads are counts, never merged capacity gains"
+    ]
+  },
+  "verification": {
+    "command": "PYTHONPATH=src .venv/bin/pytest -q tests/integration/test_training_mode_targets_ui.py tests/integration/test_period_training_facts_ui.py tests/integration/test_review_training_ui.py tests/integration/test_v14_advice_flow.py tests/integration/test_v14_plan_target_attainment.py tests/integration/test_v14_period_review.py tests/integration/test_v14_rest_discussion.py",
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 76.933,
+    "ruff": "passed on the two changed UI files and two new test files",
+    "diff_check": "passed for owned files",
+    "xml": "artifacts/v14/product-entry-targets-period-verification.xml",
+    "source_input_sha256": {
+      "src/healthzip/ui/training_page.py": "760023a5c204f3d0c17ea780a54694e156e09da8f5130249b8a09a778c7a5f5a",
+      "src/healthzip/ui/analysis_page.py": "38a42e3dbac386bd6faa49f2dbc348a5415b58637596bb8ff1b9087bdfa79503",
+      "tests/integration/test_training_mode_targets_ui.py": "63cbeef389884ca8d23a90335426a49bb92abe2ec8124480da59c30fc167745f",
+      "tests/integration/test_period_training_facts_ui.py": "d5a20e981315408360b9caeed38dbf8154bd5f920ec7818287b5e0e1dd54cb88",
+      "tests/integration/test_review_training_ui.py": "8069a763b4d346bff6fa93ad3bee2da5f34ee13d8e695d6bec09b4984c8bfff0",
+      "tests/integration/test_v14_advice_flow.py": "65963b21aee50e35e24fcf49aa8c425893003c0b4934e2372cafb5eb4b9f3e40",
+      "tests/integration/test_v14_plan_target_attainment.py": "538daf84268cf018dbfe5ee76e7bb4a1405af41c3e2697f0cbe0437569f90722",
+      "tests/integration/test_v14_period_review.py": "19943389d1dbe519d9731fa54c0ae052358f0ba2432b371a3989b5d2f8fb5145",
+      "tests/integration/test_v14_rest_discussion.py": "10ca43a4cefc85ccaea83133f7600c5279fbd5ceaea279d9ebad9e88c36e3776"
+    }
+  },
+  "limits": [
+    "No full repository suite in this audit; root coordinates final verification",
+    "Synthetic local databases and real Streamlit AppTest controls; no production database used",
+    "No new scientific inference, rule authority or causal effectiveness claim",
+    "Raw logs, absolute paths and host identifiers remain local; public XML has no host/path attributes"
+  ]
+}

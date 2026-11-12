@@ -28,7 +28,7 @@ F06 原基线中，次数 v1 更改为时长 v2 后，历史另存模板意外�
 
 **2026-11-12 01:06:09 UTC冻结交付快照：389/389图片已缓存（覆盖282动作），78/78视频ready（覆盖46动作），0项pending或failed。** 所有媒体对应2026-11-11已核实的完整来源快照；后续上游变化须重新取得完整manifest。78个视频的实际HEAD `Content-Length`合计3,570,623,823 bytes，与API size逐项一致，见 [HEAD核验](../artifacts/v14/catalog/video-head-verification.json)。原下载进程在2026-11-11 16:21:32 UTC结束；随后单次续传将先前截断的video4于16:26:32 UTC下载完成。进程均已退出、锁已释放，实际完成回执见 [下载完成核验](../artifacts/v14/catalog/media-download-completion-20261112.json)。
 
-正式离线包包含467个媒体对象、433个去重文件，3,693,916,328 bytes；纯文本包808,014 bytes。两包均含1004个公共动作，全部ZIP CRC、媒体引用路径和每个包内媒体SHA256检查通过，精确hash见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。默认安装、覆盖报告、逐项媒体清单与离线包使用同一冻结公共快照，全部媒体对象的ID、ready状态及hash一致；此前3个未完成项均已补齐，见 [全媒体交付核验](../artifacts/v14/catalog/media-delivery-refresh.json)。
+正式离线包包含467个媒体对象、433个去重文件，3,693,920,487 bytes；纯文本包809,106 bytes。两包均含1004个公共动作，全部ZIP CRC、媒体引用路径和每个包内媒体SHA256检查通过，精确hash见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。默认安装、覆盖报告、逐项媒体清单与离线包使用同一冻结公共快照，全部媒体对象的ID、ready状态及hash一致；此前3个未完成项均已补齐，见 [全媒体交付核验](../artifacts/v14/catalog/media-delivery-refresh.json)。
 
 78 个 ready 视频中，40 个来自此前缺少成功回执的本地完整 blob。恢复逐项验证唯一来源文件大小、本地全文件 SHA256 与完整容器，并在同一强 ETag 下比较来源首/中/尾各 64KiB 与完整 `moov`。**来源没有提供可核验的全文件 checksum；ETag 是不透明验证标记，所比较区间之外的远端字节未逐字节核对。** 不能把本地完整 hash 与范围一致冒充远端全文件 checksum 证明。40 项精确范围、来源身份、时间和限制见 [恢复回执](../artifacts/v14/catalog/cache-recovery.json)，媒体清单对应项也保留这一限制。
 
@@ -131,3 +131,18 @@ PYTHONPATH=src .venv/bin/python tools/v14_package_browser.py
 
 
 2026-11-12目录连续性复核：同一已确认来源只改变非审阅语言译名、别名、媒体或获取时间时，继续使用原动作ID，收藏、私有别名、历史条件和本地媒体保留。必须找到且校验最初核对的源记录哈希；比较不随逐次更新滚动。已审阅语言的原名、正文、器械和其他身份字段变化仍进入待复核。修前反例、过宽原名分支的再次修正及最终47项组合回归分别保留于 `artifacts/v14/catalog/identity-continuity-*.json/xml`；冻结公共快照、原媒体和离线包均未重写。
+
+
+## 2026-11-12 离线收口与正式包更新
+
+本次基于 `68747b2` 的独立核查确认并修复：离线检索漏用私人别名、完整目录刷新后丢失说明正文、同一动作定义版本的不同模板互相覆盖冻结名称、HEVC 仅音轨可用时没有无画面提示、纯文本包 HTML 引用未包含的媒体，以及离线自定义字段不全和未同步自定义动作在连接刷新后消失。修复前实际反例、对应执行包条款及修复范围见 [离线收口审计](../artifacts/v14/catalog/offline-completion-audit.json)。
+
+离线自定义表单现包括部位、多选动作模式、中文器械类别、侧别、变式说明、记录模式与负荷口径；可将公共动作复制为私人变式，也可在明确选择模式后采用上游待确认动作。新定义保留 `derived_from`，不会继承教材肌肉关系或科学审核。真实 Chromium 完成三条界面路径、未同步时重连并刷新、本机 REST 同步及相同事件重放；私人名称和变式说明不进入公开 HTML，见 [私人动作浏览器回执](../artifacts/v14/catalog/offline-custom-completion-browser.json)。
+
+旧模板始终先用自身冻结快照；服务端从已保存的计划槽绑定动作 ID、定义版本与名称快照，不接受任意客户端快照覆盖。实际离线事件同步及重试保留旧名称、v1 时长定义、每只哑铃口径、30 秒和原输入 12，未重复产生组。私人别名在重开后可检索。完整公共目录的 944 条说明、三类中文名称状态和其他缓存字段均在刷新后保持；完整包含一份合成草稿的 localStorage 实测为 3,935,670 UTF-16 bytes，未发生配额错误。更多私人历史仍受浏览器配额限制，存储失败会明确提示备份，不静默丢弃正文。
+
+正式完整包与纯文本包于 **2026-11-12 05:21 UTC** 使用冻结源码重新生成。两包均含 1004 个公共动作；完整包包含 467 个媒体对象、433 个去重文件，纯文本包的 HTML、目录 JSON 和署名清单均不引用未包含的媒体。全部 ZIP CRC、包内媒体 SHA256、三份媒体引用集合和公共字段白名单检查通过；HTML 逐字节等于当前记录器导出结果。现有公共目录的七张表与打包前、原 01:06 媒体冻结数据库分别逐表比较，行数与哈希完全一致，见 [正式包一致性](../artifacts/v14/catalog/offline-package-consistency.json)。本次未下载、转码或修改原媒体，也未访问生产训练数据库。
+
+两份**实际正式 ZIP**均在全新 Chromium 上下文解压后、导航前断网验证，1004 项目录及 944 条说明刷新后保留，HTTP 请求与页面错误均为 0。完整包解码 6000×2188 图片并播放 640×352 H.264 视频；实际 HEVC `wger.video.7` 无画面时显示明确说明，下载原文件的 SHA256 与媒体清单一致。切换媒体产生的 `ERR_ABORTED` 仅对应确实存在的包内文件，已与意外加载失败分开记录；纯文本包没有媒体请求或加载失败。见 [最终双包浏览器回执](../artifacts/v14/catalog/offline-package-final-browser.json)。这不证明 HEVC 在所有浏览器可播放。
+
+本次 **54 项定点回归通过**，Ruff 和差异检查通过，见 [离线回归 XML](../artifacts/v14/catalog/offline-completion-pytest.xml)；没有据此声称重跑整仓。最新包大小、完整 SHA256 与 HTML SHA256 以 [离线包清单](../artifacts/v14/catalog/offline-package.json) 为准，目录交付指针见 [全媒体交付回执](../artifacts/v14/catalog/media-delivery-refresh.json)。旧包保留在本地独立备份中，旧 [包清单](../artifacts/v14/catalog/history/20261112T0106-offline-package.json)、[包浏览器回执](../artifacts/v14/catalog/history/20261112T0106-offline-package-browser.json) 和 [媒体交付回执](../artifacts/v14/catalog/history/20261112T0106-media-delivery-refresh.json) 保留为历史证据。
