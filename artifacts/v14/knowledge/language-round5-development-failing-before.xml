@@ -1,0 +1,275 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="24" time="0.533" timestamp="2026-11-12T09:37:30.487640+08:00"><testcase classname="tests.unit.test_round5_question_language" name="test_covariance_context_survives_clause_boundaries_and_estimator_versions[\u56de\u5f52\u7814\u7a76\u4e2d\u4e00\u7ec4\u8bef\u5dee\u72ec\u7acb\uff0c\u53e6\u4e00\u7ec4\u524d\u540e\u76f8\u5173\u3002HC\u548cHAC\u5206\u522b\u5904\u7406\u54ea\u4e9b\u60c5\u5f62\uff1f]" time="0.056"><failure message="assert not True&#10; +  where True = any(&lt;generator object test_covariance_context_survives_clause_boundaries_and_estimator_versions.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffb3f2e6c0&gt;)">question = '回归研究中一组误差独立，另一组前后相关。HC和HAC分别处理哪些情形？'
+
+    @pytest.mark.parametrize("question", [
+        "回归研究中一组误差独立，另一组前后相关。HC和HAC分别处理哪些情形？",
+        "HC2和HC3的小样本表现有什么区别？",
+        "回归已拟合。报告区间之前还需要检查误差吗？请结合HC和HAC解释。",
+        "只有很短的训练序列，用了HAC就能保证区间覆盖率吗？",
+    ])
+    def test_covariance_context_survives_clause_boundaries_and_estimator_versions(question):
+        assert outcomes(question) == {"regression_covariance_scope"}
+&gt;       assert not any(p.get("reason") for p in parts(question))
+E       assert not True
+E        +  where True = any(&lt;generator object test_covariance_context_survives_clause_boundaries_and_estimator_versions.&lt;locals&gt;.&lt;genexpr&gt; at 0xffffb3f2e6c0&gt;)
+
+tests/unit/test_round5_question_language.py:28: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_covariance_context_survives_clause_boundaries_and_estimator_versions[HC2\u548cHC3\u7684\u5c0f\u6837\u672c\u8868\u73b0\u6709\u4ec0\u4e48\u533a\u522b\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'regression_...riance_scope'}&#10;  &#10;  Extra items in the right set:&#10;  'regression_covariance_scope'&#10;  Use -v to get more diff">question = 'HC2和HC3的小样本表现有什么区别？'
+
+    @pytest.mark.parametrize("question", [
+        "回归研究中一组误差独立，另一组前后相关。HC和HAC分别处理哪些情形？",
+        "HC2和HC3的小样本表现有什么区别？",
+        "回归已拟合。报告区间之前还需要检查误差吗？请结合HC和HAC解释。",
+        "只有很短的训练序列，用了HAC就能保证区间覆盖率吗？",
+    ])
+    def test_covariance_context_survives_clause_boundaries_and_estimator_versions(question):
+&gt;       assert outcomes(question) == {"regression_covariance_scope"}
+E       AssertionError: assert set() == {'regression_...riance_scope'}
+E
+E         Extra items in the right set:
+E         'regression_covariance_scope'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:27: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_covariance_context_survives_clause_boundaries_and_estimator_versions[\u56de\u5f52\u5df2\u62df\u5408\u3002\u62a5\u544a\u533a\u95f4\u4e4b\u524d\u8fd8\u9700\u8981\u68c0\u67e5\u8bef\u5dee\u5417\uff1f\u8bf7\u7ed3\u5408HC\u548cHAC\u89e3\u91ca\u3002]" time="0.002"><failure message="AssertionError: assert {'individual_error_bound'} == {'regression_...riance_scope'}&#10;  &#10;  Extra items in the left set:&#10;  'individual_error_bound'&#10;  Extra items in the right set:&#10;  'regression_covariance_scope'&#10;  Use -v to get more diff">question = '回归已拟合。报告区间之前还需要检查误差吗？请结合HC和HAC解释。'
+
+    @pytest.mark.parametrize("question", [
+        "回归研究中一组误差独立，另一组前后相关。HC和HAC分别处理哪些情形？",
+        "HC2和HC3的小样本表现有什么区别？",
+        "回归已拟合。报告区间之前还需要检查误差吗？请结合HC和HAC解释。",
+        "只有很短的训练序列，用了HAC就能保证区间覆盖率吗？",
+    ])
+    def test_covariance_context_survives_clause_boundaries_and_estimator_versions(question):
+&gt;       assert outcomes(question) == {"regression_covariance_scope"}
+E       AssertionError: assert {'individual_error_bound'} == {'regression_...riance_scope'}
+E
+E         Extra items in the left set:
+E         'individual_error_bound'
+E         Extra items in the right set:
+E         'regression_covariance_scope'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:27: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_covariance_context_survives_clause_boundaries_and_estimator_versions[\u53ea\u6709\u5f88\u77ed\u7684\u8bad\u7ec3\u5e8f\u5217\uff0c\u7528\u4e86HAC\u5c31\u80fd\u4fdd\u8bc1\u533a\u95f4\u8986\u76d6\u7387\u5417\uff1f]" time="0.002"><failure message="AssertionError: assert set() == {'regression_...riance_scope'}&#10;  &#10;  Extra items in the right set:&#10;  'regression_covariance_scope'&#10;  Use -v to get more diff">question = '只有很短的训练序列，用了HAC就能保证区间覆盖率吗？'
+
+    @pytest.mark.parametrize("question", [
+        "回归研究中一组误差独立，另一组前后相关。HC和HAC分别处理哪些情形？",
+        "HC2和HC3的小样本表现有什么区别？",
+        "回归已拟合。报告区间之前还需要检查误差吗？请结合HC和HAC解释。",
+        "只有很短的训练序列，用了HAC就能保证区间覆盖率吗？",
+    ])
+    def test_covariance_context_survives_clause_boundaries_and_estimator_versions(question):
+&gt;       assert outcomes(question) == {"regression_covariance_scope"}
+E       AssertionError: assert set() == {'regression_...riance_scope'}
+E
+E         Extra items in the right set:
+E         'regression_covariance_scope'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:27: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u505aTOST\u65f6\u53ea\u6709\u4e00\u4e2a\u5355\u4fa7\u68c0\u9a8c\u62d2\u7edd\uff0c\u53ef\u4ee5\u5224\u7b49\u6548\u5417\uff1f-expected0]" time="0.002"><failure message="AssertionError: assert {'practical_equivalence'} == {'equivalence_test_logic'}&#10;  &#10;  Extra items in the left set:&#10;  'practical_equivalence'&#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = '做TOST时只有一个单侧检验拒绝，可以判等效吗？', expected = {'equivalence_test_logic'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert {'practical_equivalence'} == {'equivalence_test_logic'}
+E
+E         Extra items in the left set:
+E         'practical_equivalence'
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[TOST\u7684\u6574\u4f53P\u503c\u5e94\u9009\u4e24\u4e2a\u5355\u4fa7P\u503c\u4e2d\u7684\u54ea\u4e2a\uff1f-expected1]" time="0.002"><failure message="AssertionError: assert set() == {'equivalence_test_logic'}&#10;  &#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = 'TOST的整体P值应选两个单侧P值中的哪个？', expected = {'equivalence_test_logic'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert set() == {'equivalence_test_logic'}
+E
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u7528TOST\u65f6\u663e\u8457\u6027\u6c34\u5e73\u4e0e\u7f6e\u4fe1\u533a\u95f4\u6c34\u5e73\u5982\u4f55\u5bf9\u5e94\uff1f\u533a\u95f4\u8de8\u8fc7\u4e00\u4fa7\u754c\u503c\u600e\u4e48\u529e\uff1f-expected2]" time="0.002"><failure message="AssertionError: assert set() == {'equivalence_test_logic'}&#10;  &#10;  Extra items in the right set:&#10;  'equivalence_test_logic'&#10;  Use -v to get more diff">question = '用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？'
+expected = {'equivalence_test_logic'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert set() == {'equivalence_test_logic'}
+E
+E         Extra items in the right set:
+E         'equivalence_test_logic'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u7b49\u6548\u68c0\u9a8c\u7684\u5e73\u884c\u7ec4\u793a\u4f8b\u80fd\u76f4\u63a5\u7528\u4e8e\u540c\u4e00\u4e2a\u4eba\u53cd\u590d\u6d4b\u91cf\u5417\uff1f-expected3]" time="0.002" /><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u529b\u7aed\u5177\u4f53\u6307\u4ec0\u4e48\uff1f\u6bcf\u7ec4\u5fc5\u987b\u7ec3\u5230\u90a3\u4e2a\u7a0b\u5ea6\u5417\uff1f\u8db3\u591f\u52aa\u529b\u8be5\u600e\u6837\u7406\u89e3\uff1f-expected4]" time="0.004"><failure message="AssertionError: assert {'failure_necessity'} == {'effort_prec...re_necessity'}&#10;  &#10;  Extra items in the right set:&#10;  'failure_definition'&#10;  'effort_precision'&#10;  Use -v to get more diff">question = '力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？'
+expected = {'effort_precision', 'failure_definition', 'failure_necessity'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert {'failure_necessity'} == {'effort_prec...re_necessity'}
+E
+E         Extra items in the right set:
+E         'failure_definition'
+E         'effort_precision'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u589e\u52a0\u8d1f\u8377\u540e\u6b21\u6570\u4e0b\u964d\uff0c\u8bad\u7ec3\u7279\u5f02\u6027\u539f\u5219\u600e\u6837\u89e3\u91ca\uff1f-expected5]" time="0.002"><failure message="AssertionError: assert {'progression_options'} == {'comparabili...ion_relation'}&#10;  &#10;  Extra items in the left set:&#10;  'progression_options'&#10;  Extra items in the right set:&#10;  'comparability'&#10;  'load_repetition_relation'&#10;  Use -v to get more diff">question = '增加负荷后次数下降，训练特异性原则怎样解释？'
+expected = {'comparability', 'load_repetition_relation'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert {'progression_options'} == {'comparabili...ion_relation'}
+E
+E         Extra items in the left set:
+E         'progression_options'
+E         Extra items in the right set:
+E         'comparability'
+E         'load_repetition_relation'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u6362\u6210\u53e6\u4e00\u54c1\u724c\u7684\u8bad\u7ec3\u673a\uff0c\u80fd\u76f4\u63a5\u6362\u7b97\u6210\u591a\u5c11\u516c\u65a4\u5417\uff1f-expected6]" time="0.002"><failure message="AssertionError: assert set() == {'comparability'}&#10;  &#10;  Extra items in the right set:&#10;  'comparability'&#10;  Use -v to get more diff">question = '换成另一品牌的训练机，能直接换算成多少公斤吗？', expected = {'comparability'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert set() == {'comparability'}
+E
+E         Extra items in the right set:
+E         'comparability'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_method_and_training_targets_use_grammatical_families[\u591a\u505a\u4e00\u7ec4\u4e4b\u540e1RM\u63d0\u9ad8\uff0c\u80fd\u786e\u8ba4\u5c31\u662f\u8fd9\u4e00\u7ec4\u5bf9\u6211\u6709\u6548\u5417\uff1f-expected7]" time="0.002"><failure message="AssertionError: assert {'progression_options'} == {'individual_effect'}&#10;  &#10;  Extra items in the left set:&#10;  'progression_options'&#10;  Extra items in the right set:&#10;  'individual_effect'&#10;  Use -v to get more diff">question = '多做一组之后1RM提高，能确认就是这一组对我有效吗？', expected = {'individual_effect'}
+
+    @pytest.mark.parametrize("question,expected", [
+        ("做TOST时只有一个单侧检验拒绝，可以判等效吗？", {"equivalence_test_logic"}),
+        ("TOST的整体P值应选两个单侧P值中的哪个？", {"equivalence_test_logic"}),
+        ("用TOST时显著性水平与置信区间水平如何对应？区间跨过一侧界值怎么办？", {"equivalence_test_logic"}),
+        ("等效检验的平行组示例能直接用于同一个人反复测量吗？", {"equivalence_design_scope"}),
+        ("力竭具体指什么？每组必须练到那个程度吗？足够努力该怎样理解？", {"failure_definition", "failure_necessity", "effort_precision"}),
+        ("增加负荷后次数下降，训练特异性原则怎样解释？", {"load_repetition_relation", "comparability"}),
+        ("换成另一品牌的训练机，能直接换算成多少公斤吗？", {"comparability"}),
+        ("多做一组之后1RM提高，能确认就是这一组对我有效吗？", {"individual_effect"}),
+    ])
+    def test_method_and_training_targets_use_grammatical_families(question, expected):
+&gt;       assert outcomes(question) == expected
+E       AssertionError: assert {'progression_options'} == {'individual_effect'}
+E
+E         Extra items in the left set:
+E         'progression_options'
+E         Extra items in the right set:
+E         'individual_effect'
+E         Use -v to get more diff
+
+tests/unit/test_round5_question_language.py:43: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_describing_a_study_plan_is_not_a_request_to_calculate_personal_bounds[\u6211\u60f3\u5728\u7814\u7a76\u4e2d\u7528\u901a\u7528\u6548\u5e94\u91cf\u4f5c\u4e3a\u7b49\u6548\u754c\u503c\uff0c\u8fd9\u4e2a\u9009\u62e9\u6709\u4ec0\u4e48\u65b9\u6cd5\u5b66\u95ee\u9898\uff1f]" time="0.002"><failure message="AssertionError: assert 'statistical_calculation' not in {'equivalence_margin_basis', 'statistical_calculation'}">question = '我想在研究中用通用效应量作为等效界值，这个选择有什么方法学问题？'
+
+    @pytest.mark.parametrize("question", [
+        "我想在研究中用通用效应量作为等效界值，这个选择有什么方法学问题？",
+        "我准备比较两个干预，界值应依据什么确定？",
+    ])
+    def test_describing_a_study_plan_is_not_a_request_to_calculate_personal_bounds(question):
+&gt;       assert "statistical_calculation" not in {p["part_id"] for p in parts(question)}
+E       AssertionError: assert 'statistical_calculation' not in {'equivalence_margin_basis', 'statistical_calculation'}
+
+tests/unit/test_round5_question_language.py:51: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_describing_a_study_plan_is_not_a_request_to_calculate_personal_bounds[\u6211\u51c6\u5907\u6bd4\u8f83\u4e24\u4e2a\u5e72\u9884\uff0c\u754c\u503c\u5e94\u4f9d\u636e\u4ec0\u4e48\u786e\u5b9a\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round5_question_language" name="test_personal_statistical_actions_remain_unanswered_targets[\u8bf7\u7ed9\u6211\u7684\u8bad\u7ec3\u6570\u636e\u9009\u62e9\u7b49\u6548\u754c\u503c\u3002]" time="0.001" /><testcase classname="tests.unit.test_round5_question_language" name="test_personal_statistical_actions_remain_unanswered_targets[\u8bf7\u8ba1\u7b97\u8fde\u7eed\u8bad\u7ec3\u7684\u4e2a\u4eba\u8bef\u5224\u7387\u3002]" time="0.002"><failure message="AssertionError: assert 'statistical_calculation' in set()">question = '请计算连续训练的个人误判率。'
+
+    @pytest.mark.parametrize("question", [
+        "请给我的训练数据选择等效界值。",
+        "请计算连续训练的个人误判率。",
+        "请算出以后每次加一组对我的成功概率。",
+    ])
+    def test_personal_statistical_actions_remain_unanswered_targets(question):
+&gt;       assert "statistical_calculation" in {p["part_id"] for p in parts(question)}
+E       AssertionError: assert 'statistical_calculation' in set()
+
+tests/unit/test_round5_question_language.py:60: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_personal_statistical_actions_remain_unanswered_targets[\u8bf7\u7b97\u51fa\u4ee5\u540e\u6bcf\u6b21\u52a0\u4e00\u7ec4\u5bf9\u6211\u7684\u6210\u529f\u6982\u7387\u3002]" time="0.001"><failure message="AssertionError: assert 'statistical_calculation' in set()">question = '请算出以后每次加一组对我的成功概率。'
+
+    @pytest.mark.parametrize("question", [
+        "请给我的训练数据选择等效界值。",
+        "请计算连续训练的个人误判率。",
+        "请算出以后每次加一组对我的成功概率。",
+    ])
+    def test_personal_statistical_actions_remain_unanswered_targets(question):
+&gt;       assert "statistical_calculation" in {p["part_id"] for p in parts(question)}
+E       AssertionError: assert 'statistical_calculation' in set()
+
+tests/unit/test_round5_question_language.py:60: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_acronyms_machine_names_and_equality_do_not_supply_statistical_authority[HC0\u4ff1\u4e50\u90e8\u7684\u6837\u672c\u6807\u7b7e\u5728\u54ea\u91cc\u4e0b\u8f7d\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round5_question_language" name="test_acronyms_machine_names_and_equality_do_not_supply_statistical_authority[The HC and HAC clubs have different names. Explain their workout rest intervals.]" time="0.002" /><testcase classname="tests.unit.test_round5_question_language" name="test_acronyms_machine_names_and_equality_do_not_supply_statistical_authority[\u6211\u9700\u8981\u5728\u65b0\u673a\u5668\u4e0a\u6362\u7b97\u6587\u4ef6\u5927\u5c0f\u3002]" time="0.001" /><testcase classname="tests.unit.test_round5_question_language" name="test_acronyms_machine_names_and_equality_do_not_supply_statistical_authority[TOST\u6587\u4ef6\u5939\u91cc\u7684\u4e24\u4e2a\u56fe\u5f62\u5927\u5c0f\u76f8\u540c\u5417\uff1f]" time="0.001" /><testcase classname="tests.unit.test_round5_question_language" name="test_author_reference_resolves_registered_identity_and_keeps_ambiguity" time="0.077"><failure message="AssertionError: assert 'unresolved_source' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + unresolved_source">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffb3fa4e90&gt;
+
+    def test_author_reference_resolves_registered_identity_and_keeps_ambiguity(kb):
+        add_claim(kb, "regression_covariance_scope", "statistical_inference")
+        update_source(kb, authors="Robin Exampleton", query_names=[])
+        result = kb.query("按Exampleton的文章解释HAC协方差设置。", context={"corpus_roles": ["core", "research"]})
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'unresolved_source' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + unresolved_source
+
+tests/unit/test_round5_question_language.py:111: AssertionError</failure></testcase><testcase classname="tests.unit.test_round5_question_language" name="test_registered_citation_author_and_mixed_chinese_acronym_reach_real_query" time="0.040" /><testcase classname="tests.unit.test_round5_question_language" name="test_named_activity_source_preserves_public_health_goal_and_start_target" time="0.055"><failure message="AssertionError: assert 'missing_answer_relation' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + missing_answer_relation">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffffb3b80590&gt;
+
+    def test_named_activity_source_preserves_public_health_goal_and_start_target(kb):
+        update_source(kb, query_names=["Synthetic Activity Guide"], edition=2, document_kind="guideline")
+        for outcome, subject in [("adult_guideline_scope", "physical_activity"), ("frequency", "resistance_training"),
+                                 ("goal_scope", "resistance_training"), ("muscle_strengthening_start", "resistance_training"),
+                                 ("activity_increment_size", "physical_activity")]:
+            add_claim(kb, outcome, subject, scope={"population": "adults", "goal": "public_health"})
+        result = kb.query("Synthetic Activity Guide第二版每周两天肌力活动针对谁？能认定是我的最佳增肌频率吗？")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'missing_answer_relation' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + missing_answer_relation
+
+tests/unit/test_round5_question_language.py:136: AssertionError</failure></testcase></testsuite></testsuites>

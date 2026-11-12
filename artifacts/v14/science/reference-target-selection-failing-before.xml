@@ -1,0 +1,79 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="6.592" timestamp="2026-11-12T09:19:28.923106+08:00"><testcase classname="tests.integration.test_reference_target_selection" name="test_repository_selection_populates_ratio_and_same_load_b0_with_provenance" time="1.695"><failure message="AssertionError: A visible matched reference and mass must reach STR-30 without raw context injection.&#10;assert None is not None">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-332/test_repository_selection_popu0')
+
+    def test_repository_selection_populates_ratio_and_same_load_b0_with_provenance(tmp_path):
+        repo = Repository(tmp_path / "selection.sqlite3")
+        try:
+            saved, mass = populated(repo, tmp_path)
+            before = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", use_cache=False)
+            chosen = selection(before, saved[1], mass[1])
+            output = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", context={"reference_selection": chosen}, use_cache=False)
+            ratio, b0 = output["metrics"]["STR-30"], output["metrics"]["PRED-B0"]
+&gt;           assert ratio["value"] is not None, "A visible matched reference and mass must reach STR-30 without raw context injection."
+E           AssertionError: A visible matched reference and mass must reach STR-30 without raw context injection.
+E           assert None is not None
+
+tests/integration/test_reference_target_selection.py:75: AssertionError</failure></testcase><testcase classname="tests.integration.test_reference_target_selection" name="test_normal_analysis_offers_explicit_choices_without_selecting_mass_or_target" time="0.544"><failure message="KeyError: 'reference_options'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-332/test_normal_analysis_offers_ex0')
+
+    def test_normal_analysis_offers_explicit_choices_without_selecting_mass_or_target(tmp_path):
+        repo = Repository(tmp_path / "options.sqlite3")
+        try:
+            saved, _ = populated(repo, tmp_path)
+            output = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", use_cache=False)
+&gt;           assert {row["record_id"] for row in output["reference_options"]["references"]} == {"strength_set:"+row["set_uuid"] for row in saved}
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'reference_options'
+
+tests/integration/test_reference_target_selection.py:94: KeyError</failure></testcase><testcase classname="tests.integration.test_reference_target_selection" name="test_mismatched_day_and_unconfirmed_mass_do_not_silently_become_a_ratio" time="0.984"><failure message="KeyError: 'reference_selection'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-332/test_mismatched_day_and_unconf0')
+
+    def test_mismatched_day_and_unconfirmed_mass_do_not_silently_become_a_ratio(tmp_path):
+        repo = Repository(tmp_path / "dates.sqlite3")
+        try:
+            saved, mass = populated(repo, tmp_path)
+            before = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", use_cache=False)
+            for chosen, reason in [(selection(before, saved[1], mass[0]), "body_mass_local_date_mismatch"),
+                                   (selection(before, saved[1], mass[1], body_mass_matches_reference=False), "body_mass_match_not_confirmed")]:
+                output = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", context={"reference_selection": chosen}, use_cache=False)
+                assert output["metrics"]["STR-30"]["value"] is None
+&gt;               assert reason in output["reference_selection"]["reason_codes"]
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               KeyError: 'reference_selection'
+
+tests/integration/test_reference_target_selection.py:111: KeyError</failure></testcase><testcase classname="tests.integration.test_reference_target_selection" name="test_actual_analysis_ui_selects_repository_inputs_and_persists_result" time="2.980"><failure message="KeyError: 'analysis_reference_record'">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-332/test_actual_analysis_ui_select0')
+
+    def test_actual_analysis_ui_selects_repository_inputs_and_persists_result(tmp_path):
+        from streamlit.testing.v1 import AppTest
+
+        path = tmp_path / "selection-ui.sqlite3"
+        repo = Repository(path)
+        saved, mass = populated(repo, tmp_path)
+        repo.close()
+        app = AppTest.from_string(
+            "from healthzip.db.repository import Repository\nfrom healthzip.analytics.v13 import analyze\n"
+            "from healthzip.ui.analysis_page import render_analysis\n"
+            f"repo=Repository({str(path)!r})\n"
+            f"render_analysis(repo, {{'v13':analyze(repo,cutoff_time={CUTOFF!r},timezone_name='UTC')}})\nrepo.close()"
+        ).run(timeout=30)
+        assert not app.exception
+&gt;       app.selectbox(key="analysis_reference_record").select("strength_set:"+saved[1]["set_uuid"]).run(timeout=30)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_reference_target_selection.py:131:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WidgetList(_list=[Selectbox(key='analysis_look_task', _value=InitialValue(), label='测量任务', options=['杠铃平板卧推 · 098a6b32...(), label='查看内容', options=['趋势变化区间', '停滞候选复核']), Selectbox(_value=InitialValue(), label='复盘周期', options=['本周', '本月'])])
+key = 'analysis_reference_record'
+
+    def __call__(self, key: str) -&gt; El_co:
+        """Return the first element in this collection with the given user key.
+
+        The same key can appear on different element types, so this returns the
+        first match in this collection. Use ``get_by_key`` when an ambiguous
+        key should raise.
+        """
+        for e in self._list:
+            if getattr(e, "key", None) == key:
+                return e
+&gt;       raise KeyError(key)
+E       KeyError: 'analysis_reference_record'
+
+.venv/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:602: KeyError</failure></testcase></testsuite></testsuites>

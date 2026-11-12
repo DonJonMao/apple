@@ -1,0 +1,1503 @@
+{
+  "data_kind": "synthetic_repository_and_actual_ui_software_verification",
+  "independent_validation_count": 0,
+  "algorithm_version": "healthzip-science-1.4.2",
+  "before_evidence": {
+    "path": "artifacts/v14/science/followup-gap-before-20261112.json",
+    "sha256": "30d066967cb092d3c7d8b86813842e6bdc6e0219a24d0729d14b5d89dd9ede46"
+  },
+  "recipe": "tests/integration/test_v14_followup_report.py::trial; followups Jan4 52.5x10, Jan5 55x8, Jan6 changed station; Jan9 correction Jan4 reps=12",
+  "candidate": {
+    "action_kind": "heavier_lower_reps",
+    "candidate_id": "synthetic-trial",
+    "eligibility": [],
+    "followup_window": {
+      "closure": "[start,end)",
+      "declared_at": "2026-01-02T08:01:00+00:00",
+      "end": "2026-02-10T00:00:00+00:00",
+      "origin": "user_declared",
+      "start": "2026-01-03T00:00:00+00:00",
+      "timezone": "UTC"
+    },
+    "proposed_change": {
+      "load": 52.5,
+      "load_basis": "external_total_kg",
+      "load_unit": "kg"
+    },
+    "reason_evidence_ids": [],
+    "rule_version": "synthetic-software-test-only",
+    "target_range": {
+      "reps_max": 8,
+      "reps_min": 8,
+      "rir_max": 2,
+      "rir_min": 2
+    },
+    "target_session": "9bfcbfe3-fe4e-55d7-9561-a9a127d1c8af",
+    "uncertainty": {},
+    "user_choice": null,
+    "verification_protocol": "synthetic test"
+  },
+  "report_at_2026_01_08": {
+    "execution": {
+      "metric_id": "STR-27",
+      "algorithm_version": "healthzip-science-1.4.2",
+      "computed_at": "2026-11-12T01:28:47.902922+00:00",
+      "cutoff_time": "2026-01-08T00:00:00+00:00",
+      "window": {
+        "start": "2025-12-09T00:00:00+00:00",
+        "end": "2026-01-08T00:00:00+00:00",
+        "timezone": "UTC",
+        "closure": "[start,end)"
+      },
+      "value": [
+        {
+          "recommendation_id": "synthetic-trial",
+          "adoption": "adopted",
+          "strategy": "heavier_lower_reps",
+          "task_id": "synthetic-task",
+          "rule_versions": null,
+          "execution_state": "executed",
+          "short_term_success": true,
+          "reason_codes": [],
+          "nonexecution_reason": null,
+          "complete": true,
+          "frozen_targets": {
+            "reps": {
+              "min": 8.0,
+              "max": 8.0
+            },
+            "rir": {
+              "min": 2.0,
+              "max": 2.0
+            },
+            "load_value": {
+              "min": 52.5,
+              "max": 52.5
+            }
+          },
+          "actual": {
+            "reps": 8.0,
+            "rir": 2.0,
+            "load_value": 52.5
+          },
+          "target_comparisons": [
+            {
+              "endpoint": "reps",
+              "target": {
+                "min": 8.0,
+                "max": 8.0
+              },
+              "actual": 8.0,
+              "target_unit": "repetitions",
+              "actual_unit": "repetitions",
+              "actual_interval": null,
+              "target_load_basis": null,
+              "actual_load_basis": null,
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            },
+            {
+              "endpoint": "rir",
+              "target": {
+                "min": 2.0,
+                "max": 2.0
+              },
+              "actual": 2.0,
+              "target_unit": "RIR",
+              "actual_unit": "RIR",
+              "actual_interval": null,
+              "target_load_basis": null,
+              "actual_load_basis": null,
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            },
+            {
+              "endpoint": "load_value",
+              "target": {
+                "min": 52.5,
+                "max": 52.5
+              },
+              "actual": 52.5,
+              "target_unit": "kg",
+              "actual_unit": "kg",
+              "actual_interval": null,
+              "target_load_basis": "external_total_kg",
+              "actual_load_basis": "external_total_kg",
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            }
+          ],
+          "actual_observations": [
+            {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          ],
+          "execution_change": {
+            "before": {
+              "record_id": "eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9",
+              "revision": 2,
+              "session_id": 1,
+              "observed_at": "2026-01-01T08:02:00+00:00",
+              "available_at": "2026-01-01T08:02:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 50.0,
+                "reps": 10.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "after": {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "comparable": true,
+            "reason_codes": [],
+            "differences": {
+              "reps": {
+                "value": -2.0,
+                "unit": "repetitions",
+                "reason": null
+              },
+              "rir": {
+                "value": 0.0,
+                "unit": "RIR",
+                "reason": null
+              },
+              "duration_s": {
+                "value": null,
+                "unit": "s",
+                "reason": "endpoint_missing_or_interval_censored"
+              },
+              "distance_m": {
+                "value": null,
+                "unit": "m",
+                "reason": "endpoint_missing_or_interval_censored"
+              }
+            },
+            "causal_effect": null,
+            "load_change": {
+              "entered_change": 2.5,
+              "plate_total_change_kg": null,
+              "total_load_change_kg": 2.5,
+              "total_load_change_percent": 5.0,
+              "direction": "not_inferred",
+              "reason_codes": []
+            },
+            "interpretation": "observed_task_change_not_capacity_gain"
+          },
+          "execution_change_reason_codes": [],
+          "followup": {
+            "recommendation_id": "synthetic-trial",
+            "window": {
+              "closure": "[start,end)",
+              "declared_at": "2026-01-02T08:01:00+00:00",
+              "end": "2026-02-10T00:00:00+00:00",
+              "origin": "user_declared",
+              "start": "2026-01-03T00:00:00+00:00",
+              "timezone": "UTC"
+            },
+            "status": "observed",
+            "reason_codes": [],
+            "observations": [
+              {
+                "before": {
+                  "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+                  "revision": 2,
+                  "session_id": 2,
+                  "observed_at": "2026-01-02T08:03:00+00:00",
+                  "available_at": "2026-01-02T08:03:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 8.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                },
+                "after": {
+                  "record_id": "e4e5066d-c706-5a23-8370-bc1756be5ec5",
+                  "revision": 2,
+                  "session_id": 3,
+                  "observed_at": "2026-01-04T08:02:00+00:00",
+                  "available_at": "2026-01-04T08:02:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 10.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                },
+                "comparable": true,
+                "reason_codes": [],
+                "differences": {
+                  "reps": {
+                    "value": 2.0,
+                    "unit": "repetitions",
+                    "reason": null
+                  },
+                  "rir": {
+                    "value": 0.0,
+                    "unit": "RIR",
+                    "reason": null
+                  },
+                  "duration_s": {
+                    "value": null,
+                    "unit": "s",
+                    "reason": "endpoint_missing_or_interval_censored"
+                  },
+                  "distance_m": {
+                    "value": null,
+                    "unit": "m",
+                    "reason": "endpoint_missing_or_interval_censored"
+                  }
+                },
+                "causal_effect": null,
+                "load_change": {
+                  "entered_change": 0.0,
+                  "plate_total_change_kg": null,
+                  "total_load_change_kg": 0.0,
+                  "total_load_change_percent": 0.0,
+                  "direction": "not_inferred",
+                  "reason_codes": []
+                },
+                "interpretation": "observed_same_load_change"
+              }
+            ],
+            "exclusions": [
+              {
+                "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+                "reason_codes": [
+                  "different_fixed_load_outcome_series"
+                ],
+                "observed": {
+                  "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+                  "revision": 2,
+                  "session_id": 4,
+                  "observed_at": "2026-01-05T08:02:00+00:00",
+                  "available_at": "2026-01-05T08:02:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 55.0,
+                    "reps": 8.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                }
+              },
+              {
+                "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+                "reason_codes": [
+                  "different_fixed_load_outcome_series",
+                  "physical_condition_changed"
+                ],
+                "observed": {
+                  "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+                  "revision": 2,
+                  "session_id": 5,
+                  "observed_at": "2026-01-06T08:02:00+00:00",
+                  "available_at": "2026-01-06T08:02:00+00:00",
+                  "condition_key": "5cba8b9ac2703887df54ba5c8109fb749bf9726fd78a61e88d857ffbae8e4e60",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 9.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                }
+              }
+            ],
+            "cutoff_time": "2026-01-08T00:00:00+00:00",
+            "causal_effect": null,
+            "window_complete": false
+          },
+          "feedback_missing": false,
+          "report_membership": "feedback_or_creation_in_window"
+        }
+      ],
+      "unit": "类别与原始差值",
+      "data_status": "valid",
+      "evidence_status": "definition_based",
+      "valid_n": 1,
+      "total_n": 1,
+      "n_sessions": 5,
+      "count_domain": "recommendations",
+      "coverage": [],
+      "uncertainty": {
+        "kind": "not_estimated",
+        "lower": null,
+        "upper": null,
+        "level": null,
+        "assumptions": []
+      },
+      "assumptions": [],
+      "reason_codes": [],
+      "source_record_ids": [
+        "strength_set:2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+        "strength_set:36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+        "strength_set:c6005027-5c40-58bb-9287-ba9243edd2c7",
+        "strength_set:e4e5066d-c706-5a23-8370-bc1756be5ec5",
+        "strength_set:eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9"
+      ],
+      "evidence_refs": [
+        "R7"
+      ],
+      "parameter_set_id": null,
+      "calibration_artifact_id": null,
+      "limitations": [
+        "实际结果与推荐依从性可核对；因果效果仍需对照。",
+        "短期做成不证明长期增肌有效",
+        "不能只保留成功采纳者"
+      ]
+    },
+    "summary": {
+      "metric_id": "STR-28",
+      "algorithm_version": "healthzip-science-1.4.2",
+      "computed_at": "2026-11-12T01:28:47.907569+00:00",
+      "cutoff_time": "2026-01-08T00:00:00+00:00",
+      "window": {
+        "start": "2025-12-09T00:00:00+00:00",
+        "end": "2026-01-08T00:00:00+00:00",
+        "timezone": "UTC",
+        "closure": "[start,end)"
+      },
+      "value": {
+        "adoption_numerator": 1,
+        "adoption_denominator": 1,
+        "unanswered": 0,
+        "success_numerator": 1,
+        "success_denominator": 1,
+        "missing_outcomes": 0,
+        "strata": [
+          {
+            "strategy": "heavier_lower_reps",
+            "task_id": "synthetic-task",
+            "rule_versions": null,
+            "recommendation_ids": [
+              "synthetic-trial"
+            ],
+            "counts": {
+              "adoption_numerator": 1,
+              "adoption_denominator": 1,
+              "unanswered": 0,
+              "success_numerator": 1,
+              "success_denominator": 1,
+              "missing_outcomes": 0,
+              "execution_numerator": 1,
+              "execution_denominator": 1,
+              "execution_states": {
+                "executed": 1,
+                "partially_executed": 0,
+                "not_executed": 0,
+                "unknown": 0
+              },
+              "followup_states": {
+                "not_planned": 0,
+                "pending": 0,
+                "observed": 1,
+                "no_comparable_observation": 0,
+                "not_executed": 0,
+                "execution_unconfirmed": 0,
+                "unavailable": 0
+              },
+              "comparable_followup_observations": 1
+            }
+          }
+        ],
+        "execution_numerator": 1,
+        "execution_denominator": 1,
+        "execution_states": {
+          "executed": 1,
+          "partially_executed": 0,
+          "not_executed": 0,
+          "unknown": 0
+        },
+        "followup_states": {
+          "not_planned": 0,
+          "pending": 0,
+          "observed": 1,
+          "no_comparable_observation": 0,
+          "not_executed": 0,
+          "execution_unconfirmed": 0,
+          "unavailable": 0
+        },
+        "comparable_followup_observations": 1
+      },
+      "unit": "比例 / 差值 / 区间",
+      "data_status": "valid",
+      "evidence_status": "definition_based",
+      "valid_n": 1,
+      "total_n": 1,
+      "n_sessions": 5,
+      "count_domain": "recommendations",
+      "coverage": [],
+      "uncertainty": {
+        "kind": "not_estimated",
+        "lower": null,
+        "upper": null,
+        "level": null,
+        "assumptions": []
+      },
+      "assumptions": [],
+      "reason_codes": [],
+      "source_record_ids": [
+        "strength_set:2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+        "strength_set:36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+        "strength_set:c6005027-5c40-58bb-9287-ba9243edd2c7",
+        "strength_set:e4e5066d-c706-5a23-8370-bc1756be5ec5",
+        "strength_set:eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9"
+      ],
+      "evidence_refs": [
+        "R7",
+        "M1"
+      ],
+      "parameter_set_id": null,
+      "calibration_artifact_id": null,
+      "limitations": [
+        "小分母、同人相关、选择性采纳与缺失影响估计；分别披露，不将比率包装为疗效。",
+        "采纳率不能作为唯一优化目标",
+        "前后变好不证明是建议导致"
+      ]
+    },
+    "followup_windows": [
+      {
+        "recommendation_id": "synthetic-trial",
+        "window": {
+          "closure": "[start,end)",
+          "declared_at": "2026-01-02T08:01:00+00:00",
+          "end": "2026-02-10T00:00:00+00:00",
+          "origin": "user_declared",
+          "start": "2026-01-03T00:00:00+00:00",
+          "timezone": "UTC"
+        },
+        "status": "observed",
+        "reason_codes": [],
+        "observations": [
+          {
+            "before": {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "after": {
+              "record_id": "e4e5066d-c706-5a23-8370-bc1756be5ec5",
+              "revision": 2,
+              "session_id": 3,
+              "observed_at": "2026-01-04T08:02:00+00:00",
+              "available_at": "2026-01-04T08:02:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 10.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "comparable": true,
+            "reason_codes": [],
+            "differences": {
+              "reps": {
+                "value": 2.0,
+                "unit": "repetitions",
+                "reason": null
+              },
+              "rir": {
+                "value": 0.0,
+                "unit": "RIR",
+                "reason": null
+              },
+              "duration_s": {
+                "value": null,
+                "unit": "s",
+                "reason": "endpoint_missing_or_interval_censored"
+              },
+              "distance_m": {
+                "value": null,
+                "unit": "m",
+                "reason": "endpoint_missing_or_interval_censored"
+              }
+            },
+            "causal_effect": null,
+            "load_change": {
+              "entered_change": 0.0,
+              "plate_total_change_kg": null,
+              "total_load_change_kg": 0.0,
+              "total_load_change_percent": 0.0,
+              "direction": "not_inferred",
+              "reason_codes": []
+            },
+            "interpretation": "observed_same_load_change"
+          }
+        ],
+        "exclusions": [
+          {
+            "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+            "reason_codes": [
+              "different_fixed_load_outcome_series"
+            ],
+            "observed": {
+              "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+              "revision": 2,
+              "session_id": 4,
+              "observed_at": "2026-01-05T08:02:00+00:00",
+              "available_at": "2026-01-05T08:02:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 55.0,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          },
+          {
+            "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+            "reason_codes": [
+              "different_fixed_load_outcome_series",
+              "physical_condition_changed"
+            ],
+            "observed": {
+              "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+              "revision": 2,
+              "session_id": 5,
+              "observed_at": "2026-01-06T08:02:00+00:00",
+              "available_at": "2026-01-06T08:02:00+00:00",
+              "condition_key": "5cba8b9ac2703887df54ba5c8109fb749bf9726fd78a61e88d857ffbae8e4e60",
+              "values": {
+                "load_value": 52.5,
+                "reps": 9.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          }
+        ],
+        "cutoff_time": "2026-01-08T00:00:00+00:00",
+        "causal_effect": null,
+        "window_complete": false
+      }
+    ],
+    "causal_effect": null
+  },
+  "report_after_late_correction": {
+    "execution": {
+      "metric_id": "STR-27",
+      "algorithm_version": "healthzip-science-1.4.2",
+      "computed_at": "2026-11-12T01:28:48.580781+00:00",
+      "cutoff_time": "2026-01-09T01:00:00+00:00",
+      "window": {
+        "start": "2025-12-10T01:00:00+00:00",
+        "end": "2026-01-09T01:00:00+00:00",
+        "timezone": "UTC",
+        "closure": "[start,end)"
+      },
+      "value": [
+        {
+          "recommendation_id": "synthetic-trial",
+          "adoption": "adopted",
+          "strategy": "heavier_lower_reps",
+          "task_id": "synthetic-task",
+          "rule_versions": null,
+          "execution_state": "executed",
+          "short_term_success": true,
+          "reason_codes": [],
+          "nonexecution_reason": null,
+          "complete": true,
+          "frozen_targets": {
+            "reps": {
+              "min": 8.0,
+              "max": 8.0
+            },
+            "rir": {
+              "min": 2.0,
+              "max": 2.0
+            },
+            "load_value": {
+              "min": 52.5,
+              "max": 52.5
+            }
+          },
+          "actual": {
+            "reps": 8.0,
+            "rir": 2.0,
+            "load_value": 52.5
+          },
+          "target_comparisons": [
+            {
+              "endpoint": "reps",
+              "target": {
+                "min": 8.0,
+                "max": 8.0
+              },
+              "actual": 8.0,
+              "target_unit": "repetitions",
+              "actual_unit": "repetitions",
+              "actual_interval": null,
+              "target_load_basis": null,
+              "actual_load_basis": null,
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            },
+            {
+              "endpoint": "rir",
+              "target": {
+                "min": 2.0,
+                "max": 2.0
+              },
+              "actual": 2.0,
+              "target_unit": "RIR",
+              "actual_unit": "RIR",
+              "actual_interval": null,
+              "target_load_basis": null,
+              "actual_load_basis": null,
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            },
+            {
+              "endpoint": "load_value",
+              "target": {
+                "min": 52.5,
+                "max": 52.5
+              },
+              "actual": 52.5,
+              "target_unit": "kg",
+              "actual_unit": "kg",
+              "actual_interval": null,
+              "target_load_basis": "external_total_kg",
+              "actual_load_basis": "external_total_kg",
+              "actual_minus_min": 0.0,
+              "actual_minus_max": 0.0,
+              "within_target": true,
+              "quality_comparable": true,
+              "reason_codes": []
+            }
+          ],
+          "actual_observations": [
+            {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          ],
+          "execution_change": {
+            "before": {
+              "record_id": "eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9",
+              "revision": 2,
+              "session_id": 1,
+              "observed_at": "2026-01-01T08:02:00+00:00",
+              "available_at": "2026-01-01T08:02:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 50.0,
+                "reps": 10.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "after": {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "comparable": true,
+            "reason_codes": [],
+            "differences": {
+              "reps": {
+                "value": -2.0,
+                "unit": "repetitions",
+                "reason": null
+              },
+              "rir": {
+                "value": 0.0,
+                "unit": "RIR",
+                "reason": null
+              },
+              "duration_s": {
+                "value": null,
+                "unit": "s",
+                "reason": "endpoint_missing_or_interval_censored"
+              },
+              "distance_m": {
+                "value": null,
+                "unit": "m",
+                "reason": "endpoint_missing_or_interval_censored"
+              }
+            },
+            "causal_effect": null,
+            "load_change": {
+              "entered_change": 2.5,
+              "plate_total_change_kg": null,
+              "total_load_change_kg": 2.5,
+              "total_load_change_percent": 5.0,
+              "direction": "not_inferred",
+              "reason_codes": []
+            },
+            "interpretation": "observed_task_change_not_capacity_gain"
+          },
+          "execution_change_reason_codes": [],
+          "followup": {
+            "recommendation_id": "synthetic-trial",
+            "window": {
+              "closure": "[start,end)",
+              "declared_at": "2026-01-02T08:01:00+00:00",
+              "end": "2026-02-10T00:00:00+00:00",
+              "origin": "user_declared",
+              "start": "2026-01-03T00:00:00+00:00",
+              "timezone": "UTC"
+            },
+            "status": "observed",
+            "reason_codes": [],
+            "observations": [
+              {
+                "before": {
+                  "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+                  "revision": 2,
+                  "session_id": 2,
+                  "observed_at": "2026-01-02T08:03:00+00:00",
+                  "available_at": "2026-01-02T08:03:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 8.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                },
+                "after": {
+                  "record_id": "e4e5066d-c706-5a23-8370-bc1756be5ec5",
+                  "revision": 3,
+                  "session_id": 3,
+                  "observed_at": "2026-01-04T08:02:00+00:00",
+                  "available_at": "2026-01-09T00:00:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 12.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                },
+                "comparable": true,
+                "reason_codes": [],
+                "differences": {
+                  "reps": {
+                    "value": 4.0,
+                    "unit": "repetitions",
+                    "reason": null
+                  },
+                  "rir": {
+                    "value": 0.0,
+                    "unit": "RIR",
+                    "reason": null
+                  },
+                  "duration_s": {
+                    "value": null,
+                    "unit": "s",
+                    "reason": "endpoint_missing_or_interval_censored"
+                  },
+                  "distance_m": {
+                    "value": null,
+                    "unit": "m",
+                    "reason": "endpoint_missing_or_interval_censored"
+                  }
+                },
+                "causal_effect": null,
+                "load_change": {
+                  "entered_change": 0.0,
+                  "plate_total_change_kg": null,
+                  "total_load_change_kg": 0.0,
+                  "total_load_change_percent": 0.0,
+                  "direction": "not_inferred",
+                  "reason_codes": []
+                },
+                "interpretation": "observed_same_load_change"
+              }
+            ],
+            "exclusions": [
+              {
+                "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+                "reason_codes": [
+                  "different_fixed_load_outcome_series"
+                ],
+                "observed": {
+                  "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+                  "revision": 2,
+                  "session_id": 4,
+                  "observed_at": "2026-01-05T08:02:00+00:00",
+                  "available_at": "2026-01-05T08:02:00+00:00",
+                  "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+                  "values": {
+                    "load_value": 55.0,
+                    "reps": 8.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                }
+              },
+              {
+                "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+                "reason_codes": [
+                  "different_fixed_load_outcome_series",
+                  "physical_condition_changed"
+                ],
+                "observed": {
+                  "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+                  "revision": 2,
+                  "session_id": 5,
+                  "observed_at": "2026-01-06T08:02:00+00:00",
+                  "available_at": "2026-01-06T08:02:00+00:00",
+                  "condition_key": "5cba8b9ac2703887df54ba5c8109fb749bf9726fd78a61e88d857ffbae8e4e60",
+                  "values": {
+                    "load_value": 52.5,
+                    "reps": 9.0,
+                    "rir": 2.0,
+                    "duration_s": null,
+                    "distance_m": null
+                  },
+                  "units": {
+                    "load_value": "kg",
+                    "reps": "repetitions",
+                    "rir": "RIR",
+                    "duration_s": "s",
+                    "distance_m": "m"
+                  },
+                  "load_basis": "external_total_kg",
+                  "rir_interval": null,
+                  "quality_status": "acceptable",
+                  "stop_reason": "target_rir",
+                  "pain_flag": false
+                }
+              }
+            ],
+            "cutoff_time": "2026-01-09T01:00:00+00:00",
+            "causal_effect": null,
+            "window_complete": false
+          },
+          "feedback_missing": false,
+          "report_membership": "feedback_or_creation_in_window"
+        }
+      ],
+      "unit": "类别与原始差值",
+      "data_status": "valid",
+      "evidence_status": "definition_based",
+      "valid_n": 1,
+      "total_n": 1,
+      "n_sessions": 5,
+      "count_domain": "recommendations",
+      "coverage": [],
+      "uncertainty": {
+        "kind": "not_estimated",
+        "lower": null,
+        "upper": null,
+        "level": null,
+        "assumptions": []
+      },
+      "assumptions": [],
+      "reason_codes": [],
+      "source_record_ids": [
+        "strength_set:2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+        "strength_set:36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+        "strength_set:c6005027-5c40-58bb-9287-ba9243edd2c7",
+        "strength_set:e4e5066d-c706-5a23-8370-bc1756be5ec5",
+        "strength_set:eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9"
+      ],
+      "evidence_refs": [
+        "R7"
+      ],
+      "parameter_set_id": null,
+      "calibration_artifact_id": null,
+      "limitations": [
+        "实际结果与推荐依从性可核对；因果效果仍需对照。",
+        "短期做成不证明长期增肌有效",
+        "不能只保留成功采纳者"
+      ]
+    },
+    "summary": {
+      "metric_id": "STR-28",
+      "algorithm_version": "healthzip-science-1.4.2",
+      "computed_at": "2026-11-12T01:28:48.585500+00:00",
+      "cutoff_time": "2026-01-09T01:00:00+00:00",
+      "window": {
+        "start": "2025-12-10T01:00:00+00:00",
+        "end": "2026-01-09T01:00:00+00:00",
+        "timezone": "UTC",
+        "closure": "[start,end)"
+      },
+      "value": {
+        "adoption_numerator": 1,
+        "adoption_denominator": 1,
+        "unanswered": 0,
+        "success_numerator": 1,
+        "success_denominator": 1,
+        "missing_outcomes": 0,
+        "strata": [
+          {
+            "strategy": "heavier_lower_reps",
+            "task_id": "synthetic-task",
+            "rule_versions": null,
+            "recommendation_ids": [
+              "synthetic-trial"
+            ],
+            "counts": {
+              "adoption_numerator": 1,
+              "adoption_denominator": 1,
+              "unanswered": 0,
+              "success_numerator": 1,
+              "success_denominator": 1,
+              "missing_outcomes": 0,
+              "execution_numerator": 1,
+              "execution_denominator": 1,
+              "execution_states": {
+                "executed": 1,
+                "partially_executed": 0,
+                "not_executed": 0,
+                "unknown": 0
+              },
+              "followup_states": {
+                "not_planned": 0,
+                "pending": 0,
+                "observed": 1,
+                "no_comparable_observation": 0,
+                "not_executed": 0,
+                "execution_unconfirmed": 0,
+                "unavailable": 0
+              },
+              "comparable_followup_observations": 1
+            }
+          }
+        ],
+        "execution_numerator": 1,
+        "execution_denominator": 1,
+        "execution_states": {
+          "executed": 1,
+          "partially_executed": 0,
+          "not_executed": 0,
+          "unknown": 0
+        },
+        "followup_states": {
+          "not_planned": 0,
+          "pending": 0,
+          "observed": 1,
+          "no_comparable_observation": 0,
+          "not_executed": 0,
+          "execution_unconfirmed": 0,
+          "unavailable": 0
+        },
+        "comparable_followup_observations": 1
+      },
+      "unit": "比例 / 差值 / 区间",
+      "data_status": "valid",
+      "evidence_status": "definition_based",
+      "valid_n": 1,
+      "total_n": 1,
+      "n_sessions": 5,
+      "count_domain": "recommendations",
+      "coverage": [],
+      "uncertainty": {
+        "kind": "not_estimated",
+        "lower": null,
+        "upper": null,
+        "level": null,
+        "assumptions": []
+      },
+      "assumptions": [],
+      "reason_codes": [],
+      "source_record_ids": [
+        "strength_set:2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+        "strength_set:36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+        "strength_set:c6005027-5c40-58bb-9287-ba9243edd2c7",
+        "strength_set:e4e5066d-c706-5a23-8370-bc1756be5ec5",
+        "strength_set:eb9da5f8-1cb9-582d-8b03-110a7b3e2dc9"
+      ],
+      "evidence_refs": [
+        "R7",
+        "M1"
+      ],
+      "parameter_set_id": null,
+      "calibration_artifact_id": null,
+      "limitations": [
+        "小分母、同人相关、选择性采纳与缺失影响估计；分别披露，不将比率包装为疗效。",
+        "采纳率不能作为唯一优化目标",
+        "前后变好不证明是建议导致"
+      ]
+    },
+    "followup_windows": [
+      {
+        "recommendation_id": "synthetic-trial",
+        "window": {
+          "closure": "[start,end)",
+          "declared_at": "2026-01-02T08:01:00+00:00",
+          "end": "2026-02-10T00:00:00+00:00",
+          "origin": "user_declared",
+          "start": "2026-01-03T00:00:00+00:00",
+          "timezone": "UTC"
+        },
+        "status": "observed",
+        "reason_codes": [],
+        "observations": [
+          {
+            "before": {
+              "record_id": "c6005027-5c40-58bb-9287-ba9243edd2c7",
+              "revision": 2,
+              "session_id": 2,
+              "observed_at": "2026-01-02T08:03:00+00:00",
+              "available_at": "2026-01-02T08:03:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "after": {
+              "record_id": "e4e5066d-c706-5a23-8370-bc1756be5ec5",
+              "revision": 3,
+              "session_id": 3,
+              "observed_at": "2026-01-04T08:02:00+00:00",
+              "available_at": "2026-01-09T00:00:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 52.5,
+                "reps": 12.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            },
+            "comparable": true,
+            "reason_codes": [],
+            "differences": {
+              "reps": {
+                "value": 4.0,
+                "unit": "repetitions",
+                "reason": null
+              },
+              "rir": {
+                "value": 0.0,
+                "unit": "RIR",
+                "reason": null
+              },
+              "duration_s": {
+                "value": null,
+                "unit": "s",
+                "reason": "endpoint_missing_or_interval_censored"
+              },
+              "distance_m": {
+                "value": null,
+                "unit": "m",
+                "reason": "endpoint_missing_or_interval_censored"
+              }
+            },
+            "causal_effect": null,
+            "load_change": {
+              "entered_change": 0.0,
+              "plate_total_change_kg": null,
+              "total_load_change_kg": 0.0,
+              "total_load_change_percent": 0.0,
+              "direction": "not_inferred",
+              "reason_codes": []
+            },
+            "interpretation": "observed_same_load_change"
+          }
+        ],
+        "exclusions": [
+          {
+            "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+            "reason_codes": [
+              "different_fixed_load_outcome_series"
+            ],
+            "observed": {
+              "record_id": "2fa0a950-bb4d-55b1-bfba-9a36b8785165",
+              "revision": 2,
+              "session_id": 4,
+              "observed_at": "2026-01-05T08:02:00+00:00",
+              "available_at": "2026-01-05T08:02:00+00:00",
+              "condition_key": "ed61aca1b9387c78ba8d94ed0d75c87ead598098940f4fb8c392ea1e344b69b8",
+              "values": {
+                "load_value": 55.0,
+                "reps": 8.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          },
+          {
+            "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+            "reason_codes": [
+              "different_fixed_load_outcome_series",
+              "physical_condition_changed"
+            ],
+            "observed": {
+              "record_id": "36dafd4b-e3b2-5aff-9063-bf1337faf59a",
+              "revision": 2,
+              "session_id": 5,
+              "observed_at": "2026-01-06T08:02:00+00:00",
+              "available_at": "2026-01-06T08:02:00+00:00",
+              "condition_key": "5cba8b9ac2703887df54ba5c8109fb749bf9726fd78a61e88d857ffbae8e4e60",
+              "values": {
+                "load_value": 52.5,
+                "reps": 9.0,
+                "rir": 2.0,
+                "duration_s": null,
+                "distance_m": null
+              },
+              "units": {
+                "load_value": "kg",
+                "reps": "repetitions",
+                "rir": "RIR",
+                "duration_s": "s",
+                "distance_m": "m"
+              },
+              "load_basis": "external_total_kg",
+              "rir_interval": null,
+              "quality_status": "acceptable",
+              "stop_reason": "target_rir",
+              "pain_flag": false
+            }
+          }
+        ],
+        "cutoff_time": "2026-01-09T01:00:00+00:00",
+        "causal_effect": null,
+        "window_complete": false
+      }
+    ],
+    "causal_effect": null
+  },
+  "assertions": {
+    "original_cutoff_replay_preserved": true,
+    "same_load_followup_delta_before_correction": 2,
+    "same_load_followup_delta_after_correction": 4,
+    "changed_load_and_equipment_excluded": true,
+    "causal_effect": null
+  },
+  "test_evidence": "artifacts/v14/science/followup-final-tests-20261112.xml",
+  "actual_ui_tests": [
+    "test_visible_followup_report_shows_target_actual_and_later_difference",
+    "test_visible_candidate_form_freezes_optional_user_window"
+  ],
+  "scope": "All records and review identities are synthetic. Implementation-author verification only; no personal calibration, real-user trial, expert review, or causal validation."
+}

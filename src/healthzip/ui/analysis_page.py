@@ -24,6 +24,8 @@ def render_analysis(repo, value):
         persist(repo, result)
     st.subheader("训练分析")
     st.caption(f"数据截止 {result['cutoff_time']} · 版本 {result['algorithm_version']}。未知保留为空；模型有效性与数据可用性分别显示。")
+    from healthzip.ui.reference_selection import render_reference_selection
+    result = render_reference_selection(repo, result)
     metrics = result["metrics"]
     if isinstance(metrics, list):
         metrics = {x["metric_id"]: x for x in metrics}
@@ -109,7 +111,11 @@ def render_analysis(repo, value):
             }
             for metric_id in summaries[title]:
                 x = metrics[metric_id]
-                st.write(names[metric_id]["title"], x["value"] if x["value"] is not None else "资料不足，尚不能判断")
+                if metric_id == "REPORT-RECOMMENDATION-FOLLOWUP":
+                    from healthzip.ui.followup_report import render_followup_report
+                    render_followup_report(x["value"])
+                else:
+                    st.write(names[metric_id]["title"], x["value"] if x["value"] is not None else "资料不足，尚不能判断")
                 st.caption(f"有效记录 {x['valid_n']}/{x['total_n']} · {x['unit'] or ''} · {'；'.join(x['reason_codes'])}")
             with st.expander("高级：完整指标、窗口、来源和计算依据"):
                 st.dataframe([{"指标": names[x["metric_id"]]["title"], "结果": str(x["value"]) if x["value"] is not None else "未知",
@@ -153,7 +159,11 @@ def render_analysis(repo, value):
                 st.info("本周期尚无可比负荷序列；可能缺少参考组、测量协议或有效观察，不代表没有训练或已经停滞。")
             for mid, metric in period_result["metrics"].items():
                 if mid.startswith("REPORT-"):
-                    st.write(names[mid]["title"], metric["value"])
+                    if mid == "REPORT-RECOMMENDATION-FOLLOWUP":
+                        from healthzip.ui.followup_report import render_followup_report
+                        render_followup_report(metric["value"])
+                    else:
+                        st.write(names[mid]["title"], metric["value"])
                     st.caption(f"状态 {metric['data_status']} · {metric['valid_n']}/{metric['total_n']} · {'；'.join(metric['reason_codes'])}")
             st.download_button("下载本周期完整结果", data=json.dumps(period_result, ensure_ascii=False, indent=2),
                                file_name=f"healthzip-{period}.json", mime="application/json")

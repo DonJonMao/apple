@@ -29,6 +29,37 @@ SERIES_METRICS = {"STR-19", "STR-20", "STR-22", "STR-24"}
 NUMERIC_TYPES = {name for name, unit in TYPE_MAP.values() if unit != "category"}
 
 
+def _bounded_followup_outcome(record, cutoff_time):
+    """Do not reuse later derived observations at an earlier analysis cutoff."""
+    row = dict(record)
+    cutoff = instant(cutoff_time)
+    def future(observation):
+        for key in ("observed_at", "available_at"):
+            try:
+                if observation.get(key) and instant(observation[key]) > cutoff:
+                    return True
+            except ValueError:
+                return True
+        return False
+    if any(future(item) for item in row.get("actual_observations", [])):
+        row.update(actual={}, actual_observations=[], target_comparisons=[], quality_comparable=None,
+                   execution_change=None, execution_change_reason_codes=["execution_observation_after_analysis_cutoff"])
+    change = row.get("execution_change")
+    if change and any(future(change[part]) for part in ("before", "after")):
+        row.update(execution_change=None, execution_change_reason_codes=["comparison_revision_after_analysis_cutoff"])
+    followup = row.get("followup")
+    if followup:
+        try:
+            later_snapshot = instant(followup.get("cutoff_time")) > cutoff
+        except ValueError:
+            later_snapshot = True
+        later_observation = any(future(pair[part]) for pair in followup.get("observations", []) for part in ("before", "after"))
+        if later_snapshot or later_observation:
+            row["followup"] = {**followup, "observations": [], "exclusions": [], "status": "unavailable",
+                "reason_codes": ["followup_snapshot_after_analysis_cutoff_or_unverified"], "cutoff_time": cutoff_time}
+    return row
+
+
 def _undated_plan_states(rows, window, context):
     """Retain visible plan decisions without inventing an execution endpoint."""
     declarations = [{**plan, "id": "plan-session:" + str(plan["session_id"])}
@@ -143,7 +174,7 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         for record in context[key]:
             row = record
             if key == "recommendation_outcomes" and record.get("recommendation_id"):
-                row = {**record, "source_record_id": record["recommendation_id"]}
+                row = {**_bounded_followup_outcome(record, cutoff_time), "source_record_id": record["recommendation_id"]}
             elif key == "sleep_episodes":
                 # A declared sleep episode is one event, attributed by its end;
                 # its original endpoints remain intact for midpoint arithmetic.
@@ -153,8 +184,33 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         if key == "baseline_daily" and context.get("baseline_window"):
             bounds = context["baseline_window"]
             query_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
+        if key == "recommendation_outcomes":
+            dates = [instant(window.start)]
+            for row in source:
+                try:
+                    dates.append(instant(row.get("event_end")))
+                except ValueError:
+                    pass
+            # A candidate created earlier can have a declared follow-up window
+            # in this report. Preserve its actual timestamps and state exactly;
+            # membership by planned overlap is explicit, never a synthetic event.
+            query_window = Window(min(dates).isoformat(),
+                max(instant(window.end), instant(cutoff_time) + timedelta(microseconds=1)).isoformat(), cutoff_time, window.timezone)
         context[key], rejected = select_as_of(source, query_window, retrospective=context.get("retrospective", False),
                                               overlap=key in {"energy_days", "daily_metric_facts"})
+        if key == "recommendation_outcomes":
+            included = []
+            for row in context[key]:
+                event_in_window = instant(window.start) <= instant(row["_event_end"]) < instant(window.end)
+                plan = (row.get("followup") or {}).get("window") or {}
+                try:
+                    planned_overlap = instant(plan["start"]) < instant(window.end) and instant(plan["end"]) > instant(window.start)
+                except (ValueError, KeyError):
+                    planned_overlap = False
+                if event_in_window or planned_overlap:
+                    row["report_membership"] = "feedback_or_creation_in_window" if event_in_window else "predeclared_followup_overlap"
+                    included.append(row)
+            context[key] = included
         if key == "current_session_observations":
             context["current_session_observation_unknown_ids"] = [r["id"] for r in rejected
                 if r["reason"] in {"timestamp_required", "timezone_required", "available_at_unknown"}]

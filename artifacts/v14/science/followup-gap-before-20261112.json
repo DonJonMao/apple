@@ -1,0 +1,320 @@
+{
+  "data_kind": "synthetic_software_failure_reproduction",
+  "independent_validation": false,
+  "head": "aebe0d195e81af99e84a7c0b937b838861c8ee0e",
+  "source_sha256": {
+    "src/healthzip/science/strength.py": "aeaac9525b701c3c45c233d6f6d015b8ce7c55b90ce2a49ede9aee0f44005649",
+    "src/healthzip/science/reports.py": "0c856b4dbc9cf5d657e5f27ea763ebe642d7db6e5d0d49c5fb82522c53438e30",
+    "src/healthzip/analytics/v13.py": "052ce63827b0f1a3497696d7c042549182efc994cc1dda71807942bd803d3589"
+  },
+  "requirement": "REPORT-RECOMMENDATION-FOLLOWUP: report observed differences and predefined followup windows, without causal effect",
+  "input": {
+    "records": [
+      {
+        "id": "set-1",
+        "set_id": "set-1",
+        "session_id": "session-1",
+        "user_id": "synthetic",
+        "exercise_id": "bench",
+        "definition_version": 1,
+        "equipment_instance_id": "bar-1",
+        "load_basis": "external_total_kg",
+        "load_basis_confirmed": true,
+        "load_value": 50,
+        "load_unit": "kg",
+        "measurement_mode": "repetitions",
+        "side": "bilateral",
+        "repetition_semantics": "both_together",
+        "rom_protocol": "full_declared",
+        "settings": {},
+        "settings_confirmed": true,
+        "reference_protocol": {
+          "protocol_id": "first-work",
+          "version": "1",
+          "reference_policy_id": "first-work-v1",
+          "effort_protocol": "target-rir-2",
+          "tempo": "controlled",
+          "rest_protocol": "user-180s"
+        },
+        "reference_policy_id": "first-work-v1",
+        "set_position": 1,
+        "effort_protocol": "target-rir-2",
+        "tempo": "controlled",
+        "rest_protocol": "user-180s",
+        "role": "work",
+        "status": "completed",
+        "reps": 10,
+        "rir": 2,
+        "stop_reason": "target_rir_stop",
+        "is_reference": true,
+        "reference_declared_at": "2026-08-01T00:00:00+00:00",
+        "quality_status": "acceptable",
+        "event_end": "2026-10-03T00:00:00+00:00",
+        "available_at": "2026-10-03T00:00:00+00:00",
+        "_event_end": "2026-10-03T00:00:00+00:00",
+        "pain_flag": false
+      },
+      {
+        "id": "set-2",
+        "set_id": "set-2",
+        "session_id": "session-2",
+        "user_id": "synthetic",
+        "exercise_id": "bench",
+        "definition_version": 1,
+        "equipment_instance_id": "bar-1",
+        "load_basis": "external_total_kg",
+        "load_basis_confirmed": true,
+        "load_value": 52.5,
+        "load_unit": "kg",
+        "measurement_mode": "repetitions",
+        "side": "bilateral",
+        "repetition_semantics": "both_together",
+        "rom_protocol": "full_declared",
+        "settings": {},
+        "settings_confirmed": true,
+        "reference_protocol": {
+          "protocol_id": "first-work",
+          "version": "1",
+          "reference_policy_id": "first-work-v1",
+          "effort_protocol": "target-rir-2",
+          "tempo": "controlled",
+          "rest_protocol": "user-180s"
+        },
+        "reference_policy_id": "first-work-v1",
+        "set_position": 1,
+        "effort_protocol": "target-rir-2",
+        "tempo": "controlled",
+        "rest_protocol": "user-180s",
+        "role": "work",
+        "status": "completed",
+        "reps": 8,
+        "rir": 2,
+        "stop_reason": "target_rir_stop",
+        "is_reference": true,
+        "reference_declared_at": "2026-08-01T00:00:00+00:00",
+        "quality_status": "acceptable",
+        "event_end": "2026-10-05T00:00:00+00:00",
+        "available_at": "2026-10-05T00:00:00+00:00",
+        "_event_end": "2026-10-05T00:00:00+00:00",
+        "pain_flag": false
+      }
+    ],
+    "recommendation_outcomes": [
+      {
+        "event_end": "2026-10-05T12:00:00Z",
+        "available_at": "2026-10-05T12:01:00Z",
+        "adoption": "adopted",
+        "execution_state": "executed",
+        "quality_comparable": true,
+        "frozen_targets": {
+          "reps": {
+            "min": 8,
+            "max": 8
+          },
+          "load_value": {
+            "min": 52.5,
+            "max": 52.5
+          }
+        },
+        "actual": {
+          "reps": 8,
+          "load_value": 52.5
+        },
+        "recommendation_id": "synthetic-one",
+        "strategy": "heavier_lower_reps",
+        "task_id": "synthetic-bench",
+        "rule_versions": [
+          "synthetic-guide-v1"
+        ]
+      }
+    ]
+  },
+  "output": {
+    "metric_id": "REPORT-RECOMMENDATION-FOLLOWUP",
+    "algorithm_version": "healthzip-science-1.4.1",
+    "computed_at": "2026-11-12T01:13:25.605523+00:00",
+    "cutoff_time": "2026-11-11T12:00:00+00:00",
+    "window": {
+      "start": "2026-08-01T00:00:00+00:00",
+      "end": "2026-12-01T00:00:00+00:00",
+      "timezone": "UTC",
+      "closure": "[start,end)"
+    },
+    "value": {
+      "execution": {
+        "metric_id": "STR-27",
+        "algorithm_version": "healthzip-science-1.4.1",
+        "computed_at": "2026-11-12T01:13:25.599836+00:00",
+        "cutoff_time": "2026-11-11T12:00:00+00:00",
+        "window": {
+          "start": "2026-08-01T00:00:00+00:00",
+          "end": "2026-12-01T00:00:00+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": [
+          {
+            "recommendation_id": "synthetic-one",
+            "adoption": "adopted",
+            "strategy": "heavier_lower_reps",
+            "task_id": "synthetic-bench",
+            "rule_versions": [
+              "synthetic-guide-v1"
+            ],
+            "execution_state": "executed",
+            "short_term_success": true,
+            "reason_codes": [],
+            "nonexecution_reason": null,
+            "complete": true
+          }
+        ],
+        "unit": "类别与原始差值",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 1,
+        "total_n": 1,
+        "n_sessions": 2,
+        "count_domain": "recommendations",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [
+          "set-1",
+          "set-2"
+        ],
+        "evidence_refs": [
+          "R7"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "实际结果与推荐依从性可核对；因果效果仍需对照。",
+          "短期做成不证明长期增肌有效",
+          "不能只保留成功采纳者"
+        ]
+      },
+      "summary": {
+        "metric_id": "STR-28",
+        "algorithm_version": "healthzip-science-1.4.1",
+        "computed_at": "2026-11-12T01:13:25.603816+00:00",
+        "cutoff_time": "2026-11-11T12:00:00+00:00",
+        "window": {
+          "start": "2026-08-01T00:00:00+00:00",
+          "end": "2026-12-01T00:00:00+00:00",
+          "timezone": "UTC",
+          "closure": "[start,end)"
+        },
+        "value": {
+          "adoption_numerator": 1,
+          "adoption_denominator": 1,
+          "unanswered": 0,
+          "success_numerator": 1,
+          "success_denominator": 1,
+          "missing_outcomes": 0,
+          "strata": [
+            {
+              "strategy": "heavier_lower_reps",
+              "task_id": "synthetic-bench",
+              "rule_versions": [
+                "synthetic-guide-v1"
+              ],
+              "recommendation_ids": [
+                "synthetic-one"
+              ],
+              "counts": {
+                "adoption_numerator": 1,
+                "adoption_denominator": 1,
+                "unanswered": 0,
+                "success_numerator": 1,
+                "success_denominator": 1,
+                "missing_outcomes": 0
+              }
+            }
+          ]
+        },
+        "unit": "比例 / 差值 / 区间",
+        "data_status": "valid",
+        "evidence_status": "definition_based",
+        "valid_n": 1,
+        "total_n": 1,
+        "n_sessions": 2,
+        "count_domain": "recommendations",
+        "coverage": [],
+        "uncertainty": {
+          "kind": "not_estimated",
+          "lower": null,
+          "upper": null,
+          "level": null,
+          "assumptions": []
+        },
+        "assumptions": [],
+        "reason_codes": [],
+        "source_record_ids": [
+          "set-1",
+          "set-2"
+        ],
+        "evidence_refs": [
+          "R7",
+          "M1"
+        ],
+        "parameter_set_id": null,
+        "calibration_artifact_id": null,
+        "limitations": [
+          "小分母、同人相关、选择性采纳与缺失影响估计；分别披露，不将比率包装为疗效。",
+          "采纳率不能作为唯一优化目标",
+          "前后变好不证明是建议导致"
+        ]
+      },
+      "followup_windows": [],
+      "causal_effect": null
+    },
+    "unit": "categorical; outcome units",
+    "data_status": "partial",
+    "evidence_status": "descriptive",
+    "valid_n": 2,
+    "total_n": 2,
+    "n_sessions": 2,
+    "count_domain": "records",
+    "coverage": [],
+    "uncertainty": {
+      "kind": "not_estimated",
+      "lower": null,
+      "upper": null,
+      "level": null,
+      "assumptions": []
+    },
+    "assumptions": [],
+    "reason_codes": [
+      "current_calendar_period_incomplete"
+    ],
+    "source_record_ids": [
+      "set-1",
+      "set-2"
+    ],
+    "evidence_refs": [
+      "R7",
+      "R8"
+    ],
+    "parameter_set_id": null,
+    "calibration_artifact_id": null,
+    "limitations": [
+      "回归均值、自然进步、携带效应与选择偏差存在。"
+    ],
+    "exclusions": [],
+    "input_snapshot_n": 2,
+    "input_available_n": 2
+  },
+  "failed_expectations": [
+    "execution contains no frozen target / actual / raw differences",
+    "followup_windows has no producer and is empty",
+    "report has no later comparable observations"
+  ],
+  "scope": "Author reproduction, not independent scientific validation; no real personal data."
+}

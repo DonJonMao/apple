@@ -2320,6 +2320,9 @@ class TrainingService:
                 ):
                     raise TrainingError("已冻结建议不得重写；请创建新 candidate_id")
                 return _decode(old)
+            from .followup import validate_frozen_window
+            created_at = timestamp()
+            validate_frozen_window(candidate["followup_window"], created_at=created_at)
             self.conn.execute(
                 "INSERT INTO training_recommendation(candidate_id,user_id,target_session,cutoff_time,data_version,theory_version,rule_version,input_snapshot_json,candidate_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
                 (
@@ -2332,7 +2335,7 @@ class TrainingService:
                     candidate["rule_version"],
                     json_text(input_snapshot),
                     json_text(candidate),
-                    timestamp(),
+                    created_at,
                 ),
             )
             self._invalidate(

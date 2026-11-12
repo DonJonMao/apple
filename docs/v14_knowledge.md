@@ -5,8 +5,8 @@
 
 ## 真实完成范围
 
-已登记 8 个核心来源、21 个原规则主题；当前 **1.4.9 发布保存32个主张版本（30个不同主张）和31个规则版本（30个不同规则）**。按不同主张计，分区为24个core核心主张、6个research研究方法补充主张。补充论文没有因此变成核心教材或核心来源骨干。
-当前发布 ID 为 `core-refined-source-explanations-1.4.9`，公开清单为 [release-1.4.9.json](../artifacts/v14/knowledge/release-1.4.9.json)。1.4.8的30主张/30规则及 [原发布清单](../artifacts/v14/knowledge/release-1.4.8.json) 保持原样。前序1.4.7的29主张/规则（23 core、6 research；20解释、4候选、5记录）及 [release-1.4.7.json](../artifacts/v14/knowledge/release-1.4.7.json) 保持原样。前序1.4.6发布的28项主张/28项规则（23 core、5 research；19解释、4候选、5记录）及其 [release-1.4.6.json](../artifacts/v14/knowledge/release-1.4.6.json) 保持原样；前序HHS发布`core-hhs-scope-explanation-1.4.5`、M2发布`core-method-explanation-1.4.4`、原 `release.json` 和17主张发布 `core-personal-trial-1.4.3` 均保持冻结。
+已登记 8 个核心来源、21 个原规则主题；当前 **1.4.11 发布保存43个主张版本（30个不同主张）和43个规则版本（30个不同规则）**。按不同主张计，分区为24个core核心主张、6个research研究方法补充主张。补充论文没有因此变成核心教材或核心来源骨干。
+当前发布 ID 为 `core-boundary-source-explanations-1.4.11`，公开清单为 [release-1.4.11.json](../artifacts/v14/knowledge/release-1.4.11.json)。1.4.10的41主张版本/40规则版本及 [前序清单](../artifacts/v14/knowledge/release-1.4.10.json) 保持原样。1.4.9的32主张版本/31规则版本及 [前序清单](../artifacts/v14/knowledge/release-1.4.9.json) 保持原样。1.4.8的30主张/30规则及 [原发布清单](../artifacts/v14/knowledge/release-1.4.8.json) 保持原样。前序1.4.7的29主张/规则（23 core、6 research；20解释、4候选、5记录）及 [release-1.4.7.json](../artifacts/v14/knowledge/release-1.4.7.json) 保持原样。前序1.4.6发布的28项主张/28项规则（23 core、5 research；19解释、4候选、5记录）及其 [release-1.4.6.json](../artifacts/v14/knowledge/release-1.4.6.json) 保持原样；前序HHS发布`core-hhs-scope-explanation-1.4.5`、M2发布`core-method-explanation-1.4.4`、原 `release.json` 和17主张发布 `core-personal-trial-1.4.3` 均保持冻结。
 按不同规则计，其中4项候选仍是双进阶、同负荷增加次数试验、较重负荷/较少次数试验、策略复盘中的试验选择；另有21项来源解释/讨论和5项记录描述/执行反馈/报告合同。
 新增来源解释规则不替代原21主题中的4项个人统计推断规则；后者仍缺相应原始方法材料、个人界值或任务校准。活动合同数不能等同全部科学主题已完备。
 首次6主张/4规则的`1.4.1`发布和中间`1.4.2`发布均保留；目标范围改进通过新的不可变版本完成。
@@ -245,7 +245,7 @@ UI 提供可选的“明确问题目标”，用户确认后只查询所选目�
 主代理还实际执行了“复制生产核心库→合成训练→页面全部声明与候选控件→结束后反馈→复制库中撤回 S1”的完整路径，见
 `artifacts/v14/advice/real-core-ui.json` 与 `tools/v14_advice_evidence.py`；缺少 profile 的负例同样执行。
 这为 KB-09/18/20 提供真实生产规则接入 UI 的软件证据，仍不是真人训练因果验证。
-知识/质量合同阶段验证为128项通过；组合目标与范围守卫另有75项通过工件 `composed-answer-verification.xml`。两组有重叠，不相加计数；本轮最终整仓唯一用例数为1085，零失败/错误/跳过；各定点检查不与其相加，精确工件身份见 `final-manifest.json`。逐指标机器追踪见 `metric_audit_12.json`。
+知识/质量合同阶段验证为128项通过；组合目标与范围守卫另有75项通过工件 `composed-answer-verification.xml`。两组有重叠，不相加计数；本轮最终整仓唯一用例数为1168，零失败/错误/跳过；各定点检查不与其相加，精确工件身份见 `final-manifest.json`。逐指标机器追踪见 `metric_audit_12.json`。
 当前剩余缺口是具体付费教材章节、中文材料重用范围、4项方法/校准及活动解释的明确子主题缺口、自然语言泛化覆盖，以及独立人工/专家复核。
 这些缺口不影响已满足条件的4项可选择任务和已核对的记录/解释合同，也不能被软件测试通过掩盖。
 
@@ -295,3 +295,13 @@ M2工具默认仅核验本地原始收据和SHA后入库；`--activate-explanati
 HHS、九主题、HC/HAC及安全建议范围工具分别核验既有原件/定位和权利范围后建立1.4.5、1.4.6、1.4.7、1.4.8不可变发布；重复运行核对旧成员、旧发布和独立评测文件未改，不重评旧题。1.4.9修订工具使用`--activate-revisions`，追加明确的答复修订并保留旧依赖；同样不重跑或回填原独立评价。
 章节声明需提供 source_id/path/edition_id/chapter_id/page_indices/expected_page_indices/license_id/rights_evidence_url/authorized_by/identity_review。
 导入成功只建立可审核材料，不自动审核主张/规则。公开前使用 `v14_evaluate_knowledge.py` 的投影保留原始与公开输出哈希，移除原文、结构化表格、版权长文和私有路径。
+
+## 1.4.10 来源细节与第五批评审
+
+在第五批独立评分冻结后，重新读取四份已合法取得来源的123个实际片段，追加9个主张修订及9个仅解释规则版本，旧成员/审核和4项候选依赖不变。补充N1的HC版本、小样本、预白化及依赖条件；M2的TOST整体P值、条件区间及实用等效边界；HHS的相对增幅例子、安全原则与咨询条件；S1的充分努力与测量特异性。HHS示例中的20分钟、50%/10%是正文示例，不是个人通用加量阈值；TOST的90%是给定α=0.05时的方法关系，不选择个人参数。没有新增模型、临床或个人校准权限。127项冻结工件、来源版本和旧评测哈希保持不变，见 [发布核验](../artifacts/v14/knowledge/detailed-explanations-release-verification-1.4.10.json)。
+
+第五批未读实现及旧评测的独立AI先冻结30题、87点，再对归档aebe0d1/知识1.4.9的实际输出评分：**8通过、15部分、7失败**；点级41/15/31，零排除。24道正文充分题为7/10/7，6道边界题为1/5/0。正文充分却拒答、机制细节和比较条件缺失是主要问题；未见禁止的个人数值或临床结果编造，但这不算内容完整。原结果见 [第五批评审](../artifacts/v14/knowledge/independent-round5-report.md)。新的语言及来源修订由这些已知问题推动，后续回放仅为开发检查，不能回填原分数或宣称自然语言泛化已验收。
+
+1.4.10首次已知题开发复核为26通过、4部分、0失败（87点81/6/0）；24道正文题70点均覆盖，边界题仍缺合法正文核对路径、M2设计范围、跨器械具体边界及多周证据时间尺度，原回执保留。1.4.11再追加2个解释修订、3个仅更新依赖的解释规则版本：至少6周是S1研究纳入标准，跨器械段明确是有限应用解释，不是个人换算或完成保证。136项受保护工件及前序成员保持不变，见 [1.4.11核验](../artifacts/v14/knowledge/detailed-explanations-release-verification-1.4.11.json)。
+
+最终1.4.11已知题复核为30通过、0部分、0失败（87点全部覆盖），与首次开发26/4/0分别冻结，见 [开发复核](../artifacts/v14/knowledge/independent-round5-development-report.md)。新增独立AI及人工/专家分母均为0，未改变原8/15/7，不据此宣布未知问法泛化或个人效度已验证。

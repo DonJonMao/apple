@@ -1,62 +1,51 @@
 {
   "status": "passed",
-  "checked_at": "2026-11-11T15:32:17.014523+00:00",
-  "frozen_at": "2026-11-11T15:27:57.766537+00:00",
+  "checked_at": "2026-11-12T01:12:24.923937+00:00",
+  "frozen_at": "2026-11-12T01:06:09.258112+00:00",
   "catalog_snapshot_id": "wger.e9327e0394fd185d41d4b7f929e166a90730521f78b3c06207883d0a3f302414",
   "single_frozen_public_database_used_for_install_package_and_coverage": true,
+  "all_verified_snapshot_media_cached": true,
   "frozen_ready_media": {
     "image": 389,
-    "video": 75
+    "video": 78
   },
   "frozen_ready_exercise_coverage": {
     "image": 282,
     "video": 46
   },
-  "frozen_pending_media": 2,
-  "frozen_failed_media": 1,
-  "frozen_not_ready_media": 3,
-  "ready_objects": 464,
-  "unique_ready_files": 430,
+  "frozen_pending_media": 0,
+  "frozen_failed_media": 0,
+  "frozen_not_ready_media": 0,
+  "ready_objects": 467,
+  "unique_ready_files": 433,
   "coverage_install_manifest_and_package_ready_ids_and_hashes_agree": true,
-  "coverage_manifest_and_package_all_object_statuses_agree": true,
-  "default_install_status_limitation": {
-    "installer_attaches_ready_objects_only": true,
-    "source_unavailable_statuses": {
-      "failed": 1,
-      "pending": 2
-    },
-    "default_install_unavailable_statuses": {
-      "pending": 3
-    },
-    "both_have_three_unavailable_videos": true,
-    "failed_source_status_not_propagated_to_default_install": true
-  },
+  "coverage_install_manifest_and_package_all_object_statuses_agree": true,
   "packages": [
     {
       "filename": "HealthZIP-catalog-offline.zip",
       "ready_objects_by_type": {
         "image": 389,
-        "video": 75
+        "video": 78
       },
-      "included_media_objects": 464,
-      "unique_packaged_files": 430,
+      "included_media_objects": 467,
+      "unique_packaged_files": 433,
       "CRC_and_all_packaged_file_SHA256_checked_by_packager": true,
       "all_references_exist": true,
-      "bytes": 2531174191,
-      "sha256": "9a405962c2a60bb6ca24757b727568cefb042d8590a0b900c2e37f3016b7eecd"
+      "bytes": 3693916328,
+      "sha256": "bfcda8d76e5a4b1369344cab137a5b7f338193035666cc71d07e01ce01f5d4ec"
     },
     {
       "filename": "HealthZIP-catalog-text-only.zip",
       "ready_objects_by_type": {
         "image": 389,
-        "video": 75
+        "video": 78
       },
       "included_media_objects": 0,
       "unique_packaged_files": 0,
       "CRC_and_all_packaged_file_SHA256_checked_by_packager": true,
       "all_references_exist": true,
-      "bytes": 807636,
-      "sha256": "c779bf275fe4013cb12eeda6458210cc4f317fc8bf396015ea1af1de3a20512e"
+      "bytes": 808014,
+      "sha256": "fd36ca117ae0342bdb9fb590642cdd8f45b798cf1a98f9deb3b2d3027ec85993"
     }
   ],
   "default_install_backup_created": true,
@@ -65,35 +54,26 @@
   "browser_artifact": "offline-package-browser.json",
   "fresh_context_offline_file_playback_passed": true,
   "browser_HTTP_requests": 0,
+  "browser_page_errors": [],
   "played_codec": "H.264",
   "packaged_name_provenance_distinct": true,
   "name_provenance_reload_export_artifact": "offline-name-status-after.json",
-  "existing_download_process": {
-    "pid": 680165,
-    "still_running": true,
-    "restarted": false
-  },
-  "local_one_time_resume_schedule": {
-    "status": "waiting_for_existing_process",
-    "scheduler_pid": 1042942,
-    "existing_process_interrupted": false,
-    "duplicate_inflight_worker_started": false,
-    "waits_for_process_identity_and_downloader_lock": true,
-    "automatic_retry_completed": false,
-    "local_script_and_logs_not_published": true
-  },
+  "download_completion_artifact": "media-download-completion-20261112.json",
+  "original_download_and_scheduled_resume_completed": true,
+  "active_download_or_scheduler_processes": 0,
+  "new_download_started_for_this_delivery": false,
   "previous_delivery": {
-    "frozen_at": "2026-11-11T14:32:35.012214+00:00",
-    "ready_videos": 71,
-    "full_package_sha256": "e003c5d5b0c32d31f6082d229efef3cfd9171c32285d16034b16de22fb98c3e1"
+    "frozen_at": "2026-11-11T15:27:57.766537+00:00",
+    "ready_videos": 75,
+    "pending_videos": 2,
+    "failed_videos": 1,
+    "full_package_sha256": "9a405962c2a60bb6ca24757b727568cefb042d8590a0b900c2e37f3016b7eecd"
   },
   "git_isolation": {
     "media_and_databases_remain_under_ignored_local_directory": true
   },
   "limitations": [
-    "Two source videos were pending and one failed due to truncated response at freeze time; none of their partial bytes are packaged.",
-    "The ready-only installer leaves the failed source video pending in the default application database; the complete per-object failure status remains in the frozen public package and media manifest.",
-    "The local follow-up worker is only scheduled, not completed; it waits until the current process ends and uses the original downloader lock.",
+    "Completeness applies to the verified 2026-11-11 source snapshot, not future upstream additions.",
     "Browser verification establishes playback of the packaged H.264 sample, not HEVC compatibility.",
     "Recovered blobs retain documented partial-origin-comparison limitations; no remote whole-file checksum claim.",
     "Chinese AI drafts, upstream translations and historical project labels remain without new human professional review."

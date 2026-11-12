@@ -23,10 +23,11 @@ EXECUTIONS = {"unknown": "尚未记录", "executed": "已执行", "partially_exe
 VERIFICATION = "在执行前指定参考组，记录实际重量、次数、RIR、动作质量与停止原因；不适合时可停止、改目标或结束动作。"
 
 
-def _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy):
+def _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, followup_window=None, available_minutes=None):
     from healthzip.advice import freeze_candidate
     return freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
-                            timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"))
+                            timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
+                            followup_window=followup_window, available_minutes=available_minutes)
 
 
 def _create_form(repo, svc, session, instance, key):
@@ -68,12 +69,26 @@ def _create_form(repo, svc, session, instance, key):
     if strategy != "double_progression":
         st.caption("这是你选择的可选试验，未达到次数上沿也可核对依据。它不代表已诊断停滞，也不保证有效。")
     loads = st.text_input("本台器械实际可用重量 / 刻度（逗号分隔，与记录单位一致）", key="loads_" + key)
+    discussion_minutes = ""
+    if strategy in {"discuss_sets", "discuss_interval"}:
+        st.caption("讨论将展示已核对的一般原则、明确计划和同条件记录。它不能确定个人最佳组数或恢复间隔。")
+        discussion_minutes = st.text_input("本次可用训练时间（分钟，可留空）", key="discussion_minutes_" + key)
+    followup_window = None
+    with st.expander("可选：预先约定后续观察窗口"):
+        st.caption("按你的计划选择起止时间。报告将寻找窗口内后续场次的同条件、同负荷参考组；不会把变化归因为本次策略。未约定时只复核本次执行。")
+        enabled = st.checkbox("为这个候选约定后续观察窗口", key="followup_enabled_" + key)
+        if enabled:
+            start = st.text_input("观察起点（含时区，如 2026-12-01T08:00:00+08:00）", key="followup_start_" + key)
+            end = st.text_input("观察终点（不含该时刻；须晚于起点）", key="followup_end_" + key)
+            followup_window = {"start": start, "end": end, "timezone": st.session_state.get("analysis_timezone", "Asia/Shanghai")}
     if st.button("核对候选依据并保存", key="candidate_" + key):
         try:
             available = [numeric(x.strip(), "器械档位") for x in loads.split(",") if x.strip()]
             if any(x is None or x < 0 for x in available):
                 raise ValueError("器械档位须为非负有限数字")
-            _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy)
+            _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
+                              followup_window=followup_window,
+                              available_minutes=numeric(discussion_minutes, "可用训练时间") if discussion_minutes.strip() else None)
             st.success("已保存当前目标、策略、审核依据与缺项；采纳和执行单独记录。")
         except ValueError as exc:
             st.error(str(exc))
@@ -91,6 +106,8 @@ def _render_feedback(repo, svc, instance, record, prefix):
     st.write("候选 / 缺项", candidate["action_kind"], candidate["eligibility"])
     if candidate.get("proposed_change", {}).get("load") is not None:
         st.write("待选择的任务", candidate["proposed_change"], candidate["target_range"])
+    if candidate.get("discussion"):
+        _render_discussion(candidate["discussion"])
     st.caption(candidate["verification_protocol"])
     authority = record["input_snapshot"].get("theory_authority", {})
     st.caption(f"当时适用的候选审核依据：{len(authority.get('principles', []))} 项。数值候选不代表个人有效性已验证。")
@@ -155,6 +172,9 @@ def _render_feedback(repo, svc, instance, record, prefix):
             st.error(str(exc))
     if latest:
         st.caption("最近反馈：" + str(latest.get("recorded_at")))
+        if candidate.get("discussion"):
+            st.info("已记录讨论选择与反馈；一般讨论没有可判定的数值成功目标。")
+            return
         now = datetime.now(timezone.utc)
         _, context = snapshot(repo, now.isoformat(), include_sources=False)
         outcome = next((r for r in context["recommendation_outcomes"] if r["recommendation_id"] == cid), None)
@@ -166,6 +186,32 @@ def _render_feedback(repo, svc, instance, record, prefix):
             success = values[0].get("short_term_success") if values else None
             st.write("冻结任务复核：" + ("已满足记录的目标" if success is True else "未满足记录的目标" if success is False else "尚不能判断：需要候选之后的有效参考组、完整目标与执行反馈"))
             st.caption("任务完成与否不证明试验导致进步；历史记录更正后按当前事实重新核对，冻结依据保留。")
+
+
+def _render_discussion(discussion):
+    source, facts = discussion["source_explanation"], discussion["observations"]
+    st.write("一般原则与当前讨论")
+    st.write(source["answer"])
+    st.write(f"当前明确计划的工作组：{facts['explicit_planned_work_sets']}；已记录同条件场次：{len(facts['recorded_sessions'])}。")
+    st.caption(f"记录窗口：{facts['window']['start']} 至 {facts['window']['end']}；这是产品观察窗口。")
+    if facts["available_minutes"] is not None:
+        st.write(f"你声明的可用时间：{facts['available_minutes']:g} 分钟。")
+    if facts["recorded_sessions"]:
+        st.dataframe(facts["recorded_sessions"], hide_index=True)
+    if facts.get("current_session_records"):
+        st.write("本次已经记录的组（保留未完成和缺项）")
+        st.dataframe(facts["current_session_records"], hide_index=True)
+    if facts["recorded_interval_days"]:
+        st.write("已记录场次起点之间的间隔（天）")
+        st.dataframe(facts["recorded_interval_days"], hide_index=True)
+    for question in discussion["questions"]:
+        st.write(question)
+    for citation in source["citations"]:
+        st.caption(f"来源：{citation['source_id']} · {citation['source_version_id']} · " + ", ".join(citation["span_ids"]))
+    for limit in [*discussion["limitations"], *source["limits"]]:
+        st.caption(limit)
+    if discussion["numeric_action_limitations"]:
+        st.caption("数值任务仍受限制：" + "；".join(discussion["numeric_action_limitations"]))
 
 
 def render_candidates(repo, svc, session, instance, *, allow_create=True, key_prefix=""):

@@ -59,7 +59,7 @@ REPETITIONS = r"\b(?:reps?|repetitions?)\b"
 LOAD = r"(?:\b(?:loads?|weights?)\b|\bresistance\b(?!\s+(?:training|exercises?)\b))"
 INCREASE = r"\b(?:add(?:s|ed|ing)?|rais(?:e[sd]?|ing)|increas(?:e[sd]?|ing)|higher|more|extra|additional)\b"
 TRAINING = r"\b(?:train(?:s|ed|ing)?|workouts?|exercis(?:e[sd]?|ing)|lift(?:s|ed|ing|ers?)|resistance|strength|hypertrophy)\b"
-TWO_ONE_SIDED_TESTS = r"(?:双|两(?:个|项)?)单侧检验|\b(?:tost|two one[- ]sided tests?)\b"
+TWO_ONE_SIDED_TESTS = r"(?:双|两(?:个|项)?)单侧检验|(?<![a-z0-9])tost(?![a-z0-9]|文件夹|目录|俱乐部)|\btwo one[- ]sided tests?\b"
 STATISTICAL_METHOD = (
     TWO_ONE_SIDED_TESTS + r"|统计|显著|实用等效|等效(?:性)?(?:检验|界|范围|方法)|零假设|原假设|"
     r"置信区间|最小重要效应|小效应|研究.{0,30}(?:差异|差别)|"
@@ -81,7 +81,7 @@ ACTIVITY_SUBJECTS = {
     "progression_rate_factors": "physical_activity", "muscle_strengthening_start": "resistance_training",
     "activity_safety_scope": "physical_activity",
 }
-ACTIVITY_CONTEXT = r"身体活动|体力活动|肌力活动|肌肉强化|有氧活动|\b(?:physical activity|muscle strengthening|aerobic activity)\b"
+ACTIVITY_CONTEXT = r"身体活动|体力活动|肌力活动|肌力训练|肌肉强化|有氧活动|\b(?:physical activity|muscle strengthening|aerobic activity)\b"
 PROGRESSION_CHOICE = (
     r"(?:哪些|什么).{0,6}(?:变量|方面|参数).{0,8}(?:改变|调整|增加)|"
     r"(?:改变|调整|增加).{0,4}(?:哪些|什么).{0,6}(?:变量|方面|参数)"
@@ -101,7 +101,7 @@ PATTERNS = {
         r"\b(?:no further|no more|not another)\b.{0,16}\brepetitions?\b.{0,20}\bcompleted?\b",
         r"\b(?:reps?|repetitions?)\b.{0,12}\b(?:cannot|can't|can no longer)\b.{0,16}\bcompleted?\b",
         r"(?:举|推|拉|做|抬|完成)不(?:起来|动|了)", r"不能再完成", r"筋疲力尽", r"\b(?:failure|exhaustion)\b", r"\b(?:cannot|can't|unable to)\b.{0,25}\b(?:rep|repetition|lift)\b"],
-    "effort_precision": [r"(?:还|尚|剩|保留).{0,6}(?:能做|能完成|做得了|重复|次数)", r"储备次数|余次|留几次|接近力竭程度", r"\b(?:reps?|repetitions?) (?:left|remaining|in reserve)\b"],
+    "effort_precision": [r"(?:还|尚|剩|保留).{0,6}(?:能做|能完成|做得了|重复|次数)", r"储备次数|余次|留几次|接近力竭程度|足够努力|努力程度", r"\b(?:reps?|repetitions?) (?:left|remaining|in reserve)\b"],
     "volume": [r"\bhow many\s+(?:(?:training|working|work)\s+)?sets?\b", r"训练总量|总组量|工作组|每个(?:动作|肌群).{0,5}组", r"\b(?:set count|number of sets|training volume|weekly sets|how many sets|sets per)\b", r"\b(?:many|more|fewer|additional|multiple|single|one|two|three|\d+) (?:work |working )?sets?\b"],
     "frequency": [
         r"频次|频率|(?:每周|一周|每星期|一星期).{0,12}(?:练|训练|进行|做|至少|最少).{0,6}(?:几|多少|两|二|三|四|五|六|七|\d+)(?:次|天|日|回)",
@@ -121,6 +121,7 @@ PATTERNS = {
         r"\b(?:without|absence of|no further)\b.{0,30}\b(?:progressive overload|progression|increases? in (?:stimulus|load)|increasing (?:stimulus|load))\b",
         r"(?:必须|一定|非得).{0,10}(?:进阶|渐进|不断加|持续加)|不(?:进阶|加重|增加负荷).{0,14}(?:收益|效果|进步)", r"\b(?:must|necessary|without)\b.{0,25}\b(?:progression|progressive overload|increasing load)\b"],
     "load_repetition_relation": [
+        r"(?:增加|提高|调高).{0,6}(?:负荷|重量|配重|负重).{0,16}(?:次数|重复数).{0,8}(?:减少|下降|变少)",
         r"(?:增重|加重|(?:负荷|重量|配重|负重).{0,6}(?:增加|调高|更重|提高)).{0,24}(?:(?:次数|重复数).{0,8}(?:减少|下降|变少)|少做)",
         r"(?:更重|较重|更高|较高)的?(?:负荷|重量|配重|负重).{0,24}(?:次数|重复数).{0,8}(?:减少|下降|变少|少了)",
         r"(?:负荷|重量|配重|负重).{0,10}(?:次数|重复).{0,10}(?:关系|反向|联系)|(?:次数|重复).{0,10}(?:负荷|重量|配重|负重).{0,10}(?:关系|反向|联系)",
@@ -130,7 +131,7 @@ PATTERNS = {
         r"\b(?:relation(?:ship)?|association|connection)\b.{0,35}(?:" + LOAD + r".{0,20}" + REPETITIONS + "|" + REPETITIONS + r".{0,20}" + LOAD + ")",
         r"(?:" + LOAD + r".{0,20}" + REPETITIONS + "|" + REPETITIONS + r".{0,20}" + LOAD + r").{0,25}\b(?:relat(?:e[sd]?|ion(?:ship)?)|connect(?:ed|ion)?)\b",
     ],
-    "comparability": [r"可比|换(?:动作|器械|握距|动作幅度)|测量特异性", r"\b(?:comparab(?:le|ility)|specificity|different equipment)\b"],
+    "comparability": [r"可比|换(?:动作|器械|握距|动作幅度)|(?:测量|训练)?特异性(?:原则)?", r"\b(?:comparab(?:le|ility)|specificity|different equipment)\b"],
     "population_scope": [
         r"(?:适用|研究|样本|纳入|涵盖|包括).{0,12}(?:人群|对象|年龄|参加者|参与者)|适用于谁|哪些人",
         r"健康成人[”\"」』]*的?(?:范围|定义)|(?:包含|包括|纳入).{0,8}(?:有|无|没有)?训练经验.{0,4}(?:人|者)",
@@ -150,7 +151,7 @@ PATTERNS = {
     ],
     "symptoms": [r"症状|胸痛|胸闷|头晕|不适|疼痛", r"\b(?:symptoms?|pain|dizziness|chest discomfort)\b"],
     "individual_effect": [
-        r"(?:证明|导致|因果|归因|归功于).{0,16}(?:个人|我|效果|进步|训练)|(?:个人|我|进步|效果).{0,16}(?:必然有效|保证有效|因果|归功于)|群体.{0,16}个人",
+        r"(?:确认|证明|判定).{0,20}(?:就是|由于|因为).{0,25}(?:对我|有效|效果)|(?:证明|导致|因果|归因|归功于).{0,16}(?:个人|我|效果|进步|训练)|(?:个人|我|进步|效果).{0,16}(?:必然有效|保证有效|因果|归功于)|群体.{0,16}个人",
         r"\b(?:causal(?:ly)?|causation|caus(?:e[sd]?|ing)|guarantee[sd]?|individual effects?)\b",
         r"\b(?:workouts?|training|exercise|intervention)\b.{0,24}\b(?:produc(?:e[sd]?|ing)|led to|result(?:s|ed|ing)? in)\b.{0,20}\b(?:gains?|improvements?|benefits?|effects?)\b",
         r"\b(?:group|population|average)\b.{0,45}\b(?:predict(?:s|ed)?|establish(?:es|ed)?|apply|applies)\b.{0,40}\b(?:individual|person|everyone)\b",
@@ -192,7 +193,7 @@ def _lexical_hits(text, vocabulary):
     for outcome, patterns in PATTERNS.items():
         if any(re.search(pattern, text) for pattern in patterns):
             found.add(outcome)
-    if re.search(TRAINING, text) or re.search(
+    if re.search(TRAINING, text) or re.search(r"(?<![a-z0-9])(?:e?1rm|rir)(?![a-z0-9])", text) or re.search(
         r"身体活动|活动量|\bphysical(?:ly inactive)?\b.{0,35}\bactivity\b", text
     ):
         found.add("resistance_training")
@@ -229,10 +230,11 @@ ORGANIZED_VARIABLES = {
 
 def covariance_method_context(text, named_subjects=None):
     estimator = bool(re.search(r"(?<![a-z0-9])(?:hc[0-5]?|hac|newey[ -]west)(?![a-z0-9])", text))
-    statistical = bool(re.search(r"回归|协方差|标准误|异方差|自相关|置信区间|\b(?:regression|covariance|estimators?|standard errors?|confidence intervals?|heteros[ck]edasticity|autocorrelation)\b", text))
+    statistical = bool(re.search(r"回归|协方差|标准误|异方差|自相关|置信区间|小样本|有限样本|样本量|渐近|覆盖率|误判率|统计方法|区间.{0,12}(?:准确|可靠|有效)|\b(?:regression|covariance|estimators?|standard errors?|confidence intervals?|heteros[ck]edasticity|autocorrelation)\b", text))
+    statistical |= bool(re.search(r"(?<![a-z0-9])(?:hc[0-5]?|hac)\s*(?:区间|\bintervals?\b)", text))
     covariance = bool(re.search(r"协方差|\bcovariance\b", text))
     model = bool(re.search(r"回归|估计|\b(?:regression|estimat\w*)\b", text))
-    dependent_errors = bool(re.search(r"异方差|自相关|误差.{0,8}相关|\b(?:heteros[ck]edasticity|autocorrelat\w*|correlated errors?)\b", text))
+    dependent_errors = bool(re.search(r"异方差|同方差|自相关|误差.{0,10}(?:相关|独立)|\b(?:heteros[ck]edasticity|autocorrelat\w*|correlated errors?)\b", text))
     named = (named_subjects or {}).get("regression_covariance_scope") == "statistical_inference"
     options = bool(re.search(r"排序|带宽|滞后|预白化|\b(?:ordering|bandwidth|lag|prewhitening)\b", text))
     return (estimator and (statistical or options)) or (covariance and model) or (dependent_errors and model) or (named and (statistical or options))
@@ -266,7 +268,7 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         r"(?:该|这个|上述|此)方法|\b(?:the|this|that) method\b", clause
     ))
     design = bool(re.search(
-        r"独立.{0,8}(?:样本|组|观测)|平行组|重复测量|配对设计|个人时序|"
+        r"独立.{0,8}(?:样本|组|观测)|平行组|重复测量|配对设计|个人时序|同一(?:个)?人.{0,12}(?:反复|重复)(?:测量|记录)|(?:研究|试验)设计.{0,12}(?:前提|条件|假设)|"
         r"\b(?:independent (?:parallel )?(?:groups?|samples?|observations?)|parallel groups?|"
         r"repeated (?:measures|measurements)|paired (?:designs?|samples?)|within[- ]subjects?|time series)\b", clause
     ))
@@ -282,8 +284,8 @@ def _method_topics(clause, method_context, equivalence_context, named_subjects):
         bounds = True
     design = design and bool(equivalent or logic or method_reference
                              or named_subjects.get("equivalence_design_scope") == "statistical_inference")
-    interval = bool(re.search(r"置信区间|\bconfidence intervals?\b", clause)
-                    and re.search(r"完全|落在|界内|\b(?:entirely|within|inside)\b", clause)
+    interval = bool(re.search(r"置信区间|区间|\bconfidence intervals?\b", clause)
+                    and re.search(r"完全|落在|界内|跨过|超出|\b(?:entirely|within|inside|cross(?:es|ing)?|outside)\b", clause)
                     and (equivalent or logic or method_reference
                          or named_subjects.get("equivalence_test_logic") == "statistical_inference"))
     if design:
@@ -307,17 +309,18 @@ def _activity_topics(clause, named_subjects):
         r"年龄|适用|范围|儿童|老人|\b(?:ages?|scope|appl(?:y|ies|icable)|children|older adults)\b", clause
     ):
         topics.add("activity_safety_scope")
-    if re.search(r"成人|\badults?\b", clause) and re.search(
+    if (re.search(r"成人|\badults?\b", clause) and re.search(
         r"年龄段|年龄范围|面向|对象|(?:哪些|什么|多大)年龄的?人|"
         r"\b(?:age range|scope|address|intended for)\b", clause
-    ):
+    )) or (named_subjects.get("adult_guideline_scope") == "physical_activity"
+           and re.search(r"针对谁|面向谁|适用于谁|哪些人|\b(?:who|which population)\b", clause)):
         topics.add("adult_guideline_scope")
-    if re.search(r"肌力活动|肌肉强化|\bmuscle[- ]strengthening\b", clause) and re.search(
+    if re.search(r"肌力活动|肌力训练|肌肉强化|\bmuscle[- ]strengthening\b", clause) and re.search(
         r"开始|初次|初学|\b(?:begin|begins|beginning|start|starts|starting|inactive)\b", clause
     ):
         topics.add("muscle_strengthening_start")
     if re.search(
-        r"增量|增幅|增加的幅度|(?:小|大)幅(?:度)?(?:地)?增加|"
+        r"增量|增幅|增加的幅度|(?:同等|相同|不同)幅度|(?:小|大)幅(?:度)?(?:地)?增加|"
         r"(?:增加|增长|新增)的?(?:量|负担|比例|百分比)|"
         r"(?:多|增加).{0,8}(?:相同|同样|一样).{0,8}(?:分钟|时长|时间|活动量)|"
         r"\b(?:increments?|size of (?:the )?increase)\b", clause
@@ -336,18 +339,21 @@ def _semantic_roles(text, found, vocabulary, context):
         named_subjects.get(outcome) == "statistical_inference" for outcome in METHOD_OUTCOMES
     )
     equivalence_context = bool(re.search(TWO_ONE_SIDED_TESTS + r"|等效|\bequivalence\b", text))
+    covariance_context = covariance_method_context(text, named_subjects)
     method_clauses, activity_clauses = [], []
     found -= METHOD_OUTCOMES
     for clause in clauses:
         method = _method_topics(clause, method_context, equivalence_context, named_subjects)
-        if covariance_method_context(clause, named_subjects):
+        if covariance_method_context(clause, named_subjects) or (covariance_context and re.search(
+            r"(?<![a-z0-9])(?:hc[0-5]?|hac)(?![a-z0-9])|回归|误差|区间|\b(?:regression|errors?|intervals?)\b", clause
+        )):
             method.add("regression_covariance_scope")
         activity = _activity_topics(clause, named_subjects)
         equipment_change = re.search(
-            r"(?:跨品牌|不同(?:品牌|型号)?|各(?:种|个)).{0,8}(?:器械|训练设备|训练机)", clause
+            r"(?:跨品牌|不同(?:品牌|型号)?|各(?:种|个)).{0,8}(?:器械|训练设备|训练机)|(?:换|另).{0,10}品牌.{0,10}(?:机|器械|设备)", clause
         )
         load_conversion = re.search(
-            r"(?:负重|配重|重量|负荷).{0,16}(?:换算|转换)|(?:换算|转换).{0,16}(?:负重|配重|重量|负荷)", clause
+            r"(?:负重|配重|重量|负荷).{0,16}(?:换算|转换)|(?:换算|转换).{0,16}(?:负重|配重|重量|负荷|公斤|千克|kg)", clause
         )
         if equipment_change and load_conversion and not re.search(r"单位.{0,6}(?:换算|转换)", clause):
             found |= {"comparability", "resistance_training"}
@@ -356,6 +362,16 @@ def _semantic_roles(text, found, vocabulary, context):
             method_clauses.append(clause)
         if activity:
             activity_clauses.append(clause)
+    if (covariance_context
+            and re.search(r"我|个人|同一(?:个)?人|\b(?:my|individual|one person)\b", text)
+            and re.search(r"(?:连续|重复|反复).{0,10}(?:记录|测量|观测)|\b(?:time series|(?:repeated|serial|consecutive) (?:training )?(?:measurements|records|observations))\b", text)
+            and re.search(r"停滞|平台期|\b(?:plateau(?:ed|ing)?|stagnation)\b", text)
+            and re.search(r"判断|判定|确认|认定|确定|\b(?:determine|decide|infer|detect|confirm)\b", text)):
+        # A covariance estimate alone does not define negligible change or
+        # license a group-design method for a person's repeated observations.
+        # These are explanation prerequisites, still subject to source filters;
+        # no personal plateau decision or statistical parameter is authorized.
+        found |= {"practical_equivalence", "equivalence_design_scope"}
     if method_clauses:
         independent = set()
         for clause in clauses:
@@ -364,7 +380,7 @@ def _semantic_roles(text, found, vocabulary, context):
         found -= ORGANIZED_VARIABLES - independent
         if "regression_covariance_scope" in found and not any(
             "individual_error_bound" in _lexical_hits(clause, vocabulary)
-            and not covariance_method_context(clause, named_subjects) for clause in clauses
+            and clause not in method_clauses for clause in clauses
         ):
             found.discard("individual_error_bound")
     if activity_clauses:
@@ -384,13 +400,13 @@ def _semantic_roles(text, found, vocabulary, context):
     if "failure_necessity" in found:
         definitions = [clause for clause in clauses
                        if "failure_necessity" in _lexical_hits(clause, vocabulary)
-                       and re.search(r"定义|什么是|是否就是|称为|什么(?:样的)?状态|\b(?:mean|means|definition|defined|refers to)\b", clause)]
+                       and re.search(r"定义|什么是|(?:具体)?指什么|是否就是|称为|什么(?:样的)?状态|\b(?:mean|means|definition|defined|refers to)\b", clause)]
         if definitions:
             found.add("failure_definition")
             if not any(re.search(ORGANIZATION_NECESSITY, clause) and (
                 "failure_necessity" in _lexical_hits(clause, vocabulary)
                 or (index > 0 and clauses[index - 1] in definitions and re.search(
-                    r"(?:做到|练到|达到).{0,4}(?:那里|这(?:种|个)状态|那(?:种|个)状态)", clause
+                    r"(?:做到|练到|达到).{0,4}(?:那里|这(?:种|个)(?:状态|程度)|那(?:种|个)(?:状态|程度))", clause
                 ))
             ) for index, clause in enumerate(clauses)):
                 found.discard("failure_necessity")
@@ -448,10 +464,11 @@ def lexical_concepts(question, vocabulary, context=None):
 def requested_parts(question, found, context):
     outcomes = found & RELATIONS.keys()
     text = question.lower()
+    source_health_goal = context.get("named_source_task_goals", {}).get("frequency") == ["public_health"]
     health_boundary = bool(
-        re.search(r"公共健康|总体健康|一般健康|最低健康|健康收益|健康益处|健康建议|\b(?:public|general) health\b", text)
+        (source_health_goal or re.search(r"公共健康|总体健康|一般健康|最低健康|健康收益|健康益处|健康建议|\b(?:public|general) health\b", text))
         and re.search(r"力量|增肌|肌肥大|\b(?:strength|hypertrophy|muscle growth)\b", text)
-        and re.search(r"证明|推出|意味着|代表|找到|确定|\b(?:prove|imply|establish|mean|determine)\b", text)
+        and re.search(r"证明|推出|意味着|代表|找到|确定|认定|就是|\b(?:prove|imply|establish|mean|determine)\b", text)
         and re.search(r"最优|最佳|\b(?:optimal|optimum|best)\b", text)
     )
     if health_boundary:
@@ -493,10 +510,19 @@ def requested_parts(question, found, context):
         # A no-change endpoint can be the object of a statistical inference
         # question; it is not automatically a second personal trend estimate.
         outcomes.discard("capability_change")
-        if not re.search(r"因果|导致|归因|归功于|\b(?:causal(?:ly)?|causation|caus(?:e[sd]?|ing))\b", text):
+        if not re.search(r"因果|导致|归因|归功于|确认.{0,8}就是|\b(?:causal(?:ly)?|causation|caus(?:e[sd]?|ing))\b", text):
             outcomes.discard("individual_effect")
+    if {"individual_effect", "progression_options"} <= outcomes:
+        independent_progression = any(
+            "progression_options" in _lexical_hits(clause, {"progression_options": ["多做", "加重", "加次数"]})
+            and not any(re.search(pattern, clause) for pattern in PATTERNS["individual_effect"])
+            and re.search(VARIABLE_REQUEST, clause)
+            for clause in re.split(REQUEST_BOUNDARY, text)
+        )
+        if not independent_progression:
+            outcomes.discard("progression_options")
     if "effort_precision" in outcomes and "failure_necessity" in outcomes:
-        if re.search(r"是否必须|一定要|必须.*力竭|非得|\bmust\b|\bnecessary\b", text) and not re.search(r"(?:多少|几次|精确|量化).{0,8}(?:余力|rir)|(?:余力|rir).{0,8}(?:多少|精确)|\bexact\b", text):
+        if re.search(r"是否必须|一定要|必须.*力竭|非得|\bmust\b|\bnecessary\b", text) and not re.search(r"(?:多少|几次|精确|量化).{0,8}(?:余力|rir)|(?:余力|rir).{0,8}(?:多少|精确)|足够努力|努力程度|\bexact\b", text):
             outcomes.discard("effort_precision")
     inference = outcomes & {"longevity", "personal_temperature", "individual_error_bound"}
     if inference and not re.search(r"分别|同时回答|两件事|also explain|and separately", text):

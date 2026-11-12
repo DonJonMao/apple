@@ -135,15 +135,24 @@ def current_use_status(repo, record):
     reference_id = frozen.get("reference_set_id")
     reference = next((r for r in advice["records"] if r.get("set_uuid") == reference_id), None)
     check = candidate_applicability(reference, advice["context"]["current_session_observations"])
-    reasons = list(check["reason_codes"]) if check["applicable"] is not True else []
+    discussion = record["candidate"].get("discussion")
+    reasons = list(check["reason_codes"]) if check["applicable"] is not True and not discussion else []
     if advice["context"]["unknown_current_observation_ids"]:
-        reasons.append("current_observation_time_or_availability_unknown")
+        if not discussion:
+            reasons.append("current_observation_time_or_availability_unknown")
         check["reason_codes"].append("current_observation_time_or_availability_unknown")
         if check["applicable"] is not False:
             check.update(applicable=None, status="unknown")
     workbench = KnowledgeWorkbench(".local/knowledge")
     try:
         authority = workbench.reviewed_principles("progression", advice["context"])
+        if discussion:
+            from healthzip.discussion import dependencies, explanation
+            current_explanation = explanation(workbench, discussion["strategy"], advice["context"])
+            old_dependencies = dependencies(discussion["source_explanation"])
+            if (current_explanation["answer_status"] != "answered_with_support"
+                    or not old_dependencies or old_dependencies - dependencies(current_explanation)):
+                reasons.append("frozen_explanation_dependencies_no_longer_current")
     finally:
         workbench.close()
     active = {(p.get("rule_id", p.get("theory_id")), str(p.get("version"))) for p in authority["principles"]}
@@ -173,6 +182,8 @@ def modify_candidate(repo, record, proposed_load, target_range):
     record = next((r for r in svc.list_recommendations() if r["candidate_id"] == record["candidate_id"]), None)
     if record is None:
         raise ValueError("候选不存在或不属于当前用户")
+    if record["candidate"].get("discussion"):
+        raise ValueError("一般讨论没有可修改的数值任务；请先编辑计划并另行核对候选依据")
     state = current_use_status(repo, record)
     if state["status"] != "active":
         raise ValueError("当前依据或记录需要重新核对，请先生成适用的候选")
@@ -276,8 +287,9 @@ def _register_parameters(repo, instance, plan, available, strategy):
         registry.close()
 
 
-def freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, timezone_name="Asia/Shanghai"):
+def freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, timezone_name="Asia/Shanghai", followup_window=None, available_minutes=None):
     from healthzip.knowledge import KnowledgeWorkbench
+    from healthzip.training.followup import freeze_window
 
     advice = build_advice_context(repo, session["id"], instance["id"],
                                   selected["set_uuid"] if selected else None, available, strategy, timezone_name=timezone_name)
@@ -294,8 +306,14 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         plan = None
     parameters = _register_parameters(repo, instance, plan, available, strategy)
     knowledge = KnowledgeWorkbench(".local/knowledge")
+    discussion = None
     try:
         authority = knowledge.reviewed_principles("progression", context)
+        from healthzip.discussion import TOPICS, build_discussion
+        if strategy in TOPICS:
+            discussion = build_discussion(knowledge, advice, strategy, available_minutes)
+            # Numerical candidate permissions never derive from explanation claims.
+            authority = {**authority, "principles": []}
     finally:
         knowledge.close()
     metric_id = "STR-25" if strategy == "double_progression" else "STR-26"
@@ -303,6 +321,7 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
                       window_start=(now - timedelta(days=365)).isoformat(), window_end=now.isoformat(),
                       context={**context, "progression_plan": plan, "reviewed_principles": authority["principles"],
                                "allowed_trial_actions": [strategy] if metric_id == "STR-26" else [],
+                               "reviewed_discussion": discussion,
                                "verification_task": VERIFICATION})
     metric["parameter_set_id"] = parameters[0]["parameter_id"] + "@" + parameters[0]["version"]
     metric["parameters_used"] = [{"parameter_id": p["parameter_id"], "version": p["version"], "kind": p["kind"]} for p in parameters]
@@ -321,9 +340,13 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
                             "load_basis": instance["condition"].get("load_basis"), "changes": trial.get("changes", value.get("changes"))},
         "target_range": target_range, "reason_evidence_ids": [metric_id], "eligibility": metric["reason_codes"],
         "uncertainty": metric["uncertainty"], "verification_protocol": VERIFICATION,
-        "followup_window": "本次所选动作的候选创建后执行记录；结束后可在历史中复核",
+        "followup_window": freeze_window(followup_window, declared_at=now.isoformat()),
         "rule_version": metric["algorithm_version"], "user_choice": None,
     }
+    if discussion:
+        discussion["numeric_action_limitations"] = metric["candidate_applicability"]["reason_codes"]
+        candidate["discussion"] = discussion
+        candidate["verification_protocol"] = "保存你的讨论选择、计划调整与理由；后续实际训练另行记录。一般讨论没有数值成功目标。"
     frozen = {
         # Known-time numerical sources retain the persistence time checks.
         # Undated current facts are separately identified audit evidence, with
@@ -342,6 +365,9 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         "condition": instance["condition"], "theory_authority": authority, "strategy": strategy,
         "session_exercise_id": instance["id"], "parameter_manifest": parameters,
     }
+    if discussion:
+        frozen["discussion_explanation"] = discussion["source_explanation"]
+        frozen["numeric_provenance"] = []
     return svc.record_recommendation(
         candidate, frozen, cutoff_time=now.isoformat(),
         theory_version=str(authority.get("source_release") or authority.get("review_snapshot_sha256") or "none_reviewed_for_numerical_action"),
@@ -363,6 +389,7 @@ def main():
     parser.add_argument("--strategy", default="double_progression")
     parser.add_argument("--available-loads", default="")
     parser.add_argument("--timezone", default="Asia/Shanghai")
+    parser.add_argument("--available-minutes", type=float, help="用户声明的讨论时间约束；不产生数值训练处方")
     parser.add_argument("--freeze", action="store_true")
     parser.add_argument("--output")
     args = parser.parse_args()
@@ -377,7 +404,7 @@ def main():
                                       loads, args.strategy, timezone_name=args.timezone)
         output = freeze_candidate(repo, TrainingService(repo), advice["session"], advice["instance"],
                                   advice["effective_targets"], advice["selected_target"], loads, args.strategy,
-                                  timezone_name=args.timezone) if args.freeze else advice
+                                  timezone_name=args.timezone, available_minutes=args.available_minutes) if args.freeze else advice
         rendered = json.dumps(output, ensure_ascii=False, indent=2)
         if args.output:
             Path(args.output).write_text(rendered + "\n")

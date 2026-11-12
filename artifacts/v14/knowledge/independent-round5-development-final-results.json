@@ -1,0 +1,2779 @@
+{
+  "schema": "known_case_development_semantic_judgments_v2",
+  "identity": {
+    "reviewer_kind": "implementation_informed_ai_development_reviewer",
+    "agent_task": "/root/delivery_finish",
+    "reviewed_at_utc": "2026-11-12T01:58:56.178451+00:00",
+    "not_human_or_expert_review": true,
+    "not_new_blind_or_independent_evaluation": true,
+    "prior_access": "Reviewer has read source prose, revised claims, product modules, original frozen questions and original judgments; all decisions are development replay only. Reviewer also reread the 1.4.11 boundary claim additions against S1 source prose before this replay; no new independent denominator."
+  },
+  "input_sha256": {
+    "language-1.4.11-outputs.raw.json": "b33e050723df76c52927906db1798e3b3009be4d90c5f2ca1369c6efb7f740e7",
+    "development-judgments.json": "4eb45994deca7c192ea08730513a8bd0cb6c44f9334abe8c524a941423703fdb",
+    "language-1.4.10-outputs.raw.json": "6bf52a5d5380b79c7e08ce50ae27b59d071e3909eef145f004d0d2ab9d0023e1",
+    "cases.json": "d10e1a7a5a562a32f24446be6d027088e84cf14ce5b662ecbdaae2929026071f",
+    "judgments.json": "cba90b500672ba7126a15f658224be901d15c66be7c30bceb7e4177eabb608ea",
+    "source_packet.json": "2b5b3a0114203219b36605e0b0cdf25466fa915fc477b9698f7a0e33c1ad03b5"
+  },
+  "grading_method": {
+    "point_verdicts": {
+      "pass": "覆盖冻结预期点的实质含义，且无相反或无依据断言；接受语义等价表述。",
+      "partial": "正确覆盖一部分含义，但关键区别、理由或应用不足；边界题的泛化拒答只能获得有限覆盖。",
+      "fail": "预期内容缺失、只给无关提示，或结论与预期冲突。"
+    },
+    "case_verdicts": {
+      "pass": "所有预期点pass，且未见禁止项违规。",
+      "partial": "至少一个点pass或partial，但仍有未完全覆盖的点。",
+      "fail": "全部预期点fail。"
+    },
+    "no_posthoc_point_addition": true,
+    "no_weighted_score_assigned": true,
+    "no_retrieved_but_unanswered_credit": true,
+    "no_formula_requirement_added": true,
+    "boundary_credit_note": "不因拒绝无依据精确结论扣分；但拒绝本身不能代替冻结标准所要求的具体来源范围解释。",
+    "limitations": "已知题、实施知情的AI开发评估；不是新的独立样本、人工专家真值或个人有效性证明。",
+    "scope": "Answer正文逐87点语义复核；不以answer_status、status、运行时评分或检索到但未回答内容计分。未新增或删除冻结预期点。"
+  },
+  "summary": {
+    "case_denominator": 30,
+    "point_denominator": 87,
+    "case_verdict_counts": {
+      "pass": 30,
+      "partial": 0,
+      "fail": 0
+    },
+    "point_verdict_counts": {
+      "pass": 87,
+      "partial": 0,
+      "fail": 0
+    },
+    "independent_case_denominator_added": 0,
+    "independent_point_denominator_added": 0,
+    "excluded_case_count": 0,
+    "excluded_point_count": 0,
+    "by_case_type": {
+      "source_sufficient": {
+        "case_denominator": 24,
+        "point_denominator": 70,
+        "case_verdict_counts": {
+          "pass": 24,
+          "partial": 0,
+          "fail": 0
+        },
+        "point_verdict_counts": {
+          "pass": 70,
+          "partial": 0,
+          "fail": 0
+        }
+      },
+      "explicit_boundary": {
+        "case_denominator": 6,
+        "point_denominator": 17,
+        "case_verdict_counts": {
+          "pass": 6,
+          "partial": 0,
+          "fail": 0
+        },
+        "point_verdict_counts": {
+          "pass": 17,
+          "partial": 0,
+          "fail": 0
+        }
+      }
+    },
+    "original_independent_results_unchanged": {
+      "cases": {
+        "pass": 8,
+        "partial": 15,
+        "fail": 7
+      },
+      "points": {
+        "pass": 41,
+        "partial": 15,
+        "fail": 31
+      }
+    },
+    "first_development_results_unchanged": {
+      "cases": {
+        "pass": 26,
+        "partial": 4,
+        "fail": 0
+      },
+      "points": {
+        "pass": 81,
+        "partial": 6,
+        "fail": 0
+      }
+    }
+  },
+  "judgments": [
+    {
+      "case_id": "R5-01",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "回归推断",
+        "协方差假设"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "回归推断需要一致的系数协方差估计；得到OLS系数本身，并不替代对推断所用协方差估计的检查。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00131",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00132"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "回归推断需要一致的协方差估计"
+          ],
+          "rationale": "明确区分得到OLS系数与推断所需协方差可靠性。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "普通的经典线性模型协方差估计采用误差独立且同方差的假设；破坏独立性或同方差性，会使沿用该估计的推断受到影响。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00133",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00136",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00138",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "普通回归协方差估计采用误差独立、同方差的假设"
+          ],
+          "rationale": "说明经典假设及破坏假设对沿用协方差推断的影响，未混为系数必然有偏。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "应根据误差结构考虑合适的HC或HAC协方差估计；这些方法并非仅凭名称就使任意回归成立。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00106",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00107",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00108",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "HC的异方差稳健性本身不覆盖时序依赖"
+          ],
+          "rationale": "区分HC/HAC误差范围，并保留正则与依赖条件，未赋予无条件有效性。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得将误差异方差直接说成OLS系数必然有偏。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得声称稳健标准误免除所有模型条件。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-02",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "HC",
+        "HAC",
+        "误差结构"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "HC针对误差相互独立但可能异方差的情形，对应第一份资料描述的误差问题。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "误差相互独立、但方差可能不同的情形"
+          ],
+          "rationale": "直接对应第一份独立异方差资料。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "HAC进一步处理误差之间的自相关，同时允许异方差，对应第二份资料需要考虑的问题。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00140",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00141",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00142",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "HAC进一步考虑误差间自相关，同时允许异方差"
+          ],
+          "rationale": "直接对应第二份有序依赖资料的协方差问题。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "HC的异方差稳健性不能自动覆盖时间依赖；使用HAC仍须核对依赖结构等方法条件。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "“未知具体形式”不表示允许任意依赖结构"
+          ],
+          "rationale": "明确HC不覆盖时序依赖且HAC仍受依赖条件约束。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得将HC说成已充分解决任意序列相关。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得将HAC说成对任意相关结构均有保证。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-03",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "HAC",
+        "依赖条件"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "文章讨论在异方差和自相关形式未知时，通过估计函数的协方差构造HAC；不知道具体形式不等于无需依赖条件。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00212",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00214",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00215",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00216",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00217"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "HAC通过估计函数的滞后乘积加权构造协方差估计"
+          ],
+          "rationale": "解释未知具体形式时的构造，并否定未知形式等于无条件适用。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "文中讨论自相关随滞后增加而减弱这一合理条件；若不如此，OLS系数通常也不能一致估计。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "自相关随滞后增加而减弱的条件，并指出若不如此，OLS系数通常也不能一致估计"
+          ],
+          "rationale": "覆盖源文衰减条件及其对OLS一致性的限定含义。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "不能把HAC名称当作任意依赖结构下推断有效的证明。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00107",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00108",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "“未知具体形式”不表示允许任意依赖结构"
+          ],
+          "rationale": "直接否定以HAC名称证明任意依赖下有效。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得把未知相关形式等同于无限制相关结构。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得引用未核准公式或数值表作论据。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-04",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "HAC设置",
+        "可解释性"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "核对已拟合回归模型与数据排序，尤其是否按所需时间顺序组织。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00249",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00250",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00258",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00259",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00260"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "应核对已拟合回归模型、数据排序"
+          ],
+          "rationale": "列明模型和资料顺序两类差异来源。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "核对权重或核、带宽或截断滞后等选择；HAC并非单一固定版本。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00230",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00231",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00363",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00364",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00365",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00366",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00367"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "权重或核、带宽或截断滞后"
+          ],
+          "rationale": "覆盖HAC权重和带宽/截断差异。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "核对是否预白化以及是否进行有限样本修正。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00254",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00255"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "是否预白化和作有限样本修正"
+          ],
+          "rationale": "两项设置均明确列出，无代选唯一参数。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得因两人都写HAC就断定区间应完全相同。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得未经分析替他们选择唯一正确参数。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-05",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "HC版本",
+        "有限样本"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "HC0依据渐近论证；HC1、HC2、HC3被提出以改善小样本表现。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00181",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00182",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "HC0依据渐近论证；HC1、HC2、HC3被提出以改善小样本表现"
+          ],
+          "rationale": "完整说明版本形成的渐近与有限样本动机。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "文中转述特定小样本研究对HC3较好表现的结论；改善表现不等于任意极短样本的准确性保证。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00185",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00186",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00187"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "N1转述特定小样本研究中HC3较好的表现，不等于样本再少也保证区间准确"
+          ],
+          "rationale": "保留研究条件且明确拒绝任意短样本准确保证。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "HC所讨论的误差情形仍是独立而可能异方差，HC3不自动解决时序依赖。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00146",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00148",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00149"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "HC3也不会自动解决时间依赖"
+          ],
+          "rationale": "结合前段HC独立异方差范围，覆盖时序依赖限制。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得给出原文未支持的最低有效样本量。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把渐近有效或小样本改善说成有限样本无条件精确。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-06",
+      "case_type": "source_sufficient",
+      "topics": [
+        "N1",
+        "HAC构造",
+        "预白化",
+        "有限样本修正"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "HAC可表达为已拟合回归对应的估计函数之滞后乘积加权和；权重决定不同滞后项的贡献。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00243",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00244",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00252"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "权重控制不同滞后项的贡献"
+          ],
+          "rationale": "结合上一段估计函数滞后乘积加权描述，覆盖HAC权重作用。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "预白化先用向量自回归处理估计函数，再对相应残差进行估计；文中把它作为可减少估计偏差的方法。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00232",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00233",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00234",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00236"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "预白化先用向量自回归（VAR）处理估计函数，再对相应残差进行估计"
+          ],
+          "rationale": "同时说明文中作为减少估计偏差的方法，未混淆原误差与估计函数。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "有限样本修正是额外调整，与是否预白化分别控制；两者不是同义词，也不代表准确性保证。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00223",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00254",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00255"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "有限样本修正是额外调整，与是否预白化分别控制；两者不是同义词"
+          ],
+          "rationale": "正确区分两项控制，后段还拒绝短样本有效性保证。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得混淆预白化、滞后权重与有限样本修正。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得要求依赖未核准公式或数值表才能作答。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d536d4dc2d8b9b83a0a97f3ab9f7b71905bfa0b5efa6b58a675a197f5803c8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-07",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "成人范围",
+        "肌力活动",
+        "健康目标"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "第4章成人指导面向18至64岁男女，提供一般健康层面的活动建议。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "面向18至64岁的男性和女性"
+          ],
+          "rationale": "明确成人年龄与男女范围，前段交代总体健康目标。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "肌力活动应为中等或更高强度，覆盖所有主要肌群，每周至少两天。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00001",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00006"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "每周至少两天进行中等或更高强度、涉及所有主要肌群"
+          ],
+          "rationale": "频次、强度和全部主要肌群均覆盖。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "至少两天是一般健康建议的频次要求，不能认定为个人最佳增肌频率；落实时应考虑已有活动、体能与目标，也可逐渐超过两天。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "并允许逐步增加肌力活动至每周两天以上"
+          ],
+          "rationale": "结合已有活动、体能、目标及非唯一最优说明，覆盖健康最低要求与个人增肌频率区别。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得把至少两天改成只能两天或人人最优两天。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得反向声称两天训练不能增肌。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "9521e7ac380cc2428d755e7f1103005864f2283a47ab895d147404509a2137ce",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-08",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "肌力起步",
+        "逐步增加"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "可以逐步达到目标，开始时可每周一天，采用轻到中等的用力程度。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "初期可每周一天，以轻到中等的用力程度开始"
+          ],
+          "rationale": "明确可从较低起点开始，不要求第一周立即达标。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "随后逐步增加到每周两天，并可能超过两天；用力程度可逐周小幅增加到中等或更高。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00008"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "增加到每周两天，并可能超过两天。用力程度也可逐周小幅提高"
+          ],
+          "rationale": "给出逐步增加频次和用力程度至中等以上的路径。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "起点和增加方式应结合当前活动量、体能以及个人健康和体能目标。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "结合已有活动量、体能和个人健康目标"
+          ],
+          "rationale": "起点结合个人现有状态，并明示非统一处方。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得将起步示例当作人人必须完全相同的处方。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得编造必须采用的重量或每周加重公斤数。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "7fdeb383fd18e526beb2ee776933ba57748cf56f85adef548c973d558fb3d350",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-09",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "相对增幅",
+        "超负荷",
+        "风险"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "同样增加20分钟，相对原有活动量分别为50%和10%；原有活动量决定相对增幅。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "相对增加50%；原来每周慢跑200分钟的人同样增加20分钟，相对增加10%"
+          ],
+          "rationale": "准确说明相同绝对增量对应不同相对增幅。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "HHS把通常活动水平与新水平的差距称为超负荷量；较小增加并等待适应恢复，有助于降低骨骼、肌肉和关节损伤风险。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "较小地增加活动并等待身体适应和恢复，有助于降低风险"
+          ],
+          "rationale": "同时解释超负荷量是平常与新水平差距及骨骼肌肉关节风险关系。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "示例用于提醒关注相对增幅，不能将10%变成适用于每个人、每种活动的固定进阶规则。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不是人人、每种活动都适用的每周进阶规则或安全阈值"
+          ],
+          "rationale": "明确10%是例子，不是通用安全或进阶阈值。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得把相同绝对增量说成负担与风险必然相同。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得宣称10%是普遍安全阈值。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "971cbcb8298ca43128a36f7521a5ee3cc73ea2307b4a4743c9ff9a7a50bec4f4",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-10",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "进阶个体因素",
+        "既往经验"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "应考虑年龄、当前体能水平以及既往经验。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "考虑年龄、体能和经验"
+          ],
+          "rationale": "三个个人因素齐全。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "年龄可能影响适应时间，老年人似乎需更久；同样活动量下体能较低者损伤风险较高，较慢增加可能降低风险。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "老年成人似乎需要更长时间；对相同活动量，体能较低的成人受伤风险更高"
+          ],
+          "rationale": "保留年龄适应时间及低体能风险关系和较慢进阶可能有益的限定。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "过去按某进阶速度发生过过度使用损伤时，一般应在下一次增加得更慢。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "过去按某个增加速度发生过过度使用损伤，指南一般建议下一次增加得更慢"
+          ],
+          "rationale": "直接回答既往过度使用损伤对下一次进阶的含义，未诊断病因。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得由一般原则诊断过去损伤的具体病因。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得给所有人固定恢复天数或加重量。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "d4864c6f41efa235254f6bae2b8bf5d942b9ab1dd4342cdb05bd24d1aeed6d23",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-11",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "安全章节范围",
+        "活动选择"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不准确：该章说多数建议适用于所有年龄，同时有针对特定年龄组及某些健康状况的指导。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "多数建议适用于所有年龄的人；也有针对特定年龄组和某些健康状况人群的具体指导"
+          ],
+          "rationale": "完整保留多数与特定人群指导限定。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "活动应适合当前体能与健康目标；不活跃者从较低强度开始，逐步增加频次与时长。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不活跃者应从较低强度开始，逐渐增加活动的频次与时长"
+          ],
+          "rationale": "并要求适合当前体能和健康目标，覆盖渐进起点。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "安全原则还涉及合适装备、安全环境和合理选择；慢性病或症状需要相应专业照护与建议。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "使用合适的护具和运动装备、选择安全环境、遵守规则"
+          ],
+          "rationale": "后句包含慢性病或症状的健康服务照护与活动种类数量建议。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得省略多数的限定并说每条建议均无例外。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把收益大于风险说成所有活动都没有风险。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "ba878c87305d1dc7577281a0ecf2de6016c437cf220f99282196034ddc280b6a",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-12",
+      "case_type": "source_sufficient",
+      "topics": [
+        "HHS",
+        "新症状",
+        "咨询条件"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "无已诊断慢性病且无症状者渐进增加活动通常不必事先咨询；不能一概要求健康成人先获医疗许可。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00007",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "没有已诊断慢性病、也没有症状的人，通常不需要为了进行身体活动事先咨询健康服务提供者"
+          ],
+          "rationale": "保留无病无症状条件及渐进活动通常不需事先许可。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "增加活动后新出现症状应咨询健康服务提供者；新的关节痛不能被先前无症状的状态覆盖。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "原来无症状的情况不能覆盖后来出现的新症状"
+          ],
+          "rationale": "明确增加活动后新症状需咨询，并将关节痛列为文中症状。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "症状或已知慢性病会影响合适的活动种类与数量，需要结合专业意见形成合适计划。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "症状或已知慢性病会影响适合的活动种类与数量"
+          ],
+          "rationale": "说明专业照护与个体合适活动计划，不停留于一般拒答。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得说所有人运动前均必须咨询医生。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得因原来健康而忽略新关节痛。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "5a0ff4feb591ebafa9c9cf6704b4f926cda663e28167c2488fbf64b691d08232",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-13",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "渐进超负荷",
+        "收益与长期进展"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "渐进超负荷是训练过程中提高施加于肌肉的刺激，不只等于每次加重量。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "在训练过程中提高施加于肌肉的刺激"
+          ],
+          "rationale": "把渐进超负荷定义为刺激增加，非仅加重量。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "原文区分获得收益与持续长期进展：不断进阶不是获得一些收益的必要条件，追求长期继续适应时增加刺激可能是需要的。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "没有不断进阶，也不等于训练不可能带来收益"
+          ],
+          "rationale": "同时区分持续长期进展可能需要改变刺激与获得一些收益。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "可调整负荷、训练量、频次、动作选择或持续时间等；这些是选项，并非必须同时增加，是否及如何进阶应结合个人目标与情况。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "可调整负荷、训练量、训练频次、动作选择或持续时间"
+          ],
+          "rationale": "保留多种可选变量，明确无需同时增加并依据个体目标选择。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得说不加重量就完全无效。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得要求所有可调变量同时增加。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得保证个人每次提高。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "76e98bc4eea56cea9769f83ec4d106c8596a767b175df9c599d4df4e5c1e6978",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-14",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "力竭定义",
+        "努力程度"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "力竭变量指继续重复动作直到无法再完成向心运动的状态。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "持续进行重复动作，直到已经无法继续完成向心运动的状态"
+          ],
+          "rationale": "给出该来源力竭变量的具体定义。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "训练至瞬时肌肉力竭不是获得力量、肌肥大等收益的必要条件。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "训练至瞬时肌肉力竭不是获得力量、肌肥大或功率收益的必要条件"
+          ],
+          "rationale": "直接回答不必每组力竭。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "不必力竭不等于无需努力，仍需足够刺激；原文讨论接近力竭等实现充分用力的方式。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "将一组做到接近力竭等方式达到充分用力"
+          ],
+          "rationale": "并说明不必力竭不等于无需刺激或任意轻松用力等效，精确RIR证据不足。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得把不必力竭解释成任意轻松用力都等效。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得据一般讨论给所有人指定精确最优RIR。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "37704eb716220c75e0342b00d3902ee2c7b3938898fc41ec556b9b66584c2cde",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-15",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "负荷与次数",
+        "特异性",
+        "表现解释"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "在给定动作条件并接近疲劳用力时，负荷与一组能完成的次数存在反向关系，更重时次数减少并不反常。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "在给定动作条件、接近疲劳用力的情境下，一组能完成的次数与负荷具有反向关系"
+          ],
+          "rationale": "保留固定动作条件与近疲劳情境，解释更重次数减少并不反常。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "负荷改变意味着测试任务改变，不能仅凭次数从12变8认定个人力量退步。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "改变负荷也改变了比较任务，所以不能仅凭次数减少就认定某个人力量退步"
+          ],
+          "rationale": "直接回答12变8不能据此认定退步。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "解释力量变化应保留测量任务与方法；综述通常以与训练模式相同的1RM评估力量，体现适应和测量的特异性。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "与训练模式相同的随意等张一次最大重复负荷（1RM）"
+          ],
+          "rationale": "明确测量模式和测试方法的特异性范围。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得仅比较次数便断言力量下降或上升。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得直接计算个人确定等效负荷或成功率。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "c381031211832ef7a64a39579bbccd9d1238ccc2b7aff0f36ffcaff95db03f92",
+      "answer_changed_from_first_development": true
+    },
+    {
+      "case_id": "R5-16",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "频次",
+        "总量",
+        "力量与肌肥大"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "力量结果显示频次有影响，但证据不足以确定完整剂量反应；总量相等时频次影响减弱。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "力量结果中频次有影响，但资料不足以确定完整剂量反应，而且总量相等时影响减弱"
+          ],
+          "rationale": "同时覆盖频次、剂量反应不足和总量匹配限定。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "肌肥大比较中，总训练量相等时不同频次未显示同样的额外优势。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00026"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "总训练量相等时不同频次未显示同样的额外优势"
+          ],
+          "rationale": "独立陈述肌肥大结果，未混同力量。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "不能推出更多天对每个人必然更好或唯一最优天数；安排须结合目标、总量和个人需要。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "安排天数应与目标、总量和可执行性一并考虑"
+          ],
+          "rationale": "明确不能给所有人唯一最优频次，回应更多天非必然更好。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得省略总训练量相等的比较条件。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得不加区别地合并力量与肌肥大结果。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "7647dd231c6b649a3dd645aab90008959f20655d350579163b24d8c928a983f4",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-17",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "组间休息",
+        "力量",
+        "肌肥大",
+        "证据不足"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "力量结果中，所比较的短于1分钟与长于1分钟组间休息未显示力量差异，这是纳入比较的结果。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00024"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "力量结果未显示所比较短长组间休息的一致差别"
+          ],
+          "rationale": "符合冻结注记允许用短长概括，未把纳入比较扩大为普遍无效。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "肌肥大方面组间休息资料不足，不能确定影响；资料不足不能改成已证明没有影响。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00025"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "肌肥大结果中将组间休息列为资料不足、不能确定其影响"
+          ],
+          "rationale": "区分证据不足和力量比较结果，未声称增肌已证无影响。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "不能据此宣称休息对所有任务、所有人均无影响或推出统一最佳休息时长。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00069",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不能证明休息对所有任务都无效，或给每个人确定最佳间歇"
+          ],
+          "rationale": "保留任务和个人范围，不推出统一休息处方。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得把力量比较直接移植为肌肥大结论。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把资料不足当作等效或无效证据。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "623fe9165f9136302a57edfbcfba1e6249c89495af571abcaf32e425b6560fbd",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-18",
+      "case_type": "source_sufficient",
+      "topics": [
+        "S1",
+        "周期安排",
+        "变化",
+        "渐进超负荷"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "周期安排是随时间有意改变负荷、组量、频次等训练变量的一种方式。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00063"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "有意改变负荷、组量、频次等变量的一种方式"
+          ],
+          "rationale": "符合周期安排概念，无需逐一说明周期模板。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "适当渐进超负荷下，综述未确立周期安排显著优于非周期安排；不能将特定周期模式当成健康成人获得收益的必要条件。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00060",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00063"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "在适当渐进负荷前提下，所汇总结果没有证明周期组织普遍明显优于非周期组织"
+          ],
+          "rationale": "保留渐进条件，且明确特定周期安排不是收益唯一必要条件。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "这不等于周期安排在任何目标下都无价值：变量顺序、疲劳管理或针对特定目标达到状态等方面，原文指出研究尚不充分。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00063"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "具体目标的变量顺序和疲劳管理仍存在未充分研究之处"
+          ],
+          "rationale": "覆盖周期价值不能一概归零及尚未充分研究的目标范围。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得断言某周期方案对所有人普遍最优。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把未确立普遍优势说成任何情境均无用。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "740ffc173659d0563ce9bf35d85e1012cfb23223565ee950dcb00ec5e5a403a8",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-19",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "不显著",
+        "等效误解"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "传统差异检验未拒绝零假设，不能解释成没有效应或两种干预相等。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不能据此断言没有效应，也不能把它当作两种干预实用等效的证据"
+          ],
+          "rationale": "明确P不显著不证明相等。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "尤其小样本研究中，未显著不能说明具有实际意义的备择效应已被排除。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "尤其小样本研究中，不显著并不说明具有实际意义的备择效应已经被排除"
+          ],
+          "rationale": "具体说明小样本不显著的解释限制。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "支持实用等效需要明确关心的效应或等效界值，使用相应等效检验，而非仅凭P大于0.05。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00001",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "实用等效需要为具体研究问题说明有依据的下界和上界"
+          ],
+          "rationale": "后续提供相应TOST要求，超出一般免责声明而回答实际方法区别。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得从P=0.18推断两者一定相等或一定不同。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把未拒绝零假设说成已接受零效应为真。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d922d930cc9d9b592ff2b2301b774219c61abb368fa196ea4627c86f4f9c30",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-20",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "最小重要效应",
+        "等效界值"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "文章不推荐把为社会和行为科学提出的Cohen通用分界直接作为运动生理与运动科学最小重要效应的依据。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不建议把Cohen为社会和行为科学提出的通用效应量分界"
+          ],
+          "rationale": "明确不应直接当作运动生理/运动科学的最小重要效应标准。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "有意义的效应大小取决于具体情境，应围绕实质研究问题说明界值依据，确定过程可能困难。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "应围绕实质研究问题说明依据"
+          ],
+          "rationale": "同时说明情境依赖与确定过程可能困难。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "等效上下界界定足够大而具有实践重要性的差异；等效检验要排除这类差异。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "等效下界和上界界定的是大到具有实际重要性的差异。检验目标是排除这类差异"
+          ],
+          "rationale": "正确解释界值含义及检验目标，未混作显著性门槛。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得给所有运动指标设同一个未经论证的阈值。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把最小重要效应等同于显著性门槛。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "2b8c305130a9593472caf92e9f0511b227829decbe0da7285f2c1c0ced6d52f6",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-21",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "TOST",
+        "双侧界值",
+        "整体P值"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不能；两个单侧检验都须在设定α水平拒绝达到或超出相应等效界值的效应，才能在该α水平判断等效。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "两项检验都在设定的α水平排除达到或超出相应界值的效应"
+          ],
+          "rationale": "明确两项均需通过，语义上回答仅下界通过不能宣布等效。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "整体等效检验可报告两个单侧检验中较大的P值，不能挑较小的。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "整体等效检验可报告两个单侧检验中较大的P值"
+          ],
+          "rationale": "未取较小P或平均P，满足所问整体P逻辑。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "fail",
+      "must_not_review": [
+        {
+          "rule": "不得把任一单侧通过当作TOST成功。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得平均两个P值或只报较小值作为整体等效结论。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "cd2ad8825e985bb5acfa592bc735f1bf6c077ac30d78d2a3df8a9b2b683a112f",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-22",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "TOST置信区间",
+        "等效判定"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "对应双侧100(1−2α)%置信区间；α为0.05时是90%置信区间。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "双侧100(1−2α)%置信区间"
+          ],
+          "rationale": "并明确单侧α=.05对应90%，是条件说明而非个人参数选择。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "区间须完整落在等效上下界之间，不能只检查点估计。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "必须完全落在等效下界和上界之间"
+          ],
+          "rationale": "明确点估计不足而要求整个区间。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "一端超界时不能由本次TOST宣布等效；这不自动证明存在实践上重要的差异。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "一端超界时不能由本次TOST宣布等效，也不能仅凭等效未通过就证明存在实践上重要的差异"
+          ],
+          "rationale": "两方面判断齐全，未把未等效改成重要差异已证。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得把对应区间说成固定95%区间。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得因点估计在界内而宣布等效。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "cd2ad8825e985bb5acfa592bc735f1bf6c077ac30d78d2a3df8a9b2b683a112f",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-23",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "实用等效",
+        "结论措辞"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "统计上不能证明两种干预效果绝对相等；等效不等于真实差异恰为零。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不能证明真实效果绝对相同或差异恰为零"
+          ],
+          "rationale": "准确说明实用等效超不过绝对相等边界。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "正确解释是在设定上下界和相应方法条件下，排除了足够大而有实际重要性的差异，支持该界值意义下实用等效。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00003"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "等效是在指定界值及方法条件下排除实际重要差异"
+          ],
+          "rationale": "保留界值与条件，给出题目要求的恰当含义。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得写成绝对相同、零差异已证明或所有方面一样。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得抹去结论对等效界值的依赖。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "01d922d930cc9d9b592ff2b2301b774219c61abb368fa196ea4627c86f4f9c30",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-24",
+      "case_type": "source_sufficient",
+      "topics": [
+        "M2",
+        "研究设计",
+        "独立样本",
+        "方法适用范围"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "文章主要讨论平行组研究，均值和方差来自两组相互独立的随机样本，观测服从正态分布。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "均值和方差来自两组相互独立的随机样本，观测服从正态分布"
+          ],
+          "rationale": "同时明确平行组研究范围，三项设计条件齐全。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "其他研究设计或不同概率分布的变量可能需要不同分析。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "其他研究设计或不同概率分布的变量，可能需要不同的分析方法"
+          ],
+          "rationale": "直接覆盖方法迁移限制。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "个人重复测量不能未经核对设计和依赖结构就原样当作独立样本示例；来源本身没有验证这个人时序分析。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "direct_prose_and_stated_method_implications"
+          },
+          "answer_evidence": [
+            "不能未经设计、分布和依赖结构核对，就把文中示例当作重复测量或个人训练时序的已验证分析"
+          ],
+          "rationale": "明确个人重复测量并非自动满足独立示例条件。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得把任意个人时序视为两组独立随机样本。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得声称只要叫TOST就满足设计条件。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "d94fbae805091c61c8ce7e56855b7ad404f2f2044f99e941c3b3c817513e76a6",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-25",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "缺失教材",
+        "来源归属"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "给定来源中没有这本教材可核对的正文，不能声称查到它的原文、页码或作者具体规则。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "packet_inventory_and_scope"
+          },
+          "answer_evidence": [
+            "尚无与所要求来源、版次、章节、附录或表格一致的可核验依据"
+          ],
+          "rationale": "承认无指定教材可核对依据，未虚构页码规则。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "可以说明现有ACSM综述中的渐进超负荷和个体化原则，但须标明是另一来源，不能冒充教材；要核对原文仍需可合法核对的相关内容。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "要继续核对原文，需要取得与所问版次、章节一致且可合法核对的相关正文"
+          ],
+          "rationale": "明确合法正文获取、书目身份及原文定位的核对路径，并要求其他来源独立署名；按冻结注记无需另外给ACSM训练建议。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "partial"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得虚构教材引文、页码、章节或加重百分比。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得将现有综述的内容改挂教材名称。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "partial",
+      "answer_sha256": "4707898e1b1f3d63fa6c83f1676e6cd665d0719df00ed7badca1ded47ce97570",
+      "answer_changed_from_first_development": true
+    },
+    {
+      "case_id": "R5-26",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "个人时序",
+        "小样本",
+        "重复查看",
+        "校准"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不能仅凭HAC认定8次记录及反复查看的区间可靠；N1讨论有条件的协方差估计和有限样本改善，没有验证这个人的监测流程。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00107",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00108",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00183",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00184",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00253",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00254",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00255"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "HC/HAC名称和有限样本修正不能认证任意短训练序列"
+          ],
+          "rationale": "还明确本文未验证个人连续监测和反复查看，覆盖8次及重复查看不获保证。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "若用实用等效解释平台期，需要具体问题的重要变化界值；M2主要示例是两组独立正态样本的平行组研究，不能直接认证个人连续记录。",
+          "verdict": "pass",
+          "source_anchors": [
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00000",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00002",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00004",
+            "M2:fulltext:0a7abf1ff40f4fad98ef:pdfplumber-reviewed-m2-regions-1.4.0:s00005"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "本文集中讨论两组独立随机样本、正态观测的平行组研究"
+          ],
+          "rationale": "新增M2实用等效界值需求、独立正态平行组范围及个人时序迁移限制，补齐原点全部含义；仍未输出个人统计结果。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "partial"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "材料不足以给出个人误判率；实际任务、测量误差和依赖结构，以及反复查看的判定过程仍需要相应依据或验证。",
+          "verdict": "pass",
+          "source_anchors": [
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00225",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00226",
+            "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00227"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "这些需要具体任务、误差、依赖结构及判定流程的依据与验证"
+          ],
+          "rationale": "明确不给误判率，并具体列出任务、误差、依赖与流程依据需求。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得说HAC、某修正或一个最低样本数自动保证个人判定有效。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得编造个人误判率、精确平台期阈值或已完成的校准。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "partial",
+      "answer_sha256": "4802a8d7cc81514994d28b0880fbd5229b63674d549228499d152fdc9a2e32ea",
+      "answer_changed_from_first_development": true
+    },
+    {
+      "case_id": "R5-27",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "新症状",
+        "临床判断",
+        "个体处方"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不能据健康成人综述诊断疼痛原因或确定精确减重比例、恢复时间；其人群范围和群体证据不构成个人症状评估。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "这里解释咨询条件，不判断疼痛的病因"
+          ],
+          "rationale": "结合个人精确数字不受支持和不能替代症状评估的明确说明，覆盖诊断与精确处方边界；沿用原冻结语义尺度，不另要求逐个复述天数。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "HHS明确增加活动后出现新症状应咨询健康服务提供者，症状影响合适活动种类与数量。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00012",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "如果在增加活动水平后出现新症状，应咨询健康服务提供者"
+          ],
+          "rationale": "并列出关节痛与活动种类数量影响，回应新症状。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "一般渐进原则可作背景，具体调整仍须结合症状评估，不能将旧的健康成人原则直接套用。",
+          "verdict": "pass",
+          "source_anchors": [
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00014",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00015",
+            "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:hhs-chapters-4-7-text-1.4.0:s00017"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "一般训练原则不能替代具体症状评估"
+          ],
+          "rationale": "明确个人调整依赖症状评估而非旧健康状态，题目不要求另开一般进阶计划。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "pass",
+      "must_not_review": [
+        {
+          "rule": "不得确诊损伤或说疼痛正常可忽略。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得编造精确减重百分比、康复天数或恢复保证。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "24297b2f30bb64fdb93a6ff2e4b36a2699687cd621954a8186722f774680e361",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-28",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "个人最优",
+        "组量",
+        "精确RIR"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不能算个人唯一最佳周组数；增加组量可有益且收益可能递减，但原文无法确定优化适应所需的精确组数。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "精确最优组数仍不能确定，额外收益可能递减"
+          ],
+          "rationale": "同时保留较高组量与部分收益相关，未编造唯一周组数。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "精确RIR或主观用力目标证据不足；不必每组力竭不等于无需足够努力。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "现有证据不足以量化精确的RIR或主观用力目标"
+          ],
+          "rationale": "前两段完整回答不必力竭但仍需充分用力，修复原缺项。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "可参考充分用力、适当组织训练量、按个人目标和情况调整等原则，不能把群体建议变成个人唯一最优数字。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "应用时仍须结合个人目标、需求和情况作适当调整"
+          ],
+          "rationale": "结合充分用力和组量讨论，保留可以参考的方向且不包装为唯一数字。",
+          "original_independent_point_verdict": "pass",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得给出伪精确个人最佳组数或RIR。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得把一般2至3RIR讨论变成人人已验证最优目标。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "pass",
+      "answer_sha256": "7ea155199e39702498ef954298b0db73dabb02edf6911a21d2c890582b981a10",
+      "answer_changed_from_first_development": false
+    },
+    {
+      "case_id": "R5-29",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "器械换算",
+        "任务特异性",
+        "完成保证"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "不能仅由这些数字及综述推出另一器械精确等效负荷，也不能保证完成10次。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "不建立两台不同器械之间的个人精确换算，也不保证换器械后能完成相同次数"
+          ],
+          "rationale": "直接回应跨器械精确负荷与完成次数保证均不成立，未只作泛化个人参数拒答。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "partial"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "训练和测量具有特异性；负荷与次数反向关系及群体换算讨论不构成不同器械对个人的确定换算。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "上述特异性与负荷次数关系不建立两台不同器械之间的个人精确换算"
+          ],
+          "rationale": "将正文的特异性及负荷次数关系准确应用到不同器械边界，明确该关系不提供个人确定换算。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "partial"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "应保留器械、动作及测量条件差别，在新任务中取得可比观察；源文没有这两台器械的个人校准关系。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "在新任务中应重新记录这些条件并取得同条件的可比观察"
+          ],
+          "rationale": "同时要求保留器械、动作、测试方法差异，并明确非两台器械个人映射；可比观察是有界应用解释而非源文校准。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "partial"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得虚构配重比、精确公斤数或完成概率。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得因动作名称相同就认定任务完全相同。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "partial",
+      "answer_sha256": "7d3840d49f569ae4b9a0ea0578d4e095ba81ce8cc4317dc11f9684460ca82da9",
+      "answer_changed_from_first_development": true
+    },
+    {
+      "case_id": "R5-30",
+      "case_type": "explicit_boundary",
+      "topics": [
+        "边界",
+        "群体与个人",
+        "单次因果",
+        "成功概率"
+      ],
+      "case_verdict": "pass",
+      "point_judgments": [
+        {
+          "point_id": "P1",
+          "expected_meaning": "一次执行后1RM增加可记为执行和结果事实，但仅凭先后关系不能确认新增一组导致个人提高。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "个人完成一次任务或随后出现变化，只能先记录为执行与观察事实"
+          ],
+          "rationale": "后句明确不建立该次任务的个人因果获益，区分先后事实与因果证明。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "pass"
+        },
+        {
+          "point_id": "P2",
+          "expected_meaning": "综述汇总群体层面、多周训练干预证据，需要个体化解释，不能直接给个人每次执行的成功概率。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "健康成人接受至少6周抗阻训练，与不运动或不同训练方案比较，观察干预前后的结果"
+          ],
+          "rationale": "补明多周群体干预与单次前后结果的时间/设计区别，原有个体化解释及不提供成功概率仍保留；6周是来源纳入标准。",
+          "original_independent_point_verdict": "partial",
+          "first_development_point_verdict": "partial"
+        },
+        {
+          "point_id": "P3",
+          "expected_meaning": "增加组量的群体收益不能改写成这次额外一组的因果证明或未来每次提高的保证。",
+          "verdict": "pass",
+          "source_anchors": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00071",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00075"
+          ],
+          "source_support": {
+            "verified_against_packet_prose": true,
+            "basis_kind": "bounded_scope_or_method_inference"
+          },
+          "answer_evidence": [
+            "这些群体汇总结果本身不建立该次任务对这个人的因果获益，也不提供个人成功概率"
+          ],
+          "rationale": "按语义覆盖群体收益不能改写为本次额外一组因果或未来保证，无需重复题设动作词。 本轮新增段落未删减该点，逐句重读未见相反断言。",
+          "original_independent_point_verdict": "fail",
+          "first_development_point_verdict": "pass"
+        }
+      ],
+      "original_independent_case_verdict": "partial",
+      "must_not_review": [
+        {
+          "rule": "不得以单次前后观察确认因果。",
+          "violation_observed": false
+        },
+        {
+          "rule": "不得编造成功概率或承诺每次加组都有收益。",
+          "violation_observed": false
+        }
+      ],
+      "overreach_review": {
+        "unsupported_positive_scientific_or_personal_claim_observed": false,
+        "fabricated_numeric_or_clinical_result_observed": false,
+        "note": "逐题正文未见冻结禁止项违规；无越界不等于全部预期内容已回答。"
+      },
+      "first_development_case_verdict": "partial",
+      "answer_sha256": "87f3f1cea7bbdbbbecb87e7518ff4359ab1de2512bfa8f43de9190e21cb13935",
+      "answer_changed_from_first_development": true
+    }
+  ],
+  "remaining_gaps": [],
+  "necessary_further_work": "No remaining gap against these frozen thirty questions and eighty-seven points was observed. This known-case development replay does not establish unseen-question generalization or scientific/personal efficacy.",
+  "optional_quality_notes": [
+    "部分答案拼接多条相近主张形成重复，例如R5-07、14、15；未额外列入冻结评分要求。",
+    "R5-26的limits有重复项；本次只按answer正文判分。",
+    "R5-26 now repeats the M2 design-scope explanation; repetition is outside the frozen grading rubric.",
+    "R5-25/26/27/28/29/30 may retain unanswered-status labels for unavailable source text or personal numerical conclusions. Correct refusal and substantive boundary explanation are judged from answer prose, not from that label."
+  ],
+  "source_text_publication": "Only short product-answer excerpts are recorded here; no source-body excerpts are published.",
+  "original_frozen_files_modified": false,
+  "release_id": "core-boundary-source-explanations-1.4.11",
+  "release_sha256": "5ab38c83ef77ebfcd5f4dee2521e5913df7f4fd0ad66b94fecc425cdf8656b5b",
+  "comparison_method": {
+    "changed_answer_cases": [
+      "R5-15",
+      "R5-25",
+      "R5-26",
+      "R5-29",
+      "R5-30"
+    ],
+    "unchanged_answer_cases": 25,
+    "changed_answer_points_reread": 14,
+    "unchanged_answer_points_with_exact_evidence_revalidated": 73,
+    "no_answer_status_scoring": true,
+    "frozen_source_expectations_unchanged": true,
+    "method": "All original meanings and must-not rules retained. Exact unchanged answers retain reviewed semantic judgments; five changed answers were reread against all fourteen associated points and source boundaries. Six previously partial points now have direct answering evidence."
+  },
+  "old_development_files_modified": false
+}

@@ -1,0 +1,1279 @@
+{
+  "purpose": "Development baseline after independent round5 was closed; original verdicts are retained, never regraded.",
+  "frozen_at": "2026-11-12T01:36:38.452146+00:00",
+  "frozen_independent_sha256": {
+    "cases.json": "d10e1a7a5a562a32f24446be6d027088e84cf14ce5b662ecbdaae2929026071f",
+    "outputs.raw.json": "bf6a3aa8ed78ce2b0655718a21657c5c3eeb505225c3de3830368f36bd58c1a4",
+    "judgments.json": "cba90b500672ba7126a15f658224be901d15c66be7c30bceb7e4177eabb608ea",
+    "judgments_receipt.json": "de8bd0a9c7c44659f035d5e336d6cf916aa4522208a5d22401c10e49c9a27197",
+    "source_packet.json": "2b5b3a0114203219b36605e0b0cdf25466fa915fc477b9698f7a0e33c1ad03b5"
+  },
+  "original_counts": {
+    "pass": 8,
+    "partial": 15,
+    "fail": 7
+  },
+  "release_id": "core-refined-source-explanations-1.4.9",
+  "cases": [
+    {
+      "case_id": "R5-01",
+      "question": "回归系数已经用普通最小二乘拟合好了，报告置信区间时为什么还要检查误差是否独立、同方差？请结合 Zeileis 关于 HC/HAC 协方差估计的文章解释。",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "partially_answered",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "individual_error_bound",
+          "regression_covariance_scope"
+        ],
+        "issues": [
+          "subject_unresolved",
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "individual_error_bound",
+            "label": "个人误差界限",
+            "subject": null,
+            "outcome": "individual_error_bound",
+            "requested_relation": "individual_inference"
+          },
+          {
+            "part_id": "regression_covariance_scope",
+            "label": "回归协方差与HC/HAC的适用范围",
+            "subject": "statistical_inference",
+            "outcome": "regression_covariance_scope",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-02",
+      "question": "两份回归资料，一份来自相互独立的不同受试者，但误差波动大小不一样；另一份按时间连续记录，误差还可能前后相关。HC和HAC在这两种情形下分别解决什么问题？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": "individual_error_bound",
+        "requested_relation": "individual_inference",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": true,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "individual_error_bound"
+        ],
+        "issues": [
+          "subject_unresolved"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "individual_error_bound",
+            "label": "个人误差界限",
+            "subject": null,
+            "outcome": "individual_error_bound",
+            "requested_relation": "individual_inference"
+          },
+          {
+            "part_id": "unresolved_compound_request",
+            "label": "复合问题的其他目标",
+            "reason": "additional_target_unresolved"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-03",
+      "question": "有人说“HAC不需要预先知道自相关的具体形式，所以误差怎样相关都没关系”。这句话为什么不严谨？请只解释这篇方法文章中的条件，不用推导公式。",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "regression_covariance_scope",
+        "requested_relation": "scope",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "regression_covariance_scope"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "regression_covariance_scope",
+            "label": "回归协方差与HC/HAC的适用范围",
+            "subject": "statistical_inference",
+            "outcome": "regression_covariance_scope",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-04",
+      "question": "两位分析者对同一份时序资料都报告用了“HAC标准误”，置信区间却不同。为了弄清差异，按Zeileis的文章至少应核对哪些设置？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_source",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "regression_covariance_scope",
+        "requested_relation": "scope",
+        "source_constraints": {},
+        "specific_source_unresolved": true,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "regression_covariance_scope"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "regression_covariance_scope",
+            "label": "回归协方差与HC/HAC的适用范围",
+            "subject": "statistical_inference",
+            "outcome": "regression_covariance_scope",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-05",
+      "question": "HC0、HC1、HC2、HC3为什么会有不同版本？“HC3考虑了小样本，所以样本再少也能保证区间准确”是否符合原文的意思？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [],
+        "issues": [
+          "subject_unresolved",
+          "outcome_unresolved"
+        ],
+        "required_answer_parts": [],
+        "resolution": "unresolved_or_ambiguous_task"
+      }
+    },
+    {
+      "case_id": "R5-06",
+      "question": "HAC里的“预白化”和“有限样本修正”是同一件事的两个名字吗？它们与滞后权重各起什么作用？请用文字说明。",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "regression_covariance_scope",
+        "requested_relation": "scope",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "regression_covariance_scope"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "regression_covariance_scope",
+            "label": "回归协方差与HC/HAC的适用范围",
+            "subject": "statistical_inference",
+            "outcome": "regression_covariance_scope",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-07",
+      "question": "我35岁，看到HHS第二版建议每周至少两天做肌力活动。这条建议具体针对谁、需要怎样的强度和肌群覆盖？它能用来认定两天就是我的最佳增肌频率吗？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "missing_answer_relation",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": "frequency",
+        "requested_relation": "options",
+        "source_constraints": {
+          "source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "requested_edition_number": "2"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": 35,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "frequency"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "frequency:hypertrophy",
+            "label": "训练频次及其适用目标（肌肥大目标）",
+            "subject": "resistance_training",
+            "outcome": "frequency",
+            "requested_relation": "options",
+            "requested_goal": "hypertrophy"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-08",
+      "question": "一个长期不运动的健康成年人想开始肌力训练，是否必须第一周就达到每周两天、中等以上强度？HHS第4章给出的起步办法是什么？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity",
+          "requested_chapter_number": "4"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [],
+        "issues": [
+          "subject_unresolved",
+          "outcome_unresolved"
+        ],
+        "required_answer_parts": [],
+        "resolution": "unresolved_or_ambiguous_task"
+      }
+    },
+    {
+      "case_id": "R5-09",
+      "question": "同样每周多跑20分钟，原来每周跑40分钟和200分钟的人，为什么不能把这次增加看成同等幅度？HHS用这个例子想提醒什么，能否据此归纳出人人适用的“每周加10%”规则？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [],
+        "issues": [
+          "subject_unresolved",
+          "outcome_unresolved"
+        ],
+        "required_answer_parts": [],
+        "resolution": "unresolved_or_ambiguous_task"
+      }
+    },
+    {
+      "case_id": "R5-10",
+      "question": "安排活动量增加的速度时，HHS建议考虑哪些个人因素？如果一个人以前按某种速度加量出现过过度使用损伤，这段经历应怎样影响下一次安排？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "physical_activity",
+        "outcome": "progression_rate_factors",
+        "requested_relation": "explanation",
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "progression_rate_factors"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "progression_rate_factors",
+            "label": "身体活动增加速度的影响因素",
+            "subject": "physical_activity",
+            "outcome": "progression_rate_factors",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-11",
+      "question": "我准备把HHS“Active and Safe”一章介绍为“对所有年龄、所有身体状况都完全相同的安全规则”。这样概括准确吗？介绍这一章的适用范围和主要安全原则时，应怎样说得更准确？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "physical_activity",
+        "outcome": "activity_safety_scope",
+        "requested_relation": "scope",
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "activity_safety_scope"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "activity_safety_scope",
+            "label": "安全活动建议的年龄适用范围",
+            "subject": "physical_activity",
+            "outcome": "activity_safety_scope",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-12",
+      "question": "HHS对这两种情况是否都要求先找医生：没有已诊断慢性病、也没有症状，只想逐步增加中等强度活动；以及增加活动后新出现关节痛？请说明区别。",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-US-HHS-PAG-2"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "gradual_progression",
+          "symptoms"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "gradual_progression",
+            "label": "逐步增加活动",
+            "subject": "resistance_training",
+            "outcome": "gradual_progression",
+            "requested_relation": "options"
+          },
+          {
+            "part_id": "symptoms",
+            "label": "症状及活动范围",
+            "subject": "resistance_training",
+            "outcome": "symptoms",
+            "requested_relation": "scope"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-13",
+      "question": "ACSM 2026抗阻训练综述提到渐进超负荷。是不是训练中只要没有不断加重量，就不可能有收益？如果追求长期继续进步，原文允许从哪些方面改变刺激？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [
+            "S1"
+          ]
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "progression_necessity",
+          "progression_options"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "progression_necessity",
+            "label": "持续进阶与初始收益",
+            "subject": "resistance_training",
+            "outcome": "progression_necessity",
+            "requested_relation": "necessity"
+          },
+          {
+            "part_id": "progression_options",
+            "label": "渐进训练的任务选择",
+            "subject": "resistance_training",
+            "outcome": "progression_options",
+            "requested_relation": "options"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-14",
+      "question": "ACSM这份综述里“力竭”具体指什么？为了增肌或提高力量，每一组都必须练到这个程度吗？没有练到力竭又该怎样理解“足够努力”？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-ACSM-GETP-12",
+            "S1"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "failure_necessity"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "failure_necessity:hypertrophy",
+            "label": "是否必须达到力竭（肌肥大目标）",
+            "subject": "resistance_training",
+            "outcome": "failure_necessity",
+            "requested_relation": "necessity",
+            "requested_goal": "hypertrophy"
+          },
+          {
+            "part_id": "failure_necessity:strength",
+            "label": "是否必须达到力竭（力量目标）",
+            "subject": "resistance_training",
+            "outcome": "failure_necessity",
+            "requested_relation": "necessity",
+            "requested_goal": "strength"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-15",
+      "question": "我把同一动作的重量调高后，接近疲劳时一组从12次变成8次，这能直接说明力量退步了吗？ACSM综述中的负荷与次数关系，以及特异性原则，能怎样帮助解释这件事？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": "load_repetition_relation",
+        "requested_relation": "explanation",
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-ACSM-GETP-12",
+            "S1"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "load_repetition_relation"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "load_repetition_relation",
+            "label": "负荷和可完成次数的关系",
+            "subject": "resistance_training",
+            "outcome": "load_repetition_relation",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-16",
+      "question": "把一周的抗阻训练拆成更多天，就一定更长力量、也一定更增肌吗？请根据ACSM综述分别说明频次和总训练量的关系。",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-ACSM-GETP-12",
+            "S1"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": true,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "frequency"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "frequency:hypertrophy",
+            "label": "训练频次及其适用目标（肌肥大目标）",
+            "subject": "resistance_training",
+            "outcome": "frequency",
+            "requested_relation": "options",
+            "requested_goal": "hypertrophy"
+          },
+          {
+            "part_id": "frequency:strength",
+            "label": "训练频次及其适用目标（力量目标）",
+            "subject": "resistance_training",
+            "outcome": "frequency",
+            "requested_relation": "options",
+            "requested_goal": "strength"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-17",
+      "question": "读完ACSM综述，有人把结论写成“组间休息长短对力量和增肌都没有影响”。这句话应怎样修正，才能分别符合两种结局的证据？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-ACSM-GETP-12",
+            "S1"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": true,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "rest"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "rest:hypertrophy",
+            "label": "组间休息及其适用边界（肌肥大目标）",
+            "subject": "resistance_training",
+            "outcome": "rest",
+            "requested_relation": "options",
+            "requested_goal": "hypertrophy"
+          },
+          {
+            "part_id": "rest:strength",
+            "label": "组间休息及其适用边界（力量目标）",
+            "subject": "resistance_training",
+            "outcome": "rest",
+            "requested_relation": "options",
+            "requested_goal": "strength"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-18",
+      "question": "健康成年人如果没有采用线性或波动式周期训练，只是按需要逐步调整训练，就会错过力量和增肌收益吗？ACSM 2026对周期安排的价值和证据边界是怎样说的？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": "variation",
+        "requested_relation": "necessity",
+        "source_constraints": {
+          "source_ids": [
+            "S1"
+          ]
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "variation"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "variation",
+            "label": "变化和周期组织是否必要",
+            "subject": "resistance_training",
+            "outcome": "variation",
+            "requested_relation": "necessity"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-19",
+      "question": "两种训练方法比较得到P=0.18，研究者写“没有显著差异，因此两种方法效果一样”。Mazzolari等关于等效检验的文章为什么不赞成这样写，尤其在小样本研究中？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "practical_equivalence",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "practical_equivalence"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "practical_equivalence",
+            "label": "统计不显著与实用等效的区别",
+            "subject": "statistical_inference",
+            "outcome": "practical_equivalence",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-20",
+      "question": "准备比较两种训练干预时，我想直接用Cohen通用效应量分界当作“最小重要效应”，省去单独论证等效界值。Mazzolari等对此有什么提醒？界值应围绕什么来确定？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "partially_answered",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "equivalence_margin_basis",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": true,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "equivalence_margin_basis"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "equivalence_margin_basis",
+            "label": "等效界值与最小重要效应的依据",
+            "subject": "statistical_inference",
+            "outcome": "equivalence_margin_basis",
+            "requested_relation": "explanation"
+          },
+          {
+            "part_id": "statistical_calculation",
+            "label": "具体数据的统计计算",
+            "reason": "statistical_data_and_model_required"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-21",
+      "question": "做TOST时，针对下界的单侧检验通过了，但针对上界的没有通过，可以宣布等效吗？如果只报告一个整体P值，文章建议怎样得到它？",
+      "original_independent_verdict": "fail",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": "practical_equivalence",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "practical_equivalence"
+        ],
+        "issues": [
+          "subject_unresolved"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "practical_equivalence",
+            "label": "统计不显著与实用等效的区别",
+            "subject": null,
+            "outcome": "practical_equivalence",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-22",
+      "question": "按文中的TOST方法，单侧检验显著性水平设为0.05时，要看均值差的什么置信区间？如果点估计在等效界内，但区间有一端超出了界值，应怎样判断？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "practical_equivalence",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "practical_equivalence"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "practical_equivalence",
+            "label": "统计不显著与实用等效的区别",
+            "subject": "statistical_inference",
+            "outcome": "practical_equivalence",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-23",
+      "question": "一项研究通过了有依据的等效检验，作者想在摘要写“两种干预的真实效果完全相同”。这比统计结果多说了什么？怎样表述才符合这篇文章对实用等效的解释？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "practical_equivalence",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "practical_equivalence"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "practical_equivalence",
+            "label": "统计不显著与实用等效的区别",
+            "subject": "statistical_inference",
+            "outcome": "practical_equivalence",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-24",
+      "question": "Mazzolari等用来讲解等效检验的研究设计有什么前提？如果资料变成同一个人反复测量的训练记录，能不能把文中的平行组示例原样套过去？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "answered_with_support",
+      "initial_question_contract": {
+        "subject": "statistical_inference",
+        "outcome": "practical_equivalence",
+        "requested_relation": "explanation",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "practical_equivalence"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "practical_equivalence",
+            "label": "统计不显著与实用等效的区别",
+            "subject": "statistical_inference",
+            "outcome": "practical_equivalence",
+            "requested_relation": "explanation"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-25",
+      "question": "请帮我核对《NSCA体能训练概论》第4版关于平台期处置的原文、页码和加重规则。我手头没有提供这本书的正文；只凭目前这些来源，能查到哪一步？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "missing_source_content",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-NSCA-ESTC-5"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity",
+          "requested_edition_number": "4",
+          "requires_page_locator": true
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "capability_change",
+          "progression_options"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "capability_change",
+            "label": "可比表现与能力变化",
+            "subject": "resistance_training",
+            "outcome": "capability_change",
+            "requested_relation": "inference"
+          },
+          {
+            "part_id": "progression_options",
+            "label": "渐进训练的任务选择",
+            "subject": "resistance_training",
+            "outcome": "progression_options",
+            "requested_relation": "options"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-26",
+      "question": "我只有8次连续训练记录，想每练完一次就重新看区间：只要用了HAC，是否就能可靠地判定我进入平台期，并给出个人误判率？请说明现有统计方法文章能支持到哪里。",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "missing_answer_relation",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": "capability_change",
+        "requested_relation": "inference",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "capability_change"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "capability_change",
+            "label": "可比表现与能力变化",
+            "subject": "resistance_training",
+            "outcome": "capability_change",
+            "requested_relation": "inference"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-27",
+      "question": "最近我加大训练量后膝关节新出现疼痛。能否直接按健康成人抗阻训练综述判断是什么损伤，并告诉我减重百分之几、几天后恢复原负重？",
+      "original_independent_verdict": "pass",
+      "original_answer_status": "partially_answered",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": "symptoms",
+        "requested_relation": "scope",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": true,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "symptoms"
+        ],
+        "issues": [],
+        "required_answer_parts": [
+          {
+            "part_id": "symptoms",
+            "label": "症状及活动范围",
+            "subject": "resistance_training",
+            "outcome": "symptoms",
+            "requested_relation": "scope"
+          },
+          {
+            "part_id": "personal_numeric_request",
+            "label": "个人具体训练参数",
+            "reason": "personal_numeric_authority_unavailable"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-28",
+      "question": "我练了半年，想让你根据ACSM 2026综述算出我的“唯一最佳”每周组数和每组应留的精确RIR。现有证据能精确到这个程度吗？如果不能，仍有哪些训练方向可以参考？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "partially_answered",
+      "initial_question_contract": {
+        "subject": "resistance_training",
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [
+            "S1"
+          ]
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": true,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "effort_precision",
+          "volume"
+        ],
+        "issues": [
+          "multiple_possible_outcomes"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "effort_precision",
+            "label": "余力与努力程度的精度边界",
+            "subject": "resistance_training",
+            "outcome": "effort_precision",
+            "requested_relation": "precision"
+          },
+          {
+            "part_id": "volume",
+            "label": "训练组量及其适用边界",
+            "subject": "resistance_training",
+            "outcome": "volume",
+            "requested_relation": "options"
+          },
+          {
+            "part_id": "personal_numeric_request",
+            "label": "个人具体训练参数",
+            "reason": "personal_numeric_authority_unavailable"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-29",
+      "question": "我在一台腿举机上能做45公斤10次，换另一品牌腿举机时，能根据这份ACSM综述直接换算成多少公斤，并保证也能完成10次吗？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": null,
+        "requested_relation": null,
+        "source_constraints": {
+          "source_ids": [],
+          "issuer_source_ids": [
+            "CORE-ACSM-GETP-12",
+            "S1"
+          ],
+          "source_resolution": "issuer_scope_not_document_identity"
+        },
+        "specific_source_unresolved": false,
+        "personal_numeric_request": true,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [],
+        "issues": [
+          "subject_unresolved",
+          "outcome_unresolved"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "personal_numeric_request",
+            "label": "个人具体训练参数",
+            "reason": "personal_numeric_authority_unavailable"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    },
+    {
+      "case_id": "R5-30",
+      "question": "我昨天照综述的方向多做了一组，今天测出的1RM提高了。能不能据此确认就是多出的这一组对我有效，并算出以后每次这样做的成功概率？",
+      "original_independent_verdict": "partial",
+      "original_answer_status": "unresolved_question_target",
+      "initial_question_contract": {
+        "subject": null,
+        "outcome": "progression_options",
+        "requested_relation": "options",
+        "source_constraints": {},
+        "specific_source_unresolved": false,
+        "personal_numeric_request": false,
+        "compound_request": false,
+        "requested_population": null,
+        "source_comparison_request": false,
+        "statistical_calculation_request": false,
+        "requested_age": null,
+        "study_detail_request": false,
+        "nutrition_prescription_request": false,
+        "personal_forecast_request": false,
+        "possible_outcomes": [
+          "progression_options"
+        ],
+        "issues": [
+          "subject_unresolved"
+        ],
+        "required_answer_parts": [
+          {
+            "part_id": "progression_options",
+            "label": "渐进训练的任务选择",
+            "subject": null,
+            "outcome": "progression_options",
+            "requested_relation": "options"
+          }
+        ],
+        "resolution": "compositional_answer_parts_v1.4.2"
+      }
+    }
+  ]
+}

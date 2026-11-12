@@ -1,0 +1,58 @@
+{
+  "version": "repository-reference-selection-1.4.0",
+  "checked_at": "2026-11-12T01:33:53.252138+00:00",
+  "data_kind": "synthetic_repository_and_ui_cases_no_personal_data",
+  "scope": [
+    "STR-30",
+    "PRED-B0"
+  ],
+  "before": {
+    "tests": 4,
+    "failures": 4,
+    "evidence": "artifacts/v14/science/reference-target-selection-failing-before.xml",
+    "observed_gaps": [
+      "No explicit source selection reached STR-30 from Repository",
+      "Analysis offered no source choices",
+      "Mismatch selection had no source-binding audit",
+      "Actual analysis UI lacked reference selection"
+    ]
+  },
+  "after": {
+    "targeted_tests": 16,
+    "targeted_failures": 0,
+    "evidence": "artifacts/v14/science/reference-target-selection-verification.xml",
+    "related_regression_tests": 120,
+    "related_regression_failures": 0,
+    "regression_evidence": "artifacts/v14/science/reference-target-selection-regressions.xml",
+    "counts_are_overlapping_not_additive_with_final_suite": true,
+    "ruff": "passed_for_changed_reference_modules_shared_adapters_and_test"
+  },
+  "user_operation": [
+    "Open analysis: 选择历史任务与体重参考",
+    "Explicitly select an eligible historical reference; it fixes the intended repeated condition, protocol and load",
+    "Optionally select verified same-local-date body mass and explicitly confirm matching",
+    "Calculate and save; inspect IDs, raw units, normalization, dates, availability and download complete result",
+    "Changing the reference clears mass/confirmation and changing selection or input snapshot hides stale results"
+  ],
+  "implemented_boundaries": [
+    "All selected source IDs are resolved afresh from Repository facts visible before cutoff; unavailable, deleted, future and ineligible protocol inputs cannot be supplied through IDs",
+    "No automatic nearest mass, target repetitions, assumed bar mass or per-dumbbell effective load",
+    "New UI numerator identity is observed_complete_external_load, evidence_status descriptive; it is not measured 1RM",
+    "Explicit formula/domain-based e1RM research values remain research_only in the existing calculator path",
+    "B0 returns latest strictly comparable prior reference within the analysis window, including RIR or its interval; no personal calibration or guaranteed completion",
+    "Ratio and B0 expose denominator-specific coverage and excluded_n; source counts are not combined with pair counts",
+    "Same local calendar date plus user confirmation is a product alignment rule, not physiological equivalence"
+  ],
+  "new_personal_calibration_artifacts": 0,
+  "new_human_or_expert_approvals": 0,
+  "implementation_paths": [
+    "src/healthzip/analytics/reference_selection.py",
+    "src/healthzip/ui/reference_selection.py",
+    "src/healthzip/analytics/v13.py",
+    "src/healthzip/ui/analysis_page.py"
+  ],
+  "test_paths": [
+    "tests/integration/test_reference_target_selection.py"
+  ],
+  "manual": "docs/HealthZIP_使用手册.md"
+}

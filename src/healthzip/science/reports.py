@@ -143,8 +143,9 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                      "extrapolated_period_total": None}, "incompatible" if len(summaries) > 1 else None,
                     evidence_status="descriptive")
     if metric_id == "REPORT-RECOMMENDATION-FOLLOWUP":
-        return emit({"execution": strength_metric("STR-27", rows, window, context),
+        execution = strength_metric("STR-27", rows, window, context)
+        return emit({"execution": execution,
                      "summary": strength_metric("STR-28", rows, window, context),
-                     "followup_windows": context.get("followup_windows", []),
+                     "followup_windows": [item["followup"] for item in execution["value"] or [] if item.get("followup")],
                      "causal_effect": None}, evidence_status="descriptive")
     raise ValueError("unknown_report_metric")

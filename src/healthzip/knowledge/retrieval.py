@@ -256,6 +256,7 @@ def query(workbench, question: str, *, route: str | None = None, context: dict,
             sentences.append("已识别机构或来源名称，但尚未确定所指的具体文件；请使用完整书名、指南名称、版次或来源ID。其他来源不能替代所问文件。")
         elif retrieval["requested_material"]["status"] in {"unresolved_source", "unavailable", "partially_available"}:
             sentences.append("尚无与所要求来源、版次、章节、附录或表格一致的可核验依据；主文提及附件不等于已取得附件，其他文献不能替代指定正文或提供它的页码。")
+            sentences.append("要继续核对原文，需要取得与所问版次、章节一致且可合法核对的相关正文，先确认书目身份和原文定位，再审核具体主张；其他来源的解释应标明各自来源，不能改挂为这份资料的内容。")
         elif retrieval["requested_material"]["status"] == "partition_excluded":
             sentences.append("指定正文位于未选择的来源分区，可在“来源分区”中明确选择后查询。")
         elif any(issue in task["issues"] for issue in ("subject_unresolved", "outcome_unresolved")):

@@ -26,9 +26,11 @@ F06 原基线中，次数 v1 更改为时长 v2 后，历史另存模板意外�
 
 每个媒体对象单独核对 Creative Commons 许可 URL、作者、原作链接和作用域，代码许可证不授予媒体使用权。未知许可不下载；原图经过解码验证，视频检查实际 ISO BMFF/QuickTime 容器块完整性；损坏文件标记 failed。每份文件以内容 SHA256 保存，重复运行校验并复用缓存。当前实际状态、字节数和失败原因以 [coverage](../artifacts/v14/catalog/coverage.json) 与 [逐项媒体清单](../artifacts/v14/catalog/media-manifest.json) 为准，不能把计划下载数量当已下载数量。源视频合计约 3.57 GB。
 
-**2026-11-11 15:27:57 UTC 冻结交付快照：389/389 图片已缓存（覆盖282动作），75/78 视频 ready（覆盖46动作），2视频 pending、1视频 failed。** 后台下载继续运行，后续成功回执不改变本包冻结分母。78个视频的实际 HEAD `Content-Length` 合计3,570,623,823 bytes，与API size逐项一致；见 [HEAD核验](../artifacts/v14/catalog/video-head-verification.json)。尚无成功回执的片段不计ready。video4在15:12:44 UTC响应截断，保留部分文件用于经验证的续传；另两项仍下载。已安排本机一次后续续传，等待当前进程结束并取得原下载器锁后执行；此安排不是下载成功回执。正式离线包包含464个媒体对象、430个去重文件，2,531,174,191 bytes；纯文本包807,636 bytes。两包均含1004个公共动作，全部ZIP CRC、媒体引用路径和每个包内媒体SHA256检查通过；精确hash与分母见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。默认安装、覆盖清单、逐项媒体清单与离线包均使用同一冻结公共快照，ready对象的ID和hash一致。安装器只附加已验证媒体，因此默认库3个未完成视频仍显示pending，包和来源清单保留2pending+1failed；完整状态与边界见 [本轮交付刷新](../artifacts/v14/catalog/media-delivery-refresh.json)。
+**2026-11-12 01:06:09 UTC冻结交付快照：389/389图片已缓存（覆盖282动作），78/78视频ready（覆盖46动作），0项pending或failed。** 所有媒体对应2026-11-11已核实的完整来源快照；后续上游变化须重新取得完整manifest。78个视频的实际HEAD `Content-Length`合计3,570,623,823 bytes，与API size逐项一致，见 [HEAD核验](../artifacts/v14/catalog/video-head-verification.json)。原下载进程在2026-11-11 16:21:32 UTC结束；随后单次续传将先前截断的video4于16:26:32 UTC下载完成。进程均已退出、锁已释放，实际完成回执见 [下载完成核验](../artifacts/v14/catalog/media-download-completion-20261112.json)。
 
-75 个 ready 视频中，40 个来自此前缺少成功回执的本地完整 blob。恢复逐项验证唯一来源文件大小、本地全文件 SHA256 与完整容器，并在同一强 ETag 下比较来源首/中/尾各 64KiB 与完整 `moov`。**来源没有提供可核验的全文件 checksum；ETag 是不透明验证标记，所比较区间之外的远端字节未逐字节核对。** 不能把本地完整 hash 与范围一致冒充远端全文件 checksum 证明。40 项精确范围、来源身份、时间和限制见 [恢复回执](../artifacts/v14/catalog/cache-recovery.json)，媒体清单对应项也保留这一限制。
+正式离线包包含467个媒体对象、433个去重文件，3,693,916,328 bytes；纯文本包808,014 bytes。两包均含1004个公共动作，全部ZIP CRC、媒体引用路径和每个包内媒体SHA256检查通过，精确hash见 [离线包验收](../artifacts/v14/catalog/offline-package.json)。默认安装、覆盖报告、逐项媒体清单与离线包使用同一冻结公共快照，全部媒体对象的ID、ready状态及hash一致；此前3个未完成项均已补齐，见 [全媒体交付核验](../artifacts/v14/catalog/media-delivery-refresh.json)。
+
+78 个 ready 视频中，40 个来自此前缺少成功回执的本地完整 blob。恢复逐项验证唯一来源文件大小、本地全文件 SHA256 与完整容器，并在同一强 ETag 下比较来源首/中/尾各 64KiB 与完整 `moov`。**来源没有提供可核验的全文件 checksum；ETag 是不透明验证标记，所比较区间之外的远端字节未逐字节核对。** 不能把本地完整 hash 与范围一致冒充远端全文件 checksum 证明。40 项精确范围、来源身份、时间和限制见 [恢复回执](../artifacts/v14/catalog/cache-recovery.json)，媒体清单对应项也保留这一限制。
 
 视频保持来源原始编码，没有把转码说成原始字节。上游 54 个视频为 HEVC，24 个为 H.264；HEVC 需要支持该编码的浏览器或播放器。本次真实浏览器播放验收使用 `wger.video.21` 的 H.264 文件，已缓存后断网播放，实际解码为 640×352、时长约 15.93 秒。
 
@@ -87,7 +89,7 @@ Repository 统一执行 schema v4 事务；目录模块没有独立的全局版�
 
 后台下载写入独立公共目录库，每完成一个文件就提交成功回执；队列按来源体积从小到大调度。已验收完整文件直接复用，未完成文件保留 URL、来源验证标记和总长度。续传要求精确 Range、同一 ETag/Last-Modified 及总长度，响应不符时拒绝拼接。4 份既有片段共 40,370,176 bytes 已重新核对末尾 64KiB 与同一强 ETag，见 [片段核验](../artifacts/v14/catalog/partial-resume-verification.json)，不计入 ready。
 
-本轮15:27:57 UTC快照的默认健康库安装已挂载389图和75视频。后续复用新完成文件时运行专用工具；它先备份默认库，再通过 SQL 授权器限制访问范围：
+本轮2026-11-12 01:06:09 UTC快照的默认健康库安装已挂载389图和78视频，全部来源媒体已完成。将来同步新快照媒体时仍可运行专用工具；它先备份默认库，再通过 SQL 授权器限制访问范围：
 
 ```bash
 PYTHONPATH=src .venv/bin/python tools/v14_download_catalog_media.py --workers 4
@@ -99,7 +101,7 @@ PYTHONPATH=src .venv/bin/python tools/v14_package_browser.py
 
 下载工具使用文件锁阻止重复进程，逐文件成功后写日志；锁文件与 PID 记录本身不证明进程仍在运行，须用操作系统进程状态核实。
 
-13:42:37 UTC实时观察见 [媒体进度历史回执](../artifacts/v14/catalog/media-live-progress.json)：当时389图和61视频ready；14:32:35 UTC旧冻结包为71视频ready。本轮15:27:57 UTC新包再纳入4个完成视频，达到75ready。下载进程经操作系统核实持续运行，未重启；两项仍在下载，一项截断失败保留部分文件并安排现有进程结束后的单次续传。新包再次通过全新Chromium上下文的断网file路径加载和实际H.264播放，HTTP请求为0。离线包工具先冻结公共 SQLite 快照，再验证全部 ZIP CRC、媒体路径和每个包内媒体 SHA256，通过后替换正式包。后续live缓存可继续增长，交付ready计数以本次冻结包、默认安装和对应浏览器回执为准；不能把pending、failed或片段计为可用。
+2026-11-11 13:42:37 UTC的 [历史观察](../artifacts/v14/catalog/media-live-progress.json) 为389图和61视频ready；14:32:35与15:27:57 UTC旧冻结包分别为71和75视频ready。原进程完成其余两项后，调度在原进程退出、下载锁可取得时才执行一次续传，将截断的video4补齐。2026-11-12新冻结包包含全部78个视频，并再次通过全新Chromium上下文的断网file路径加载和实际H.264播放，HTTP请求为0。包内文件均为已验证完整字节，不包含partial片段。原失败、等待和恢复记录仍作为历史证据保留，不能把旧时点状态混作当前状态。
 
 本轮目录/续传及安装授权器共 24 项测试通过，见 [媒体回归](../artifacts/v14/catalog/media-cache-final-pytest.xml)。合成反例覆盖来源标记变化、范围/总长度不符时保留原片段、私人 SQL 读写拒绝和 WAL 备份；真实浏览器播放另见前述回执。
 

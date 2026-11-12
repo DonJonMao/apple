@@ -11,8 +11,13 @@ from healthzip.db.temporal_schema import current_source_rows, samples_as_of
 from healthzip.training.service import TrainingService
 
 
-def _outcome(recommendation, latest, records):
+def _outcome(recommendation, latest, records, *, cutoff_time=None):
     """Evaluate exactly the frozen task; matching repetitions alone is insufficient."""
+    from healthzip.analytics.followup import (
+        execution_details,
+        followup_observations,
+        load_at_target_unit,
+    )
     from healthzip.science.contracts import finite, instant
     from healthzip.science.semantics import flatten_record
     from healthzip.science.strength import reference_rows
@@ -52,17 +57,21 @@ def _outcome(recommendation, latest, records):
             observed["_event_end"] = observed.get("ended_at")
             referenced.append(observed)
     reference = reference_rows(referenced, {})
-    observed = reference[0] if len(reference) == 1 and latest.get("execution_state") == "executed" else {}
-    expected_unit = change.get("load_unit")
+    observed = reference[0] if len(reference) == 1 else {}
     def known_equal(first, second):
         return None if first in (None, "", "unknown") or second in (None, "", "unknown") else first == second
-    checks = [known_equal(observed.get("condition_key"), condition.get("condition_key"))]
+    checks = {"physical_condition": known_equal(observed.get("condition_key"), condition.get("condition_key"))}
+    normalized_load = load_at_target_unit(observed, change)
     if load is not None:
-        checks.extend((known_equal(observed.get("load_unit"), expected_unit),
-                       known_equal(observed.get("load_basis"), change.get("load_basis"))))
-    checks.extend((known_equal(observed.get("quality_status"), "acceptable"),
-                   known_equal(observed.get("status"), "completed")))
-    quality_comparable = False if False in checks else None if None in checks else True
+        checks.update(load_unit=True if normalized_load["value"] is not None else None,
+                      load_basis=known_equal(observed.get("load_basis"), change.get("load_basis")))
+    checks.update(quality=known_equal(observed.get("quality_status"), "acceptable"),
+                  completion=known_equal(observed.get("status"), "completed"))
+    quality_comparable = False if False in checks.values() else None if None in checks.values() else True
+    details = execution_details(targets, change, referenced, observed, quality_comparable=quality_comparable,
+                                records=records, recommendation=recommendation)
+    followup = followup_observations(recommendation, latest, records, observed,
+        cutoff_time=cutoff_time or latest.get("recorded_at") or recommendation["created_at"])
     return {"recommendation_id": recommendation["candidate_id"],
             "strategy": recommendation["input_snapshot"].get("strategy"),
             "task_id": recommendation["input_snapshot"].get("advice_context", {}).get("task_id"),
@@ -70,12 +79,14 @@ def _outcome(recommendation, latest, records):
                               for p in recommendation["input_snapshot"].get("theory_authority", {}).get("principles", [])] or None,
             "adoption": {"accepted": "adopted", "modified": "partially_adopted", "declined": "not_adopted"}.get(latest.get("user_choice")),
             "execution_state": latest.get("execution_state"), "nonexecution_reason": latest.get("nonexecution_reason"),
-            "frozen_targets": targets, "actual": {k: finite(observed.get(k)) for k in targets},
+            "frozen_targets": targets, "actual": {k: normalized_load["value"] if k == "load_value" else finite(observed.get(k)) for k in targets},
             "quality_comparable": quality_comparable,
+            "comparison_reason_codes": [key + ("_incompatible" if value is False else "_unknown")
+                                        for key, value in checks.items() if value is not True],
             "created_at": recommendation["created_at"], "feedback_missing": not bool(latest),
             "available_at": latest.get("recorded_at") or recommendation["created_at"],
             "event_end": latest.get("occurred_at") or recommendation["created_at"],
-            "source_record_ids": latest.get("actual_record_ids", [])}
+            "source_record_ids": latest.get("actual_record_ids", []), **details, "followup": followup}
 
 
 def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, window_end=None,
@@ -158,7 +169,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         feedback = [x for x in recommendation["feedback"]
                     if datetime.fromisoformat(x["recorded_at"]) <= bound and datetime.fromisoformat(x["occurred_at"]) <= bound]
         latest = feedback[-1] if feedback else {}
-        outcomes.append(_outcome(recommendation, latest, records))
+        outcomes.append(_outcome(recommendation, latest, records, cutoff_time=cutoff_time))
     return records, {"sessions": sessions, "recommendation_outcomes": outcomes, "data_version": service.data_version(),
                      "query_plan": {"window_start": window_start, "window_end": window_end,
                                     "canonical_types": canonical_types, "source_rows_returned": source_counts,
@@ -185,7 +196,7 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
         value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
         return value
-    return cached(repo, "canonical", arguments, compute) if use_cache else compute()
+    return cached(repo, "canonical-reference-selection-1.4.0", arguments, compute) if use_cache else compute()
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
@@ -222,16 +233,33 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     merged = {**inherited, "plan_snapshot": {"sets": [s for p in plans for s in p["sets"]]} if plans else None, **(context or {})}
     metrics = evaluate_all(records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
                            window_end=end.isoformat(), context={**merged, "timezone": timezone_name})
+    from healthzip.analytics.reference_selection import (
+        reference_options,
+        selected_reference_metrics,
+    )
+    window = Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name)
+    options = reference_options(records, window)
+    selection_audit = None
+    if context and isinstance(context.get("reference_selection"), dict):
+        selected_metrics, selection_audit = selected_reference_metrics(
+            records, window, context["reference_selection"], data_version=inherited["data_version"])
+        metrics.update(selected_metrics)
     strength_tasks = {}
     for metric_id, metric in metrics.items():
         for task in metric.get("task_results", []):
             entry = strength_tasks.setdefault(task["task_id"], {k: v for k, v in task.items() if k != "metric"} | {"metrics": {}})
             entry["metrics"][metric_id] = task["metric"]
+    if selection_audit and selection_audit.get("reference"):
+        selected_task = strength_tasks.get(selection_audit["reference"]["task_id"])
+        if selected_task:
+            for metric_id in ("STR-30", "PRED-B0"):
+                selected_task["metrics"][metric_id] = metrics[metric_id]
     data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged}, sort_keys=True, default=str).encode()).hexdigest()
     return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
+            "window_days": window_days, "reference_options": options, "reference_selection": selection_audit,
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.1",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.2",
             "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}

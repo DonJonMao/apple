@@ -710,7 +710,8 @@
       "planned_behavior_reviewed": [
         "策略菜单由用户许可和已审核指南规则共同约束",
         "在数字候选前检查历史/当前停止原因、疼痛、质量与未知",
-        "不良或未知适用性保留可执行非数值信息收集/调整讨论"
+        "不良或未知适用性保留可执行非数值信息收集/调整讨论",
+        "组数/场次间隔讨论通过真实解释权限和实际记录链保存，不借用数值候选权限"
       ],
       "targeted_acceptance_reviewed": [
         "历史 pain_flag 或 stop_reason=pain 或技术受限分别不能给更重负荷",
@@ -722,7 +723,10 @@
       "runtime_unit": "结构化建议",
       "empty_input_data_status": "partial",
       "implementation_paths": [
-        "src/healthzip/science/strength.py"
+        "src/healthzip/science/strength.py",
+        "src/healthzip/discussion.py",
+        "src/healthzip/advice.py",
+        "src/healthzip/ui/recommendation_page.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-26-T01]",
@@ -733,10 +737,18 @@
         "tests/science/test_v14_science.py::test_optional_trial_rir_preserves_unknown_and_blocks_invalid_effort_target",
         "tests/science/test_v14_science.py::test_repetition_trial_uses_only_explicit_higher_user_upper_target",
         "tests/science/test_v14_science.py::test_repetition_trial_current_symptoms_or_unknown_block_numeric_target",
-        "tests/integration/test_v14_choice_validation.py::test_repetition_choice_cannot_silently_change_load"
+        "tests/integration/test_v14_choice_validation.py::test_repetition_choice_cannot_silently_change_load",
+        "tests/integration/test_v14_bounded_discussions.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
+      "discussion_verification": {
+        "failing_before": "artifacts/v14/science/bounded-discussions-failing-before.xml",
+        "fixed": "artifacts/v14/science/bounded-discussions-verification.xml",
+        "authority": "source_explanation_only",
+        "numerical_permission_added": false,
+        "real_personal_efficacy_verified": false
+      }
     },
     {
       "metric_id": "STR-27",
@@ -756,14 +768,41 @@
       "runtime_unit": "类别与原始差值",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/strength.py"
+        "src/healthzip/science/strength.py",
+        "src/healthzip/analytics/followup.py",
+        "src/healthzip/analytics/v13.py",
+        "src/healthzip/training/followup.py",
+        "src/healthzip/ui/followup_report.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-27-T01]",
-        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_differences_and_same_load_followup",
+        "tests/integration/test_v14_followup_report.py::test_followup_respects_asof_revisions_and_deletion",
+        "tests/integration/test_v14_followup_report.py::test_followup_window_keeps_old_candidate_in_later_calendar_report",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_load_unit_conversion_matches_success_and_display",
+        "tests/integration/test_v14_followup_report.py::test_incompatible_load_units_keep_execution_unknown",
+        "tests/integration/test_v14_followup_report.py::test_visible_followup_report_shows_target_actual_and_later_difference",
+        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
+      "supplemental_completion_audit": {
+        "date": "2026-11-12",
+        "algorithm_version": "healthzip-science-1.4.2",
+        "finding": "Execution counts did not implement target/actual differences or production follow-up window observations.",
+        "implementation": "Explicit prospective user window; Repository-visible revisions; immutable candidate; raw and normalized units; same-condition/protocol/load later observations; separate execution/followup states; no causal inference.",
+        "before_evidence": "artifacts/v14/science/followup-gap-before-20261112.json",
+        "after_evidence": [
+          "artifacts/v14/science/followup-completion-after-20261112.json",
+          "artifacts/v14/science/followup-unit-conversion-20261112.json"
+        ],
+        "verification_artifacts": [
+          "artifacts/v14/science/followup-final-tests-20261112.xml",
+          "artifacts/v14/science/followup-units-final-tests-20261112.xml"
+        ],
+        "independent_scientific_validation_count": 0
+      }
     },
     {
       "metric_id": "STR-28",
@@ -781,14 +820,41 @@
       "runtime_unit": "比例 / 差值 / 区间",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/strength.py"
+        "src/healthzip/science/strength.py",
+        "src/healthzip/analytics/followup.py",
+        "src/healthzip/analytics/v13.py",
+        "src/healthzip/training/followup.py",
+        "src/healthzip/ui/followup_report.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-28-T01]",
-        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_differences_and_same_load_followup",
+        "tests/integration/test_v14_followup_report.py::test_followup_respects_asof_revisions_and_deletion",
+        "tests/integration/test_v14_followup_report.py::test_followup_window_keeps_old_candidate_in_later_calendar_report",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_load_unit_conversion_matches_success_and_display",
+        "tests/integration/test_v14_followup_report.py::test_incompatible_load_units_keep_execution_unknown",
+        "tests/integration/test_v14_followup_report.py::test_visible_followup_report_shows_target_actual_and_later_difference",
+        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
+      "supplemental_completion_audit": {
+        "date": "2026-11-12",
+        "algorithm_version": "healthzip-science-1.4.2",
+        "finding": "Execution counts did not implement target/actual differences or production follow-up window observations.",
+        "implementation": "Explicit prospective user window; Repository-visible revisions; immutable candidate; raw and normalized units; same-condition/protocol/load later observations; separate execution/followup states; no causal inference.",
+        "before_evidence": "artifacts/v14/science/followup-gap-before-20261112.json",
+        "after_evidence": [
+          "artifacts/v14/science/followup-completion-after-20261112.json",
+          "artifacts/v14/science/followup-unit-conversion-20261112.json"
+        ],
+        "verification_artifacts": [
+          "artifacts/v14/science/followup-final-tests-20261112.xml",
+          "artifacts/v14/science/followup-units-final-tests-20261112.xml"
+        ],
+        "independent_scientific_validation_count": 0
+      }
     },
     {
       "metric_id": "STR-29",
@@ -818,29 +884,41 @@
     },
     {
       "metric_id": "STR-30",
-      "revision_action": "集成与保持",
+      "revision_action": "补齐真实Repository到显式选择页面的来源绑定入口，并保留描述性身份",
       "planned_behavior_reviewed": [
         "体重输入使用通过单位验证且可比的每日记录",
-        "标注体重日期、来源与分子是实测或公式研究值"
+        "标注体重日期、来源与分子是实测或公式研究值",
+        "明确选择历史参考组及同本地日体重来源并确认，不自动使用最近体重",
+        "新入口分子是实录完整外部负荷，非实测1RM；日期、原始单位和来源ID保留"
       ],
       "targeted_acceptance_reviewed": [
         "负荷 kg 与体重 kg 后才相除",
         "lb 转换一致",
         "缺体重/有效负荷时未知",
-        "e1RM 研究值不会被比值包装成已验证能力"
+        "e1RM 研究值不会被比值包装成已验证能力",
+        "真实Apple ZIP体重与训练记录经分析UI选择、计算并持久保存",
+        "缺体重/缺总负荷时valid_n与coverage为0/1，excluded_n为1",
+        "改变选择隐藏旧结果，选择参考变更时清除体重与确认",
+        "迟到、未来、删除、协议未知及无效单位记录不可被ID选择绕过"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "kg/kg",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/strength.py"
+        "src/healthzip/science/strength.py",
+        "src/healthzip/analytics/reference_selection.py",
+        "src/healthzip/ui/reference_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-30-T01]",
-        "tests/science/test_v14_science.py::test_metric_matrix_relative_strength_requires_verified_mass_and_numerator_unit"
+        "tests/science/test_v14_science.py::test_metric_matrix_relative_strength_requires_verified_mass_and_numerator_unit",
+        "tests/integration/test_reference_target_selection.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The 16 synthetic Repository/adapter/UI cases cover the specified source-binding operations and boundaries; they do not establish personal predictive calibration, physiological load equivalence or causal training benefit.",
+      "integration_verification_ref": "artifacts/v14/science/reference-target-selection-verification.xml",
+      "failing_before_ref": "artifacts/v14/science/reference-target-selection-failing-before.xml"
     },
     {
       "metric_id": "STATE-SLEEP-MAIN",
@@ -1588,28 +1666,39 @@
     },
     {
       "metric_id": "PRED-B0",
-      "revision_action": "保持并接入统一任务",
+      "revision_action": "补齐真实Repository到显式选择页面的来源绑定入口，并保留描述性身份",
       "planned_behavior_reviewed": [
         "与动作/版本/负荷/协议和截止时间快照一致",
-        "无可比数据返回无预测，描述历史不伪装成功保证"
+        "无可比数据返回无预测，描述历史不伪装成功保证",
+        "用户明确选择既有参考决定动作、条件、协议和归一化负荷；目标只含声明字段",
+        "最近严格可比历史回显次数与RIR/区间、记录日期和可见时间，保持descriptive"
       ],
       "targeted_acceptance_reviewed": [
         "当前目标变负荷时不可拿旧负荷次数当同任务预测",
         "预测前不可见的补录不泄漏",
-        "不能以默认 8 次填冷启动"
+        "不能以默认 8 次填冷启动",
+        "不同负荷的最新记录不会覆盖所选负荷的历史基线",
+        "不选择时不填默认目标或次数；来源不可用时无结果",
+        "真实UI选择、保存、变更失效以及顶层/任务层结果一致"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "reps; RIR separately",
       "empty_input_data_status": "insufficient",
       "implementation_paths": [
-        "src/healthzip/science/prediction.py"
+        "src/healthzip/science/prediction.py",
+        "src/healthzip/analytics/reference_selection.py",
+        "src/healthzip/ui/reference_selection.py",
+        "src/healthzip/analytics/v13.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T01]",
-        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T02]"
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T02]",
+        "tests/integration/test_reference_target_selection.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The 16 synthetic Repository/adapter/UI cases cover the specified source-binding operations and boundaries; they do not establish personal predictive calibration, physiological load equivalence or causal training benefit.",
+      "integration_verification_ref": "artifacts/v14/science/reference-target-selection-verification.xml",
+      "failing_before_ref": "artifacts/v14/science/reference-target-selection-failing-before.xml"
     },
     {
       "metric_id": "PRED-B1",
@@ -1796,15 +1885,42 @@
       "runtime_unit": "categorical; outcome units",
       "empty_input_data_status": "partial",
       "implementation_paths": [
-        "src/healthzip/science/reports.py"
+        "src/healthzip/science/reports.py",
+        "src/healthzip/analytics/followup.py",
+        "src/healthzip/analytics/v13.py",
+        "src/healthzip/training/followup.py",
+        "src/healthzip/ui/followup_report.py"
       ],
       "passed_test_refs": [
         "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T01]",
         "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T02]",
-        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators"
+        "tests/science/test_v14_science.py::test_metric_matrix_followup_strata_keep_unknown_and_unique_candidate_denominators",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_differences_and_same_load_followup",
+        "tests/integration/test_v14_followup_report.py::test_followup_respects_asof_revisions_and_deletion",
+        "tests/integration/test_v14_followup_report.py::test_followup_window_keeps_old_candidate_in_later_calendar_report",
+        "tests/integration/test_v14_followup_report.py::test_repository_execution_load_unit_conversion_matches_success_and_display",
+        "tests/integration/test_v14_followup_report.py::test_incompatible_load_units_keep_execution_unknown",
+        "tests/integration/test_v14_followup_report.py::test_visible_followup_report_shows_target_actual_and_later_difference",
+        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
-      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit."
+      "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
+      "supplemental_completion_audit": {
+        "date": "2026-11-12",
+        "algorithm_version": "healthzip-science-1.4.2",
+        "finding": "Execution counts did not implement target/actual differences or production follow-up window observations.",
+        "implementation": "Explicit prospective user window; Repository-visible revisions; immutable candidate; raw and normalized units; same-condition/protocol/load later observations; separate execution/followup states; no causal inference.",
+        "before_evidence": "artifacts/v14/science/followup-gap-before-20261112.json",
+        "after_evidence": [
+          "artifacts/v14/science/followup-completion-after-20261112.json",
+          "artifacts/v14/science/followup-unit-conversion-20261112.json"
+        ],
+        "verification_artifacts": [
+          "artifacts/v14/science/followup-final-tests-20261112.xml",
+          "artifacts/v14/science/followup-units-final-tests-20261112.xml"
+        ],
+        "independent_scientific_validation_count": 0
+      }
     }
   ],
   "verification_test_cases_scope": "Original scoped science run; subsequent item-level regression evidence is listed per metric. Final unique repository test count is separate.",

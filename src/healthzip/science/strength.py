@@ -617,6 +617,20 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                      "expected_success": None, "reviewed_principle_versions": [{"id": p.get("id", p.get("theory_id")), "version": p["version"]} for p in reviewed]}, evidence_status="definition_based",
                     reasons=["user_plan_candidate_not_guaranteed_success_or_optimal_prescription"])
     if code == 26:
+        discussion = context.get("reviewed_discussion")
+        if (discussion and discussion.get("strategy") in {"discuss_sets", "discuss_interval"}
+                and discussion.get("strategy") in context.get("allowed_trial_actions", [])):
+            source = discussion.get("source_explanation", {})
+            supported = (discussion.get("authority") == "source_explanation_only"
+                         and source.get("answer_status") == "answered_with_support"
+                         and bool(source.get("claims")) and bool(source.get("citations")))
+            return emit({"candidates": [discussion["strategy"]] if supported else [],
+                         "discussion": discussion, "task_trial": None, "quantified_change": None,
+                         "personal_optimum": None, "reviewed_principle_ids": []},
+                        "valid" if supported else "insufficient",
+                        reasons=["source_explanation_only_no_numerical_permission" if supported
+                                 else "eligible_source_explanation_required",
+                                 "personal_intervention_effect_unvalidated"])
         if applicability["applicable"] is not True:
             return emit({"candidates": ["maintain_and_collect_reference"], "task_trial": None,
                          "quantified_change": None, "review_options": ["review_symptoms_and_technique", "clarify_unknown_observations"]}, "partial",
@@ -722,13 +736,29 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                                "strategy": row.get("strategy"), "task_id": row.get("task_id"), "rule_versions": row.get("rule_versions"),
                                "execution_state": row.get("execution_state"),
                                "short_term_success": bool(met) if complete else None,
-                               "reason_codes": ["execution_not_confirmed"] if not executed else ["task_condition_or_quality_unknown"] if not quality_known else [],
-                               "nonexecution_reason": row.get("nonexecution_reason"), "complete": complete})
+                               "reason_codes": (["execution_not_confirmed"] if not executed else ["task_condition_or_quality_unknown"] if not quality_known else [])
+                                   + row.get("comparison_reason_codes", []),
+                               "nonexecution_reason": row.get("nonexecution_reason"), "complete": complete,
+                               "frozen_targets": targets, "actual": actual,
+                               "target_comparisons": row.get("target_comparisons", []),
+                               "actual_observations": row.get("actual_observations", []),
+                               "execution_change": row.get("execution_change"),
+                               "execution_change_reason_codes": row.get("execution_change_reason_codes", []),
+                               "followup": row.get("followup"), "feedback_missing": row.get("feedback_missing"),
+                               "report_membership": row.get("report_membership")})
             return emit(values or None, "valid" if values else "insufficient", count_domain="recommendations",
                         valid_n=len(values), total_n=len(outcomes))
         values = strength_metric("STR-27", rows, window, context)["value"] or []
         responding = [r for r in values if r["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
         complete = [r for r in values if r["short_term_success"] is not None]
+        def observation_counts(group):
+            return {"execution_numerator": sum(r.get("execution_state") == "executed" for r in group),
+                    "execution_denominator": sum(r.get("execution_state") in {"executed", "partially_executed", "not_executed"} for r in group),
+                    "execution_states": {state: sum((r.get("execution_state") or "unknown") == state for r in group)
+                    for state in ("executed", "partially_executed", "not_executed", "unknown")},
+                    "followup_states": {state: sum((r.get("followup") or {}).get("status", "not_planned") == state for r in group)
+                    for state in ("not_planned", "pending", "observed", "no_comparable_observation", "not_executed", "execution_unconfirmed", "unavailable")},
+                    "comparable_followup_observations": sum(len((r.get("followup") or {}).get("observations", [])) for r in group)}
         groups, strata = defaultdict(list), []
         for item in values:
             identity = {key: item.get(key) for key in ("strategy", "task_id", "rule_versions")}
@@ -741,10 +771,12 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                            "counts": {"adoption_numerator": sum(item["adoption"] == "adopted" for item in replied),
                                       "adoption_denominator": len(replied), "unanswered": len(group) - len(replied),
                                       "success_numerator": sum(item["short_term_success"] for item in known),
-                                      "success_denominator": len(known), "missing_outcomes": len(group) - len(known)}})
+                                      "success_denominator": len(known), "missing_outcomes": len(group) - len(known),
+                                      **observation_counts(group)}})
         return emit({"adoption_numerator": sum(r["adoption"] == "adopted" for r in responding), "adoption_denominator": len(responding),
                      "unanswered": len(values) - len(responding), "success_numerator": sum(r["short_term_success"] for r in complete),
-                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete), "strata": strata},
+                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete), "strata": strata,
+                     **observation_counts(values)},
                     "valid" if values else "insufficient", count_domain="recommendations", total_n=len(values), valid_n=len(complete))
     if code == 29:
         return emit({"fields": {k: {"numerator": sum(r.get(k) is not None for r in rows), "denominator": total}

@@ -21,11 +21,23 @@
 
 ## 接口与集成
 
+`discuss_sets` / `discuss_interval` 现在通过独立的一般解释路径工作：明确选择主题后，在核心分区核对实际可用的已审来源，冻结说明、逐主张引用、目标版本与同条件记录；训练间隔指场次分布，不混同组间休息。页面显示明确计划的工作组、历史工作父组数、已记录场次起点间隔和可选用户时间约束。最近365天只是产品观察窗口，未记录训练保持未知，不能据此估算个人最佳组数或恢复天数。
+
+一般讨论不需要数值候选权限，也不产生数值任务、成功概率或个人处方；当前疼痛/未知仍保留在数值任务限制里。来源撤回后当前使用须复核，冻结记录不改；无可用解释时保留实际事实并明确缺项。讨论不能经“修改后采用”升级为数值任务。`test_v14_bounded_discussions.py` 的真实Service/页面冻结、采纳反馈、重开、撤回及负面测试已通过；修前4失败与修后12通过分别存于 `bounded-discussions-failing-before.xml` 和 `bounded-discussions-verification.xml`，均为隔离合成输入，不是个人训练效果验证。
+
 `context.current_session_observations` 为当前相关训练事实；候选结果的 `reference_record_ids` 和 `current_session_record_ids` 分开保存。根集成负责 AdviceContext、冻结后使用状态与页面行为。
 
 `MetricResult.series_results[]` 提供 `outcome_series_id`、`task_id`、`normalized_load`、`normalized_unit`、`load_basis`、`outcome_unit`、`observation_segment`、`source_record_ids`、`first_observed_at`、`last_observed_at`、`data_snapshot_hash`、`input_data_hash` 与内层 `metric`。`context.outcome_series_id` 选择单层，`series_contexts[id]` 提供该层上下文。新页面登记 `allocate_look(..., outcome_series_id=...)` 后由相同系列核验，换负荷或截止时间不能复用旧 receipt。旧单层调用的既有 receipt 兼容，但新集成必须显式绑定系列。
 
 STR28 `strata` 按 strategy/task_id/rule_versions 保存分母与未知；缺元数据保留空值，不编造分层身份。多次反馈以候选身份选择 cutoff 前最新可见记录。
+
+2026-11-12 的完成审计发现：原 STR27/28 只输出执行类别与成功计数，REPORT-RECOMMENDATION-FOLLOWUP 的 `followup_windows` 没有生产者，未实现矩阵要求的原始观察差值。修前合成复现保存在 `artifacts/v14/science/followup-gap-before-20261112.json`，没有以空因果字段或旧通过用例替代完成证据。
+
+现在候选表单可在保存前声明带时区的后续起止时间，冻结为 `followup_window={start,end,timezone,closure,origin,declared_at}`；起点不得早于候选创建，使用半开区间，未声明保持空值。原有字符串窗口保留可读，但不当作预先声明。Repository 的截止前可见修订同时提供执行参考、冻结目标逐项比较和后续场次参考。报告显示目标、实做、单位、负荷口径及相对目标上下界的差值；kg/lb 在明确口径下精确换算并保留原录值与转换身份，不可换算时保持未知。区间 RIR 不改写成点值。
+
+后续记录须在用户窗口内、晚于执行且来自另一场次；条件、协议、负荷层和有效参考资格匹配才给出观察差值，换器械、换负荷与质量问题列出排除原因。未执行、部分或未知执行、窗口待观察、已观察及窗口结束无可比记录分别计数；采纳、明确执行及完整目标结果使用各自分母。跨月候选按 `predeclared_followup_overlap` 明确进入窗口重叠的报告，未伪造新的事件时间。新修订或删除只影响相应可见截止时点；较晚派生快照不能复用到较早截止点。`causal_effect` 始终为空，完成或后续改善不代表策略导致改善。
+
+当前新增语义统一使用 `healthzip-science-1.4.2`、`healthzip-v1.4.2` 和 `analysis-cache-v1.4.2`，旧冻结结果及旧验证工件保持原身份。实际 Repository 与页面验证见 `tests/integration/test_v14_followup_report.py`、`followup-final-tests-20261112.xml`（220项相关回归）及其后单位一致性补充 `followup-units-final-tests-20261112.xml`（17项）；前后结果见 `followup-completion-after-20261112.json`、`followup-unit-conversion-20261112.json`。这些均为实现作者的合成软件证据，独立科学验证分母为0。
 
 知识原则的 `permitted_actions` 与用户请求动作取交集；STR25 必须显式有 `double_progression`，STR26 必须有对应的具体动作。缺失字段不继承宽泛 capability 的全部权限；每个输出动作列出对应规则版本。隔离正例明确声明测试动作许可，不修改生产规则的审阅事实。
 

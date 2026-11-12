@@ -89,6 +89,14 @@ def main():
     })
 
     contract = read("Apple_v1.4_Codex_Execution_Pack/acceptance_manifest.json")
+    catalog = read("artifacts/v14/catalog/coverage.json")
+    media_totals = {item["media_type"]: item["objects"] for item in catalog.get("media_totals", [])}
+    media_ready = {kind: sum(item["count"] for item in catalog.get("media", [])
+                             if item["media_type"] == kind and item["fetch_status"] == "ready")
+                   for kind in media_totals}
+    media_complete = bool(media_totals) and media_ready == media_totals and not any(
+        item["count"] for item in catalog.get("media", []) if item["fetch_status"] != "ready")
+    media_summary = "; ".join(f"{kind}: {media_ready[kind]}/{count} ready" for kind, count in sorted(media_totals.items()))
     cases = []
     for original in contract["bug_cases"] + contract["feature_cases"]:
         identifier = original["id"]
@@ -97,13 +105,13 @@ def main():
         limits = "See item-level evidence; software checks do not establish professional review or scientific efficacy."
         if identifier in {"KB-05", "E2E-09"}:
             state = "partial_semantic_coverage_independent_review_failed"
-            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric; round 4 10/24 pass, 6 partial, 8 fail. Subsequent replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
+            limits = "Frozen independent AI rounds retained: 3/18; round 2 4/20; round 3 3/19 scorable plus one invalid rubric; round 4 10/24 pass, 6 partial, 8 fail; round 5 8/30 pass, 15 partial, 7 fail (87 points: 41 pass, 15 partial, 31 fail). Subsequent replays are development verification, not a new independent pass rate. See docs/v14_knowledge.md."
         elif identifier in {"KB-01", "KB-02", "KB-03"}:
             state = "software_contract_verified_actual_textbook_body_gaps"
             limits = "Edition/chapter/rights gates work; paid source chapters not acquired."
         elif identifier == "CAT-10":
-            state = "local_images_verified_video_cache_partial"
-            limits = "All 389 images cached; 78 video metadata objects, ready/pending counts in coverage.json; background downloads are not counted as ready."
+            state = "local_media_cache_complete_for_snapshot" if media_complete else "local_media_cache_partial_for_snapshot"
+            limits = media_summary + ". Snapshot and readiness counts are from coverage.json; local verification does not establish remote whole-file checksums or universal codec support."
         elif identifier in {"CAT-09", "CAT-17"}:
             limits = "Chinese upstream/seed/AI draft identities and anatomical review status remain distinct; no professional mapping or stimulus weights inferred."
         cases.append({"id": identifier, "scenario": original["scenario"], "expected": original["expected"],
@@ -157,7 +165,8 @@ def main():
         "scope_limits": ["Synthetic health and training inputs; no private full ZIP benchmark",
                          "Real public-source acquisition and truthful AI-assisted reviews; no independent expert approval",
                          "Paid textbook bodies, four method/calibration rule topics and parts of explanatory scope/free-question semantics remain partial; record rules are not scientific evidence",
-                         "Video cache partial; ready objects only in offline package"],
+                         ("Catalog media cache complete for this snapshot; remote whole-file checksums and universal codec support are not established"
+                          if media_complete else "Catalog media cache partial; ready objects only in offline package")],
     }
     write(OUT / "final-manifest.json", manifest)
     print(json.dumps({"pytest": totals, "metrics": len(metrics), "acceptance_cases": len(cases)}))

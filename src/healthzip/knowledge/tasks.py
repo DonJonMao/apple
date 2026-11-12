@@ -111,20 +111,26 @@ def request_constraints(question, context):
         choose = bool(re.search(r"多少|几次|几组|几天|多久|多长|最优|最好|精确|\b(?:how (?:much|many|long)|optimal|best|exact(?:ly)?)\b|\bwhich\b.{0,30}\b(?:rest|interval|duration|load|weight)\b", clause))
         numeric |= personal and quantity and choose
         numeric |= bool(re.search(r"(?:应该|该用|能否|可不可以|可以|建议|\bshould\b|\bcan i\b).{0,20}\d+(?:\.\d+)?\s*(?:公斤|千克|磅|kg|lbs?)(?![a-z])", clause))
-    compound = bool(re.search(r"两件事|分别|一方面.*另一方面|(?:再|然后)\s*(?:给我|帮我|为我)?\s*(?:计算|算出|求出|列出|选择)|\band\s+then\b", semantic))
+    compound = bool(re.search(r"两件事|分别(?=.{0,8}(?:回答|解释|说明|讨论|计算|给出))|一方面.*另一方面|(?:再|然后)\s*(?:给我|帮我|为我)?\s*(?:计算|算出|求出|列出|选择)|\band\s+then\b", semantic))
     comparison = bool(re.search(r"比较|对比|对照|区别|差异|变化|变了|\b(?:compar\w*|difference\w*|changed|versus|vs)\b", text)
                       and (len(set(re.findall(r"\b(?:19|20)\d{2}\b", text))) > 1
                            or re.search(r"(?:不同|两|各|旧|新).{0,5}(?:来源|版本|指南|版次)|(?:source|edition|guideline|paper)s\b", text)))
     statistical_calculation = bool(re.search(r"计算|算出|求出|\b(?:calculate|compute|estimate)\b", text)
-                                   and re.search(r"统计量|p值|等效|置信区间|斜率|协方差|标准误|\b(?:statistic|equivalence|p-value|confidence interval|slope|covariance|standard errors?)\b", text))
+                                   and re.search(r"统计量|p值|等效|置信区间|斜率|协方差|标准误|成功概率|误判率|错误率|\b(?:statistic|equivalence|p-value|confidence interval|slope|covariance|standard errors?)\b", text))
     statistical_calculation |= bool(covariance_method_context(text, context.get("named_source_task_subjects"))
         and re.search(r"我|个人|\b(?:my|me|individual)\b", text)
         and re.search(r"选择|设定|决定|确定|\b(?:choose|select|set|pick|determine)\b", text)
         and re.search(r"带宽|滞后|核函数|预白化|\b(?:bandwidth|lags?|kernel|prewhitening)\b", text))
+    personal_bound_action = bool(re.search(
+        r"(?:帮我|为我|替我|给(?:出)?我|告诉我|我的.{0,12}(?:数据|记录|结果))|"
+        r"\b(?:for me|for my|give me|tell me|my (?:data|records)|(?:want you to|could you) (?:choose|select|set|give|provide))\b", text))
     statistical_calculation |= bool(
-        re.search(r"我|个人|\b(?:my|me|individual)\b", text)
+        personal_bound_action
         and re.search(r"判定|判断|选择|设定|确定|给出|提供|\b(?:decide|determine|choose|select|give|provide)\b", text)
         and re.search(r"等效界|等效范围|停滞.{0,8}概率|\b(?:equivalence (?:bounds?|margins?)|probability)\b", text))
+    statistical_calculation |= bool(re.search(r"我|个人|\b(?:my|me|individual)\b", text)
+        and re.search(r"给出|告诉|提供|计算|算出|\b(?:give|provide|calculate|compute)\b", text)
+        and re.search(r"误判率|错误率|成功概率|\b(?:error rate|success probability)\b", text))
     population = context.get("population")
     age = context.get("age")
     if not isinstance(age, (int, float)) or isinstance(age, bool) or not math.isfinite(age):
@@ -163,6 +169,41 @@ def _name_pattern(name):
     if tokens and re.search(r"[a-z0-9]$", tokens[-1]):
         pattern += r"(?![a-z0-9])"
     return pattern
+
+
+def _author_query_names(manifest):
+    """Derive bibliographic author tokens; they still need an author-reference phrase.
+
+    The citation fallback accepts only the conventional surname + initials prefix,
+    never arbitrary words from titles. Shared surnames remain ambiguous across works.
+    """
+    authors = manifest.get("authors") or []
+    if isinstance(authors, str):
+        authors = re.split(r";|\band\b|,", authors)
+    names = set()
+    for author in authors:
+        if isinstance(author, dict):
+            given, family = author.get("given", ""), author.get("family", "")
+            author = " ".join(x for x in (given, family) if x)
+        tokens = re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ'-]*", str(author))
+        if len(tokens) >= 2:
+            names.add(" ".join(tokens))
+            # Full names usually end in the surname; initials-first bibliographic
+            # forms instead put the family name before the final initials.
+            family = tokens[0] if re.fullmatch(r"[A-Z]{1,4}", tokens[-1]) else tokens[-1]
+            names.add(family)
+    prefix = manifest.get("citation", "").split(". ", 1)[0]
+    for entry in prefix.split(","):
+        match = re.fullmatch(r"\s*([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ'-]+)\s+[A-Z]{1,4}\s*", entry)
+        if match:
+            names.add(match[1])
+    return sorted(names)
+
+
+def _author_reference(text, start, end):
+    before, after = text[max(0, start - 40):start], text[end:end + 40]
+    return bool(re.search(r"(?:根据|按照|依据|按|结合)\s*$|\b(?:according to|by|from)\s+$", before)
+                or re.match(r"\s*(?:等|的?(?:文章|论文|研究)|关于|(?:et al\.?|[’']s\s+(?:paper|article|study)|\(?\d{4}))", after))
 
 
 def _semantic_question(question, context):
@@ -215,6 +256,7 @@ def resolve_named_sources(w, question, context, release_id=None):
         identifiers = manifest.get("identifiers", {})
         names = [row["source_id"], manifest.get("title"), *manifest.get("query_names", []),
                  manifest.get("doi"), identifiers.get("doi"), identifiers.get("pmcid")]
+        author_names = _author_query_names(manifest)
         for issuer in [manifest.get("issuing_body"), *manifest.get("query_issuer_names", [])]:
             occurrences = list(re.finditer(_name_pattern(issuer), text)) if issuer else []
             if occurrences:
@@ -224,6 +266,13 @@ def resolve_named_sources(w, question, context, release_id=None):
             if not name:
                 continue
             occurrences = list(re.finditer(_name_pattern(name), text))
+            if occurrences:
+                matches.add(row["source_id"])
+                name_sources.setdefault(str(name).casefold(), set()).add(row["source_id"])
+                spans.extend(m.span() for m in occurrences)
+        for name in author_names:
+            occurrences = [m for m in re.finditer(_name_pattern(name), text)
+                           if _author_reference(text, m.start(), m.end())]
             if occurrences:
                 matches.add(row["source_id"])
                 name_sources.setdefault(str(name).casefold(), set()).add(row["source_id"])
@@ -273,7 +322,7 @@ def _source_subject_context(w, context, release_id=None):
     if release_id is not None:
         release = w.lib.theories.execute("SELECT manifest_json FROM core_release WHERE release_id=?", (release_id,)).fetchone()
         frozen = {(r["claim_id"], r["version"]) for r in json.loads(release[0])["claims"]} if release else set()
-    subjects = {}
+    subjects, goals = {}, {}
     for row in w.lib.theories.execute("SELECT claim_id,version,payload_json FROM source_claim WHERE status='verified'"):
         if frozen is not None and (row["claim_id"], row["version"]) not in frozen:
             continue
@@ -282,7 +331,11 @@ def _source_subject_context(w, context, release_id=None):
         sources = {link["source_id"] for link in claim.get("evidence_links", [])}
         if sources and sources <= allowed and task.get("subject") and task.get("outcome"):
             subjects.setdefault(task["outcome"], set()).add(task["subject"])
-    return {**context, "named_source_task_subjects": {key: next(iter(values)) for key, values in subjects.items() if len(values) == 1}}
+            scope = claim.get("scope", {})
+            declared_goals = scope.get("applicable_goals", []) + ([scope["goal"]] if scope.get("goal") else [])
+            goals.setdefault(task["outcome"], set()).update(declared_goals)
+    return {**context, "named_source_task_subjects": {key: next(iter(values)) for key, values in subjects.items() if len(values) == 1},
+            "named_source_task_goals": {key: sorted(values) for key, values in goals.items() if values}}
 
 
 def source_constraints_match(w, evidence, constraints):

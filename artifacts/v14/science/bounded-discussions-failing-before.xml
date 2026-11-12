@@ -1,0 +1,48 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="1.210" timestamp="2026-11-12T09:18:47.681004+08:00"><testcase classname="tests.integration.test_v14_bounded_discussions" name="test_discussion_uses_actual_plan_records_and_explanation_without_numeric_rule[discuss_sets-volume]" time="0.257"><failure message="AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_sets'&#10;  &#10;  - discuss_sets&#10;  + collect_or_confirm_evidence">discussion_setup = (&lt;healthzip.db.repository.Repository object at 0xffffb9a7c690&gt;, &lt;healthzip.training.service.TrainingService object at ..., ...}, {'status': 'saved', 'id': 3, 'fingerprint': 'v13:ef97b9ca-4574-5c83-aceb-8b073d08ece3', 'session_id': 2, ...}])
+strategy = 'discuss_sets', outcome = 'volume'
+
+    @pytest.mark.parametrize("strategy,outcome", [("discuss_sets", "volume"), ("discuss_interval", "frequency")])
+    def test_discussion_uses_actual_plan_records_and_explanation_without_numeric_rule(discussion_setup, strategy, outcome):
+        record = freeze(discussion_setup, strategy)
+&gt;       assert record["candidate"]["action_kind"] == strategy
+E       AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_sets'
+E
+E         - discuss_sets
+E         + collect_or_confirm_evidence
+
+&lt;repo&gt;/tests/integration/test_v14_bounded_discussions.py:78: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_bounded_discussions" name="test_discussion_uses_actual_plan_records_and_explanation_without_numeric_rule[discuss_interval-frequency]" time="0.225"><failure message="AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_interval'&#10;  &#10;  - discuss_interval&#10;  + collect_or_confirm_evidence">discussion_setup = (&lt;healthzip.db.repository.Repository object at 0xffffb9a74ad0&gt;, &lt;healthzip.training.service.TrainingService object at ..., ...}, {'status': 'saved', 'id': 3, 'fingerprint': 'v13:911e25a5-f968-5922-a59f-b83ddb828a1a', 'session_id': 2, ...}])
+strategy = 'discuss_interval', outcome = 'frequency'
+
+    @pytest.mark.parametrize("strategy,outcome", [("discuss_sets", "volume"), ("discuss_interval", "frequency")])
+    def test_discussion_uses_actual_plan_records_and_explanation_without_numeric_rule(discussion_setup, strategy, outcome):
+        record = freeze(discussion_setup, strategy)
+&gt;       assert record["candidate"]["action_kind"] == strategy
+E       AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_interval'
+E
+E         - discuss_interval
+E         + collect_or_confirm_evidence
+
+&lt;repo&gt;/tests/integration/test_v14_bounded_discussions.py:78: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_bounded_discussions" name="test_current_symptom_keeps_bounded_discussion_and_preserves_its_numeric_restriction" time="0.232"><failure message="AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_sets'&#10;  &#10;  - discuss_sets&#10;  + collect_or_confirm_evidence">discussion_setup = (&lt;healthzip.db.repository.Repository object at 0xffffba14c3d0&gt;, &lt;healthzip.training.service.TrainingService object at ..., ...}, {'status': 'saved', 'id': 3, 'fingerprint': 'v13:5852c431-768e-5231-a3d5-6072f4e61e2f', 'session_id': 2, ...}])
+
+    def test_current_symptom_keeps_bounded_discussion_and_preserves_its_numeric_restriction(discussion_setup):
+        _, svc, _, instance, _ = discussion_setup
+        complete(svc, instance, pain=True)
+        record = freeze(discussion_setup, "discuss_sets")
+&gt;       assert record["candidate"]["action_kind"] == "discuss_sets"
+E       AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_sets'
+E
+E         - discuss_sets
+E         + collect_or_confirm_evidence
+
+&lt;repo&gt;/tests/integration/test_v14_bounded_discussions.py:100: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_bounded_discussions" name="test_withdrawn_explanation_changes_current_use_without_mutating_frozen_discussion" time="0.222"><failure message="AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_interval'&#10;  &#10;  - discuss_interval&#10;  + collect_or_confirm_evidence">discussion_setup = (&lt;healthzip.db.repository.Repository object at 0xffffb6b638d0&gt;, &lt;healthzip.training.service.TrainingService object at ..., ...}, {'status': 'saved', 'id': 3, 'fingerprint': 'v13:d3905eaf-d4ab-5959-8081-8b667223fbd1', 'session_id': 2, ...}])
+
+    def test_withdrawn_explanation_changes_current_use_without_mutating_frozen_discussion(discussion_setup):
+        repo, svc, _, _, _ = discussion_setup
+        record = freeze(discussion_setup, "discuss_interval")
+&gt;       assert record["candidate"]["action_kind"] == "discuss_interval"
+E       AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_interval'
+E
+E         - discuss_interval
+E         + collect_or_confirm_evidence
+
+&lt;repo&gt;/tests/integration/test_v14_bounded_discussions.py:109: AssertionError</failure></testcase></testsuite></testsuites>
