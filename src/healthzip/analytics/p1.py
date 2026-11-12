@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from statistics import median
 
 from healthzip.analytics.core import evidence_card
 from healthzip.temporal import instant, sleep_nights, visible
 
-ALGORITHM_VERSION = "p1-1.3.0"
+ALGORITHM_VERSION = "p1-1.4.4"
 
 
 def _day(value):
@@ -33,9 +33,25 @@ def _condition(row):
 
 
 def _strength_rows(repo, start=None, end=None):
-    sessions = {r["id"]: dict(r) for r in repo.rows("SELECT * FROM strength_session")}
+    filters = ["(deleted_at IS NULL OR deleted_at='')", "(completion_state IS NULL OR completion_state='completed')"]
+    arguments = []
+    # Canonical dates can be bounded in SQLite before loading row payloads.
+    # Older noncanonical strings still go through the existing date parser;
+    # query optimization must not silently change its supported input formats.
+    if start:
+        filters.append("(set_date>=? OR set_date NOT GLOB '????-??-??*')")
+        arguments.append(start.isoformat())
+    if end:
+        filters.append("(set_date<? OR set_date NOT GLOB '????-??-??*')")
+        arguments.append((end + timedelta(days=1)).isoformat())
+    selected = repo.rows("SELECT * FROM strength_set WHERE " + " AND ".join(filters)
+                         + " ORDER BY set_date,started_at,id", tuple(arguments))
+    session_ids = sorted({row["session_id"] for row in selected if row["session_id"] is not None})
+    sessions = {r["id"]: dict(r) for r in repo.rows(
+        "SELECT * FROM strength_session WHERE id IN (SELECT value FROM json_each(?))",
+        (json.dumps(session_ids),))} if session_ids else {}
     output = []
-    for record in repo.rows("SELECT * FROM strength_set ORDER BY set_date,started_at,id"):
+    for record in selected:
         row = dict(record)
         d = _day(row.get("set_date"))
         session = sessions.get(row.get("session_id"), {})
@@ -100,13 +116,14 @@ def strength_quality(repo, start_date=None, end_date=None):
         sessions = _session_quality(vals)
         points = [{**s, "source_session_ids": s["source_session_ids"]} for s in sessions]
         comparable = not key[3].startswith("unknown:")
+        peers = Counter(row.get("weight_kg") for row in vals) if comparable else {}
         series.append({"exercise_name": key[0], "equipment": key[1], "variation": key[2],
             "condition_key": key[3], "comparability_status": "comparable" if comparable else "unknown",
             "exposures": len(sessions), "records": len(vals), "points": points,
             "e1rm_change_kg": None, "e1rm_slope_kg_per_exposure": None,
             "same_load_reps": [{"date": x["date"], "source_set_id": x["id"],
                 "source_session_id": x.get("session_id"), "weight_kg": x.get("weight_kg"),
-                "reps": x.get("reps"), "peer_sets": sum(y.get("weight_kg") == x.get("weight_kg") for y in vals) if comparable else None}
+                "reps": x.get("reps"), "peer_sets": peers[x.get("weight_kg")] if comparable else None}
                 for x in vals]})
     sessions = _session_quality(rows)
     card = evidence_card("strength_quality_p1", "力量训练记录与可比条件",

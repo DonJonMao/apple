@@ -1,0 +1,307 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.975" timestamp="2026-11-12T11:31:41.471155+08:00"><testcase classname="tests.training.test_history_query_planning" name="test_default_snapshot_does_not_decode_window_external_training_history" time="0.099"><failure message="healthzip.training.semantics.TrainingError: 负荷口径不合法">service = &lt;healthzip.training.service.TrainingService object at 0xffffa87e0b90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffa6d0fa50&gt;
+
+    def test_default_snapshot_does_not_decode_window_external_training_history(service, monkeypatch):
+        old = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        old_event_ids = set()
+        for _ in range(12):
+&gt;           add_session(service, old, template=True)
+
+tests/training/test_history_query_planning.py:52:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/training/test_history_query_planning.py:25: in add_session
+    template_id = service.create_template("Synthetic frozen plan", [{
+src/healthzip/training/service.py:722: in create_template
+    normalized = self._items(items)
+                 ^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:642: in _items
+    condition = self._condition(
+src/healthzip/training/service.py:622: in _condition
+    return condition_snapshot(exercise, condition, self.user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+exercise = {'aliases_zh': ['平板杠铃卧推', '卧推'], 'comparability_dimensions': ['exercise_definition_version', 'equipment_instance_id', ...echanically_relevant_settings'], 'contraction_or_task_type': 'dynamic', 'default_load_basis': 'external_total_kg', ...}
+condition = {'load_basis': 'total_external_kg', 'load_basis_confirmed': True}
+user_id = 'local'
+
+    def condition_snapshot(exercise: dict, condition: dict, user_id: str) -&gt; dict:
+        result = dict(condition)
+        protocol = result.get("reference_protocol")
+        if isinstance(protocol, str):
+            # A legacy note does not establish a complete measurement protocol.
+            result.setdefault("reference_protocol_note", protocol)
+            result["reference_protocol"] = None
+        elif protocol is not None:
+            if not isinstance(protocol, dict):
+                raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+            keys = {
+                "protocol_id",
+                "version",
+                "reference_policy_id",
+                "effort_protocol",
+                "tempo",
+                "rest_protocol",
+            }
+            if set(protocol) - keys or any(
+                value is not None and not isinstance(value, str) for value in protocol.values()
+            ):
+                raise TrainingError("参考协议字段须为明确文字或未知")
+            result["reference_protocol"] = {
+                key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+            }
+        result.update(
+            user_id=user_id,
+            exercise_id=exercise["exercise_id"],
+            definition_version=exercise["definition_version"],
+            measurement_mode=exercise["recording_mode"],
+        )
+        result["load_basis"] = result.get("load_basis") or "unknown"
+        if result["load_basis"] not in LOAD_BASES:
+&gt;           raise TrainingError("负荷口径不合法")
+E           healthzip.training.semantics.TrainingError: 负荷口径不合法
+
+src/healthzip/training/semantics.py:199: TrainingError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_window_lookup_resolves_all_visible_revisions_before_membership" time="0.068"><failure message="healthzip.training.semantics.TrainingError: 负荷口径不合法">service = &lt;healthzip.training.service.TrainingService object at 0xffffa672e690&gt;
+
+    def test_window_lookup_resolves_all_visible_revisions_before_membership(service):
+        old = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+&gt;       _, _, row = add_session(service, old)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/training/test_history_query_planning.py:76:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/training/test_history_query_planning.py:34: in add_session
+    instance = service.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:1000: in add_exercise
+    self._condition(exercise_id, condition, definition_version),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:622: in _condition
+    return condition_snapshot(exercise, condition, self.user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+exercise = {'aliases_zh': ['平板杠铃卧推', '卧推'], 'comparability_dimensions': ['exercise_definition_version', 'equipment_instance_id', ...echanically_relevant_settings'], 'contraction_or_task_type': 'dynamic', 'default_load_basis': 'external_total_kg', ...}
+condition = {'load_basis': 'total_external_kg', 'load_basis_confirmed': True}
+user_id = 'local'
+
+    def condition_snapshot(exercise: dict, condition: dict, user_id: str) -&gt; dict:
+        result = dict(condition)
+        protocol = result.get("reference_protocol")
+        if isinstance(protocol, str):
+            # A legacy note does not establish a complete measurement protocol.
+            result.setdefault("reference_protocol_note", protocol)
+            result["reference_protocol"] = None
+        elif protocol is not None:
+            if not isinstance(protocol, dict):
+                raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+            keys = {
+                "protocol_id",
+                "version",
+                "reference_policy_id",
+                "effort_protocol",
+                "tempo",
+                "rest_protocol",
+            }
+            if set(protocol) - keys or any(
+                value is not None and not isinstance(value, str) for value in protocol.values()
+            ):
+                raise TrainingError("参考协议字段须为明确文字或未知")
+            result["reference_protocol"] = {
+                key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+            }
+        result.update(
+            user_id=user_id,
+            exercise_id=exercise["exercise_id"],
+            definition_version=exercise["definition_version"],
+            measurement_mode=exercise["recording_mode"],
+        )
+        result["load_basis"] = result.get("load_basis") or "unknown"
+        if result["load_basis"] not in LOAD_BASES:
+&gt;           raise TrainingError("负荷口径不合法")
+E           healthzip.training.semantics.TrainingError: 负荷口径不合法
+
+src/healthzip/training/semantics.py:199: TrainingError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_scoped_replay_preserves_conflicts_session_tombstone_and_undo" time="0.068"><failure message="healthzip.training.semantics.TrainingError: 负荷口径不合法">service = &lt;healthzip.training.service.TrainingService object at 0xffffa672dbd0&gt;
+
+    def test_scoped_replay_preserves_conflicts_session_tombstone_and_undo(service):
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+&gt;       session, _, row = add_session(service, recent)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/training/test_history_query_planning.py:89:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/training/test_history_query_planning.py:34: in add_session
+    instance = service.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:1000: in add_exercise
+    self._condition(exercise_id, condition, definition_version),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:622: in _condition
+    return condition_snapshot(exercise, condition, self.user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+exercise = {'aliases_zh': ['平板杠铃卧推', '卧推'], 'comparability_dimensions': ['exercise_definition_version', 'equipment_instance_id', ...echanically_relevant_settings'], 'contraction_or_task_type': 'dynamic', 'default_load_basis': 'external_total_kg', ...}
+condition = {'load_basis': 'total_external_kg', 'load_basis_confirmed': True}
+user_id = 'local'
+
+    def condition_snapshot(exercise: dict, condition: dict, user_id: str) -&gt; dict:
+        result = dict(condition)
+        protocol = result.get("reference_protocol")
+        if isinstance(protocol, str):
+            # A legacy note does not establish a complete measurement protocol.
+            result.setdefault("reference_protocol_note", protocol)
+            result["reference_protocol"] = None
+        elif protocol is not None:
+            if not isinstance(protocol, dict):
+                raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+            keys = {
+                "protocol_id",
+                "version",
+                "reference_policy_id",
+                "effort_protocol",
+                "tempo",
+                "rest_protocol",
+            }
+            if set(protocol) - keys or any(
+                value is not None and not isinstance(value, str) for value in protocol.values()
+            ):
+                raise TrainingError("参考协议字段须为明确文字或未知")
+            result["reference_protocol"] = {
+                key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+            }
+        result.update(
+            user_id=user_id,
+            exercise_id=exercise["exercise_id"],
+            definition_version=exercise["definition_version"],
+            measurement_mode=exercise["recording_mode"],
+        )
+        result["load_basis"] = result.get("load_basis") or "unknown"
+        if result["load_basis"] not in LOAD_BASES:
+&gt;           raise TrainingError("负荷口径不合法")
+E           healthzip.training.semantics.TrainingError: 负荷口径不合法
+
+src/healthzip/training/semantics.py:199: TrainingError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_session_start_outside_window_cannot_hide_cross_window_completion" time="0.065"><failure message="healthzip.training.semantics.TrainingError: 负荷口径不合法">service = &lt;healthzip.training.service.TrainingService object at 0xffffa672f9d0&gt;
+
+    def test_session_start_outside_window_cannot_hide_cross_window_completion(service):
+        old = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+&gt;       session, _, row = add_session(service, old, template=True)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/training/test_history_query_planning.py:106:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/training/test_history_query_planning.py:25: in add_session
+    template_id = service.create_template("Synthetic frozen plan", [{
+src/healthzip/training/service.py:722: in create_template
+    normalized = self._items(items)
+                 ^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:642: in _items
+    condition = self._condition(
+src/healthzip/training/service.py:622: in _condition
+    return condition_snapshot(exercise, condition, self.user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+exercise = {'aliases_zh': ['平板杠铃卧推', '卧推'], 'comparability_dimensions': ['exercise_definition_version', 'equipment_instance_id', ...echanically_relevant_settings'], 'contraction_or_task_type': 'dynamic', 'default_load_basis': 'external_total_kg', ...}
+condition = {'load_basis': 'total_external_kg', 'load_basis_confirmed': True}
+user_id = 'local'
+
+    def condition_snapshot(exercise: dict, condition: dict, user_id: str) -&gt; dict:
+        result = dict(condition)
+        protocol = result.get("reference_protocol")
+        if isinstance(protocol, str):
+            # A legacy note does not establish a complete measurement protocol.
+            result.setdefault("reference_protocol_note", protocol)
+            result["reference_protocol"] = None
+        elif protocol is not None:
+            if not isinstance(protocol, dict):
+                raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+            keys = {
+                "protocol_id",
+                "version",
+                "reference_policy_id",
+                "effort_protocol",
+                "tempo",
+                "rest_protocol",
+            }
+            if set(protocol) - keys or any(
+                value is not None and not isinstance(value, str) for value in protocol.values()
+            ):
+                raise TrainingError("参考协议字段须为明确文字或未知")
+            result["reference_protocol"] = {
+                key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+            }
+        result.update(
+            user_id=user_id,
+            exercise_id=exercise["exercise_id"],
+            definition_version=exercise["definition_version"],
+            measurement_mode=exercise["recording_mode"],
+        )
+        result["load_basis"] = result.get("load_basis") or "unknown"
+        if result["load_basis"] not in LOAD_BASES:
+&gt;           raise TrainingError("负荷口径不合法")
+E           healthzip.training.semantics.TrainingError: 负荷口径不合法
+
+src/healthzip/training/semantics.py:199: TrainingError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_query_padding_does_not_relax_microsecond_window_or_cutoff" time="0.068"><failure message="healthzip.training.semantics.TrainingError: 负荷口径不合法">service = &lt;healthzip.training.service.TrainingService object at 0xffffa67238d0&gt;
+
+    def test_query_padding_does_not_relax_microsecond_window_or_cutoff(service):
+        when = "2020-01-01T12:00:00.000001+00:00"
+&gt;       _, _, row = add_session(service, when)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/training/test_history_query_planning.py:116:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/training/test_history_query_planning.py:34: in add_session
+    instance = service.add_exercise(session["id"], "psa.ex.barbell_bench_press", condition)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:1000: in add_exercise
+    self._condition(exercise_id, condition, definition_version),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/training/service.py:622: in _condition
+    return condition_snapshot(exercise, condition, self.user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+exercise = {'aliases_zh': ['平板杠铃卧推', '卧推'], 'comparability_dimensions': ['exercise_definition_version', 'equipment_instance_id', ...echanically_relevant_settings'], 'contraction_or_task_type': 'dynamic', 'default_load_basis': 'external_total_kg', ...}
+condition = {'load_basis': 'total_external_kg', 'load_basis_confirmed': True}
+user_id = 'local'
+
+    def condition_snapshot(exercise: dict, condition: dict, user_id: str) -&gt; dict:
+        result = dict(condition)
+        protocol = result.get("reference_protocol")
+        if isinstance(protocol, str):
+            # A legacy note does not establish a complete measurement protocol.
+            result.setdefault("reference_protocol_note", protocol)
+            result["reference_protocol"] = None
+        elif protocol is not None:
+            if not isinstance(protocol, dict):
+                raise TrainingError("参考协议必须是结构化定义，说明文本请填备注")
+            keys = {
+                "protocol_id",
+                "version",
+                "reference_policy_id",
+                "effort_protocol",
+                "tempo",
+                "rest_protocol",
+            }
+            if set(protocol) - keys or any(
+                value is not None and not isinstance(value, str) for value in protocol.values()
+            ):
+                raise TrainingError("参考协议字段须为明确文字或未知")
+            result["reference_protocol"] = {
+                key: (protocol.get(key) or "").strip() or None for key in sorted(keys)
+            }
+        result.update(
+            user_id=user_id,
+            exercise_id=exercise["exercise_id"],
+            definition_version=exercise["definition_version"],
+            measurement_mode=exercise["recording_mode"],
+        )
+        result["load_basis"] = result.get("load_basis") or "unknown"
+        if result["load_basis"] not in LOAD_BASES:
+&gt;           raise TrainingError("负荷口径不合法")
+E           healthzip.training.semantics.TrainingError: 负荷口径不合法
+
+src/healthzip/training/semantics.py:199: TrainingError</failure></testcase></testsuite></testsuites>

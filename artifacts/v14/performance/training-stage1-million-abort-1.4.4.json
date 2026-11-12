@@ -1,0 +1,50 @@
+{
+  "recorded_at": "2026-11-12T04:02:24.407764+00:00",
+  "status": "manual_abort_due_to_confirmed_quadratic_path",
+  "stage": "stage1_window_query_optimization_with_legacy_view_path_unfixed",
+  "completed_scales_historical_events": [
+    10000,
+    100000
+  ],
+  "uncompleted_scale_historical_events": 1000000,
+  "million_result_complete": false,
+  "million_first_analysis_seconds": null,
+  "million_cached_page_change_p95_seconds": null,
+  "million_cached_page_budget_established": false,
+  "elapsed_seconds_at_abort_decision": 800.6200000047684,
+  "cpu_seconds_at_abort_decision": 803.92,
+  "elapsed_scope": "Whole still-live worker including fixture generation and UI execution; not a completed page latency or a timeout threshold.",
+  "worker_confirmed_alive_at_abort_decision": true,
+  "not_an_automatic_timeout": true,
+  "explicitly_terminated_after_consistent_diagnostic_backup": true,
+  "worker_and_runner_terminal_confirmed": true,
+  "termination_signal": "SIGTERM",
+  "cause": "core._all_analysis -> strength_analysis(repo) -> p1.strength_quality(repo) reads unbounded history; same_load_reps computes peer_sets using a nested sum over the same 100001 comparable rows (~10^10 equality checks).",
+  "confirmed_synthetic_comparable_set_count": 100001,
+  "confirmed_synthetic_condition_count": 1,
+  "confirmed_synthetic_weight_value_count": 1,
+  "implied_nested_peer_comparisons_for_full_strength_quality": 10000200001,
+  "source_file_sha256": {
+    "src/healthzip/analytics/core.py": "f2602758d044bf45022c801951d56f5584be0726bd28738d5d76d68cb36e08af",
+    "src/healthzip/analytics/p1.py": "99db3369e190aa36ebc02ceb291afd7c035dc52528fc7e30dfb341eddbd326a3",
+    "tools/benchmark_training_history_v14.py": "8c27264ede4db326ea751cdf30cfc7853d1da4900e8dfe91d29b41355f53c712"
+  },
+  "completed_scales_artifact": "artifacts/v14/performance/training-optimized-1.4.4.json",
+  "completed_scales_artifact_sha256": "c326d698a1e2f872ede0af7e33a4ec5fa2b902bbb90a4f610bbf2e8107522162",
+  "completed_results_and_measured_source_archive_preserved": true,
+  "diagnostic_database": {
+    "counts": {
+      "training_event": 1000011,
+      "strength_session": 100001,
+      "strength_set": 100001,
+      "training_session_exercise": 100001,
+      "training_invalidation": 1000010
+    },
+    "bytes": 12866977792,
+    "quick_check": "ok",
+    "private_synthetic_copy_retained": true,
+    "backup_seconds_excluded_from_performance": 46.53480935841799
+  },
+  "diagnostic_retention_limits": "The original runner captured child stderr internally but did not emit it separately; the SIGTERM runner traceback is retained privately. No unreturned million-event timing or automatic AppTest timeout is inferred.",
+  "next_required_work": "Remove the quadratic peer count and unnecessary full-history legacy page reads; separately fix last_values and benchmark the actual training page. Repeat final scale verification after repairs."
+}

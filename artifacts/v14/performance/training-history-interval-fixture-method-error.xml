@@ -1,0 +1,23 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="9" time="1.040" timestamp="2026-11-12T11:41:21.684679+08:00"><testcase classname="tests.training.test_history_query_planning" name="test_default_snapshot_does_not_decode_window_external_training_history" time="0.198" /><testcase classname="tests.training.test_history_query_planning" name="test_window_lookup_resolves_all_visible_revisions_before_membership" time="0.099" /><testcase classname="tests.training.test_history_query_planning" name="test_scoped_replay_preserves_conflicts_session_tombstone_and_undo" time="0.087" /><testcase classname="tests.training.test_history_query_planning" name="test_session_start_outside_window_cannot_hide_cross_window_completion" time="0.084" /><testcase classname="tests.training.test_history_query_planning" name="test_query_padding_does_not_relax_microsecond_window_or_cutoff" time="0.076" /><testcase classname="tests.training.test_history_query_planning" name="test_future_movement_cannot_nominate_old_session_for_past_snapshot" time="0.086" /><testcase classname="tests.training.test_history_query_planning" name="test_snapshot_keeps_interval_support_for_science_to_determine_membership[2020-01-02T12:00:00Z-2020-01-04T00:00:00Z]" time="0.068"><failure message="AttributeError: 'TrainingService' object has no attribute 'create_custom_exercise'">service = &lt;healthzip.training.service.TrainingService object at 0xffff97569b10&gt;
+start = '2020-01-02T12:00:00Z', end = '2020-01-04T00:00:00Z'
+
+    @pytest.mark.parametrize("start,end", [("2020-01-02T12:00:00Z", "2020-01-04T00:00:00Z"),
+                                          ("2020-01-01T00:00:00Z", "2020-01-04T00:00:00Z")])
+    def test_snapshot_keeps_interval_support_for_science_to_determine_membership(service, start, end):
+        session = service.start_session("Synthetic duration", started_at=start)
+&gt;       exercise = service.create_custom_exercise("Synthetic timed hold", "duration", "bodyweight")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'TrainingService' object has no attribute 'create_custom_exercise'
+
+tests/training/test_history_query_planning.py:142: AttributeError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_snapshot_keeps_interval_support_for_science_to_determine_membership[2020-01-01T00:00:00Z-2020-01-04T00:00:00Z]" time="0.068"><failure message="AttributeError: 'TrainingService' object has no attribute 'create_custom_exercise'">service = &lt;healthzip.training.service.TrainingService object at 0xffff9756ad90&gt;
+start = '2020-01-01T00:00:00Z', end = '2020-01-04T00:00:00Z'
+
+    @pytest.mark.parametrize("start,end", [("2020-01-02T12:00:00Z", "2020-01-04T00:00:00Z"),
+                                          ("2020-01-01T00:00:00Z", "2020-01-04T00:00:00Z")])
+    def test_snapshot_keeps_interval_support_for_science_to_determine_membership(service, start, end):
+        session = service.start_session("Synthetic duration", started_at=start)
+&gt;       exercise = service.create_custom_exercise("Synthetic timed hold", "duration", "bodyweight")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'TrainingService' object has no attribute 'create_custom_exercise'
+
+tests/training/test_history_query_planning.py:142: AttributeError</failure></testcase><testcase classname="tests.training.test_history_query_planning" name="test_replay_orders_recorded_offsets_by_instant_then_event_order" time="0.080" /></testsuite></testsuites>

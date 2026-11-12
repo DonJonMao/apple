@@ -16,6 +16,7 @@ STRATEGIES = {
     "repetition_progression": "讨论次数进阶试验",
     "discuss_sets": "讨论组数试验",
     "discuss_interval": "讨论训练间隔试验",
+    "discuss_rest": "讨论组间休息",
     "maintain_and_collect_reference": "维持计划并继续收集参考",
 }
 CHOICES = {"deferred": "暂缓", "accepted": "采纳", "declined": "不采纳", "modified": "修改后采用"}
@@ -70,8 +71,8 @@ def _create_form(repo, svc, session, instance, key):
         st.caption("这是你选择的可选试验，未达到次数上沿也可核对依据。它不代表已诊断停滞，也不保证有效。")
     loads = st.text_input("本台器械实际可用重量 / 刻度（逗号分隔，与记录单位一致）", key="loads_" + key)
     discussion_minutes = ""
-    if strategy in {"discuss_sets", "discuss_interval"}:
-        st.caption("讨论将展示已核对的一般原则、明确计划和同条件记录。它不能确定个人最佳组数或恢复间隔。")
+    if strategy in {"discuss_sets", "discuss_interval", "discuss_rest"}:
+        st.caption("讨论将展示已核对的一般原则、明确计划和同条件记录。它不能确定个人最佳组数、组间间歇或恢复间隔。")
         discussion_minutes = st.text_input("本次可用训练时间（分钟，可留空）", key="discussion_minutes_" + key)
     followup_window = None
     with st.expander("可选：预先约定后续观察窗口"):
@@ -176,7 +177,8 @@ def _render_feedback(repo, svc, instance, record, prefix):
             st.info("已记录讨论选择与反馈；一般讨论没有可判定的数值成功目标。")
             return
         now = datetime.now(timezone.utc)
-        _, context = snapshot(repo, now.isoformat(), include_sources=False)
+        _, context = snapshot(repo, now.isoformat(), include_sources=False,
+                              window_start=(now - timedelta(days=365)).isoformat(), window_end=now.isoformat())
         outcome = next((r for r in context["recommendation_outcomes"] if r["recommendation_id"] == cid), None)
         if outcome:
             metric = evaluate("STR-27", [], cutoff_time=now.isoformat(),
@@ -204,6 +206,20 @@ def _render_discussion(discussion):
     if facts["recorded_interval_days"]:
         st.write("已记录场次起点之间的间隔（天）")
         st.dataframe(facts["recorded_interval_days"], hide_index=True)
+    if "planned_rest" in facts:
+        st.write("当前明确的组间休息计划（未填保持未知）")
+        st.dataframe([{"组记录": row["record_id"], "组版本": row["revision"], "计划休息秒数": row["seconds"],
+                       "来源": "用户计划"} for row in facts["planned_rest"]], hide_index=True)
+        st.write("实际组前记录：主动记录与相邻端点间隔分别显示")
+        st.dataframe([{"组记录": row["record_id"], "组版本": row["revision"], "所属场次": row["session_id"],
+            "可见时间": row["available_at"], "主动记录秒数": row["manual"]["seconds"], "主动记录方法": row["manual"]["method"],
+            "相邻端点间隔秒数": row["derived"]["seconds"],
+            "前组记录": (row["derived"]["provenance"] or {}).get("previous_set_uuid"),
+            "派生依据或缺项": (row["derived"]["provenance"] or {}).get("reason"),
+            "实际负荷": row["performance"]["load_value"], "负荷单位": row["performance"]["load_unit"],
+            "实际次数": row["performance"]["reps"], "RIR": row["performance"]["rir"],
+            "动作质量": row["performance"]["quality_status"]}
+            for row in facts["rest_observations"]], hide_index=True)
     for question in discussion["questions"]:
         st.write(question)
     for citation in source["citations"]:

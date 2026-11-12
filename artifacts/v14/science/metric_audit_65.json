@@ -711,13 +711,17 @@
         "策略菜单由用户许可和已审核指南规则共同约束",
         "在数字候选前检查历史/当前停止原因、疼痛、质量与未知",
         "不良或未知适用性保留可执行非数值信息收集/调整讨论",
-        "组数/场次间隔讨论通过真实解释权限和实际记录链保存，不借用数值候选权限"
+        "组数/场次间隔讨论通过真实解释权限和实际记录链保存，不借用数值候选权限",
+        "组间休息作为独立一般讨论主题接入普通页面，用户计划、主动记录与相邻端点派生值分别冻结",
+        "不从计划、主动记录或来源一般范围推算个人最佳休息秒数；无数值任务或成功目标"
       ],
       "targeted_acceptance_reviewed": [
         "历史 pain_flag 或 stop_reason=pain 或技术受限分别不能给更重负荷",
         "正常完整条件可生成用户允许策略并冻结",
         "任一字段未知不得当作正常",
-        "每条候选追到指南版本/章节/适用范围，非因果保证"
+        "每条候选追到指南版本/章节/适用范围，非因果保证",
+        "缺端点保持未知，主动记录0不当作缺项；来源撤回或记录修订不重写已冻结讨论",
+        "普通页面讨论保存、选择、执行、结束后反馈与重开使用已有来源解释权限"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "结构化建议",
@@ -738,7 +742,8 @@
         "tests/science/test_v14_science.py::test_repetition_trial_uses_only_explicit_higher_user_upper_target",
         "tests/science/test_v14_science.py::test_repetition_trial_current_symptoms_or_unknown_block_numeric_target",
         "tests/integration/test_v14_choice_validation.py::test_repetition_choice_cannot_silently_change_load",
-        "tests/integration/test_v14_bounded_discussions.py"
+        "tests/integration/test_v14_bounded_discussions.py",
+        "tests/integration/test_v14_rest_discussion.py"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
       "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
@@ -748,6 +753,19 @@
         "authority": "source_explanation_only",
         "numerical_permission_added": false,
         "real_personal_efficacy_verified": false
+      },
+      "rest_discussion_verification": {
+        "source_claim": "CORE-CLAIM-REST@1.4.3",
+        "rule": "CORE-F2-REST-OPTIONS",
+        "authority": "source_explanation_only",
+        "audit": "artifacts/v14/advice/rest-discussion-audit.json",
+        "actual_core_ui": "artifacts/v14/advice/rest-discussion-actual-core-ui.json",
+        "failing_before": "artifacts/v14/advice/rest-discussion-failing-before.xml",
+        "targeted_regressions": "artifacts/v14/advice/rest-discussion-regressions.xml",
+        "targeted_tests": 49,
+        "numerical_permission_added": false,
+        "independent_semantic_evaluation_denominator_added": 0,
+        "real_personal_efficacy_verified": false
       }
     },
     {
@@ -756,13 +774,17 @@
       "planned_behavior_reviewed": [
         "维持场次结束后可补反馈",
         "动作版本/条件/候选快照不可变",
-        "目标未达到与不适用、未执行分开"
+        "目标未达到与不适用、未执行分开",
+        "有界报告查询仍显式保留旧执行/基线ID和预声明随访窗口，跨月不丢失原始观察差值",
+        "一般组间休息讨论不增加数值成功分母或因果效果结论"
       ],
       "targeted_acceptance_reviewed": [
         "已结束场次可关联原候选补录",
         "unknown quality→unknown outcome",
         "未执行不进入成功数",
-        "换器械完成不冒充原候选验证"
+        "换器械完成不冒充原候选验证",
+        "合法+0000/+0800截止与窗口和等价带冒号格式返回相同训练事实、反馈与随访",
+        "仅反馈入窗或仅随访交叠的旧候选仍读取其明确执行/基线依赖"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "类别与原始差值",
@@ -783,7 +805,10 @@
         "tests/integration/test_v14_followup_report.py::test_repository_execution_load_unit_conversion_matches_success_and_display",
         "tests/integration/test_v14_followup_report.py::test_incompatible_load_units_keep_execution_unknown",
         "tests/integration/test_v14_followup_report.py::test_visible_followup_report_shows_target_actual_and_later_difference",
-        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window"
+        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window",
+        "tests/integration/test_training_history_followup_support.py",
+        "tests/training/test_history_compact_offsets.py",
+        "tests/integration/test_v14_rest_discussion.py::test_normal_ui_rest_choice_survives_execution_end_feedback_and_reopen"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
       "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
@@ -802,6 +827,16 @@
           "artifacts/v14/science/followup-units-final-tests-20261112.xml"
         ],
         "independent_scientific_validation_count": 0
+      },
+      "query_integrity_addendum": {
+        "algorithm_version": "healthzip-science-1.4.4",
+        "window_and_dependency_audit": "artifacts/v14/performance/training-history-query-audit.json",
+        "compact_offset_audit": "artifacts/v14/performance/training-offset-audit.json",
+        "rest_discussion_actual_core_ui": "artifacts/v14/advice/rest-discussion-actual-core-ui.json",
+        "prior_candidate_snapshots_unchanged": true,
+        "query_optimization_creates_no_new_numeric_success_or_causal_permissions": true,
+        "new_independent_scientific_validation_count": 0,
+        "scope": "Specified Repository/UI cases; not large-scale recommendation-feedback throughput or an independent semantic pass rate."
       }
     },
     {
@@ -809,12 +844,16 @@
       "revision_action": "保持并回归",
       "planned_behavior_reviewed": [
         "按候选策略、条件和版本分层报告",
-        "后续差值是观察关联，未随机/控制设计不估计干预效果"
+        "后续差值是观察关联，未随机/控制设计不估计干预效果",
+        "有界报告查询仍显式保留旧执行/基线ID和预声明随访窗口，跨月不丢失原始观察差值",
+        "一般组间休息讨论不增加数值成功分母或因果效果结论"
       ],
       "targeted_acceptance_reviewed": [
         "3 个采纳中仅 1 个完整反馈时成功分母=1，未知另列",
         "反复查看同反馈不增加样本",
-        "不可用成功率宣称某策略导致力量提升"
+        "不可用成功率宣称某策略导致力量提升",
+        "合法+0000/+0800截止与窗口和等价带冒号格式返回相同训练事实、反馈与随访",
+        "仅反馈入窗或仅随访交叠的旧候选仍读取其明确执行/基线依赖"
       ],
       "review_result": "implementation_reviewed_and_bounded_software_cases_passed",
       "runtime_unit": "比例 / 差值 / 区间",
@@ -835,7 +874,10 @@
         "tests/integration/test_v14_followup_report.py::test_repository_execution_load_unit_conversion_matches_success_and_display",
         "tests/integration/test_v14_followup_report.py::test_incompatible_load_units_keep_execution_unknown",
         "tests/integration/test_v14_followup_report.py::test_visible_followup_report_shows_target_actual_and_later_difference",
-        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window"
+        "tests/integration/test_v14_followup_report.py::test_visible_candidate_form_freezes_optional_user_window",
+        "tests/integration/test_training_history_followup_support.py",
+        "tests/training/test_history_compact_offsets.py",
+        "tests/integration/test_v14_rest_discussion.py::test_normal_ui_rest_choice_survives_execution_end_feedback_and_reopen"
       ],
       "scientific_validation_boundary": "账目/描述、模型条件估计与已验证决策应分开。合成验收只能证明指定输入下实现行为，不能证明个体生理效度或训练因果效果。",
       "coverage_limit": "The linked cases cover specified inputs; they are not proof of every possible input, full UI acceptance, source-rule review, personal prediction validity or causal benefit.",
@@ -854,6 +896,16 @@
           "artifacts/v14/science/followup-units-final-tests-20261112.xml"
         ],
         "independent_scientific_validation_count": 0
+      },
+      "query_integrity_addendum": {
+        "algorithm_version": "healthzip-science-1.4.4",
+        "window_and_dependency_audit": "artifacts/v14/performance/training-history-query-audit.json",
+        "compact_offset_audit": "artifacts/v14/performance/training-offset-audit.json",
+        "rest_discussion_actual_core_ui": "artifacts/v14/advice/rest-discussion-actual-core-ui.json",
+        "prior_candidate_snapshots_unchanged": true,
+        "query_optimization_creates_no_new_numeric_success_or_causal_permissions": true,
+        "new_independent_scientific_validation_count": 0,
+        "scope": "Specified Repository/UI cases; not large-scale recommendation-feedback throughput or an independent semantic pass rate."
       }
     },
     {
@@ -2001,5 +2053,125 @@
     "prior_verification_counts_unchanged": true,
     "draft_refresh_verification_ref": "artifacts/v14/science/sleep-draft-refresh-verification.xml",
     "draft_refresh_bounded_test_cases": 15
+  },
+  "training_workflow_query_addendum": {
+    "algorithm_version": "healthzip-science-1.4.4",
+    "analysis_version": "healthzip-v1.4.4",
+    "cache_version": "analysis-cache-v1.4.4",
+    "legacy_view_version": "p1-1.4.4",
+    "knowledge_release_unchanged": "core-gradual-progression-explanations-1.4.13",
+    "rest_discussion_evidence": "artifacts/v14/advice/rest-discussion-audit.json",
+    "query_evidence": [
+      "artifacts/v14/performance/training-history-query-audit.json",
+      "artifacts/v14/performance/training-offset-audit.json",
+      "artifacts/v14/performance/training-view-pagination-audit.json",
+      "artifacts/v14/performance/training-last-values-audit.json",
+      "artifacts/v14/performance/training-invalidation-audit.json",
+      "artifacts/v14/performance/training-recent-audit.json"
+    ],
+    "stage1_validation_ref": "artifacts/v14/performance/training-stage1-validation.json",
+    "stage1_validation_is_not_final": true,
+    "stage1_million_result": "manually_terminated_without_returned_million_timing",
+    "stage1_million_abort_ref": "artifacts/v14/performance/training-stage1-million-abort-1.4.4.json",
+    "final_verification_ref": "artifacts/v14/final-manifest.json",
+    "independent_semantic_evaluation_denominator_added": 0,
+    "new_human_expert_reviews": 0,
+    "new_real_personal_calibration": 0,
+    "prior_verification_counts_unchanged": true,
+    "scope": "Bounded software and normal-entry integration. Scale fixtures and target-device performance remain separate from scientific validation; old failures and stage results remain unchanged.",
+    "invalidation_completion": {
+      "behavior": "Update only current-user pending rows through the analyzed ID; retain historical completed analysis versions, other users and later pending rows. Partial index supports both pending reads and completion updates.",
+      "tests": "tests/training/test_invalidation_completion.py",
+      "scope": "Analysis receipt integrity and write amplification; no scientific permission or numerical model change.",
+      "evidence_ref": "artifacts/v14/performance/training-invalidation-audit.json",
+      "valid_before": {
+        "passed": 1,
+        "failed": 3
+      },
+      "directed_after": {
+        "passed": 4,
+        "failed": 0
+      },
+      "initial_fixture_setup_errors": 4,
+      "directed_result_is_not_full_suite": true
+    },
+    "final_training_performance_ref": "artifacts/v14/performance/training-stage3-final-1.4.4.json",
+    "stage2_repository_verification": {
+      "tests": 1300,
+      "passed": 1300,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cli_seconds": 397.27,
+      "junit_seconds": 397.225,
+      "wrapper_seconds": 398.81,
+      "unchanged_input_files": 231,
+      "junit_ref": "artifacts/v14/performance/training-stage2-full-suite.xml",
+      "input_integrity_ref": "artifacts/v14/performance/training-stage2-full-suite-integrity.json",
+      "scope": "Integrated software validation only; separate historical scoped counts remain unchanged.",
+      "is_final": false,
+      "subsequent_limitation": "Million-event actual training page exceeded the 2-second product budget; the sorted recent-event index correction is separately validated in stage 3. The original stage-2 result remains unchanged.",
+      "stage_receipt_ref": "artifacts/v14/performance/training-stage2-validation.json"
+    },
+    "recent_event_query_index": {
+      "index": "training_event_recent(user_id, recorded_at DESC)",
+      "behavior": "Index the unchanged UI query for the latest thirty audit events; retain user scope and event-bound undo actions. Equal timestamp boundaries had no specified stable ID subset.",
+      "tests": "tests/training/test_recent_training_events.py",
+      "scientific_permission_change": false,
+      "integrated_validation_pending": false,
+      "evidence_ref": "artifacts/v14/performance/training-recent-audit.json",
+      "valid_before": {
+        "passed": 2,
+        "failed": 2,
+        "sqlite_vm_steps": 15435,
+        "temporary_sort": true
+      },
+      "directed_after": {
+        "passed": 4,
+        "failed": 0,
+        "sqlite_vm_steps_upper_bound_exclusive": 2000,
+        "exact_vm_steps_not_recorded": true,
+        "temporary_sort": false
+      }
+    },
+    "final_repository_verification": {
+      "tests": 1304,
+      "passed": 1304,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cli_seconds": 401.47,
+      "junit_seconds": 401.156,
+      "wrapper_seconds": 402.971,
+      "unchanged_input_files": 232,
+      "started_at_utc": "2026-11-12T04:31:39.310605+00:00",
+      "finished_at_utc": "2026-11-12T04:38:22.312468+00:00",
+      "junit_ref": "artifacts/v14/pytest.xml",
+      "input_integrity_ref": "artifacts/v14/full-suite-input-integrity.json",
+      "scope": "Stage-3 integrated software validation only; separate historical scoped counts remain unchanged."
+    },
+    "final_training_performance_comparison_ref": "artifacts/v14/performance/training-stage3-comparison-1.4.4.json",
+    "stage2_performance_ref": "artifacts/v14/performance/training-final-1.4.4.json",
+    "final_training_performance_scope": {
+      "historical_events": [
+        10000,
+        100000,
+        1000000
+      ],
+      "cached_training_page_p95_seconds": [
+        0.426090344786644,
+        0.6666070073843002,
+        1.7458794489502907
+      ],
+      "cached_training_page_2s_budget_met_all_scales": true,
+      "million_copy_last_values_to_draft_seconds": 3.707721956074238,
+      "all_operations_under_2s": false,
+      "million_cold_migration_seconds": 142.66777570545673,
+      "source_inputs_unchanged": true,
+      "private_or_target_device_data_tested": false,
+      "scaled_recommendation_feedback_population_tested": false,
+      "compared_metric_summaries": 77,
+      "independent_scientific_validation_denominator_added": 0
+    }
   }
 }

@@ -1,0 +1,103 @@
+{
+  "baseline_commit": "2063f0420f7252886a9fb7a2ee9fad7adb093ac9",
+  "data_kind": "synthetic_only",
+  "source_sha256": {
+    "src/healthzip/analytics/p1.py": "6f7bf5ba2347753433804d595a0a5b9932d6dcbba7424ffe882d80d77b92e1fb",
+    "src/healthzip/analytics/core.py": "b84ae81493300201d0a05b175ba2f83f404ff5a04f2d1cc40fd1de785a061082",
+    "src/healthzip/training/service.py": "4d6ac0356b4373f9813bbc6e9ee8e08d2d54e89f437bae5ec99a764342d33e01",
+    "src/healthzip/training/schema.py": "baa2849f9e57bb520e81267d2e6cf21236f028fb4daeb3e7f64ad0a1154542f9",
+    "src/healthzip/db/schema.sql": "83654de4c00e6411063d2cf5ce8fd6e2110d0c84bc367433dc88ebb666d310c6",
+    "src/healthzip/ui/training_page.py": "1402167e38085111b90c083dadfdfa1724556d48f5b749039329e2d961fbb75d",
+    "tests/training/test_training_view_queries.py": "a0c77385f32e01ee87cf879d7b4f288a5dd2840bdbadb68da095073de4d1dc2f",
+    "tests/integration/test_training_history_pagination.py": "fce793a0c46f0cf4a53e7337296310ed9fd1854abe3f8ce744d17f2ed1f5a907"
+  },
+  "evidence": [
+    {
+      "path": "artifacts/v14/performance/training-view-failing-before.xml",
+      "private_original": ".local/training-view-audit/before.xml",
+      "original_sha256": "5fa9b9cdc12ffbfe6586b9c043e47f32c6a9448961e558ba3968202ebee7c97f",
+      "public_sha256": "6dd194949304c585de1d0269e2051dc3b10c7c92598c387e9fe1b8bd2d570970",
+      "totals": {
+        "tests": 4,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-view-verification.xml",
+      "private_original": ".local/training-view-audit/after.xml",
+      "original_sha256": "960b220a775697cf0f08ccee1c71832dde37baa927953c7870a1da8c1b09f5df",
+      "public_sha256": "ee7588d8bd1cdaf637ba2132c973e194c4d2a96346ec131e32efcbec216daa10",
+      "totals": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-pagination-failing-before.xml",
+      "private_original": ".local/training-pagination-audit/before.xml",
+      "original_sha256": "f490a636d3d4f68224d43ac67e3e8680c0b132e99b3e8bd7906d38d3a4653832",
+      "public_sha256": "65332bfdf5ad2180330ba13a0155aaff170de15ee0a8ab5a736efb3271c63fa7",
+      "totals": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_results_changed": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-pagination-ui-regressions.xml",
+      "private_original": ".local/training-pagination-audit/after.xml",
+      "original_sha256": "6ce553e3bea086fdd866bb2450fbaf63653484a84606de9a275249f115fcc009",
+      "public_sha256": "fca00c32dc24183f8e57a808ab92d8f16dcb7255c01cafb072002d1af6e0c29a",
+      "totals": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "test_results_changed": false
+    }
+  ],
+  "findings": [
+    {
+      "issue": "normal_all_analysis_repeated_an_unbounded_strength_view",
+      "fix": "Reuse bounded strength_quality for both strength presentations; standalone explicit unbounded API remains available."
+    },
+    {
+      "issue": "legacy_strength_adapter_decoded_all_sets_and_sessions_before_date_filter",
+      "fix": "Filter scalar date/status/deletion fields first, retain noncanonical legacy parser candidates and only load supporting parent sessions."
+    },
+    {
+      "issue": "same_load_peer_count_was_quadratic",
+      "fix": "Count each weight once per condition group. The deterministic 1000-row comparison probe checks complexity without timing assertions."
+    },
+    {
+      "issue": "normal_training_page_enumerated_full_session_history_twice",
+      "fix": "50-session display pages with a user-selectable page number and separately indexed active sessions. Service and exports default to complete history; no historical cutoff."
+    }
+  ],
+  "new_indexes": [
+    "idx_strength_date",
+    "idx_training_active_session"
+  ],
+  "real_ui_checks": [
+    "54 total sessions: first page 50, second page 4",
+    "oldest session remains reachable and editable",
+    "active session does not change while paging or editing history",
+    "other user and deleted session filters checked through service"
+  ],
+  "validation_scope": "18 view/unit regressions and 13 pagination/training UI regressions overlap; do not sum as independent checks. Failing before results retained. Final full suite and scale benchmark are separate artifacts.",
+  "limits": [
+    "No private user data used",
+    "No claim about massive recommendation-feedback inventories",
+    "50 is a product display parameter, not an evidence threshold",
+    "Algorithm/cache version 1.4.4; no scientific permissions added"
+  ]
+}

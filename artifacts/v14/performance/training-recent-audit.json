@@ -1,0 +1,140 @@
+{
+  "recorded_at": "2026-11-12T04:33:30.847391+00:00",
+  "synthetic_only": true,
+  "problem": "The training history UI requested thirty recent audit events by user and recorded_at but lacked a matching ordering index, forcing a scan of that user's historical events and a temporary sort",
+  "scope": "Only one additive schema index and four new regression cases; the UI query text and scientific as-of ordering were not changed",
+  "query": "SELECT * FROM training_event WHERE user_id=? ORDER BY recorded_at DESC LIMIT 30",
+  "index": {
+    "name": "training_event_recent",
+    "sql": "CREATE INDEX IF NOT EXISTS training_event_recent ON training_event(user_id,recorded_at DESC)",
+    "kind": "ordinary, not partial: the query includes all audit statuses and entity types",
+    "migration": "Idempotent STATEMENTS entry inside the existing training migration savepoint; no new marker or event rewrite"
+  },
+  "fixture": {
+    "creation": "Real TrainingService.create_equipment mutations on an isolated synthetic Repository",
+    "users": 2,
+    "events_per_user": 600,
+    "total_events": 1200,
+    "timestamps": "Unique alternating one-second timestamps across users; a separate case explicitly creates forty tied local-user timestamps and later timestamps for the other user"
+  },
+  "failing_before": {
+    "counts": {
+      "tests": 4,
+      "passed": 2,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "raw_path": ".local/training-recent-design/before.xml",
+    "raw_sha256": "56088770e410a1960b514c99dd2df11309206175eafdbf3062d0a018ebfbfb49",
+    "public_path": "artifacts/v14/performance/training-recent-failing-before.xml",
+    "public_sha256": "cc3a0927fcc0190edec332ce8bbda47af163b2a89d02144d905a3273de2a450f",
+    "raw_terminal_log": ".local/training-recent-design/before.log",
+    "raw_terminal_log_sha256": "8550a82eb49ac93e7dce6f2b062704f4e344e9be5c6e1f0d1560fa74437b98a4",
+    "raw_source_receipt": ".local/training-recent-design/before.json",
+    "raw_source_receipt_sha256": "c663e1ac23d359dcb3e68e4452951166cd0e806921f001455ce8ecfe65224f65",
+    "execution": {
+      "active_source_sha256": {
+        "src/healthzip/training/schema.py": "2b687a443d9ec1a90bb7cc54b6979c38ab6cc43eed8e6764663aea5630421498",
+        "src/healthzip/ui/training_page.py": "1402167e38085111b90c083dadfdfa1724556d48f5b749039329e2d961fbb75d"
+      },
+      "isolated_schema_sha256": "2b687a443d9ec1a90bb7cc54b6979c38ab6cc43eed8e6764663aea5630421498",
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "pythonpath=.local/training-recent-design/src",
+        ".local/training-recent-design/tests/test_recent_training_events.py",
+        "--junitxml=.local/training-recent-design/before.xml"
+      ],
+      "exit_code": 1
+    },
+    "suite_started_at": [
+      "2026-11-12T12:30:41.208587+08:00"
+    ],
+    "interpretation": "Two passes preserve ordinary query results and the existing tie contract. Two failures prove the unbounded query plan and absent index migration. The isolated schema bytes matched the active pre-fix schema."
+  },
+  "passing_after": {
+    "counts": {
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "raw_path": ".local/training-recent-design/after.xml",
+    "raw_sha256": "bc83de1abeb633b8c170204bec9d2e4b6007a6a6509d63b42d822d13693e24fd",
+    "public_path": "artifacts/v14/performance/training-recent-after.xml",
+    "public_sha256": "db188817041eed00f9a0033ec5279380a4aa7e36400eff21d66cde74846cadb3",
+    "raw_terminal_log": ".local/training-recent-design/after.log",
+    "raw_terminal_log_sha256": "89ff44d6ffc65e259a1bc8f52ea6a32853071179fd9743446ba0759cb438d636",
+    "raw_source_receipt": ".local/training-recent-design/after.json",
+    "raw_source_receipt_sha256": "a31a7f15621506ba59e876e3bdb837a6373bb8f8d3d6223f77802510496dfd7e",
+    "execution": {
+      "source_sha256_before": {
+        "src/healthzip/training/schema.py": "5aa1b1cc849dcdf3575a62766f670b923cdebeae1daf12f410f6971dd463dc5a",
+        "src/healthzip/ui/training_page.py": "1402167e38085111b90c083dadfdfa1724556d48f5b749039329e2d961fbb75d",
+        "tests/training/test_recent_training_events.py": "6e3da2a6fb98a277ea433e29b1410c79986223f2ef174bb1a9ceca38bd0a5e80"
+      },
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/training/test_recent_training_events.py",
+        "--junitxml=.local/training-recent-design/after.xml"
+      ],
+      "exit_code": 0,
+      "source_sha256_after": {
+        "src/healthzip/training/schema.py": "5aa1b1cc849dcdf3575a62766f670b923cdebeae1daf12f410f6971dd463dc5a",
+        "src/healthzip/ui/training_page.py": "1402167e38085111b90c083dadfdfa1724556d48f5b749039329e2d961fbb75d",
+        "tests/training/test_recent_training_events.py": "6e3da2a6fb98a277ea433e29b1410c79986223f2ef174bb1a9ceca38bd0a5e80"
+      }
+    },
+    "suite_started_at": [
+      "2026-11-12T12:31:16.889351+08:00"
+    ],
+    "interpretation": "All four directed cases passed on the frozen active source; source and test hashes were unchanged during execution",
+    "staged_test_bytes_equal_applied_test": true,
+    "test_sha256": "6e3da2a6fb98a277ea433e29b1410c79986223f2ef174bb1a9ceca38bd0a5e80"
+  },
+  "sqlite_work_evidence": {
+    "method": "sqlite3.set_progress_handler callback every one virtual-machine instruction while executing and fetching the exact UI query; no hard elapsed-time threshold",
+    "before_vm_steps": 15435,
+    "before_query_plan": [
+      "SEARCH training_event USING INDEX training_event_support (user_id=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "after_vm_steps_upper_bound_exclusive": 2000,
+    "after_exact_vm_steps": null,
+    "after_plan_assertions_passed": [
+      "training_event_recent used",
+      "no TEMP B-TREE sort"
+    ],
+    "precision_note": "The passing run records the tested upper bound, not an invented exact instruction count or extrapolated million-event latency."
+  },
+  "result_and_preservation_contract": {
+    "distinct_timestamps": "For each user, the thirty complete returned rows equal a full synthetic reference ordering; original event bytes remain unchanged",
+    "ties": "The original SQL declares no secondary key. Forty same-time local events yield thirty distinct local events from that tied set with the declared timestamp order; no fixed UUID subset or tied ordering is claimed",
+    "migration": "Interrupted index creation rolls back; successful upgrade and rerun retain all original training_event row values",
+    "raw_timestamp_text": "Preserved; this index retains the UI's existing SQLite text ordering, without changing the separate exact-UTC as-of contract"
+  },
+  "sanitization": [
+    "Private repository/home/pytest temporary paths and runtime memory addresses replaced",
+    "Hostname, host and pid attributes removed",
+    "Environment properties and captured stdout/stderr removed from public XML",
+    "Test identities, actual counts, assertions and timings retained",
+    "Unmodified raw XML, logs and source receipts retained locally with SHA256"
+  ],
+  "ruff": {
+    "command": ".venv/bin/ruff check src/healthzip/training/schema.py tests/training/test_recent_training_events.py",
+    "observed_result": "All checks passed"
+  },
+  "limits": [
+    "Four directed tests do not replace the coordinator's fresh final repository-wide run",
+    "Formal stage 3 scale/UI measurements are separate; no claim that the two-second million-event UI budget is already met",
+    "Earlier stage 2 performance and test evidence remain unchanged"
+  ]
+}

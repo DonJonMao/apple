@@ -10,7 +10,17 @@ from __future__ import annotations
 import sqlite3
 from typing import Callable, Optional
 
+from .history_candidates import migrate_history_candidates
+
 TRAINING_SCHEMA_VERSION = 3
+
+# Immutable event payloads retain their original text. These expressions only
+# narrow candidate sessions; Python still resolves exact availability and the
+# latest visible revisions before testing final window membership.
+EVENT_SESSION_SQL = "CASE WHEN entity_type='session' THEN json_extract(after_json,'$.id') ELSE json_extract(after_json,'$.session_id') END"
+EVENT_END_SQL = "julianday(COALESCE(json_extract(after_json,'$.ended_at'),json_extract(after_json,'$.started_at')))"
+EVENT_START_SQL = "julianday(COALESCE(json_extract(after_json,'$.started_at'),json_extract(after_json,'$.ended_at')))"
+EVENT_QUERY_PROJECTION = "1"
 
 ADDITIONS = {
     "strength_session": {
@@ -154,8 +164,13 @@ STATEMENTS = [
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_training_session_uuid ON strength_session(session_uuid)",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_training_set_uuid ON strength_set(set_uuid)",
     "CREATE INDEX IF NOT EXISTS idx_training_session_user ON strength_session(user_id,session_date)",
+    """CREATE INDEX IF NOT EXISTS idx_training_active_session
+        ON strength_session(user_id,session_date DESC,id DESC)
+        WHERE deleted_at IS NULL AND session_status IN ('draft','in_progress','paused')""",
     "CREATE INDEX IF NOT EXISTS idx_training_set_condition ON strength_set(user_id,condition_key)",
     "CREATE INDEX IF NOT EXISTS idx_training_event_entity ON training_event(user_id,entity_type,entity_id)",
+    "CREATE INDEX IF NOT EXISTS training_event_recent ON training_event(user_id,recorded_at DESC)",
+    "CREATE INDEX IF NOT EXISTS training_invalidation_pending ON training_invalidation(user_id,id) WHERE status='pending'",
 ]
 
 
@@ -180,6 +195,20 @@ def migrate_training(
                 checkpoint(table)
         for statement in STATEMENTS:
             conn.execute(statement)
+        projection = conn.execute(
+            "SELECT value FROM schema_meta WHERE key='training_event_query_projection'"
+        ).fetchone()
+        if not projection or projection[0] != EVENT_QUERY_PROJECTION:
+            conn.execute(f"CREATE INDEX IF NOT EXISTS training_event_support ON training_event(user_id,{EVENT_END_SQL},{EVENT_START_SQL})")
+            conn.execute(f"CREATE INDEX IF NOT EXISTS training_event_session_versions ON training_event(user_id,({EVENT_SESSION_SQL}),recorded_at)")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_conflict_event ON training_conflict(user_id,event_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_recommendation_created ON training_recommendation(user_id,julianday(created_at))")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_recommendation_followup ON training_recommendation(user_id,julianday(json_extract(candidate_json,'$.followup_window.end')),julianday(json_extract(candidate_json,'$.followup_window.start')))")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_feedback_support ON training_recommendation_feedback(user_id,julianday(occurred_at),candidate_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_feedback_candidate ON training_recommendation_feedback(user_id,candidate_id,recorded_at)")
+            conn.execute("CREATE INDEX IF NOT EXISTS training_unprojected_legacy ON strength_set(user_id) WHERE legacy_raw_value IS NULL AND set_uuid IS NULL")
+            conn.execute("INSERT OR REPLACE INTO schema_meta(key,value) VALUES('training_event_query_projection',?)", (EVENT_QUERY_PROJECTION,))
+        migrate_history_candidates(conn)
         catalog_columns = {row[1] for row in conn.execute("PRAGMA table_info(exercise_catalog)")}
         if "revision" not in catalog_columns:
             conn.execute(

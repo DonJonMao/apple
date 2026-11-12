@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-11-12T04:20:14.553558+00:00",
+  "scope": "Stage2 benchmark harness smoke with 1000 synthetic historical events; not a completed scale-performance result or scientific validation.",
+  "initial_status": "failed_original_cohort_integrity_assertion",
+  "initial_failed_phase": "verify_new_ui_mutations_and_original_cohort",
+  "initial_failure_is_not_a_throughput_failure": true,
+  "initial_cause": "mark_recomputed updated analysis_version on historical invalidations that were already recomputed. The benchmark expected only the originally pending rows to change and correctly rejected the altered old cohort.",
+  "initial_private_result_sha256": "da5db419b840fc9a528ad1fdbc2f7661d4a0b654f3979cdf841fd957160b9030",
+  "initial_private_stderr_sha256": "5c77fcd8a5b4c63464843198b631ddaca0856fc42554ec657e66360cfc700687",
+  "repair": "Update only pending invalidations; add partial pending index for reads and the bounded update.",
+  "repaired_status": "passed",
+  "original_cohort_assertion_unchanged": true,
+  "repaired_private_result_sha256": "4e3103a07ff91d093112b1ee22cd93429239d752b00906f2c2b23e4577b8d74e",
+  "repaired_private_stderr_sha256": "7dfc51b5aab9824e06c387860ea1f3a54fcc796b064e5c79a6dabffd54af0634",
+  "repaired_source_sha256": {
+    "src/healthzip/training/service.py": "1fe8e5a8ee150ba0cc094e9586d2bf3aff0ef2aa65afee84c96c492bdce637ff",
+    "src/healthzip/training/schema.py": "2b687a443d9ec1a90bb7cc54b6979c38ab6cc43eed8e6764663aea5630421498"
+  },
+  "repaired_benchmark_script_sha256": "55b1efca1149d3fac9a366c9ff799a75a5f82c60e3056bf8737e4dcf9a862dca",
+  "original_core_table_cohort_preserved": true,
+  "documented_existing_invalidation_rows_recomputed": 10,
+  "intentional_ui_record_additions": {
+    "strength_session": 1,
+    "training_session_exercise": 1,
+    "strength_set": 1,
+    "training_event": 3,
+    "training_invalidation": 3
+  },
+  "normal_training_ui_verified": [
+    "restore an active session with an existing compatible exercise",
+    "copy latest completed values as an uncompleted draft",
+    "navigate history page 2, final page and page 1",
+    "cached navigation including the actual strength page"
+  ],
+  "latest_source_set_id": "synthetic-current-set",
+  "draft_actual_verified": {
+    "completion_state": "draft",
+    "load_value": "40",
+    "load_unit": "kg",
+    "reps": 8,
+    "started_at": null,
+    "ended_at": null
+  },
+  "original_failure_retained": true,
+  "public_stderr_or_host_information_included": false
+}

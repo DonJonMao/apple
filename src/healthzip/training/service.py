@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import Callable, Optional
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
-from .schema import migrate_training
+from .history_candidates import latest_values_as_of
+from .schema import EVENT_END_SQL, EVENT_SESSION_SQL, EVENT_START_SQL, migrate_training
 from .semantics import (
     LOAD_BASES,
     MEASUREMENT_MODES,
@@ -155,7 +156,7 @@ class TrainingService:
     def mark_recomputed(self, analysis_version: str, through_id: int):
         with self._transaction():
             self.conn.execute(
-                "UPDATE training_invalidation SET status='recomputed',analysis_version=? WHERE user_id=? AND id<=?",
+                "UPDATE training_invalidation SET status='recomputed',analysis_version=? WHERE user_id=? AND status='pending' AND id<=?",
                 (analysis_version, self.user_id, through_id),
             )
 
@@ -1105,15 +1106,31 @@ class TrainingService:
         item["rest_timer"] = self.timer_status(item["id"])
         return item
 
-    def list_sessions(self, *, include_deleted=False, active_only=False) -> list[dict]:
-        sql, args = "SELECT * FROM strength_session WHERE user_id=?", [self.user_id]
+    def _session_inventory_filter(self, include_deleted, active_only):
+        sql, args = " FROM strength_session WHERE user_id=?", [self.user_id]
         if not include_deleted:
             sql += " AND deleted_at IS NULL"
         if active_only:
             sql += " AND session_status IN ('draft','in_progress','paused')"
-        return [
-            _decode(r) for r in self.conn.execute(sql + " ORDER BY session_date DESC,id DESC", args)
-        ]
+        return sql, args
+
+    def count_sessions(self, *, include_deleted=False, active_only=False) -> int:
+        sql, args = self._session_inventory_filter(include_deleted, active_only)
+        return self.conn.execute("SELECT COUNT(*)" + sql, args).fetchone()[0]
+
+    def list_sessions(self, *, include_deleted=False, active_only=False,
+                      limit=None, offset=0) -> list[dict]:
+        """Current inventory; optional paging never limits export or historical replay."""
+        if limit is not None and (type(limit) is not int or limit < 1):
+            raise TrainingError("每页条数必须为正整数")
+        if type(offset) is not int or offset < 0:
+            raise TrainingError("查询起点必须为非负整数")
+        sql, args = self._session_inventory_filter(include_deleted, active_only)
+        sql = "SELECT *" + sql + " ORDER BY session_date DESC,id DESC"
+        if limit is not None or offset:
+            sql += " LIMIT ? OFFSET ?"
+            args.extend((limit if limit is not None else -1, offset))
+        return [_decode(r) for r in self.conn.execute(sql, args)]
 
     def legacy_records(self, *, include_deleted=False) -> list[dict]:
         """Raw legacy observations for display and explicit analytical exclusions.
@@ -1667,20 +1684,14 @@ class TrainingService:
                 "completion_state": "draft",
             }
         cutoff = timestamp(cutoff_time)
-        rows = self.history_as_of(cutoff_time=cutoff, condition_key=condition_key)
-        eligible = [
-            row
-            for row in reversed(rows)
-            if row["session_id"] != instance["session_id"] and not row.get("conflicted")
-        ]
-        if not eligible:
+        row = latest_values_as_of(self, condition_key, instance["session_id"], cutoff)
+        if row is None:
             return {
                 "status": "insufficient",
                 "reason": "no_comparable_history_available_before_cutoff",
                 "suggested_actual": {},
                 "completion_state": "draft",
             }
-        row = eligible[0]
         suggested = {
             k: row[k]
             for k in ("load_value", "load_unit", "reps", "duration_s", "distance_m")
@@ -2179,6 +2190,88 @@ class TrainingService:
             args.append(str(entity_id))
         return [_decode(r) for r in self.conn.execute(sql + " ORDER BY recorded_at,rowid", args)]
 
+    @staticmethod
+    def _query_window(window_start, window_end):
+        if bool(window_start) != bool(window_end):
+            raise TrainingError("查询窗口必须同时指定起止时间")
+        if not window_start:
+            return None
+        start, end = (datetime.fromisoformat(timestamp(value)) for value in (window_start, window_end))
+        if start >= end:
+            raise TrainingError("查询窗口结束时间必须晚于开始时间")
+        return start, end
+
+    def events_as_of(self, *, cutoff_time, window_start=None, window_end=None,
+                     support_windows=(), required_set_ids=(), _session_ids=None):
+        """Read one availability-safe event stream for sets, sessions and plans.
+
+        Any visible revision can nominate a session, but *all* its visible events are
+        replayed, including later moves and tombstones. Old session starts do
+        not hide later completed sets. Required execution/baseline IDs and
+        declared follow-up windows expand support explicitly, without sampling.
+        """
+        cutoff = datetime.fromisoformat(timestamp(cutoff_time))
+        cutoff_time = cutoff.isoformat()
+        window = self._query_window(window_start, window_end)
+        clauses, args = ["user_id=?", "julianday(recorded_at)<=julianday(?)+0.001/86400"], [self.user_id, cutoff_time]
+        if _session_ids is not None:
+            if not _session_ids:
+                return []
+            clauses.append(f"({EVENT_SESSION_SQL}) IN (SELECT value FROM json_each(?))")
+            args.append(json_text(sorted(set(_session_ids))))
+        elif window:
+            windows = {tuple(value.isoformat() for value in window)}
+            for first, last in support_windows:
+                parsed = self._query_window(first, last)
+                if parsed:
+                    windows.add(tuple(value.isoformat() for value in parsed))
+            fields = (f"{EVENT_SESSION_SQL} AS session_id,recorded_at,"
+                      "COALESCE(json_extract(after_json,'$.ended_at'),json_extract(after_json,'$.started_at')) AS support_end,"
+                      "COALESCE(json_extract(after_json,'$.started_at'),json_extract(after_json,'$.ended_at')) AS support_start")
+            # SQLite dates have millisecond precision. Fetch only indexed scalar
+            # metadata first, and check exact time before nominating a session.
+            # A future correction cannot change a past snapshot's support set.
+            candidates = [f"SELECT {fields},0 AS required FROM json_each(?) bounds CROSS JOIN training_event "
+                f"ON user_id=? AND {EVENT_END_SQL}>=julianday(json_extract(bounds.value,'$[0]'))-0.001/86400 "
+                f"AND {EVENT_START_SQL}<=julianday(json_extract(bounds.value,'$[1]'))+0.001/86400 "
+                "WHERE julianday(recorded_at)<=julianday(?)+0.001/86400"]
+            candidate_args = [json_text(sorted(windows)), self.user_id, cutoff_time]
+            if required_set_ids:
+                candidates.append(f"SELECT {fields},1 AS required FROM training_event "
+                    "WHERE user_id=? AND entity_type='set' AND entity_id IN (SELECT value FROM json_each(?)) "
+                    "AND julianday(recorded_at)<=julianday(?)+0.001/86400")
+                candidate_args.extend((self.user_id, json_text(sorted({str(x) for x in required_set_ids})), cutoff_time))
+            parsed_windows = [(datetime.fromisoformat(first), datetime.fromisoformat(last)) for first, last in windows]
+            session_ids = set()
+            for candidate in self.conn.execute(" UNION ALL ".join(candidates), candidate_args):
+                if candidate["session_id"] is None or datetime.fromisoformat(candidate["recorded_at"]) > cutoff:
+                    continue
+                if not candidate["required"]:
+                    first, last = datetime.fromisoformat(candidate["support_start"]), datetime.fromisoformat(candidate["support_end"])
+                    if not any(start <= last < end or (last > start and first < end) for start, end in parsed_windows):
+                        continue
+                session_ids.add(candidate["session_id"])
+            if not session_ids:
+                return []
+            clauses.append(f"({EVENT_SESSION_SQL}) IN (SELECT value FROM json_each(?))")
+            args.append(json_text(sorted(session_ids)))
+        else:
+            clauses.append("entity_type IN ('session','session_exercise','set','conflict')")
+        selected = "SELECT rowid AS event_order,* FROM training_event WHERE " + " AND ".join(clauses)
+        # Keep-current conflict decisions have no session payload. Join their
+        # explicit conflict identity to the already selected original event.
+        sql = ("WITH selected AS (" + selected + ") SELECT * FROM selected UNION ALL "
+               "SELECT e.rowid AS event_order,e.* FROM training_event e "
+               "JOIN training_conflict c ON c.id=e.entity_id AND c.user_id=e.user_id "
+               "WHERE e.user_id=? AND e.entity_type='conflict' "
+               "AND c.event_id IN (SELECT event_id FROM selected) "
+               "AND e.event_id NOT IN (SELECT event_id FROM selected) "
+               "AND julianday(e.recorded_at)<=julianday(?)+0.001/86400")
+        rows = [row for row in self.conn.execute(sql, (*args, self.user_id, cutoff_time))
+                if datetime.fromisoformat(row["recorded_at"]) <= cutoff]
+        rows.sort(key=lambda row: (datetime.fromisoformat(row["recorded_at"]), row["event_order"]))
+        return [_decode(row) for row in rows]
+
     def history_as_of(
         self,
         *,
@@ -2186,6 +2279,9 @@ class TrainingService:
         condition_key=None,
         include_incomplete: bool = False,
         include_deleted: bool = False,
+        window_start=None,
+        window_end=None,
+        _events=None,
     ) -> list[dict]:
         """Replay only facts and revisions available by the decision cutoff.
 
@@ -2194,12 +2290,21 @@ class TrainingService:
         future corrections, deletion, and conflicts never rewrite prior snapshots.
         """
         cutoff = datetime.fromisoformat(timestamp(cutoff_time))
+        window = self._query_window(window_start, window_end)
+        events = self.events_as_of(cutoff_time=cutoff_time, window_start=window_start,
+                                  window_end=window_end) if _events is None else _events
         state, sessions, conflicts = {}, {}, {}
         resolutions = {}
-        for conflict in self.list_conflicts(unresolved_only=False):
+        conflict_ids = [(event.get("result") or {}).get("conflict_id") for event in events
+                        if event["status"] == "conflicted"]
+        for conflict in self.conn.execute(
+            "SELECT id,resolved_by_event_id FROM training_conflict WHERE user_id=? "
+            "AND id IN (SELECT value FROM json_each(?))", (self.user_id, json_text(conflict_ids))
+        ):
+            conflict = dict(conflict)
             if conflict.get("resolved_by_event_id"):
                 resolutions.setdefault(conflict["resolved_by_event_id"], []).append(conflict["id"])
-        for event in self.audit_events():
+        for event in events:
             if datetime.fromisoformat(event["recorded_at"]) > cutoff:
                 continue
             row = event.get("after")
@@ -2235,6 +2340,8 @@ class TrainingService:
                 when = session.get("started_at")
             if not when or datetime.fromisoformat(when) > cutoff:
                 continue
+            if window and not window[0] <= datetime.fromisoformat(when) < window[1]:
+                continue
             if not include_incomplete and row.get("completion_state") != "completed":
                 continue
             session_deleted = session.get("deleted_at")
@@ -2254,7 +2361,7 @@ class TrainingService:
         return sorted(
             result,
             key=lambda x: (
-                x.get("ended_at") or x.get("started_at") or x.get("session_started_at") or "",
+                datetime.fromisoformat(x.get("ended_at") or x.get("started_at") or x["session_started_at"]),
                 x["set_uuid"],
             ),
         )
@@ -2431,13 +2538,29 @@ class TrainingService:
             invalidates=False,
         )
 
-    def list_recommendations(self) -> list[dict]:
+    def list_recommendations(self, *, cutoff_time=None, window_start=None, window_end=None) -> list[dict]:
+        window = self._query_window(window_start, window_end)
+        if window:
+            window_start, window_end = (value.isoformat() for value in window)
+        cutoff_time = timestamp(cutoff_time) if cutoff_time else None
+        sql, args = "SELECT * FROM training_recommendation WHERE user_id=?", [self.user_id]
+        if window:
+            sql += (" AND candidate_id IN ("
+                "SELECT candidate_id FROM training_recommendation WHERE user_id=? "
+                "AND julianday(created_at)>=julianday(?)-0.001/86400 AND julianday(created_at)<=julianday(?)+0.001/86400 UNION "
+                "SELECT candidate_id FROM training_recommendation_feedback WHERE user_id=? "
+                "AND julianday(occurred_at)>=julianday(?)-0.001/86400 AND julianday(occurred_at)<=julianday(?)+0.001/86400 UNION "
+                "SELECT candidate_id FROM training_recommendation WHERE user_id=? "
+                "AND julianday(json_extract(candidate_json,'$.followup_window.end'))>=julianday(?)-0.001/86400 "
+                "AND julianday(json_extract(candidate_json,'$.followup_window.start'))<=julianday(?)+0.001/86400)")
+            args.extend((self.user_id, window_start, window_end) * 3)
+        if cutoff_time:
+            sql += " AND julianday(created_at)<=julianday(?)+0.001/86400"
+            args.append(cutoff_time)
         rows = [
             _decode(r)
-            for r in self.conn.execute(
-                "SELECT * FROM training_recommendation WHERE user_id=? ORDER BY created_at DESC",
-                (self.user_id,),
-            )
+            for r in self.conn.execute(sql + " ORDER BY created_at DESC", args)
+            if not cutoff_time or datetime.fromisoformat(r["created_at"]) <= datetime.fromisoformat(timestamp(cutoff_time))
         ]
         for row in rows:
             row["feedback"] = [
@@ -2516,11 +2639,12 @@ class TrainingService:
         """Convenience UI entry; timer never fills actual_rest_s."""
         return self.rest_timer(session_id, "start", target_seconds=target_seconds, at=at)
 
-    def sessions_as_of(self, *, cutoff_time: str, include_deleted: bool = False) -> list[dict]:
+    def sessions_as_of(self, *, cutoff_time: str, include_deleted: bool = False, _events=None) -> list[dict]:
         """Availability-safe session metadata, including independently recorded sRPE."""
         cutoff = datetime.fromisoformat(timestamp(cutoff_time))
         sessions = {}
-        for event in self.audit_events():
+        events = self.events_as_of(cutoff_time=cutoff_time) if _events is None else _events
+        for event in events:
             if event["entity_type"] != "session" or event["status"] != "applied":
                 continue
             if datetime.fromisoformat(event["recorded_at"]) > cutoff:

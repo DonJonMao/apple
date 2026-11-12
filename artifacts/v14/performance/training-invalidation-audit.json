@@ -1,0 +1,160 @@
+{
+  "recorded_at": "2026-11-12T04:18:32.960120+00:00",
+  "synthetic_only": true,
+  "problem": "mark_recomputed previously rewrote every same-user invalidation up to through_id, including completed historical receipts, replacing their analysis_version and causing unnecessary historical writes",
+  "changes": {
+    "service_method": "TrainingService.mark_recomputed",
+    "update_predicate": "user_id=? AND status='pending' AND id<=?",
+    "partial_index": "training_invalidation_pending",
+    "index_sql": "CREATE INDEX IF NOT EXISTS training_invalidation_pending ON training_invalidation(user_id,id) WHERE status='pending'",
+    "index_support": [
+      "pending_invalidations same-user pending rows ordered by id",
+      "mark_recomputed pending prefix through the inclusive id boundary"
+    ],
+    "migration": "Additive CREATE INDEX IF NOT EXISTS within the existing migration savepoint; no existing invalidation data is changed",
+    "transaction": "Existing mark_recomputed savepoint remains nested in its caller's transaction"
+  },
+  "verified_behaviors": [
+    "An old recomputed row retains all original fields and its prior analysis_version",
+    "Only the same user's pending row through the inclusive id boundary is completed",
+    "Another user's pending row is unchanged even when its id is within the boundary",
+    "A later pending row remains pending",
+    "A repeated completion with a different version performs zero writes and preserves prior receipts",
+    "The pending read and completion UPDATE both use the partial index",
+    "Index upgrade and rerun preserve invalidation row contents",
+    "An outer transaction rollback restores all invalidation rows"
+  ],
+  "fixture_setup_attempt": {
+    "counts": {
+      "tests": 4,
+      "passed": 0,
+      "failed": 0,
+      "errors": 4,
+      "skipped": 0
+    },
+    "interpretation": "Four fixture setup errors, not product-regression failures: create_equipment does not enqueue an analysis invalidation, so the first fixture incorrectly indexed an empty pending list. The fixture was changed to real start_session calls before the valid failing-before run.",
+    "raw_path": ".local/training-invalidation-audit/fixture-setup-errors.xml",
+    "raw_sha256": "81d0a7ed1e0407b1060650920433b5e864984f70eea97d45118d997445012953",
+    "public_path": "artifacts/v14/performance/training-invalidation-fixture-setup-errors.xml",
+    "public_sha256": "751839cac85213e5a8b53d54f159092cf1630902c3eef74256e8fc9a1c1134bc",
+    "raw_terminal_log": ".local/training-invalidation-audit/fixture-setup-errors.log",
+    "raw_terminal_log_sha256": "8daed28b910be5630aa18a108c55ccd6e5040104c08cbf2e043ad1f17641c1fb",
+    "raw_source_receipt": ".local/training-invalidation-audit/fixture-setup-errors.json",
+    "raw_source_receipt_sha256": "d4e57f0b5c32a22448e416504ede12b995470f37c09d3540777558674a52ad0b",
+    "execution": {
+      "source_sha256": {
+        "src/healthzip/training/service.py": "4d6ac0356b4373f9813bbc6e9ee8e08d2d54e89f437bae5ec99a764342d33e01",
+        "src/healthzip/training/schema.py": "baa2849f9e57bb520e81267d2e6cf21236f028fb4daeb3e7f64ad0a1154542f9",
+        "tests/training/test_invalidation_completion.py": "f2741d7bd9f84a4fa1cc6085ff9eb5441003de8c8679b11ca43be21421c76ff8"
+      },
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/training/test_invalidation_completion.py",
+        "--junitxml=.local/training-invalidation-audit/before.xml"
+      ],
+      "exit_code": 1
+    },
+    "suite_started_at": [
+      "2026-11-12T12:16:12.701681+08:00"
+    ]
+  },
+  "failing_before": {
+    "counts": {
+      "tests": 4,
+      "passed": 1,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "interpretation": "Three genuine failures and one pass with the corrected real-service fixture: completed history was overwritten, repeating completion rewrote receipts, and no pending-only query index existed. Outer transaction rollback already passed.",
+    "raw_path": ".local/training-invalidation-audit/before.xml",
+    "raw_sha256": "c322216aff9ea9bbde9de3215f54678fd7c5f6242b91a6d65df36ed3b6ae6848",
+    "public_path": "artifacts/v14/performance/training-invalidation-failing-before.xml",
+    "public_sha256": "9da1465fd094c2320f0a163076a19621326576992dd0ba46c473f66f195c1638",
+    "raw_terminal_log": ".local/training-invalidation-audit/before.log",
+    "raw_terminal_log_sha256": "0d14095ed23e88cd71d5ca3bba135d71571ac7bd684fb80e01f63e8063444cfe",
+    "raw_source_receipt": ".local/training-invalidation-audit/before.json",
+    "raw_source_receipt_sha256": "eaab22a2d403edb11431f7e188296f33fcd195d9982b810925cfdaede343b336",
+    "execution": {
+      "source_sha256": {
+        "src/healthzip/training/service.py": "4d6ac0356b4373f9813bbc6e9ee8e08d2d54e89f437bae5ec99a764342d33e01",
+        "src/healthzip/training/schema.py": "baa2849f9e57bb520e81267d2e6cf21236f028fb4daeb3e7f64ad0a1154542f9",
+        "tests/training/test_invalidation_completion.py": "5d4a2edd748ef89a07ad77f694cbd234efb0b15b17a519ffaeed26474b1ccd25"
+      },
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/training/test_invalidation_completion.py",
+        "--junitxml=.local/training-invalidation-audit/before.xml"
+      ],
+      "exit_code": 1
+    },
+    "suite_started_at": [
+      "2026-11-12T12:16:31.301727+08:00"
+    ]
+  },
+  "passing_after": {
+    "counts": {
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "interpretation": "All four directed tests passed after restricting completion to pending rows and adding the partial index. This is not a repository-wide regression result.",
+    "raw_path": ".local/training-invalidation-audit/after.xml",
+    "raw_sha256": "d171a293cc0af1042cbcf7bc55462b4fb109ec276e9b85d992acc00d8d10763b",
+    "public_path": "artifacts/v14/performance/training-invalidation-after.xml",
+    "public_sha256": "aba1d11f16c58d7f9be4e0e15624dc9dec9b5b82f4517d11b72cad7399c77998",
+    "raw_terminal_log": ".local/training-invalidation-audit/after.log",
+    "raw_terminal_log_sha256": "26c1c1f298b2fa8ab89f73308182e1e1c694df77921859d9cd4c22446925dab4",
+    "raw_source_receipt": ".local/training-invalidation-audit/after.json",
+    "raw_source_receipt_sha256": "e23221399549895bd3879b582bfc177026614da9ff00e612bd43d7d5da43220e",
+    "execution": {
+      "source_sha256_before": {
+        "src/healthzip/training/service.py": "1fe8e5a8ee150ba0cc094e9586d2bf3aff0ef2aa65afee84c96c492bdce637ff",
+        "src/healthzip/training/schema.py": "2b687a443d9ec1a90bb7cc54b6979c38ab6cc43eed8e6764663aea5630421498",
+        "tests/training/test_invalidation_completion.py": "5d4a2edd748ef89a07ad77f694cbd234efb0b15b17a519ffaeed26474b1ccd25"
+      },
+      "command": [
+        ".venv/bin/pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/training/test_invalidation_completion.py",
+        "--junitxml=.local/training-invalidation-audit/after.xml"
+      ],
+      "exit_code": 0,
+      "source_sha256_after": {
+        "src/healthzip/training/service.py": "1fe8e5a8ee150ba0cc094e9586d2bf3aff0ef2aa65afee84c96c492bdce637ff",
+        "src/healthzip/training/schema.py": "2b687a443d9ec1a90bb7cc54b6979c38ab6cc43eed8e6764663aea5630421498",
+        "tests/training/test_invalidation_completion.py": "5d4a2edd748ef89a07ad77f694cbd234efb0b15b17a519ffaeed26474b1ccd25"
+      }
+    },
+    "suite_started_at": [
+      "2026-11-12T12:16:52.148705+08:00"
+    ]
+  },
+  "sanitization": [
+    "Private repository/home/pytest temporary paths replaced",
+    "Hostname, host and pid attributes removed",
+    "Properties and captured environment stdout/stderr removed from public XML",
+    "Runtime memory addresses replaced",
+    "Test identities, assertions, true result counts and timings retained",
+    "Unmodified raw XML, terminal logs and source receipts retained locally and bound by SHA256"
+  ],
+  "verification_limits": [
+    "Four directed tests and Ruff passed; final integrated verification belongs to the coordinator's fresh full run",
+    "The fixture setup errors, failing-before result and passing-after result are distinct runs and are not combined into an inflated passing total",
+    "No million-row latency result is claimed here; the benchmark task must measure the final frozen source and include the pending index in cold-upgrade simulation"
+  ],
+  "ruff": {
+    "command": ".venv/bin/ruff check src/healthzip/training/service.py src/healthzip/training/schema.py tests/training/test_invalidation_completion.py",
+    "observed_result": "All checks passed"
+  }
+}

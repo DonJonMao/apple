@@ -92,6 +92,37 @@ def _outcome(recommendation, latest, records, *, cutoff_time=None):
 def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, window_end=None,
              canonical_types=None, include_sources=True):
     service = TrainingService(repo)
+    recommendations = service.list_recommendations(cutoff_time=cutoff_time,
+        window_start=window_start, window_end=window_end)
+    bound = datetime.fromisoformat(cutoff_time.replace("Z", "+00:00"))
+    support_windows, required_set_ids = [], set()
+    for recommendation in recommendations:
+        feedback = [x for x in recommendation["feedback"]
+                    if datetime.fromisoformat(x["recorded_at"]) <= bound and datetime.fromisoformat(x["occurred_at"]) <= bound]
+        recommendation["feedback"] = feedback
+        if feedback:
+            required_set_ids.update(feedback[-1].get("actual_record_ids", []))
+        reference_id = recommendation["input_snapshot"].get("reference_set_id")
+        if reference_id:
+            required_set_ids.add(reference_id)
+        followup = recommendation["candidate"].get("followup_window")
+        if isinstance(followup, dict) and followup.get("start") and followup.get("end"):
+            # The follow-up evaluator validates the frozen declaration; invalid
+            # declarations must not expand a query or become valid by omission.
+            try:
+                from healthzip.training.followup import validate_frozen_window
+                validate_frozen_window(followup, created_at=recommendation["created_at"])
+            except (ValueError, KeyError):
+                pass
+            else:
+                support_windows.append((followup["start"], followup["end"]))
+    events = service.events_as_of(cutoff_time=datetime.now(timezone.utc).isoformat() if retrospective else cutoff_time,
+        window_start=window_start, window_end=window_end, support_windows=support_windows,
+        required_set_ids=required_set_ids)
+    session_ids = sorted({event["after"].get("id") if event["entity_type"] == "session"
+                          else event["after"].get("session_id") for event in events
+                          if isinstance(event.get("after"), dict)
+                          and event["entity_type"] in {"session", "session_exercise", "set"}} - {None})
     records = []
     source_counts = {}
     for table in (("health_sample", "body_measurement", "subjective_log") if include_sources else ()):
@@ -112,8 +143,10 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
             if retrospective:
                 row["temporal_provenance"] = row.get("temporal_provenance") or "retrospective_snapshot"
             records.append(row)
-    sets = ([dict(r) for r in repo.rows("SELECT * FROM strength_set WHERE deleted_at IS NULL")]
-            if retrospective else service.history_as_of(cutoff_time=cutoff_time, include_incomplete=True))
+    sets = ([dict(r) for r in repo.rows("SELECT * FROM strength_set WHERE user_id=? AND deleted_at IS NULL "
+                "AND (session_id IN (SELECT value FROM json_each(?)) OR set_uuid IS NULL)",
+                (service.user_id, json.dumps(session_ids)))]
+            if retrospective else service.history_as_of(cutoff_time=cutoff_time, include_incomplete=True, _events=events))
     legacy = service.legacy_records()
     if not retrospective:
         sets.extend({**r, "source_available_at": r.get("available_at"), "available_at": None,
@@ -127,8 +160,10 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         row["event_start"] = row.get("started_at")
         row["is_reference"] = bool(row.get("reference_set"))
         records.append(row)
-    sessions = ([dict(r) for r in repo.rows("SELECT * FROM strength_session WHERE deleted_at IS NULL")]
-                if retrospective else service.sessions_as_of(cutoff_time=cutoff_time))
+    sessions = ([dict(r) for r in repo.rows("SELECT * FROM strength_session WHERE user_id=? AND deleted_at IS NULL "
+                    "AND (id IN (SELECT value FROM json_each(?)) OR session_uuid IS NULL)",
+                    (service.user_id, json.dumps(session_ids)))]
+                if retrospective else service.sessions_as_of(cutoff_time=cutoff_time, _events=events))
     for session in sessions:
         session["session_id"] = session["id"]
         session["event_end"] = session.get("ended_at")
@@ -141,7 +176,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
     # Capture original template-created set identities, including skipped/missing
     # sets. Later plan edits and extra sets cannot change this denominator.
     plans = []
-    for event in service.audit_events():
+    for event in events:
         if event.get("action") != "start_session" or event.get("status") != "applied":
             continue
         if datetime.fromisoformat(event["recorded_at"]) > datetime.fromisoformat(cutoff_time.replace("Z", "+00:00")):
@@ -162,8 +197,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         if row.get("set_uuid") in planned_ids:
             row["planned_set_id"] = row["set_uuid"]
     outcomes = []
-    bound = datetime.fromisoformat(cutoff_time.replace("Z", "+00:00"))
-    for recommendation in service.list_recommendations():
+    for recommendation in recommendations:
         if datetime.fromisoformat(recommendation["created_at"]) > bound:
             continue
         feedback = [x for x in recommendation["feedback"]
@@ -173,6 +207,12 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
     return records, {"sessions": sessions, "recommendation_outcomes": outcomes, "data_version": service.data_version(),
                      "query_plan": {"window_start": window_start, "window_end": window_end,
                                     "canonical_types": canonical_types, "source_rows_returned": source_counts,
+                                    "training_events_returned": len(events),
+                                    "training_sets_returned": len(sets),
+                                    "training_sessions_returned": len(sessions),
+                                    "training_recommendations_returned": len(recommendations),
+                                    "training_support_windows": support_windows,
+                                    "training_required_set_ids": sorted(required_set_ids),
                                     "revision_order": "latest_visible_before_support_filter"},
                      "session_plans": plans, "retrospective": retrospective,
                      "legacy_unresolved_inventory": {"count": len(legacy), "record_ids": [r["id"] for r in legacy],
@@ -267,7 +307,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.3",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.4",
             "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}

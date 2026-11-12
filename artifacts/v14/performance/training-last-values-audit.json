@@ -1,0 +1,210 @@
+{
+  "recorded_at": "2026-11-12T04:12:32.715161+00:00",
+  "scope": "Stage 2 last_values candidate lookup and separately identified UTC ordering correction",
+  "synthetic_only": true,
+  "implementation": {
+    "module": "src/healthzip/training/history_candidates.py",
+    "projection_table": "training_event_set_candidate",
+    "index": "training_last_values_candidates",
+    "triggers": [
+      "training_event_candidates_insert",
+      "training_event_candidates_update",
+      "training_event_candidates_delete"
+    ],
+    "marker": {
+      "training_last_values_projection": "1"
+    },
+    "maintenance": "SQL backfill plus source-event INSERT/UPDATE/DELETE triggers within the source transaction; original event bytes retained",
+    "lookup": "Descending exact UTC microsecond candidates, full visible session replay, stop only at exhaustion or proven remaining-rank upper bound",
+    "batch_size": 64,
+    "history_horizon": null,
+    "maximum_batches": null,
+    "sampling": false,
+    "udf_registration": "migrate_history_candidates registers healthzip_instant_us before the marker shortcut on each Repository/direct migration connection",
+    "test_coverage": [
+      "old same-condition history is not decoded",
+      "more than one batch of invalid candidates",
+      "time corrections require further paging",
+      "explicit past cutoff",
+      "set and parent deletion/undo",
+      "keep_current and apply_proposed conflict decisions",
+      "session and session_exercise nested snapshots",
+      "nested condition revisions",
+      "trigger update/delete and rollback",
+      "atomic migration and original event bytes",
+      "user isolation",
+      "microsecond visibility",
+      "true UTC order",
+      "same-instant UUID ties",
+      "warm Repository connection UDF registration",
+      "automatic cutoff advancement without a new event"
+    ]
+  },
+  "correctness_change_separate_from_performance": {
+    "previous_behavior": "history_as_of sorted original endpoint strings, so 12:00+08:00 (04:00 UTC) could be chosen after 05:00+00:00",
+    "new_behavior": "history_as_of orders actual datetime instants and set UUID; candidate keys use exactly equivalent integer UTC microseconds",
+    "raw_timestamp_text_preserved": true,
+    "evidence": "artifacts/v14/performance/training-last-values-tests-final.xml",
+    "scientific_validation_claim": null
+  },
+  "dedicated_verification": {
+    "raw_path": ".local/last-values-audit/last-values-final.xml",
+    "raw_sha256": "b1e56aa6e4fa706166623d5cf348a583b732304b7e6bdea9fd81308572898c6b",
+    "public_path": "artifacts/v14/performance/training-last-values-tests-final.xml",
+    "public_sha256": "f73ed2460ac5cb68c98610d1a3e6f43d68e49580cc776bdbdb06152619765c89",
+    "counts": {
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_started_at": [
+      "2026-11-12T12:12:01.700828+08:00"
+    ],
+    "sanitization": [
+      "remove hostname, host and pid attributes",
+      "remove properties, system-out and system-err elements; originals retained locally",
+      "replace absolute repository/home/pytest temporary paths and runtime memory addresses",
+      "retain testcase identities, pass/failure state, assertions and timing"
+    ],
+    "command": [
+      ".venv/bin/pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/training/test_last_values_query.py",
+      "--junitxml=.local/last-values-audit/last-values-final.xml"
+    ],
+    "exit_code": 0,
+    "source_sha256_before": {
+      "src/healthzip/training/history_candidates.py": "76109dc1517360bdf646ccbc2fccd6a84120e806cbeb9bd50b257c94a57d9e61",
+      "src/healthzip/training/service.py": "4d6ac0356b4373f9813bbc6e9ee8e08d2d54e89f437bae5ec99a764342d33e01",
+      "src/healthzip/training/schema.py": "baa2849f9e57bb520e81267d2e6cf21236f028fb4daeb3e7f64ad0a1154542f9",
+      "tests/training/test_last_values_query.py": "f4bb1d53fc716aa11a25a15d22a3f06bb11fc95e685f19174534a23f4a90827e"
+    },
+    "source_sha256_after": {
+      "src/healthzip/training/history_candidates.py": "76109dc1517360bdf646ccbc2fccd6a84120e806cbeb9bd50b257c94a57d9e61",
+      "src/healthzip/training/service.py": "4d6ac0356b4373f9813bbc6e9ee8e08d2d54e89f437bae5ec99a764342d33e01",
+      "src/healthzip/training/schema.py": "baa2849f9e57bb520e81267d2e6cf21236f028fb4daeb3e7f64ad0a1154542f9",
+      "tests/training/test_last_values_query.py": "f4bb1d53fc716aa11a25a15d22a3f06bb11fc95e685f19174534a23f4a90827e"
+    },
+    "owned_source_and_test_files_unchanged": true,
+    "source_record_raw_path": ".local/last-values-audit/tests-final-source.json",
+    "source_record_raw_sha256": "d4a4f1c9bac8e269260b050f8d5a1856d700a019b53e014f399deda4fee95cde",
+    "terminal_log_raw_path": ".local/last-values-audit/last-values-final.log",
+    "terminal_log_raw_sha256": "f08294a484af52cafc56e0551394bcd2d7b73c5ddaf925a1244d13212f6b0b04"
+  },
+  "earlier_dedicated_verification": {
+    "raw_path": ".local/last-values-audit/last-values.xml",
+    "raw_sha256": "6083c716269bef4fa03624196b8ddfdd185fa7d9dcc67f069d54ac7818755b73",
+    "public_path": "artifacts/v14/performance/training-last-values-tests.xml",
+    "public_sha256": "99ceedeb9857d60a71b4a1be9d173722ec2f989feddb4b00eebdce4000398878",
+    "counts": {
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_started_at": [
+      "2026-11-12T12:08:57.007909+08:00"
+    ],
+    "sanitization": [
+      "remove hostname, host and pid attributes",
+      "remove properties, system-out and system-err elements; originals retained locally",
+      "replace absolute repository/home/pytest temporary paths and runtime memory addresses",
+      "retain testcase identities, pass/failure state, assertions and timing"
+    ],
+    "interpretation": "An earlier 17-test pass is preserved. The coordinator subsequently completed separate service/schema pagination and active-session index changes before the final source-pinned run above. This earlier pass is not the authoritative final verification and is not added to the 17-test total."
+  },
+  "historical_broad_run": {
+    "raw_path": ".local/last-values-design/active-regressions.xml",
+    "raw_sha256": "0701ac4c88f2ad10e4271ef6546c2c0fbd6b0d9bf694970890ec39fc64c35a26",
+    "public_path": "artifacts/v14/performance/training-last-values-broad-regressions.xml",
+    "public_sha256": "ee63c33ce35b7ddbfdc34fbdc6faa9ce2f928b19916d855f7bac0da711efb810",
+    "counts": {
+      "tests": 168,
+      "passed": 165,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_started_at": [
+      "2026-11-12T12:04:43.655016+08:00"
+    ],
+    "sanitization": [
+      "remove hostname, host and pid attributes",
+      "remove properties, system-out and system-err elements; originals retained locally",
+      "replace absolute repository/home/pytest temporary paths and runtime memory addresses",
+      "retain testcase identities, pass/failure state, assertions and timing"
+    ],
+    "command": ".venv/bin/pytest -q -p no:cacheprovider tests/training tests/integration/test_v13_training_ui.py tests/integration/test_v14_followup_report.py tests/integration/test_training_history_followup_support.py tests/integration/test_v14_anatomy_history.py tests/integration/test_v14_query_planning.py --junitxml=.local/last-values-design/active-regressions.xml",
+    "exit_code": 1,
+    "failures": [
+      {
+        "class": "tests.training.test_training_view_queries",
+        "test": "test_bounded_legacy_strength_view_reads_only_supporting_payloads",
+        "failure_message": "AssertionError: assert {'strength_se..._session': 13} == {'strength_se...h_session': 1}"
+      },
+      {
+        "class": "tests.training.test_training_view_queries",
+        "test": "test_selected_analysis_window_is_used_by_both_strength_views",
+        "failure_message": "AssertionError: assert [{'exercise_n...nown:2', ...}] == [{'exercise_n...nown:2', ...}]"
+      },
+      {
+        "class": "tests.training.test_training_view_queries",
+        "test": "test_same_load_peer_counts_do_not_compare_every_pair",
+        "failure_message": "AssertionError: Peer counting must not enumerate all pairs"
+      }
+    ],
+    "interpretation": "165 passed and 3 failed; this is not a 168-test passing result",
+    "coordination_timing": "The broad Python process started while the coordinator was introducing separate p1/core tests and fixes, and had already imported earlier p1/core modules. Its three failures concern bounded legacy rows, shared selected windows and quadratic same-load peer counting, not the dedicated last_values cases.",
+    "source_hashes_at_broad_start": null,
+    "limitation": "No broad-run startup source hash was captured; timing and coordination establish context, while a fresh unified run is required for a final repository-wide claim."
+  },
+  "separate_coordinator_dependency_check": {
+    "raw_path": ".local/training-view-audit/after.xml",
+    "raw_sha256": "960b220a775697cf0f08ccee1c71832dde37baa927953c7870a1da8c1b09f5df",
+    "public_path": "artifacts/v14/performance/training-last-values-dependent-view-after.xml",
+    "public_sha256": "82e0508b443aefac0fa2cb9c6116f296026d0fc5988328fcef377bf350efde90",
+    "counts": {
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suite_started_at": [
+      "2026-11-12T12:04:53.033177+08:00"
+    ],
+    "sanitization": [
+      "remove hostname, host and pid attributes",
+      "remove properties, system-out and system-err elements; originals retained locally",
+      "replace absolute repository/home/pytest temporary paths and runtime memory addresses",
+      "retain testcase identities, pass/failure state, assertions and timing"
+    ],
+    "owner": "root coordinator",
+    "interpretation": "18 selected view-query checks passed after the separate p1/core correction; this does not turn the earlier 168-test run into a passing run and is not added to its total."
+  },
+  "performance_evidence": {
+    "raw_path": ".local/last-values-audit/small-scale.json",
+    "raw_sha256": "0eaadbcab52933e0a09b4a6b55b74c0088e1702bfd06d33900ef0b30be9af53c",
+    "public_path": "artifacts/v14/performance/training-last-values-small-scale.json",
+    "public_sha256": "8968758e8477aa0416b4ed2e467a8fc671a86b576a5ea91ac246451fbbfe6790",
+    "scope": "single synthetic 10000-historical-event last_values invocation; not a release/UI-scale benchmark",
+    "fixture_event_count": 10011,
+    "training_events_decoded": 80,
+    "seconds": 0.021224670112133026,
+    "source_identity_correct": true,
+    "source_unchanged_during_run": true,
+    "sanitization": "No private path, hostname or user data fields exist in the synthetic raw JSON; JSON serialized with final newline."
+  },
+  "performance_limits": [
+    "One synthetic same-condition lookup on a shared host, not a paired speedup or percentile measurement",
+    "Does not certify the full training UI, all-history worst case, cold migration, or million-event budget",
+    "An all-invalid history may require exhausting candidates; no false constant-time guarantee",
+    "Formal stage 2 scale/UI results are maintained by the benchmark task separately"
+  ],
+  "documentation": ".local/last-values-design/DESIGN.md"
+}

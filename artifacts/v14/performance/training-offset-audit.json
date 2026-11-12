@@ -1,0 +1,68 @@
+{
+  "recorded_at": "2026-11-12T04:03:42.964841+00:00",
+  "issue": "Python accepts ISO offsets +0000/+0800, but SQLite julianday rejects these unnormalized query strings. Valid training records and candidate feedback silently disappeared from equivalent queries.",
+  "fix": "Normalize parsed cutoff and window bounds to datetime.isoformat before passing them to SQLite in events_as_of and list_recommendations; exact Python time checks and stored source timestamps remain intact.",
+  "modified_methods": [
+    "TrainingService.events_as_of",
+    "TrainingService.list_recommendations"
+  ],
+  "code_lines_added": 4,
+  "isolated_original_source_sha256": "aa665d4195a68c939f64022a7d56148f7621b2f8ef16a4240c93575c5998e294",
+  "isolated_fixed_source_sha256": "81ff4acd5ddbddd4a45c6627f337207fd9f65533b07d2b566de3ccddc3911ffe",
+  "test_path": "tests/training/test_history_compact_offsets.py",
+  "test_sha256": "fd8aaef63f9d0cbacaab4f5b59d48d853a30a03bfeee803cf4fbac60fc48dae9",
+  "verification_scope": [
+    "+0000 and +0800 cutoff/window strings versus equal colon-formatted instants",
+    "real TrainingService.history_as_of and analytics.snapshot results",
+    "candidate selection through feedback-only window membership",
+    "candidate selection through predeclared follow-up overlap",
+    "explicit old execution/reference support retained"
+  ],
+  "ruff": "passed",
+  "results_are_overlapping_not_additive": true,
+  "independent_scientific_validation_cases": 0,
+  "diagnostics": [
+    {
+      "path": "artifacts/v14/performance/training-offset-failing-before.xml",
+      "purpose": "Isolated frozen stage-1 code with the final 14 regression cases: all failed before the compact-offset normalization fix.",
+      "original_private_path": ".local/training-offset-fix/evidence/compact-offset-before-final-cases.xml",
+      "original_sha256": "cd0bace13beb314ff5add05dc5c6c6c2b2761d708653d08ce1b8eb5c0e199931",
+      "public_sha256": "0155dc03f376b4d24afe0c596e9b34c757cb6de3f1a606106b1a04c3cd75e17d",
+      "totals": {
+        "tests": 14,
+        "errors": 0,
+        "failures": 14,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-offset-isolated-verification.xml",
+      "purpose": "Same isolated code plus the four normalization lines and identical cases: 14 passed.",
+      "original_private_path": ".local/training-offset-fix/evidence/compact-offset-after.xml",
+      "original_sha256": "e448ac4c670be019370071ccfb50c85d263b2fb429449e54d9ddee168e3af77c",
+      "public_sha256": "170d5292346a2711669dedc74a59ee100e7496f4f2d86fd06465676be781cf64",
+      "totals": {
+        "tests": 14,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-offset-root-regressions.xml",
+      "purpose": "Root checkout after applying the offset fix: 30 offset/window/follow-up/query regressions passed, before subsequent last-values integration.",
+      "original_private_path": ".local/training-offset-root/targeted.xml",
+      "original_sha256": "6de0ba99393ed0c0d72a2d8b8e3c19dc5734934879503fbc059091a3ae436010",
+      "public_sha256": "1f92e1b600275e384924c1d903ff050c63435d91e340c69dc7e3215f87741ebd",
+      "totals": {
+        "tests": 30,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    }
+  ]
+}

@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS strength_set (
  range_of_motion TEXT, notes TEXT, import_batch_id INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_strength_key ON strength_set(exercise_name,equipment,variation,set_date);
+CREATE INDEX IF NOT EXISTS idx_strength_date ON strength_set(set_date);
 CREATE TABLE IF NOT EXISTS nutrition_day (
  id INTEGER PRIMARY KEY, fingerprint TEXT UNIQUE, day TEXT, energy_kcal REAL, protein_g REAL,
  carbohydrates_g REAL, fat_g REAL, log_status TEXT NOT NULL, source TEXT, notes TEXT, import_batch_id INTEGER

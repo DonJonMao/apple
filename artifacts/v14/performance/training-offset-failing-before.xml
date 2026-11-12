@@ -1,0 +1,283 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="14" skipped="0" tests="14" time="1.455" timestamp="2026-11-12T11:57:08.853160+08:00"><testcase classname="tests.test_history_compact_offsets" name="test_history_and_snapshot_accept_compact_cutoff_and_window_offsets[0]" time="0.117"><failure message="AssertionError: assert [] == [{'added_load...': None, ...}]&#10;  &#10;  Right contains 2 more items, first extra item: {'added_load_kg': None, 'assistance_value': None, 'available_at': '2026-01-01T08:00:00+00:00', 'body_mass_kg': None, ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff95589a50&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:4c2e81f3-3ea1-5d77-819f-72ddeb762e70', 'session_id': 2, ...})
+hours = 0
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    def test_history_and_snapshot_accept_compact_cutoff_and_window_offsets(recorded_trial, hours):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-05T00:00:00Z", "window_start": "2026-01-01T00:00:00Z", "window_end": "2026-01-05T00:00:00Z"}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        compact = {key: offset(value, hours, compact=True) for key, value in times.items()}
+        expected = service.history_as_of(**colon)
+        assert {row["set_uuid"] for row in expected} == {baseline["set_uuid"], execution["set_uuid"]}
+&gt;       assert service.history_as_of(**compact) == expected
+E       AssertionError: assert [] == [{'added_load...': None, ...}]
+E
+E         Right contains 2 more items, first extra item: {'added_load_kg': None, 'assistance_value': None, 'available_at': '2026-01-01T08:00:00+00:00', 'body_mass_kg': None, ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:74: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_history_and_snapshot_accept_compact_cutoff_and_window_offsets[8]" time="0.086"><failure message="AssertionError: assert [] == [{'added_load...': None, ...}]&#10;  &#10;  Right contains 2 more items, first extra item: {'added_load_kg': None, 'assistance_value': None, 'available_at': '2026-01-01T08:00:00+00:00', 'body_mass_kg': None, ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff9558d950&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:a087be73-33c9-5cb2-8b1f-6b64ad61733b', 'session_id': 2, ...})
+hours = 8
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    def test_history_and_snapshot_accept_compact_cutoff_and_window_offsets(recorded_trial, hours):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-05T00:00:00Z", "window_start": "2026-01-01T00:00:00Z", "window_end": "2026-01-05T00:00:00Z"}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        compact = {key: offset(value, hours, compact=True) for key, value in times.items()}
+        expected = service.history_as_of(**colon)
+        assert {row["set_uuid"] for row in expected} == {baseline["set_uuid"], execution["set_uuid"]}
+&gt;       assert service.history_as_of(**compact) == expected
+E       AssertionError: assert [] == [{'added_load...': None, ...}]
+E
+E         Right contains 2 more items, first extra item: {'added_load_kg': None, 'assistance_value': None, 'available_at': '2026-01-01T08:00:00+00:00', 'body_mass_kg': None, ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:74: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields0-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'ab331504-f743-59c2-bc9b-9997887a3b8f', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff9558d7d0&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:d25ffe36-15a3-5678-bc87-6722c1f5b6f6', 'session_id': 2, ...})
+hours = 0, compact_fields = ('cutoff_time',), membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'ab331504-f743-59c2-bc9b-9997887a3b8f', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields0-8]" time="0.099"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'af2711e8-9979-53f7-8443-00c168d8612a', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff9510b950&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:a737f127-5d8e-59ac-b60a-6f1c189c346f', 'session_id': 2, ...})
+hours = 8, compact_fields = ('cutoff_time',), membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'af2711e8-9979-53f7-8443-00c168d8612a', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields1-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'd15e0e14-c37a-5e74-8af2-0f50e5c792e0', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff950e0e50&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:640c9d76-9e60-52d6-864e-d908a3f02497', 'session_id': 2, ...})
+hours = 0, compact_fields = ('window_start', 'window_end')
+membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'd15e0e14-c37a-5e74-8af2-0f50e5c792e0', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields1-8]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'f4a6e209-3932-5b7c-9789-810aeddda798', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff955889d0&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:fd5f9a2b-ed1a-50e3-94b9-bc5efb92befb', 'session_id': 2, ...})
+hours = 8, compact_fields = ('window_start', 'window_end')
+membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'f4a6e209-3932-5b7c-9789-810aeddda798', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields2-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '73017950-b273-5ede-a9dc-98e39766eccb', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff95113650&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:55264673-2c22-568a-a230-2fc508c40dda', 'session_id': 2, ...})
+hours = 0, compact_fields = ('cutoff_time', 'window_start', 'window_end')
+membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '73017950-b273-5ede-a9dc-98e39766eccb', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[feedback-compact_fields2-8]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'a4745eeb-a2c8-5f51-9719-4242aaef258b', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff952a0f90&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:8e129b02-8d7b-52e8-82c3-9b977020eea0', 'session_id': 2, ...})
+hours = 8, compact_fields = ('cutoff_time', 'window_start', 'window_end')
+membership = 'feedback'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'a4745eeb-a2c8-5f51-9719-4242aaef258b', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields0-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '6693b8e7-866d-5c44-a143-4ff3ff952340', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff950d5c90&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:e9ade5ab-63f1-5fcd-b095-c09300abf625', 'session_id': 2, ...})
+hours = 0, compact_fields = ('cutoff_time',), membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '6693b8e7-866d-5c44-a143-4ff3ff952340', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields0-8]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'b961f9c1-5857-5049-bdf7-e83a21ef8cd4', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff950d74d0&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:1a99df8a-dd24-5655-9f3a-15fb015ebd4a', 'session_id': 2, ...})
+hours = 8, compact_fields = ('cutoff_time',), membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'b961f9c1-5857-5049-bdf7-e83a21ef8cd4', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields1-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '603f92d5-2b17-57a4-b309-69d71a9ffdcb', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff974cea10&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:93f40150-58cf-5e6f-b62c-652e41176d4e', 'session_id': 2, ...})
+hours = 0, compact_fields = ('window_start', 'window_end')
+membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': '603f92d5-2b17-57a4-b309-69d71a9ffdcb', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields1-8]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'a0980e9d-612a-5176-9a5a-a9eb51ea9b06', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff95111cd0&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:ae84b0f9-8023-5b31-8ff0-dc9b0a632e5a', 'session_id': 2, ...})
+hours = 8, compact_fields = ('window_start', 'window_end')
+membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'a0980e9d-612a-5176-9a5a-a9eb51ea9b06', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields2-0]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'b7b60541-ac82-5897-a13b-4918a731fd9f', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff9510ad10&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:6176ab59-73e2-5f2a-80d9-43f0bba3d09d', 'session_id': 2, ...})
+hours = 0, compact_fields = ('cutoff_time', 'window_start', 'window_end')
+membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'b7b60541-ac82-5897-a13b-4918a731fd9f', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase><testcase classname="tests.test_history_compact_offsets" name="test_candidate_feedback_and_followup_queries_normalize_each_bound[followup-compact_fields2-8]" time="0.084"><failure message="AssertionError: assert [] == [{'candidate_...+00:00', ...}]&#10;  &#10;  Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'e3efe8c0-74bb-5f0a-8382-621d89bf7f5b', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}&#10;  Use -v to get more diff">recorded_trial = (&lt;healthzip.db.repository.Repository object at 0xffff952b0250&gt;, &lt;healthzip.training.service.TrainingService object at ...1, ...}, {'status': 'saved', 'id': 2, 'fingerprint': 'v13:b34d53d7-aeb5-5907-b528-740932419351', 'session_id': 2, ...})
+hours = 8, compact_fields = ('cutoff_time', 'window_start', 'window_end')
+membership = 'followup'
+
+    @pytest.mark.parametrize("hours", [0, 8])
+    @pytest.mark.parametrize("compact_fields", [("cutoff_time",), ("window_start", "window_end"), ("cutoff_time", "window_start", "window_end")])
+    @pytest.mark.parametrize("membership", ["feedback", "followup"])
+    def test_candidate_feedback_and_followup_queries_normalize_each_bound(recorded_trial, hours, compact_fields, membership):
+        repo, service, baseline, execution = recorded_trial
+        times = {"cutoff_time": "2026-01-06T00:00:00Z", **({"window_start": "2026-01-02T08:03:30Z", "window_end": "2026-01-02T08:05:00Z"}
+            if membership == "feedback" else {"window_start": "2026-01-04T00:00:00Z", "window_end": "2026-01-06T00:00:00Z"})}
+        colon = {key: offset(value, hours, compact=False) for key, value in times.items()}
+        mixed = {key: offset(value, hours, compact=key in compact_fields) for key, value in times.items()}
+        expected = service.list_recommendations(**colon)
+        assert len(expected) == 1 and expected[0]["feedback"][-1]["actual_record_ids"] == [execution["set_uuid"]]
+&gt;       assert service.list_recommendations(**mixed) == expected
+E       AssertionError: assert [] == [{'candidate_...+00:00', ...}]
+E
+E         Right contains one more item: {'candidate_id': 'synthetic-offset-candidate', 'user_id': 'local', 'target_session': 'e3efe8c0-74bb-5f0a-8382-621d89bf7f5b', 'cutoff_time': '2026-01-02T08:01:00+00:00', ...}
+E         Use -v to get more diff
+
+tests/test_history_compact_offsets.py:93: AssertionError</failure></testcase></testsuite></testsuites>

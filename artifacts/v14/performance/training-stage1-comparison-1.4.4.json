@@ -1,0 +1,55 @@
+{
+  "verified_at": "2026-11-12T04:07:09.087661+00:00",
+  "baseline_commit": "2063f0420f7252886a9fb7a2ee9fad7adb093ac9",
+  "baseline_scope": "Only 10k historical training events were measured on the archived baseline; no 100k or 1m baseline timing is claimed.",
+  "artifact_sha256": {
+    "artifacts/v14/performance/training-baseline-2063f04.json": "24be55221998bb2275a674b3cd7fd0c898a735ac9a4f76fb27ddb2c68f92ec71",
+    "artifacts/v14/performance/training-optimized-1.4.4.json": "c326d698a1e2f872ede0af7e33a4ec5fa2b902bbb90a4f610bbf2e8107522162"
+  },
+  "baseline_original_script_sha256": "c8977e16f8dec5dc2dfb66a85571194e7b06ffadb2c6b4004cb3d2a5d02a78ca",
+  "optimized_script_sha256": "8c27264ede4db326ea751cdf30cfc7853d1da4900e8dfe91d29b41355f53c712",
+  "script_evolution": "The immutable baseline used schema v1. Schema v2 adds cold index migration and streaming table-value hashes, plus a pre-encoded fixture generator checked against the original recursive rendering for groups 2 and 127. Analysis and page timing procedures are retained. Fixture seeding times are not import/UI throughput and are not compared as such.",
+  "measurement_context": "Shared Linux aarch64 execution host. Optimized workers ran concurrently with the full test suite and other delivery validation; these are measured workload results, not an isolated-hardware or user-target-device guarantee.",
+  "comparison_scope": "77 value/unit/data-status/evidence-status/valid-n/total-n/count-domain summaries for one retained synthetic current set. This is not 77 independent correctness cases or scientific validations. Separate revision/move/delete/conflict/follow-up tests are required. This scale fixture contains no recommendation or feedback rows; their large-history throughput is not established by this run.",
+  "comparison_normalization": [
+    "Exclude nested computed_at execution timestamps",
+    "Exclude nested algorithm_version metadata changed from science 1.4.3 to 1.4.4",
+    "Replace only the current synthetic session surrogate ID in session_id and recorded_without_eligible_reference_session_ids",
+    "Retain actual metric values, units, data states, evidence states and counts"
+  ],
+  "fixed_analysis_cutoff": "2026-11-12T03:35:59.615367+00:00",
+  "original_baseline_preserved": true,
+  "all_baseline_measured_source_hashes_match_archived_git_commit": true,
+  "all_optimized_source_hashes_identical": true,
+  "stage1_million_result_incomplete": true,
+  "stage1_million_abort_receipt": "artifacts/v14/performance/training-stage1-million-abort-1.4.4.json",
+  "original_records_sampled_or_deleted": false,
+  "checks": [
+    {
+      "historical_training_events": 10000,
+      "total_preserved_training_events": 10011,
+      "compared_metric_summary_count": 77,
+      "metric_summary_mismatches": [],
+      "first_analysis_seconds": 0.2646428719162941,
+      "cached_analysis_median_seconds": 0.004994817078113556,
+      "current_event_decode_calls": 10,
+      "cached_streamlit_page_change_p95_seconds": 0.24131234735250473,
+      "cold_index_upgrade_seconds": 0.37693091481924057,
+      "warm_reopen_seconds": 0.004416912794113159,
+      "table_values_unchanged_across_cold_and_warm_upgrade": true
+    },
+    {
+      "historical_training_events": 100000,
+      "total_preserved_training_events": 100011,
+      "compared_metric_summary_count": 77,
+      "metric_summary_mismatches": [],
+      "first_analysis_seconds": 0.2796482965350151,
+      "cached_analysis_median_seconds": 0.005091402679681778,
+      "current_event_decode_calls": 10,
+      "cached_streamlit_page_change_p95_seconds": 0.7930018231272697,
+      "cold_index_upgrade_seconds": 4.240698680281639,
+      "warm_reopen_seconds": 0.004493609070777893,
+      "table_values_unchanged_across_cold_and_warm_upgrade": true
+    }
+  ]
+}

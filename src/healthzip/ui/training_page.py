@@ -957,10 +957,7 @@ def render_training(repo):
                 ):
                     st.session_state.pop(key, None)
                 st.rerun()
-        sessions = svc.list_sessions()
-        active = [
-            x for x in sessions if x.get("session_status") in {"draft", "in_progress", "paused"}
-        ]
+        active = svc.list_sessions(active_only=True)
         if active:
             labels = {x["id"]: f"{x['session_date']} · {x['name']} · #{x['id']}" for x in active}
             identity = st.selectbox(
@@ -1495,12 +1492,26 @@ def _history(svc):
     _exchange(svc)
     _legacy_history(svc)
     _conflicts(svc)
-    sessions = svc.list_sessions(include_deleted=True)
-    if not sessions:
+    total = svc.count_sessions(include_deleted=True)
+    if not total:
         st.info("尚无训练记录。")
         return
+    page_size = 50  # Display size only; every history page remains accessible.
+    pages = (total + page_size - 1) // page_size
+    page = 1
+    if pages > 1:
+        key = "training_history_page"
+        st.session_state[key] = min(pages, max(1, st.session_state.get(key, 1)))
+        page = st.number_input("训练历史页码", min_value=1, max_value=pages,
+                               step=1, key=key)
+        st.caption(f"共 {total} 次训练，每页最多 {page_size} 次；当前第 {page} / {pages} 页。")
+    sessions = svc.list_sessions(include_deleted=True, limit=page_size,
+                                 offset=(page - 1) * page_size)
     labels = {x["id"]: f"{x['session_date']} · {x['name']} · #{x['id']}" for x in sessions}
-    selected = st.selectbox("训练历史", list(labels), format_func=labels.get)
+    if st.session_state.get("training_history_session") not in labels:
+        st.session_state.pop("training_history_session", None)
+    selected = st.selectbox("训练历史", list(labels), format_func=labels.get,
+                            key="training_history_session")
     detail = svc.get_session(selected)
     st.dataframe(
         [

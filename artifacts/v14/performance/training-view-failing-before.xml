@@ -1,0 +1,71 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="1.591" timestamp="2026-11-12T12:03:43.708019+08:00"><testcase classname="tests.training.test_training_view_queries" name="test_bounded_legacy_strength_view_reads_only_supporting_payloads" time="0.106"><failure message="AssertionError: assert {'strength_se..._session': 13} == {'strength_se...h_session': 1}&#10;  &#10;  Differing items:&#10;  {'strength_set': 13} != {'strength_set': 1}&#10;  {'strength_session': 13} != {'strength_session': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-408/test_bounded_legacy_strength_v0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffaeec5f10&gt;
+
+    def test_bounded_legacy_strength_view_reads_only_supporting_payloads(tmp_path, monkeypatch):
+        repo = Repository(tmp_path / "synthetic-view.sqlite3")
+        today = date.today()
+        for index in range(12):
+            legacy(repo, (today - timedelta(days=90 + index)).isoformat(), f"Old synthetic {index}")
+        legacy(repo, today.isoformat(), "Current synthetic")
+        returned = {"strength_set": 0, "strength_session": 0}
+        original = repo.rows
+
+        def counted(sql, args=()):
+            rows = original(sql, args)
+            for table in returned:
+                if "FROM " + table in sql:
+                    returned[table] += len(rows)
+            return rows
+
+        monkeypatch.setattr(repo, "rows", counted)
+        result = p1.strength_quality(repo, today.isoformat(), today.isoformat())
+        assert len(result["sets"]) == 1
+&gt;       assert returned == {"strength_set": 1, "strength_session": 1}
+E       AssertionError: assert {'strength_se..._session': 13} == {'strength_se...h_session': 1}
+E
+E         Differing items:
+E         {'strength_set': 13} != {'strength_set': 1}
+E         {'strength_session': 13} != {'strength_session': 1}
+E         Use -v to get more diff
+
+tests/training/test_training_view_queries.py:35: AssertionError</failure></testcase><testcase classname="tests.training.test_training_view_queries" name="test_selected_analysis_window_is_used_by_both_strength_views" time="0.336"><failure message="AssertionError: assert [{'exercise_n...nown:2', ...}] == [{'exercise_n...nown:2', ...}]&#10;  &#10;[+3 more lines; full report in element text]">tmp_path = PosixPath('&lt;pytest-temp&gt;/pytest-408/test_selected_analysis_window_0')
+
+    def test_selected_analysis_window_is_used_by_both_strength_views(tmp_path):
+        repo = Repository(tmp_path / "synthetic-window.sqlite3")
+        today = date.today()
+        legacy(repo, (today - timedelta(days=90)).isoformat(), "Outside selected window")
+        legacy(repo, today.isoformat(), "Inside selected window")
+        result = all_analysis(repo, window_days=7)
+&gt;       assert result["strength"]["series"] == result["strength_quality"]["series"]
+E       AssertionError: assert [{'exercise_n...nown:2', ...}] == [{'exercise_n...nown:2', ...}]
+E
+E         At index 0 diff: {'exercise_name': 'Synthetic lift', 'equipment': '', 'variation': '', 'condition_key': 'unknown:1', 'comparability_status': 'unknown', 'exposures': 1, 'records': 1, 'points': [{'date': '2026-08-14', 'session_id': 1, 'started_at': '2026-08-14', 'sets': 1, 'all_sets': 1, 'source_set_ids': [1], 'source_session_ids': [1], 'volume_kg': None, 'volume_unit': 'kg·reps within one confirmed condition', 'top_e1rm_kg': None, 'median_rpe': None, 'median_rir': None, 'duration_minutes': None, 'session_rpe': None, 'session_rpe_load': None, 'load_method': 'not_recorded'...
+E
+E         ...Full output truncated, use '-vv' to show
+
+tests/training/test_training_view_queries.py:46: AssertionError</failure></testcase><testcase classname="tests.training.test_training_view_queries" name="test_legacy_noncanonical_day_supported_by_day_parser_is_not_dropped" time="0.064" /><testcase classname="tests.training.test_training_view_queries" name="test_same_load_peer_counts_do_not_compare_every_pair" time="0.938"><failure message="AssertionError: Peer counting must not enumerate all pairs&#10;assert 1000000 &lt; (1000 * 12)&#10; +  where 1000000 = &lt;class 'test_training_view_queries.test_same_load_peer_counts_do_not_compare_every_pair.&lt;locals&gt;.CountingWeight'&gt;.comparisons">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffae982310&gt;
+
+    def test_same_load_peer_counts_do_not_compare_every_pair(monkeypatch):
+        class CountingWeight(float):
+            comparisons = 0
+            __hash__ = float.__hash__
+
+            def __eq__(self, other):
+                type(self).comparisons += 1
+                return float.__eq__(self, other)
+
+        count = 1000
+        rows = [{"id": index, "session_id": 1, "date": "2020-01-01", "exercise_name": "Synthetic lift",
+            "equipment": "barbell", "variation": "", "condition_key": "synthetic-confirmed",
+            "comparability_status": "user_confirmed", "warmup": False, "volume_kg": None,
+            "e1rm_kg": None, "session": {}, "weight_kg": CountingWeight(40), "reps": 8}
+            for index in range(count)]
+        monkeypatch.setattr(p1, "_strength_rows", lambda *args: rows)
+        result = p1.strength_quality(None)
+        assert {row["peer_sets"] for row in result["series"][0]["same_load_reps"]} == {count}
+&gt;       assert CountingWeight.comparisons &lt; count * 12, "Peer counting must not enumerate all pairs"
+E       AssertionError: Peer counting must not enumerate all pairs
+E       assert 1000000 &lt; (1000 * 12)
+E        +  where 1000000 = &lt;class 'test_training_view_queries.test_same_load_peer_counts_do_not_compare_every_pair.&lt;locals&gt;.CountingWeight'&gt;.comparisons
+
+tests/training/test_training_view_queries.py:83: AssertionError</failure></testcase></testsuite></testsuites>

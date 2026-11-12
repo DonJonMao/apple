@@ -435,7 +435,7 @@ def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=Fa
         "workouts": workout_analysis(repo, window_days),
         "weight": weight_analysis(repo, window_days),
         "vo2": vo2_analysis(repo),
-        "strength": strength_analysis(repo),
+        "strength": {"card": p1_strength["card"], "groups": p1_strength["series"], "series": p1_strength["series"]},
         "nutrition": nutrition_analysis(repo),
         "cycle": cycle_analysis(repo),
         "readiness": readiness(repo, window_days=window_days, as_of=end.isoformat()),
@@ -597,7 +597,7 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
                 metric,
                 metric,
                 unit,
-                algorithm_version="p1-1.3.0",
+                algorithm_version=analysis.get("body_state_strength", {}).get("card", {}).get("algorithm_version", "p1-1.4.4"),
             )
     for session in analysis.get("strength_quality", {}).get("sessions", []):
         save_daily(
@@ -606,6 +606,6 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             "strength_volume",
             "volume_kg",
             "kg·reps",
-            algorithm_version="p1-1.3.0",
+            algorithm_version=analysis.get("strength_quality", {}).get("card", {}).get("algorithm_version", "p1-1.4.4"),
         )
     repo.conn.commit()

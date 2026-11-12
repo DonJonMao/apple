@@ -1,0 +1,98 @@
+{
+  "recorded_at": "2026-11-12T03:42:38.614273+00:00",
+  "baseline_commit": "2063f0420f7252886a9fb7a2ee9fad7adb093ac9",
+  "requirement": "Execution plan §6 F2 discussion of set volume, between-set rest and session frequency; CORE-F2-REST-OPTIONS bounded source explanation.",
+  "before": "Normal UI and discussion adapter offered volume/frequency but no between-set rest topic despite available scoped core explanation.",
+  "implementation": [
+    "Add discuss_rest through the existing normal candidate, selection, execution and post-session feedback path.",
+    "Keep current user rest plans separate from manual observations and adjacent-endpoint derivations, including record IDs, revisions, availability and derivation provenance.",
+    "Display original load/repetition/effort and quality context with rest observations; missing endpoints remain unknown and manual zero remains zero.",
+    "Use source_explanation only; no numerical candidate permission, personal optimal seconds, numerical success target or causal conclusion.",
+    "Keep original frozen discussion unchanged after endpoint correction or source withdrawal; current-use review reflects changed dependencies.",
+    "Limit numerical-feedback snapshot to its existing 365-day evaluation window, while the shared snapshot adapter preserves explicit candidate dependencies."
+  ],
+  "source_scope": "Existing CORE-CLAIM-REST 1.4.3 backed by actual S1 and active CORE-F2-REST-OPTIONS; no new source, knowledge release or approval.",
+  "new_regressions": 7,
+  "initial_counterexamples": {
+    "failed": 6,
+    "passed": 0
+  },
+  "first_targeted_verification": {
+    "passed": 18,
+    "failed": 0
+  },
+  "final_targeted_regressions": {
+    "passed": 49,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_command": ".venv/bin/python -m pytest -q tests/integration/test_v14_rest_discussion.py tests/integration/test_v14_bounded_discussions.py tests/integration/test_review_candidate_flow.py tests/integration/test_v14_followup_report.py tests/training/test_review_training_repairs.py",
+  "ruff": "passed for changed implementation and test files",
+  "implementation_sha256": {
+    "src/healthzip/discussion.py": "130f8ac358583dc03374eb3ebc500100d58bc8f35fc9e1a5354ef5d6c3c4ae92",
+    "src/healthzip/ui/recommendation_page.py": "c7d852bedcb56efc45cc9b653d771de6d82f444859914b19e0c3f303ea3a3e70",
+    "src/healthzip/science/strength.py": "03b95708ff26aea6d26147b873090418d0af64562b99e1763170b0f7b83e0402",
+    "tests/integration/test_v14_rest_discussion.py": "10ca43a4cefc85ccaea83133f7600c5279fbd5ceaea279d9ebad9e88c36e3776"
+  },
+  "actual_core_ui": {
+    "path": "artifacts/v14/advice/rest-discussion-actual-core-ui.json",
+    "sha256": "6be37019ee7fb67a7fc7513e8ffe35fe986934942abb6c04ae53b7f8d9d7a77d",
+    "passed": true
+  },
+  "diagnostic_publication_projection": [
+    {
+      "path": "artifacts/v14/advice/rest-discussion-failing-before.xml",
+      "raw_private_path": ".local/v14-rest-discussion-audit/failing-before.xml",
+      "original_sha256": "72e1c591baa9073f72ad893e5eab3b09ac7b7f8230c34ae1b88a58923029d8c3",
+      "public_sha256": "f1e81dfb7892fe2306634d31027f88a4b82ab95e580e27d10b3e5ea7ca724e06",
+      "test_results_changed": false,
+      "testsuites": [
+        {
+          "tests": "6",
+          "failures": "6",
+          "errors": "0",
+          "skipped": "0",
+          "time": "3.663"
+        }
+      ]
+    },
+    {
+      "path": "artifacts/v14/advice/rest-discussion-initial-verification.xml",
+      "raw_private_path": ".local/v14-rest-discussion-audit/first-verification.xml",
+      "original_sha256": "e94a184bc384e9573bcb77bf0357dd3c6d2b8b87cd0349aebbbfb3ea3da81da6",
+      "public_sha256": "2ae40ade03d2b15a8964e4dfd5a89d0d9153afaa4777d92f7d6208d87f8cb18f",
+      "test_results_changed": false,
+      "testsuites": [
+        {
+          "tests": "18",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "10.809"
+        }
+      ]
+    },
+    {
+      "path": "artifacts/v14/advice/rest-discussion-regressions.xml",
+      "raw_private_path": ".local/v14-rest-discussion-audit/regressions.xml",
+      "original_sha256": "e34bffa5c10e284d4cff66582840346c7a3b6ddc038186a267c4552023f36fd3",
+      "public_sha256": "64fa1705888a529f9279573dfd1207b1cbd48a3154f828dbb981d64113f49e69",
+      "test_results_changed": false,
+      "testsuites": [
+        {
+          "tests": "49",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "169.691"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Synthetic training only; actual core knowledge used in a read-only SQLite backup copy.",
+    "No independent semantic evaluation cases, human expert review, personal calibration or causal-efficacy evidence added.",
+    "Between-set source explanation does not establish a personal best interval; session frequency remains a separate discussion."
+  ]
+}

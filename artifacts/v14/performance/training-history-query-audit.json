@@ -1,0 +1,156 @@
+{
+  "recorded_at": "2026-11-12T03:45:09.279319+00:00",
+  "baseline_commit": "2063f0420f7252886a9fb7a2ee9fad7adb093ac9",
+  "scope": "Synthetic Repository and UI software verification of bounded training history queries; no scientific/clinical validity or personal calibration claim. Scale timings are a separate benchmark.",
+  "implementation": [
+    "Index immutable event support and parent-session expressions without rewriting payloads.",
+    "Select indexed scalar candidates and validate exact availability and interval support before loading session events.",
+    "Replay all visible revisions of nominated sessions once for sets, session metadata and original plan snapshots.",
+    "Retain explicit execution/baseline identities and validated declared follow-up windows outside the report period.",
+    "Replay recorded timestamps by actual instant and event insertion order; SQLite millisecond padding never relaxes microsecond boundaries."
+  ],
+  "migration": {
+    "marker_key": "training_event_query_projection",
+    "marker_value": "1",
+    "schema_version_unchanged": true,
+    "indexes": [
+      "training_event_support",
+      "training_event_session_versions",
+      "training_conflict_event",
+      "training_recommendation_created",
+      "training_recommendation_followup",
+      "training_feedback_support",
+      "training_feedback_candidate",
+      "training_unprojected_legacy"
+    ],
+    "transaction": "Existing migrate_training savepoint; marker checked before building indexes; all source payloads retained."
+  },
+  "limitations": [
+    "Full-history calls without a declared window still read full relevant history; last_values condition lookup has no arbitrary lookback limit.",
+    "Query windows may legitimately expand for explicit old execution/baseline identities and prospective follow-up periods.",
+    "No private training history or real target-computer benchmark is included."
+  ],
+  "new_independent_semantic_cases": 0,
+  "new_human_expert_reviews": 0,
+  "source_and_test_sha256": {
+    "src/healthzip/training/schema.py": "226fbd1d3318dbc1b2dd2f17efdc47008fd48c2b483c46d934ad02b250abf6e0",
+    "src/healthzip/training/service.py": "aa665d4195a68c939f64022a7d56148f7621b2f8ef16a4240c93575c5998e294",
+    "src/healthzip/analytics/v13.py": "0e566261d700933100049cb3208d8df9930c2bd74b16210d9dd65f837ba70476",
+    "tests/training/test_history_query_planning.py": "1ed7666a07de54111c37b51957a78bb7a8c4eb2534aa1dcedad3792c4aa01ec5",
+    "tests/integration/test_training_history_followup_support.py": "e7b8844a091851a859dfb1bebbe0e6046f0b22965ffea839f84f31ef093d82bb"
+  },
+  "diagnostics": [
+    {
+      "path": "artifacts/v14/performance/training-history-initial-fixture-error.xml",
+      "purpose": "Fixture setup error: invalid load-basis spelling; not a product failure.",
+      "original_private_path": ".local/training-history-fixture-before.xml",
+      "original_sha256": "a8f2ba63f168834f4797c5d6f1d15d568fd09f3248e58271a1f64a2b710b5edf",
+      "public_sha256": "3c719b3ec656a269fbbe44d7abd608864e49c40f0442af506b54b72fc5c6a092",
+      "totals": {
+        "tests": 5,
+        "errors": 0,
+        "failures": 5,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-failing-before.xml",
+      "purpose": "Baseline: window-external payload decoding plus missing scoped-history interface; 4 failed, 1 passed.",
+      "original_private_path": ".local/training-history-before.xml",
+      "original_sha256": "cc3bb68d07aa12c4363e272da844caae6b542e6558f10341bced858e87640792",
+      "public_sha256": "ebc00dcff3410fcac59311fb5d245d90353d9d798b4de2b65b102623410a6918",
+      "totals": {
+        "tests": 5,
+        "errors": 0,
+        "failures": 4,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-first-verification.xml",
+      "purpose": "First implementation: original five targeted cases passed.",
+      "original_private_path": ".local/training-history-after-initial.xml",
+      "original_sha256": "ec0f70ad3afb5d2aba28c0467fc3181dc2506e7823381b143ecd0272fce46c4c",
+      "public_sha256": "5f99b6e9b6ca6baa79c6a7958ad28f5bcc61b674420e81cb644f8de4a0265e3a",
+      "totals": {
+        "tests": 5,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-initial-regressions.xml",
+      "purpose": "147 existing/new training, UI, follow-up and query regressions passed before exact nomination refinements.",
+      "original_private_path": ".local/training-history-regressions.xml",
+      "original_sha256": "7e58361295258cfb72bf6cac8edd5dc8ed3c34d1f1c10dd91c20a87287bc9f04",
+      "public_sha256": "acd16820f50828147af0dac13dcacb368b0a9b8edc7eaf3f56d1766f3ac28d4a",
+      "totals": {
+        "tests": 147,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-interval-fixture-method-error.xml",
+      "purpose": "Additional interval fixture referenced a nonexistent service method; not a product failure.",
+      "original_private_path": ".local/training-history-support-initial.xml",
+      "original_sha256": "fe6ea12798f22eb94234f70f248968976bc621eeeaf93929c8270422a78cca4f",
+      "public_sha256": "57a8b4b3caa7086079e748cf3d1014b814f20d12c8282e4fabc9f232bbf7097e",
+      "totals": {
+        "tests": 9,
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-interval-fixture-confirmation-error.xml",
+      "purpose": "Additional interval fixture omitted required load-basis confirmation; not a product failure.",
+      "original_private_path": ".local/training-history-support-final.xml",
+      "original_sha256": "e8c97f9ff50f2ff63b4f72ce620a18dbb5a996d589dc298f14a9ec155068f043",
+      "public_sha256": "23edf73135670ec9bcedd2b9b1be7d80d744b1e414fbf8348c135b118f98757d",
+      "totals": {
+        "tests": 9,
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-support-verification.xml",
+      "purpose": "Ten window/interval/offset/future-revision/follow-up checks passed.",
+      "original_private_path": ".local/training-history-support-verified.xml",
+      "original_sha256": "353842ef98a6b2ad4829d21127222a18b9f57c16088943df07ddacdf3cb8cb3d",
+      "public_sha256": "9ef3dac845446b626deeaa9432aaab684915114e0d4bba81785175a133864e8e",
+      "totals": {
+        "tests": 10,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    },
+    {
+      "path": "artifacts/v14/performance/training-history-final-regressions.xml",
+      "purpose": "Final code: 89 new/existing core, lifecycle, migration, follow-up and plan regressions passed. Overlaps earlier runs; counts are not summed.",
+      "original_private_path": ".local/training-history-final-regression.xml",
+      "original_sha256": "d57f09213d603ff44e8a5e88094ce5fccd59ea92301e097c5b2cf2a1b6a68562",
+      "public_sha256": "f54825c754147776f13cf32fdee2906e12e04d516e9a1132fcf3a2545643b833",
+      "totals": {
+        "tests": 89,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "results_changed_by_publication": false
+    }
+  ]
+}

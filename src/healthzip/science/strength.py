@@ -618,7 +618,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                     reasons=["user_plan_candidate_not_guaranteed_success_or_optimal_prescription"])
     if code == 26:
         discussion = context.get("reviewed_discussion")
-        if (discussion and discussion.get("strategy") in {"discuss_sets", "discuss_interval"}
+        if (discussion and discussion.get("strategy") in {"discuss_sets", "discuss_interval", "discuss_rest"}
                 and discussion.get("strategy") in context.get("allowed_trial_actions", [])):
             source = discussion.get("source_explanation", {})
             supported = (discussion.get("authority") == "source_explanation_only"

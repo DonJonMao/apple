@@ -1,0 +1,90 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="3.663" timestamp="2026-11-12T11:32:50.713047+08:00"><testcase classname="tests.integration.test_v14_rest_discussion" name="test_rest_discussion_freezes_distinct_plan_manual_and_derived_values" time="0.281"><failure message="AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_rest'&#10;  &#10;  - discuss_rest&#10;  + collect_or_confirm_evidence">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8f5a1850&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:0d8516f1-380b-5e80-8a0d-79dc9245198c', 'session_id': 4, ...})
+
+    def test_rest_discussion_freezes_distinct_plan_manual_and_derived_values(rest_setup):
+        record = freeze_rest(rest_setup)
+&gt;       assert record["candidate"]["action_kind"] == "discuss_rest"
+E       AssertionError: assert 'collect_or_confirm_evidence' == 'discuss_rest'
+E
+E         - discuss_rest
+E         + collect_or_confirm_evidence
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:57: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_rest_discussion" name="test_missing_endpoint_does_not_fill_rest_from_plan_or_manual_value" time="0.263"><failure message="KeyError: 'discussion'">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8cf34790&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:aec8be80-7815-5028-a401-f5385c74e50e', 'session_id': 4, ...})
+
+    def test_missing_endpoint_does_not_fill_rest_from_plan_or_manual_value(rest_setup):
+        _, svc, _, _, _, row = rest_setup
+        current = svc.get_set(row["id"])
+        svc.edit_set(row["id"], {"started_at": None}, base_revision=current["revision"])
+        record = freeze_rest(rest_setup)
+&gt;       observed = rest_observation(record, row)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:80:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+record = {'candidate_id': 'fc5e6451-af3b-438f-a50a-f255f3462add', 'user_id': 'local', 'target_session': 'fc169fcb-39ca-5c65-9304-bb4820ca0f88', 'cutoff_time': '2026-11-12T03:32:52.094302+00:00', ...}
+row = {'status': 'saved', 'id': 8, 'fingerprint': 'v13:aec8be80-7815-5028-a401-f5385c74e50e', 'session_id': 4, ...}
+
+    def rest_observation(record, row):
+&gt;       return next(item for item in record["candidate"]["discussion"]["observations"]["rest_observations"]
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if item["record_id"] == row["set_uuid"])
+E       KeyError: 'discussion'
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:51: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_rest_discussion" name="test_endpoint_revision_does_not_rewrite_frozen_rest_discussion" time="0.311"><failure message="KeyError: 'discussion'">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8f759010&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:9f53b3bb-c21a-576a-b09d-95f6c6a4943a', 'session_id': 4, ...})
+
+    def test_endpoint_revision_does_not_rewrite_frozen_rest_discussion(rest_setup):
+        _, svc, _, _, first, second = rest_setup
+        original = freeze_rest(rest_setup)
+        current = svc.get_set(first["id"])
+        svc.edit_set(first["id"], {"ended_at": "2026-11-10T10:02:00Z"}, base_revision=current["revision"])
+        revised = freeze_rest(rest_setup)
+&gt;       assert rest_observation(original, second)["derived"]["seconds"] == 120
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:93:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+record = {'candidate_id': '64af6740-981b-44ab-ac60-ec63208e9887', 'user_id': 'local', 'target_session': '7bc2bf1f-554c-53ae-ad68-4dd2e9cfda6b', 'cutoff_time': '2026-11-12T03:32:52.366090+00:00', ...}
+row = {'status': 'saved', 'id': 8, 'fingerprint': 'v13:9f53b3bb-c21a-576a-b09d-95f6c6a4943a', 'session_id': 4, ...}
+
+    def rest_observation(record, row):
+&gt;       return next(item for item in record["candidate"]["discussion"]["observations"]["rest_observations"]
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    if item["record_id"] == row["set_uuid"])
+E       KeyError: 'discussion'
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:51: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_rest_discussion" name="test_withdrawn_rest_source_preserves_facts_without_authorizing_discussion" time="0.350"><failure message="KeyError: 'discussion'">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8f64f7d0&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:b22b2a5e-b848-5510-bb58-610f442bad5c', 'session_id': 4, ...})
+
+    def test_withdrawn_rest_source_preserves_facts_without_authorizing_discussion(rest_setup):
+        original = freeze_rest(rest_setup)
+        w = KnowledgeWorkbench(".local/knowledge", environment_kind="synthetic_test")
+        w.lib.update_state("S1", "withdrawn", "Synthetic test withdrawal")
+        w.close()
+        assert current_use_status(rest_setup[0], original)["status"] == "review_required"
+        fresh = freeze_rest(rest_setup)
+        assert fresh["candidate"]["action_kind"] == "collect_or_confirm_evidence"
+&gt;       assert fresh["candidate"]["discussion"]["source_explanation"]["claims"] == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'discussion'
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:108: KeyError</failure></testcase><testcase classname="tests.integration.test_v14_rest_discussion" name="test_rest_discussion_cannot_grant_numeric_task_permission" time="0.307"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: '一般讨论'&#10;  Actual message: '当前依据或记录需要重新核对，请先生成适用的候选'">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8ce05c50&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:a4f41dfc-45d4-55dc-ad81-dc49b8809d7e', 'session_id': 4, ...})
+
+    def test_rest_discussion_cannot_grant_numeric_task_permission(rest_setup):
+        record = freeze_rest(rest_setup)
+&gt;       with pytest.raises(ValueError, match="一般讨论"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: '一般讨论'
+E         Actual message: '当前依据或记录需要重新核对，请先生成适用的候选'
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:115: AssertionError</failure></testcase><testcase classname="tests.integration.test_v14_rest_discussion" name="test_normal_ui_rest_choice_survives_execution_end_feedback_and_reopen" time="1.203"><failure message="AssertionError: assert '讨论组间休息' in ['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考']&#10; +  where ['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考'] = Selectbox(key='strategy_7be57676-8627-5a19-9ce4-6839ae1a8731', _value=InitialValue(), label='本次候选策略', options=['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考']).options&#10;[+2 more lines; full report in element text]">rest_setup = (&lt;healthzip.db.repository.Repository object at 0xffff8cfaead0&gt;, &lt;healthzip.training.service.TrainingService object at ...4, ...}, {'status': 'saved', 'id': 8, 'fingerprint': 'v13:80d01fe7-9023-5885-81ed-96e39302ba26', 'session_id': 4, ...})
+
+    def test_normal_ui_rest_choice_survives_execution_end_feedback_and_reopen(rest_setup):
+        repo, svc, session, instance, *_ = rest_setup
+        app = rest_app(rest_setup)
+&gt;       assert "讨论组间休息" in app.selectbox(key="strategy_" + instance["id"]).options
+E       AssertionError: assert '讨论组间休息' in ['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考']
+E        +  where ['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考'] = Selectbox(key='strategy_7be57676-8627-5a19-9ce4-6839ae1a8731', _value=InitialValue(), label='本次候选策略', options=['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考']).options
+E        +    where Selectbox(key='strategy_7be57676-8627-5a19-9ce4-6839ae1a8731', _value=InitialValue(), label='本次候选策略', options=['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考']) = WidgetList(_list=[Selectbox(key='advice_profile_training_goal_7be57676-8627-5a19-9ce4-6839ae1a8731', _value=InitialVal...alue(), label='本次候选策略', options=['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考'])])(key=('strategy_' + '7be57676-8627-5a19-9ce4-6839ae1a8731'))
+E        +      where WidgetList(_list=[Selectbox(key='advice_profile_training_goal_7be57676-8627-5a19-9ce4-6839ae1a8731', _value=InitialVal...alue(), label='本次候选策略', options=['按计划上沿核对双重进阶', '选择更难档位、降低次数的可选试验', '讨论次数进阶试验', '讨论组数试验', '讨论训练间隔试验', '维持计划并继续收集参考'])]) = AppTest(\n    _script_path='/tmp/tmpgvuihh6r/7cff943ec89e0ed170607e8d28e7cb8e',\n    default_timeout=30,\n    _session_st...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).selectbox
+
+&lt;repo&gt;/tests/integration/test_v14_rest_discussion.py:133: AssertionError</failure></testcase></testsuite></testsuites>

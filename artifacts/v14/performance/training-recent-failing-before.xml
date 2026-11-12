@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="2.490" timestamp="2026-11-12T12:30:41.208587+08:00"><testcase classname=".local.training-recent-design.tests.test_recent_training_events" name="test_recent_query_preserves_exact_results_for_distinct_timestamps" time="0.628" /><testcase classname=".local.training-recent-design.tests.test_recent_training_events" name="test_recent_query_uses_index_prefix_without_full_history_sort" time="0.557"><failure message="AssertionError: {'vm_steps': 15435, 'query_plan': ['SEARCH training_event USING INDEX training_event_support (user_id=?)', 'USE TEMP B-TREE FOR ORDER BY']}&#10;assert 15435 &lt; 2000">event_history = &lt;healthzip.db.repository.Repository object at &lt;memory-address&gt;&gt;
+
+    def test_recent_query_uses_index_prefix_without_full_history_sort(event_history):
+        repo = event_history
+        steps = 0
+
+        def progress():
+            nonlocal steps
+            steps += 1
+            return 0
+
+        repo.conn.set_progress_handler(progress, 1)
+        try:
+            rows = list(repo.conn.execute(RECENT_SQL, ("local",)))
+        finally:
+            repo.conn.set_progress_handler(None, 0)
+        plan = [row[3] for row in repo.conn.execute("EXPLAIN QUERY PLAN " + RECENT_SQL, ("local",))]
+        assert len(rows) == 30
+&gt;       assert steps &lt; 2000, {"vm_steps": steps, "query_plan": plan}
+E       AssertionError: {'vm_steps': 15435, 'query_plan': ['SEARCH training_event USING INDEX training_event_support (user_id=?)', 'USE TEMP B-TREE FOR ORDER BY']}
+E       assert 15435 &lt; 2000
+
+.local/training-recent-design/tests/test_recent_training_events.py:64: AssertionError</failure></testcase><testcase classname=".local.training-recent-design.tests.test_recent_training_events" name="test_recent_index_upgrade_is_atomic_and_preserves_original_event_bytes" time="0.588"><failure message="assert None&#10; +  where None = &lt;built-in method fetchone of sqlite3.Cursor object at &lt;memory-address&gt;&gt;()&#10; +    where &lt;built-in method fetchone of sqlite3.Cursor object at &lt;memory-address&gt;&gt; = &lt;sqlite3.Cursor object at &lt;memory-address&gt;&gt;.fetchone&#10; +      where &lt;sqlite3.Cursor object at &lt;memory-address&gt;&gt; = &lt;built-in method execute of sqlite3.Connection object at &lt;memory-address&gt;&gt;(&quot;SELECT 1 FROM sqlite_master WHERE name='training_event_recent'&quot;)&#10;[+2 more lines; full report in element text]">event_history = &lt;healthzip.db.repository.Repository object at &lt;memory-address&gt;&gt;
+
+    def test_recent_index_upgrade_is_atomic_and_preserves_original_event_bytes(event_history):
+        repo = event_history
+        repo.conn.execute("DROP INDEX IF EXISTS training_event_recent")
+        before = event_bytes(repo)
+
+        def interrupted(stage):
+            if stage == "complete":
+                raise RuntimeError("synthetic recent-index interruption")
+
+        with pytest.raises(RuntimeError, match="synthetic recent-index interruption"):
+            migrate_training(repo.conn, checkpoint=interrupted)
+        assert not repo.conn.execute("SELECT 1 FROM sqlite_master WHERE name='training_event_recent'").fetchone()
+        assert event_bytes(repo) == before
+        migrate_training(repo.conn)
+&gt;       assert repo.conn.execute("SELECT 1 FROM sqlite_master WHERE name='training_event_recent'").fetchone()
+E       assert None
+E        +  where None = &lt;built-in method fetchone of sqlite3.Cursor object at &lt;memory-address&gt;&gt;()
+E        +    where &lt;built-in method fetchone of sqlite3.Cursor object at &lt;memory-address&gt;&gt; = &lt;sqlite3.Cursor object at &lt;memory-address&gt;&gt;.fetchone
+E        +      where &lt;sqlite3.Cursor object at &lt;memory-address&gt;&gt; = &lt;built-in method execute of sqlite3.Connection object at &lt;memory-address&gt;&gt;("SELECT 1 FROM sqlite_master WHERE name='training_event_recent'")
+E        +        where &lt;built-in method execute of sqlite3.Connection object at &lt;memory-address&gt;&gt; = &lt;sqlite3.Connection object at &lt;memory-address&gt;&gt;.execute
+E        +          where &lt;sqlite3.Connection object at &lt;memory-address&gt;&gt; = &lt;healthzip.db.repository.Repository object at &lt;memory-address&gt;&gt;.conn
+
+.local/training-recent-design/tests/test_recent_training_events.py:83: AssertionError</failure></testcase><testcase classname=".local.training-recent-design.tests.test_recent_training_events" name="test_equal_timestamp_boundary_preserves_the_declared_order_and_user_scope" time="0.575" /></testsuite></testsuites>

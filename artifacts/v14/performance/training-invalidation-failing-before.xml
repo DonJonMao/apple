@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.506" timestamp="2026-11-12T12:16:31.301727+08:00"><testcase classname="tests.training.test_invalidation_completion" name="test_completion_preserves_old_receipts_other_users_and_later_pending" time="0.132"><failure message="AssertionError: Completed historical analysis versions must not be rewritten&#10;assert {'id': 1, 'ev...session', ...} == {'id': 1, 'ev...session', ...}&#10;  &#10;  Omitting 8 identical items, use -vv to show&#10;  Differing items:&#10;  {'analysis_version': 'synthetic-current-analysis'} != {'analysis_version': 'synthetic-old-analysis'}&#10;  Use -v to get more diff">invalidations = (&lt;healthzip.training.service.TrainingService object at &lt;memory-address&gt;&gt;, 1, 2, 3, 4)
+
+    def test_completion_preserves_old_receipts_other_users_and_later_pending(invalidations):
+        service, old_id, other_id, through_id, later_id = invalidations
+        before = rows(service)
+        changes_before = service.conn.total_changes
+        service.mark_recomputed("synthetic-current-analysis", through_id)
+        after = rows(service)
+&gt;       assert after[old_id] == before[old_id], "Completed historical analysis versions must not be rewritten"
+E       AssertionError: Completed historical analysis versions must not be rewritten
+E       assert {'id': 1, 'ev...session', ...} == {'id': 1, 'ev...session', ...}
+E
+E         Omitting 8 identical items, use -vv to show
+E         Differing items:
+E         {'analysis_version': 'synthetic-current-analysis'} != {'analysis_version': 'synthetic-old-analysis'}
+E         Use -v to get more diff
+
+tests/training/test_invalidation_completion.py:38: AssertionError</failure></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_repeating_completion_does_not_write_completed_history" time="0.086"><failure message="AssertionError: assert {1: {'id': 1,...ession', ...}} == {1: {'id': 1,...ession', ...}}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {1: {'id': 1, 'event_id': 'da245983-2dd2-4350-9776-20c4ee67d10a', 'user_id': 'local', 'entity_type': 'session', ...}} != {1: {'id': 1, 'event_id': 'da245983-2dd2-4350-9776-20c4ee67d10a', 'user_id': 'local', 'entity_type': 'session', ...}}&#10;[+2 more lines; full report in element text]">invalidations = (&lt;healthzip.training.service.TrainingService object at &lt;memory-address&gt;&gt;, 1, 2, 3, 4)
+
+    def test_repeating_completion_does_not_write_completed_history(invalidations):
+        service, _, _, through_id, _ = invalidations
+        service.mark_recomputed("synthetic-first-receipt", through_id)
+        before = rows(service)
+        changes_before = service.conn.total_changes
+        service.mark_recomputed("synthetic-later-analysis", through_id)
+&gt;       assert rows(service) == before
+E       AssertionError: assert {1: {'id': 1,...ession', ...}} == {1: {'id': 1,...ession', ...}}
+E
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {1: {'id': 1, 'event_id': 'da245983-2dd2-4350-9776-20c4ee67d10a', 'user_id': 'local', 'entity_type': 'session', ...}} != {1: {'id': 1, 'event_id': 'da245983-2dd2-4350-9776-20c4ee67d10a', 'user_id': 'local', 'entity_type': 'session', ...}}
+E         {3: {'id': 3, 'event_id': 'ec9c3deb-700f-4cab-a804-82d17be52570', 'user_id': 'local', 'entity_type': 'session', ...}} != {3: {'id': 3, 'event_id': 'ec9c3deb-700f-4cab-a804-82d17be52570', 'user_id': 'local', 'entity_type': 'session', ...}}
+E         Use -v to get more diff
+
+tests/training/test_invalidation_completion.py:52: AssertionError</failure></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_pending_index_upgrade_preserves_rows_and_serves_read_and_completion" time="0.086"><failure message="AssertionError: ['SCAN training_invalidation']&#10;assert False&#10; +  where False = any(&lt;generator object test_pending_index_upgrade_preserves_rows_and_serves_read_and_completion.&lt;locals&gt;.&lt;genexpr&gt; at &lt;memory-address&gt;&gt;)">invalidations = (&lt;healthzip.training.service.TrainingService object at &lt;memory-address&gt;&gt;, 1, 2, 3, 4)
+
+    def test_pending_index_upgrade_preserves_rows_and_serves_read_and_completion(invalidations):
+        service, _, _, through_id, _ = invalidations
+        service.conn.execute("DROP INDEX IF EXISTS training_invalidation_pending")
+        before = rows(service)
+        migrate_training(service.conn)
+        assert rows(service) == before
+        statements = [
+            ("SELECT * FROM training_invalidation WHERE user_id=? AND status='pending' ORDER BY id", (service.user_id,)),
+            ("UPDATE training_invalidation SET status='recomputed',analysis_version=? "
+             "WHERE user_id=? AND status='pending' AND id&lt;=?", ("synthetic-new", service.user_id, through_id)),
+        ]
+        for sql, arguments in statements:
+            plan = [row[3] for row in service.conn.execute("EXPLAIN QUERY PLAN " + sql, arguments)]
+&gt;           assert any("training_invalidation_pending" in detail for detail in plan), plan
+E           AssertionError: ['SCAN training_invalidation']
+E           assert False
+E            +  where False = any(&lt;generator object test_pending_index_upgrade_preserves_rows_and_serves_read_and_completion.&lt;locals&gt;.&lt;genexpr&gt; at &lt;memory-address&gt;&gt;)
+
+tests/training/test_invalidation_completion.py:69: AssertionError</failure></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_completion_participates_in_the_callers_transaction" time="0.085" /></testsuite></testsuites>

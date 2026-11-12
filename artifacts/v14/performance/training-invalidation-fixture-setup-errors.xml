@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="0.459" timestamp="2026-11-12T12:16:12.701681+08:00"><testcase classname="tests.training.test_invalidation_completion" name="test_completion_preserves_old_receipts_other_users_and_later_pending" time="0.114"><error message="failed on setup with &quot;IndexError: list index out of range&quot;">tmp_path = PosixPath('&lt;pytest-temp&gt;/test_completion_preserves_old_0')
+
+    @pytest.fixture
+    def invalidations(tmp_path):
+        repo = Repository(tmp_path / "synthetic-invalidation-completion.sqlite3")
+        service = TrainingService(repo)
+        service.create_equipment("Synthetic previously analyzed station", "barbell")
+&gt;       old_id = service.pending_invalidations()[-1]["id"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/training/test_invalidation_completion.py:15: IndexError</error></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_repeating_completion_does_not_write_completed_history" time="0.074"><error message="failed on setup with &quot;IndexError: list index out of range&quot;">tmp_path = PosixPath('&lt;pytest-temp&gt;/test_repeating_completion_does0')
+
+    @pytest.fixture
+    def invalidations(tmp_path):
+        repo = Repository(tmp_path / "synthetic-invalidation-completion.sqlite3")
+        service = TrainingService(repo)
+        service.create_equipment("Synthetic previously analyzed station", "barbell")
+&gt;       old_id = service.pending_invalidations()[-1]["id"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/training/test_invalidation_completion.py:15: IndexError</error></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_pending_index_upgrade_preserves_rows_and_serves_read_and_completion" time="0.073"><error message="failed on setup with &quot;IndexError: list index out of range&quot;">tmp_path = PosixPath('&lt;pytest-temp&gt;/test_pending_index_upgrade_pre0')
+
+    @pytest.fixture
+    def invalidations(tmp_path):
+        repo = Repository(tmp_path / "synthetic-invalidation-completion.sqlite3")
+        service = TrainingService(repo)
+        service.create_equipment("Synthetic previously analyzed station", "barbell")
+&gt;       old_id = service.pending_invalidations()[-1]["id"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/training/test_invalidation_completion.py:15: IndexError</error></testcase><testcase classname="tests.training.test_invalidation_completion" name="test_completion_participates_in_the_callers_transaction" time="0.073"><error message="failed on setup with &quot;IndexError: list index out of range&quot;">tmp_path = PosixPath('&lt;pytest-temp&gt;/test_completion_participates_i0')
+
+    @pytest.fixture
+    def invalidations(tmp_path):
+        repo = Repository(tmp_path / "synthetic-invalidation-completion.sqlite3")
+        service = TrainingService(repo)
+        service.create_equipment("Synthetic previously analyzed station", "barbell")
+&gt;       old_id = service.pending_invalidations()[-1]["id"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/training/test_invalidation_completion.py:15: IndexError</error></testcase></testsuite></testsuites>
