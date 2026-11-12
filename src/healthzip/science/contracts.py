@@ -22,7 +22,7 @@ EVIDENCE_STATES = {
     "observed", "definition_based", "descriptive", "model_conditional", "research_only",
     "predictive_validated_for_scope", "intervention_validated_for_scope",
 }
-ALGORITHM_VERSION = "healthzip-science-1.4.4"
+ALGORITHM_VERSION = "healthzip-science-1.4.5"
 
 
 def definitions() -> dict[str, dict[str, Any]]:

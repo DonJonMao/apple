@@ -117,8 +117,19 @@ def request_constraints(question, context):
     comparison = bool(re.search(r"比较|对比|对照|区别|差异|变化|变了|\b(?:compar\w*|difference\w*|changed|versus|vs)\b", text)
                       and (len(set(re.findall(r"\b(?:19|20)\d{2}\b", text))) > 1
                            or re.search(r"(?:不同|两|各|旧|新).{0,5}(?:来源|版本|指南|版次)|(?:source|edition|guideline|paper)s\b", text)))
-    statistical_calculation = bool(re.search(r"计算|算出|求出|\b(?:calculate|compute|estimate)\b", text)
+    # In a method-suitability question, 计算方法/公式/etc. names the object
+    # being discussed; it is not itself an instruction to execute that method.
+    calculation_action = r"计算(?!(?:的)?(?:方法|方式|公式|过程|步骤|示例|框架|原理))|算出|求出|\b(?:calculate|compute|estimate)\b"
+    statistical_calculation = bool(re.search(calculation_action, text)
                                    and re.search(r"统计量|p值|等效|置信区间|斜率|协方差|标准误|成功概率|误判率|错误率|\b(?:statistic|equivalence|p-value|confidence interval|slope|covariance|standard errors?)\b", text))
+    # A concrete personal result may be requested without repeating 'compute',
+    # including after a separate question about the method. Definitions and
+    # explanations of that result remain method questions.
+    statistical_calculation |= bool(re.search(
+        r"(?:给(?:出)?|提供|报告|确定)(?:给)?(?:我|个人)的?(?!解释|说明|介绍|讨论)"
+        r"(?:本次|这次|训练|回归|数据|记录|结果|的)*"
+        r"(?:统计量|p值|置信区间|斜率|协方差|标准误)"
+        r"(?!(?:的)?(?:计算|定义|含义|意义|原理|方法|公式|步骤|示例|条件|假设|范围|是否|能否))", text))
     statistical_calculation |= bool(covariance_method_context(text, context.get("named_source_task_subjects"))
         and re.search(r"我|个人|\b(?:my|me|individual)\b", text)
         and re.search(r"选择|设定|决定|确定|\b(?:choose|select|set|pick|determine)\b", text)
@@ -131,7 +142,7 @@ def request_constraints(question, context):
         and re.search(r"判定|判断|选择|设定|确定|给出|提供|\b(?:decide|determine|choose|select|give|provide)\b", text)
         and re.search(r"等效界|等效范围|停滞.{0,8}概率|\b(?:equivalence (?:bounds?|margins?)|probability)\b", text))
     statistical_calculation |= bool(re.search(r"我|个人|\b(?:my|me|individual)\b", text)
-        and re.search(r"给出|告诉|提供|计算|算出|\b(?:give|provide|calculate|compute)\b", text)
+        and re.search(r"给出|告诉|提供|" + calculation_action + r"|\b(?:give|provide)\b", text)
         and re.search(r"误判率|错误率|成功概率|\b(?:error rate|success probability)\b", text))
     population = context.get("population")
     age = context.get("age")

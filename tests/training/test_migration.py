@@ -12,9 +12,9 @@ def legacy_connection(version=2):
     INSERT INTO schema_meta VALUES('schema_version','2');
     CREATE TABLE strength_session(id INTEGER PRIMARY KEY,session_date TEXT);
     CREATE TABLE strength_set(id INTEGER PRIMARY KEY,session_id INTEGER,weight_kg REAL,
-      side TEXT,equipment TEXT,range_of_motion TEXT);
+      side TEXT,equipment TEXT,range_of_motion TEXT,set_number INTEGER);
     INSERT INTO strength_session VALUES(7,'2026-01-01');
-    INSERT INTO strength_set VALUES(19,7,30,'','','');
+    INSERT INTO strength_set VALUES(19,7,30,'','','',1);
     """)
     conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(version),))
     conn.commit()

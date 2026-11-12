@@ -1,0 +1,197 @@
+{
+  "recorded_at": "2026-11-12T05:57:17.484879+00:00",
+  "kind": "STR09_duration_distance_original_plan_software_verification",
+  "base_commit": "8e46187960ed49b88bbca66400e15655c69d70a2",
+  "requirement_refs": [
+    "STR-09",
+    "Revision Plan 05.1 execution/feedback",
+    "Revision Plan 07 measurement modes and period page"
+  ],
+  "synthetic_only": true,
+  "production_health_data_read": false,
+  "production_database_modified": false,
+  "prior_frozen_evidence_modified": false,
+  "finding": "MODE-PLAN-01: exact duration/distance goals were omitted from original-plan target_attainment and ordinary weekly/monthly endpoint tables.",
+  "contract": {
+    "versions": "science, analysis, cache, P1 and original-plan-endpoints 1.4.5",
+    "new_endpoints": [
+      "duration_s",
+      "distance_m"
+    ],
+    "targets": "Only registered scalar duration_s/distance_m goals; equality is required, not a minimum. Unregistered min/max keys do not create a new contract.",
+    "mode_policy": "Frozen original plan and actual row must both declare the matching mode. Missing, unknown or incompatible original mode is unknown; never infer it from the target key or live catalog.",
+    "preserved": "Original plan identity and values, group completion denominator, load/reps/RIR behavior, missing vs zero.",
+    "scope": "One confirmed STR09 omission. No additional discovery; 77 matrix entries were read but not exhaustively revalidated.",
+    "tests": "Original 28 plus eight post-review mode/range boundary cases; initial pre-fix run covers only original 28."
+  },
+  "versions": {
+    "science": "healthzip-science-1.4.5",
+    "analysis": "healthzip-v1.4.5",
+    "cache": "analysis-cache-v1.4.5",
+    "P1": "p1-1.4.5",
+    "target_attainment": "original-plan-endpoints-1.4.5"
+  },
+  "cases": [
+    {
+      "mode": "duration",
+      "target": 30,
+      "actual": 12,
+      "group_completion_before_and_after": "1/1",
+      "endpoint_before": "absent",
+      "endpoint_after": "not_met",
+      "ordinary_week_ui_after": "时长（秒）：有明确目标1、未满足1"
+    },
+    {
+      "mode": "distance",
+      "target": 20,
+      "actual": 7,
+      "group_completion_before_and_after": "1/1",
+      "endpoint_before": "absent",
+      "endpoint_after": "not_met",
+      "ordinary_week_ui_after": "距离（米）：有明确目标1、未满足1"
+    }
+  ],
+  "normal_ui_acceptance": "Real template creation → start session → edit first current goal30 to12 → record actual12/30/40 → end session → analyze → normal weekly and monthly tables. Original frozen goals stay30: one met/two not_met, completed groups3/3.",
+  "boundary_coverage": [
+    "Below/equal/above exact goal",
+    "Zero versus missing actual",
+    "Missing/null target versus explicit zero target",
+    "Unknown or incompatible actual mode",
+    "Missing/unknown/incompatible frozen planned mode",
+    "Unregistered range keys do not create a target contract",
+    "draft/in_progress provisional, aborted endpoint match, skipped explicit nonexecution",
+    "Offline client slots retain frozen definition version after catalog mode changes",
+    "Original plan denominator and existing load/reps/RIR behavior"
+  ],
+  "new_cases_verified": 36,
+  "related_regression_cases": 277,
+  "final_targeted_cases": 313,
+  "checks": {
+    "ruff_changed_source_and_test": "passed",
+    "git_diff_check": "passed",
+    "source_hashes_unchanged_after_final_run": true
+  },
+  "runtime": {
+    "python": "3.11.7",
+    "streamlit": "1.67.0",
+    "interpreter": ".venv/bin/python"
+  },
+  "source_sha256": {
+    "src/healthzip/science/strength.py": "6f3ac10d03af589a2baca145d939243af629ce320b9c5de3b396819cff780361",
+    "src/healthzip/ui/analysis_page.py": "f7157fa508cab89781f8b4e955cae064ae2b7e6630b2b58a7c6d91bb6dbf09f3",
+    "src/healthzip/science/contracts.py": "aa76373a28ce3b3383ad93863bc51e3285f7f0860a6eb4023b84ba84cd7b4fec",
+    "src/healthzip/analytics/v13.py": "3787424c43451f4ae235038ff4083990e7f1fb4dd1ce54949e85e26bc564c46a",
+    "src/healthzip/analytics/cache.py": "db80a50f1961b41acc81e312f526a4aa7c5db6cfb4dffd870954b8cbc85d5a08",
+    "src/healthzip/analytics/p1.py": "743fb957f1bfaf74746eef8ce9682a382026e61577929593802623cadf913593",
+    "tests/integration/test_plan_mode_attainment.py": "f28c0b0af841ce7335ea67417435229d65ede84aac4cadea5d72d6ea6ac7b760"
+  },
+  "files": [
+    {
+      "path": "artifacts/v14/science/str09-mode-targets-before.xml",
+      "raw_sha256": "f22c7aae17ccef9520c4be19cf6f7353ee3178f785c12c62ccf6fd6edf4bf369",
+      "public_sha256": "aafb9fbe366845ea6ac0dc744c3add4ebbe44ca060fba1295516f0c2bf64e471",
+      "tests": 28,
+      "failures": 28,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 36.027
+    },
+    {
+      "path": "artifacts/v14/science/str09-mode-targets-verification.xml",
+      "raw_sha256": "9a7689a5f909f7bb5d27bfd87dd4431766e45d3e877c8d77c4382f13e26b15b1",
+      "public_sha256": "9128ed858fab8ddf186b0946b0227383cc3bc34d18dd10359911924b75b3edd6",
+      "tests": 313,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 89.52
+    },
+    {
+      "path": "artifacts/v14/science/str09-mode-targets-before.json",
+      "raw_sha256": "482a64725564bc3c0dee28ab9e0a8cf5329c93656a09ceece81071584de61709",
+      "public_sha256": "482a64725564bc3c0dee28ab9e0a8cf5329c93656a09ceece81071584de61709"
+    },
+    {
+      "path": "artifacts/v14/science/str09-mode-targets-after.json",
+      "raw_sha256": "e2f4b55a686ca8ef8a1de8c91ee06ab8e7ce2496ba67681eb694b205c9f89b52",
+      "public_sha256": "e2f4b55a686ca8ef8a1de8c91ee06ab8e7ce2496ba67681eb694b205c9f89b52"
+    },
+    {
+      "path": "artifacts/v14/science/str09-mode-targets-source-freeze.json",
+      "raw_sha256": "54bd9ae16babba1d1d868ccfad338e2ca2317445ffa965154c5078090f494b6f",
+      "public_sha256": "54bd9ae16babba1d1d868ccfad338e2ca2317445ffa965154c5078090f494b6f"
+    }
+  ],
+  "run_history": [
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-before.xml",
+      "raw_sha256": "d34a025962d07af4120568033dbfe195d4bccaaa0690ea10128f525b6716a5df",
+      "note": "Initial pre-fix 28-case run: 26 omission failures, two ordinary UI fixture failures due to missing load-basis confirmation.",
+      "tests": 28,
+      "failures": 28,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 4.805
+    },
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-before-corrected-fixture.xml",
+      "raw_sha256": "f22c7aae17ccef9520c4be19cf6f7353ee3178f785c12c62ccf6fd6edf4bf369",
+      "note": "UI fixture explicitly confirmed load basis; all 28 fail on endpoint/projection omissions before source edits (24 endpoint, four frozen mode).",
+      "tests": 28,
+      "failures": 28,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 36.027
+    },
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-after-initial.xml",
+      "raw_sha256": "bd9be94042e70ab8e7fbbc630acd1d881af423ca17f326ca537feb9c8875e369",
+      "note": "Accidental system Python run: 26 pass, two UI failures from older Streamlit API. Preserved as environment-error evidence; no assertions weakened.",
+      "tests": 28,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.068
+    },
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-after.xml",
+      "raw_sha256": "351d4ec1b9c1ddbaa3d9fe46c2e96b4f1d7368eae58dd515d48becab741c88a9",
+      "note": "Project .venv first after run: original 28 pass.",
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 42.317
+    },
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-regressions.xml",
+      "raw_sha256": "5ca41e9e0b765b8cf1bd2beb236a0bf8d7d8a3050bea1ff6e93aba843f959044",
+      "note": "Related existing regressions: 277 pass.",
+      "tests": 277,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 49.135
+    },
+    {
+      "raw_path": ".local/product-completion-audit-8e46187/mode-attainment-final-targeted.xml",
+      "raw_sha256": "9a7689a5f909f7bb5d27bfd87dd4431766e45d3e877c8d77c4382f13e26b15b1",
+      "note": "Final frozen code: 36 new cases (28 original, eight post-review boundaries) plus 277 related regressions, all 313 pass.",
+      "tests": 313,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 89.52
+    }
+  ],
+  "public_projection": "Remove local home/temp paths and hostname from test reports; preserve test outcomes and original raw digests. No SQLite fixtures are published.",
+  "new_independent_ai_denominator": 0,
+  "new_human_or_expert_denominator": 0,
+  "unreviewed_or_incomplete": [
+    "No exhaustive new end-to-end run for all77 metrics; original requirements were read, selected code/evidence was reviewed, and only mode-plan omission received new reproduction.",
+    "Reusable equipment available-load configuration to candidate input: read-only suspicion, not independently reproduced; no defect conclusion.",
+    "Candidate context historical-query breadth: read-only suspicion, no new scale benchmark or defect conclusion.",
+    "Other STATE/ENERGY/PRED/QAL edge conditions not newly reproduced in this audit."
+  ],
+  "limitations": "Author-produced synthetic software acceptance and bounded regressions, not a fresh exhaustive all77 metric end-to-end audit or scientific effectiveness validation. Root owns whole-repository verification and final delivery documentation."
+}

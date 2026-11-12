@@ -9,7 +9,7 @@ from statistics import median
 from healthzip.analytics.core import evidence_card
 from healthzip.temporal import instant, sleep_nights, visible
 
-ALGORITHM_VERSION = "p1-1.4.4"
+ALGORITHM_VERSION = "p1-1.4.5"
 
 
 def _day(value):

@@ -168,6 +168,14 @@ STATEMENTS = [
         ON strength_session(user_id,session_date DESC,id DESC)
         WHERE deleted_at IS NULL AND session_status IN ('draft','in_progress','paused')""",
     "CREATE INDEX IF NOT EXISTS idx_training_set_condition ON strength_set(user_id,condition_key)",
+    """CREATE INDEX IF NOT EXISTS idx_training_set_session_exercise
+        ON strength_set(session_exercise_id,user_id,set_number,id)""",
+    # Keep the previous condition/id traversal for rest derivation's equal-time
+    # predecessors; display sorting then touches only this session's rows.
+    """CREATE INDEX IF NOT EXISTS idx_training_set_session
+        ON strength_set(session_id,user_id,condition_key,id)""",
+    """CREATE INDEX IF NOT EXISTS idx_training_exercise_session
+        ON training_session_exercise(session_id,user_id,position,id)""",
     "CREATE INDEX IF NOT EXISTS idx_training_event_entity ON training_event(user_id,entity_type,entity_id)",
     "CREATE INDEX IF NOT EXISTS training_event_recent ON training_event(user_id,recorded_at DESC)",
     "CREATE INDEX IF NOT EXISTS training_invalidation_pending ON training_invalidation(user_id,id) WHERE status='pending'",

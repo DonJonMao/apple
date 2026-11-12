@@ -1,0 +1,76 @@
+{
+  "recorded_at": "2026-11-12T05:53:52.280053+00:00",
+  "kind": "known_case_method_intent_software_followup",
+  "base_commit": "8e46187960ed49b88bbca66400e15655c69d70a2",
+  "release_id": "core-practical-source-explanations-1.4.14",
+  "release_sha256": "ce138da67d4c4da48073a9ab49763a65af2fb2cfeba4a70cb89ca3b8aa23f29d",
+  "trigger": "r7-k12 asks about the data conditions of a calculation method, not execution of a personal calculation.",
+  "cause": "The Chinese verb pattern matched method nouns such as 计算方法 and generated an unrequested statistical_calculation answer part.",
+  "change": "Separate method nouns from explicit computation instructions; also retain direct requests for a personal P value, interval, slope or standard error.",
+  "tests": {
+    "before": {
+      "tests": 18,
+      "failures": 8,
+      "errors": 0,
+      "skipped": 0
+    },
+    "mixed-result-before": {
+      "tests": 23,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final": {
+      "tests": 426,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "known_case_replay": {
+    "cases": 16,
+    "six_semantic_fields_unchanged_cases": 15,
+    "changed_case": "r7-k12",
+    "changed_fields": [
+      "answer",
+      "limits",
+      "answer_status",
+      "support_assessment"
+    ],
+    "before_status": "partially_answered",
+    "after_status": "answered_with_support",
+    "uncovered_parts_after": [],
+    "numeric_actions_unchanged": true,
+    "citations_unchanged": true,
+    "supported_answer_body_retained": true,
+    "only_removed_answer_suffix": "\n以上只回答已明确且有依据的部分；复合目标或个人精确数字请求仍未得到支持，需要分别核对。\n尚未回答：具体数据的统计计算（方法解释不能替代实际数据、预设界值和模型条件下的统计计算）。"
+  },
+  "new_independent_ai_denominator": 0,
+  "new_human_or_expert_denominator": 0,
+  "new_semantic_scoring": false,
+  "previous_independent_and_development_results_unchanged": true,
+  "source_databases_unchanged_during_readonly_query": true,
+  "source_file_sha256": {
+    "src/healthzip/knowledge/tasks.py": "ba294c66cafab613b66889f1bb71583ae82d378e6722742ba5d3667e2a8a326d",
+    "tests/unit/test_method_request_intent.py": "d20b09019195dea50bcfb2810c22662baee8c460a155e9bd36111cd8bf3dd7d5"
+  },
+  "files": {
+    "artifacts/v14/knowledge/method-intent-round7-development-outputs.json": {
+      "original_sha256": "a260cf5adf39032e8dcf1ddcf9845d6bb378aac4fd3f5bfbc6e38fbb6996cd24",
+      "public_sha256": "0087adcb7db7b4d4bdfdec2c7c896bc8138f9b58730fb66b660982beccdce1b6"
+    },
+    "artifacts/v14/knowledge/method-intent-before.xml": {
+      "original_sha256": "23c0fc0fb89d56d9347200c460d85b14821087f5cc7d701b4c6694d62885ceab",
+      "public_sha256": "cb50e9ea330fdedc7cd0f7b05154fa0ff103be082f0a055a391c9600f998cdd6"
+    },
+    "artifacts/v14/knowledge/method-intent-mixed-result-before.xml": {
+      "original_sha256": "5da7327c9ddf24f517b7104323f3634a143028c9d1a200402b619b64899daafc",
+      "public_sha256": "e3406ba09cc7eeaf6e75a5d4cc6346bfe01cc96b5a0d17fd8a900292a8dd29f2"
+    },
+    "artifacts/v14/knowledge/method-intent-final.xml": {
+      "original_sha256": "a8e48e2e95459ae0a3feb0f0a94eb4bb8363013e4fa0e32d198f73e9223157e1",
+      "public_sha256": "374611c863d8b317a470d3e1d3eb46bcf84db8d43f8b090169808d2f34c2e060"
+    }
+  },
+  "limitations": "Known-case status correction and bounded regressions only; no new independent generalization or personal statistical-model validation."
+}

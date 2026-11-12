@@ -184,12 +184,24 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         original = event.get("after") or {}
         if not original.get("plan_snapshot") or original.get("id") not in {s["id"] for s in sessions}:
             continue
-        planned = [{"id": s["set_uuid"], "session_id": original["id"], "targets": s.get("planned", {})}
+        planned = [{"id": s["set_uuid"], "session_id": original["id"], "targets": s.get("planned", {}),
+                    "measurement_mode": (s.get("condition") or {}).get("measurement_mode"),
+                    "definition_version": s.get("definition_version")}
                    for s in original.get("sets", [])]
         slots = original["plan_snapshot"].get("client_plan_slots", [])
         if slots:
-            planned = [{"id": s["set_uuid"], "session_id": original["id"], "targets": s["targets"]}
-                       for s in slots]
+            # Offline slots follow the frozen template's set order. Never look
+            # up today's exercise definition when restoring the original plan.
+            slot_items = [item for item in original["plan_snapshot"].get("items", [])
+                          for _ in item.get("targets", {}).get("sets", [])]
+            planned = []
+            for index, slot in enumerate(slots):
+                item = slot_items[index] if index < len(slot_items) else {}
+                mode = (item.get("condition") or {}).get("measurement_mode")
+                if mode is None:
+                    mode = (item.get("exercise_snapshot") or {}).get("recording_mode")
+                planned.append({"id": slot["set_uuid"], "session_id": original["id"], "targets": slot["targets"],
+                                "measurement_mode": mode, "definition_version": item.get("definition_version")})
         plans.append({"session_id": original["id"], "event_end": original["started_at"],
                       "available_at": event["recorded_at"], "sets": planned})
     planned_ids = {s["id"] for p in plans for s in p["sets"]}
@@ -307,7 +319,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.4",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.5",
             "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}

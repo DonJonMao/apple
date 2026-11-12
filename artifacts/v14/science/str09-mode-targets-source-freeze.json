@@ -1,0 +1,32 @@
+{
+  "created_at": "2026-11-12T05:54:15.382439+00:00",
+  "baseline_head": "8e46187960ed49b88bbca66400e15655c69d70a2",
+  "stage": "final_source_freeze_before_final_targeted_run",
+  "files": {
+    "src/healthzip/science/strength.py": "6f3ac10d03af589a2baca145d939243af629ce320b9c5de3b396819cff780361",
+    "src/healthzip/ui/analysis_page.py": "f7157fa508cab89781f8b4e955cae064ae2b7e6630b2b58a7c6d91bb6dbf09f3",
+    "src/healthzip/science/contracts.py": "aa76373a28ce3b3383ad93863bc51e3285f7f0860a6eb4023b84ba84cd7b4fec",
+    "src/healthzip/analytics/v13.py": "3787424c43451f4ae235038ff4083990e7f1fb4dd1ce54949e85e26bc564c46a",
+    "src/healthzip/analytics/cache.py": "db80a50f1961b41acc81e312f526a4aa7c5db6cfb4dffd870954b8cbc85d5a08",
+    "src/healthzip/analytics/p1.py": "743fb957f1bfaf74746eef8ce9682a382026e61577929593802623cadf913593",
+    "tests/integration/test_plan_mode_attainment.py": "f28c0b0af841ce7335ea67417435229d65ede84aac4cadea5d72d6ea6ac7b760",
+    ".local/product-completion-audit-8e46187/mode-attainment-after-evidence/reproduce_mode_targets.py": "8c990aae59861a07810e850281758a25329256fa9a2255370b62233733944d40"
+  },
+  "runtime": {
+    "python": "3.11.7",
+    "streamlit": "1.67.0",
+    "interpreter": ".venv/bin/python"
+  },
+  "contract": {
+    "versions": "science, analysis, cache, P1 and original-plan-endpoints 1.4.5",
+    "new_endpoints": [
+      "duration_s",
+      "distance_m"
+    ],
+    "targets": "Only registered scalar duration_s/distance_m goals; equality is required, not a minimum. Unregistered min/max keys do not create a new contract.",
+    "mode_policy": "Frozen original plan and actual row must both declare the matching mode. Missing, unknown or incompatible original mode is unknown; never infer it from the target key or live catalog.",
+    "preserved": "Original plan identity and values, group completion denominator, load/reps/RIR behavior, missing vs zero.",
+    "scope": "One confirmed STR09 omission. No additional discovery; 77 matrix entries were read but not exhaustively revalidated.",
+    "tests": "Original 28 plus eight post-review mode/range boundary cases; initial pre-fix run covers only original 28."
+  }
+}

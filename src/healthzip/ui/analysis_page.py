@@ -39,7 +39,8 @@ def _render_period_training(metrics):
         endpoints = []
         for endpoint, counts in plan.get("target_attainment", {}).items():
             endpoints.append({
-                "目标项": {"load": "负荷", "reps": "次数", "rir": "RIR"}.get(endpoint, endpoint),
+                "目标项": {"load": "负荷", "reps": "次数", "rir": "RIR",
+                           "duration_s": "时长（秒）", "distance_m": "距离（米）"}.get(endpoint, endpoint),
                 "原计划组数": counts["planned_n"], "有明确目标组数": counts["target_n"],
                 "已满足": counts["met_n"], "未满足": counts["not_met_n"],
                 "尚不能判断": counts["unknown_n"], "未设此项目标": counts["no_target_n"],
@@ -48,6 +49,8 @@ def _render_period_training(metrics):
             st.write("原计划各项目标的记录核对")
             st.dataframe(endpoints, hide_index=True, use_container_width=True)
             st.caption("目标核对与整组完成分开；没有明确目标或实际记录不足时保持未知，不表示策略产生了训练效果。")
+            if any(endpoint in plan.get("target_attainment", {}) for endpoint in ("duration_s", "distance_m")):
+                st.caption("时长与距离按原计划的明确数值核对；超过目标数值也不自动视为满足。")
     st.caption(f"工作组资料状态：{work_metric['data_status']}；计划执行可判定 {plan_metric['valid_n']}/{plan_metric['total_n']} 组。完整记录来源、窗口及缺项随本周期结果下载。")
 
 

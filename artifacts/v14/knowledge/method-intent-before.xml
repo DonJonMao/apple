@@ -1,0 +1,131 @@
+<testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="18" time="0.448" timestamp="2026-11-12T13:40:59.281136+08:00"><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u6211\u7684\u6570\u636e\u662f\u540c\u4e00\u6279\u4eba\u8bad\u7ec3\u524d\u540e\u5404\u6d4b\u4e00\u6b21\uff0c\u6307\u6807\u5206\u5e03\u8fd8\u5f88\u504f\u659c\u3002\u80fd\u628a\u8fd9\u7bc7\u8fd0\u52a8\u79d1\u5b66\u7b49\u6548\u68c0\u9a8c\u6587\u7ae0\u91cc\u6f14\u793a\u7684\u8ba1\u7b97\u65b9\u6cd5\u539f\u6837\u7167\u642c\u5417\uff1f\u6587\u4e2d\u7684\u793a\u8303\u662f\u5efa\u7acb\u5728\u4ec0\u4e48\u6570\u636e\u6761\u4ef6\u4e0a\u7684\uff1f]" time="0.068"><failure message="assert not True">question = '我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u7b49\u6548\u68c0\u9a8c\u6587\u7ae0\u4e2d\u7684\u8ba1\u7b97\u65b9\u5f0f\u80fd\u76f4\u63a5\u5957\u7528\u4e8e\u914d\u5bf9\u8d44\u6599\u5417\uff1f]" time="0.002"><failure message="assert not True">question = '等效检验文章中的计算方式能直接套用于配对资料吗？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u8bf7\u89e3\u91ca\u7b49\u6548\u68c0\u9a8c\u8ba1\u7b97\u516c\u5f0f\u7684\u9002\u7528\u6761\u4ef6\uff0c\u4e0d\u662f\u6bcf\u79cd\u8bbe\u8ba1\u90fd\u80fd\u7167\u642c\u5427\uff1f]" time="0.002"><failure message="assert not True">question = '请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u8fd9\u7bc7\u7b49\u6548\u68c0\u9a8c\u6587\u7ae0\u7684\u8ba1\u7b97\u6b65\u9aa4\u662f\u5426\u4ee5\u72ec\u7acb\u6837\u672c\u4e3a\u524d\u63d0\uff1f]" time="0.002"><failure message="assert not True">question = '这篇等效检验文章的计算步骤是否以独立样本为前提？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u80fd\u89e3\u91ca\u6587\u4e2d\u7f6e\u4fe1\u533a\u95f4\u8ba1\u7b97\u8fc7\u7a0b\u80cc\u540e\u7684\u5047\u8bbe\u5417\uff1f]" time="0.002"><failure message="assert not True">question = '能解释文中置信区间计算过程背后的假设吗？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u6587\u7ae0\u7684\u7b49\u6548\u68c0\u9a8c\u8ba1\u7b97\u793a\u4f8b\u6709\u54ea\u4e9b\u9650\u5236\uff1f]" time="0.001"><failure message="assert not True">question = '文章的等效检验计算示例有哪些限制？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[\u7b49\u6548\u68c0\u9a8c\u7684\u8ba1\u7b97\u6846\u67b6\u9002\u7528\u4e8e\u54ea\u4e9b\u7814\u7a76\u8bbe\u8ba1\uff1f]" time="0.001"><failure message="assert not True">question = '等效检验的计算框架适用于哪些研究设计？'
+
+    @pytest.mark.parametrize("question", [
+        "我的数据是同一批人训练前后各测一次，指标分布还很偏斜。能把这篇运动科学等效检验文章里演示的计算方法原样照搬吗？文中的示范是建立在什么数据条件上的？",
+        "等效检验文章中的计算方式能直接套用于配对资料吗？",
+        "请解释等效检验计算公式的适用条件，不是每种设计都能照搬吧？",
+        "这篇等效检验文章的计算步骤是否以独立样本为前提？",
+        "能解释文中置信区间计算过程背后的假设吗？",
+        "文章的等效检验计算示例有哪些限制？",
+        "等效检验的计算框架适用于哪些研究设计？",
+        "Can the equivalence article's calculation method be applied unchanged to paired observations?",
+    ])
+    def test_method_nouns_do_not_create_a_statistical_execution_request(question):
+        task = parse_task(question)
+&gt;       assert not task["statistical_calculation_request"]
+E       assert not True
+
+tests/unit/test_method_request_intent.py:22: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_method_nouns_do_not_create_a_statistical_execution_request[Can the equivalence article's calculation method be applied unchanged to paired observations?]" time="0.002" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u8bf7\u7528\u6587\u4e2d\u7684\u7b49\u6548\u68c0\u9a8c\u8ba1\u7b97\u65b9\u6cd5\uff0c\u8ba1\u7b97\u6211\u7684\u68c0\u9a8c\u7edf\u8ba1\u91cf\u3002]" time="0.001" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u8bf7\u89e3\u91ca\u7b49\u6548\u68c0\u9a8c\u8ba1\u7b97\u516c\u5f0f\uff0c\u518d\u7b97\u51fa\u8fd9\u7ec4\u6570\u636e\u7684P\u503c\u3002]" time="0.001" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u6587\u4e2d\u8ba1\u7b97\u6b65\u9aa4\u9002\u7528\u4e8e\u54ea\u4e9b\u8bbe\u8ba1\uff1f\u7136\u540e\u5e2e\u6211\u8ba1\u7b97\u8bad\u7ec3\u524d\u540e\u7684\u7b49\u6548\u7f6e\u4fe1\u533a\u95f4\u3002]" time="0.002" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u8bf7\u89e3\u91ca\u7f6e\u4fe1\u533a\u95f4\u8ba1\u7b97\u8fc7\u7a0b\uff0c\u518d\u7ed9\u51fa\u6211\u7684\u8fde\u7eed\u8bad\u7ec3\u8bef\u5224\u7387\u3002]" time="0.002" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u80fd\u5426\u7167\u642c\u8fd9\u4e2a\u8ba1\u7b97\u65b9\u6cd5\uff1f\u8bf7\u7ed9\u6211\u7684\u8bad\u7ec3\u6570\u636e\u9009\u62e9\u7b49\u6548\u754c\u503c\u3002]" time="0.002" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[\u8bf7\u6309\u7167HC3\u7684\u8ba1\u7b97\u65b9\u5f0f\u786e\u5b9a\u6211\u7684\u56de\u5f52\u6807\u51c6\u8bef\u3002\u5e76\u66ff\u6211\u9009\u62e9HAC\u5e26\u5bbd\u3002]" time="0.003" /><testcase classname="tests.unit.test_method_request_intent" name="test_method_explanations_do_not_consume_a_separate_statistics_request[Explain the equivalence calculation method, and compute the test statistic for my data.]" time="0.002" /><testcase classname="tests.unit.test_method_request_intent" name="test_actual_query_can_fully_answer_method_scope_without_fabricating_a_missing_calculation" time="0.087"><failure message="AssertionError: assert 'partially_answered' == 'answered_with_support'&#10;  &#10;  - answered_with_support&#10;  + partially_answered">kb = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff88f19810&gt;
+
+    def test_actual_query_can_fully_answer_method_scope_without_fabricating_a_missing_calculation(kb):
+        add_claim(kb, "practical_equivalence", "statistical_inference")
+        result = kb.query("文章中的等效检验计算方法有什么限制？")
+&gt;       assert result["answer_status"] == "answered_with_support"
+E       AssertionError: assert 'partially_answered' == 'answered_with_support'
+E
+E         - answered_with_support
+E         + partially_answered
+
+tests/unit/test_method_request_intent.py:44: AssertionError</failure></testcase><testcase classname="tests.unit.test_method_request_intent" name="test_actual_query_retains_a_missing_execution_part_for_mixed_requests" time="0.042" /><testcase classname="tests.unit.test_method_request_intent" name="test_intent_resolution_keeps_source_and_partition_gates" time="0.059" /></testsuite></testsuites>
