@@ -11,8 +11,26 @@ DOMAIN_IDS = {"physiology", "strength", "wearable", "recovery", "cardiometabolic
 RELATIONS = {"supports", "defines", "limits", "applies_to", "conflicts_with", "supersedes", "required_by"}
 
 
-def configuration():
-    return json.loads((Path(__file__).parent / "data/metric_domains_v15.json").read_text())
+def observation_configuration():
+    return json.loads((Path(__file__).parent / "data/observation_domains_v15.json").read_text())
+
+
+def configuration(*, include_observations=False):
+    config = json.loads((Path(__file__).parent / "data/metric_domains_v15.json").read_text())
+    if include_observations:
+        extension = observation_configuration()
+        config['profiles'].update(extension['profiles'])
+        config['observation_extensions'] = {key: extension[key] for key in ('schema_version', 'registry', 'scope')}
+        config['observation_extensions']['metric_ids'] = sorted(extension['profiles'])
+    return config
+
+
+def profile_version(metric_id):
+    if metric_id in configuration()['profiles']:
+        return configuration()['schema_version']
+    if metric_id in observation_configuration()['profiles']:
+        return observation_configuration()['schema_version']
+    raise ValueError('unknown_metric_or_observation_profile')
 
 
 def ensure_schema(w):
@@ -49,7 +67,7 @@ def _object(w, kind, identity, version):
     if kind == "span":
         return w.lib.sources.execute("SELECT 1 FROM span WHERE span_id=? AND version_id=?", (identity, version)).fetchone()
     if kind == "metric":
-        return identity in configuration()["profiles"] and version == "metric-domains-1.5.0"
+        return identity in configuration(include_observations=True)["profiles"] and version == profile_version(identity)
     return False
 
 
@@ -102,7 +120,7 @@ def link(w, *, origin, relation, target, span_ids, applicability, actor, rationa
         _review(review or {}, application=True)
         if review["reviewer_kind"] == "synthetic_fixture" and w.environment_kind != "synthetic_test":
             raise ValueError("synthetic_metric_binding_not_production_authority")
-        allowed = configuration()["profiles"][target["id"]]["required_evidence_types"]
+        allowed = configuration(include_observations=True)["profiles"][target["id"]]["required_evidence_types"]
         if not evidence_types or not set(evidence_types) <= set(allowed):
             raise ValueError("explicit_profile_evidence_types_required")
     evidence = []

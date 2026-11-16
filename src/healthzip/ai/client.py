@@ -107,7 +107,7 @@ def _safe_cards(cards: list[dict[str, Any]], allow_sensitive: bool = False,
     """Keep only fields needed to explain a result."""
     from healthzip.science.contracts import definitions
 
-    canonical = definitions() if network_projection else {}
+    canonical = definitions(include_observations=True) if network_projection else {}
     safe = []
     for card in cards:
         if network_projection and (card.get("_canonical_metric_result") or card.get("id") in canonical):
@@ -230,7 +230,7 @@ def _walk_cards(value: Any) -> list[dict[str, Any]]:
                         "valid_n", "total_n", "count_domain",
                         "parameter_set_id", "calibration_artifact_id"):
                 card[key] = value.get(key)
-            definition = definitions()[value["metric_id"]]
+            definition = definitions(include_observations=True)[value["metric_id"]]
             card["_canonical_metric_result"] = True
             card["_public_limitations"] = [definition.get("uncertainty", ""),
                                            *definition.get("forbidden_inferences", [])]

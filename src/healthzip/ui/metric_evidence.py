@@ -7,7 +7,7 @@ from healthzip.science import definitions
 
 
 def render_metric_evidence(metrics):
-    cfg, names = configuration(), definitions()
+    cfg, names = configuration(include_observations=True), definitions(include_observations=True)
     with st.expander('指标的原始依据与解释'):
         task = st.selectbox('分析功能', list(cfg['functions']),
             format_func=lambda key: cfg['functions'][key]['title'], key='metric_evidence_function')

@@ -248,7 +248,7 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
         value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
         return value
-    return cached(repo, "canonical-reference-selection-1.4.0", arguments, compute) if use_cache else compute()
+    return cached(repo, "canonical-source-observations-1.5.0", arguments, compute) if use_cache else compute()
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
@@ -312,14 +312,20 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         if selected_task:
             for metric_id in ("STR-30", "PRED-B0"):
                 selected_task["metrics"][metric_id] = metrics[metric_id]
-    data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged}, sort_keys=True, default=str).encode()).hexdigest()
+    from healthzip.analytics.observations import for_repository
+    observations = for_repository(repo, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+        window_end=end.isoformat(), timezone_name=timezone_name, retrospective=retrospective)
+    data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged,
+        "observation_input_hash": observations['input_hash']}, sort_keys=True, default=str).encode()).hexdigest()
     return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
             "window_days": window_days, "reference_options": options, "reference_selection": selection_audit,
             "sleep_options": sleep_choices, "sleep_selection": sleep_audit,
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.4.5",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.5.0",
+            "observations": observations['metrics'], "observation_registry": observations['registry_version'],
+            "observation_query_plan": observations['query_plan'],
             "query_plan": inherited["query_plan"],
             "legacy_unresolved_inventory": inherited["legacy_unresolved_inventory"],
             "retrospective": retrospective}
@@ -406,7 +412,7 @@ def view_task_interval(repo, analysis, task_id: str, *, family_id: str, alpha_to
 def metric_card(metric):
     """Display/AI adapter consumes the calculated value without recalculation."""
     from healthzip.science import definitions
-    title = definitions()[metric["metric_id"]]["title"]
+    title = definitions(include_observations=True)[metric["metric_id"]]["title"]
     unit = metric.get("unit")
     status = metric["data_status"]
     summary = (f"{title}：{metric['value']} {unit or ''}。"

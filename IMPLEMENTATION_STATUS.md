@@ -47,6 +47,8 @@ schema v4迁移使用事务，已有私人表原列保持，默认库已有备�
 
 ## v1.5 增量交付（2026-11-17，检索质量待验收）
 
+心肺/周期新增两个独立登记的来源观测MetricResult：实际health_sample修订账本→规范观测→分析快照 `observations`→页面和统一检索/解释入口。原77项 `metrics`、默认领域配置和私人schema保持原合同；原始VO₂单位、类别、来源、窗口、缺项及未知状态保留，不推断生理真值/阶段或训练处方。整仓1549项及Ruff通过，240份输入全程不变；真实公共服务11次请求未出现合成私人记录标记，两个功能均无检索降级且按生产审核缺项拒绝。生产审核/主张/规则未增加；见 [来源观测接入](docs/v15_source_observations.md) 和 `regression-source-observations-1.json`。
+
 `metric-hybrid-1.5.2` 已为3个真正超限的JATS表格建立315个完整结构行组索引，文档缓存44421→44736，重复构建新增0/复用315。原Span保持完整，dense汇总仅在全组向量可用时参与，命中行列与完整性进入审计；保留旧冻结发布及评测副本，未增加科学来源、审核或数值权限。整仓1533项及Ruff通过，234份输入全程不变。实际固定任务调用和27张旧表/318份历史工件保护回执见 [结构索引说明](docs/v15_structural_table_indexing.md)、`structural-table-indexing-1.json` 和 `regression-table-projection-1.json`；新增独立分母0。
 
 此前输入准入适配以可选同源分词服务核对完整原文实际token数，默认仍保守准入；实测4096-token容量下18个原字节超限单元完整补建，文档缓存44403→44421，3个表格仍超限，原文和冻结评测副本不变。整仓1518项、Ruff通过，231份验证输入不变并与主目录逐字节匹配；没有重建既有向量、增加审核或数值权限。说明及回执见 [当前交付](docs/v15_delivery.md)、`model-input-capacity-1.json`、`whole-unit-token-indexing-1.json` 和 `regression-token-admission-1.json`。

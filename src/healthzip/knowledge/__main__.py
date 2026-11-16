@@ -18,7 +18,9 @@ def main(argv=None):
     sub.add_parser("verify")
     sub.add_parser("core-seed")
     sub.add_parser("core-status")
-    sub.add_parser("metric-profiles")
+    profiles = sub.add_parser("metric-profiles")
+    profiles.add_argument('--include-observations', action='store_true',
+                          help='Include the two explicit source-observation extensions alongside the original 77 profiles')
     p = sub.add_parser("metric-retrieve")
     p.add_argument("declaration", help="Local JSON: metric_id,analysis_task,metric_result,context,release_id")
     p.add_argument("--mode", choices=['lexical', 'dense', 'hybrid', 'hybrid_rerank'], default='lexical')
@@ -97,7 +99,7 @@ def main(argv=None):
             result = w.core_status()
         elif args.command == "metric-profiles":
             from .domains import configuration
-            result = configuration()
+            result = configuration(include_observations=args.include_observations)
         elif args.command == "metric-retrieve":
             result = w.retrieve_for_metric(**json.loads(Path(args.declaration).read_text()), mode=args.mode, k=args.k)
         elif args.command == "build-vectors":

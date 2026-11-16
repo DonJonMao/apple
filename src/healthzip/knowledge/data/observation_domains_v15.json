@@ -1,0 +1,29 @@
+{
+  "schema_version": "observation-domains-1.5.0",
+  "registry": "source-observations-1.5.0",
+  "scope": "Two explicit source-observation extensions, separate from the original 77 metrics; no physiological inference or candidate authority.",
+  "profiles": {
+    "OBS-VO2-REPORTED": {
+      "primary_domains": ["wearable", "cardiometabolic"],
+      "secondary_domains": ["physiology"],
+      "required_domains": ["wearable", "cardiometabolic"],
+      "analysis_functions": ["cardiorespiratory"],
+      "retrieval_profile": "source_observation_explanation",
+      "required_evidence_types": ["measurement_method_scope", "reported_vo2_interpretation_limits"],
+      "applicability_context": ["population", "measurement_protocol"],
+      "query": "来源报告的 VO2max 记录：区分设备估计、来源报告值与气体分析实测，核对测量协议、适用人群及测量误差；不能由 HealthKit 字段确认生理真值或推断训练因果作用。",
+      "query_aliases": ["source reported VO2max cardiorespiratory fitness wearable estimation criterion measurement validity protocol uncertainty"]
+    },
+    "OBS-CYCLE-RECORDS": {
+      "primary_domains": ["physiology", "wearable"],
+      "secondary_domains": [],
+      "required_domains": ["physiology", "wearable"],
+      "analysis_functions": ["cycle"],
+      "retrieval_profile": "source_observation_explanation",
+      "required_evidence_types": ["recorded_category_measurement_scope", "cycle_observation_interpretation_limits"],
+      "applicability_context": ["population", "measurement_protocol"],
+      "query": "月经类别观测记录的测量与解释边界：原始类别不等于出血天数或周期数，缺少记录不能推断没有月经，不能据此确认周期阶段、排卵、避孕、诊断或个人训练处方。",
+      "query_aliases": ["menstrual flow recorded categories missing observations cycle phase ovulation inference limitations measurement protocol"]
+    }
+  }
+}

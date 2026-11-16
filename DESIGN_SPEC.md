@@ -47,3 +47,5 @@ LLM只解释已计算结果。显式网络同意控制健康摘要外发；摘�
 ## v1.5 增量知识层（开发中）
 
 五逻辑领域在原两库上扩展；版本化领域归属、逐主张/指标显式关系、结构化 PDF 单元、模型身份隔离向量和权限优先 RRF/聊天精排，复用原 MetricResult、审核与候选服务。来源解释、阅读背景与数值候选保持独立权限。当前详细设计与未验收事项见 docs/v15_knowledge_architecture.md 和 docs/v15_retrieval_design.md；不能把开发中的接入称为独立准确率通过。
+
+心肺与周期通过两个独立登记的来源观测MetricResult接入统一检索：原77项 `metrics` 不变，新快照 `observations` 复用health_sample可见修订、窗口和单位依据，保留来源VO₂值与未解释的原始月经类别。未知不补值，不推断生理真值、阶段或处方；生产审核缺项仍拒绝。具体合同及冻结兼容见 docs/v15_source_observations.md。

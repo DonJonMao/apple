@@ -25,9 +25,13 @@ EVIDENCE_STATES = {
 ALGORITHM_VERSION = "healthzip-science-1.4.5"
 
 
-def definitions() -> dict[str, dict[str, Any]]:
+def definitions(*, include_observations: bool = False) -> dict[str, dict[str, Any]]:
     data = json.loads(files("healthzip.science").joinpath("metrics.json").read_text("utf-8"))
-    return {item["metric_id"]: item for item in data["metrics"]}
+    registered = {item["metric_id"]: item for item in data["metrics"]}
+    if include_observations:
+        from .observations import definitions as observation_definitions
+        registered.update(observation_definitions())
+    return registered
 
 
 def instant(value: Any) -> datetime:
@@ -161,7 +165,7 @@ def result(metric_id: str, window: Window, value: Any = None, *, unit: Optional[
            uncertainty: Optional[dict] = None, coverage: Optional[list[dict]] = None,
            parameter_set_id: Optional[str] = None, calibration: Optional[dict] = None,
            **extra: Any) -> dict:
-    definition = definitions()[metric_id]
+    definition = definitions(include_observations=True)[metric_id]
     rows = records or []
     output = {
         "metric_id": metric_id, "algorithm_version": ALGORITHM_VERSION,

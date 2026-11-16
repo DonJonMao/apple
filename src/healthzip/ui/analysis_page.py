@@ -218,5 +218,8 @@ def render_analysis(repo, value):
             st.write(response["summary"])
             st.caption(response["source"])
     from healthzip.ui.metric_evidence import render_metric_evidence
-    render_metric_evidence(metrics)
+    from healthzip.ui.source_observations import render_source_observations
+    observations = result.get('observations', {})
+    render_source_observations(observations)
+    render_metric_evidence({**metrics, **observations})
 

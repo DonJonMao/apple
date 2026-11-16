@@ -13,7 +13,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.2"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.3"
 
 
 def _lexical(query, candidates):
@@ -64,6 +64,9 @@ def _release(w, release_id):
         raise ValueError("incompatible_index_release")
     if manifest.get("profile_sha256") != digest(dumps(domains.configuration()).encode()):
         raise ValueError("frozen_profile_configuration_changed")
+    if (manifest.get('observation_profile_sha256') is not None
+            and manifest['observation_profile_sha256'] != digest(dumps(domains.observation_configuration()).encode())):
+        raise ValueError('frozen_observation_profile_configuration_changed')
     refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
     return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
         "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
@@ -289,7 +292,7 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
                 conflicts.append(payload)
         if (row["relation"] in {"applies_to", "limits", "defines", "required_by"} and row["from_type"] == "claim"
                 and row["to_type"] == "metric" and row["to_id"] == metric_id
-                and row["to_version"] == domains.configuration()["schema_version"]
+                and row["to_version"] == domains.profile_version(metric_id)
                 and (row["from_id"], row["from_version"]) in claims):
             try:
                 _claim(w, {'claim_id': row['from_id'], 'version': row['from_version']})
@@ -389,7 +392,7 @@ def _still_current(w, candidate, context):
 def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                         mode="hybrid_rerank", k=6, services=None):
     from healthzip.science.contracts import validate_result
-    config = domains.configuration()
+    config = domains.configuration(include_observations=True)
     if metric_id not in config["profiles"] or analysis_task not in {"explain_metric", *config["functions"]}:
         raise ValueError("unknown_fixed_metric_or_analysis_task")
     if not isinstance(metric_result, dict) or metric_result.get("metric_id") != metric_id:
@@ -398,18 +401,19 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     if mode not in MODES or type(k) is not int or not 1 <= k <= 20:
         raise ValueError("invalid_retrieval_mode_or_budget")
     profile = config["profiles"][metric_id]
+    profile_version = domains.profile_version(metric_id)
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
         raise ValueError("metric_not_declared_for_analysis_function")
     context = dict(context or {})  # Kept local, never interpolated into a model query.
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
     task_title = config['functions'][analysis_task]['title'] if analysis_task != 'explain_metric' else '指标解释'
     query = ' '.join([task_title, profile["query"], *profile.get('query_aliases', [])])
-    result = {"query_id": digest(dumps([metric_id, analysis_task, config["schema_version"], release_id]).encode()),
+    result = {"query_id": digest(dumps([metric_id, analysis_task, profile_version, release_id]).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
         "conflicts": [], "capability_permissions": {"source_explanation": False, "candidate": False,
             "candidate_authority": "existing_application_rule_service_only"},
-        "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": config["schema_version"],
+        "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
@@ -557,6 +561,9 @@ def freeze_index(w, release_id):
             projections[identity] = projection['projection_set_id']
     if projections:
         manifest['projection_set_ids'] = projections
+    observations = set(domains.observation_configuration()['profiles'])
+    if any(r[0] in observations for r in w.lib.theories.execute("SELECT to_id FROM knowledge_evidence_edge WHERE to_type='metric'")):
+        manifest['observation_profile_sha256'] = digest(dumps(domains.observation_configuration()).encode())
     serialized = dumps(manifest)
     old = w.lib.sources.execute("SELECT manifest_json FROM index_release WHERE release_id=?", (release_id,)).fetchone()
     if old and old[0] != serialized:

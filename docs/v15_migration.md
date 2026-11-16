@@ -36,3 +36,5 @@
 1.5.2在Source库追加 `retrieval_projection_set` 及父Span索引，表不存在时以幂等SAVEPOINT创建，私人库和Theory库不新增表。超限JATS表格可在同一 `build-vectors` 命令下生成 [结构行组投影](v15_structural_table_indexing.md)。原Span继续保留超限记录，投影完整性单独报告；不通过覆盖原文或删除排除项制造完整单元向量。所有子向量生成前，该父表不参与dense排名。回滚代码时旧版本忽略新表，原有向量和原文仍可读；需恢复数据时使用续建前两库备份到新目录，不能覆盖正在使用的库。
 
 新冻结索引仅在存在投影时添加 `projection_set_ids` 字段；旧manifest及哈希不重写，读取缺省为空。既有冻结发布不会自动取得新投影。需要使用新结构索引时创建新的发布ID，保留旧ID及原评测目录。
+
+心肺/周期的两个 [来源观测扩展](v15_source_observations.md) 直接复用私人health_sample修订账本，不迁移私人schema，不读取旧P1卡作为计算依据。新快照保留77项 `metrics`，另添2项 `observations`，分析算法/缓存版本更新为v1.5，历史快照不覆盖。默认指标和领域配置仍77项；CLI使用 `metric-profiles --include-observations` 明确查看扩展。新发布只有实际包含扩展绑定时才追加并核验 `observation_profile_sha256`，原配置文件和旧发布不改。

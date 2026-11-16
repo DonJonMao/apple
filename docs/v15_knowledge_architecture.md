@@ -4,7 +4,7 @@
 
 五领域为 physiology、strength、wearable、recovery、cardiometabolic。文件、主张、规则和指标之间采用版本绑定；文件级 provisional 标签只是初始路由，不表示章节或科学主张已经审核。
 
-SourceLibrary 增加 retrieval_parent_section、retrieval_unit、retrieval_unit_domain_review、retrieval_vector、retrieval_model_dimension 和 metric_retrieval_audit。Child 引用已有 Span，Parent 引用来源版本及章节路径，不复制五份正文。逐片段领域审核另存追加记录，原 provisional 记录保留。矛盾的领域审核要求显式修订索引，不能静默覆盖。
+SourceLibrary 增加 retrieval_parent_section、retrieval_unit、retrieval_unit_domain_review、retrieval_vector、retrieval_model_dimension 和 metric_retrieval_audit；超长JATS表格另以retrieval_projection_set保存不可变行组输入定位/哈希。Child 引用已有 Span，Parent 引用来源版本及章节路径，不复制五份正文。逐片段领域审核另存追加记录，原 provisional 记录保留。矛盾的领域审核要求显式修订索引，不能静默覆盖。
 
 TheoryLibrary 增加 knowledge_domain_assignment 和 knowledge_evidence_edge。关系种类包括 supports、defines、limits、applies_to、conflicts_with、supersedes、required_by。边保留来源版本、精确片段、文本哈希、适用条件、审核身份及理由。绑定到指标的边还需要明确的应用审核及证据类型；不能借用别的主张的片段。关系本身不授予数值候选权限。
 
@@ -12,7 +12,7 @@ TheoryLibrary 增加 knowledge_domain_assignment 和 knowledge_evidence_edge。�
 
 统一入口是 `KnowledgeWorkbench.retrieve_for_metric`；`explain_metric` 接入原 AI Explanation Contract。分析页可按固定功能和现有 MetricResult 查看原文、定位、局限及审计。CLI 原命令保留，并新增指标检索、资料导入、领域审核、关系绑定、向量构建及索引冻结。
 
-现有 77 指标没有独立 VO2max 或女性周期指标。新页面对没有对应 MetricResult 的固定功能显示缺项，不能把 legacy P1 输出冒充规范指标。六功能的完整科学接入仍须逐项核对；不能因入口存在便宣布六功能验收完成。
+现有77指标没有独立VO₂max或女性周期指标。新增两个明确区分的来源观测扩展，复用health_sample修订账本及MetricResult合同，保存于快照 `observations`；原 `metrics` 仍77项。实际页面可选择心肺/周期观测并调用统一检索，生产审核绑定仍缺，证据不足时拒绝。旧P1输出保持兼容身份，不作为新计算输入。六功能的完整科学接入仍须逐项核对，不能因入口存在便宣布科学验收完成；见 [来源观测接入](v15_source_observations.md)。
 
 来源治理、章节解析、主张审核、应用规则、独立检索评测和真人科学验证分别报告。教材导入不会批准新主张；检索、Embedding 或聊天精排也不能改变现有 ApplicationRule 服务的候选权限。
 

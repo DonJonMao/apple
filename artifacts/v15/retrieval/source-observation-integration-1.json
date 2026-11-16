@@ -1,0 +1,825 @@
+{
+  "schema": "v15-source-observation-integration-1",
+  "created_at": "2026-11-16T19:49:30.027771+00:00",
+  "status": "passed",
+  "scope": "Synthetic source data through canonical Repository adapter and actual public-evidence model services; not independent accuracy or physiological validation",
+  "original_metric_count": 77,
+  "observation_extension_ids": [
+    "OBS-CYCLE-RECORDS",
+    "OBS-VO2-REPORTED"
+  ],
+  "original_profile_count": 77,
+  "extended_profile_count": 79,
+  "extension_profile_sha256": "fac00ff3f2c31f83dbc57f0c05eaadce67af920a1e078812dc2fe69746b56cb7",
+  "models": {
+    "embedding": {
+      "provider": "openai_compatible",
+      "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+      "model_id": "qwen3-embedding-8b",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    },
+    "reranker": {
+      "provider": "chat_listwise",
+      "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+      "model_id": "deepseek-v4-flash",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    }
+  },
+  "protected_existing_db_tables": {
+    "source.acquisition_log": {
+      "through_rowid": 250,
+      "rows": 250,
+      "sha256": "6c92f5d7789624b3732b2bcaaf82e8e1422952de26db018234de0b64c6fb5e88"
+    },
+    "source.alias": {
+      "through_rowid": 75,
+      "rows": 75,
+      "sha256": "17d60309c5eb33543e31316b4478136c030d7f7fe06e68d271ad0c009f7a9968"
+    },
+    "source.chapter_coverage": {
+      "through_rowid": 40,
+      "rows": 30,
+      "sha256": "ad590ebe294b5a64dc85129ad7f73903a8e5dddbe92d459e24462867b9d0a0e3"
+    },
+    "source.index_release": {
+      "through_rowid": 3,
+      "rows": 3,
+      "sha256": "f6b340b50be9788635635ee7c6d5b0be99faff6a1cf03a6f66a68680d4e21211"
+    },
+    "source.metric_retrieval_audit": {
+      "through_rowid": 9,
+      "rows": 9,
+      "sha256": "cf434c16d239e94cbfd906a5df3e872c905692dea9eb31a91296d0bd1c577a37"
+    },
+    "source.parse_supersession": {
+      "through_rowid": 52,
+      "rows": 52,
+      "sha256": "dbe23def3bf4d9f7f1ea66c8a1c11ec8228f315c0c110b12e21ada473d0ecfb2"
+    },
+    "source.retrieval_model_dimension": {
+      "through_rowid": 1,
+      "rows": 1,
+      "sha256": "bdaac00752fe685699195aeb5cf2c2333ff0cafbd1b0d8568f69693f02f72d16"
+    },
+    "source.retrieval_parent_section": {
+      "through_rowid": 56054,
+      "rows": 56054,
+      "sha256": "b42a039cd725c55b36d8a815eaad731ec0547da8a9a457da4154b7627759c7ac"
+    },
+    "source.retrieval_projection_set": {
+      "through_rowid": 3,
+      "rows": 3,
+      "sha256": "f032df0665968de214dd628a9d73f898bcae58cd9aabb4ebf39fa337c6b0196a"
+    },
+    "source.retrieval_unit": {
+      "through_rowid": 404938,
+      "rows": 404938,
+      "sha256": "86a1cb90f84c4bf6b632d64418984e54b72f3ae33e98c986336ade5f68cc793c"
+    },
+    "source.retrieval_unit_domain_review": {
+      "through_rowid": 27,
+      "rows": 27,
+      "sha256": "e92f7b80693279bfa1d420a5855572a3bd184d5d273b77714510f793dfecb05c"
+    },
+    "source.retrieval_vector": {
+      "through_rowid": 44740,
+      "rows": 44740,
+      "sha256": "282f58688ff6ac5a23f315c7be6ac21c51c797c97d36e61ea632bf6d3dd106ff"
+    },
+    "source.scientific_notice": {
+      "through_rowid": 0,
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source.source": {
+      "through_rowid": 61,
+      "rows": 61,
+      "sha256": "7414ea82f900c132ef4f8c34f3f8bf4c70e74159081923d07a4c899eb66ce1ff"
+    },
+    "source.source_review": {
+      "through_rowid": 2,
+      "rows": 2,
+      "sha256": "b3616beecb9933c87f44fcd44eb065ae00bd9d8026f2c17999dc69aadd9550bc"
+    },
+    "source.source_version_clearance": {
+      "through_rowid": 0,
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source.span": {
+      "through_rowid": 407711,
+      "rows": 407711,
+      "sha256": "50fddafc5a82521924ed2bc8f8f278318685bb0193661e12c3de98730e26f01f"
+    },
+    "source.version": {
+      "through_rowid": 258,
+      "rows": 258,
+      "sha256": "3150f4ba3e42374a7416b58e31db538abed63d100d5a344b3fcae872cb3c3b64"
+    },
+    "theory.application_rule": {
+      "through_rowid": 97,
+      "rows": 97,
+      "sha256": "182aa5ecf39d432db820d694b101ae4136d97d3fe20225631aece58ec6a6114c"
+    },
+    "theory.core_lifecycle": {
+      "through_rowid": 37,
+      "rows": 37,
+      "sha256": "6e24370f6812ae7dead949e2811e2e8fcded88c2f017f954fdad7c41d2301f05"
+    },
+    "theory.core_release": {
+      "through_rowid": 15,
+      "rows": 15,
+      "sha256": "4986df5e62f7f30ef824fa89b56fecf977905e261bc3b60895db945a8f6e6a8d"
+    },
+    "theory.knowledge_domain_assignment": {
+      "through_rowid": 460,
+      "rows": 460,
+      "sha256": "237be725bb7ea7e4b440e61b78c846465629c046607695b291f6efab053c2800"
+    },
+    "theory.knowledge_evidence_edge": {
+      "through_rowid": 80,
+      "rows": 80,
+      "sha256": "ac20b9c224c8f3983d736c697bbedcbbe28391d8ff5e4aca37e191dc7dd08f5c"
+    },
+    "theory.source_claim": {
+      "through_rowid": 79,
+      "rows": 79,
+      "sha256": "c2cce278f9234a893bab8a7d26799667b432a1cebff6d82f4d33707275a5a43a"
+    },
+    "theory.theory": {
+      "through_rowid": 20,
+      "rows": 20,
+      "sha256": "6082dd41697f0594591ed2ba65dd895e900828165b19748ff32775350335872c"
+    },
+    "theory.theory_lifecycle": {
+      "through_rowid": 11,
+      "rows": 11,
+      "sha256": "79b533d64de423ec239cc9cb9abb8483860753c8c2284b2bfcf181aca4692faa"
+    },
+    "theory.theory_release": {
+      "through_rowid": 2,
+      "rows": 2,
+      "sha256": "5dac3d88176625519976886e8a2cf688eb175b0d5142988120820d36d254904d"
+    },
+    "theory.theory_review": {
+      "through_rowid": 11,
+      "rows": 11,
+      "sha256": "9435cb3ad66397a44d39d43608a85c1b852b62ae802c34a1dd44247b27eb24fa"
+    }
+  },
+  "changed_existing_rows": [],
+  "new_production_claims_rules_or_reviews": 0,
+  "private_record_markers_in_retrieval_payloads": false,
+  "requests": [
+    {
+      "service": "embedding",
+      "payload_sha256": "b64bf0fb75901b5fa60b759b7b026a538dd50946b8ded441fc6c35e787d83c7f",
+      "payload_utf8_bytes": 545,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "5822ba9b65b2ccb2943b8a3a3741f71e7cde4810977095731a14a0dd329ae26e",
+      "payload_utf8_bytes": 23997,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "d61331ccb7252759f3f1c1e88c4fb10c55b181cc71c444e2054c3926294666c8",
+      "payload_utf8_bytes": 12241,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "cbece0537b5c01faa9099a07d2c3aadc0918553ed75a59241d18a72f705b2ab5",
+      "payload_utf8_bytes": 24698,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "d2d7250ce3db0e76abfe075795e032c4f08d030428415a707c317ef3104fe33d",
+      "payload_utf8_bytes": 23102,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "0660e1ae764963bb4e735b7b70d9a41bebd98021aae1250cbcfa4d8682d5afbf",
+      "payload_utf8_bytes": 15793,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "66222e005a96fd4740798af53b5941dc06f76e2c28c7fec223faaf2d1768ea58",
+      "payload_utf8_bytes": 19188,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "embedding",
+      "payload_sha256": "a4d6fc817b90a9b524abc51da8a6e0080fcb1107ecb3a34ce3679ddca0e5864e",
+      "payload_utf8_bytes": 553,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "a79200f1f4025ef4b1ec9d8919770b15e9828ffb6b0a2035988dce3045582336",
+      "payload_utf8_bytes": 24461,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "495a0d08a74e3391d9d349254c629e9285e137bd50bce177f8812bb2d0bee07f",
+      "payload_utf8_bytes": 24278,
+      "synthetic_record_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "c0bd75521403c76f95a799f2cec5268d89c8be7b15fb3020c83af44a23cc70cd",
+      "payload_utf8_bytes": 24827,
+      "synthetic_record_markers_found": false
+    }
+  ],
+  "fixed_task_smokes": [
+    {
+      "metric_id": "OBS-VO2-REPORTED",
+      "task": "cardiorespiratory",
+      "evidence_status": "insufficient_evidence",
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:cardiometabolic",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:measurement_method_scope",
+        "missing_evidence_type:reported_vo2_interpretation_limits"
+      ],
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.3",
+        "profile_version": "observation-domains-1.5.0",
+        "requested_mode": "hybrid_rerank",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 68494,
+        "candidate_ids_sha256": "4a877e070ed9196764d8f7ea9f94c854c1de6cffeff93531a52dc9f00d2f8a12",
+        "dense_structural_projections": [
+          {
+            "projection_set_id": "c9214b9d04a2b6f2d88b49b16701c74bb46673965aaaa16069007df50b79957d",
+            "projection_version": "jats-table-row-groups-1.5.0",
+            "parent_span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "parent_text_hash": "588561ea9d5587fa5430c2e83293630f885058d475868883c47c8d180f18b06e",
+            "expected_child_vectors": 104,
+            "available_child_vectors": 104,
+            "complete": true,
+            "aggregation": "max_child_cosine_complete_projection",
+            "original_parent_returned": true,
+            "winning_cosine": 0.5520273311772197,
+            "winning_child": {
+              "child_id": "89e7925c462e5eb6e1ce64249e9988c93fabbdec9b25324c4c41c5fa746b9e73",
+              "input_hash": "eae3dcf2b93fb2f540a3635143f1f02ecfd9825124955a22f6e4b35d37acc3cf",
+              "locator": {
+                "coordinate_system": "owned_raw_xml_zero_based_half_open_grid",
+                "table_xpath": "./*[8]",
+                "row_group_xpath": "./*[8]/*[2]",
+                "body_rows": [
+                  20,
+                  21
+                ],
+                "preceding_structural_context_rows": [
+                  3,
+                  7,
+                  11,
+                  13,
+                  15,
+                  17,
+                  19
+                ]
+              }
+            }
+          }
+        ],
+        "reranker_context_budget": {
+          "utf8_bytes": 24000,
+          "strategy": "tail_to_head_overlapping_whole_units",
+          "available_fused_candidates": 20,
+          "submitted_candidates": 20,
+          "source_units_truncated": false,
+          "excluded_ids": [],
+          "unranked_ids": [],
+          "windows": [
+            {
+              "candidate_ids": [
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00003",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00040",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00003",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00036",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00040"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00021",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00021"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00051",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00745",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00051",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00745"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012"
+              ]
+            }
+          ],
+          "ranking_complete": true
+        },
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 1921,
+        "dense_candidates": 68494,
+        "fusion_candidates": 68494,
+        "reranked_candidates": 20,
+        "models": {
+          "embedding": {
+            "provider": "openai_compatible",
+            "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+            "model_id": "qwen3-embedding-8b",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          },
+          "reranker": {
+            "provider": "chat_listwise",
+            "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+            "model_id": "deepseek-v4-flash",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          }
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "53d1527e57099035f63e877975f982aabf0c0ad083298e8cec016113a176f238",
+        "audit_id": "ef1bec7c0df549edae27c5801c4d2091",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 1,
+            "dense_rank": 5,
+            "fusion_rank": 1,
+            "reranker_rank": 1
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 4,
+            "dense_rank": 11,
+            "fusion_rank": 3,
+            "reranker_rank": 2
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 3,
+            "dense_rank": 12,
+            "fusion_rank": 2,
+            "reranker_rank": 3
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 14,
+            "dense_rank": 14,
+            "fusion_rank": 7,
+            "reranker_rank": 4
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 21,
+            "dense_rank": 8,
+            "fusion_rank": 6,
+            "reranker_rank": 5
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00051",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 12,
+            "dense_rank": 9,
+            "fusion_rank": 4,
+            "reranker_rank": 6
+          }
+        ],
+        "excluded_counts_by_reason": {
+          "answer_version_replaced": 21,
+          "claim_missing_or_not_current": 7,
+          "missing_context:interpretation_setting": 1,
+          "missing_context:knowledge_comparison_scope": 1,
+          "scope_mismatch:population": 1,
+          "parser_superseded_requires_explicit_claim_review": 36,
+          "rights_not_cleared": 1674,
+          "empty_structured_unit": 1,
+          "claim_rejected_no_background_bypass": 4
+        },
+        "excluded_full_list_sha256": "e531f23b76ac725388370fdbf2bcd3d857a835a109d9eced90801d6b269fdb69"
+      },
+      "explanation_source": "local_fallback"
+    },
+    {
+      "metric_id": "OBS-CYCLE-RECORDS",
+      "task": "cycle",
+      "evidence_status": "insufficient_evidence",
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:physiology",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:cycle_observation_interpretation_limits",
+        "missing_evidence_type:recorded_category_measurement_scope"
+      ],
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.3",
+        "profile_version": "observation-domains-1.5.0",
+        "requested_mode": "hybrid_rerank",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 65626,
+        "candidate_ids_sha256": "f8d04d2f8b92eb5dbb97121765f53c501501c7e299ec255da43d4bbfd52f6bf3",
+        "dense_structural_projections": [
+          {
+            "projection_set_id": "c9214b9d04a2b6f2d88b49b16701c74bb46673965aaaa16069007df50b79957d",
+            "projection_version": "jats-table-row-groups-1.5.0",
+            "parent_span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "parent_text_hash": "588561ea9d5587fa5430c2e83293630f885058d475868883c47c8d180f18b06e",
+            "expected_child_vectors": 104,
+            "available_child_vectors": 104,
+            "complete": true,
+            "aggregation": "max_child_cosine_complete_projection",
+            "original_parent_returned": true,
+            "winning_cosine": 0.3314475369848887,
+            "winning_child": {
+              "child_id": "7ce7d0764118cb18f766d1ab50008f49c1b4181310e05254b28919dfec1c766d",
+              "input_hash": "24ef6a967680e6eea90d5c00d3fba4f11bd0aef5111185d2a10716258060e33b",
+              "locator": {
+                "coordinate_system": "owned_raw_xml_zero_based_half_open_grid",
+                "table_xpath": "./*[8]",
+                "row_group_xpath": "./*[8]/*[2]",
+                "body_rows": [
+                  14,
+                  15
+                ],
+                "preceding_structural_context_rows": [
+                  3,
+                  7,
+                  11,
+                  13
+                ]
+              }
+            }
+          }
+        ],
+        "reranker_context_budget": {
+          "utf8_bytes": 24000,
+          "strategy": "tail_to_head_overlapping_whole_units",
+          "available_fused_candidates": 20,
+          "submitted_candidates": 20,
+          "source_units_truncated": false,
+          "excluded_ids": [],
+          "unranked_ids": [],
+          "windows": [
+            {
+              "candidate_ids": [
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01750",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35070",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35071",
+                "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00626",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01750",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35071",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35070",
+                "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00626",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26434",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26436",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03387",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03386",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01769",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26359",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26495",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26496",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01750",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35071"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03387",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03386",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26359",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26434",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26436",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01750",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01769",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26495",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26496",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s35071"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26433",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01676",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26431",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26472",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26475",
+                "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00544",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03387",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03386",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26359",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26434"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26433",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26434",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26475",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26359",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26472",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03387",
+                "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03386",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s01676",
+                "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26431",
+                "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00544",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037"
+              ]
+            }
+          ],
+          "ranking_complete": true
+        },
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 2497,
+        "dense_candidates": 65626,
+        "fusion_candidates": 65626,
+        "reranked_candidates": 20,
+        "models": {
+          "embedding": {
+            "provider": "openai_compatible",
+            "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+            "model_id": "qwen3-embedding-8b",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          },
+          "reranker": {
+            "provider": "chat_listwise",
+            "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+            "model_id": "deepseek-v4-flash",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          }
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "03e1bebc81f7877f852e78b4aa7658824797d163e1467de09d027ccfe27799c8",
+        "audit_id": "d0192252836e49808fc74ade6b688ed7",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26433",
+            "source_id": "V15-OSU-ANATOMY-2E-2025",
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 10,
+            "dense_rank": 3,
+            "fusion_rank": 1,
+            "reranker_rank": 1
+          },
+          {
+            "span_id": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26434",
+            "source_id": "V15-OSU-ANATOMY-2E-2025",
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 8,
+            "dense_rank": 68,
+            "fusion_rank": 8,
+            "reranker_rank": 2
+          },
+          {
+            "span_id": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26475",
+            "source_id": "V15-OSU-ANATOMY-2E-2025",
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 3,
+            "dense_rank": 44,
+            "fusion_rank": 5,
+            "reranker_rank": 3
+          },
+          {
+            "span_id": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26359",
+            "source_id": "V15-OSU-ANATOMY-2E-2025",
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 2,
+            "dense_rank": 186,
+            "fusion_rank": 13,
+            "reranker_rank": 4
+          },
+          {
+            "span_id": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2:s26472",
+            "source_id": "V15-OSU-ANATOMY-2E-2025",
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 24,
+            "dense_rank": 9,
+            "fusion_rank": 4,
+            "reranker_rank": 5
+          },
+          {
+            "span_id": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03387",
+            "source_id": "V15-MACINTOSH-OTEP-1",
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2",
+            "lexical_rank": 32,
+            "dense_rank": 40,
+            "fusion_rank": 10,
+            "reranker_rank": 6
+          }
+        ],
+        "excluded_counts_by_reason": {
+          "answer_version_replaced": 21,
+          "claim_missing_or_not_current": 7,
+          "missing_context:interpretation_setting": 1,
+          "missing_context:knowledge_comparison_scope": 1,
+          "scope_mismatch:population": 1,
+          "parser_superseded_requires_explicit_claim_review": 36,
+          "empty_structured_unit": 1,
+          "rights_not_cleared": 1652,
+          "claim_rejected_no_background_bypass": 4
+        },
+        "excluded_full_list_sha256": "b5855271918480c9808a0928136a0a1254f0377fa88c27d002914c2cd5dab215"
+      },
+      "explanation_source": "local_fallback"
+    }
+  ],
+  "personal_explanation_network_enabled": false,
+  "new_independent_evaluation_case_count": 0,
+  "elapsed_seconds": 210.105,
+  "implementation": {
+    "src/healthzip/science/observations.py": "7bdebef0221a84580cc79e8c6fc314fdf732460ba62eccc13457188533ee402c",
+    "src/healthzip/science/contracts.py": "635d3a508b05c007e8b21fc75640ed9fbb714ac9918af30d2574bd472a44523a",
+    "src/healthzip/analytics/observations.py": "597cf6d8deeebae7079a2749a8d903c4422e166113c70af8fabb5f057d93b5fc",
+    "src/healthzip/analytics/v13.py": "6eb2ea71de0fa5533ecc197193c88803afa951aac8f3c89e7c47a633d6417d6a",
+    "src/healthzip/knowledge/domains.py": "79f84259e3c96433ec054647a4d5664218e5f41078732b0e8222ce7631442a17",
+    "src/healthzip/knowledge/metric_retrieval.py": "f45cb1a0d90bf9df5f1382e32e8fbb19de036c7b2e90b5f27f39ca9a33243994",
+    "src/healthzip/ui/analysis_page.py": "b6572ef505e405f08aec267cdf4fa792f0383c4cf8d79c5bc773a4b72fd9f3e3",
+    "src/healthzip/ui/metric_evidence.py": "b20cacacf02495c338c64ce5fb80352e9d250720832157f25f76be8e4a61fe4d",
+    "src/healthzip/ui/source_observations.py": "5c5515edd5a0e13105182f9d056604f943a880a52e77b029c734e4b5649c3d2e",
+    "src/healthzip/ai/client.py": "e11cc47d282c3490a8a911b88af78bd1138960f3204c600f5eba9e237438416f"
+  },
+  "original_registry_files_sha256": {
+    "src/healthzip/science/metrics.json": "c7137838e9aa0b1b50b361d1521279e070ca8b7ba12d3de7356a73e0b0bc1ae9",
+    "src/healthzip/knowledge/data/metric_domains_v15.json": "09ed40cb898f7de93f8ba43e59b941addfc52042f83813eefcfd41073b16dda8"
+  },
+  "original_registry_files_unchanged": true,
+  "local_full_receipt_sha256": "38144a9a4dc2345e02bc6224dcf0ccde994b106206845c1e797c2663e5fbe077",
+  "public_projection": "Public IDs, model/configuration identities, hashes, counts, ranks and structural locators only. Synthetic record details and raw source prose remain local."
+}
