@@ -1,0 +1,908 @@
+{
+  "created_at": "2026-11-16T19:02:25.845747+00:00",
+  "purpose": "development_replay",
+  "cases": [
+    {
+      "case_id": "absolute-intake-boundary",
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 2,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:17"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "bodyweight-dynamic",
+      "metric_id": "BODY-MASS-TREND",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 2,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:17"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "energy-device-total",
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 3,
+      "missing_gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010"
+      ],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_required_domain:physiology",
+        "missing_evidence_type:energy_identifiability",
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:17"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "estimated-vs-observed",
+      "metric_id": "STR-16",
+      "status": "evidence_context_supported",
+      "expected_abstention": false,
+      "gold_hit_count": 3,
+      "gold_span_count": 3,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+              "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-ONE-RM-OBSERVED-DEFINITION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "individual-error-transfer",
+      "metric_id": "STR-18",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_evidence_type:measurement_definition",
+        "missing_evidence_type:method_assumptions"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:8"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "repetitions-comparison",
+      "metric_id": "STR-12",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 0,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+      ],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:strength",
+        "missing_evidence_type:measurement_definition",
+        "missing_evidence_type:method_assumptions",
+        "missing_evidence_type:scope_limit"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "rir-boundary",
+      "metric_id": "STR-10",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072"
+      ],
+      "missing_required_claims": [
+        {
+          "claim_id": "CORE-CLAIM-RIR",
+          "claim_version": "1.4.14"
+        }
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:strength",
+        "missing_evidence_type:measurement_definition",
+        "missing_evidence_type:method_assumptions",
+        "missing_evidence_type:scope_limit"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "robust-reference-scope",
+      "metric_id": "STATE-REFERENCE-MAD",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 4,
+      "gold_span_count": 4,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "missing_evidence_type:measurement_uncertainty"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "sdnn-protocol",
+      "metric_id": "STATE-SDNN",
+      "status": "evidence_context_supported",
+      "expected_abstention": false,
+      "gold_hit_count": 4,
+      "gold_span_count": 5,
+      "missing_gold_span_ids": [
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00039"
+      ],
+      "missing_required_claims": [],
+      "limitations": [],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-HRV-PPG-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "session-rpe-au",
+      "metric_id": "LOAD-SRPE-AU",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 2,
+      "gold_span_count": 3,
+      "missing_gold_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010"
+      ],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_evidence_type:collection_timing"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:8"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-AU-DEFINITION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "session-rpe",
+      "metric_id": "LOAD-SRPE",
+      "status": "evidence_context_supported",
+      "expected_abstention": false,
+      "gold_hit_count": 2,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [],
+      "degradation_reasons": [
+        "dense_index_incomplete:8"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "sleep-observed-duration",
+      "metric_id": "STATE-SLEEP-MAIN",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SLEEP-STRUCTURE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_evidence_type:sleep_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:6"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-SLEEP-STAGE-BOUNDARY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "sleep-stage-estimate",
+      "metric_id": "STATE-SLEEP-STAGE",
+      "status": "evidence_context_supported",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [],
+      "degradation_reasons": [
+        "dense_index_incomplete:6",
+        "model_transport_or_json_error"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-SLEEP-STAGE-BOUNDARY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SLEEP-STRUCTURE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00107",
+              "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00108"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00107"
+        ]
+      },
+      "reranker_window_count": 1
+    },
+    {
+      "case_id": "session-missing-scale",
+      "metric_id": "LOAD-SRPE",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "missing_evidence_type:collection_timing",
+        "missing_evidence_type:scale_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:8"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "session-population-outside-review",
+      "metric_id": "LOAD-SRPE",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "missing_evidence_type:collection_timing",
+        "missing_evidence_type:scale_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:8"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": []
+      },
+      "reranker_window_count": 2
+    },
+    {
+      "case_id": "arithmetic-no-rag",
+      "metric_id": "STR-01",
+      "status": "not_required_deterministic_computation",
+      "expected_abstention": true,
+      "gold_hit_count": 0,
+      "gold_span_count": 0,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [],
+      "degradation_reasons": [],
+      "selection": null,
+      "reranker_window_count": 0
+    },
+    {
+      "case_id": "other-user-refusal",
+      "metric_id": "STR-12",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 0,
+      "gold_span_count": 0,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "tenant_isolation_required"
+      ],
+      "degradation_reasons": [],
+      "selection": null,
+      "reranker_window_count": 0
+    },
+    {
+      "case_id": "commercial-excludes-nc-original",
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 3,
+      "missing_gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010"
+      ],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "missing_evidence_type:energy_identifiability",
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:16"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "historical-static-dynamic-conflict",
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "status": "insufficient_evidence",
+      "expected_abstention": true,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [
+        {
+          "claim_id": "V15-CLAIM-NIH-2006-HISTORICAL-STATIC-ENERGY-RULE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "limitations": [
+        "explicit_conflicting_claims_require_resolution",
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:17"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "consumer-excludes-historical-static-rule",
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "status": "insufficient_evidence",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 1,
+      "missing_gold_span_ids": [],
+      "missing_required_claims": [],
+      "limitations": [
+        "missing_evidence_type:measurement_definition"
+      ],
+      "degradation_reasons": [
+        "dense_index_incomplete:17"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002"
+        ]
+      },
+      "reranker_window_count": 3
+    },
+    {
+      "case_id": "army-estimate-formula-scope",
+      "metric_id": "STR-16",
+      "status": "evidence_context_supported",
+      "expected_abstention": false,
+      "gold_hit_count": 1,
+      "gold_span_count": 2,
+      "missing_gold_span_ids": [
+        "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00637"
+      ],
+      "missing_required_claims": [],
+      "limitations": [],
+      "degradation_reasons": [
+        "dense_index_incomplete:6",
+        "reranker_ranking_invalid"
+      ],
+      "selection": {
+        "strategy": "rank_anchored_complete_reviewed_groups",
+        "span_budget": 6,
+        "selected_span_count": 6,
+        "groups": [
+          {
+            "claim_id": "V15-CLAIM-ONE-RM-OBSERVED-DEFINITION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+              "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+            ],
+            "required_claim_refs": []
+          }
+        ],
+        "rejected_groups": [],
+        "dependency_expansion_ids": [
+          "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027"
+        ]
+      },
+      "reranker_window_count": 3
+    }
+  ]
+}

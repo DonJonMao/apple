@@ -1,0 +1,4669 @@
+{
+  "schema": "metric-retrieval-evaluation-1.5.0",
+  "created_at": "2026-11-16T19:02:18.446491+00:00",
+  "gold_sha256": "4c2f93fa5b2648bd42c4a5fae25c516a8ee69273a9c449aaddbc671c84ec0311",
+  "annotator": {
+    "kind": "AI",
+    "model_id": "deepseek-v4-flash",
+    "weight_revision": "unverified",
+    "same_model_as_reranker": true,
+    "ranking_visible": false,
+    "expert_validation": false
+  },
+  "dataset_identity": "v15-ranking-blind-ai-limited-pool-2",
+  "model_identities": [
+    {
+      "provider": "openai_compatible",
+      "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+      "model_id": "qwen3-embedding-8b",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    },
+    {
+      "provider": "chat_listwise",
+      "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+      "model_id": "deepseek-v4-flash",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    }
+  ],
+  "retrieval_config": {
+    "schema": "metric-hybrid-1.5.1",
+    "k": 6,
+    "rrf_constant": 60,
+    "candidate_budget": 20,
+    "reranker_input_utf8_bytes": 24000,
+    "ablation": "A-D semantic applicability disabled; source rights and lifecycle always enforced",
+    "A_filtered": "additional lexical reference with the identical applicability policy as E",
+    "identity": {
+      "gold_sha256": "4c2f93fa5b2648bd42c4a5fae25c516a8ee69273a9c449aaddbc671c84ec0311",
+      "release_id": "v15-benchmark-corpus-2",
+      "profile_sha256": "750bb330462b3e2326c6dc821cb13c643dabe5af06ee79e901f97fefbc83856d",
+      "runner_sha256": "838bdc76ce34717d19964c7cef546f57a0cdfab763cab0e05508bbd43b9b5020",
+      "implementation_sha256": {
+        "__init__.py": "0b4db7313543e4546dcbf2a12844ba5b2c91f34177af89e65a8df5487fb5cf0d",
+        "__main__.py": "2cb838098fe33c22219ae54c21bd283a8bf28dcf935a60d3732f036e98a9d87d",
+        "acquisition.py": "a96dbf53b05213fad0a04ab0c5514e6cc9965f8db8b4a4bafe812dda16fd6513",
+        "adjudication.py": "4650512f47e8cf48d114d387b4f4cc8396829d570a8b558386a2f046f5ce67ca",
+        "applicability.py": "613562f7e89c4eb8739916212a6a7d764447d35e2107a8d677a7fd866bb76931",
+        "core.py": "0cebc420f929119cc7303d48e477cc3f3ed632dae87c2399d4072ed6f987a40c",
+        "corpus.py": "49c012f359fd653347db5f75e7afa309b767edf96b1417e564ec45dd1f755c88",
+        "coverage.py": "ab766f1771c0a094b0f8510fec3d4b8f169f4b53623c2afb843d606ae9b932ee",
+        "data/metric_domains_v15.json": "09ed40cb898f7de93f8ba43e59b941addfc52042f83813eefcfd41073b16dda8",
+        "documents.py": "16f47dfe038c7f554edc6a7e51cb5c936497eaef75377ec1141a7b746f9bbe33",
+        "domains.py": "7912f7bc73e39f244c5699ff1ef5dd43b1e5a1778c9940eceb759c2b7e4ae5cd",
+        "evaluation.py": "926b616e91f6a8775f424dc4da5472787e9dcf8aae547759e1251386dcb57470",
+        "metric_retrieval.py": "a80281354dc96e39e127a979056e9b4d7f229251c8ab0567134a83d9510b317c",
+        "model_services.py": "acd34e255812323bad576b5155ce6a1924dba872330f17a3b80c24cbba46433a",
+        "product.py": "f092d3fe5ab0d8805d2dbcd7f46e5cc99e5c5ffd51bfceccf17d9391775aafa9",
+        "quality.py": "30233865caf0a8cef930e9d779d78ba2e6d29acb6afa6d6a7f19597560d3ec98",
+        "question_parts.py": "84e1cd8a6e5e0ff264e5d0ee3d8bfd63b5a39cebbc9556e67e062db524b6b0b9",
+        "retrieval.py": "7580a60532577b8b685e7fe7ac11637b56976e07695241d67387611fef51c48d",
+        "retrieval_evaluation.py": "653befd480eaf6ff7dbd544f58d7d694e05af293855760f97e13fe2636723542",
+        "rights.py": "11034d26820e995813733d653784bce5d51003b92a0313dd51eb0f6176ef16bb",
+        "store.py": "fa503866e05ddc835bec578193857e749d65379cf8cf4c5768f0f0c8885f9d64",
+        "structured_pdf.py": "0c9d109722c502ed947857387366aa19126fd72db13e115aa40dd054cde0c276",
+        "support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+        "tasks.py": "ba294c66cafab613b66889f1bb71583ae82d378e6722742ba5d3667e2a8a326d",
+        "transactions.py": "89b1e4c1a1c03b3a08b5b68230e80c00446095867845daa91d009cba69a4a170",
+        "vector_index.py": "2bed91e3f2165c0d6634f7d5d8cb8407bd2f05a31559a0c264c971a805691151",
+        "workbench.py": "a927f5679beb683f0592ef5f40d75a3809395bf3bb13c32bae9b138d65245e6e"
+      },
+      "evaluation_purpose": "development_replay",
+      "models": [
+        {
+          "provider": "openai_compatible",
+          "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+          "model_id": "qwen3-embedding-8b",
+          "model_version": "service-version-unverified",
+          "normalization": "l2",
+          "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+          "embedding_schema_version": "qwen-query-instruction-1.5.0"
+        },
+        {
+          "provider": "chat_listwise",
+          "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+          "model_id": "deepseek-v4-flash",
+          "model_version": "service-version-unverified",
+          "normalization": "l2",
+          "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+          "embedding_schema_version": "qwen-query-instruction-1.5.0"
+        }
+      ],
+      "variants": {
+        "A": [
+          "lexical",
+          false
+        ],
+        "B": [
+          "dense",
+          false
+        ],
+        "C": [
+          "hybrid",
+          false
+        ],
+        "D": [
+          "hybrid_rerank",
+          false
+        ],
+        "E": [
+          "hybrid_rerank",
+          true
+        ],
+        "A_filtered": [
+          "lexical",
+          true
+        ]
+      }
+    },
+    "gold_label_scope": "13 ranking-blind AI-labelled source packets plus deterministic policy probes; limited source pool, not exhaustive corpus relevance judgments"
+  },
+  "scientific_or_candidate_authority_granted": false,
+  "experiments": {
+    "A": {
+      "overall": {
+        "case_count": 21,
+        "degraded_case_count": 0,
+        "evidence_recall_at_k": {
+          "value": 0.5508771929824561,
+          "denominator": 19
+        },
+        "evidence_precision_at_k": {
+          "value": 0.26190476190476186,
+          "denominator": 21
+        },
+        "mrr": {
+          "value": 0.631578947368421,
+          "denominator": 19
+        },
+        "ndcg_at_k": {
+          "value": 0.530113973524854,
+          "denominator": 19
+        },
+        "claim_coverage": {
+          "value": 0.4509803921568627,
+          "denominator": 17
+        },
+        "domain_routing_accuracy": {
+          "value": 1.0,
+          "denominator": 21
+        },
+        "exact_source_span_accuracy": {
+          "value": 0.5508771929824561,
+          "denominator": 19
+        },
+        "applicability_error_rate": {
+          "value": 0.015873015873015872,
+          "denominator": 21
+        },
+        "invalid_evidence_admission_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "conflict_detection_recall": {
+          "value": 1.0,
+          "denominator": 1
+        },
+        "abstention_accuracy": {
+          "value": 0.3333333333333333,
+          "denominator": 21
+        }
+      },
+      "by_domain": {
+        "cardiometabolic": {
+          "case_count": 6,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "evidence_precision_at_k": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "ndcg_at_k": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "claim_coverage": {
+            "value": 0.08333333333333333,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.16666666666666666,
+            "denominator": 6
+          }
+        },
+        "cross_domain": {
+          "case_count": 9,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.4222222222222222,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.1851851851851852,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.4282146277952548,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.3888888888888889,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.4222222222222222,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 9
+          }
+        },
+        "physiology": {
+          "case_count": 5,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "mrr": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.1,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 5
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.2,
+            "denominator": 5
+          }
+        },
+        "recovery": {
+          "case_count": 8,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.8916666666666666,
+            "denominator": 8
+          },
+          "evidence_precision_at_k": {
+            "value": 0.31249999999999994,
+            "denominator": 8
+          },
+          "mrr": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "ndcg_at_k": {
+            "value": 0.8650229743987174,
+            "denominator": 8
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222223,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8916666666666666,
+            "denominator": 8
+          },
+          "applicability_error_rate": {
+            "value": 0.041666666666666664,
+            "denominator": 8
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.375,
+            "denominator": 8
+          }
+        },
+        "strength": {
+          "case_count": 6,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.6666666666666666,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.3333333333333333,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.8,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.6303963403564969,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.5666666666666667,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.6666666666666666,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 6
+          }
+        },
+        "wearable": {
+          "case_count": 9,
+          "degraded_case_count": 0,
+          "evidence_recall_at_k": {
+            "value": 0.4222222222222222,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.1851851851851852,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.4282146277952548,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.3888888888888889,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.4222222222222222,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 9
+          }
+        }
+      },
+      "cases": [
+        {
+          "case_id": "absolute-intake-boundary",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00000",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04343",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04430",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04342",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "bodyweight-dynamic",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00010",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s01125",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00050",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03373",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03376"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic"
+          ]
+        },
+        {
+          "case_id": "energy-device-total",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00000",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00024"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "estimated-vs-observed",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.2322609126342973,
+          "claim_coverage": 0.3333333333333333,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00020",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00637",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00025",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00014",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "individual-error-transfer",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00012",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00011",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00044",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00000"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "repetitions-comparison",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00020",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00637",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03921",
+            "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00608",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00636"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "rir-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00020",
+            "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00736"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "robust-reference-scope",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sdnn-protocol",
+          "evidence_recall_at_k": 0.8,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8539316501572934,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.8,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-rpe-au",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.2322609126342973,
+          "claim_coverage": 0.3333333333333333,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00039"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-rpe",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8339912323981488,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00039",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "sleep-observed-duration",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s01634",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s01724"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sleep-stage-estimate",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s01650",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s01634",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00167"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-missing-scale",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00039",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-population-outside-review",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00039",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "arithmetic-no-rag",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "not_required_deterministic_computation",
+          "domains": []
+        },
+        {
+          "case_id": "other-user-refusal",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "commercial-excludes-nc-original",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00000",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00024"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "historical-static-dynamic-conflict",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": 1.0,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00000",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04343",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04430",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04342",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "consumer-excludes-historical-static-rule",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00000",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04343",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04430",
+            "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s04342",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "army-estimate-formula-scope",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9197207891481876,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00020",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00637",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00025",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00014",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        }
+      ],
+      "output_sha256": "4ce2dd0b72c50c19d3ad943ae86ccfa7854ce157bf616a780c5e8c979d7a9037"
+    },
+    "B": {
+      "overall": {
+        "case_count": 21,
+        "degraded_case_count": 19,
+        "evidence_recall_at_k": {
+          "value": 0.3771929824561403,
+          "denominator": 19
+        },
+        "evidence_precision_at_k": {
+          "value": 0.23015873015873015,
+          "denominator": 21
+        },
+        "mrr": {
+          "value": 0.5,
+          "denominator": 19
+        },
+        "ndcg_at_k": {
+          "value": 0.40427832663634866,
+          "denominator": 19
+        },
+        "claim_coverage": {
+          "value": 0.338235294117647,
+          "denominator": 17
+        },
+        "domain_routing_accuracy": {
+          "value": 1.0,
+          "denominator": 21
+        },
+        "exact_source_span_accuracy": {
+          "value": 0.3771929824561403,
+          "denominator": 19
+        },
+        "applicability_error_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "invalid_evidence_admission_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "conflict_detection_recall": {
+          "value": 1.0,
+          "denominator": 1
+        },
+        "abstention_accuracy": {
+          "value": 0.38095238095238093,
+          "denominator": 21
+        }
+      },
+      "by_domain": {
+        "cardiometabolic": {
+          "case_count": 6,
+          "degraded_case_count": 6,
+          "evidence_recall_at_k": {
+            "value": 0.3611111111111111,
+            "denominator": 6
+          },
+          "evidence_precision_at_k": {
+            "value": 0.13888888888888887,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          },
+          "ndcg_at_k": {
+            "value": 0.42528410746849526,
+            "denominator": 6
+          },
+          "claim_coverage": {
+            "value": 0.2916666666666667,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.3611111111111111,
+            "denominator": 6
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.16666666666666666,
+            "denominator": 6
+          }
+        },
+        "cross_domain": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.4629629629629629,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.18518518518518523,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.6666666666666666,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.5029386219630844,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.3055555555555556,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.4629629629629629,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 9
+          }
+        },
+        "physiology": {
+          "case_count": 5,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.2333333333333333,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.1,
+            "denominator": 5
+          },
+          "mrr": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.31034092896219423,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.15,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 5
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.2333333333333333,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.2,
+            "denominator": 5
+          }
+        },
+        "recovery": {
+          "case_count": 8,
+          "degraded_case_count": 8,
+          "evidence_recall_at_k": {
+            "value": 0.41666666666666663,
+            "denominator": 8
+          },
+          "evidence_precision_at_k": {
+            "value": 0.16666666666666669,
+            "denominator": 8
+          },
+          "mrr": {
+            "value": 0.5,
+            "denominator": 8
+          },
+          "ndcg_at_k": {
+            "value": 0.4395856352921018,
+            "denominator": 8
+          },
+          "claim_coverage": {
+            "value": 0.38888888888888884,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.41666666666666663,
+            "denominator": 8
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.5,
+            "denominator": 8
+          }
+        },
+        "strength": {
+          "case_count": 6,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.3333333333333333,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.27777777777777773,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.3,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.32257969578856754,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.3333333333333333,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 6
+          }
+        },
+        "wearable": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.4629629629629629,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.18518518518518523,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.6666666666666666,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.5029386219630844,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.3055555555555556,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.4629629629629629,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.3333333333333333,
+            "denominator": 9
+          }
+        }
+      },
+      "cases": [
+        {
+          "case_id": "absolute-intake-boundary",
+          "evidence_recall_at_k": 0.5,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.6131471927654584,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.5,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "bodyweight-dynamic",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00034",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00052",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00053"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic"
+          ]
+        },
+        {
+          "case_id": "energy-device-total",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00039",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00043",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "estimated-vs-observed",
+          "evidence_recall_at_k": 0.6666666666666666,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6128984789428379,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.6666666666666666,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00026"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "individual-error-transfer",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00011",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00039",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00044",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00014",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00030",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00000"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "repetitions-comparison",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00039",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00011",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00030",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00044",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "rir-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "robust-reference-scope",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s07486",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s06831",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s00399",
+            "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.1-document-component-scope-1.5.2:s00995",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s06842",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s07485"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sdnn-protocol",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.8333333333333334,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9747429528567877,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00039"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-rpe-au",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.541942129480027,
+          "claim_coverage": 0.3333333333333333,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-rpe",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "sleep-observed-duration",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00316",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s01183",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00229",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00334"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sleep-stage-estimate",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00316",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00229",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s01183",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00034"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-missing-scale",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-population-outside-review",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "arithmetic-no-rag",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "not_required_deterministic_computation",
+          "domains": []
+        },
+        {
+          "case_id": "other-user-refusal",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "commercial-excludes-nc-original",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00039",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00043",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "historical-static-dynamic-conflict",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": 1.0,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "consumer-excludes-historical-static-rule",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "army-estimate-formula-scope",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00026"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        }
+      ],
+      "output_sha256": "ffc616defb4b929c3257ec8a7589dbcb0657547cb66358ae00b60843363aa17b"
+    },
+    "C": {
+      "overall": {
+        "case_count": 21,
+        "degraded_case_count": 19,
+        "evidence_recall_at_k": {
+          "value": 0.8228070175438598,
+          "denominator": 19
+        },
+        "evidence_precision_at_k": {
+          "value": 0.3412698412698414,
+          "denominator": 21
+        },
+        "mrr": {
+          "value": 0.868421052631579,
+          "denominator": 19
+        },
+        "ndcg_at_k": {
+          "value": 0.7627092879936266,
+          "denominator": 19
+        },
+        "claim_coverage": {
+          "value": 0.7254901960784313,
+          "denominator": 17
+        },
+        "domain_routing_accuracy": {
+          "value": 1.0,
+          "denominator": 21
+        },
+        "exact_source_span_accuracy": {
+          "value": 0.8228070175438598,
+          "denominator": 19
+        },
+        "applicability_error_rate": {
+          "value": 0.015873015873015872,
+          "denominator": 21
+        },
+        "invalid_evidence_admission_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "conflict_detection_recall": {
+          "value": 1.0,
+          "denominator": 1
+        },
+        "abstention_accuracy": {
+          "value": 0.47619047619047616,
+          "denominator": 21
+        }
+      },
+      "by_domain": {
+        "cardiometabolic": {
+          "case_count": 6,
+          "degraded_case_count": 6,
+          "evidence_recall_at_k": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2222222222222222,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.75,
+            "denominator": 6
+          },
+          "ndcg_at_k": {
+            "value": 0.6285097796906246,
+            "denominator": 6
+          },
+          "claim_coverage": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.16666666666666666,
+            "denominator": 6
+          }
+        },
+        "cross_domain": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.8333333333333334,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7450299487947616,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        },
+        "physiology": {
+          "case_count": 5,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.19999999999999998,
+            "denominator": 5
+          },
+          "mrr": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.5702675777991121,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 5
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.2,
+            "denominator": 5
+          }
+        },
+        "recovery": {
+          "case_count": 8,
+          "degraded_case_count": 8,
+          "evidence_recall_at_k": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "evidence_precision_at_k": {
+            "value": 0.33333333333333326,
+            "denominator": 8
+          },
+          "mrr": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "ndcg_at_k": {
+            "value": 0.9077639011740706,
+            "denominator": 8
+          },
+          "claim_coverage": {
+            "value": 0.861111111111111,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "applicability_error_rate": {
+            "value": 0.041666666666666664,
+            "denominator": 8
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.5,
+            "denominator": 8
+          }
+        },
+        "strength": {
+          "case_count": 6,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.3611111111111111,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.8,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.6916613168685186,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.6333333333333333,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          }
+        },
+        "wearable": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.8333333333333334,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7450299487947616,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        }
+      },
+      "cases": [
+        {
+          "case_id": "absolute-intake-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6509209298071326,
+          "claim_coverage": 0.75,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "bodyweight-dynamic",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9197207891481876,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00010",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00050",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00034"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic"
+          ]
+        },
+        {
+          "case_id": "energy-device-total",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00024",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "estimated-vs-observed",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.5,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8451593915771352,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "individual-error-transfer",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00011",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00044",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00012",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00000",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00014"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "repetitions-comparison",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00637",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00011",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00009",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03921"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "rir-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s02475",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s02686"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "robust-reference-scope",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s00387",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00035"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sdnn-protocol",
+          "evidence_recall_at_k": 0.8,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8539316501572934,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.8,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00000"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-rpe-au",
+          "evidence_recall_at_k": 0.6666666666666666,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.5741883268371216,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.6666666666666666,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-rpe",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8339912323981488,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "sleep-observed-duration",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00229",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00453",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00316"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sleep-stage-estimate",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00108",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00107",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00229",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00453"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-missing-scale",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-population-outside-review",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "arithmetic-no-rag",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "not_required_deterministic_computation",
+          "domains": []
+        },
+        {
+          "case_id": "other-user-refusal",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "commercial-excludes-nc-original",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "historical-static-dynamic-conflict",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6309297535714574,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": 1.0,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "consumer-excludes-historical-static-rule",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6309297535714574,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s03379"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "army-estimate-formula-scope",
+          "evidence_recall_at_k": 0.5,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.6131471927654584,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.5,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        }
+      ],
+      "output_sha256": "969a28b752ec1b8ee693f2ff5cd9f9f75491c89240a65b162ca551ba591745cc"
+    },
+    "D": {
+      "overall": {
+        "case_count": 21,
+        "degraded_case_count": 19,
+        "evidence_recall_at_k": {
+          "value": 0.8228070175438598,
+          "denominator": 19
+        },
+        "evidence_precision_at_k": {
+          "value": 0.3412698412698414,
+          "denominator": 21
+        },
+        "mrr": {
+          "value": 0.7631578947368421,
+          "denominator": 19
+        },
+        "ndcg_at_k": {
+          "value": 0.6939422566050618,
+          "denominator": 19
+        },
+        "claim_coverage": {
+          "value": 0.7254901960784313,
+          "denominator": 17
+        },
+        "domain_routing_accuracy": {
+          "value": 1.0,
+          "denominator": 21
+        },
+        "exact_source_span_accuracy": {
+          "value": 0.8228070175438598,
+          "denominator": 19
+        },
+        "applicability_error_rate": {
+          "value": 0.015873015873015872,
+          "denominator": 21
+        },
+        "invalid_evidence_admission_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "conflict_detection_recall": {
+          "value": 1.0,
+          "denominator": 1
+        },
+        "abstention_accuracy": {
+          "value": 0.47619047619047616,
+          "denominator": 21
+        }
+      },
+      "by_domain": {
+        "cardiometabolic": {
+          "case_count": 6,
+          "degraded_case_count": 6,
+          "evidence_recall_at_k": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2222222222222222,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.6944444444444445,
+            "denominator": 6
+          },
+          "ndcg_at_k": {
+            "value": 0.5848665285001389,
+            "denominator": 6
+          },
+          "claim_coverage": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.16666666666666666,
+            "denominator": 6
+          }
+        },
+        "cross_domain": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.7962962962962963,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7159344480011043,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        },
+        "physiology": {
+          "case_count": 5,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.19999999999999998,
+            "denominator": 5
+          },
+          "mrr": {
+            "value": 0.6333333333333334,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.517895676370529,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 5
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.2,
+            "denominator": 5
+          }
+        },
+        "recovery": {
+          "case_count": 8,
+          "degraded_case_count": 8,
+          "evidence_recall_at_k": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "evidence_precision_at_k": {
+            "value": 0.33333333333333326,
+            "denominator": 8
+          },
+          "mrr": {
+            "value": 0.875,
+            "denominator": 8
+          },
+          "ndcg_at_k": {
+            "value": 0.815496339566935,
+            "denominator": 8
+          },
+          "claim_coverage": {
+            "value": 0.861111111111111,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "applicability_error_rate": {
+            "value": 0.041666666666666664,
+            "denominator": 8
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.5,
+            "denominator": 8
+          }
+        },
+        "strength": {
+          "case_count": 6,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.3611111111111111,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.6666666666666667,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.6303465975919729,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.6333333333333333,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          }
+        },
+        "wearable": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.7962962962962963,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7159344480011043,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        }
+      },
+      "cases": [
+        {
+          "case_id": "absolute-intake-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6509209298071326,
+          "claim_coverage": 0.75,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "bodyweight-dynamic",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9197207891481876,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00000",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00010",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00034"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic"
+          ]
+        },
+        {
+          "case_id": "energy-device-total",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00054"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "estimated-vs-observed",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.5,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8451593915771352,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "individual-error-transfer",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00003",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00024",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00012",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00000",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00004"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "repetitions-comparison",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00035",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00006",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00011",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00017",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00034"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "rir-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "robust-reference-scope",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00035",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00038"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sdnn-protocol",
+          "evidence_recall_at_k": 0.8,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8539316501572934,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.8,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00000"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-rpe-au",
+          "evidence_recall_at_k": 0.6666666666666666,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.5741883268371216,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.6666666666666666,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-rpe",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8339912323981488,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00040"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "sleep-observed-duration",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00000",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00034",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00131"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sleep-stage-estimate",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00108",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00107",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00034",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-missing-scale",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6309297535714574,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00037"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-population-outside-review",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.6309297535714574,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.16666666666666666,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00037"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "arithmetic-no-rag",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "not_required_deterministic_computation",
+          "domains": []
+        },
+        {
+          "case_id": "other-user-refusal",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "commercial-excludes-nc-original",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "historical-static-dynamic-conflict",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.3333333333333333,
+          "ndcg_at_k": 0.5,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": 1.0,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "consumer-excludes-historical-static-rule",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.3333333333333333,
+          "ndcg_at_k": 0.5,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00042"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "army-estimate-formula-scope",
+          "evidence_recall_at_k": 0.5,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.3333333333333333,
+          "ndcg_at_k": 0.3065735963827292,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.5,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        }
+      ],
+      "output_sha256": "16f5ef46291f0d2f26131aa72f0d30120023b3db7fd02e7d52b5cafb0354e96d"
+    },
+    "E": {
+      "overall": {
+        "case_count": 21,
+        "degraded_case_count": 19,
+        "evidence_recall_at_k": {
+          "value": 0.7964912280701755,
+          "denominator": 19
+        },
+        "evidence_precision_at_k": {
+          "value": 0.3333333333333334,
+          "denominator": 21
+        },
+        "mrr": {
+          "value": 0.8464912280701755,
+          "denominator": 19
+        },
+        "ndcg_at_k": {
+          "value": 0.7500573520223811,
+          "denominator": 19
+        },
+        "claim_coverage": {
+          "value": 0.6666666666666666,
+          "denominator": 17
+        },
+        "domain_routing_accuracy": {
+          "value": 1.0,
+          "denominator": 21
+        },
+        "exact_source_span_accuracy": {
+          "value": 0.7964912280701755,
+          "denominator": 19
+        },
+        "applicability_error_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "invalid_evidence_admission_rate": {
+          "value": 0.0,
+          "denominator": 21
+        },
+        "conflict_detection_recall": {
+          "value": 1.0,
+          "denominator": 1
+        },
+        "abstention_accuracy": {
+          "value": 0.5714285714285714,
+          "denominator": 21
+        }
+      },
+      "by_domain": {
+        "cardiometabolic": {
+          "case_count": 6,
+          "degraded_case_count": 6,
+          "evidence_recall_at_k": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2222222222222222,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.7638888888888888,
+            "denominator": 6
+          },
+          "ndcg_at_k": {
+            "value": 0.6181125980692136,
+            "denominator": 6
+          },
+          "claim_coverage": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7777777777777778,
+            "denominator": 6
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.16666666666666666,
+            "denominator": 6
+          }
+        },
+        "cross_domain": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.8425925925925926,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7380984943804875,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        },
+        "physiology": {
+          "case_count": 5,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.19999999999999998,
+            "denominator": 5
+          },
+          "mrr": {
+            "value": 0.7166666666666667,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.5577909598534188,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 5
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.7333333333333333,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 5
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.2,
+            "denominator": 5
+          }
+        },
+        "recovery": {
+          "case_count": 8,
+          "degraded_case_count": 8,
+          "evidence_recall_at_k": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "evidence_precision_at_k": {
+            "value": 0.33333333333333326,
+            "denominator": 8
+          },
+          "mrr": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "ndcg_at_k": {
+            "value": 0.9428017625012449,
+            "denominator": 8
+          },
+          "claim_coverage": {
+            "value": 0.861111111111111,
+            "denominator": 6
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 8
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.9333333333333333,
+            "denominator": 8
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 8
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.75,
+            "denominator": 8
+          }
+        },
+        "strength": {
+          "case_count": 6,
+          "degraded_case_count": 5,
+          "evidence_recall_at_k": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "evidence_precision_at_k": {
+            "value": 0.3333333333333333,
+            "denominator": 6
+          },
+          "mrr": {
+            "value": 0.7,
+            "denominator": 5
+          },
+          "ndcg_at_k": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "claim_coverage": {
+            "value": 0.4333333333333333,
+            "denominator": 5
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 6
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.6,
+            "denominator": 5
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 6
+          },
+          "conflict_detection_recall": {
+            "value": null,
+            "denominator": 0
+          },
+          "abstention_accuracy": {
+            "value": 0.6666666666666666,
+            "denominator": 6
+          }
+        },
+        "wearable": {
+          "case_count": 9,
+          "degraded_case_count": 9,
+          "evidence_recall_at_k": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "evidence_precision_at_k": {
+            "value": 0.2962962962962962,
+            "denominator": 9
+          },
+          "mrr": {
+            "value": 0.8425925925925926,
+            "denominator": 9
+          },
+          "ndcg_at_k": {
+            "value": 0.7380984943804875,
+            "denominator": 9
+          },
+          "claim_coverage": {
+            "value": 0.7222222222222222,
+            "denominator": 9
+          },
+          "domain_routing_accuracy": {
+            "value": 1.0,
+            "denominator": 9
+          },
+          "exact_source_span_accuracy": {
+            "value": 0.8296296296296295,
+            "denominator": 9
+          },
+          "applicability_error_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "invalid_evidence_admission_rate": {
+            "value": 0.0,
+            "denominator": 9
+          },
+          "conflict_detection_recall": {
+            "value": 1.0,
+            "denominator": 1
+          },
+          "abstention_accuracy": {
+            "value": 0.4444444444444444,
+            "denominator": 9
+          }
+        }
+      },
+      "cases": [
+        {
+          "case_id": "absolute-intake-boundary",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9197207891481876,
+          "claim_coverage": 0.75,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "bodyweight-dynamic",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.9197207891481876,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00000",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00034",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00010"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic"
+          ]
+        },
+        {
+          "case_id": "energy-device-total",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.25,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00000",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00054"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "estimated-vs-observed",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.5,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "individual-error-transfer",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00003",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00024",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00004",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00005",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00012"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "repetitions-comparison",
+          "evidence_recall_at_k": 0.0,
+          "evidence_precision_at_k": 0.0,
+          "mrr": 0.0,
+          "ndcg_at_k": 0.0,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00035",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00006",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00023",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00013"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "rir-boundary",
+          "evidence_recall_at_k": 0.5,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.5,
+          "ndcg_at_k": 0.3868528072345416,
+          "claim_coverage": 0.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.5,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00840",
+            "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00000",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00035",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00030"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "robust-reference-scope",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00038",
+            "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s00387"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sdnn-protocol",
+          "evidence_recall_at_k": 0.8,
+          "evidence_precision_at_k": 0.6666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.8539316501572934,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.8,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00000"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-rpe-au",
+          "evidence_recall_at_k": 0.6666666666666666,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.688482449852666,
+          "claim_coverage": 0.6666666666666666,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.6666666666666666,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00014",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-rpe",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.3333333333333333,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00003"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "sleep-observed-duration",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00000",
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00034",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00509",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00131"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "sleep-stage-estimate",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00108",
+            "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.1-document-component-scope-1.5.2:s00107",
+            "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00229",
+            "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.1-document-component-scope-1.5.2:s00453"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "recovery",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "session-missing-scale",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "session-population-outside-review",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 1.0,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00009",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00007",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00006",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00024"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "recovery"
+          ]
+        },
+        {
+          "case_id": "arithmetic-no-rag",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "not_required_deterministic_computation",
+          "domains": []
+        },
+        {
+          "case_id": "other-user-refusal",
+          "evidence_recall_at_k": null,
+          "evidence_precision_at_k": 1.0,
+          "mrr": null,
+          "ndcg_at_k": null,
+          "claim_coverage": null,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": null,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": false,
+          "ranked_span_ids": [],
+          "status": "insufficient_evidence",
+          "domains": [
+            "strength"
+          ]
+        },
+        {
+          "case_id": "commercial-excludes-nc-original",
+          "evidence_recall_at_k": 0.3333333333333333,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.4692787260227565,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.3333333333333333,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00042",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00043"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "historical-static-dynamic-conflict",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.25,
+          "ndcg_at_k": 0.4306765580733931,
+          "claim_coverage": 0.5,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": 1.0,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00042"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "consumer-excludes-historical-static-rule",
+          "evidence_recall_at_k": 1.0,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 0.3333333333333333,
+          "ndcg_at_k": 0.5,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 1.0,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 0.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00001",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+            "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00008"
+          ],
+          "status": "insufficient_evidence",
+          "domains": [
+            "cardiometabolic",
+            "physiology",
+            "wearable"
+          ]
+        },
+        {
+          "case_id": "army-estimate-formula-scope",
+          "evidence_recall_at_k": 0.5,
+          "evidence_precision_at_k": 0.16666666666666666,
+          "mrr": 1.0,
+          "ndcg_at_k": 0.6131471927654584,
+          "claim_coverage": 1.0,
+          "domain_routing_accuracy": 1.0,
+          "exact_source_span_accuracy": 0.5,
+          "applicability_error_rate": 0.0,
+          "invalid_evidence_admission_rate": 0.0,
+          "conflict_detection_recall": null,
+          "abstention_accuracy": 1.0,
+          "retrieval_degraded": true,
+          "ranked_span_ids": [
+            "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00010",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00022",
+            "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00016"
+          ],
+          "status": "evidence_context_supported",
+          "domains": [
+            "strength"
+          ]
+        }
+      ],
+      "output_sha256": "57d0dc1237e9285c601a146b034cfa01c461683e23dad21287b9b429ebfbaa6c"
+    }
+  }
+}

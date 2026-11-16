@@ -1,0 +1,89 @@
+{
+  "created_at": "2026-11-16T19:02:18.841364+00:00",
+  "purpose": "development_replay_exposed_gold_not_new_independent_test",
+  "execution": "six variants in four isolated processes; warmed query vectors from original run",
+  "latency_scope": "concurrent single observations, not comparable baseline performance or P95",
+  "identity": {
+    "gold_sha256": "4c2f93fa5b2648bd42c4a5fae25c516a8ee69273a9c449aaddbc671c84ec0311",
+    "release_id": "v15-benchmark-corpus-2",
+    "profile_sha256": "750bb330462b3e2326c6dc821cb13c643dabe5af06ee79e901f97fefbc83856d",
+    "runner_sha256": "838bdc76ce34717d19964c7cef546f57a0cdfab763cab0e05508bbd43b9b5020",
+    "implementation_sha256": {
+      "__init__.py": "0b4db7313543e4546dcbf2a12844ba5b2c91f34177af89e65a8df5487fb5cf0d",
+      "__main__.py": "2cb838098fe33c22219ae54c21bd283a8bf28dcf935a60d3732f036e98a9d87d",
+      "acquisition.py": "a96dbf53b05213fad0a04ab0c5514e6cc9965f8db8b4a4bafe812dda16fd6513",
+      "adjudication.py": "4650512f47e8cf48d114d387b4f4cc8396829d570a8b558386a2f046f5ce67ca",
+      "applicability.py": "613562f7e89c4eb8739916212a6a7d764447d35e2107a8d677a7fd866bb76931",
+      "core.py": "0cebc420f929119cc7303d48e477cc3f3ed632dae87c2399d4072ed6f987a40c",
+      "corpus.py": "49c012f359fd653347db5f75e7afa309b767edf96b1417e564ec45dd1f755c88",
+      "coverage.py": "ab766f1771c0a094b0f8510fec3d4b8f169f4b53623c2afb843d606ae9b932ee",
+      "data/metric_domains_v15.json": "09ed40cb898f7de93f8ba43e59b941addfc52042f83813eefcfd41073b16dda8",
+      "documents.py": "16f47dfe038c7f554edc6a7e51cb5c936497eaef75377ec1141a7b746f9bbe33",
+      "domains.py": "7912f7bc73e39f244c5699ff1ef5dd43b1e5a1778c9940eceb759c2b7e4ae5cd",
+      "evaluation.py": "926b616e91f6a8775f424dc4da5472787e9dcf8aae547759e1251386dcb57470",
+      "metric_retrieval.py": "a80281354dc96e39e127a979056e9b4d7f229251c8ab0567134a83d9510b317c",
+      "model_services.py": "acd34e255812323bad576b5155ce6a1924dba872330f17a3b80c24cbba46433a",
+      "product.py": "f092d3fe5ab0d8805d2dbcd7f46e5cc99e5c5ffd51bfceccf17d9391775aafa9",
+      "quality.py": "30233865caf0a8cef930e9d779d78ba2e6d29acb6afa6d6a7f19597560d3ec98",
+      "question_parts.py": "84e1cd8a6e5e0ff264e5d0ee3d8bfd63b5a39cebbc9556e67e062db524b6b0b9",
+      "retrieval.py": "7580a60532577b8b685e7fe7ac11637b56976e07695241d67387611fef51c48d",
+      "retrieval_evaluation.py": "653befd480eaf6ff7dbd544f58d7d694e05af293855760f97e13fe2636723542",
+      "rights.py": "11034d26820e995813733d653784bce5d51003b92a0313dd51eb0f6176ef16bb",
+      "store.py": "fa503866e05ddc835bec578193857e749d65379cf8cf4c5768f0f0c8885f9d64",
+      "structured_pdf.py": "0c9d109722c502ed947857387366aa19126fd72db13e115aa40dd054cde0c276",
+      "support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+      "tasks.py": "ba294c66cafab613b66889f1bb71583ae82d378e6722742ba5d3667e2a8a326d",
+      "transactions.py": "89b1e4c1a1c03b3a08b5b68230e80c00446095867845daa91d009cba69a4a170",
+      "vector_index.py": "2bed91e3f2165c0d6634f7d5d8cb8407bd2f05a31559a0c264c971a805691151",
+      "workbench.py": "a927f5679beb683f0592ef5f40d75a3809395bf3bb13c32bae9b138d65245e6e"
+    },
+    "evaluation_purpose": "development_replay",
+    "models": [
+      {
+        "provider": "openai_compatible",
+        "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+        "model_id": "qwen3-embedding-8b",
+        "model_version": "service-version-unverified",
+        "normalization": "l2",
+        "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+        "embedding_schema_version": "qwen-query-instruction-1.5.0"
+      },
+      {
+        "provider": "chat_listwise",
+        "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+        "model_id": "deepseek-v4-flash",
+        "model_version": "service-version-unverified",
+        "normalization": "l2",
+        "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+        "embedding_schema_version": "qwen-query-instruction-1.5.0"
+      }
+    ],
+    "variants": {
+      "A": [
+        "lexical",
+        false
+      ],
+      "B": [
+        "dense",
+        false
+      ],
+      "C": [
+        "hybrid",
+        false
+      ],
+      "D": [
+        "hybrid_rerank",
+        false
+      ],
+      "E": [
+        "hybrid_rerank",
+        true
+      ],
+      "A_filtered": [
+        "lexical",
+        true
+      ]
+    }
+  },
+  "orchestrator_sha256": "57da3e1d8f96d0ef4935efcb51533f6594f7ebb24df3b31ca7fccb4eb400252e"
+}
