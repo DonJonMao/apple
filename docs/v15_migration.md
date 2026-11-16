@@ -38,3 +38,13 @@
 新冻结索引仅在存在投影时添加 `projection_set_ids` 字段；旧manifest及哈希不重写，读取缺省为空。既有冻结发布不会自动取得新投影。需要使用新结构索引时创建新的发布ID，保留旧ID及原评测目录。
 
 心肺/周期的两个 [来源观测扩展](v15_source_observations.md) 直接复用私人health_sample修订账本，不迁移私人schema，不读取旧P1卡作为计算依据。新快照保留77项 `metrics`，另添2项 `observations`，分析算法/缓存版本更新为v1.5，历史快照不覆盖。默认指标和领域配置仍77项；CLI使用 `metric-profiles --include-observations` 明确查看扩展。新发布只有实际包含扩展绑定时才追加并核验 `observation_profile_sha256`，原配置文件和旧发布不改。
+
+## 固定查询形式及观测审核导入
+
+`metric-hybrid-1.5.4` 的固定表达登记与原77项领域配置分开，默认查询不变。新索引发布新增 `query_forms_sha256`，没有该字段的历史发布继续允许原组合查询，需检索的任务不能显式获得新增形式；新登记内容变化后，已冻结发布拒绝配置漂移。字段只存在新发布的manifest内，没有私人数据库迁移。成对评测须使用新的本地副本及输出目录，原Gold/评测副本不改。详见 [固定查询合同](v15_fixed_query_forms.md)。
+
+`tools/v15_apply_reviewed_bindings.py` 可导入原77项或两个明确观测扩展的审核包，使用各自profile版本和必要证据类型；扩展不会被标成基础 `metric-domains`。新审核追加至原两库，保留旧逐行数据及备份。获准处理的原文、具体审核包和数据库备份留在本地，GitHub仅发布哈希、精确定位、审核身份与范围回执；未知许可、缺审核和缺条件仍不授权。
+
+### 追加来源审核的本地变更
+
+VO₂与周期各追加两项有限的AI辅助来源主张和既有观测扩展绑定，不迁移私人库，不改原77项配置，不新增数值候选规则。周期另行获取CC BY 4.0的AWHS 2023 JATS主文，登记50个Span、增量生成49项向量并复用1项；文件级领域仍provisional。原28张知识表的旧行按逐行哈希保护，每次应用审核包前另做SQLite备份。公开回执仅含元数据、定位、范围及哈希，正文、审核包和数据库留本地。详见 docs/v15_source_observations.md 及 artifacts/v15/sources/cycle-source-acquisition-review-1.json；历史冻结成员不自动获得新主张或查询表达。

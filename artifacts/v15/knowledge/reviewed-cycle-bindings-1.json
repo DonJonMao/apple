@@ -1,0 +1,100 @@
+{
+  "schema": "reviewed-binding-receipt-1.5.0",
+  "created_at": "2026-11-16T20:49:15.967576+00:00",
+  "review_packet_sha256": "ad6a63412d3ac95e56685fce7ddb84cdb75d5f7b659eaaded44b9a78246a65ed",
+  "claims": [
+    {
+      "claim_id": "V15-CLAIM-MENSTRUAL-DIARY-MEASUREMENT-SCOPE",
+      "claim_version": "1.5.0",
+      "reviewer_kind": "ai_assisted",
+      "reviewed_at": "2026-11-16T20:46:57.834086+00:00",
+      "domains": [
+        "physiology",
+        "wearable"
+      ],
+      "exact_evidence": [
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00023",
+          "text_hash": "93b58e4f7fb05951bece33eb22da5b597f1de2ec4793656f40c9b924bd81da79"
+        },
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00026",
+          "text_hash": "cf0afb0b7fd6cc7269425f1289e67ab9105a857ba414f52de8a23f11a3348e3b"
+        },
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00028",
+          "text_hash": "f81c9cc4fae96864474b7061ee0c19e05309796ce705e12d4995b2d126b17d6f"
+        }
+      ],
+      "claim_sha256": "d51f87a21794845cbe413345b8cfe43bd138484f558b37a5878bbfce4f51b68c",
+      "bindings": [
+        {
+          "metric_id": "OBS-CYCLE-RECORDS",
+          "evidence_types": [
+            "recorded_category_measurement_scope"
+          ],
+          "edge_id": "37f82960a521e18cb3bf201e72adf794705255598c23bea8726e28645a03b2b4"
+        }
+      ],
+      "scope": {
+        "source_design": "observational_digital_cohort",
+        "sample_scope": "US_English_speaking_adult_iPhone_users_who_ever_menstruated_with_study_specific_exclusions",
+        "inference": "recorded_diary_acquisition_scope_only",
+        "product_cycle_identification_algorithm": "not_adopted"
+      },
+      "limitations": [
+        "研究的连续记录、无记录间隔、周期长度和个体伪差阈值均不是本产品参数；不复制成出血天数或周期次数算法。",
+        "原文没有证明任意来源的类别编码含义或当前用户记录完整；本产品仍保留未解释的原始类别，不自行将未知编码当作出血。",
+        "研究有疾病、激素使用、妊娠和哺乳等筛选条件；不把其研究样本或排除条件用于本产品诊断，也不宣称本机用户已满足条件。"
+      ]
+    },
+    {
+      "claim_id": "V15-CLAIM-MENSTRUAL-LOGGING-UNCERTAINTY",
+      "claim_version": "1.5.0",
+      "reviewer_kind": "ai_assisted",
+      "reviewed_at": "2026-11-16T20:46:57.834086+00:00",
+      "domains": [
+        "physiology",
+        "wearable"
+      ],
+      "exact_evidence": [
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00020",
+          "text_hash": "f4e2d21488b516df770fed2d2b5f3f32d175c8a49a07364995badf18c1216b9c"
+        },
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00027",
+          "text_hash": "40e6cc17274974f74c382281bd5e3f9909c18ede0f4851ae845251850f501274"
+        },
+        {
+          "span_id": "V15-AWHS-CYCLE-VARIATION-2023:fulltext:cf59a3b79eb31070d87a:jats-owned-text-1.4.1:s00036",
+          "text_hash": "e9b5c06cf064a9d94b489b7bd067166d6ae5dd12d19da8ff5b5e13143ecb5fcd"
+        }
+      ],
+      "claim_sha256": "43396649473909faa1beafb1b02db7dd6c0e62ea9c3ec5f55543321cb965b091",
+      "bindings": [
+        {
+          "metric_id": "OBS-CYCLE-RECORDS",
+          "evidence_types": [
+            "cycle_observation_interpretation_limits"
+          ],
+          "edge_id": "3716b176a875617b99cf196e70830a9570e94282f6149c3fc8d1e29273c7265e"
+        }
+      ],
+      "scope": {
+        "source_design": "observational_digital_cohort",
+        "inference": "self_report_and_record_completeness_limits_only",
+        "individual_validation": "none",
+        "phase_or_ovulation_measurement": "not_established_for_imported_records"
+      },
+      "limitations": [
+        "缺少类别记录不能证明没有月经；当前条目数不代表出血天数、已完成周期数或追踪完整性。",
+        "该研究的自报准确性确认不是当前用户的客观验证；不把作者识别伪差的规则用于填补本地缺失数据。",
+        "这只是记录及解释边界，不能确认阶段、排卵、避孕效果、疾病、个人恢复程度或训练处方。",
+        "研究中年龄、种族或体重的群体关联及其数值不进入个人参数、风险或因果解释。"
+      ]
+    }
+  ],
+  "independent_expert_validation": false,
+  "candidate_authority_granted": false
+}

@@ -1,0 +1,27 @@
+{
+  "created_at": "2026-11-16T20:15:51.776954+00:00",
+  "status": "failed_preserved_before_fix",
+  "pytest": {
+    "tests": 1553,
+    "failures": 1,
+    "errors": 0,
+    "seconds": 490.44
+  },
+  "failures": [
+    {
+      "case": "tests.knowledge.test_v15_benchmark_runner.test_runner_uses_explicit_config_and_keeps_ablations_out_of_application",
+      "message": "ValueError: unknown_retrieval_release"
+    }
+  ],
+  "ruff": {
+    "command": ".venv/bin/ruff check src app.py tests tools/v15_run_retrieval_benchmark.py",
+    "status": "passed"
+  },
+  "verification_input_count": 241,
+  "inputs_unchanged_through_full_run": true,
+  "input_manifest_sha256": "8b9e8c9975e84b547f6d09e0b868944d0adb29025e71c48ea6d446f4acb17aac",
+  "junit_sha256": "edc82a5b9ca9e9256602b622ce44666488849a6c363b57b924927ef395a1bb15",
+  "failure_scope": "Offline runner prematurely resolves a release never used by a purely deterministic no-RAG fixture. Real frozen run has a valid release and remains pinned to this implementation until completion.",
+  "historical_scores_rewritten": false,
+  "scientific_or_candidate_authority_granted": false
+}

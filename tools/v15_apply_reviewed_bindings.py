@@ -51,7 +51,10 @@ def apply_packet(root, packet_path, output, backup_dir):
                 raise ValueError("existing_claim_and_review_must_be_reused_exactly")
             for binding in item["bindings"]:
                 _review(binding["review"], application=True)
-                allowed = domains.configuration()["profiles"][binding["metric_id"]]["required_evidence_types"]
+                profile = domains.configuration(include_observations=True)['profiles'].get(binding['metric_id'])
+                if profile is None:
+                    raise ValueError('unknown_reviewed_metric_profile')
+                allowed = profile['required_evidence_types']
                 if not binding["evidence_types"] or not set(binding["evidence_types"]) <= set(allowed):
                     raise ValueError("binding_must_not_invent_profile_evidence_types")
         backup.mkdir(parents=True)
@@ -82,7 +85,7 @@ def apply_packet(root, packet_path, output, backup_dir):
                     "edge_id": domains.link(w,
                         origin={"type": "claim", "id": claim["claim_id"], "version": claim["version"]},
                         relation=binding["relation"], target={"type": "metric", "id": binding["metric_id"],
-                            "version": domains.configuration()["schema_version"]}, span_ids=span_ids,
+                            "version": domains.profile_version(binding['metric_id'])}, span_ids=span_ids,
                         applicability=binding["applicability"], actor=binding["review"]["reviewer"],
                         rationale=binding["review"]["rationale"], evidence_types=binding["evidence_types"],
                         review=binding["review"])})

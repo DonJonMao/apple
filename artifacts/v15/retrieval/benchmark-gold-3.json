@@ -1,0 +1,508 @@
+{
+  "schema": "metric-retrieval-gold-1.5.0",
+  "created_at": "2026-11-16T20:12:55.774606+00:00",
+  "dataset_identity": "v15-prospective-task-ai-limited-pool-3",
+  "annotator": {
+    "kind": "AI",
+    "model_id": "deepseek-v4-flash",
+    "weight_revision": "unverified",
+    "same_model_as_reranker": true,
+    "ranking_visible": false,
+    "expert_validation": false,
+    "packet_selection": "implementing_AI"
+  },
+  "synthetic_context_only": true,
+  "annotation_scope": "Five predeclared metric tasks not in Gold-2, finite implementing-AI-selected original-evidence pools, followed by three known policy probes. This is prospective task testing, not a source-family holdout or independent expert review.",
+  "limitations": [
+    "The implementing AI selected tasks, sources, distractors and claim keys; source families overlap prior work.",
+    "The annotation and ranking model are the same; correlated model bias and unverified weight revision remain.",
+    "All three query forms share the same annotation and case identity; variations add zero independent knowledge cases.",
+    "Only supplied original packets are graded. Unlabelled spans are not established negatives; ID precision may underestimate semantically relevant retrieval.",
+    "Expected abstention describes scientific sufficiency of the finite packet for a limited source explanation, independent of unavailable production review state; this is not full generated-answer adjudication.",
+    "Known policy probes are reported separately and add no new independent knowledge-case denominator.",
+    "No new conflict, obsolete-source or complex-formula pair; historical cases remain preserved but these strata have no new denominator."
+  ],
+  "cases": [
+    {
+      "case_id": "new-active-energy",
+      "metric_id": "ENERGY-ACTIVE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010"
+      ],
+      "gold_evidence": [
+        {
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+          "source_id": "E8",
+          "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+          "text_hash": "f1d87f08cf27b317fce3c64dbeb29d69eedf937c0b00e23b5a5837f21899fda0",
+          "exact_locator": {
+            "end_offset": 987,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par9",
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2,
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010": 3
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "prospective_ranking_blind_task",
+      "annotation_tags": [
+        "active_not_total_energy",
+        "source_estimate_not_truth",
+        "cross_domain"
+      ],
+      "annotation_missing_evidence": [],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    },
+    {
+      "case_id": "new-agonist-anatomy",
+      "metric_id": "STR-05",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength",
+        "physiology"
+      ],
+      "gold_span_ids": [],
+      "gold_evidence": [],
+      "relevance_grades": {},
+      "required_claims": [],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "prospective_ranking_blind_task",
+      "annotation_tags": [
+        "anatomical_definition",
+        "direct_involvement",
+        "reviewed_exercise_mapping_gap"
+      ],
+      "annotation_missing_evidence": [
+        "No span provides a direct definition or measurement method for 'direct agonist involvement in resistance exercise' or 'reviewed anatomical mapping and limits of muscle-specific set counts'.",
+        "No span addresses the metric's specific protocol, mapping uncertainty, or dose-physiological significance distinction."
+      ],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    },
+    {
+      "case_id": "new-load-comparison",
+      "metric_id": "STR-13",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+      ],
+      "gold_evidence": [
+        {
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "text_hash": "9787baf35a7501c4023ea0a6da4f180c756e2a29323845a8f0710cc3576bb1b1",
+          "exact_locator": {
+            "end_offset": 936,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par22",
+            "paragraph_id": 27,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "text_hash": "ccdaa3f1f36389ae015e04d284e498434226afb3f222ebcf3bcbfe54d4a586dc",
+          "exact_locator": {
+            "end_offset": 519,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 28,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027": 2,
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "prospective_ranking_blind_task",
+      "annotation_tags": [
+        "load_progression",
+        "matched_effort",
+        "study_protocol_not_personal_prediction"
+      ],
+      "annotation_missing_evidence": [
+        "No span directly defines or measures 'change in external load at the same repetitions and comparable effort and technique' as a metric. The provided spans discuss REPS~%1RM tables, progressive overload, and 10RM testing, but none operationalize the specific metric of load change under controlled repetition, effort, and technique conditions."
+      ],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    },
+    {
+      "case_id": "new-resting-heart-rate",
+      "metric_id": "STATE-RHR",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "interpretation_setting": "consumer_wellness",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "population": "adult_athletes",
+        "usage_scope": "local_noncommercial"
+      },
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00037",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00038"
+      ],
+      "gold_evidence": [
+        {
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00037",
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "text_hash": "e521443229052678220bc31c73d067f6387b83fe80b570ab099c1c4c93261b1b",
+          "exact_locator": {
+            "end_offset": 1441,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par31",
+            "paragraph_id": 37,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[9]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00038",
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "text_hash": "c411414c26778c2139bd5777773600d01b52e49c90849a1ceace79e6cf7e43f6",
+          "exact_locator": {
+            "end_offset": 1259,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par32",
+            "paragraph_id": 38,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[10]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00037": 2,
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00038": 2
+      },
+      "required_claims": [],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "prospective_ranking_blind_task",
+      "annotation_tags": [
+        "resting_not_all_heart_rate",
+        "intended_use",
+        "similar_but_not_protocol_matched"
+      ],
+      "annotation_missing_evidence": [
+        "No supplied passage defines a resting heart rate measurement protocol, provides daily representative values, or discusses measurement uncertainty for resting heart rate."
+      ],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    },
+    {
+      "case_id": "new-sleep-clock",
+      "metric_id": "STATE-SLEEP-TIMING",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029"
+      ],
+      "gold_evidence": [
+        {
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "text_hash": "cb86fe30877212f080be6e09ba259351b3cd3560473241e100b6652f44467f46",
+          "exact_locator": {
+            "end_offset": 800,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 29,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[12]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029": 3
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SLEEP-STRUCTURE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-SLEEP-STAGE-BOUNDARY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "prospective_ranking_blind_task",
+      "annotation_tags": [
+        "sleep_timing",
+        "circadian_not_diagnosis",
+        "device_boundary"
+      ],
+      "annotation_missing_evidence": [],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    },
+    {
+      "case_id": "known-policy-arithmetic",
+      "metric_id": "STR-01",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {},
+      "required_domains": [],
+      "gold_span_ids": [],
+      "gold_evidence": [],
+      "relevance_grades": {},
+      "required_claims": [],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "known_policy_probe",
+      "annotation_tags": [
+        "known_policy_no_new_independent_denominator"
+      ]
+    },
+    {
+      "case_id": "known-policy-other-user",
+      "metric_id": "STR-13",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "user_id": "synthetic-a",
+        "requested_other_user": "synthetic-b"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [],
+      "gold_evidence": [],
+      "relevance_grades": {},
+      "required_claims": [],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "known_policy_probe",
+      "annotation_tags": [
+        "known_policy_no_new_independent_denominator"
+      ]
+    },
+    {
+      "case_id": "known-policy-commercial-energy",
+      "metric_id": "ENERGY-ACTIVE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "usage_scope": "commercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010"
+      ],
+      "gold_evidence": [
+        {
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+          "source_id": "E8",
+          "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+          "text_hash": "f1d87f08cf27b317fce3c64dbeb29d69eedf937c0b00e23b5a5837f21899fda0",
+          "exact_locator": {
+            "end_offset": 987,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par9",
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2,
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010": 3
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [
+        "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s00000"
+      ],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "known_policy_probe",
+      "annotation_tags": [
+        "noncommercial_scope",
+        "known_policy_no_new_independent_denominator"
+      ],
+      "annotation_missing_evidence": [],
+      "form_equivalence_check": "same-model AI found no material difference; not independently validated"
+    }
+  ]
+}

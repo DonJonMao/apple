@@ -5,7 +5,7 @@ import json
 import math
 from collections import Counter
 
-from . import domains, table_projection, vector_index
+from . import domains, query_forms, table_projection, vector_index
 from .applicability import context_match
 from .model_services import ModelUnavailable, load_services, rerank_windows
 from .retrieval import tokens
@@ -13,7 +13,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.3"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.4"
 
 
 def _lexical(query, candidates):
@@ -67,9 +67,13 @@ def _release(w, release_id):
     if (manifest.get('observation_profile_sha256') is not None
             and manifest['observation_profile_sha256'] != digest(dumps(domains.observation_configuration()).encode())):
         raise ValueError('frozen_observation_profile_configuration_changed')
+    if (manifest.get('query_forms_sha256') is not None
+            and manifest['query_forms_sha256'] != query_forms.identity()):
+        raise ValueError('frozen_query_forms_configuration_changed')
     refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
     return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
         "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
+        "query_forms_sha256": manifest.get('query_forms_sha256'),
         "projection_set_ids": manifest.get('projection_set_ids', {})}, manifest['unit_assignments']
 
 
@@ -390,7 +394,7 @@ def _still_current(w, candidate, context):
 
 
 def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
-                        mode="hybrid_rerank", k=6, services=None):
+                        mode="hybrid_rerank", k=6, services=None, query_form=None):
     from healthzip.science.contracts import validate_result
     config = domains.configuration(include_observations=True)
     if metric_id not in config["profiles"] or analysis_task not in {"explain_metric", *config["functions"]}:
@@ -406,14 +410,17 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
         raise ValueError("metric_not_declared_for_analysis_function")
     context = dict(context or {})  # Kept local, never interpolated into a model query.
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
-    task_title = config['functions'][analysis_task]['title'] if analysis_task != 'explain_metric' else '指标解释'
-    query = ' '.join([task_title, profile["query"], *profile.get('query_aliases', [])])
-    result = {"query_id": digest(dumps([metric_id, analysis_task, profile_version, release_id]).encode()),
+    query, query_identity = query_forms.select(metric_id, analysis_task, config, form=query_form)
+    query_key = [metric_id, analysis_task, profile_version, release_id]
+    if query_form is not None:
+        query_key.append(query_identity)
+    result = {"query_id": digest(dumps(query_key).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
         "conflicts": [], "capability_permissions": {"source_explanation": False, "candidate": False,
             "candidate_authority": "existing_application_rule_service_only"},
         "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
+            "query_form": query_identity,
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
@@ -423,6 +430,9 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     if context.get("requested_other_user") and context.get("requested_other_user") != context.get("user_id"):
         result.update(status="insufficient_evidence", limitations=["tenant_isolation_required"])
         return _record_audit(w, result)
+    if query_form is not None and release_id is not None:
+        if _release(w, release_id)[2].get('query_forms_sha256') != query_identity['registry_sha256']:
+            raise ValueError('frozen_release_does_not_pin_query_forms')
     candidates, claims, excluded, release = eligible_candidates(w, requested, context, release_id)
     audit.update(excluded=excluded, release=release, eligible_candidate_count=len(candidates))
     audit['candidate_ids_sha256'] = digest(dumps([c['candidate_id'] for c in candidates]).encode())
@@ -551,6 +561,7 @@ def freeze_index(w, release_id):
     manifest = {"schema": "metric-index-release-1.5.0", "span_ids": span_ids,
         "profile_version": domains.configuration()["schema_version"],
         "profile_sha256": digest(dumps(domains.configuration()).encode()),
+        "query_forms_sha256": query_forms.identity(),
         "claim_refs": [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version FROM source_claim WHERE status='verified' ORDER BY claim_id,version")],
         "edge_ids": [r[0] for r in w.lib.theories.execute("SELECT edge_id FROM knowledge_evidence_edge ORDER BY edge_id")],
         "unit_assignments": {r['span_id']: vector_index.unit_assignment(w, r) for r in units}}

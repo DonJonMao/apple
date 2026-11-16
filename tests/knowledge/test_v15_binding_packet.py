@@ -6,17 +6,18 @@ from pathlib import Path
 
 import pytest
 
-from healthzip.knowledge import vector_index
+from healthzip.knowledge import domains, metric_retrieval, vector_index
+from healthzip.science import observations
 
 apply_packet = runpy.run_path(str(Path(__file__).parents[2] / "tools/v15_apply_reviewed_bindings.py"))["apply_packet"]
 
 
-def packet_fixture(kb, tmp_path):
+def packet_fixture(kb, tmp_path, *, text='A synthetic statement for replay validation.'):
     kb.lib.seed({"sources": [{"source_id": "fixture", "canonical_url": "https://example.invalid/review-packet",
                               "title": "Public synthetic source", "corpus_roles": ["research"]}]}, {"cards": []})
     vid = kb.lib.record_version("fixture", b"synthetic review packet", "fulltext", {}, {},
         {"index_allowed": True, "license_id": "CC0"}, "matched",
-        [{"text": "A synthetic statement for replay validation.", "locator": {"page": 1}}], "fixture")
+        [{"text": text, "locator": {"page": 1}}], "fixture")
     sid = vid + ":s00000"
     vector_index.register_spans(kb, vid, ["strength"])
     review = {"reviewer": "Synthetic packet test", "reviewer_kind": "ai_assisted", "reviewed_at": "2026-11-17",
@@ -67,3 +68,24 @@ def test_unregistered_source_is_detected_before_claim_creation(kb, tmp_path):
     with pytest.raises(ValueError, match="register_source_units_before"):
         apply_packet(kb.root, path, tmp_path / "receipt.json", tmp_path / "backup")
     assert not kb.lib.theories.execute("SELECT 1 FROM source_claim WHERE claim_id='fixture-claim'").fetchone()
+
+
+def test_observation_binding_uses_its_explicit_profile_without_bypassing_missing_evidence(kb, tmp_path):
+    path, packet, _ = packet_fixture(kb, tmp_path, text='Synthetic VO2max measurement protocol scope.')
+    packet['claims'][0]['domains'] = ['wearable', 'cardiometabolic']
+    binding = packet['claims'][0]['bindings'][0]
+    binding.update(metric_id='OBS-VO2-REPORTED', evidence_types=['measurement_method_scope'])
+    path.write_text(json.dumps(packet))
+    apply_packet(kb.root, path, tmp_path / 'receipt.json', tmp_path / 'backup')
+    row = kb.lib.theories.execute("SELECT to_id,to_version FROM knowledge_evidence_edge WHERE to_type='metric'").fetchone()
+    assert tuple(row) == ('OBS-VO2-REPORTED', domains.profile_version('OBS-VO2-REPORTED'))
+    metric_retrieval.freeze_index(kb, 'with-observation-binding')
+    manifest = json.loads(kb.lib.sources.execute("SELECT manifest_json FROM index_release WHERE release_id='with-observation-binding'").fetchone()[0])
+    assert 'observation_profile_sha256' in manifest
+    computed = observations.evaluate('OBS-VO2-REPORTED', [], cutoff_time='2026-11-17T00:00:00+00:00',
+        window_start='2026-11-01T00:00:00+00:00', window_end='2026-11-17T00:00:00+00:00')
+    found = kb.retrieve_for_metric('OBS-VO2-REPORTED', 'cardiorespiratory', computed,
+        {'population': 'adults', 'measurement_protocol': 'synthetic'}, mode='lexical')
+    assert found['status'] == 'insufficient_evidence'
+    assert 'missing_evidence_type:reported_vo2_interpretation_limits' in found['limitations']
+    assert not found['capability_permissions']['candidate']

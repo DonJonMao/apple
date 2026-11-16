@@ -1,0 +1,452 @@
+{
+  "schema_version": "fixed-query-forms-1.5.0",
+  "scope": "Static public task paraphrases by the implementing AI; not scientific claims or independently validated linguistic equivalence. No free text, personal values or context substitution.",
+  "forms": {
+    "zh": {
+      "language": "zh",
+      "expression": "canonical"
+    },
+    "en": {
+      "language": "en",
+      "expression": "canonical"
+    },
+    "zh_synonym": {
+      "language": "zh",
+      "expression": "synonym"
+    }
+  },
+  "tasks": {
+    "explain_metric": {
+      "zh": "指标解释",
+      "en": "Explain the metric",
+      "zh_synonym": "说明指标含义与解释边界"
+    },
+    "cardiorespiratory": {
+      "zh": "心肺效率",
+      "en": "Cardiorespiratory analysis",
+      "zh_synonym": "心肺适能来源观测"
+    },
+    "longitudinal": {
+      "zh": "长期趋势归因",
+      "en": "Longitudinal trend analysis",
+      "zh_synonym": "长期变化与归因边界"
+    },
+    "recovery": {
+      "zh": "肌肉负荷与恢复",
+      "en": "Muscle load and recovery analysis",
+      "zh_synonym": "训练负担和恢复相关观测"
+    },
+    "metabolic": {
+      "zh": "代谢效率",
+      "en": "Metabolic analysis",
+      "zh_synonym": "体重能量变化分析"
+    },
+    "cycle": {
+      "zh": "女性生理周期",
+      "en": "Menstrual observation analysis",
+      "zh_synonym": "月经类别记录分析"
+    },
+    "strength": {
+      "zh": "力量训练进阶",
+      "en": "Resistance-training progression analysis",
+      "zh_synonym": "抗阻训练表现与进阶"
+    }
+  },
+  "profiles": {
+    "STR-01": {
+      "zh": "已完成工作组数. 计数实际完成的工作组；不是有效增肌组的生理测量。 计数为确定性账目，但真实执行与记录准确性未知；报告未知组数。",
+      "en": "Count recorded completed work sets; this is bookkeeping rather than a measure of hypertrophic stimulus.",
+      "zh_synonym": "已记录并完成的正式训练组数量；账目计数不代表增肌刺激。"
+    },
+    "STR-02": {
+      "zh": "完成次数与等长持续时间. 保留训练原始完成量，不把不同动作测量混成一项。 用户记录可能误数；不自行制造测量置信区间，保留原始与修改版本。",
+      "en": "Recorded repetitions and isometric duration; preserve exercise and measurement differences and record uncertainty.",
+      "zh_synonym": "实际重复数和静力保持秒数；分别保留动作、口径与记录误差。"
+    },
+    "STR-03": {
+      "zh": "负荷口径与可计算负荷. 保存用户记录负荷及其口径；必要时产生可审计单位归一值。 单位换算是确定性的；杆重、摩擦、滑轮倍率未知属于结构不确定性，不能靠更多相同记录消除。",
+      "en": "Recorded external load, load convention and deterministic unit conversion; unknown equipment mechanics remain unknown.",
+      "zh_synonym": "外部重量的记录口径和单位归一；器械结构未知不补全。"
+    },
+    "STR-04": {
+      "zh": "配重×次数汇总. 同负荷口径下记录的外部负荷与完成次数乘积之和，非机械功。 已知输入的乘积和为确定值；覆盖与口径不确定性必须随输出传播。",
+      "en": "Sum of load times repetitions under a consistent load convention; not mechanical work.",
+      "zh_synonym": "同口径重量与重复数的乘积汇总；不解释为机械做功。"
+    },
+    "STR-05": {
+      "zh": "直接参与肌群工作组. 基于经审阅动作本体统计某肌群直接参与的已完成组。 映射的不确定性与剂量生理意义分开；不生成伪精确刺激量。",
+      "en": "Direct agonist involvement in resistance exercise; reviewed anatomical mapping and limits of muscle-specific set counts.",
+      "zh_synonym": "抗阻动作中主动肌的直接参与及动作解剖映射；肌群组数不等于精确刺激剂量。"
+    },
+    "STR-06": {
+      "zh": "间接参与肌群工作组. 单独显示间接参与，避免丢失训练背景。 间接参与的定性标签不确定性须记录；无普适量化折算置信度。",
+      "en": "Indirect synergist involvement in resistance exercise; qualitative anatomical mapping without universal set conversion factors.",
+      "zh_synonym": "抗阻动作中协同肌的间接参与；定性关联不能统一折算成直接组数。"
+    },
+    "STR-07": {
+      "zh": "可比暴露次数与观测跨度. 模型实际使用的动作场次及真实日历覆盖。 n是样本量而非有效独立信息量，相关观测不计成独立样本保证。",
+      "en": "Comparable exercise exposures and observed calendar span; correlated observations are not independent information.",
+      "zh_synonym": "可比较的训练场次及实际覆盖日历跨度；相关观测不作为独立信息保证。"
+    },
+    "STR-08": {
+      "zh": "训练频率与场次间隔. 描述指定动作/肌群在明确时间窗内的训练分布。 缺日志导致实际频率未知；明确“记录内频率”。",
+      "en": "Recorded training frequency and intervals within a defined window; missing logs leave actual frequency unknown.",
+      "zh_synonym": "窗口内日志所见的训练次数和间隔；漏记时实际频率仍未知。"
+    },
+    "STR-09": {
+      "zh": "计划执行率. 按当时计划版本衡量已知执行情况。 未知执行保留分母状态；不得把缺失归入已完成或跳过。",
+      "en": "Execution against the contemporaneous plan version; retain unknown execution in denominators.",
+      "zh_synonym": "按当时计划核对落实比例；未知执行不算完成或跳过。"
+    },
+    "STR-10": {
+      "zh": "逐组RIR与RPE. 记录用户对剩余标准重复次数的估计与量表语义。 RIR具有个体/动作/次数依赖误差；不使用群体平均偏差给个体统一校正。",
+      "en": "Set-level repetitions in reserve and perceived exertion; scale meaning and person, exercise and repetition-dependent measurement error.",
+      "zh_synonym": "每组自报余力与主观用力等级的含义；个体、动作和重复区间影响估计误差。"
+    },
+    "STR-11": {
+      "zh": "参考工作组表现. 每次可比暴露预先指定参考工作组的原始表现。 努力程度和动作质量未测完全时，只能有限可比；样本质量标签与估计区间不是同一概念。",
+      "en": "Prespecified reference-set performance and exercise-specific measurement comparability; effort and technique limitations.",
+      "zh_synonym": "预先选定的基准组表现；比较须考虑动作技术、努力程度与测量一致性。"
+    },
+    "STR-12": {
+      "zh": "同负荷次数变化. 在明确相同负荷和条件下，完成次数的变化。 两次原始次数差可直接报告，稳定适应需考虑测量波动与后续重复。",
+      "en": "Change in completed repetitions at the same external load and comparable conditions; repeated measurement variation limits adaptation inference.",
+      "zh_synonym": "相同重量下多做或少做的次数；同条件比较仍须区分表现波动和稳定适应。"
+    },
+    "STR-13": {
+      "zh": "同次数负荷变化. 相同次数和可比努力/动作条件下的外部负荷差。 实际差值确定但能力提升不确定；完整负荷未知时不报告总负荷百分比。",
+      "en": "Change in external load at the same repetitions and comparable effort and technique; observed change versus inferred capacity.",
+      "zh_synonym": "重复数一致时重量的增减；努力与技术须可比，重量差不直接证明能力提升。"
+    },
+    "STR-14": {
+      "zh": "同工作量RIR变化. 相同重量次数下余力的变化，属于主观支持证据。 余力差的主观误差不能按独立精确次数处理；区间/上界输入保留集合语义。",
+      "en": "Change in self-reported repetitions in reserve at identical load and repetitions; subjective effort measurement limitations.",
+      "zh_synonym": "同重同次数后的剩余重复数变化；主观余力差不能当作无误差的能力差。"
+    },
+    "STR-15": {
+      "zh": "同场组间表现下降. 在相同负荷及休息协议下描述后续组相对参考组掉次。 组序疲劳、休息、配速等混杂；该描述不是原因概率。",
+      "en": "Performance loss across repeated sets at matched load and rest protocol; fatigue, pacing and other confounders.",
+      "zh_synonym": "同一场训练后续组掉次；重量和休息一致仍不能确定疲劳或其他因素的因果份额。"
+    },
+    "STR-16": {
+      "zh": "普通e1RM参考. 指定公式下的任务表现近似值，不是直接测得1RM。 误差区间必须来自匹配动作/协议的校准工件，不能任意±5%；无校准就只显示proxy或隐藏数值。",
+      "en": "Estimated one repetition maximum using an explicit formula; task-specific proxy, observed 1RM distinction and matched calibration limits.",
+      "zh_synonym": "公式推算的一次最大重复重量；与直接测试最大力量区分，误差需要匹配协议的校准。"
+    },
+    "STR-17": {
+      "zh": "RIR修正e1RM实验值. 由完成次数+自报余力组合得到的待验证代理。 组合公式增加RIR测量误差；没有专门校准时不能给伪置信区间或作为核心决策。",
+      "en": "Experimental estimated one repetition maximum adjusted with self-reported repetitions in reserve; combined measurement error and validation limits.",
+      "zh_synonym": "将自报剩余次数加入最大力量估算的实验代理；复合误差未经验证不能作为核心决策。"
+    },
+    "STR-18": {
+      "zh": "个人任务测量误差. 标准化重复观察下的误差估计，与最小有用变化分开。 报告TE/SEM的估计区间或至少适用研究协议；样本不足不能给稳定个人噪声。",
+      "en": "Individual test-retest measurement error under a standardized exercise protocol; typical error, SEM and minimum detectable change versus worthwhile change.",
+      "zh_synonym": "标准化重复测试中的个人噪声、测量标准误与最小可检测差；不要和有用变化混淆。"
+    },
+    "STR-19": {
+      "zh": "局部表现趋势点估计. 预设观察段内可比参考表现对真实时间的局部趋势。 点估计没有不确定性保证；误差模型由STR-20单独处理，不能用接近零的斜率直接下结论。",
+      "en": "Local performance trend over actual time in comparable resistance-training observations; a point slope alone cannot establish improvement or plateau.",
+      "zh_synonym": "可比训练表现随真实日期的局部走势；单个斜率不提供改善或停滞的确定结论。"
+    },
+    "STR-20": {
+      "zh": "趋势变化区间. 趋势推断的不确定性，并显式记录依赖假设。 区间的覆盖声明附带误差分布/相关结构/适用数据情景。仅通过残差检验不能证明假设，需校准与敏感性分析。",
+      "en": "Uncertainty intervals for repeated-measures performance trends; serial dependence, error assumptions and calibration limits.",
+      "zh_synonym": "重复观测趋势的区间估计；相关性和误差分布假设须核对，残差检查不等于证明。"
+    },
+    "STR-21": {
+      "zh": "实用变化范围. 由用户目标和可执行训练改变定义的等效范围，非噪声阈值。 δ是决策意义定义，不是估计不确定性。报告不同合理δ下结论是否改变，不为某次结果调δ。",
+      "en": "Smallest worthwhile change and prespecified practical equivalence margins from goals; distinct from measurement noise.",
+      "zh_synonym": "由目标预定的最小实用差异与等效界限；意义阈值和随机误差分别说明。"
+    },
+    "STR-22": {
+      "zh": "持续无实质改善候选. 可比观察支持在指定跨度内变化处于实用等效范围；不是生理停滞诊断。 区间宽→uncertain；候选标签不是因果或疾病诊断。误报/漏报取决于明确参考标签。",
+      "en": "Candidate absence of practically meaningful training improvement; equivalence intervals, comparability and uncertainty, not a physiological diagnosis.",
+      "zh_synonym": "观察跨度内可能没有实质进步；须看可比条件与等效区间，宽区间只能保持不确定。"
+    },
+    "STR-23": {
+      "zh": "进阶机会是否被检验. 区分任务被计划截停与表现上限未改善。 停止原因和RIR有自报误差；capacity_unobserved是信息状态而非低能力判断。",
+      "en": "Whether a progression opportunity was actually tested; planned stopping and self-reported effort can leave capacity unobserved.",
+      "zh_synonym": "是否真正尝试过进阶；被计划截停和能力上限未提升是不同信息状态。"
+    },
+    "STR-24": {
+      "zh": "重复查看的误报控制. 防止每天重复分析增加偶然触发率。 并集界无需各look独立，但需要每个区间有效；预算只对声明family范围成立，不自动扩展为全App终身误报率。",
+      "en": "Repeated looks and multiple-testing error control; valid per-look intervals, declared family and dependence limitations.",
+      "zh_synonym": "反复查看结果时的多重检验误报控制；单次区间有效性与检验家族范围必须先明确。"
+    },
+    "STR-25": {
+      "zh": "可用负荷步长与增重候选. 从实际器械配置产生可执行下一档，而非任意百分比。 可用负荷档位是确定事实，是否适合/能做成仍未知；无个体预测校准不输出成功概率。",
+      "en": "Executable load increments from actual equipment; progressive overload direction without individual success probabilities.",
+      "zh_synonym": "器械实际可用的下一档重量及渐进负荷依据；档位可执行不保证个人成功。"
+    },
+    "STR-26": {
+      "zh": "停滞后策略试验候选. 在用户计划允许范围内提出可评估改变。 文献支持候选方向，不支持个体最优与精确效果；推荐需附替代选择及证据不足。",
+      "en": "Resistance-training strategy trial after limited improvement; reviewed progression options, alternatives and individual applicability limits.",
+      "zh_synonym": "进步受限后可选择的训练调整试验；一般策略依据不能证明个人最优方案或精确效果。"
+    },
+    "STR-27": {
+      "zh": "建议执行结果. 评价是否执行和是否满足原目标，不等于因果有效性。 实际结果与推荐依从性可核对；因果效果仍需对照。",
+      "en": "Observed adherence and follow-up after a training recommendation; goal completion does not identify a causal effect.",
+      "zh_synonym": "建议是否实际落实及后续目标达成；结果可核对，但不能归为建议造成的疗效。"
+    },
+    "STR-28": {
+      "zh": "建议结果汇总. 周月报分别汇总采纳、执行与随访结果。 小分母、同人相关、选择性采纳与缺失影响估计；分别披露，不将比率包装为疗效。",
+      "en": "Aggregated recommendation uptake, execution and follow-up outcomes; small denominators, dependence, selection and missingness.",
+      "zh_synonym": "采纳、执行与随访结果的汇总；披露小样本、同人相关、选择与缺失。"
+    },
+    "STR-29": {
+      "zh": "力量记录覆盖与可比覆盖. 让解释知道哪些记录可用。 记录完整性只反映数据可用性，不证明记录内容或生理解释可靠。",
+      "en": "Training-record availability and comparable-record coverage; completeness does not establish measurement validity.",
+      "zh_synonym": "力量日志的可用比例和可比比例；资料齐全不能证明测量或解释准确。"
+    },
+    "STR-30": {
+      "zh": "相对体重力量参考比. 在明示时间配对下的力量指标与体重比，非全面力量评分。 分子模型误差与体重测量误差都继承；不自动换算跨人体型公平排名。",
+      "en": "Relative strength as a performance-to-body-mass ratio with explicit time pairing; inherited error and between-person comparison limits.",
+      "zh_synonym": "力量表现除以对应日期体重的参考比值；继承两项误差，不自动用于跨人体型公平排名。"
+    },
+    "STATE-SLEEP-MAIN": {
+      "zh": "主睡眠已观察时长. 经来源会话或用户确认的主睡眠片段内睡眠区间并集长度 设备标签误差不等于统计抽样误差；没有验证资料不输出精确测量CI。",
+      "en": "Observed main-sleep duration from the union of sleep intervals; wearable label validity and unmeasured sleep limitations.",
+      "zh_synonym": "主睡眠片段中睡着区间合并后的时长；算法标记存在误差，未观测部分保持未知。"
+    },
+    "STATE-SLEEP-24H": {
+      "zh": "截止前24小时睡眠. 固定真实24h内所有已观察睡眠区间并集，包括午睡 未记录睡眠不能靠缺失分布恢复。",
+      "en": "Observed sleep duration in the preceding real 24 hours including naps; missing records cannot establish absence of sleep.",
+      "zh_synonym": "截止前真实二十四小时内可见的睡眠总量含小睡；没有日志不能补出睡眠事实。"
+    },
+    "STATE-SLEEP-COVERAGE": {
+      "zh": "睡眠记录日期覆盖率. 有可用主睡眠记录日期数除以已过去的目标日期数 记录可得性指标，不是睡眠时长误差估计。",
+      "en": "Dates with available main-sleep records over elapsed target dates; record availability is not sleep measurement accuracy.",
+      "zh_synonym": "已经过去日期中有主睡眠记录的占比；可用性和时长准确性分别看待。"
+    },
+    "STATE-SLEEP-STAGE": {
+      "zh": "睡眠阶段时长与注释覆盖. 来源标注的各阶段并集时长及明确片段内阶段注释比例 阶段是算法标签，不能直接测量肌肉恢复。",
+      "en": "Source-labelled sleep-stage durations and annotation coverage; device stages are not direct muscle-recovery measurements.",
+      "zh_synonym": "来源算法标注的睡眠分期时长和标记覆盖；分期标签不能直接量化肌肉恢复。"
+    },
+    "STATE-SLEEP-TIMING": {
+      "zh": "睡眠时点与中点. 主睡眠开始、结束及实际跨度中点在当地时区的钟点 片段边界和设备标签误差保留；不产生生物钟诊断。",
+      "en": "Local-clock sleep onset, offset and midpoint; boundary and wearable classification error without circadian diagnosis.",
+      "zh_synonym": "主睡眠入睡、结束及中间时点；保留边界误差，不据此诊断生物节律。"
+    },
+    "STATE-RHR": {
+      "zh": "静息心率每日代表值. 正式restingHeartRate或标准化静息协议的日代表值 设备估计误差及日内更新；中位数范围不等于测量CI。",
+      "en": "Resting heart rate from a source-defined resting measure or standardized resting protocol; daily estimates and measurement uncertainty.",
+      "zh_synonym": "来源定义或标准化静息条件下的心率日代表；设备估计和测量协议影响解释。"
+    },
+    "STATE-SDNN": {
+      "zh": "同协议SDNN每日代表值. 正常NN间期的标准差，或来源输出的同名标量 无NN不能估计原始伪差率；机会采样可有选择偏差。",
+      "en": "Heart rate variability as the standard deviation of normal-to-normal intervals; recording duration, protocol, artifact and recovery-inference limitations.",
+      "zh_synonym": "正常心搏间隔标准差的含义；采集时长、伪差和机会采样限制其自主神经与恢复解释。"
+    },
+    "STATE-REFERENCE-MEDIAN": {
+      "zh": "个人参考中位数. cutoff前同协议每日代表值的参考中心 H是分析设计，非14天生理定律；参考不确定性由有效样本及漂移决定。",
+      "en": "Within-person reference median of comparable daily observations before cutoff; design window, drift and dependence limitations.",
+      "zh_synonym": "截止前同协议日值的个人基准中位数；参考窗口是设计选择，漂移与相关性影响稳定性。"
+    },
+    "STATE-REFERENCE-MAD": {
+      "zh": "个人参考离散度. 同协议日代表值相对中位数的绝对偏差中位数 小样本/强序列相关使离散估计不稳；不等于测量误差。",
+      "en": "Within-person median absolute deviation of comparable daily observations; small-sample and serial-dependence limits, not measurement error.",
+      "zh_synonym": "个人同协议参考值的绝对离差中位数；小样本和时间相关影响离散度，不能当测量误差。"
+    },
+    "STATE-DEVIATION": {
+      "zh": "绝对与稳健标准化偏离. 当前同协议代表值相对历史参考的偏离 z不是概率、诊断或恢复百分比；阈值需独立验证。",
+      "en": "Absolute and robust-standardized deviation from a within-person baseline; not a probability, diagnosis or recovery percentage.",
+      "zh_synonym": "当天代表值相对个人历史基准的差及稳健标准化差；不换算为概率、诊断或恢复百分比。"
+    },
+    "STATE-FATIGUE": {
+      "zh": "训练前总体疲劳自评. 版本化问卷中的独立有序回答 自评误差/背景影响；原创量表不得标临床验证。",
+      "en": "Pre-training subjective general fatigue on a versioned ordinal scale; collection timing, context and unvalidated-scale limits.",
+      "zh_synonym": "训练前自报整体疲乏等级；时间与情境影响回答，自编问卷不冒称临床验证。"
+    },
+    "STATE-SORENESS": {
+      "zh": "肌群酸痛自评. 按肌群、侧别和诱发情境记录的有序酸痛回答 酸痛不是肌损伤、有效训练或增肌的直接量。",
+      "en": "Muscle-specific delayed-onset soreness self-report; soreness is not a direct measure of muscle damage, hypertrophy or training effectiveness.",
+      "zh_synonym": "按肌群和诱发情境描述的延迟酸痛；不能直接等同肌损伤、增肌或有效刺激。"
+    },
+    "STATE-PAIN": {
+      "zh": "疼痛/不适报告. 区别于酸痛的症状与动作影响记录 症状记录不提供诊断；数值低不证明训练安全。",
+      "en": "Self-reported pain or discomfort and effects on movement; no diagnosis or guarantee of exercise safety.",
+      "zh_synonym": "与酸痛区分的疼痛不适及动作影响记录；低分不代表运动必然安全。"
+    },
+    "LOAD-SRPE": {
+      "zh": "整次训练sRPE. 总体训练用力感，区别于逐组RIR/RPE 主观内部反应，非局部机械刺激；延迟影响需评测。",
+      "en": "Session rating of perceived exertion distinct from set-level effort; subjective internal response and collection-delay limitations.",
+      "zh_synonym": "对整场训练的总体费力评分；区别于逐组余力，采集延迟和主观性限制解释。"
+    },
+    "LOAD-DURATION": {
+      "zh": "整次训练协议时长. 训练开始至结束扣除明确暂停后的时长，包含计划内休息 计时协议误差不等于生理负荷误差。",
+      "en": "Protocol-defined session duration excluding explicitly paused time and including planned rests; timing is not physiological load.",
+      "zh_synonym": "按协议扣除明确暂停、保留计划休息后的训练用时；计时不等于生理负荷。"
+    },
+    "LOAD-SRPE-AU": {
+      "zh": "sRPE内部负荷代理. 整次用力感乘协议训练时长 不是能量、肌肥大刺激或机械张力。",
+      "en": "Session perceived-exertion rating multiplied by protocol duration as an internal-load proxy; not energy expenditure or hypertrophic stimulus.",
+      "zh_synonym": "整场主观费力评分与训练分钟数的乘积；内部负荷代理不能当作热量或增肌刺激。"
+    },
+    "BODY-MASS-DAILY": {
+      "zh": "每日可比体重. 同称量协议的指定主值或日代表值 秤误差与水分/糖原波动并存，体重不是脂肪量。",
+      "en": "Daily body mass under a comparable weighing protocol; scale error, hydration and glycogen variation, not fat mass.",
+      "zh_synonym": "相同称量条件下的每日体重代表；秤误差、水分与糖原波动并存，体重不等于脂肪。"
+    },
+    "BODY-MASS-TREND": {
+      "zh": "真实时间体重趋势. 同协议体重随真实时间变化的稳健描述斜率 足够数据后方可用验证过的时间块bootstrap；不能以OLS方差冒充Theil–Sen区间。",
+      "en": "Robust body-mass trend over actual time under consistent weighing conditions; temporal dependence and validated interval requirements.",
+      "zh_synonym": "同称重协议下按真实日期估计的体重走势；稳健斜率的不确定性需适合时间依赖的方法。"
+    },
+    "BODY-MASS-RELATIVE": {
+      "zh": "相对体重变化速率. 相对于明确参考体重的每周百分比变化 继承趋势与参考误差；不代表脂肪下降比例。",
+      "en": "Weekly body-mass change relative to an explicit reference mass; inherited trend and reference error, not the fraction of fat lost.",
+      "zh_synonym": "以明确基准体重归一的每周变化率；继承趋势误差，不解释为脂肪下降比例。"
+    },
+    "ENERGY-BASAL": {
+      "zh": "设备报告静息能量. 来源定义的静息累计能量 设备估计误差未知，字段语义不证明真值准确。",
+      "en": "Source-reported resting energy expenditure; field semantics and device estimates do not establish true expenditure.",
+      "zh_synonym": "设备给出的静息热量累计值；字段定义不能保证真实静息消耗准确。"
+    },
+    "ENERGY-ACTIVE": {
+      "zh": "设备报告活动能量. 活动与运动能量，不包含同期间静息能量 能量准确性不由心率准确性推导；无统一±10%。",
+      "en": "Source-reported active energy expenditure distinct from resting energy; heart-rate validity does not establish caloric accuracy.",
+      "zh_synonym": "设备给出的活动消耗及其与静息分量的区别；心率测得准不保证热量估计准。"
+    },
+    "ENERGY-DEVICE-TOTAL": {
+      "zh": "设备报告总能量. 对齐静息与活动分量之和 继承系统偏差/随机误差，不能假装两分量误差独立。",
+      "en": "Aligned resting and active energy estimates summed as device-reported total; correlated component error and systematic bias remain.",
+      "zh_synonym": "时间对齐的静息与活动热量之和；继承设备系统偏差，不假定两个分量误差独立。"
+    },
+    "ENERGY-RECORD-COVERAGE": {
+      "zh": "能量记录日期覆盖. 符合报告口径的完整分量日期数/已过去目标日期数 100%记录仍可有估计误差或算法填补。",
+      "en": "Dates with complete recorded energy components over elapsed target dates; complete records do not prove accurate estimates.",
+      "zh_synonym": "已经过去日期中热量分量记录完整的占比；日志完整仍可能存在算法填补和估计误差。"
+    },
+    "ENERGY-NET-STORAGE": {
+      "zh": "平均净储能变化. 平均摄入减去真实消耗，即身体能量储存变化率 组成/能量密度/水分误差；体重稳定也可能重组。",
+      "en": "Mean intake minus true expenditure as change in stored body energy; composition, energy-density and water uncertainty.",
+      "zh_synonym": "摄入减真实消耗对应的平均储能变化；组成、能量密度与水分使体重变化解释受限。"
+    },
+    "ENERGY-DELTA-INTAKE": {
+      "zh": "相对初始平衡摄入变化. 相对于初始能量平衡摄入I0的ΔEI，非当前I−E h=ρq+εl；条件方差hᵀΣh+ε²VarW0−2εCov(hᵀw,W0)，另传播参数/系统误差；非独立W0保留协方差。",
+      "en": "Change in energy intake relative to an initial energy-balance baseline; dynamic body-weight model, parameter uncertainty and covariance, not current intake minus expenditure.",
+      "zh_synonym": "以初始平衡摄入为参照的摄入增减；动态体重模型须传播参数、系统误差与相关性，不能混为当前净能量差。"
+    },
+    "ENERGY-ABSOLUTE-INTAKE": {
+      "zh": "绝对摄入条件估计. 依赖独立基线或明确设备偏差假设的摄入范围 区间明确标统计CI/预测区间/场景范围；独立性不成立时保留协方差；场景不冒称95%。",
+      "en": "Conditional absolute energy-intake estimation requires an independent baseline or explicit device-bias assumptions; distinguish scenario ranges from calibrated statistical intervals.",
+      "zh_synonym": "估计绝对吃入热量须有独立基线或明确设备偏差假设；情景范围不能冒称有校准的置信区间。"
+    },
+    "ENERGY-IDENTIFIABILITY": {
+      "zh": "摄入与设备偏差可识别性状态. 给定现有观测能否唯一识别真实摄入/消耗/偏差 先验形成的后验标conditional，不是观测唯一确定。",
+      "en": "Identifiability of true intake, expenditure and device bias from available observations; prior-conditional inference is not unique observational identification.",
+      "zh_synonym": "现有记录能否唯一分开真实摄入、消耗和设备偏差；加入先验后的结果仍是条件性推断。"
+    },
+    "PRED-B0": {
+      "zh": "可比历史B0参考预测. 下一次同计划负重/目标RIR等条件下的指定组表现基线 区间仅在严格时间外校准后展示；单点参考无虚假精确CI。",
+      "en": "Comparable-history baseline prediction of next-exposure performance; forward temporal validation before showing prediction intervals.",
+      "zh_synonym": "用可比历史预测下一次表现的基准方法；没有严格时间外校准不展示精确预测区间。"
+    },
+    "PRED-B1": {
+      "zh": "单状态增量B1研究预测. 同一B0基础上测试一个预注册状态特征的增量预测 时间外误差/校准区间；参数不稳定与选择过程纳入评测。",
+      "en": "Incremental prediction from one preregistered state feature beyond the same baseline; temporal validation and selection uncertainty.",
+      "zh_synonym": "同一基准上加入单个预注册状态特征的增量预测；须核对时间外误差及特征选择不确定性。"
+    },
+    "PRED-ERROR-GAIN": {
+      "zh": "B0/B1成对预测误差差异. 同一未来暴露上B1相对B0的误差变化 按用户/时间块计算差异区间，避免重叠窗口伪独立。",
+      "en": "Paired prediction-error difference for baseline and state-augmented models on the same future exposures; participant and time-block dependence.",
+      "zh_synonym": "在相同未来场次上成对比较两个预测误差；按人和时间块处理相关性，避免重叠窗口伪独立。"
+    },
+    "PRED-INTERVAL": {
+      "zh": "预测区间校准与宽度. 名义预测区间对未来结果的经验覆盖和宽度 覆盖率自身有抽样误差；宽到无用的区间不能只凭覆盖称优。",
+      "en": "Empirical prediction-interval coverage and width on future outcomes; sampling uncertainty and practical usefulness.",
+      "zh_synonym": "未来结果落入预测区间的实际比例及区间宽度；覆盖率有误差，过宽区间不一定有用。"
+    },
+    "REPORT-PERIOD-COVERAGE": {
+      "zh": "周月指标记录覆盖. 各指标在日历报告窗口中的可用日期/场次比例 覆盖是可用性而非真实测量准确性。",
+      "en": "Availability of metric dates and sessions in calendar reporting periods; coverage does not establish measurement accuracy.",
+      "zh_synonym": "日历周月窗口内各指标日期与场次的可用比例；覆盖和真值准确性不是同一结论。"
+    },
+    "REPORT-STATE-SUMMARY": {
+      "zh": "周月身体状态摘要. 同协议日代表值与主观等级的周期摘要 描述统计不是因果作用；小n不提供夸大精度。",
+      "en": "Period summaries of comparable daily state observations and subjective ordinal ratings; descriptive, not causal, with small-sample limits.",
+      "zh_synonym": "同协议身体状态日值和主观等级的周月描述；小样本不夸大精度，也不归因为因果效应。"
+    },
+    "REPORT-ENERGY-SUMMARY": {
+      "zh": "周月体重与能量摘要. 原始日期数据重估趋势并汇总有记录的设备能量 不平均高度重叠ΔEI窗口制造窄CI；模型系统误差保留。",
+      "en": "Period body-mass trends and recorded device energy; overlapping intake-estimation windows and systematic error must not create false precision.",
+      "zh_synonym": "从原始日期重估周月体重走势及记录热量；重叠摄入窗口不能靠平均制造狭窄区间。"
+    },
+    "REPORT-RECOMMENDATION-FOLLOWUP": {
+      "zh": "建议执行与后续结果. 建议、采纳、实际执行及可比后续表现的关联记录 回归均值、自然进步、携带效应与选择偏差存在。",
+      "en": "Recommendation, uptake, execution and comparable follow-up observations; regression to the mean, selection and carryover limit causal interpretation.",
+      "zh_synonym": "建议、采纳、执行与可比后续表现的关联；自然进步、回归均值、携带和选择偏差须保留。"
+    },
+    "QAL-01": {
+      "zh": "充分证据组召回. 在给定检索阶段和资源预算下，检索结果对该问题至少一种可接受的充分证据方案的覆盖程度，同时报告是否完整命中某个充分方案。 完整命中是query级二元结果；组召回是0到1的分数，不可直接用二项式区间。总体区间遵循common_output_contract的抽样及聚类条件。同题多次检索/回答不增加独立题数；多组充分方案只是同一题内合法替代，不是多个独立样本。",
+      "en": "Coverage of sufficient evidence sets under a fixed retrieval budget; repeated variants do not add independent cases.",
+      "zh_synonym": "固定检索资源内充分证据方案的覆盖；同题重复运行不增加独立题数。"
+    },
+    "QAL-02": {
+      "zh": "检索证据精度与重复负担. 实际返回或送入模型的证据单元中，与问题目标、版本和适用条件相关且可用于所声明解释的比例；重复上下文负担单独报告。 同一query内的单元和同来源chunk相关，不得把所有chunk当独立二项式样本。query级宏平均可在符合抽样设计时整query/整user重采样；小型定向测试只报确切计数。标注争议与抽样不确定性分开。",
+      "en": "Retrieval-stage evidence precision with fixed query and evidence-set denominators; annotation uncertainty and dependence.",
+      "zh_synonym": "检索阶段证据精度的统计口径；保留题目与证据组分母、标注不确定性和相关性。"
+    },
+    "QAL-03": {
+      "zh": "引用可定位与邻近支持精度. 引用链接是否解析到实际保存的指定版本及证据位置，以及该引用是否支持它声称支撑的邻近主张；两种有效性分别计量。 同回答与同论文中的关联相关，按query/user聚类；引用数增加不等于独立样本增加。定位可由确定性验证给有限集合确切值，语义支持仍有标注误差；二者不应混为一个置信分数。",
+      "en": "Citation resolution to the preserved source version and exact location, and support for the adjacent claim, measured separately with query-level dependence and annotation uncertainty.",
+      "zh_synonym": "引用能否定位到保存版本的原文，以及能否支撑邻近主张分别核对；引用变多不增加独立样本数。"
+    },
+    "QAL-04": {
+      "zh": "可检验主张支持率. 回答中需要事实、计算或科学证据的原子主张，获得足够且适用于其实际措辞的证据支持的比例。 主张之间相关，不能用总主张数当独立样本量。标注者分歧与重采样区间分别报告；若从固定30例得支持率，只能描述该集合，不能给出产品总体可靠率结论。",
+      "en": "Support for atomic verifiable claims with query-level dependence and annotation uncertainty.",
+      "zh_synonym": "逐条可检验断言的证据支撑；同题主张相关，不能扩大独立样本量。"
+    },
+    "QAL-05": {
+      "zh": "科学适用性错误率. 依赖研究适用范围或测量协议的主张中，出现人群、任务、器械、测量字段、干预、结局或时间尺度不匹配而仍作确定应用的比例。 错误率是主张级，但总体区间按用户/query聚类。对于决定性条件的专业裁决存在不确定性，保存依据和分歧；不能用模型置信概率替代专家范围审查。",
+      "en": "Scientific applicability errors across population, task, device, measurement and timescale; expert-scope uncertainty remains.",
+      "zh_synonym": "人群、任务、器械、测量与时间尺度不匹配的科学适用错误；范围裁决的不确定性须保留。"
+    },
+    "QAL-06": {
+      "zh": "无依据数字与因果越界. 分别审计无法追溯或无法支持其用途的数值断言，以及证据设计不支持的因果或确定个体效应断言；两者不合并为总分。 按query/user聚类并保留分母；关键定向反例是有限集合正确性测试，不需要伪装总体区间。0次观察违规不能证明未来永不违规。",
+      "en": "Unsupported numerical assertions and causal overreach reported separately with query-clustered denominators.",
+      "zh_synonym": "无依据数字和因果越界分别计量；按题聚类保留实际分母。"
+    },
+    "QAL-07": {
+      "zh": "证据不足与可回答情境的双向错误. 同时评价本应保留未知或拒绝具体结论时仍强答，以及已有足够依据可答时却不当拒答；对复合请求按意图边界评估。 两个条件错误率分别给合适区间，不能用多数可答题稀释罕见危险强答。人为平衡验收集的比例不是线上发生率；需要线上代表性抽样或给明确抽样权重才能估计真实平均。",
+      "en": "Errors of answering insufficient evidence and refusing sufficient evidence; conditional error denominators and request intent.",
+      "zh_synonym": "证据不足时强答与证据充分时拒答分别核对；按请求意图保留条件分母。"
+    },
+    "QAL-08": {
+      "zh": "回退率、回退原因与完成情况. 请求未按其预定主路径完成而进入明确备用路径的频率，以及备用路径是否完成其允许任务；预期证据不足与技术故障分别报告。 同用户请求、同服务事故引发的大批失败相关；不要以请求总量计算独立二项式窄区间。历史窗口率可精确描述该窗口，预测未来需匹配抽样与时间结构。",
+      "en": "Fallback frequency, reasons and completion; distinguish expected insufficiency from technical failure.",
+      "zh_synonym": "回退比例、原因和允许任务的完成情况；区分预期证据缺失与技术故障。"
+    },
+    "QAL-09": {
+      "zh": "原文获取、理论审核与功能证据覆盖. 分别度量冻结来源清单的原文获取进度、理论卡审核进度、可激活卡比例以及功能所需主张的证据覆盖；各自分母明确且互不替代。 这些是冻结工程清单的普查计数，默认不需要抽样置信区间；关键不确定性是身份/权利/审阅是否确实完成，应列状态与复核证据。若只抽查文件质量，抽查合格率是另一估计，不能替换完整清单覆盖。",
+      "en": "Separate corpus acquisition, claim review and feature evidence coverage with frozen checklist denominators.",
+      "zh_synonym": "原文取得、理论审核和功能证据覆盖分别统计；清单进度不能冒充科学有效性。"
+    },
+    "QAL-10": {
+      "zh": "路由越权与数据隔离违反. 实际读取、检索、计算或输出超出当前请求授权范围、功能证据边界或用户数据隔离的事件；尝试被阻断与实际越权分别记录。 确定性对抗测试中的任何实际越权均为发布失败；0次观察不等于线上泄漏概率0。多次攻击同一漏洞高度相关，报告攻击家族和独立路径覆盖，不能用重复请求数夸大验证强度。",
+      "en": "Routing authorization and data-isolation violations; distinguish blocked attempts from actual unauthorized access.",
+      "zh_synonym": "路由权限和用户资料隔离越界；拦截尝试与实际违规分别记录。"
+    },
+    "QAL-11": {
+      "zh": "数值、单位和版本一致性. 回答展示或建议中的数值，是否与授权原始事实、锁定公式版本、单位口径以及声明的舍入规则一致；参考不可得与计算不一致分别报告。 确定性算术与单位测试报告精确通过/失败计数，不需伪造统计区间。若从线上随机抽样估计数值错误率，按用户/query聚类并说明抽样；模型预测不确定性和算术一致性是不同问题。",
+      "en": "Numerical, unit, formula-version and rounding consistency against authorized facts.",
+      "zh_synonym": "数字、单位、公式版本与舍入口径的一致性核对。"
+    },
+    "QAL-12": {
+      "zh": "来源身份、版本、权利与撤稿完整性. 被纳入来源、活跃索引与输出解释的材料是否具有一致的身份及版本，并符合当前用途权利、撤稿/更正状态和发布依赖要求。 冻结索引与来源清单的完整检查为普查计数，无需抽样CI。未被数据库发现的状态是覆盖限制，不是可用同一比例区间量化的随机误差。若抽样审计，报告抽样设计与未审范围，不能称全部验证。",
+      "en": "Source identity, version, rights and current withdrawal or correction integrity under frozen release dependencies.",
+      "zh_synonym": "来源身份、版次、许可与更正撤回状态的完整性；冻结依赖不能覆盖当前失效状态。"
+    },
+    "OBS-VO2-REPORTED": {
+      "zh": "来源报告的 VO2max 记录：区分设备估计、来源报告值与气体分析实测，核对测量协议、适用人群及测量误差；不能由 HealthKit 字段确认生理真值或推断训练因果作用。",
+      "en": "Source-reported maximal oxygen uptake records: distinguish wearable estimates from gas-analysis criterion measurements; protocol, population and error limits prevent field-based truth or causal claims.",
+      "zh_synonym": "来源所报最大摄氧量的测量依据；穿戴估计与气体分析须区分，字段本身不能证明生理真值或训练因果。"
+    },
+    "OBS-CYCLE-RECORDS": {
+      "zh": "月经类别观测记录的测量与解释边界：原始类别不等于出血天数或周期数，缺少记录不能推断没有月经，不能据此确认周期阶段、排卵、避孕、诊断或个人训练处方。",
+      "en": "Recorded menstrual-flow categories: missing observations do not establish absence; raw categories cannot identify bleeding days, cycle counts, phase, ovulation, diagnosis or individual training prescriptions.",
+      "zh_synonym": "经期日志的原始类别及漏记边界；记录条目不能换算出血天数、周期次数、排卵阶段或个人训练安排。"
+    }
+  }
+}

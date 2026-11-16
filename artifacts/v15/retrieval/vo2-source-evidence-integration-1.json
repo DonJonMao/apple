@@ -1,0 +1,1809 @@
+{
+  "schema": "vo2-source-evidence-integration-1.5.0",
+  "created_at": "2026-11-16T20:27:11.848079+00:00",
+  "scope": "Synthetic canonical source observation and actual public retrieval models, with narrow AI-reviewed source explanation. Not retrieval accuracy, expert or physiological validation.",
+  "release": {
+    "release_id": "v15-vo2-source-observation-1",
+    "sha256": "7e9516306060f11f3515be7f82727dfc6cf5931ec685b95813f832e83b5e0962",
+    "span_count": 68728
+  },
+  "observation_profile_sha256": "fac00ff3f2c31f83dbc57f0c05eaadce67af920a1e078812dc2fe69746b56cb7",
+  "query_forms_sha256": "46043e74accffca96ed8c5fea574bb67a1e1fa1ed41c209e4ebabc9f2ed97702",
+  "original_metric_count": 77,
+  "observation_extension_count": 2,
+  "requests": [
+    {
+      "service": "reranker",
+      "payload_sha256": "5822ba9b65b2ccb2943b8a3a3741f71e7cde4810977095731a14a0dd329ae26e",
+      "bytes": 23997,
+      "synthetic_private_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "ff3a5eb8c94af6827587c9d9f8f50092d692490462f2cc07ae40330f25b8015e",
+      "bytes": 12170,
+      "synthetic_private_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "d154554adc6d587e55f53bf008456c5ca3d8e2c9eeb591d3bdd411fafa589ec8",
+      "bytes": 24698,
+      "synthetic_private_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "7cc6061d867bf49904e38b22b6fc23faf3ca3ace05ade9e489958f38770d61e3",
+      "bytes": 20478,
+      "synthetic_private_markers_found": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "8b3509c8cd418439fe2dc5f931074b913df028995a695d2721fb938277d24cd3",
+      "bytes": 21940,
+      "synthetic_private_markers_found": false
+    }
+  ],
+  "probes": [
+    {
+      "probe": "actual_public_models_synthetic_observation",
+      "status": "insufficient_evidence",
+      "matched_claim_refs": [],
+      "evidence_ids": [
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023"
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:cardiometabolic",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:measurement_method_scope",
+        "missing_evidence_type:reported_vo2_interpretation_limits"
+      ],
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.4",
+        "profile_version": "observation-domains-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "80158c5cc20164fcc23c6d2b79a5bfa354f61c0c72466857f4a29f2dd83d619a"
+        },
+        "requested_mode": "hybrid_rerank",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "excluded": [
+          {
+            "claim_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+            "claim_version": "1.4.4",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-GRADUAL-PROGRESSION",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-INCREMENT",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+            "claim_version": "1.4.8",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+            "claim_version": "1.4.9",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-AEROBIC-ACTIVITY-VOLUME",
+            "claim_version": "1.4.12",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-MUSCLE-START",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-M2-NON-SIGNIFICANCE",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+            "claim_version": "1.4.7",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-PROGRESSION",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-PROGRESSION",
+            "claim_version": "1.4.9",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-RIR",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-RIR",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SPECIFICITY",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SPECIFICITY",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SYMPTOM-SCOPE",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-VOLUME",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "V15-CLAIM-DHT-FIT-FOR-PURPOSE",
+            "claim_version": "1.5.0",
+            "reason": "missing_context:interpretation_setting"
+          },
+          {
+            "claim_id": "V15-CLAIM-NIH-2006-HISTORICAL-STATIC-ENERGY-RULE",
+            "claim_version": "1.5.0",
+            "reason": "missing_context:knowledge_comparison_scope"
+          },
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+            "claim_version": "1.5.0",
+            "reason": "scope_mismatch:population"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "span_id": "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00643",
+            "reason": "empty_structured_unit"
+          },
+          {
+            "span_id": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00178",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00179",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00180",
+            "reason": "claim_rejected_no_background_bypass"
+          }
+        ],
+        "release": {
+          "release_id": "v15-vo2-source-observation-1",
+          "sha256": "7e9516306060f11f3515be7f82727dfc6cf5931ec685b95813f832e83b5e0962",
+          "membership": "frozen_index_and_bindings_current_validity",
+          "edge_ids": [
+            "0023efb0ec91606d03d989dbd217f34f6db6098c5d3ac06911c1771e178e0eaf",
+            "00ed03faf696775ad449db78ee121173e5715e9734cdb5a057b5e399a1092a28",
+            "01440b616bd99245db3d11f88da0bf7c475197439d4fefca60b7063be5735af4",
+            "049a89efc26ad79e1e924e320cb5651dbb547561dcef14de054ed2a59aa12c81",
+            "052625668beb042e8e6f8ae2eea19fb5314df08ef98d03bbb338982ed3b6a719",
+            "0830d8da08fcebfcdc551bad5d8a2b40afb314d58c1fdd87ad32d4990079099a",
+            "09bb62feb516ece6392573b6f2bdc8ac664377e4fb96f07628a6775d2eaceddb",
+            "09bc7f8586800252029f9d53a1520f8d25ae34e60abe172dec817fa85c3964ea",
+            "0a067fbfc86fc7679eaf2085fe861346ef4bd02c6f372ed766d36ddc45bc63fa",
+            "0e95fbb5db8e7a034ea4e8c3860ba2239df1b69e6843795be042aae247f70d5c",
+            "13af87b83be2b286a4a3eadcb3db29e7fd093a7c8ce4ea2de383e3ec7a919b47",
+            "154768486111b4c7ad8d76f4e5a9692035ec6ae3155abc74bf29161fffa9284f",
+            "15645f80af4832f46cff15bb3b4fb55aa7db28c5d7afc60724b7977239011c50",
+            "15cdcb15719132124e494359c7169abf3b7cb74ab136dc9bfaef591c79f9905f",
+            "1b4666318bdd53282c2c00b9052dbb9d1a1483b1e4a65e1f1badf136198e959f",
+            "1c02df379925c067eb8e75a8e94eb2bb017ed268a97b99c695f81d91829fde27",
+            "1c55e16582226c56a34487f31d52fcf9954655c05655ae5066d34b4f66b5196b",
+            "2724ac26ba65fe82ea78707449fa45192855aedcec0b4b6098584234741c9d22",
+            "27866c9fee10ec9f8d7a9513abd9906e8a52d85ab1939e21d1ef1204f007f3e9",
+            "31a31b8539f049c32fc53564460fc6b34f2e278840fce353079caeeb58fff2ab",
+            "397675468e75a0cd0d06f9d82c2714bc8a39f213c102f9489c626bf67e6c33f6",
+            "3abece25b9f8ae15506d026fa5ff4a0ff5dd7bd0b77fbf144c9f0be93d283ab3",
+            "3ac9f8cd0e3086568e9075706dd647077877e55461e21912f94f76f5d1f8fe42",
+            "3ed19512b14056a8ba1687678dba2e78619a19b3efe60847e11628a1bf9a3209",
+            "487566c802825ce40ce1c95766c7f558d4934807e3a2e48cc7b4cf371580ca3b",
+            "49db9c2b43d0e35fcb0c394f4cb36439e3bce98610d6c0cec870b175cce23342",
+            "507ccd0432c30d6b69a157d6ab9294151a0c53399c34d25adefc2d6848af8953",
+            "54b436fda036aacd5a5c5a0138eafe5e8f1c7961efbc38b9091dce113a58f85f",
+            "55d2f98fcc998b8f3734490d35e0beddcad3557234d141b42e9fbdc4698f902d",
+            "5873457622d3b4a7f4086f9ea86809bc2c359888c1a0628c236e195ef225955d",
+            "5cf44249ad137cdf4383651773729666ef2eb1d265e33c2e6bb2a9b2bad7e036",
+            "5dc1d940283962d909f682f721af3bf3fbe5465e7d138e34fffcc6caf0f48dc7",
+            "6355de12df66e6e3fa3e745c0aac35d63d17208bda52eb2c3f074f2d43585eff",
+            "66feb93d9c507958662ae656ccab2cc8fe5256a0751dfd7c871f2a47812005fa",
+            "6755b8777c7627c4bfcb653c874fd996e015707e5c1dcefe60c4c67030a42191",
+            "6d4a555e393de94f53d940e27aa19b650d90690b21177a5351250c3a3d253eb1",
+            "75fc770f2ac4d3688f5b7bfce42fb67846e6d8b0dc2f46832d55b1cd54cd6bff",
+            "7c7789ec34f39f17bcd39d25a449b0e6ef5dcfc2f6e4d32d9a0f14af42301b2d",
+            "7cc10baca502748ccc5ae51e050096715173c7cb6513bc9a4da0748e7a0fcbf6",
+            "7cd55eebe803a9a2b3ae682ed5c7a5a61778cd0c2bc72afc8ee7a4d92af869bb",
+            "805501a14a7162d49ad568d2536714dd04b2ae65e42ce85ec871fc87f76f0029",
+            "855468d6def1c1dbdebbc3b587560d401f2357b8fa303d3a99cd3180a091c33b",
+            "864a2ffbf320f91d47f8a62752113b206e3154c658e71fb903fd2419c0aabad6",
+            "8b82bdd31b196ecf4c5c5989254517261071b98bf6b120e994991dd7f8a640a8",
+            "8da262e470f51b9b20b35cf239570aa6083bfc40a087b483bc5474d245a8dc4a",
+            "8e1234b296d4dba2d22ec67208976a0bc423f3e38589b6269c744a621efe6e5b",
+            "8e616c54d4fc24862653383f907b0299d78e967f1fa9363e4dfe99fa5cee20d5",
+            "8ea60de24612481d2213b5f291a4a99ea22b907232bbc7fbff300c1e1388cea3",
+            "8f2bb9672231f9dc80f4fed395cd0c7ed58dbd4cb6f8b89717b3f6fdf5a364c4",
+            "95a8203909f8a856411d2b76abaeb0248ebdf1a9aa7243ac9f407042d942716e",
+            "96ed116c41065c4f35e5bba4a644de0034e91e8942db70acc733994ed6073bb4",
+            "9704da56e7eb7549d8c67c9dcd99c0cdf699b1b4a7dc10ba7bc20a315bc03ad0",
+            "97854e7a8988264ff8287bf76aaff0f7de6235d7ee07cd29cd26772c4ad8ce3a",
+            "a8f19689ca4d2f5bc1393116efd62f843c794afed1da493b9e882ea6ffface12",
+            "ad93a83af3018208b1d024c7357d7b10d1102b5ad6ca9869b321d7913d36ece9",
+            "af9fd2fecb316a40e5b28ebc1b975a6140757f92bb45faf6d3e313620b894aba",
+            "b4f17663d1c92cf175443450b91035bbd323a6fa6adca0f1724e81c73054266b",
+            "b60163ee14df8942a8030931877a35fcf0fa41d20ee0f507bdaa83d0184e2b44",
+            "b6273a8e57a70370fae6f20efe5fe9758bc271a1be10127c4ca614f7ac9aa7ce",
+            "b7466cba19cecaaf5d3f19445087ed297f7763b58926f6ee4fc8237de950585e",
+            "b7eadf0e69a5ecf64fdfc7d12af1467745dbf0d42c38fd5e080eabb6af06cee7",
+            "ba67be2e638ebeec9b987db8c34c5804d79ad8b836b9eacce0055514e219b610",
+            "bb0779afd0ad8ad02779596998f311715ec32c0afa02db99fb99df5e44f17981",
+            "bce7435be065b24b32d15a77e9725eb46b4b83dc8624699b00c9d25ae9d07d15",
+            "c30556995bdfcaf08463671564c86e06b24a7ed155d082764eea3744af28cd71",
+            "c39f450f7d6aedc87f045abd3e0c77f0ad381468bcbf118e70b076990edd170a",
+            "c3c93c9c6a3de9d3991324d726ce491a528664710d29a40f715bf0cb602d8484",
+            "c59ef73fe50c3b0bb140ef7ae20ede42fd8b8d4def4508e0105ef6952f0ecf05",
+            "cf316735285fafe4f9f5bcb381a8694e2963635b1735fa2425624f9a3bfd2858",
+            "d0db1c5d061d3fce8d91db3cbc5f85e28cf9ef45bc8a3ed8d09d3507b9ff8c27",
+            "d8e28a26f3b5268b3057816841030dfbd3aa86319d07a01326b92e241d3b24b7",
+            "d93e6503d02d373d8f22d667ad62bcb377c52c3732f71f5fc93beda7a9b4c715",
+            "db1ee59bc0284187ec407d60ada77adea6f947fe9fee0c42b7c186417db2b3af",
+            "dc350dc86121d53bde8ed71fd5692e049c04d827d396715decb7d8e7fc454b3a",
+            "e9dc82285ddf31d2e279d8e27556fb0233acc0968f13169e650b9ecd71a53c96",
+            "ea19a02584203f624527e5117fea67ce453983260b2128d73ee3917905da0cfb",
+            "ea841aea9985c0946bb52e9a9cfdbf0186562afe333bd7871921fddc614f8b93",
+            "f05f3e76ed8ea0c3faceadeee14ea2753e07ee7b54a5ecf63a4ee760cab26b93",
+            "f30823691ad8b9d6ec67055251009281dca19b4d8397c41305da00d0bfcd8ccf",
+            "f3874fc35b94cbae70f406a03e8443fdbfefe0395d487285f98e6bcb73854ab3",
+            "f42b6813367d8ae02286395042f4f5e5eae9baf30a700dec9ef8b41535f955ac",
+            "f5ea1182734b76904a3b4a7abace11530f54ffed2d8e9f3cd8036d223a9a51b4"
+          ],
+          "query_forms_sha256": "46043e74accffca96ed8c5fea574bb67a1e1fa1ed41c209e4ebabc9f2ed97702",
+          "projection_set_ids": {
+            "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009": "c9214b9d04a2b6f2d88b49b16701c74bb46673965aaaa16069007df50b79957d",
+            "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00026": "a23d832a31f574578fc3ebd3123d47395f2afd1d9d483f89af20a82e1a323021",
+            "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00025": "78db5025df86233f96206edc2470c7e13d08dc47db7e7aa47b5fbc8dbfc25f66"
+          }
+        },
+        "eligible_candidate_count": 68494,
+        "candidate_ids_sha256": "4a877e070ed9196764d8f7ea9f94c854c1de6cffeff93531a52dc9f00d2f8a12",
+        "dense_structural_projections": [
+          {
+            "projection_set_id": "c9214b9d04a2b6f2d88b49b16701c74bb46673965aaaa16069007df50b79957d",
+            "projection_version": "jats-table-row-groups-1.5.0",
+            "parent_span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "parent_text_hash": "588561ea9d5587fa5430c2e83293630f885058d475868883c47c8d180f18b06e",
+            "expected_child_vectors": 104,
+            "available_child_vectors": 104,
+            "complete": true,
+            "aggregation": "max_child_cosine_complete_projection",
+            "original_parent_returned": true,
+            "winning_child": {
+              "child_id": "89e7925c462e5eb6e1ce64249e9988c93fabbdec9b25324c4c41c5fa746b9e73",
+              "input_hash": "eae3dcf2b93fb2f540a3635143f1f02ecfd9825124955a22f6e4b35d37acc3cf",
+              "locator": {
+                "body_rows": [
+                  20,
+                  21
+                ],
+                "cells": [
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 3,
+                    "row_stop": 4,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[4]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 7,
+                    "row_stop": 8,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[8]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 11,
+                    "row_stop": 12,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[12]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 13,
+                    "row_stop": 14,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[14]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 15,
+                    "row_stop": 16,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[16]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 17,
+                    "row_stop": 18,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[18]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "7",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 19,
+                    "row_stop": 20,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[20]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 0,
+                    "column_stop": 1,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[1]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 1,
+                    "column_stop": 2,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[2]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 2,
+                    "column_stop": 3,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[3]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 3,
+                    "column_stop": 4,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[4]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 4,
+                    "column_stop": 5,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[5]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 5,
+                    "column_stop": 6,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[6]"
+                  },
+                  {
+                    "attributes": {
+                      "colspan": "1",
+                      "rowspan": "1"
+                    },
+                    "column": 6,
+                    "column_stop": 7,
+                    "kind": "td",
+                    "row": 20,
+                    "row_stop": 21,
+                    "structured_subtree_xpath": "./*[8]/*[2]/*[21]/*[7]"
+                  }
+                ],
+                "coordinate_system": "owned_raw_xml_zero_based_half_open_grid",
+                "parent_locator": {
+                  "end_offset": 17057,
+                  "extraction_method": "jats-owned-text-1.4.1",
+                  "language": "en",
+                  "native_id": "Tab1",
+                  "paragraph_id": 9,
+                  "start_offset": 0,
+                  "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[3]/*[2]"
+                },
+                "preceding_structural_context_rows": [
+                  3,
+                  7,
+                  11,
+                  13,
+                  15,
+                  17,
+                  19
+                ],
+                "row_group_xpath": "./*[8]/*[2]",
+                "table_xpath": "./*[8]"
+              }
+            },
+            "winning_cosine": 0.5520272850990295
+          }
+        ],
+        "reranker_context_budget": {
+          "utf8_bytes": 24000,
+          "strategy": "tail_to_head_overlapping_whole_units",
+          "available_fused_candidates": 20,
+          "submitted_candidates": 20,
+          "source_units_truncated": false,
+          "excluded_ids": [],
+          "unranked_ids": [],
+          "windows": [
+            {
+              "candidate_ids": [
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00003",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00040",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00036",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00037",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00003",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00036",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00040"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00048",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00014"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00034",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00051",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00745",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00021",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00051",
+                "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.1-document-component-scope-1.5.2:s00745",
+                "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00021"
+              ]
+            },
+            {
+              "candidate_ids": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047"
+              ],
+              "status": "ranked",
+              "ranking": [
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+                "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011"
+              ]
+            }
+          ],
+          "ranking_complete": true
+        },
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 1921,
+        "dense_candidates": 68494,
+        "fusion_candidates": 68494,
+        "reranked_candidates": 20,
+        "models": {
+          "embedding": {
+            "provider": "openai_compatible",
+            "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+            "model_id": "qwen3-embedding-8b",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          },
+          "reranker": {
+            "provider": "chat_listwise",
+            "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+            "model_id": "deepseek-v4-flash",
+            "model_version": "service-version-unverified",
+            "normalization": "l2",
+            "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+            "embedding_schema_version": "qwen-query-instruction-1.5.0"
+          }
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "0955e461a15aa3336948076233e561d8503e5990343bb9f8bcdcb1926a0b9174",
+        "audit_id": "59c67bd326104460824f091a947d7e31",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 1,
+            "dense_rank": 5,
+            "fusion_rank": 1,
+            "reranker_rank": 1
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 4,
+            "dense_rank": 11,
+            "fusion_rank": 3,
+            "reranker_rank": 2
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 3,
+            "dense_rank": 12,
+            "fusion_rank": 2,
+            "reranker_rank": 3
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00012",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 14,
+            "dense_rank": 14,
+            "fusion_rank": 7,
+            "reranker_rank": 4
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00011",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 27,
+            "dense_rank": 38,
+            "fusion_rank": 19,
+            "reranker_rank": 5
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00023",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 21,
+            "dense_rank": 8,
+            "fusion_rank": 6,
+            "reranker_rank": 6
+          }
+        ]
+      }
+    },
+    {
+      "probe": "unknown_context",
+      "status": "insufficient_evidence",
+      "matched_claim_refs": [],
+      "evidence_ids": [
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052"
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:cardiometabolic",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:measurement_method_scope",
+        "missing_evidence_type:reported_vo2_interpretation_limits",
+        "missing_applicability_context:population",
+        "missing_applicability_context:measurement_protocol"
+      ],
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.4",
+        "profile_version": "observation-domains-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "80158c5cc20164fcc23c6d2b79a5bfa354f61c0c72466857f4a29f2dd83d619a"
+        },
+        "requested_mode": "lexical",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 68494,
+        "candidate_ids_sha256": "4a877e070ed9196764d8f7ea9f94c854c1de6cffeff93531a52dc9f00d2f8a12",
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 1921,
+        "dense_candidates": 0,
+        "fusion_candidates": 1921,
+        "reranked_candidates": 0,
+        "models": {
+          "embedding": null,
+          "reranker": null
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "65859293958786ff04f4283d7e13a0df0e79ada7be5201b08afca9e8afaee407",
+        "audit_id": "c7362bfa90b8411e8825554da7d71da0",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 1,
+            "dense_rank": null,
+            "fusion_rank": 1,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "source_id": "E7",
+            "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+            "lexical_rank": 2,
+            "dense_rank": null,
+            "fusion_rank": 2,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 3,
+            "dense_rank": null,
+            "fusion_rank": 3,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 4,
+            "dense_rank": null,
+            "fusion_rank": 4,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 5,
+            "dense_rank": null,
+            "fusion_rank": 5,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 6,
+            "dense_rank": null,
+            "fusion_rank": 6,
+            "reranker_rank": null
+          }
+        ],
+        "excluded_summary": {
+          "count": 1746,
+          "reason_counts": {
+            "answer_version_replaced": 21,
+            "claim_missing_or_not_current": 7,
+            "claim_rejected_no_background_bypass": 4,
+            "empty_structured_unit": 1,
+            "missing_context:interpretation_setting": 1,
+            "missing_context:knowledge_comparison_scope": 1,
+            "missing_context:population": 1,
+            "parser_superseded_requires_explicit_claim_review": 36,
+            "rights_not_cleared": 1674
+          },
+          "complete_exclusions_sha256": "7c8cde2e4fdfe9da1a441774670900a29575d4c0b6a85b24a82afb3a76990270",
+          "complete_exclusions_retained_locally": true
+        }
+      }
+    },
+    {
+      "probe": "commercial",
+      "status": "insufficient_evidence",
+      "matched_claim_refs": [],
+      "evidence_ids": [
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052"
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:cardiometabolic",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:measurement_method_scope",
+        "missing_evidence_type:reported_vo2_interpretation_limits"
+      ],
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.4",
+        "profile_version": "observation-domains-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "80158c5cc20164fcc23c6d2b79a5bfa354f61c0c72466857f4a29f2dd83d619a"
+        },
+        "requested_mode": "lexical",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 48829,
+        "candidate_ids_sha256": "7d70e8425ff8d1320f00af91bbf7dd556cd541fd6283fc55bf7a1606cf1a1c06",
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 850,
+        "dense_candidates": 0,
+        "fusion_candidates": 850,
+        "reranked_candidates": 0,
+        "models": {
+          "embedding": null,
+          "reranker": null
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "65859293958786ff04f4283d7e13a0df0e79ada7be5201b08afca9e8afaee407",
+        "audit_id": "0dfd92f3a199476bac02ae90fb161595",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 1,
+            "dense_rank": null,
+            "fusion_rank": 1,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "source_id": "E7",
+            "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+            "lexical_rank": 2,
+            "dense_rank": null,
+            "fusion_rank": 2,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 3,
+            "dense_rank": null,
+            "fusion_rank": 3,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 4,
+            "dense_rank": null,
+            "fusion_rank": 4,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 5,
+            "dense_rank": null,
+            "fusion_rank": 5,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 6,
+            "dense_rank": null,
+            "fusion_rank": 6,
+            "reranker_rank": null
+          }
+        ],
+        "excluded_summary": {
+          "count": 21411,
+          "reason_counts": {
+            "answer_version_replaced": 21,
+            "claim_missing_or_not_current": 7,
+            "claim_rejected_no_background_bypass": 4,
+            "empty_structured_unit": 1,
+            "missing_context:interpretation_setting": 1,
+            "missing_context:knowledge_comparison_scope": 1,
+            "noncommercial_scope_required": 19665,
+            "parser_superseded_requires_explicit_claim_review": 36,
+            "rights_not_cleared": 1674,
+            "scope_mismatch:population": 1
+          },
+          "complete_exclusions_sha256": "efd6edc25eaa6dcde287845a2ce14a61b179994c88f471442c0c55e827253c26",
+          "complete_exclusions_retained_locally": true
+        }
+      }
+    },
+    {
+      "probe": "old_frozen_membership_does_not_acquire_new_claims",
+      "status": "insufficient_evidence",
+      "matched_claim_refs": [],
+      "evidence_ids": [
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052"
+      ],
+      "limitations": [
+        "retrieved_original_text_does_not_replace_reviewed_metric_claim_binding",
+        "missing_required_domain:cardiometabolic",
+        "missing_required_domain:wearable",
+        "missing_evidence_type:measurement_method_scope",
+        "missing_evidence_type:reported_vo2_interpretation_limits"
+      ],
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_audit": {
+        "version": "metric-hybrid-1.5.4",
+        "profile_version": "observation-domains-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "80158c5cc20164fcc23c6d2b79a5bfa354f61c0c72466857f4a29f2dd83d619a"
+        },
+        "requested_mode": "lexical",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "excluded": [
+          {
+            "claim_id": "CORE-CLAIM-EQUIVALENCE-METHOD",
+            "claim_version": "1.4.4",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-FREQUENCY-VOLUME",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-GRADUAL-PROGRESSION",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-GROUP-INDIVIDUAL",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-INCREMENT",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+            "claim_version": "1.4.8",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-ACTIVITY-SAFETY-SCOPE",
+            "claim_version": "1.4.9",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-AEROBIC-ACTIVITY-VOLUME",
+            "claim_version": "1.4.12",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-HHS-MUSCLE-START",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-M2-EQUIVALENCE-LOGIC",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-M2-NON-SIGNIFICANCE",
+            "claim_version": "1.4.6",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-N1-REGRESSION-COVARIANCE",
+            "claim_version": "1.4.7",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-PROGRESSION",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-PROGRESSION",
+            "claim_version": "1.4.9",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-RIR",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-RIR",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SPECIFICITY",
+            "claim_version": "1.4.10",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SPECIFICITY",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-SYMPTOM-SCOPE",
+            "claim_version": "1.4.2",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "CORE-CLAIM-VOLUME",
+            "claim_version": "1.4.3",
+            "reason": "answer_version_replaced"
+          },
+          {
+            "claim_id": "V15-CLAIM-DHT-FIT-FOR-PURPOSE",
+            "claim_version": "1.5.0",
+            "reason": "missing_context:interpretation_setting"
+          },
+          {
+            "claim_id": "V15-CLAIM-NIH-2006-HISTORICAL-STATIC-ENERGY-RULE",
+            "claim_version": "1.5.0",
+            "reason": "missing_context:knowledge_comparison_scope"
+          },
+          {
+            "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+            "claim_version": "1.5.0",
+            "reason": "scope_mismatch:population"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "CORE-US-HHS-PAG-2:fulltext:0147d4dfc5ae76613a8b:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 3691,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-ATP-7-22-01-C2:fulltext:74910206c316207f4a65:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 2306,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 4016,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 491,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-LANPHERE-EXERCISE-3:fulltext:1b7b75384e9b93c8b2a5:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 3347,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 21962,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 1311,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-NIH-SLEEP-2011:fulltext:11747c5fed332670821a:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 1477,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-OSU-ANATOMY-2E-2025:fulltext:90f21de2312b93660a16:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 59246,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 6629,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2025:fulltext:19420625e06a4024c576:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 2659,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0-document-component-scope-1.5.1",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "source_version": "V15-WHO-WEAR-2026:fulltext:c03c655b814ab4526225:pdf-structure-1.5.0-document-component-scope-1.5.2",
+            "excluded_unit_count": 4377,
+            "reason": "parser_superseded_requires_explicit_claim_review"
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00028",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00037",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00038",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "N1:fulltext:194d6fc4b1e58f6312bc:pdfplumber-layout-n1-1.4.0:s00643",
+            "reason": "empty_structured_unit"
+          },
+          {
+            "span_id": "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s00266",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-MACINTOSH-OTEP-1:fulltext:0affb9f89204cefdd162:pdf-structure-1.5.1-document-component-scope-1.5.2:s00267",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00178",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00179",
+            "reason": "claim_rejected_no_background_bypass"
+          },
+          {
+            "span_id": "V15-NIH-ACTIVITY-2006:fulltext:d64f8619094e14935fe8:pdf-structure-1.5.1-document-component-scope-1.5.2:s00180",
+            "reason": "claim_rejected_no_background_bypass"
+          }
+        ],
+        "release": {
+          "release_id": "v15-benchmark-corpus-2",
+          "sha256": "a64c372cdac678cae87bedcea11ceaa2caeb1bc4bec424c7b842a414c4cae606",
+          "membership": "frozen_index_and_bindings_current_validity",
+          "edge_ids": [
+            "0023efb0ec91606d03d989dbd217f34f6db6098c5d3ac06911c1771e178e0eaf",
+            "00ed03faf696775ad449db78ee121173e5715e9734cdb5a057b5e399a1092a28",
+            "01440b616bd99245db3d11f88da0bf7c475197439d4fefca60b7063be5735af4",
+            "049a89efc26ad79e1e924e320cb5651dbb547561dcef14de054ed2a59aa12c81",
+            "052625668beb042e8e6f8ae2eea19fb5314df08ef98d03bbb338982ed3b6a719",
+            "0830d8da08fcebfcdc551bad5d8a2b40afb314d58c1fdd87ad32d4990079099a",
+            "09bb62feb516ece6392573b6f2bdc8ac664377e4fb96f07628a6775d2eaceddb",
+            "09bc7f8586800252029f9d53a1520f8d25ae34e60abe172dec817fa85c3964ea",
+            "0a067fbfc86fc7679eaf2085fe861346ef4bd02c6f372ed766d36ddc45bc63fa",
+            "0e95fbb5db8e7a034ea4e8c3860ba2239df1b69e6843795be042aae247f70d5c",
+            "13af87b83be2b286a4a3eadcb3db29e7fd093a7c8ce4ea2de383e3ec7a919b47",
+            "154768486111b4c7ad8d76f4e5a9692035ec6ae3155abc74bf29161fffa9284f",
+            "15645f80af4832f46cff15bb3b4fb55aa7db28c5d7afc60724b7977239011c50",
+            "15cdcb15719132124e494359c7169abf3b7cb74ab136dc9bfaef591c79f9905f",
+            "1b4666318bdd53282c2c00b9052dbb9d1a1483b1e4a65e1f1badf136198e959f",
+            "1c02df379925c067eb8e75a8e94eb2bb017ed268a97b99c695f81d91829fde27",
+            "1c55e16582226c56a34487f31d52fcf9954655c05655ae5066d34b4f66b5196b",
+            "2724ac26ba65fe82ea78707449fa45192855aedcec0b4b6098584234741c9d22",
+            "27866c9fee10ec9f8d7a9513abd9906e8a52d85ab1939e21d1ef1204f007f3e9",
+            "31a31b8539f049c32fc53564460fc6b34f2e278840fce353079caeeb58fff2ab",
+            "397675468e75a0cd0d06f9d82c2714bc8a39f213c102f9489c626bf67e6c33f6",
+            "3abece25b9f8ae15506d026fa5ff4a0ff5dd7bd0b77fbf144c9f0be93d283ab3",
+            "3ac9f8cd0e3086568e9075706dd647077877e55461e21912f94f76f5d1f8fe42",
+            "3ed19512b14056a8ba1687678dba2e78619a19b3efe60847e11628a1bf9a3209",
+            "49db9c2b43d0e35fcb0c394f4cb36439e3bce98610d6c0cec870b175cce23342",
+            "507ccd0432c30d6b69a157d6ab9294151a0c53399c34d25adefc2d6848af8953",
+            "54b436fda036aacd5a5c5a0138eafe5e8f1c7961efbc38b9091dce113a58f85f",
+            "55d2f98fcc998b8f3734490d35e0beddcad3557234d141b42e9fbdc4698f902d",
+            "5873457622d3b4a7f4086f9ea86809bc2c359888c1a0628c236e195ef225955d",
+            "5cf44249ad137cdf4383651773729666ef2eb1d265e33c2e6bb2a9b2bad7e036",
+            "5dc1d940283962d909f682f721af3bf3fbe5465e7d138e34fffcc6caf0f48dc7",
+            "6355de12df66e6e3fa3e745c0aac35d63d17208bda52eb2c3f074f2d43585eff",
+            "66feb93d9c507958662ae656ccab2cc8fe5256a0751dfd7c871f2a47812005fa",
+            "6755b8777c7627c4bfcb653c874fd996e015707e5c1dcefe60c4c67030a42191",
+            "6d4a555e393de94f53d940e27aa19b650d90690b21177a5351250c3a3d253eb1",
+            "75fc770f2ac4d3688f5b7bfce42fb67846e6d8b0dc2f46832d55b1cd54cd6bff",
+            "7c7789ec34f39f17bcd39d25a449b0e6ef5dcfc2f6e4d32d9a0f14af42301b2d",
+            "7cc10baca502748ccc5ae51e050096715173c7cb6513bc9a4da0748e7a0fcbf6",
+            "7cd55eebe803a9a2b3ae682ed5c7a5a61778cd0c2bc72afc8ee7a4d92af869bb",
+            "805501a14a7162d49ad568d2536714dd04b2ae65e42ce85ec871fc87f76f0029",
+            "855468d6def1c1dbdebbc3b587560d401f2357b8fa303d3a99cd3180a091c33b",
+            "864a2ffbf320f91d47f8a62752113b206e3154c658e71fb903fd2419c0aabad6",
+            "8b82bdd31b196ecf4c5c5989254517261071b98bf6b120e994991dd7f8a640a8",
+            "8da262e470f51b9b20b35cf239570aa6083bfc40a087b483bc5474d245a8dc4a",
+            "8e1234b296d4dba2d22ec67208976a0bc423f3e38589b6269c744a621efe6e5b",
+            "8e616c54d4fc24862653383f907b0299d78e967f1fa9363e4dfe99fa5cee20d5",
+            "8ea60de24612481d2213b5f291a4a99ea22b907232bbc7fbff300c1e1388cea3",
+            "8f2bb9672231f9dc80f4fed395cd0c7ed58dbd4cb6f8b89717b3f6fdf5a364c4",
+            "95a8203909f8a856411d2b76abaeb0248ebdf1a9aa7243ac9f407042d942716e",
+            "96ed116c41065c4f35e5bba4a644de0034e91e8942db70acc733994ed6073bb4",
+            "9704da56e7eb7549d8c67c9dcd99c0cdf699b1b4a7dc10ba7bc20a315bc03ad0",
+            "97854e7a8988264ff8287bf76aaff0f7de6235d7ee07cd29cd26772c4ad8ce3a",
+            "a8f19689ca4d2f5bc1393116efd62f843c794afed1da493b9e882ea6ffface12",
+            "ad93a83af3018208b1d024c7357d7b10d1102b5ad6ca9869b321d7913d36ece9",
+            "af9fd2fecb316a40e5b28ebc1b975a6140757f92bb45faf6d3e313620b894aba",
+            "b4f17663d1c92cf175443450b91035bbd323a6fa6adca0f1724e81c73054266b",
+            "b60163ee14df8942a8030931877a35fcf0fa41d20ee0f507bdaa83d0184e2b44",
+            "b6273a8e57a70370fae6f20efe5fe9758bc271a1be10127c4ca614f7ac9aa7ce",
+            "b7466cba19cecaaf5d3f19445087ed297f7763b58926f6ee4fc8237de950585e",
+            "b7eadf0e69a5ecf64fdfc7d12af1467745dbf0d42c38fd5e080eabb6af06cee7",
+            "ba67be2e638ebeec9b987db8c34c5804d79ad8b836b9eacce0055514e219b610",
+            "bce7435be065b24b32d15a77e9725eb46b4b83dc8624699b00c9d25ae9d07d15",
+            "c30556995bdfcaf08463671564c86e06b24a7ed155d082764eea3744af28cd71",
+            "c39f450f7d6aedc87f045abd3e0c77f0ad381468bcbf118e70b076990edd170a",
+            "c3c93c9c6a3de9d3991324d726ce491a528664710d29a40f715bf0cb602d8484",
+            "c59ef73fe50c3b0bb140ef7ae20ede42fd8b8d4def4508e0105ef6952f0ecf05",
+            "cf316735285fafe4f9f5bcb381a8694e2963635b1735fa2425624f9a3bfd2858",
+            "d0db1c5d061d3fce8d91db3cbc5f85e28cf9ef45bc8a3ed8d09d3507b9ff8c27",
+            "d8e28a26f3b5268b3057816841030dfbd3aa86319d07a01326b92e241d3b24b7",
+            "d93e6503d02d373d8f22d667ad62bcb377c52c3732f71f5fc93beda7a9b4c715",
+            "db1ee59bc0284187ec407d60ada77adea6f947fe9fee0c42b7c186417db2b3af",
+            "dc350dc86121d53bde8ed71fd5692e049c04d827d396715decb7d8e7fc454b3a",
+            "e9dc82285ddf31d2e279d8e27556fb0233acc0968f13169e650b9ecd71a53c96",
+            "ea19a02584203f624527e5117fea67ce453983260b2128d73ee3917905da0cfb",
+            "ea841aea9985c0946bb52e9a9cfdbf0186562afe333bd7871921fddc614f8b93",
+            "f05f3e76ed8ea0c3faceadeee14ea2753e07ee7b54a5ecf63a4ee760cab26b93",
+            "f30823691ad8b9d6ec67055251009281dca19b4d8397c41305da00d0bfcd8ccf",
+            "f3874fc35b94cbae70f406a03e8443fdbfefe0395d487285f98e6bcb73854ab3",
+            "f42b6813367d8ae02286395042f4f5e5eae9baf30a700dec9ef8b41535f955ac",
+            "f5ea1182734b76904a3b4a7abace11530f54ffed2d8e9f3cd8036d223a9a51b4"
+          ],
+          "query_forms_sha256": null,
+          "projection_set_ids": {}
+        },
+        "eligible_candidate_count": 68489,
+        "candidate_ids_sha256": "5fcd88fe1b924b2e9233b162fbf895a22e8b9e15739e09acdbe2eb113e95cb79",
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [],
+          "rejected_groups": [],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 1917,
+        "dense_candidates": 0,
+        "fusion_candidates": 1917,
+        "reranked_candidates": 0,
+        "models": {
+          "embedding": null,
+          "reranker": null
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "65859293958786ff04f4283d7e13a0df0e79ada7be5201b08afca9e8afaee407",
+        "audit_id": "187105de86024cb297403b152faf64a2",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00046",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 1,
+            "dense_rank": null,
+            "fusion_rank": 1,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00009",
+            "source_id": "E7",
+            "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+            "lexical_rank": 2,
+            "dense_rank": null,
+            "fusion_rank": 2,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00029",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 3,
+            "dense_rank": null,
+            "fusion_rank": 3,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00047",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 4,
+            "dense_rank": null,
+            "fusion_rank": 4,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00016",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 5,
+            "dense_rank": null,
+            "fusion_rank": 5,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00052",
+            "source_id": "E8",
+            "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+            "lexical_rank": 6,
+            "dense_rank": null,
+            "fusion_rank": 6,
+            "reranker_rank": null
+          }
+        ]
+      }
+    }
+  ],
+  "personal_explanation_network_enabled": false,
+  "synthetic_private_markers_in_public_model_requests": false,
+  "models": {
+    "embedding": {
+      "provider": "openai_compatible",
+      "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+      "model_id": "qwen3-embedding-8b",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    },
+    "reranker": {
+      "provider": "chat_listwise",
+      "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+      "model_id": "deepseek-v4-flash",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    }
+  },
+  "new_independent_evaluation_case_count": 0,
+  "candidate_authority_granted": false,
+  "implementation_sha256": {
+    "src/healthzip/knowledge/metric_retrieval.py": "ccfa5855003a0cdf0c55f4184166ce2013b93cbba699df92a3b4313da45a5942",
+    "src/healthzip/knowledge/domains.py": "79f84259e3c96433ec054647a4d5664218e5f41078732b0e8222ce7631442a17",
+    "tools/v15_apply_reviewed_bindings.py": "ec99d64c513c694955e4f6105074e0fb0b21c714dcebe6ff61c75e1222662154"
+  },
+  "elapsed_seconds": 161.138,
+  "publication_projection": {
+    "complete_original_receipt_sha256": "adef44ac2320f5ea168395c02332b846928b7135da51c2a3e8228928db82fe30",
+    "complete_original_receipt_retained_locally": true,
+    "compacted_exclusion_entries": 23157,
+    "policy": "Large repeated exclusion lists projected to exact reason counts and content hashes; full original receipt/audit retained locally. All statuses, selected evidence, scope, permissions and model-request checks preserved. No model replay."
+  }
+}
