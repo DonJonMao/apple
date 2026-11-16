@@ -211,8 +211,11 @@ class Libraries:
             )
         return version_id
 
-    def span(self, span_id: str) -> dict | None:
-        row = self.sources.execute("SELECT s.*,v.source_id,v.material_type,v.rights_json,v.parser_version,v.identity_status,v.metadata_json,src.state source_state,src.scientific_state source_scientific_state,src.scientific_epoch,src.acquisition_state source_acquisition_state FROM span s JOIN version v ON v.version_id=s.version_id JOIN source src ON src.source_id=v.source_id WHERE span_id=?", (span_id,)).fetchone()
+    def span(self, span_id: str, *, include_metadata: bool = True) -> dict | None:
+        # Per-page document quality can be large. Retrieval does not need to
+        # copy an entire book's metadata for every paragraph. Default unchanged.
+        metadata = 'v.metadata_json' if include_metadata else "'{}' AS metadata_json"
+        row = self.sources.execute(f"SELECT s.*,v.source_id,v.material_type,v.rights_json,v.parser_version,v.identity_status,{metadata},src.state source_state,src.scientific_state source_scientific_state,src.scientific_epoch,src.acquisition_state source_acquisition_state FROM span s JOIN version v ON v.version_id=s.version_id JOIN source src ON src.source_id=v.source_id WHERE span_id=?", (span_id,)).fetchone()
         if not row:
             return None
         result = dict(row)

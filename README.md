@@ -75,6 +75,8 @@ python -m healthzip.science calibrate --output .local/science-evaluation --seed 
 
 当前RAG仍存在明显召回不足；30个可见开发案例与8个固定留出案例分别报告，不据此宣称专业问答已充分验证。统计模拟标记 `simulation_only`，尚无真人时间外效果验证；绝对摄入、个人预测或停滞标签在条件不足时保留不可识别/证据不足。
 
+v1.5增量知识层已经提供指标检索API、分析页入口、结构化PDF接入及可选混合检索/聊天精排。默认仍可使用本地词项检索；资料模型联网和个人结果解释分别授权。当前实现、验证、语料及尚未通过的质量项目见 [v1.5交付状态](docs/v15_delivery.md)，配置与迁移见 [说明](docs/v15_migration.md)。新检索不会授予个人数值候选权限。
+
 ## 可选 AI 解释
 
 自行配置 `HEALTHZIP_AI_BASE_URL`、`HEALTHZIP_AI_MODEL` 和 `HEALTHZIP_AI_API_KEY`；没有默认外部端点。CLI 必须加 `ai-explain --allow-network`，UI 必须勾选联网同意。数值、单位、窗口、行动、摘要或限制校验失败，回退本地结构化模板。不要把密钥写入仓库。

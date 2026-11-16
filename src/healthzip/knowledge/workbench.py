@@ -44,6 +44,24 @@ class KnowledgeWorkbench:
         from .core import core_status
         return core_status(self)
 
+    def retrieve_for_metric(self, metric_id, analysis_task, metric_result, context=None, release_id=None, **kwargs):
+        from .metric_retrieval import retrieve_for_metric
+        return retrieve_for_metric(self, metric_id, analysis_task, metric_result, context, release_id, **kwargs)
+
+    def import_manifest_document(self, entry, path, **kwargs):
+        from .corpus import import_manifest_document
+        return import_manifest_document(self, entry, path, **kwargs)
+
+    def build_vectors(self, **kwargs):
+        from .model_services import load_services
+        from .vector_index import build_vectors
+        embedding, _ = load_services(self.root)
+        return build_vectors(self, embedding, **kwargs)
+
+    def explain_metric(self, metric_id, analysis_task, metric_result, context=None, release_id=None, **kwargs):
+        from .product import explain_metric
+        return explain_metric(self, metric_id, analysis_task, metric_result, context, release_id, **kwargs)
+
     def quality_context(self, cases, annotations=None):
         from .quality import quality_context
         return quality_context(self, cases, annotations)

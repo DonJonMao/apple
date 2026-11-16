@@ -1,0 +1,25 @@
+{
+  "created_at": "2026-11-16T17:33:59.751280+00:00",
+  "gold": "benchmark-gold-2.json",
+  "execution_phases": [
+    {
+      "variants": [
+        "A",
+        "A_filtered"
+      ],
+      "description": "lexical variants precomputed sequentially on the frozen corpus while production vector indexing continues; neither reads vectors"
+    },
+    {
+      "variants": [
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "description": "after complete within-budget document-vector cache is copied and byte-compared, resume the same frozen case set"
+    }
+  ],
+  "note": "The evaluation tool loop lists A,B,C,D,E,A_filtered; precomputed result timestamps and this phase receipt describe actual execution order. Latency is one observation per cell and cannot be used as a controlled latency ablation.",
+  "ranking_configuration_changed_between_phases": false,
+  "scientific_corpus_changed_between_phases": false
+}

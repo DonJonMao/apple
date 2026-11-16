@@ -1,0 +1,2220 @@
+{
+  "schema_version": "metric-domains-1.5.0",
+  "domains": {
+    "physiology": "基础生理与运动科学",
+    "strength": "力量训练与进阶评估",
+    "wearable": "穿戴设备与数据测量",
+    "recovery": "睡眠与恢复",
+    "cardiometabolic": "心肺与代谢健康"
+  },
+  "functions": {
+    "cardiorespiratory": {
+      "title": "心肺效率",
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ]
+    },
+    "longitudinal": {
+      "title": "长期趋势归因",
+      "primary_domains": [
+        "physiology"
+      ],
+      "secondary_domains": [
+        "strength",
+        "wearable",
+        "recovery",
+        "cardiometabolic"
+      ]
+    },
+    "recovery": {
+      "title": "肌肉负荷与恢复",
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "strength",
+        "wearable"
+      ]
+    },
+    "metabolic": {
+      "title": "代谢效率",
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ]
+    },
+    "cycle": {
+      "title": "女性生理周期",
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable",
+        "cardiometabolic"
+      ]
+    },
+    "strength": {
+      "title": "力量训练进阶",
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable",
+        "recovery"
+      ]
+    }
+  },
+  "profiles": {
+    "STR-01": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-01 已完成工作组数. 计数实际完成的工作组；不是有效增肌组的生理测量。 计数为确定性账目，但真实执行与记录准确性未知；报告未知组数。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-02": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-02 完成次数与等长持续时间. 保留训练原始完成量，不把不同动作测量混成一项。 用户记录可能误数；不自行制造测量置信区间，保留原始与修改版本。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-03": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-03 负荷口径与可计算负荷. 保存用户记录负荷及其口径；必要时产生可审计单位归一值。 单位换算是确定性的；杆重、摩擦、滑轮倍率未知属于结构不确定性，不能靠更多相同记录消除。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-04": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-04 配重×次数汇总. 同负荷口径下记录的外部负荷与完成次数乘积之和，非机械功。 已知输入的乘积和为确定值；覆盖与口径不确定性必须随输出传播。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-05": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "physiology"
+      ],
+      "required_evidence_types": [
+        "reviewed_anatomical_mapping"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-05 直接参与肌群工作组. 基于经审阅动作本体统计某肌群直接参与的已完成组。 映射的不确定性与剂量生理意义分开；不生成伪精确刺激量。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength",
+        "physiology"
+      ],
+      "query_aliases": [
+        "agonist muscle anatomy resistance exercise"
+      ]
+    },
+    "STR-06": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "physiology"
+      ],
+      "required_evidence_types": [
+        "reviewed_anatomical_mapping"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-06 间接参与肌群工作组. 单独显示间接参与，避免丢失训练背景。 间接参与的定性标签不确定性须记录；无普适量化折算置信度。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength",
+        "physiology"
+      ],
+      "query_aliases": [
+        "synergist muscle anatomy resistance exercise"
+      ]
+    },
+    "STR-07": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-07 可比暴露次数与观测跨度. 模型实际使用的动作场次及真实日历覆盖。 n是样本量而非有效独立信息量，相关观测不计成独立样本保证。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-08": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-08 训练频率与场次间隔. 描述指定动作/肌群在明确时间窗内的训练分布。 缺日志导致实际频率未知；明确“记录内频率”。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-09": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-09 计划执行率. 按当时计划版本衡量已知执行情况。 未知执行保留分母状态；不得把缺失归入已完成或跳过。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-10": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-10 逐组RIR与RPE. 记录用户对剩余标准重复次数的估计与量表语义。 RIR具有个体/动作/次数依赖误差；不使用群体平均偏差给个体统一校正。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "repetitions in reserve RIR rating perceived exertion RPE"
+      ]
+    },
+    "STR-11": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-11 参考工作组表现. 每次可比暴露预先指定参考工作组的原始表现。 努力程度和动作质量未测完全时，只能有限可比；样本质量标签与估计区间不是同一概念。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "reference set measurement protocol exercise specificity"
+      ]
+    },
+    "STR-12": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-12 同负荷次数变化. 在明确相同负荷和条件下，完成次数的变化。 两次原始次数差可直接报告，稳定适应需考虑测量波动与后续重复。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "repetition performance same load resistance exercise"
+      ]
+    },
+    "STR-13": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-13 同次数负荷变化. 相同次数和可比努力/动作条件下的外部负荷差。 实际差值确定但能力提升不确定；完整负荷未知时不报告总负荷百分比。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "load performance same repetitions resistance exercise"
+      ]
+    },
+    "STR-14": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-14 同工作量RIR变化. 相同重量次数下余力的变化，属于主观支持证据。 余力差的主观误差不能按独立精确次数处理；区间/上界输入保留集合语义。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "repetitions in reserve measurement effort"
+      ]
+    },
+    "STR-15": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-15 同场组间表现下降. 在相同负荷及休息协议下描述后续组相对参考组掉次。 组序疲劳、休息、配速等混杂；该描述不是原因概率。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "within session fatigue repeated sets performance"
+      ]
+    },
+    "STR-16": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-16 普通e1RM参考. 指定公式下的任务表现近似值，不是直接测得1RM。 误差区间必须来自匹配动作/协议的校准工件，不能任意±5%；无校准就只显示proxy或隐藏数值。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "estimated one repetition maximum e1RM Epley prediction validity"
+      ]
+    },
+    "STR-17": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-17 RIR修正e1RM实验值. 由完成次数+自报余力组合得到的待验证代理。 组合公式增加RIR测量误差；没有专门校准时不能给伪置信区间或作为核心决策。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "repetitions in reserve adjusted estimated one repetition maximum e1RM"
+      ]
+    },
+    "STR-18": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-18 个人任务测量误差. 标准化重复观察下的误差估计，与最小有用变化分开。 报告TE/SEM的估计区间或至少适用研究协议；样本不足不能给稳定个人噪声。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "test retest reliability measurement error minimum detectable change MDC"
+      ]
+    },
+    "STR-19": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-19 局部表现趋势点估计. 预设观察段内可比参考表现对真实时间的局部趋势。 点估计没有不确定性保证；误差模型由STR-20单独处理，不能用接近零的斜率直接下结论。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "longitudinal trend repeated measures resistance training"
+      ]
+    },
+    "STR-20": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-20 趋势变化区间. 趋势推断的不确定性，并显式记录依赖假设。 区间的覆盖声明附带误差分布/相关结构/适用数据情景。仅通过残差检验不能证明假设，需校准与敏感性分析。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "confidence interval serial correlation repeated measures"
+      ]
+    },
+    "STR-21": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-21 实用变化范围. 由用户目标和可执行训练改变定义的等效范围，非噪声阈值。 δ是决策意义定义，不是估计不确定性。报告不同合理δ下结论是否改变，不为某次结果调δ。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "smallest worthwhile change equivalence margins"
+      ]
+    },
+    "STR-22": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-22 持续无实质改善候选. 可比观察支持在指定跨度内变化处于实用等效范围；不是生理停滞诊断。 区间宽→uncertain；候选标签不是因果或疾病诊断。误报/漏报取决于明确参考标签。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "training plateau practical equivalence measurement uncertainty"
+      ]
+    },
+    "STR-23": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-23 进阶机会是否被检验. 区分任务被计划截停与表现上限未改善。 停止原因和RIR有自报误差；capacity_unobserved是信息状态而非低能力判断。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "progressive overload opportunity training adaptation"
+      ]
+    },
+    "STR-24": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-24 重复查看的误报控制. 防止每天重复分析增加偶然触发率。 并集界无需各look独立，但需要每个区间有效；预算只对声明family范围成立，不自动扩展为全App终身误报率。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "multiple testing repeated looks sequential inference"
+      ]
+    },
+    "STR-25": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "progression_principle",
+        "reviewed_application_rule",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": "plan_candidate",
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population",
+        "exercise_condition",
+        "effort_protocol",
+        "user_plan",
+        "equipment_constraint",
+        "current_quality"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-25 可用负荷步长与增重候选. 从实际器械配置产生可执行下一档，而非任意百分比。 可用负荷档位是确定事实，是否适合/能做成仍未知；无个体预测校准不输出成功概率。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "progressive overload load increment equipment constraint"
+      ]
+    },
+    "STR-26": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "progression_principle",
+        "reviewed_application_rule",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": "trial_candidate",
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population",
+        "exercise_condition",
+        "effort_protocol",
+        "user_plan",
+        "equipment_constraint",
+        "current_quality"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-26 停滞后策略试验候选. 在用户计划允许范围内提出可评估改变。 文献支持候选方向，不支持个体最优与精确效果；推荐需附替代选择及证据不足。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "resistance training progression individual trial applicability"
+      ]
+    },
+    "STR-27": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-27 建议执行结果. 评价是否执行和是否满足原目标，不等于因果有效性。 实际结果与推荐依从性可核对；因果效果仍需对照。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "training adherence executed recommendation follow up"
+      ]
+    },
+    "STR-28": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "measurement_definition",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-28 建议结果汇总. 周月报分别汇总采纳、执行与随访结果。 小分母、同人相关、选择性采纳与缺失影响估计；分别披露，不将比率包装为疗效。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "individual trial outcome observation causality"
+      ]
+    },
+    "STR-29": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-29 力量记录覆盖与可比覆盖. 让解释知道哪些记录可用。 记录完整性只反映数据可用性，不证明记录内容或生理解释可靠。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "STR-30": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "method_assumptions",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength"
+      ],
+      "query": "STR-30 相对体重力量参考比. 在明示时间配对下的力量指标与体重比，非全面力量评分。 分子模型误差与体重测量误差都继承；不自动换算跨人体型公平排名。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "relative strength body mass measurement comparability"
+      ]
+    },
+    "STATE-SLEEP-MAIN": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "sleep_definition",
+        "device_measurement_validity",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SLEEP-MAIN 主睡眠已观察时长. 经来源会话或用户确认的主睡眠片段内睡眠区间并集长度 设备标签误差不等于统计抽样误差；没有验证资料不输出精确测量CI。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "query_aliases": [
+        "sleep duration sleep stages circadian timing wearable sleep measurement validity"
+      ]
+    },
+    "STATE-SLEEP-24H": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "sleep_definition",
+        "device_measurement_validity",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SLEEP-24H 截止前24小时睡眠. 固定真实24h内所有已观察睡眠区间并集，包括午睡 未记录睡眠不能靠缺失分布恢复。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "query_aliases": [
+        "sleep duration sleep stages circadian timing wearable sleep measurement validity"
+      ]
+    },
+    "STATE-SLEEP-COVERAGE": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SLEEP-COVERAGE 睡眠记录日期覆盖率. 有可用主睡眠记录日期数除以已过去的目标日期数 记录可得性指标，不是睡眠时长误差估计。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": [
+        "sleep duration sleep stages circadian timing wearable sleep measurement validity"
+      ]
+    },
+    "STATE-SLEEP-STAGE": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "sleep_definition",
+        "device_measurement_validity",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SLEEP-STAGE 睡眠阶段时长与注释覆盖. 来源标注的各阶段并集时长及明确片段内阶段注释比例 阶段是算法标签，不能直接测量肌肉恢复。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "query_aliases": [
+        "sleep duration sleep stages circadian timing wearable sleep measurement validity"
+      ]
+    },
+    "STATE-SLEEP-TIMING": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "sleep_definition",
+        "device_measurement_validity",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SLEEP-TIMING 睡眠时点与中点. 主睡眠开始、结束及实际跨度中点在当地时区的钟点 片段边界和设备标签误差保留；不产生生物钟诊断。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "query_aliases": [
+        "sleep duration sleep stages circadian timing wearable sleep measurement validity"
+      ]
+    },
+    "STATE-RHR": {
+      "primary_domains": [
+        "wearable"
+      ],
+      "secondary_domains": [
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "measurement_protocol",
+        "measurement_uncertainty",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-RHR 静息心率每日代表值. 正式restingHeartRate或标准化静息协议的日代表值 设备估计误差及日内更新；中位数范围不等于测量CI。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "query_aliases": [
+        "resting heart rate RHR measurement protocol wearable uncertainty"
+      ]
+    },
+    "STATE-SDNN": {
+      "primary_domains": [
+        "wearable"
+      ],
+      "secondary_domains": [
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "measurement_protocol",
+        "measurement_uncertainty",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-SDNN 同协议SDNN每日代表值. 正常NN间期的标准差，或来源输出的同名标量 无NN不能估计原始伪差率；机会采样可有选择偏差。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "query_aliases": [
+        "heart rate variability HRV SDNN measurement protocol recording duration autonomic recovery limitations"
+      ]
+    },
+    "STATE-REFERENCE-MEDIAN": {
+      "primary_domains": [
+        "wearable"
+      ],
+      "secondary_domains": [
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "measurement_protocol",
+        "measurement_uncertainty",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-REFERENCE-MEDIAN 个人参考中位数. cutoff前同协议每日代表值的参考中心 H是分析设计，非14天生理定律；参考不确定性由有效样本及漂移决定。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "query_aliases": [
+        "within person baseline median variability measurement protocol"
+      ]
+    },
+    "STATE-REFERENCE-MAD": {
+      "primary_domains": [
+        "wearable"
+      ],
+      "secondary_domains": [
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "measurement_protocol",
+        "measurement_uncertainty",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-REFERENCE-MAD 个人参考离散度. 同协议日代表值相对中位数的绝对偏差中位数 小样本/强序列相关使离散估计不稳；不等于测量误差。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "query_aliases": [
+        "within person baseline median variability measurement protocol"
+      ]
+    },
+    "STATE-DEVIATION": {
+      "primary_domains": [
+        "wearable"
+      ],
+      "secondary_domains": [
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "measurement_protocol",
+        "measurement_uncertainty",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery",
+        "longitudinal"
+      ],
+      "query": "STATE-DEVIATION 绝对与稳健标准化偏离. 当前同协议代表值相对历史参考的偏离 z不是概率、诊断或恢复百分比；阈值需独立验证。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "query_aliases": [
+        "within person baseline median variability measurement protocol"
+      ]
+    },
+    "STATE-FATIGUE": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [
+        "scale_definition",
+        "collection_timing",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "STATE-FATIGUE 训练前总体疲劳自评. 版本化问卷中的独立有序回答 自评误差/背景影响；原创量表不得标临床验证。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "subjective fatigue scale collection timing recovery"
+      ]
+    },
+    "STATE-SORENESS": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [
+        "scale_definition",
+        "collection_timing",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "STATE-SORENESS 肌群酸痛自评. 按肌群、侧别和诱发情境记录的有序酸痛回答 酸痛不是肌损伤、有效训练或增肌的直接量。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "delayed onset muscle soreness self report recovery limitations"
+      ]
+    },
+    "STATE-PAIN": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [
+        "scale_definition",
+        "collection_timing",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "STATE-PAIN 疼痛/不适报告. 区别于酸痛的症状与动作影响记录 症状记录不提供诊断；数值低不证明训练安全。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "pain symptoms self report exercise safety"
+      ]
+    },
+    "LOAD-SRPE": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [
+        "scale_definition",
+        "collection_timing",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "LOAD-SRPE 整次训练sRPE. 总体训练用力感，区别于逐组RIR/RPE 主观内部反应，非局部机械刺激；延迟影响需评测。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "session rating perceived exertion sRPE internal training load duration"
+      ]
+    },
+    "LOAD-DURATION": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "LOAD-DURATION 整次训练协议时长. 训练开始至结束扣除明确暂停后的时长，包含计划内休息 计时协议误差不等于生理负荷误差。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": [
+        "session rating perceived exertion sRPE internal training load duration"
+      ]
+    },
+    "LOAD-SRPE-AU": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "strength"
+      ],
+      "required_evidence_types": [
+        "scale_definition",
+        "collection_timing",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "recovery"
+      ],
+      "query": "LOAD-SRPE-AU sRPE内部负荷代理. 整次用力感乘协议训练时长 不是能量、肌肥大刺激或机械张力。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "session rating perceived exertion sRPE internal training load duration"
+      ]
+    },
+    "BODY-MASS-DAILY": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "BODY-MASS-DAILY 每日可比体重. 同称量协议的指定主值或日代表值 秤误差与水分/糖原波动并存，体重不是脂肪量。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic"
+      ],
+      "query_aliases": [
+        "body mass weight change measurement protocol energy balance body composition"
+      ]
+    },
+    "BODY-MASS-TREND": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "BODY-MASS-TREND 真实时间体重趋势. 同协议体重随真实时间变化的稳健描述斜率 足够数据后方可用验证过的时间块bootstrap；不能以OLS方差冒充Theil–Sen区间。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic"
+      ],
+      "query_aliases": [
+        "body mass weight change measurement protocol energy balance body composition"
+      ]
+    },
+    "BODY-MASS-RELATIVE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "BODY-MASS-RELATIVE 相对体重变化速率. 相对于明确参考体重的每周百分比变化 继承趋势与参考误差；不代表脂肪下降比例。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic"
+      ],
+      "query_aliases": [
+        "body mass weight change measurement protocol energy balance body composition"
+      ]
+    },
+    "ENERGY-BASAL": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-BASAL 设备报告静息能量. 来源定义的静息累计能量 设备估计误差未知，字段语义不证明真值准确。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-ACTIVE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-ACTIVE 设备报告活动能量. 活动与运动能量，不包含同期间静息能量 能量准确性不由心率准确性推导；无统一±10%。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-DEVICE-TOTAL": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-DEVICE-TOTAL 设备报告总能量. 对齐静息与活动分量之和 继承系统偏差/随机误差，不能假装两分量误差独立。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-RECORD-COVERAGE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-RECORD-COVERAGE 能量记录日期覆盖. 符合报告口径的完整分量日期数/已过去目标日期数 100%记录仍可有估计误差或算法填补。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-NET-STORAGE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-NET-STORAGE 平均净储能变化. 平均摄入减去真实消耗，即身体能量储存变化率 组成/能量密度/水分误差；体重稳定也可能重组。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-DELTA-INTAKE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-DELTA-INTAKE 相对初始平衡摄入变化. 相对于初始能量平衡摄入I0的ΔEI，非当前I−E h=ρq+εl；条件方差hᵀΣh+ε²VarW0−2εCov(hᵀw,W0)，另传播参数/系统误差；非独立W0保留协方差。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-ABSOLUTE-INTAKE": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-ABSOLUTE-INTAKE 绝对摄入条件估计. 依赖独立基线或明确设备偏差假设的摄入范围 区间明确标统计CI/预测区间/场景范围；独立性不成立时保留协方差；场景不冒称95%。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "ENERGY-IDENTIFIABILITY": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "measurement_definition",
+        "energy_identifiability",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "metabolic"
+      ],
+      "query": "ENERGY-IDENTIFIABILITY 摄入与设备偏差可识别性状态. 给定现有观测能否唯一识别真实摄入/消耗/偏差 先验形成的后验标conditional，不是观测唯一确定。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "query_aliases": [
+        "energy expenditure energy balance intake identification wearable reported estimation bias"
+      ]
+    },
+    "PRED-B0": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "prediction_validation",
+        "temporal_calibration",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength",
+        "longitudinal"
+      ],
+      "query": "PRED-B0 可比历史B0参考预测. 下一次同计划负重/目标RIR等条件下的指定组表现基线 区间仅在严格时间外校准后展示；单点参考无虚假精确CI。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "prediction temporal validation calibration baseline incremental value individual training"
+      ]
+    },
+    "PRED-B1": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "prediction_validation",
+        "temporal_calibration",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength",
+        "longitudinal"
+      ],
+      "query": "PRED-B1 单状态增量B1研究预测. 同一B0基础上测试一个预注册状态特征的增量预测 时间外误差/校准区间；参数不稳定与选择过程纳入评测。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "prediction temporal validation calibration baseline incremental value individual training"
+      ]
+    },
+    "PRED-ERROR-GAIN": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "prediction_validation",
+        "temporal_calibration",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength",
+        "longitudinal"
+      ],
+      "query": "PRED-ERROR-GAIN B0/B1成对预测误差差异. 同一未来暴露上B1相对B0的误差变化 按用户/时间块计算差异区间，避免重叠窗口伪独立。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "prediction temporal validation calibration baseline incremental value individual training"
+      ]
+    },
+    "PRED-INTERVAL": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "required_evidence_types": [
+        "prediction_validation",
+        "temporal_calibration",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "strength",
+        "longitudinal"
+      ],
+      "query": "PRED-INTERVAL 预测区间校准与宽度. 名义预测区间对未来结果的经验覆盖和宽度 覆盖率自身有抽样误差；宽到无用的区间不能只凭覆盖称优。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "prediction temporal validation calibration baseline incremental value individual training"
+      ]
+    },
+    "REPORT-PERIOD-COVERAGE": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [
+        "longitudinal"
+      ],
+      "query": "REPORT-PERIOD-COVERAGE 周月指标记录覆盖. 各指标在日历报告窗口中的可用日期/场次比例 覆盖是可用性而非真实测量准确性。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": [
+        "training report measurement coverage energy balance recovery follow up limitations"
+      ]
+    },
+    "REPORT-STATE-SUMMARY": {
+      "primary_domains": [
+        "recovery"
+      ],
+      "secondary_domains": [
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "report_definition",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "longitudinal"
+      ],
+      "query": "REPORT-STATE-SUMMARY 周月身体状态摘要. 同协议日代表值与主观等级的周期摘要 描述统计不是因果作用；小n不提供夸大精度。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "recovery"
+      ],
+      "query_aliases": [
+        "training report measurement coverage energy balance recovery follow up limitations"
+      ]
+    },
+    "REPORT-ENERGY-SUMMARY": {
+      "primary_domains": [
+        "cardiometabolic"
+      ],
+      "secondary_domains": [
+        "physiology",
+        "wearable"
+      ],
+      "required_evidence_types": [
+        "report_definition",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "longitudinal"
+      ],
+      "query": "REPORT-ENERGY-SUMMARY 周月体重与能量摘要. 原始日期数据重估趋势并汇总有记录的设备能量 不平均高度重叠ΔEI窗口制造窄CI；模型系统误差保留。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "cardiometabolic"
+      ],
+      "query_aliases": [
+        "training report measurement coverage energy balance recovery follow up limitations"
+      ]
+    },
+    "REPORT-RECOMMENDATION-FOLLOWUP": {
+      "primary_domains": [
+        "strength"
+      ],
+      "secondary_domains": [],
+      "required_evidence_types": [
+        "report_definition",
+        "scope_limit"
+      ],
+      "explanation_capability": "source_explanation",
+      "candidate_capability": null,
+      "retrieval_profile": "metric_evidence_v1",
+      "applicability_context": [
+        "measurement_protocol",
+        "population"
+      ],
+      "missing_evidence_policy": "insufficient_evidence_no_inferred_parameters",
+      "analysis_functions": [
+        "longitudinal"
+      ],
+      "query": "REPORT-RECOMMENDATION-FOLLOWUP 建议执行与后续结果. 建议、采纳、实际执行及可比后续表现的关联记录 回归均值、自然进步、携带效应与选择偏差存在。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [
+        "strength"
+      ],
+      "query_aliases": [
+        "training report measurement coverage energy balance recovery follow up limitations"
+      ]
+    },
+    "QAL-01": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-01 充分证据组召回. 在给定检索阶段和资源预算下，检索结果对该问题至少一种可接受的充分证据方案的覆盖程度，同时报告是否完整命中某个充分方案。 完整命中是query级二元结果；组召回是0到1的分数，不可直接用二项式区间。总体区间遵循common_output_contract的抽样及聚类条件。同题多次检索/回答不增加独立题数；多组充分方案只是同一题内合法替代，不是多个独立样本。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-02": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-02 检索证据精度与重复负担. 实际返回或送入模型的证据单元中，与问题目标、版本和适用条件相关且可用于所声明解释的比例；重复上下文负担单独报告。 同一query内的单元和同来源chunk相关，不得把所有chunk当独立二项式样本。query级宏平均可在符合抽样设计时整query/整user重采样；小型定向测试只报确切计数。标注争议与抽样不确定性分开。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-03": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-03 引用可定位与邻近支持精度. 引用链接是否解析到实际保存的指定版本及证据位置，以及该引用是否支持它声称支撑的邻近主张；两种有效性分别计量。 同回答与同论文中的关联相关，按query/user聚类；引用数增加不等于独立样本增加。定位可由确定性验证给有限集合确切值，语义支持仍有标注误差；二者不应混为一个置信分数。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-04": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-04 可检验主张支持率. 回答中需要事实、计算或科学证据的原子主张，获得足够且适用于其实际措辞的证据支持的比例。 主张之间相关，不能用总主张数当独立样本量。标注者分歧与重采样区间分别报告；若从固定30例得支持率，只能描述该集合，不能给出产品总体可靠率结论。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-05": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-05 科学适用性错误率. 依赖研究适用范围或测量协议的主张中，出现人群、任务、器械、测量字段、干预、结局或时间尺度不匹配而仍作确定应用的比例。 错误率是主张级，但总体区间按用户/query聚类。对于决定性条件的专业裁决存在不确定性，保存依据和分歧；不能用模型置信概率替代专家范围审查。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-06": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-06 无依据数字与因果越界. 分别审计无法追溯或无法支持其用途的数值断言，以及证据设计不支持的因果或确定个体效应断言；两者不合并为总分。 按query/user聚类并保留分母；关键定向反例是有限集合正确性测试，不需要伪装总体区间。0次观察违规不能证明未来永不违规。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-07": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-07 证据不足与可回答情境的双向错误. 同时评价本应保留未知或拒绝具体结论时仍强答，以及已有足够依据可答时却不当拒答；对复合请求按意图边界评估。 两个条件错误率分别给合适区间，不能用多数可答题稀释罕见危险强答。人为平衡验收集的比例不是线上发生率；需要线上代表性抽样或给明确抽样权重才能估计真实平均。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-08": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-08 回退率、回退原因与完成情况. 请求未按其预定主路径完成而进入明确备用路径的频率，以及备用路径是否完成其允许任务；预期证据不足与技术故障分别报告。 同用户请求、同服务事故引发的大批失败相关；不要以请求总量计算独立二项式窄区间。历史窗口率可精确描述该窗口，预测未来需匹配抽样与时间结构。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-09": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-09 原文获取、理论审核与功能证据覆盖. 分别度量冻结来源清单的原文获取进度、理论卡审核进度、可激活卡比例以及功能所需主张的证据覆盖；各自分母明确且互不替代。 这些是冻结工程清单的普查计数，默认不需要抽样置信区间；关键不确定性是身份/权利/审阅是否确实完成，应列状态与复核证据。若只抽查文件质量，抽查合格率是另一估计，不能替换完整清单覆盖。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-10": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-10 路由越权与数据隔离违反. 实际读取、检索、计算或输出超出当前请求授权范围、功能证据边界或用户数据隔离的事件；尝试被阻断与实际越权分别记录。 确定性对抗测试中的任何实际越权均为发布失败；0次观察不等于线上泄漏概率0。多次攻击同一漏洞高度相关，报告攻击家族和独立路径覆盖，不能用重复请求数夸大验证强度。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-11": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-11 数值、单位和版本一致性. 回答展示或建议中的数值，是否与授权原始事实、锁定公式版本、单位口径以及声明的舍入规则一致；参考不可得与计算不一致分别报告。 确定性算术与单位测试报告精确通过/失败计数，不需伪造统计区间。若从线上随机抽样估计数值错误率，按用户/query聚类并说明抽样；模型预测不确定性和算术一致性是不同问题。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    },
+    "QAL-12": {
+      "primary_domains": [],
+      "secondary_domains": [],
+      "required_evidence_types": [],
+      "explanation_capability": null,
+      "candidate_capability": null,
+      "retrieval_profile": "deterministic_no_rag",
+      "applicability_context": [],
+      "missing_evidence_policy": "deterministic_result_remains_available",
+      "analysis_functions": [],
+      "query": "QAL-12 来源身份、版本、权利与撤稿完整性. 被纳入来源、活跃索引与输出解释的材料是否具有一致的身份及版本，并符合当前用途权利、撤稿/更正状态和发布依赖要求。 冻结索引与来源清单的完整检查为普查计数，无需抽样CI。未被数据库发现的状态是覆盖限制，不是可用同一比例区间量化的随机误差。若抽样审计，报告抽样设计与未审范围，不能称全部验证。",
+      "assignment_status": "author_reviewed_product_routing_not_scientific_review",
+      "required_domains": [],
+      "query_aliases": []
+    }
+  },
+  "fusion": {
+    "rrf_constant": 60,
+    "candidate_budget": 20,
+    "meaning": "Product ranking/resource settings, not physiological thresholds; frozen before independent evaluation."
+  }
+}

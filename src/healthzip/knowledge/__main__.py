@@ -18,6 +18,25 @@ def main(argv=None):
     sub.add_parser("verify")
     sub.add_parser("core-seed")
     sub.add_parser("core-status")
+    sub.add_parser("metric-profiles")
+    p = sub.add_parser("metric-retrieve")
+    p.add_argument("declaration", help="Local JSON: metric_id,analysis_task,metric_result,context,release_id")
+    p.add_argument("--mode", choices=['lexical', 'dense', 'hybrid', 'hybrid_rerank'], default='lexical')
+    p.add_argument("--k", type=int, default=6)
+    p = sub.add_parser("build-vectors")
+    p.add_argument("--batch-size", type=int, default=8)
+    p.add_argument("--workers", type=int, default=1, help="Explicit indexing request concurrency, 1 to 4")
+    p.add_argument("--max-documents", type=int)
+    p = sub.add_parser("freeze-metric-index")
+    p.add_argument("release_id")
+    p = sub.add_parser("import-corpus")
+    p.add_argument("manifest")
+    p.add_argument("directory")
+    p.add_argument("--parse-cache")
+    p = sub.add_parser("review-unit-domains")
+    p.add_argument("declaration", help="JSON: span_ids,domains,truthful content review")
+    p = sub.add_parser("link-evidence")
+    p.add_argument("declaration", help="JSON: origin,relation,target,exact span_ids,applicability,actor,rationale,review")
     p = sub.add_parser("review-claim")
     p.add_argument("declaration", help="JSON: claim plus truthful content review")
     p = sub.add_parser("review-rule")
@@ -76,6 +95,26 @@ def main(argv=None):
             result = w.seed_core()
         elif args.command == "core-status":
             result = w.core_status()
+        elif args.command == "metric-profiles":
+            from .domains import configuration
+            result = configuration()
+        elif args.command == "metric-retrieve":
+            result = w.retrieve_for_metric(**json.loads(Path(args.declaration).read_text()), mode=args.mode, k=args.k)
+        elif args.command == "build-vectors":
+            result = w.build_vectors(batch_size=args.batch_size, max_documents=args.max_documents, workers=args.workers)
+        elif args.command == "freeze-metric-index":
+            from .metric_retrieval import freeze_index
+            result = freeze_index(w, args.release_id)
+        elif args.command == "import-corpus":
+            manifest = json.loads(Path(args.manifest).read_text())
+            result = {'documents': [w.import_manifest_document(entry, Path(args.directory) / entry['file_name'],
+                parse_cache=args.parse_cache) for entry in manifest['source_files']]}
+        elif args.command == "review-unit-domains":
+            from .vector_index import review_unit_domains
+            result = review_unit_domains(w, **json.loads(Path(args.declaration).read_text()))
+        elif args.command == "link-evidence":
+            from .domains import link
+            result = {'edge_id': link(w, **json.loads(Path(args.declaration).read_text()))}
         elif args.command == "review-claim":
             result = w.review_claim(**json.loads(Path(args.declaration).read_text()))
         elif args.command == "review-rule":

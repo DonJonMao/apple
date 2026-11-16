@@ -1,0 +1,1545 @@
+{
+  "schema": "metric-retrieval-gold-1.5.0",
+  "dataset_identity": "v15-ranking-blind-ai-limited-pool-1",
+  "created_at": "2026-11-16T17:06:48.130142+00:00",
+  "annotator": {
+    "kind": "AI",
+    "model_id": "deepseek-v4-flash",
+    "weight_revision": "unverified",
+    "same_model_as_reranker": true,
+    "ranking_visible": false,
+    "expert_validation": false
+  },
+  "synthetic_context_only": true,
+  "annotation_scope": "13 ranking-blind AI-labelled source packets plus deterministic policy probes; limited source pool, not exhaustive corpus relevance judgments",
+  "limitations": [
+    "Same model family annotates and reranks; shared model bias is possible.",
+    "Developer authored source packets and implementation; this is not independent expert validation.",
+    "Precision treats unlabelled evidence as non-Gold and may underestimate semantically valid retrieval.",
+    "STR-12 had earlier bounded service smoke exposure and is reported separately.",
+    "No new scientifically reviewed contradictory-source or obsolete-guideline pair; those coverage denominators remain missing."
+  ],
+  "cases": [
+    {
+      "case_id": "absolute-intake-boundary",
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+          "text_hash": "b5cfe1691a0e0b30a51037b1530392b03e9c894183ef54c3e0ab0608689d0b9b",
+          "exact_locator": {
+            "end_offset": 1273,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P3",
+            "paragraph_id": 2,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[1]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002": 2,
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "identifiability",
+        "correct_abstention"
+      ],
+      "annotation_missing_evidence": [
+        "No passage provides a direct definition or method for computing an absolute intake boundary with explicit statistical CI, prediction interval, or scenario range.",
+        "No passage describes a device-specific bias correction or calibration protocol for absolute intake estimation.",
+        "No passage addresses the consumer wellness setting, adult athlete population, or retrospective SRPE collection protocol."
+      ]
+    },
+    {
+      "case_id": "bodyweight-dynamic",
+      "metric_id": "BODY-MASS-TREND",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002",
+          "text_hash": "b5cfe1691a0e0b30a51037b1530392b03e9c894183ef54c3e0ab0608689d0b9b",
+          "exact_locator": {
+            "end_offset": 1273,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P3",
+            "paragraph_id": 2,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[1]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00002": 2,
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cardiometabolic",
+        "physiology",
+        "dynamic_not_static"
+      ],
+      "annotation_missing_evidence": [
+        "No passage describes the Theil–Sen estimator, bootstrap resampling, or any specific method for computing a robust slope of body mass over real time.",
+        "No passage addresses the requirement that sufficient data must be available before using a validated time-block bootstrap.",
+        "No passage discusses the distinction between OLS variance and Theil–Sen confidence intervals."
+      ]
+    },
+    {
+      "case_id": "energy-device-total",
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E8",
+          "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+          "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+          "text_hash": "f1d87f08cf27b317fce3c64dbeb29d69eedf937c0b00e23b5a5837f21899fda0",
+          "exact_locator": {
+            "end_offset": 987,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par9",
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+          "text_hash": "b4a26e2bc367de91885aa269e339378eba7ac303a6f2478203a2a2d245b72e88",
+          "exact_locator": {
+            "end_offset": 613,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par19",
+            "paragraph_id": 24,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[9]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2,
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010": 2,
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "physiology",
+        "cardiometabolic",
+        "wearable"
+      ],
+      "annotation_missing_evidence": [
+        "No passage explicitly defines the metric 'ENERGY-DEVICE-TOTAL' as the sum of resting and active energy expenditure components.",
+        "No passage describes a specific device or algorithm that computes total energy expenditure from separate component estimates.",
+        "No passage quantifies the correlation or dependence between errors in resting and active energy expenditure estimates.",
+        "No passage provides a method to propagate or combine the uncertainties from the two components into a total error estimate."
+      ]
+    },
+    {
+      "case_id": "estimated-vs-observed",
+      "metric_id": "STR-16",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [
+        "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "V15-ARMY-FM-7-22-C2",
+          "source_version": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2",
+          "span_id": "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782",
+          "text_hash": "8acf7d40246d1e51eb2423a85a650cd51bb71efcc5616081c11c80e50f0b300f",
+          "exact_locator": {
+            "bounding_box": [
+              90.024,
+              500.94136,
+              522.44244016,
+              602.97136
+            ],
+            "coordinate_system": "pdf_points_top_left",
+            "extraction_method": "pdf-structure-1.5.1",
+            "file_page_index": 59,
+            "language": "en",
+            "printed_page_label": "6-2",
+            "printed_page_status": "margin_candidate_unverified",
+            "reading_order": 41
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+          "text_hash": "9787baf35a7501c4023ea0a6da4f180c756e2a29323845a8f0710cc3576bb1b1",
+          "exact_locator": {
+            "end_offset": 936,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par22",
+            "paragraph_id": 27,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+          "text_hash": "ccdaa3f1f36389ae015e04d284e498434226afb3f222ebcf3bcbfe54d4a586dc",
+          "exact_locator": {
+            "end_offset": 519,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 28,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00782": 2,
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027": 3,
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028": 3
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-ONE-RM-OBSERVED-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "strength",
+        "formula",
+        "old_handbook_scope"
+      ],
+      "annotation_missing_evidence": [
+        "No passage provides a calibration table or formula specific to the 'adult athletes' population for the exercises (e.g., bench press, squat, deadlift) that would allow direct estimation of 1RM from submaximal repetitions with error intervals derived from that specific protocol. The S6 passages provide a general REPS~%1RM model but do not specify that it is calibrated for adult athletes or for the exact exercises listed in the Army field manual.",
+        "No passage provides error intervals (e.g., 95% CI) for the estimated 1RM values that are derived from the specific protocol and population; the S6 passage provides CIs for repetition estimates but not for the 1RM estimate itself."
+      ]
+    },
+    {
+      "case_id": "individual-error-transfer",
+      "metric_id": "STR-18",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [
+        "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "S7",
+          "source_version": "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1",
+          "span_id": "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045",
+          "text_hash": "e9c0eb9f291accf9669f15678e59514ce344f1cf28e466981d83a808f42cc890",
+          "exact_locator": {
+            "end_offset": 744,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par41",
+            "paragraph_id": 45,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[6]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "S7:fulltext:729133bc561790f5e421:jats-owned-text-1.4.1:s00045": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "strength",
+        "similar_but_inapplicable"
+      ],
+      "annotation_missing_evidence": [
+        "No passage provides a definition or method for computing TE/SEM from standardized repeated observations.",
+        "No passage reports an estimate interval for TE/SEM or describes a protocol for deriving such an estimate.",
+        "No passage addresses the distinction between TE/SEM and minimal detectable change or minimal useful change.",
+        "No passage discusses sample size sufficiency for stable individual noise estimation.",
+        "The provided passages discuss 1RM reliability and repetitions-to-failure tables, which are not directly applicable to the metric STR-18 (individual task measurement error)."
+      ]
+    },
+    {
+      "case_id": "repetitions-comparison",
+      "metric_id": "STR-12",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027",
+          "text_hash": "9787baf35a7501c4023ea0a6da4f180c756e2a29323845a8f0710cc3576bb1b1",
+          "exact_locator": {
+            "end_offset": 936,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par22",
+            "paragraph_id": 27,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "S6",
+          "source_version": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1",
+          "span_id": "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028",
+          "text_hash": "ccdaa3f1f36389ae015e04d284e498434226afb3f222ebcf3bcbfe54d4a586dc",
+          "exact_locator": {
+            "end_offset": 519,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 28,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[5]/*[3]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00027": 2,
+        "S6:fulltext:e35899ff7de80b190b8d:jats-owned-text-1.4.1:s00028": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "development_exposed_metric_diagnostic",
+      "annotation_tags": [
+        "strength",
+        "english_source",
+        "synonym"
+      ],
+      "annotation_missing_evidence": [
+        "No evidence on the specific metric definition or calculation method for STR-12 (variation in repetitions under same load and conditions).",
+        "No evidence on measurement error or test-retest reliability for repetition counts.",
+        "No evidence on how to handle measurement fluctuation or subsequent repetitions in the context of this metric."
+      ]
+    },
+    {
+      "case_id": "rir-boundary",
+      "metric_id": "STR-10",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "S1",
+          "source_version": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072",
+          "text_hash": "0bb7b2ad6a04326e52c70182b7367ad013cf626e0f6c613c38123794e5f6e455",
+          "exact_locator": {
+            "end_offset": 716,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 72,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[15]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "S1",
+          "source_version": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+          "span_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076",
+          "text_hash": "8af8784507561a7a06e36cf0ad77cd414d8f62c299b5ea77646ea43bdaf4c18e",
+          "exact_locator": {
+            "end_offset": 1045,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 76,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[8]/*[19]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00072": 2,
+        "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00076": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "CORE-CLAIM-RIR",
+          "claim_version": "1.4.14"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "professional_abbreviation",
+        "strength",
+        "boundary"
+      ],
+      "annotation_missing_evidence": [
+        "No passage provides a direct definition or method for the RIR metric as used in STR-10.",
+        "No passage addresses the specific population (adult athletes) or the consumer wellness interpretation setting.",
+        "No passage discusses the Foster modified CR10 scale or retrospective after-session sRPE collection.",
+        "No passage quantifies the individual/action/repetition-dependent error or the prohibition against using group average bias for individual correction."
+      ]
+    },
+    {
+      "case_id": "robust-reference-scope",
+      "metric_id": "STATE-REFERENCE-MAD",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+          "text_hash": "60675a09c684524fd7ef60dcb713dc6317f529eb7428691a31585b1403a1aba6",
+          "exact_locator": {
+            "end_offset": 1628,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 4,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+          "text_hash": "bccd2b5038f7d0595f2f452ae4cf874cc5638e6092b75ac789910ba727327187",
+          "exact_locator": {
+            "end_offset": 1595,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 8,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[5]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+          "text_hash": "27d4c2e648c139ba30b7b0512580d5db1e6cd443104e34f98ca4c34a209dee67",
+          "exact_locator": {
+            "end_offset": 1172,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 6,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[4]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021",
+          "text_hash": "820a933c20db579c97fa593202d572e8f90e9871f0dea731c7ca3098c19a1270",
+          "exact_locator": {
+            "end_offset": 2016,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 21,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[7]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "MAD",
+        "scope_limit"
+      ],
+      "annotation_missing_evidence": [
+        "No passage defines or describes the STATE-REFERENCE-MAD metric (median absolute deviation from a session-level reference median).",
+        "No passage discusses session-level reference values, within-individual reference median, or the computation of absolute deviations from that median.",
+        "No passage addresses the statistical instability of MAD estimates under small sample sizes or strong serial correlation.",
+        "No passage distinguishes between within-individual reference deviation and measurement error."
+      ]
+    },
+    {
+      "case_id": "sdnn-protocol",
+      "metric_id": "STATE-SDNN",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "wearable",
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00039"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+          "text_hash": "60675a09c684524fd7ef60dcb713dc6317f529eb7428691a31585b1403a1aba6",
+          "exact_locator": {
+            "end_offset": 1628,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 4,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008",
+          "text_hash": "bccd2b5038f7d0595f2f452ae4cf874cc5638e6092b75ac789910ba727327187",
+          "exact_locator": {
+            "end_offset": 1595,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 8,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[5]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007",
+          "text_hash": "2b7ca0670e5d4568491178790265f9f9899c88c673907f81c5496aa06d8a5f45",
+          "exact_locator": {
+            "end_offset": 1146,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[5]/*[2]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+          "text_hash": "27d4c2e648c139ba30b7b0512580d5db1e6cd443104e34f98ca4c34a209dee67",
+          "exact_locator": {
+            "end_offset": 1172,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 6,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[3]/*[4]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R3b",
+          "source_version": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1",
+          "span_id": "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00039",
+          "text_hash": "675d96889770c8d9b55d079727e23ac9dc122f5501025b2ab720e062489739b2",
+          "exact_locator": {
+            "end_offset": 1368,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "jfmk-09-00093-t001",
+            "paragraph_id": 39,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[5]/*[2]"
+          },
+          "kind": "table"
+        }
+      ],
+      "relevance_grades": {
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006": 2,
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00039": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-HRV-PPG-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "table",
+        "SDNN",
+        "wearable",
+        "recovery"
+      ],
+      "annotation_missing_evidence": [
+        "No source provides a direct definition or formula for SDNN.",
+        "No source specifies a protocol for deriving a single daily representative value from multiple SDNN measurements.",
+        "No source addresses the handling of missing NN intervals or ectopic beat filtering in the context of daily aggregation.",
+        "No source discusses selection bias in opportunistic sampling for daily SDNN."
+      ]
+    },
+    {
+      "case_id": "session-rpe-au",
+      "metric_id": "LOAD-SRPE-AU",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+          "text_hash": "feae4423566d54964d3298ce28cf7040fbb6ee0be5c7eba390398aa201288633",
+          "exact_locator": {
+            "end_offset": 765,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+          "text_hash": "c4fd5b457d6ee2089aedf97a8b3abe59aa014ec9c7dbb59e690a710740220789",
+          "exact_locator": {
+            "end_offset": 2581,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 38,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[7]/*[4]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012",
+          "text_hash": "6003578c0dfc6c6632d5cda4986d3c98559cce9439c2cc134d1bb56995c96aa1",
+          "exact_locator": {
+            "end_offset": 314,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 12,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[2]/*[5]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010": 3,
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038": 2,
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00012": 3
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-AU-DEFINITION",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "recovery",
+        "formula",
+        "AU"
+      ],
+      "annotation_missing_evidence": [
+        "No evidence provided for the specific Foster-modified CR-10 verbal anchors (e.g., 'easy' vs 'light') or the exact rating range (0-10) used in the protocol.",
+        "No evidence provided for the specific multiplication formula (RPE × duration) being the standard sRPE method; the example in s00012 uses RPE 4 and 87 min, but the general formula is not explicitly stated as 'sRPE = RPE × duration in minutes'.",
+        "No evidence provided for the population being 'adult athletes' specifically; the passages refer to 'athletes' and 'players' but do not specify age or adult status."
+      ]
+    },
+    {
+      "case_id": "session-rpe",
+      "metric_id": "LOAD-SRPE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+          "text_hash": "feae4423566d54964d3298ce28cf7040fbb6ee0be5c7eba390398aa201288633",
+          "exact_locator": {
+            "end_offset": 765,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+          "text_hash": "c4fd5b457d6ee2089aedf97a8b3abe59aa014ec9c7dbb59e690a710740220789",
+          "exact_locator": {
+            "end_offset": 2581,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 38,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[7]/*[4]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010": 3,
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-SESSION-RPE-PLANNED-ACTUAL",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "recovery",
+        "collection_protocol"
+      ],
+      "annotation_missing_evidence": [
+        "No evidence on the specific Foster-modified CR-10 verbal anchors (e.g., 'easy', 'hard') or the exact 0-10 numeric range.",
+        "No evidence on the specific multiplication by session duration to compute LOAD-sRPE (i.e., sRPE = RPE × minutes).",
+        "No evidence on the consumer wellness setting or local noncommercial usage scope."
+      ]
+    },
+    {
+      "case_id": "sleep-observed-duration",
+      "metric_id": "STATE-SLEEP-MAIN",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+          "text_hash": "cb86fe30877212f080be6e09ba259351b3cd3560473241e100b6652f44467f46",
+          "exact_locator": {
+            "end_offset": 800,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 29,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[12]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SLEEP-STRUCTURE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-SLEEP-STAGE-BOUNDARY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "sleep",
+        "wearable"
+      ],
+      "annotation_missing_evidence": [
+        "No passage defines or describes the metric 'STATE-SLEEP-MAIN' (observed duration of main sleep).",
+        "No passage provides a direct measurement method or protocol for calculating the union of sleep intervals within a main sleep session.",
+        "No passage addresses device label error versus statistical sampling error for sleep duration measurement.",
+        "No passage provides validation data for sleep duration measurement in adult athletes or consumer wellness contexts.",
+        "No passage specifies the measurement protocol (explicit same source and protocol) for sleep duration."
+      ]
+    },
+    {
+      "case_id": "sleep-stage-estimate",
+      "metric_id": "STATE-SLEEP-STAGE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029",
+          "text_hash": "cb86fe30877212f080be6e09ba259351b3cd3560473241e100b6652f44467f46",
+          "exact_locator": {
+            "end_offset": 800,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par23",
+            "paragraph_id": 29,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[12]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00029": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-SLEEP-STRUCTURE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-SLEEP-STAGE-BOUNDARY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "ranking_blind_AI_test",
+      "annotation_tags": [
+        "cross_domain",
+        "sleep_stage",
+        "wearable"
+      ],
+      "annotation_missing_evidence": [
+        "No passage defines the metric STATE-SLEEP-STAGE or describes its computation.",
+        "No passage provides the union of annotated sleep stages or the proportion of stage annotations within explicit fragments.",
+        "No passage addresses the specific population (adult athletes) or the consumer wellness interpretation setting.",
+        "No passage discusses the protocol for measuring sleep stages in the context of retrospective SRPE collection or the Foster modified CR10 scale."
+      ]
+    },
+    {
+      "case_id": "session-missing-scale",
+      "metric_id": "LOAD-SRPE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": null,
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+          "text_hash": "c4fd5b457d6ee2089aedf97a8b3abe59aa014ec9c7dbb59e690a710740220789",
+          "exact_locator": {
+            "end_offset": 2581,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 38,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[7]/*[4]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038": 2
+      },
+      "required_claims": [],
+      "inapplicable_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "deterministic_policy_probe",
+      "annotation_tags": [
+        "applicability_refusal"
+      ],
+      "annotation_missing_evidence": [
+        "No evidence on the specific Foster-modified CR-10 verbal anchors (e.g., 'easy', 'hard') or the exact 0-10 numeric range.",
+        "No evidence on the specific multiplication by session duration to compute LOAD-sRPE (i.e., sRPE = RPE × minutes).",
+        "No evidence on the consumer wellness setting or local noncommercial usage scope."
+      ]
+    },
+    {
+      "case_id": "session-population-outside-review",
+      "metric_id": "LOAD-SRPE",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adolescents",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "local_noncommercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "recovery"
+      ],
+      "gold_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "R6",
+          "source_version": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1",
+          "span_id": "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038",
+          "text_hash": "c4fd5b457d6ee2089aedf97a8b3abe59aa014ec9c7dbb59e690a710740220789",
+          "exact_locator": {
+            "end_offset": 2581,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": null,
+            "paragraph_id": 38,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[7]/*[4]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00038": 2
+      },
+      "required_claims": [],
+      "inapplicable_span_ids": [
+        "R6:fulltext:6ad815fed2e54d4f0b77:jats-owned-text-1.4.1:s00010",
+        "V15-FDA-DHT-2023:fulltext:8beb76ed0d20be27958d:pdf-structure-1.5.1-document-component-scope-1.5.2:s00061"
+      ],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "deterministic_policy_probe",
+      "annotation_tags": [
+        "applicability_refusal"
+      ],
+      "annotation_missing_evidence": [
+        "No evidence on the specific Foster-modified CR-10 verbal anchors (e.g., 'easy', 'hard') or the exact 0-10 numeric range.",
+        "No evidence on the specific multiplication by session duration to compute LOAD-sRPE (i.e., sRPE = RPE × minutes).",
+        "No evidence on the consumer wellness setting or local noncommercial usage scope."
+      ]
+    },
+    {
+      "case_id": "arithmetic-no-rag",
+      "metric_id": "STR-01",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {},
+      "required_domains": [],
+      "gold_span_ids": [],
+      "gold_evidence": [],
+      "relevance_grades": {},
+      "required_claims": [],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "deterministic_policy_probe",
+      "annotation_tags": [
+        "correct_no_rag"
+      ]
+    },
+    {
+      "case_id": "other-user-refusal",
+      "metric_id": "STR-12",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "user_id": "synthetic-user-a",
+        "requested_other_user": "synthetic-user-b"
+      },
+      "required_domains": [
+        "strength"
+      ],
+      "gold_span_ids": [],
+      "gold_evidence": [],
+      "relevance_grades": {},
+      "required_claims": [],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [],
+      "expected_abstention": true,
+      "expected_conflict": false,
+      "evaluation_split": "deterministic_policy_probe",
+      "annotation_tags": [
+        "tenant_isolation_refusal"
+      ]
+    },
+    {
+      "case_id": "commercial-excludes-nc-original",
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "analysis_task": "explain_metric",
+      "synthetic_context": true,
+      "context": {
+        "population": "adult_athletes",
+        "measurement_protocol": "explicit_same_source_and_protocol",
+        "srpe_scale": "Foster_modified_CR10",
+        "srpe_collection": "retrospective_after_session",
+        "usage_scope": "commercial",
+        "interpretation_setting": "consumer_wellness"
+      },
+      "required_domains": [
+        "cardiometabolic",
+        "physiology",
+        "wearable"
+      ],
+      "gold_span_ids": [
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024"
+      ],
+      "gold_evidence": [
+        {
+          "source_id": "E1",
+          "source_version": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1",
+          "span_id": "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007",
+          "text_hash": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+          "exact_locator": {
+            "end_offset": 770,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "P8",
+            "paragraph_id": 7,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[2]/*[3]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E8",
+          "source_version": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1",
+          "span_id": "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010",
+          "text_hash": "f1d87f08cf27b317fce3c64dbeb29d69eedf937c0b00e23b5a5837f21899fda0",
+          "exact_locator": {
+            "end_offset": 987,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par9",
+            "paragraph_id": 10,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[3]"
+          },
+          "kind": "paragraph"
+        },
+        {
+          "source_id": "E7",
+          "source_version": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1",
+          "span_id": "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024",
+          "text_hash": "b4a26e2bc367de91885aa269e339378eba7ac303a6f2478203a2a2d245b72e88",
+          "exact_locator": {
+            "end_offset": 613,
+            "extraction_method": "jats-owned-text-1.4.1",
+            "language": "en",
+            "native_id": "Par19",
+            "paragraph_id": 24,
+            "start_offset": 0,
+            "xpath": "/*/*[3]/*/*[2]/*/*[3]/*[2]/*[9]/*[2]"
+          },
+          "kind": "paragraph"
+        }
+      ],
+      "relevance_grades": {
+        "E1:fulltext:d2c371191f2ae5ca7df2:jats-owned-text-1.4.1:s00007": 2,
+        "E8:fulltext:4b2c09ef8d2d7f6ef9f9:jats-owned-text-1.4.1:s00010": 2,
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00024": 2
+      },
+      "required_claims": [
+        {
+          "claim_id": "V15-CLAIM-DYNAMIC-ENERGY-BALANCE",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-BASELINE-IDENTIFIABILITY",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-ENERGY-MEASUREMENT-DEFINITION",
+          "claim_version": "1.5.0"
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-ENERGY-UNCERTAINTY",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "inapplicable_span_ids": [],
+      "invalid_span_ids": [
+        "V15-WHO-PA-2020:fulltext:50b66c44e7083cc37528:pdf-structure-1.5.1-document-component-scope-1.5.2:s00000"
+      ],
+      "expected_abstention": false,
+      "expected_conflict": false,
+      "evaluation_split": "deterministic_policy_probe",
+      "annotation_tags": [
+        "noncommercial_rights_exclusion"
+      ],
+      "annotation_missing_evidence": [
+        "No passage explicitly defines the metric 'ENERGY-DEVICE-TOTAL' as the sum of resting and active energy expenditure components.",
+        "No passage describes a specific device or algorithm that computes total energy expenditure from separate component estimates.",
+        "No passage quantifies the correlation or dependence between errors in resting and active energy expenditure estimates.",
+        "No passage provides a method to propagate or combine the uncertainties from the two components into a total error estimate."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "public_evidence_network_consent": false,
+  "private_health_network_consent": false,
+  "timeout_seconds": 20,
+  "embedding": {
+    "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+    "model_id": "qwen3-embedding-8b",
+    "model_version": "service-version-unverified",
+    "deployment_revision": "replace-with-operator-controlled-deployment-epoch",
+    "provider": "openai_compatible",
+    "api_key": ""
+  },
+  "reranker": {
+    "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+    "model_id": "deepseek-v4-flash",
+    "model_version": "service-version-unverified",
+    "deployment_revision": "replace-with-operator-controlled-deployment-epoch",
+    "provider": "chat_listwise",
+    "api_key": ""
+  }
+}

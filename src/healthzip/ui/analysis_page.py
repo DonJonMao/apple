@@ -217,4 +217,6 @@ def render_analysis(repo, value):
             response = explain_analysis({"metrics": metrics}, question=question, allow_network=allow)
             st.write(response["summary"])
             st.caption(response["source"])
+    from healthzip.ui.metric_evidence import render_metric_evidence
+    render_metric_evidence(metrics)
 

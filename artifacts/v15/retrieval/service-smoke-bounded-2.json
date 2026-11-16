@@ -1,0 +1,43 @@
+{
+  "schema": "v15-real-service-smoke-1",
+  "scope": "bounded service smoke only; not independent retrieval accuracy",
+  "index_generated": 64,
+  "index_elapsed_seconds": 23.262,
+  "status": "insufficient_evidence",
+  "retrieval_elapsed_seconds": 20.259,
+  "eligible_candidate_count": 17353,
+  "fusion_candidate_budget": 20,
+  "reranked_candidates": 7,
+  "reranker_budget": {
+    "utf8_bytes": 24000,
+    "available_fused_candidates": 20,
+    "submitted_candidates": 7,
+    "source_units_truncated": false
+  },
+  "models": {
+    "embedding": {
+      "provider": "openai_compatible",
+      "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+      "model_id": "qwen3-embedding-8b",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    },
+    "reranker": {
+      "provider": "chat_listwise",
+      "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+      "model_id": "deepseek-v4-flash",
+      "model_version": "service-version-unverified",
+      "normalization": "l2",
+      "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+      "embedding_schema_version": "qwen-query-instruction-1.5.0"
+    }
+  },
+  "degradation_reasons": [
+    "dense_index_incomplete:17021"
+  ],
+  "retrieval_degraded": true,
+  "source_units_truncated": false,
+  "private_health_data_sent": false
+}
