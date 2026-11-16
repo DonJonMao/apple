@@ -40,3 +40,10 @@ def test_runner_uses_explicit_config_and_keeps_ablations_out_of_application(kb, 
         run(kb.root, path, config, "no-evidence-needed", tmp_path / "raw", tmp_path / "public")
     assert (tmp_path / "public/evaluation.json").read_bytes() == published
     assert metric_retrieval.context_match is before
+    identity = json.loads((tmp_path / "raw/run-identity.json").read_text())
+    assert identity["evaluation_purpose"] == "development_replay"
+    assert "metric_retrieval.py" in identity["implementation_sha256"]
+    monkeypatch.setitem(run.__globals__, "implementation_identity", lambda: {"metric_retrieval.py": "changed"})
+    with pytest.raises(ValueError, match="resume_requires_same_frozen_run_identity"):
+        run(kb.root, path, config, "no-evidence-needed", tmp_path / "raw", tmp_path / "another-public")
+    assert not (tmp_path / "another-public").exists()

@@ -16,7 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 from unittest.mock import patch
 
-from healthzip.knowledge import KnowledgeWorkbench, domains
+from healthzip.knowledge import KnowledgeWorkbench, domains, metric_retrieval
 from healthzip.knowledge.model_services import load_services
 from healthzip.knowledge.retrieval_evaluation import aggregate, evaluate_saved_rankings, score_case
 from healthzip.knowledge.store import digest, dumps, now
@@ -27,7 +27,14 @@ VARIANTS = {"A": ("lexical", False), "B": ("dense", False), "C": ("hybrid", Fals
             "A_filtered": ("lexical", True)}
 
 
-def run(root, gold_path, services_config, release_id, private_output, public_output):
+def implementation_identity():
+    package = Path(domains.__file__).parent
+    paths = [*package.glob("*.py"), package / "data/metric_domains_v15.json"]
+    return {str(path.relative_to(package)): digest(path.read_bytes()) for path in sorted(paths)}
+
+
+def run(root, gold_path, services_config, release_id, private_output, public_output, *,
+        evaluation_purpose="development_replay"):
     raw = Path(gold_path).read_bytes()
     gold = json.loads(raw)
     if (gold.get("schema") != "metric-retrieval-gold-1.5.0" or not gold.get("created_at")
@@ -47,6 +54,8 @@ def run(root, gold_path, services_config, release_id, private_output, public_out
         identity = {"gold_sha256": digest(raw), "release_id": release_id,
                     "profile_sha256": digest(dumps(domains.configuration()).encode()),
                     "runner_sha256": digest(Path(__file__).read_bytes()),
+                    "implementation_sha256": implementation_identity(),
+                    "evaluation_purpose": evaluation_purpose,
                     "models": [provider.config.identity for provider in services],
                     "variants": VARIANTS}
         identity_path = private / "run-identity.json"
@@ -86,7 +95,7 @@ def run(root, gold_path, services_config, release_id, private_output, public_out
                     filtered_rows.append(score_case(case, result))
             if variant != "A_filtered":
                 experiments[variant] = outputs
-        config = {"schema": "metric-hybrid-1.5.0", "k": 6, "rrf_constant": 60,
+        config = {"schema": metric_retrieval.RETRIEVAL_VERSION, "k": 6, "rrf_constant": 60,
             "candidate_budget": 20, "reranker_input_utf8_bytes": 24000,
             "ablation": "A-D semantic applicability disabled; source rights and lifecycle always enforced",
             "A_filtered": "additional lexical reference with the identical applicability policy as E",
@@ -114,7 +123,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("root", "gold", "services-config", "release-id", "private-output", "public-output"):
         parser.add_argument("--" + name, required=True)
+    parser.add_argument("--evaluation-purpose", choices=["development_replay", "independent_test"],
+                        default="development_replay")
     args = parser.parse_args()
     result = run(args.root, args.gold, args.services_config, args.release_id,
-                 args.private_output, args.public_output)
+                 args.private_output, args.public_output, evaluation_purpose=args.evaluation_purpose)
     print(json.dumps({"gold_sha256": result["gold_sha256"], "experiments": list(result["experiments"])}))

@@ -16,7 +16,9 @@ def explain_metric(w, metric_id, analysis_task, metric_result, context=None, rel
             cards.append({'id': 'claim:' + claim['claim_id'] + ':' + claim['claim_version'],
                 'title': '来源一般解释', 'status': 'reviewed_source_explanation',
                 'summary': '来源一般解释：' + ' '.join(claim['statements'])
-                    + ' 适用范围：' + dumps(claim['scope']),
+                    + ' 适用范围：' + dumps(claim['scope'])
+                    + ''.join(' 依赖主张适用范围：' + dumps({'claim_id': dep['claim_id'], 'scope': dep['scope']})
+                              for dep in claim.get('required_claims', [])),
                 'facts': [], 'limitations': [*claim['limitations'],
                     '来源一般解释不证明个人效果，也不授予个人数值处方。'],
                 'allowed_actions': ['查看原文与适用范围'],

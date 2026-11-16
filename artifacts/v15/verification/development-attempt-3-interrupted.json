@@ -1,0 +1,151 @@
+{
+  "created_at": "2026-11-16T18:40:00.230922+00:00",
+  "status": "interrupted_not_a_completed_evaluation",
+  "reason": "Additional review found unknown prerequisite applicability must refuse and dependency scope/limitations must reach the explanation. Implementation changed; prior outputs cannot resume under new hashes.",
+  "evaluation_purpose": "development_replay",
+  "completed_cell_count": 57,
+  "planned_cell_count": 126,
+  "run_identity": {
+    "evaluation_purpose": "development_replay",
+    "gold_sha256": "4c2f93fa5b2648bd42c4a5fae25c516a8ee69273a9c449aaddbc671c84ec0311",
+    "implementation_sha256": {
+      "__init__.py": "0b4db7313543e4546dcbf2a12844ba5b2c91f34177af89e65a8df5487fb5cf0d",
+      "__main__.py": "2cb838098fe33c22219ae54c21bd283a8bf28dcf935a60d3732f036e98a9d87d",
+      "acquisition.py": "a96dbf53b05213fad0a04ab0c5514e6cc9965f8db8b4a4bafe812dda16fd6513",
+      "adjudication.py": "4650512f47e8cf48d114d387b4f4cc8396829d570a8b558386a2f046f5ce67ca",
+      "applicability.py": "613562f7e89c4eb8739916212a6a7d764447d35e2107a8d677a7fd866bb76931",
+      "core.py": "0cebc420f929119cc7303d48e477cc3f3ed632dae87c2399d4072ed6f987a40c",
+      "corpus.py": "49c012f359fd653347db5f75e7afa309b767edf96b1417e564ec45dd1f755c88",
+      "coverage.py": "ab766f1771c0a094b0f8510fec3d4b8f169f4b53623c2afb843d606ae9b932ee",
+      "data/metric_domains_v15.json": "09ed40cb898f7de93f8ba43e59b941addfc52042f83813eefcfd41073b16dda8",
+      "documents.py": "16f47dfe038c7f554edc6a7e51cb5c936497eaef75377ec1141a7b746f9bbe33",
+      "domains.py": "7912f7bc73e39f244c5699ff1ef5dd43b1e5a1778c9940eceb759c2b7e4ae5cd",
+      "evaluation.py": "926b616e91f6a8775f424dc4da5472787e9dcf8aae547759e1251386dcb57470",
+      "metric_retrieval.py": "4b9a3b2023b5062d64ba7ae94474ae6c9c0eb900878315c33c6d1215ca241304",
+      "model_services.py": "5f0a0c9690b021aca3ec8e9a015730c3c10fa89306829fa23450f42b3ec88148",
+      "product.py": "c68a413c66ceb1e68d194d5deb6e6a78470f6f03379efc293335cb1573274d67",
+      "quality.py": "30233865caf0a8cef930e9d779d78ba2e6d29acb6afa6d6a7f19597560d3ec98",
+      "question_parts.py": "84e1cd8a6e5e0ff264e5d0ee3d8bfd63b5a39cebbc9556e67e062db524b6b0b9",
+      "retrieval.py": "7580a60532577b8b685e7fe7ac11637b56976e07695241d67387611fef51c48d",
+      "retrieval_evaluation.py": "653befd480eaf6ff7dbd544f58d7d694e05af293855760f97e13fe2636723542",
+      "rights.py": "11034d26820e995813733d653784bce5d51003b92a0313dd51eb0f6176ef16bb",
+      "store.py": "fa503866e05ddc835bec578193857e749d65379cf8cf4c5768f0f0c8885f9d64",
+      "structured_pdf.py": "0c9d109722c502ed947857387366aa19126fd72db13e115aa40dd054cde0c276",
+      "support.py": "8b90391451663b37eba3017beb738d67ed28aad8923901f16bbbdfd57701e28d",
+      "tasks.py": "ba294c66cafab613b66889f1bb71583ae82d378e6722742ba5d3667e2a8a326d",
+      "transactions.py": "89b1e4c1a1c03b3a08b5b68230e80c00446095867845daa91d009cba69a4a170",
+      "vector_index.py": "2bed91e3f2165c0d6634f7d5d8cb8407bd2f05a31559a0c264c971a805691151",
+      "workbench.py": "a927f5679beb683f0592ef5f40d75a3809395bf3bb13c32bae9b138d65245e6e"
+    },
+    "models": [
+      {
+        "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+        "embedding_schema_version": "qwen-query-instruction-1.5.0",
+        "endpoint": "http://111.19.156.74:8001/v1/embeddings",
+        "model_id": "qwen3-embedding-8b",
+        "model_version": "service-version-unverified",
+        "normalization": "l2",
+        "provider": "openai_compatible"
+      },
+      {
+        "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+        "embedding_schema_version": "qwen-query-instruction-1.5.0",
+        "endpoint": "http://111.19.156.30:8006/v1/chat/completions",
+        "model_id": "deepseek-v4-flash",
+        "model_version": "service-version-unverified",
+        "normalization": "l2",
+        "provider": "chat_listwise"
+      }
+    ],
+    "profile_sha256": "750bb330462b3e2326c6dc821cb13c643dabe5af06ee79e901f97fefbc83856d",
+    "release_id": "v15-benchmark-corpus-2",
+    "runner_sha256": "838bdc76ce34717d19964c7cef546f57a0cdfab763cab0e05508bbd43b9b5020",
+    "variants": {
+      "A": [
+        "lexical",
+        false
+      ],
+      "A_filtered": [
+        "lexical",
+        true
+      ],
+      "B": [
+        "dense",
+        false
+      ],
+      "C": [
+        "hybrid",
+        false
+      ],
+      "D": [
+        "hybrid_rerank",
+        false
+      ],
+      "E": [
+        "hybrid_rerank",
+        true
+      ]
+    }
+  },
+  "completed_output_sha256": {
+    "A-absolute-intake-boundary.json": "75b8750e0a1505da6702fb62ece2c99bb7ef05af02e62b04c492e99ee1e14e19",
+    "A-arithmetic-no-rag.json": "bc802416fb84310921685583bbe5b7a4761e80235d5be964b1a459caa34397b2",
+    "A-bodyweight-dynamic.json": "2cf5540cca28ba8403a3ba991d1af8599b648c0e2db59b0780d08a0c8fdb2e04",
+    "A-commercial-excludes-nc-original.json": "aa71a3fe86c176152f014c9ee7fb3fc9dfc8aef1ec2cd0a05f3f7d6af9185755",
+    "A-energy-device-total.json": "13db53add76090be65c83685ac92a8c0adc1f66bda7cf2437d1a35d249a8fca6",
+    "A-estimated-vs-observed.json": "1fd14a7e6d8087610fe40082d503b4298db302137f7d9cfd9c1b1c8af68c4374",
+    "A-historical-static-dynamic-conflict.json": "14fb5561e153dc5b405371766c153c2d247aa5e4036e2776430cfc917d173eee",
+    "A-individual-error-transfer.json": "8baa5a4392248822ec943bc9ef839a34e01a909ed53aec9d609838e24855ea7e",
+    "A-other-user-refusal.json": "5987613f73651ec49cc17ffaacae715be6e6e16f14e49b09a807441c296b9781",
+    "A-repetitions-comparison.json": "e0a14808ba603cd606be7dffd1473e36b482d3c38e47ab375e276ef048725270",
+    "A-rir-boundary.json": "bcee1cad6fe8bac9eb6b6924dd9666eebe42143f9ae9942ef840a82dfaaec0d4",
+    "A-robust-reference-scope.json": "3b86c524cfa4cf16caa036cb932779eac38da056e50d16c00bc0a7cbf8ccba3f",
+    "A-sdnn-protocol.json": "2ed822111b6c131da601a0110d6bb5370ba309782af2e2e9c0249bf19762532e",
+    "A-session-missing-scale.json": "d9a3abfef860fc3290f69d28e4db19f4c957bfd0645cd23b3a39367d330b66c2",
+    "A-session-population-outside-review.json": "7d653d6ef7728daabfb58ce7f0cb1cf06b28aa9b8e809b865f316965532b8ed2",
+    "A-session-rpe-au.json": "4d53a298a72b48a06f3d228d891c2bdbfc1d3876e7e5dbbfca2d9c9fc5d621b2",
+    "A-session-rpe.json": "c328971c9a0ed9f6fdb2800083da17d507a763a5966a512591732e9cf21060a9",
+    "A-sleep-observed-duration.json": "50e2a290c9d6cba82c09e3b2953b65fae0033a32181d9344406a37403f4fc75f",
+    "A-sleep-stage-estimate.json": "9ecf1e74089bbf82dd6c0fb4b18807f2b049992ba1778fdfa3efb1727879efa3",
+    "B-absolute-intake-boundary.json": "1ce50d2e53304a0f72a35a242595a58bc61c5206c19cc98baf0d842c4b09c2aa",
+    "B-arithmetic-no-rag.json": "fbf9f76916140ebf79c31608b0290b550b85913f09056cddabce61088bb5ae4f",
+    "B-bodyweight-dynamic.json": "9343af18d869ab741463c9cda73e9899a528f3df35087caca4470e2c6904dd85",
+    "B-energy-device-total.json": "951aed99fea169d3645decd40eabeea75a9d27f6dd957cb5c586790d3781a3e7",
+    "B-estimated-vs-observed.json": "882f03530d8de3eca3dc64a441419cb94b39b8963b3432b65c5d71ede7676ddf",
+    "B-individual-error-transfer.json": "70e985ef84ab5afe87ab1bf5a940cfd9cedc463915002ec95784e691f92e09c7",
+    "B-other-user-refusal.json": "5c3d8275a403a53a6413a65e4b97716b8e49cb8a7499b8e73f2455b27e5fa597",
+    "B-repetitions-comparison.json": "0f0a62215f89945fbeb648933d30d0ce55791e897ef4b5607583dd36ec10bca9",
+    "B-rir-boundary.json": "f6a938345418940146428f52e1bf97a385a674f33c544bf854288c78ecbd6f35",
+    "B-robust-reference-scope.json": "62bbc91bea5126ee8d1449a746ab3c8862e7c1064135852a40c7e3f89fb1d8ea",
+    "B-sdnn-protocol.json": "3fb2fa823de6efae70b9a0a8125f1a5c029d944d23b33ac79357a6a59bf0040e",
+    "B-session-missing-scale.json": "c0cee1d2406456897977348ca7fca70012a2eca3e8cf0c93f696c2f0dd3e6413",
+    "B-session-population-outside-review.json": "fffac4537d91cbb46d7309d2be2d489a065c7bb570eb6ad1febdce43689c07a9",
+    "B-session-rpe-au.json": "0536fee93c3a6dd2dd102aaec3a86342ac8b1e549a4ee2dfed95194fb28de62a",
+    "B-session-rpe.json": "b8e0968fe711195f522bf178db2d86d1a4af5caddb815222d20204d0fd38fb51",
+    "B-sleep-observed-duration.json": "358533ac2a2da49239c75396061713a94431c9c9892944d9f63190a15279240a",
+    "B-sleep-stage-estimate.json": "dc7b4d70c828ac477dab91901b320ae0bb9b877278674d8ca67f2b608b611263",
+    "C-absolute-intake-boundary.json": "b44ba5bea05cd9917c0ca718162ce4d307d0191cd591458250b83ef57368df21",
+    "C-arithmetic-no-rag.json": "76d61c55ae4448724f62a2f16c61b8cc8ddf80020b31c01152edd093c8d27fa0",
+    "C-bodyweight-dynamic.json": "463f978fa7e1cb959d7e9341b801a23135ea00241e112292f83caa5382d6ae1c",
+    "C-energy-device-total.json": "2a5580c75a4d795f6a3d110146f5cadf75442232f89379bac7495fdd1186187d",
+    "C-estimated-vs-observed.json": "813faa8bcea13e6db1e0f5716d1edbe150b36e8554f10788d1c4455479b1fcfa",
+    "C-individual-error-transfer.json": "b28bad056d3b57da7e4dec2f706d85a4028d23db6f8935be311bb45cd53ef7e5",
+    "C-other-user-refusal.json": "8de30852e21de366d099322b3a9a1bcf68749ab0d6854f825cdaca3afb397d7a",
+    "C-repetitions-comparison.json": "619cf2171850a0f72f76b04b1f484435a51fb262cc8aa2b633b833f5772a7ddb",
+    "C-rir-boundary.json": "88be2a9eb97bb67eeedf0aadadc556cf5ad65d26f31498da8aed24500ee44470",
+    "C-robust-reference-scope.json": "0f3f381b237ded5d3626fc5a3dc83dc513fce6cb0ee42d19df5d3704b539548a",
+    "C-sdnn-protocol.json": "78736ab77787589a2774129fe232a108840a4547bd279ba578c9bc0a708e66b5",
+    "C-session-missing-scale.json": "757c7fd1241244ec19b43a7a71e5f940a936dad64ace7e31dccaae019cfa16b9",
+    "C-session-population-outside-review.json": "80e87798428d47c56de7d487eee6f4d33522c4315fab9ca00b46ff92f3390abb",
+    "C-session-rpe-au.json": "5af43681e3c9650ab990827e8b3d2c5c90d7263a8b5a7257b8684a63e7baafab",
+    "C-session-rpe.json": "d87d64eb3352651ac7fd51fdf1e0af8806d2855482f743634952e90eafc4bd68",
+    "C-sleep-observed-duration.json": "4c82f7c5924608f33d6c766e103deb7d1bc06a5a820f49558ef316f90d50fc0c",
+    "C-sleep-stage-estimate.json": "c348dba1fe485ca1b269aca008798a239bf66eab7ab329b17928955998759f26",
+    "D-absolute-intake-boundary.json": "9a7d00d290acaf7b70d15a0a9fde9b6c0ebff6c09af6570a991df19a102a008e",
+    "D-bodyweight-dynamic.json": "255560c5a0af76cb6d847c07da4416ac7b9487bd5062fce88d82da4a5a29d94a",
+    "D-energy-device-total.json": "2d37293f8189d0722d651ad68d991e2b1711c23c16a5bf52ff76654d11b5633a",
+    "D-estimated-vs-observed.json": "0ded62126961fd5ae57a14199029619b41aca74a38c9c8b00a68a1d359313208"
+  },
+  "full_pytest_attempt": "interrupted before completion, no passing full-suite claim",
+  "historical_scores_modified": false
+}

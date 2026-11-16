@@ -7,12 +7,13 @@ from collections import Counter
 
 from . import domains, vector_index
 from .applicability import context_match
-from .model_services import ModelUnavailable, fitting_reranker_prefix, load_services
+from .model_services import ModelUnavailable, load_services, rerank_windows
 from .retrieval import tokens
 from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
+RETRIEVAL_VERSION = "metric-hybrid-1.5.1"
 
 
 def _lexical(query, candidates):
@@ -188,6 +189,46 @@ def _dense(w, provider, query, candidates):
     return sorted(similarities, key=lambda key: (-similarities[key], key)), missing
 
 
+def _edge_current(w, payload):
+    return all((span := w.lib.span(e["span_id"], include_metadata=False))
+               and span["text_hash"] == e["text_hash"] and w.lib.eligible(span, "fulltext")[0]
+               for e in payload["evidence"])
+
+
+def _claim_requirements(w, reference, claims, context, allowed_edges, path=()):
+    """Close only explicit required_by claim edges; cycles never authorize inference."""
+    from .core import _claim
+    if reference in path or reference not in claims:
+        return None
+    try:
+        claim, _, _ = _claim(w, {"claim_id": reference[0], "version": reference[1]})
+        if not context_match(claim.get("conditions", []), context)[0]:
+            return None
+    except ValueError:
+        return None
+    span_ids = {s["span_id"] for s in claims[reference]["spans"]}
+    dependencies = set()
+    for row in w.lib.theories.execute("""SELECT * FROM knowledge_evidence_edge
+            WHERE relation='required_by' AND to_type='claim' AND to_id=? AND to_version=? ORDER BY edge_id""", reference):
+        if allowed_edges is not None and row["edge_id"] not in allowed_edges:
+            continue
+        payload = json.loads(row["payload_json"])
+        matched, reason = context_match(payload["applicability"], context)
+        if not matched:
+            if reason.startswith("scope_mismatch:"):
+                continue
+            return None  # Unknown applicability is not proof that a prerequisite is unnecessary.
+        if row["from_type"] != "claim" or not _edge_current(w, payload):
+            return None
+        ref = (row["from_id"], row["from_version"])
+        required = _claim_requirements(w, ref, claims, context, allowed_edges, (*path, reference))
+        if required is None:
+            return None
+        span_ids.update(required[0])
+        dependencies.update({ref, *required[1]})
+    return span_ids, dependencies
+
+
 def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
     from .core import _claim
     matches, conflicts = [], []
@@ -198,9 +239,7 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
         payload = json.loads(row["payload_json"])
         if not context_match(payload["applicability"], context)[0]:
             continue
-        evidence_ok = all((s := w.lib.span(e["span_id"], include_metadata=False)) and s["text_hash"] == e["text_hash"] and w.lib.eligible(s, "fulltext")[0]
-                          for e in payload["evidence"])
-        if not evidence_ok:
+        if not _edge_current(w, payload):
             continue
         if row["relation"] == "conflicts_with":
             endpoints = [(row["from_type"], row["from_id"], row["from_version"]), (row["to_type"], row["to_id"], row["to_version"])]
@@ -210,7 +249,7 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
             relevant = {("claim", r[0], r[1]) for r in related}
             if all(endpoint in all_ids for endpoint in endpoints) and any(e in relevant for e in endpoints):
                 conflicts.append(payload)
-        if (row["relation"] in {"applies_to", "limits", "defines"} and row["from_type"] == "claim"
+        if (row["relation"] in {"applies_to", "limits", "defines", "required_by"} and row["from_type"] == "claim"
                 and row["to_type"] == "metric" and row["to_id"] == metric_id
                 and row["to_version"] == domains.configuration()["schema_version"]
                 and (row["from_id"], row["from_version"]) in claims):
@@ -220,19 +259,73 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
                 continue
             candidate = claims[(row["from_id"], row["from_version"])]
             span_ids = {s["span_id"] for s in candidate["spans"]}
+            required = _claim_requirements(w, (row["from_id"], row["from_version"]), claims, context, allowed_edges)
+            if required is None:
+                continue
+            required_ids, dependencies = required
             edge_ids = {e["span_id"] for e in payload["evidence"]}
             checked = (payload.get("application_review", {}).get("application_checked") is True
                        and payload.get("evidence_types") and edge_ids <= span_ids)
-            if span_ids and span_ids <= selected.keys() and checked and all(
-                    selected[s]["domain_assignment_status"] == "content_checked" for s in span_ids):
+            if span_ids and required_ids <= selected.keys() and checked and all(
+                    selected[s]["domain_assignment_status"] == "content_checked" for s in required_ids):
+                prerequisites = [{"claim_id": ref[0], "claim_version": ref[1], "scope": claims[ref]["scope"],
+                    "limitations": claims[ref]["limitations"]} for ref in sorted(dependencies)]
                 matches.append({"claim_id": row["from_id"], "claim_version": row["from_version"],
-                    "statements": [c["text"] for c in candidate["review"]["claims"]], "evidence_span_ids": sorted(span_ids),
+                    "statements": [c["text"] for c in candidate["review"]["claims"]], "evidence_span_ids": sorted(required_ids),
+                    "direct_evidence_span_ids": sorted(span_ids),
+                    "required_claim_refs": [{"claim_id": ref[0], "claim_version": ref[1]} for ref in sorted(dependencies)],
+                    "required_claims": prerequisites,
                     "metric_relation": row["relation"], "reviewer_kind": candidate["review"].get("reviewer_kind"),
                     "evidence_types": payload["evidence_types"],
-                    "scope": candidate['scope'], "limitations": candidate['limitations'],
-                    "domains": sorted({d for sid in span_ids for d in selected[sid]["domains"]}),
+                    "scope": candidate['scope'], "limitations": list(dict.fromkeys([
+                        *candidate['limitations'], *(limit for dep in prerequisites for limit in dep['limitations'])])),
+                    "domains": sorted({d for sid in required_ids for d in selected[sid]["domains"]}),
                     "application_edge": payload})
     return matches, conflicts
+
+
+def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, allowed_edges):
+    """Allocate the same K spans to complete reviewed metric evidence groups.
+
+    A group needs a direct evidence anchor in the retrieval candidate pool.
+    Dependencies may expand from that anchor only through exact reviewed links.
+    Prefer groups filling an unmet contract requirement, then their best rank.
+    No relevance scores or physiological weights are combined here.
+    """
+    groups, _ = _metric_claims(w, metric_id, claims, by_id, context, allowed_edges)
+    ranks = {identity: rank for rank, identity in enumerate(ranking)}
+    groups = [g for g in groups if set(g["direct_evidence_span_ids"]) & ranks.keys()]
+    chosen, allocations, rejected = [], [], []
+    required_types = set(profile["required_evidence_types"])
+    required_domains = set(profile.get("required_domains", profile["primary_domains"]))
+    types, covered_domains = set(), set()
+    while groups:
+        groups.sort(key=lambda g: (
+            not (set(g["evidence_types"]) & (required_types - types)
+                 or set(g["domains"]) & (required_domains - covered_domains)),
+            min(ranks[s] for s in g["direct_evidence_span_ids"] if s in ranks),
+            g["claim_id"], g["claim_version"]))
+        group = groups.pop(0)
+        missing = [s for s in group["evidence_span_ids"] if s not in chosen]
+        if len(chosen) + len(missing) > k:
+            rejected.append({"claim_id": group["claim_id"], "claim_version": group["claim_version"],
+                             "reason": "complete_group_exceeds_remaining_span_budget"})
+            continue
+        if not all(_still_current(w, by_id[s], context) for s in group["evidence_span_ids"]):
+            continue
+        missing.sort(key=lambda s: (ranks.get(s, len(ranking)), s))
+        chosen.extend(missing)
+        types.update(group["evidence_types"])
+        covered_domains.update(group["domains"])
+        allocations.append({key: group[key] for key in ("claim_id", "claim_version", "evidence_span_ids", "required_claim_refs")})
+    for identity in ranking:
+        if len(chosen) >= k:
+            break
+        if identity not in chosen:
+            chosen.append(identity)
+    return chosen, {"strategy": "rank_anchored_complete_reviewed_groups", "span_budget": k,
+        "selected_span_count": len(chosen), "groups": allocations, "rejected_groups": rejected,
+        "dependency_expansion_ids": [s for s in chosen if s not in ranks]}
 
 
 def _still_current(w, candidate, context):
@@ -278,7 +371,7 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
         "conflicts": [], "capability_permissions": {"source_explanation": False, "candidate": False,
             "candidate_authority": "existing_application_rule_service_only"},
-        "retrieval_audit": {"version": "metric-hybrid-1.5.0", "profile_version": config["schema_version"],
+        "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": config["schema_version"],
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
@@ -325,20 +418,22 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
         try:
             if reranker is None:
                 raise ModelUnavailable("reranker_unavailable")
-            bounded = fitting_reranker_prefix(query, [by_id[i] for i in final])
-            if not bounded:
-                raise ModelUnavailable('reranker_input_budget')
-            reranked_ids = reranker.rerank(query, bounded)
-            audit['reranker_context_budget'] = {
-                'utf8_bytes': 24000, 'available_fused_candidates': len(final),
-                'submitted_candidates': len(bounded), 'source_units_truncated': False,
-                'excluded_ids': [i for i in final if i not in set(reranked_ids)]}
-            final = reranked_ids
+            budget_audit = {}
+            audit['reranker_context_budget'] = budget_audit
+            ordered, budget_audit = rerank_windows(reranker, query, [by_id[i] for i in final],
+                is_current=lambda candidate: _still_current(w, candidate, context), audit=budget_audit)
+            unranked = set(budget_audit['unranked_ids'])
+            reranked_ids = [i for i in ordered if i not in unranked]
+            final = ordered
+            if unranked:
+                reasons.append('reranker_input_budget:' + str(len(unranked)))
         except ModelUnavailable as exc:
             reasons.append(str(exc))
     ranks = [{identity: rank for rank, identity in enumerate(ranking, 1)} for ranking in (lexical, dense, fused, reranked_ids)]
+    selected_ids, audit['evidence_selection'] = _select_evidence(w, metric_id, profile, claims, by_id, final,
+        context, k, release.get('edge_ids'))
     chosen = []
-    for identity in final[:k]:
+    for identity in selected_ids:
         candidate = dict(by_id[identity])
         if not _still_current(w, candidate, context):
             excluded.append({'span_id': identity, 'reason': 'invalidated_after_candidate_filter'})

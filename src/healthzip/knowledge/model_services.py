@@ -17,6 +17,7 @@ DEFAULT_EMBEDDING_ENDPOINT = "http://111.19.156.74:8001/v1/embeddings"
 DEFAULT_RERANKER_ENDPOINT = "http://111.19.156.30:8006/v1/chat/completions"
 EMBEDDING_SCHEMA = "qwen-query-instruction-1.5.0"
 EMBEDDING_MAX_BYTES = 3500  # Conservative bound below observed 4096-token context.
+RERANKER_MAX_BYTES = 24000  # Per-request resource budget, not a relevance threshold.
 QUERY_INSTRUCTION = "Instruct: Given an exercise science analysis task, retrieve original evidence that explains its measurement, applicability and limitations.\nQuery: "
 _UNVERIFIED_SESSION = uuid4().hex
 
@@ -132,7 +133,7 @@ class RerankerProvider(ModelClient):
             raise ValueError("duplicate_reranker_candidate")
         # Only this explicit public-evidence projection crosses the network.
         public = public_candidates(candidates)
-        if len(dumps(public).encode()) + len(query.encode()) > 24000:
+        if len(dumps(public).encode()) + len(query.encode()) > RERANKER_MAX_BYTES:
             raise ModelUnavailable("reranker_input_budget")
         value = self.post({"model": self.config.model_id, "temperature": 0, "max_tokens": 1600,
             "messages": [{"role": "system", "content":
@@ -166,10 +167,74 @@ def fitting_reranker_prefix(query, candidates):
     """Reduce a resource budget without cutting a paragraph, formula or table."""
     chosen = []
     for candidate in candidates[:20]:
-        if len(dumps(public_candidates(chosen + [candidate])).encode()) + len(query.encode()) > 24000:
+        if len(dumps(public_candidates(chosen + [candidate])).encode()) + len(query.encode()) > RERANKER_MAX_BYTES:
             break
         chosen.append(candidate)
     return chosen
+
+
+def rerank_windows(provider, query, candidates, *, is_current=None, audit=None):
+    """Rank a bounded list using overlapping whole-evidence windows.
+
+    Windows move from the tail towards the head, retaining half the preceding
+    window as overlap so relevant tail evidence can move to the top. Every
+    fitting candidate participates; no prefix replaces the original list.
+    A single unit that cannot fit remains in its original position and is
+    explicitly reported as unranked. No source text is shortened.
+    """
+    if not candidates or len(candidates) > 20:
+        raise ValueError("reranker_candidate_budget")
+    ids = [c["candidate_id"] for c in candidates]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate_reranker_candidate")
+
+    def fits(rows):
+        return len(dumps(public_candidates(rows)).encode()) + len(query.encode()) <= RERANKER_MAX_BYTES
+
+    by_id = {c["candidate_id"]: c for c in candidates}
+    unranked = {c["candidate_id"] for c in candidates if not fits([c])}
+    order = [identity for identity in ids if identity not in unranked]
+    windows, submitted = [], set()
+    audit = {} if audit is None else audit
+    audit.update({
+        "utf8_bytes": RERANKER_MAX_BYTES, "strategy": "tail_to_head_overlapping_whole_units",
+        "available_fused_candidates": len(ids), "submitted_candidates": 0,
+        "source_units_truncated": False, "excluded_ids": [],
+        "unranked_ids": [i for i in ids if i in unranked], "windows": windows,
+        "ranking_complete": False,
+    })
+    end = len(order)
+    while end:
+        start = end - 1
+        while start and fits([by_id[i] for i in order[start-1:end]]):
+            start -= 1
+        before = order[start:end]
+        if is_current and not all(is_current(by_id[i]) for i in before):
+            audit['failure_reason'] = 'reranker_candidate_invalidated'
+            raise ModelUnavailable("reranker_candidate_invalidated")
+        window = {"candidate_ids": before, "status": "attempted"}
+        windows.append(window)
+        try:
+            ranked = provider.rerank(query, [by_id[i] for i in before])
+            if (not isinstance(ranked, list) or not all(isinstance(i, str) for i in ranked)
+                    or len(ranked) != len(before) or set(ranked) != set(before)):
+                raise ModelUnavailable("reranker_ranking_invalid")
+        except ModelUnavailable as exc:
+            window['status'] = 'failed'
+            audit['failure_reason'] = str(exc)
+            raise
+        order[start:end] = ranked
+        submitted.update(before)
+        audit['submitted_candidates'] = len(submitted)
+        window.update(ranking=ranked, status='ranked')
+        if not start:
+            break
+        end = start + len(before) // 2
+
+    positions = iter(order)
+    complete_order = [identity if identity in unranked else next(positions) for identity in ids]
+    audit['ranking_complete'] = not unranked
+    return complete_order, audit
 
 
 def load_services(root, *, config_path=None):
