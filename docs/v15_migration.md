@@ -52,3 +52,5 @@ VO₂与周期各追加两项有限的AI辅助来源主张和既有观测扩展�
 ## 限定指标依据的兼容范围（1.5.5）
 
 `candidate_scope`是调用参数，不改变原77配置或私人schema；API默认all保持原查询身份。新索引manifest增加 `candidate_scope_version`，固定 `reviewed-metric-candidates-1.5.0`；历史manifest缺省只能使用原all范围，显式采用新范围必须创建新的发布ID。范围版本漂移时拒绝新冻结发布；不重写旧manifest。页面新增“依据范围”并默认已审核指标依据，仍可选择同领域阅读。此次不增加来源主张、应用规则或数值候选权限，来源和审核仍使用前一批已取得的数据；详见 [范围合同](v15_reviewed_metric_scope.md)。
+
+本轮1.5.6不迁移私人库或重写旧rights JSON。来源用途在运行时由结构化许可推导，旧冻结发布也遵守当前NC限制；审计追加rights_usage_policy_version。已有S5/R5版本补接150个provisional单元，并在两库SQLite备份后使用既有审核工具追加4条主张及11条边，原E1内容和审核原样复用。当前发布为v15-method-boundaries-rights-1，旧发布不获得新单元/绑定。回滚/迁移、许可复现和失败记录见 [本轮说明](v15_method_evidence_and_rights.md)。

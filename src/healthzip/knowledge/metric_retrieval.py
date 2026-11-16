@@ -6,6 +6,7 @@ import math
 from collections import Counter
 
 from . import domains, query_forms, table_projection, vector_index
+from . import rights as source_rights
 from .applicability import context_match
 from .model_services import ModelUnavailable, load_services, rerank_windows
 from .retrieval import tokens
@@ -13,7 +14,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.5"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.6"
 CANDIDATE_SCOPE_VERSION = "reviewed-metric-candidates-1.5.0"
 CANDIDATE_SCOPES = {"all", "reviewed_metric"}
 
@@ -106,13 +107,19 @@ def _claim_links(w, context, allowed_refs):
                 raise ValueError(reason)
             if any(not set(s["corpus_roles"]) & roles for s in evidence):
                 raise ValueError("corpus_partition_excluded")
+            spans = [w.lib.span(e["span_id"], include_metadata=False) for e in evidence]
+            for span in spans:
+                rejection = source_rights.usage_rejection(
+                    json.loads(span['rights_json']), context.get('usage_scope', 'local_noncommercial'))
+                if rejection:
+                    raise ValueError(rejection)
         except ValueError as exc:
             excluded.append({"claim_id": ref[0], "claim_version": ref[1], "reason": str(exc)})
             continue
         accepted[ref] = {"review": {"reviewer_kind": review["reviewer_kind"],
             "claims": [{"text": claim["statement"]}]},
             "scope": claim['scope'], "limitations": claim['limitations'],
-            "spans": [w.lib.span(e["span_id"], include_metadata=False) for e in evidence]}
+            "spans": spans}
         for span in evidence:
             links.setdefault(span["span_id"], []).append({"claim_id": ref[0], "claim_version": ref[1]})
     return links, accepted, excluded
@@ -164,8 +171,9 @@ def eligible_candidates(w, requested_domains, context, release_id):
         # Unknown claim applicability never becomes applicable because its raw
         # excerpt is present in an index; such excerpts are reading-only.
         rights = json.loads(span["rights_json"])
-        if rights.get("noncommercial_only") and context.get("usage_scope", "local_noncommercial") != "local_noncommercial":
-            excluded.append({"span_id": sid, "reason": "noncommercial_scope_required"})
+        rejection = source_rights.usage_rejection(rights, context.get("usage_scope", "local_noncommercial"))
+        if rejection:
+            excluded.append({"span_id": sid, "reason": rejection})
             continue
         candidates.append({"candidate_id": sid, "source_id": span["source_id"], "source_version": span["version_id"],
             "claim_refs": links.get(sid, []), "span_id": sid, "domains": sorted(set(assigned) & set(requested_domains)),
@@ -174,7 +182,9 @@ def eligible_candidates(w, requested_domains, context, release_id):
             "section_path": span["section_path"], "parent_section_id": row["parent_id"],
             "applicability": {"status": "reviewed_claim_conditions_match" if sid in links else "unreviewed_source_reading_only"},
             "applicability_status": "matched" if sid in links else "not_reviewed_for_metric_inference",
-            "rights_status": {key: rights.get(key) for key in ("status", "license_id", "index_allowed", "rights_scope", "noncommercial_only")},
+            "rights_status": {**{key: rights.get(key) for key in ("status", "license_id", "index_allowed", "rights_scope")},
+                "noncommercial_only": source_rights.noncommercial_only(rights),
+                "usage_policy_version": source_rights.USAGE_POLICY_VERSION},
             "review_status": "claim_checked" if sid in links else "source_only_claim_review_pending",
             "content": span["text"], "input_content_hash": span["text_hash"],
             "evidence_role": "reviewed_claim_evidence" if sid in links else "background_only",
@@ -385,7 +395,7 @@ def _still_current(w, candidate, context):
     span = w.lib.span(candidate['span_id'], include_metadata=False)
     if not span or not w.lib.eligible(span, 'fulltext')[0]:
         return False
-    if json.loads(span['rights_json']).get('noncommercial_only') and context.get('usage_scope', 'local_noncommercial') != 'local_noncommercial':
+    if source_rights.usage_rejection(json.loads(span['rights_json']), context.get('usage_scope', 'local_noncommercial')):
         return False
     if not candidate['claim_refs']:
         return True
@@ -430,6 +440,7 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
         "conflicts": [], "capability_permissions": {"source_explanation": False, "candidate": False,
             "candidate_authority": "existing_application_rule_service_only"},
         "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
+            "rights_usage_policy_version": source_rights.USAGE_POLICY_VERSION,
             "query_form": query_identity,
             "candidate_scope": candidate_scope,
             "candidate_scope_version": CANDIDATE_SCOPE_VERSION if candidate_scope != 'all' else None,

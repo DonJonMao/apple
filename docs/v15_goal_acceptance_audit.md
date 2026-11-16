@@ -27,7 +27,7 @@
 |新增资料完整清单|原文件见 `artifacts/v15/sources/source_manifest.json`、`source_acquisition_report.json`；后续AWHS JATS单独见 `cycle-source-acquisition-review-1.json`，不回写原清单。|
 |权利审计|`artifacts/v15/sources/rights_audit.json`；未知组件待审、NC仅本地非商业。|
 |五领域覆盖|[语料目录](v15_corpus_catalog.md)、`artifacts/v15/knowledge/`；来源数量不是科学覆盖率。|
-|77项指标映射|`src/healthzip/knowledge/data/metric_domains_v15.json`；24项跳过RAG，29项有部分或完整静态绑定，运行时仍核对完整性。|
+|77项指标映射|`src/healthzip/knowledge/data/metric_domains_v15.json`；原77项配置不变，24项跳过RAG，33项有部分或完整静态绑定，其中26项类型/领域齐备；最新矩阵为`evidence-coverage-matrix-3.json`。运行时仍核对许可、适用性、完整性和冲突。|
 |Embedding身份|qwen3-embedding-8b，实测4096维；权重revision未核验，部署epoch承担缓存失效。|
 |精排身份|deepseek-v4-flash，chat_listwise；不是已核验cross-encoder。|
 |检索评测|[评测报告](v15_evaluation.md)、冻结Gold与原始126次评分；新增开发回放另存。|
@@ -40,3 +40,5 @@
 R01–R15、F01–F13、CAT/KB/E2E和77指标的软件证据继续引用 [v1.4验收](v14_delivery.md)、[知识验收](v14_knowledge.md)、[科学合同](v14_science.md) 与既有逐项矩阵。旧独立AI审核失败分母不重写，已知题通过不新增独立分母。四本目标版次教材正文、部分中文来源重用许可、独立专业审定、个人方法校准和真人时间外/因果验证仍按原状态保留。用户已说明暂时没有付费教材授权副本；先完成其余工作，不再重复索取。
 
 最终验收仍须证明：具体指标能找到足够且适用的原始证据；跨领域结论具有完整显式依赖；证据不足、来源不适用或模型不可用时能够正确拒绝。WP-F的“没有优于lexical或领域明显退化时不能仅凭接入宣布完成”继续有效。
+
+本轮追加1.5.6的 [方法依据与JATS用途权限修复](v15_method_evidence_and_rights.md)：旧JATS许可ID中已有NC但缺可选布尔字段时，主张/候选及模型返回复核均按结构化许可补拦，不回写旧许可或历史评分。2项力量比较和3项体重描述新增有限方法身份；静息心率、疲劳/酸痛/疼痛仍缺协议或量表依据。5份主张/原文包另经同精排模型的排名不可见语义阅读，但实现者选池、无独立专家，不算独立来源家族检索题或最终答案验收。

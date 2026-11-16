@@ -9,11 +9,57 @@ from lxml import etree
 
 POLICY_VERSION = "jats-scoped-rights-1.4.0"
 PARSER_VERSION = "jats-owned-text-1.4.1"
+USAGE_POLICY_VERSION = "source-usage-scope-1.5.0"
 OWNERS = {"article", "sub-article", "fig", "table-wrap", "supplementary-material"}
 LABELS = {
     "by": "CC-BY", "by-sa": "CC-BY-SA", "by-nc": "CC-BY-NC",
     "by-nc-sa": "CC-BY-NC-SA", "by-nd": "CC-BY-ND", "by-nc-nd": "CC-BY-NC-ND",
 }
+
+
+def _declared_cc_licenses(rights):
+    """Read structured license declarations, without rewriting historical grants."""
+    labels = [rights.get("license_id"), *rights.get("license_candidates", [])]
+    declared = set()
+    for label in labels:
+        if not isinstance(label, str):
+            continue
+        normalized = re.sub(r"[\s_]", "-", label.strip().upper())
+        normalized = re.sub(r"-\d+(?:\.\d+)*$", "", normalized)
+        if normalized in {"CC0", *LABELS.values()}:
+            declared.add(normalized)
+    url = rights.get("license_url")
+    if isinstance(url, str):
+        match = re.search(r"creativecommons\.org/licenses/([a-z-]+)/", url.lower())
+        if match and match[1] in LABELS:
+            declared.add(LABELS[match[1]])
+        elif "creativecommons.org/publicdomain/zero/" in url.lower():
+            declared.add("CC0")
+    return declared
+
+
+def noncommercial_only(rights):
+    """An absent or false convenience flag cannot remove an NC license term."""
+    return bool(rights.get("noncommercial_only")) or any(
+        "NC" in label.split("-") for label in _declared_cc_licenses(rights))
+
+
+def usage_rejection(rights, usage_scope="local_noncommercial"):
+    """Local indexing permission alone does not establish broader reuse rights.
+
+    Existing component grants and lifecycle gates still decide index eligibility.
+    This additional runtime gate also applies to frozen members, whose original
+    rights records are retained verbatim.
+    """
+    if usage_scope == "local_noncommercial":
+        return None
+    if noncommercial_only(rights):
+        return "noncommercial_scope_required"
+    licenses = _declared_cc_licenses(rights)
+    if (licenses and licenses <= {"CC0", "CC-BY", "CC-BY-SA", "CC-BY-ND"}
+            or rights.get("noncommercial_only") is False):
+        return None
+    return "usage_scope_not_cleared"
 
 
 def text(node):

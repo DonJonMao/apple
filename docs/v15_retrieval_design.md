@@ -45,3 +45,5 @@ Embedding 是实际可用的 `qwen3-embedding-8b` OpenAI-compatible 服务，观
 ## 按指标审核组限定候选（1.5.5）
 
 `candidate_scope="reviewed_metric"`在原领域/权利候选中，只保留当前完整指标审核组和显式前提的精确Span，再执行相同排序及K预算。没有组则拒绝且不调用模型；组超过K不能截断后冒称充分。相关冲突仍查询全部合格主张，不受选中范围限制。API默认all保留原阅读路径，页面默认已审核指标依据；新冻结发布固定 `reviewed-metric-candidates-1.5.0`，旧发布不静默取得新语义。实际VO₂/周期已知缺口回放在5/6段完整证据内满足各自最小合同；不是新独立质量或科学验证。详见 [范围合同](v15_reviewed_metric_scope.md) 和 [实际调用回执](../artifacts/v15/retrieval/reviewed-metric-scope-integration-1.json)。
+
+1.5.6的source-usage-scope-1.5.0在主张资格、Span候选、精排前后和父上下文复核中统一消费结构化组件许可。NC约束由license_id/license_candidates/license_url推导，不依赖后加的便利布尔字段；仅有本地索引/text-mining许可时不自动准入商业范围。被排除的NC主张也不能充当商业冲突证据或被依赖主张绕过。旧发布按当前许可有效性检查，不回写原成员、原rights JSON或历史评测。实证复现及有限方法绑定见 [本轮报告](v15_method_evidence_and_rights.md)。

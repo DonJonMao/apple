@@ -1,5 +1,7 @@
 # v1.5 教材接入目录（开发中）
 
+最新增量把已在v1.4取得的S5、R5两个JATS版本注册到v1.5（70+80个单元）；没有新来源身份或新下载。文件级归属保持provisional，仅逐段审核项追加content_checked。实际新增149项文档向量，当前缓存44934；原44785、44736和44403分别保留各自时点/冻结身份。最新静态矩阵为 `artifacts/v15/knowledge/evidence-coverage-matrix-3.json`：原77项中24项无需RAG、33项有绑定、26项类型/领域静态齐备，均不是准确率或科学有效性。详见 [方法依据及权限](v15_method_evidence_and_rights.md)。
+
 后续另外取得 Li 等的 [2023 年 Apple Women's Health Study 论文](https://doi.org/10.1038/s41746-023-00848-1)（PMID 37248288、PMCID PMC10226714）。这是独立于下文13份用户文件的新研究来源，不回写原PDF清单的数量。实际取得的是PMC JATS主文，50个原文Span；没有取得PDF、补充材料正文或2022年AWHS方法论文。
 
 Crossref、PubMed及正文身份均匹配，实际嵌入许可为 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，第三方组件仍逐范围核验；本次查询未发现更正标记不代表保证永无更正。登记50个结构单元，生成49项不同内容向量、复用1项，失败0；当前本地文档向量缓存44785项，不能与原冻结评测副本的数量混用。文件级physiology/wearable标签仍为provisional；仅6个完整原文段落追加AI辅助内容和应用核对，用于来源记录含义和漏记限制，不批准论文中的周期识别算法、阈值或个体推断。详见 [获取、定位、权利及旧行保护回执](../artifacts/v15/sources/cycle-source-acquisition-review-1.json) 和 [逐主张审核回执](../artifacts/v15/knowledge/reviewed-cycle-bindings-1.json)。
