@@ -48,3 +48,7 @@
 ### 追加来源审核的本地变更
 
 VO₂与周期各追加两项有限的AI辅助来源主张和既有观测扩展绑定，不迁移私人库，不改原77项配置，不新增数值候选规则。周期另行获取CC BY 4.0的AWHS 2023 JATS主文，登记50个Span、增量生成49项向量并复用1项；文件级领域仍provisional。原28张知识表的旧行按逐行哈希保护，每次应用审核包前另做SQLite备份。公开回执仅含元数据、定位、范围及哈希，正文、审核包和数据库留本地。详见 docs/v15_source_observations.md 及 artifacts/v15/sources/cycle-source-acquisition-review-1.json；历史冻结成员不自动获得新主张或查询表达。
+
+## 限定指标依据的兼容范围（1.5.5）
+
+`candidate_scope`是调用参数，不改变原77配置或私人schema；API默认all保持原查询身份。新索引manifest增加 `candidate_scope_version`，固定 `reviewed-metric-candidates-1.5.0`；历史manifest缺省只能使用原all范围，显式采用新范围必须创建新的发布ID。范围版本漂移时拒绝新冻结发布；不重写旧manifest。页面新增“依据范围”并默认已审核指标依据，仍可选择同领域阅读。此次不增加来源主张、应用规则或数值候选权限，来源和审核仍使用前一批已取得的数据；详见 [范围合同](v15_reviewed_metric_scope.md)。

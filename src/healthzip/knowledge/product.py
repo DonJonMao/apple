@@ -8,9 +8,10 @@ from .store import dumps
 
 def explain_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                    mode='lexical', k=6, services=None, allow_explanation_network=False, ai_config=None,
-                   query_form=None):
+                   query_form=None, candidate_scope='all'):
     evidence = w.retrieve_for_metric(metric_id, analysis_task, metric_result, context, release_id,
-                                    mode=mode, k=k, services=services, query_form=query_form)
+                                    mode=mode, k=k, services=services, query_form=query_form,
+                                    candidate_scope=candidate_scope)
     cards = []
     if evidence['capability_permissions']['source_explanation']:
         for claim in evidence['matched_claims']:

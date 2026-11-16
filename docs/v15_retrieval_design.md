@@ -41,3 +41,7 @@ Embedding 是实际可用的 `qwen3-embedding-8b` OpenAI-compatible 服务，观
 ## 显式查询形式
 
 检索1.5.4可明确选择 `zh`、`en` 或 `zh_synonym`，来自独立静态登记，不接受私人自由查询插值；省略时原组合查询不变。形式、语言、登记版本/哈希和固定输入哈希进入审计及新查询ID。新发布固定登记哈希，旧发布不会隐式采用新增形式。评测按同一Gold和预算分别运行，报告表达×领域、语言和跨领域的实际分母；多种表达仍是同一知识案例的相关重复。具体合同、原冻结兼容及运行命令见 [固定查询形式](v15_fixed_query_forms.md)。
+
+## 按指标审核组限定候选（1.5.5）
+
+`candidate_scope="reviewed_metric"`在原领域/权利候选中，只保留当前完整指标审核组和显式前提的精确Span，再执行相同排序及K预算。没有组则拒绝且不调用模型；组超过K不能截断后冒称充分。相关冲突仍查询全部合格主张，不受选中范围限制。API默认all保留原阅读路径，页面默认已审核指标依据；新冻结发布固定 `reviewed-metric-candidates-1.5.0`，旧发布不静默取得新语义。实际VO₂/周期已知缺口回放在5/6段完整证据内满足各自最小合同；不是新独立质量或科学验证。详见 [范围合同](v15_reviewed_metric_scope.md) 和 [实际调用回执](../artifacts/v15/retrieval/reviewed-metric-scope-integration-1.json)。

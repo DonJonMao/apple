@@ -13,7 +13,9 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.4"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.5"
+CANDIDATE_SCOPE_VERSION = "reviewed-metric-candidates-1.5.0"
+CANDIDATE_SCOPES = {"all", "reviewed_metric"}
 
 
 def _lexical(query, candidates):
@@ -70,10 +72,14 @@ def _release(w, release_id):
     if (manifest.get('query_forms_sha256') is not None
             and manifest['query_forms_sha256'] != query_forms.identity()):
         raise ValueError('frozen_query_forms_configuration_changed')
+    if (manifest.get('candidate_scope_version') is not None
+            and manifest['candidate_scope_version'] != CANDIDATE_SCOPE_VERSION):
+        raise ValueError('frozen_candidate_scope_configuration_changed')
     refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
     return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
         "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
         "query_forms_sha256": manifest.get('query_forms_sha256'),
+        "candidate_scope_version": manifest.get('candidate_scope_version'),
         "projection_set_ids": manifest.get('projection_set_ids', {})}, manifest['unit_assignments']
 
 
@@ -394,7 +400,7 @@ def _still_current(w, candidate, context):
 
 
 def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
-                        mode="hybrid_rerank", k=6, services=None, query_form=None):
+                        mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all"):
     from healthzip.science.contracts import validate_result
     config = domains.configuration(include_observations=True)
     if metric_id not in config["profiles"] or analysis_task not in {"explain_metric", *config["functions"]}:
@@ -404,6 +410,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     validate_result(metric_result)
     if mode not in MODES or type(k) is not int or not 1 <= k <= 20:
         raise ValueError("invalid_retrieval_mode_or_budget")
+    if not isinstance(candidate_scope, str) or candidate_scope not in CANDIDATE_SCOPES:
+        raise ValueError("unknown_metric_candidate_scope")
     profile = config["profiles"][metric_id]
     profile_version = domains.profile_version(metric_id)
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
@@ -414,6 +422,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     query_key = [metric_id, analysis_task, profile_version, release_id]
     if query_form is not None:
         query_key.append(query_identity)
+    if candidate_scope != 'all':
+        query_key.append({'candidate_scope': candidate_scope, 'version': CANDIDATE_SCOPE_VERSION})
     result = {"query_id": digest(dumps(query_key).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
@@ -421,6 +431,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
             "candidate_authority": "existing_application_rule_service_only"},
         "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
             "query_form": query_identity,
+            "candidate_scope": candidate_scope,
+            "candidate_scope_version": CANDIDATE_SCOPE_VERSION if candidate_scope != 'all' else None,
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
@@ -433,11 +445,31 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     if query_form is not None and release_id is not None:
         if _release(w, release_id)[2].get('query_forms_sha256') != query_identity['registry_sha256']:
             raise ValueError('frozen_release_does_not_pin_query_forms')
+    if candidate_scope != 'all' and release_id is not None:
+        if _release(w, release_id)[2].get('candidate_scope_version') != CANDIDATE_SCOPE_VERSION:
+            raise ValueError('frozen_release_does_not_pin_candidate_scope')
     candidates, claims, excluded, release = eligible_candidates(w, requested, context, release_id)
+    if candidate_scope == 'reviewed_metric':
+        # Derive the universe from current, applicable, fully reviewed metric
+        # links and their explicit prerequisites. No query/Gold-specific IDs or
+        # ranking exceptions; background reading keeps its separate scope.
+        groups, scope_conflicts = _metric_claims(w, metric_id, claims,
+            {c['span_id']: c for c in candidates}, context, release.get('edge_ids'))
+        scoped_ids = {sid for group in groups for sid in group['evidence_span_ids']}
+        audit['metric_candidate_scope'] = {
+            'eligible_domain_candidates': len(candidates),
+            'background_candidates_excluded': sum(c['span_id'] not in scoped_ids for c in candidates),
+            'complete_group_refs': [{key: group[key] for key in
+                ('claim_id', 'claim_version', 'evidence_span_ids', 'required_claim_refs')} for group in groups]}
+        candidates = [c for c in candidates if c['span_id'] in scoped_ids]
+        result['conflicts'] = scope_conflicts
     audit.update(excluded=excluded, release=release, eligible_candidate_count=len(candidates))
     audit['candidate_ids_sha256'] = digest(dumps([c['candidate_id'] for c in candidates]).encode())
     if not candidates:
-        result.update(status="insufficient_evidence", limitations=["no_current_eligible_domain_evidence"])
+        reason = 'no_complete_reviewed_metric_group' if candidate_scope == 'reviewed_metric' else 'no_current_eligible_domain_evidence'
+        result.update(status="insufficient_evidence", limitations=[reason])
+        if result['conflicts']:
+            result['limitations'].append('explicit_conflicting_claims_require_resolution')
         return _record_audit(w, result)
     lexical = _lexical(query, candidates)
     dense, reasons = [], []
@@ -562,6 +594,7 @@ def freeze_index(w, release_id):
         "profile_version": domains.configuration()["schema_version"],
         "profile_sha256": digest(dumps(domains.configuration()).encode()),
         "query_forms_sha256": query_forms.identity(),
+        "candidate_scope_version": CANDIDATE_SCOPE_VERSION,
         "claim_refs": [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version FROM source_claim WHERE status='verified' ORDER BY claim_id,version")],
         "edge_ids": [r[0] for r in w.lib.theories.execute("SELECT edge_id FROM knowledge_evidence_edge ORDER BY edge_id")],
         "unit_assignments": {r['span_id']: vector_index.unit_assignment(w, r) for r in units}}

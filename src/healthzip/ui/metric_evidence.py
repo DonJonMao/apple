@@ -17,6 +17,9 @@ def render_metric_evidence(metrics):
             return
         mid = st.selectbox('查看指标依据', available,
             format_func=lambda key: names[key]['title'], key='metric_evidence_metric')
+        candidate_scope = st.selectbox('依据范围', ['reviewed_metric', 'all'],
+            format_func=lambda key: {'reviewed_metric': '已审核的指标依据',
+                'all': '同领域资料（含待审核阅读材料）'}[key], key='metric_evidence_scope')
         mode = st.selectbox('检索方式', ['lexical', 'hybrid_rerank', 'hybrid', 'dense'],
             format_func=lambda key: {'lexical': '本地词项检索', 'hybrid_rerank': '混合检索并精排',
                                     'hybrid': '混合检索', 'dense': '语义检索'}[key])
@@ -42,7 +45,7 @@ def render_metric_evidence(metrics):
             w = KnowledgeWorkbench('.local/knowledge')
             try:
                 response = w.explain_metric(mid, task, metrics[mid],
-                    context, mode=mode,
+                    context, mode=mode, candidate_scope=candidate_scope,
                     allow_explanation_network=allow)
             finally:
                 w.close()
