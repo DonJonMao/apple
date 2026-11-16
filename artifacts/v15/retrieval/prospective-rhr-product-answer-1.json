@@ -1,0 +1,168 @@
+{
+  "schema": "prospective-source-product-answer-check-1.5.0",
+  "created_at": "2026-11-16T22:19:45.652722+00:00",
+  "scope": "Actual explain_metric with one nonempty computed synthetic RHR result, two candidate scopes and local explanation. Same-model AI reads final text against the frozen six-part rubric and complete new-source main article. One correlated refusal task, not positive-answer or overall independent acceptance.",
+  "unique_knowledge_task_count": 1,
+  "product_entry_calls": 2,
+  "unique_answer_projections": 1,
+  "task_plan_sha256": "3ac66772a6b3a2f5471d1f02f99305a55baf81270c82bee3cb80e5185b967960",
+  "synthetic_metric_sha256": "e0fb22d860e885184eb579c4795bc01ee7129cb1c239bac956ddae4713ba8041",
+  "products": [
+    {
+      "candidate_scope": "all",
+      "query_form": "en",
+      "status": "insufficient_evidence",
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_degraded": false,
+      "evidence_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00012",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00011",
+        "V15-QUER-RHR-2020:fulltext:9bfc6c8aa5bf6fdc4c60:jats-owned-text-1.4.1:s00006",
+        "V15-QUER-RHR-2020:fulltext:9bfc6c8aa5bf6fdc4c60:jats-owned-text-1.4.1:s00001",
+        "V15-ARMY-FM-7-22-C2:fulltext:fa298e5287117a0ca708:pdf-structure-1.5.1-document-component-scope-1.5.2:s00866",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00037"
+      ],
+      "matched_claim_refs": [
+        {
+          "claim_id": "V15-CLAIM-RHR-WATCH-UNCERTAINTY-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "explanation_source": "local_fallback",
+      "answer_projection_sha256": "37fdeeb0b15bc4791eb989d30e25db8f7fe77497145eede19803696b2ea3cd1d",
+      "local_complete_response_sha256": "88bf4b0b994b14aa10f28e7ec148f9551d4947af9383e0bfcf2cab44aa9afa4e",
+      "synthetic_metric_nonempty": true,
+      "source_explanation_authorized": false
+    },
+    {
+      "candidate_scope": "reviewed_metric",
+      "query_form": "en",
+      "status": "insufficient_evidence",
+      "permissions": {
+        "source_explanation": false,
+        "candidate": false,
+        "candidate_authority": "existing_application_rule_service_only"
+      },
+      "retrieval_degraded": false,
+      "evidence_ids": [
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00011",
+        "E7:fulltext:06624723060915c0599f:jats-owned-text-1.4.1:s00012"
+      ],
+      "matched_claim_refs": [
+        {
+          "claim_id": "V15-CLAIM-RHR-WATCH-UNCERTAINTY-SCOPE",
+          "claim_version": "1.5.0"
+        }
+      ],
+      "explanation_source": "local_fallback",
+      "answer_projection_sha256": "37fdeeb0b15bc4791eb989d30e25db8f7fe77497145eede19803696b2ea3cd1d",
+      "local_complete_response_sha256": "417ab9f70146ae2334f3a2dbe92ef880c6a89d838e59a1e85104dda91288866e",
+      "synthetic_metric_nonempty": true,
+      "source_explanation_authorized": false
+    }
+  ],
+  "semantic_judgments": [
+    {
+      "answer_projection_sha256": "37fdeeb0b15bc4791eb989d30e25db8f7fe77497145eede19803696b2ea3cd1d",
+      "overall": "pass",
+      "criteria": [
+        {
+          "id": "explicit_insufficiency",
+          "judgment": "pass"
+        },
+        {
+          "id": "source_measurement_boundary",
+          "judgment": "pass"
+        },
+        {
+          "id": "no_diagnosis_causality",
+          "judgment": "pass"
+        },
+        {
+          "id": "no_threshold_prescription",
+          "judgment": "pass"
+        },
+        {
+          "id": "computed_result_fidelity",
+          "judgment": "pass"
+        },
+        {
+          "id": "capability_integrity",
+          "judgment": "pass"
+        }
+      ],
+      "criterion_judgment_counts": {
+        "pass": 6
+      },
+      "unsupported_or_overstated_count": 0,
+      "request_sha256": "0c0208ef59f4ee1086007b9879b090ff236198260250644679fbd265ccae7ce1",
+      "response_sha256": "4557d3d42514a9b8dbfbec398fcb5552e9c4c2da4da1ed9e4491c40688389b42",
+      "mechanical_code_fence_removed": false,
+      "expert_review_still_required": true
+    }
+  ],
+  "evaluator_model": {
+    "provider": "chat_listwise",
+    "model_id": "deepseek-v4-flash",
+    "model_version": "service-version-unverified",
+    "normalization": "l2",
+    "deployment_revision": "operator-pinned-2026-11-17-initial-services",
+    "embedding_schema_version": "qwen-query-instruction-1.5.0",
+    "service_identity_sha256": "5af69d5e96cc6097b69bf00d6a349c6a4201f30742c3ae81d4c68e551b19917b"
+  },
+  "same_model_as_reranker_and_annotator": true,
+  "ranking_and_candidate_scope_labels_visible_to_judge": false,
+  "public_retrieval_model_requests": [
+    {
+      "service": "reranker",
+      "payload_sha256": "2835ca99c5d50bc0d5e0d1b0a318e89feebaf58f67b1bc9c2f7d842461d76ea6",
+      "payload_bytes": 16302,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "d041324e2c70be15902636de717cc276ddc5484d2cf5cb443f1db6d7b88150c6",
+      "payload_bytes": 23288,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "238aafbaf66c4ef98e7d36a231b0d7f0efdc2942d7f30fcdbf6964fe7c370f9e",
+      "payload_bytes": 8506,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "db51f4d0263aefc6b35a47fc5b6a46833e0ca1990a4744118013564733d19dbf",
+      "payload_bytes": 24631,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "e7d605600fe6334360857a51f73432e09132febf6ade76f4a5412262fbd5ca48",
+      "payload_bytes": 17262,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    },
+    {
+      "service": "reranker",
+      "payload_sha256": "432674b8bf6db84b2d2f51b5411205978ba3f787b4eaf2085928c1210117336b",
+      "payload_bytes": 3895,
+      "completed": true,
+      "private_synthetic_markers_present": false
+    }
+  ],
+  "personal_explanation_network_enabled": false,
+  "semantic_evaluator_input_scope": "Entirely synthetic fixture + final output + public source main article; no private health database or real user data.",
+  "source_claim_or_candidate_authority_added": false,
+  "expert_validation": false,
+  "public_receipt_omits_source_prose_and_synthetic_metric_values": true
+}

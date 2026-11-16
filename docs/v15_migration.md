@@ -29,7 +29,7 @@
 
 `request.json` 使用已计算的规范 MetricResult，不能让模型编造该结果。模型配置位于知识根目录 model-services.json，模板默认拒绝联网；实际运行还需用户已授权的本地配置。
 
-可选的较长完整单元准入需要在 `embedding` 内成对配置 `tokenizer_endpoint` 和 `context_window_tokens`。本机实测为同源 `http://111.19.156.74:8001/tokenize` 及4096；必须以当前实际服务为准，不能从模型名称猜容量。配置只接受与Embedding相同scheme/host/port的 `/tokenize`，计数响应必须含完整token ID列表且容量与声明一致。它沿用资料联网授权，不处理私人记录；原始输入不截断。模板两字段均为null，保持原保守字节准入。
+可选的较长完整单元准入需要在 `embedding` 内成对配置 `tokenizer_endpoint` 和 `context_window_tokens`。本机实测为同源 `/tokenize` 及4096；必须以当前实际服务为准，不能从模型名称猜容量。配置只接受与Embedding相同scheme/host/port的 `/tokenize`，计数响应必须含完整token ID列表且容量与声明一致。它沿用资料联网授权，不处理私人记录；原始输入不截断。模板两字段均为null，保持原保守字节准入。
 
 准入配置不属于向量数值变换，不改变既有模型缓存身份；显式续建只补获准的缺失完整单元，原向量和片段不覆盖。关闭时同时移除或置空两个字段；无需删除已生成的合法向量。后续本地向量补建不会改变既有冻结评测副本。
 
@@ -54,3 +54,5 @@ VO₂与周期各追加两项有限的AI辅助来源主张和既有观测扩展�
 `candidate_scope`是调用参数，不改变原77配置或私人schema；API默认all保持原查询身份。新索引manifest增加 `candidate_scope_version`，固定 `reviewed-metric-candidates-1.5.0`；历史manifest缺省只能使用原all范围，显式采用新范围必须创建新的发布ID。范围版本漂移时拒绝新冻结发布；不重写旧manifest。页面新增“依据范围”并默认已审核指标依据，仍可选择同领域阅读。此次不增加来源主张、应用规则或数值候选权限，来源和审核仍使用前一批已取得的数据；详见 [范围合同](v15_reviewed_metric_scope.md)。
 
 本轮1.5.6不迁移私人库或重写旧rights JSON。来源用途在运行时由结构化许可推导，旧冻结发布也遵守当前NC限制；审计追加rights_usage_policy_version。已有S5/R5版本补接150个provisional单元，并在两库SQLite备份后使用既有审核工具追加4条主张及11条边，原E1内容和审核原样复用。当前发布为v15-method-boundaries-rights-1，旧发布不获得新单元/绑定。回滚/迁移、许可复现和失败记录见 [本轮说明](v15_method_evidence_and_rights.md)。
+
+评测工具新增候选范围参数和Gold冻结回执的 `candidate_scopes` / `candidate_scope_version`，不需要数据库结构迁移；缺省仍all，旧回执不隐式获得新范围。新增来源Quer 2020在两库备份后追加公开来源版本和41个provisional单元/向量，没有审核主张或私人库变更。专用评测副本的 `v15-prospective-rhr-source-4` 发布固定当前成员、查询及范围；主知识库原发布身份仍保留。原文/向量只在本地，公开运行身份使用服务摘要和哈希，完整恢复身份留本地。详见 [本轮范围评测](v15_scoped_prospective_evaluation.md)。

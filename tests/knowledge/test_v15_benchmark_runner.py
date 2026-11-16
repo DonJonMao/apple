@@ -103,3 +103,114 @@ def test_paired_forms_keep_same_gold_and_count_variants_as_correlated_queries(kb
     (tmp_path / 'paired-freeze.json').write_text(json.dumps(freeze))
     with pytest.raises(ValueError, match='gold_freeze_must_pin_selected_query_forms'):
         namespace['run'](kb.root, path, config, None, tmp_path / 'different', tmp_path / 'different-public', query_form='en')
+
+
+def scoped_inputs(kb, tmp_path):
+    namespace = runpy.run_path(str(Path(__file__).parents[2] / 'tools/v15_run_retrieval_benchmark.py'))
+    path = tmp_path / 'scoped.json'
+    path.write_text(json.dumps({'schema': 'metric-retrieval-gold-1.5.0', 'created_at': '2026-11-17',
+        'annotator': 'Synthetic software test', 'synthetic_context_only': True, 'cases': [{
+            'case_id': 'scoped', 'metric_id': 'STR-12', 'synthetic_context': True,
+            'context': {'population': 'adults', 'measurement_protocol': 'explicit_synthetic_protocol'},
+            'required_domains': ['strength'],
+            'gold_span_ids': [], 'expected_abstention': True}]}))
+    freeze = {'gold_sha256': digest(path.read_bytes()),
+        'production_profiles_sha256': digest(dumps(domains.configuration()).encode()),
+        'query_forms_sha256': query_forms.identity(),
+        'candidate_scopes': ['all', 'reviewed_metric'],
+        'candidate_scope_version': metric_retrieval.CANDIDATE_SCOPE_VERSION}
+    freeze_path = tmp_path / 'scoped-freeze.json'
+    freeze_path.write_text(json.dumps(freeze))
+    config = tmp_path / 'services.json'
+    config.write_text('{"public_evidence_network_consent": false}')
+    metric_retrieval.freeze_index(kb, 'scoped-release')
+    return namespace, path, freeze, freeze_path, config
+
+
+@pytest.mark.parametrize(('policy', 'scope', 'reason'), [
+    ({'candidate_scopes': ['all']}, 'reviewed_metric', 'gold_freeze_must_pin_selected_candidate_scope'),
+    ({'candidate_scopes': ['reviewed_metric']}, 'all', 'gold_freeze_must_pin_selected_candidate_scope'),
+    ({'candidate_scope_version': 'changed'}, 'reviewed_metric', 'gold_freeze_must_pin_candidate_scope_version'),
+    ({'candidate_scopes': ['all', 'all']}, 'all', 'invalid_frozen_candidate_scopes'),
+    ({'candidate_scopes': ['all', {}]}, 'all', 'invalid_frozen_candidate_scopes'),
+    ({}, 'private free text', 'unknown_metric_candidate_scope'),
+])
+def test_scope_policy_is_checked_before_loading_models(kb, tmp_path, monkeypatch, policy, scope, reason):
+    ns, path, freeze, freeze_path, config = scoped_inputs(kb, tmp_path)
+    freeze.update(policy)
+    freeze_path.write_text(json.dumps(freeze))
+    monkeypatch.setitem(ns['run'].__globals__, 'load_services', lambda *a, **kw: pytest.fail('invalid freeze'))
+    with pytest.raises(ValueError, match=reason):
+        ns['run'](kb.root, path, config, 'scoped-release', tmp_path / 'raw', tmp_path / 'public',
+                  candidate_scope=scope)
+    assert not (tmp_path / 'public').exists()
+
+
+@pytest.mark.parametrize('release', [None, 'old-release'])
+def test_scoped_evaluation_requires_release_policy_even_before_any_candidates(kb, tmp_path, monkeypatch, release):
+    ns, path, _, _, config = scoped_inputs(kb, tmp_path)
+    manifest = json.loads(kb.lib.sources.execute(
+        "SELECT manifest_json FROM index_release WHERE release_id='scoped-release'").fetchone()[0])
+    manifest.pop('candidate_scope_version')
+    raw = dumps(manifest)
+    with kb.lib.sources:
+        kb.lib.sources.execute('INSERT INTO index_release VALUES(?,?,?,?)',
+            ('old-release', raw, digest(raw.encode()), '2026-11-17'))
+    monkeypatch.setitem(ns['run'].__globals__, 'load_services', lambda *a, **kw: pytest.fail('unpinned release'))
+    with pytest.raises(ValueError, match='scoped_evaluation_requires_pinned_index_release'):
+        ns['run'](kb.root, path, config, release, tmp_path / 'raw', tmp_path / 'public',
+                  candidate_scope='reviewed_metric')
+
+
+def test_paired_runner_applies_same_scope_to_every_variant_and_pins_resume(kb, tmp_path, monkeypatch):
+    from test_v15_ranked_coverage import add_group
+    from test_v15_retrieval import Embed, Rank, add
+
+    from healthzip.knowledge import KnowledgeWorkbench, vector_index
+
+    _, bound = add_group(kb)
+    _, background = add(kb, 'unbound-background', bind=False)
+    embed, rank = Embed(), Rank()
+    vector_index.build_vectors(kb, embed)
+    ns, path, _, _, config = scoped_inputs(kb, tmp_path)
+    monkeypatch.setitem(ns['run'].__globals__, 'KnowledgeWorkbench',
+                        lambda root: KnowledgeWorkbench(root, environment_kind='synthetic_test'))
+    monkeypatch.setitem(ns['run'].__globals__, 'load_services', lambda *a, **kw: (embed, rank))
+    report = ns['run_query_forms'](kb.root, path, config, 'scoped-release', tmp_path / 'raw', tmp_path / 'public',
+                                  candidate_scope='reviewed_metric')
+    assert report['candidate_scope'] == 'reviewed_metric'
+    assert report['unique_knowledge_case_count'] == 1
+    for form in query_forms.configuration()['forms']:
+        for variant in ns['VARIANTS']:
+            result = json.loads((tmp_path / f'raw/{form}/{variant}-scoped.json').read_text())['result']
+            assert result['retrieval_audit']['candidate_scope'] == 'reviewed_metric'
+            assert result['retrieval_audit']['eligible_candidate_count'] == len(bound)
+            assert background not in {s['span_id'] for s in result['evidence_spans']}
+        published = json.loads((tmp_path / f'public/{form}/evaluation.json').read_text())
+        private = json.loads((tmp_path / f'raw/{form}/run-identity.json').read_text())
+        identity = published['retrieval_config']['identity']
+        assert identity['private_run_identity_sha256'] == digest(dumps(private).encode())
+        assert 'endpoint' in private['models'][0]
+        assert 'endpoint' not in json.dumps(published)
+    ns['run'](kb.root, path, config, 'scoped-release', tmp_path / 'raw/en', tmp_path / 'public/en',
+              query_form='en', candidate_scope='reviewed_metric', _resume_completed=True)
+    with pytest.raises(ValueError, match='resume_requires_same_frozen_run_identity'):
+        ns['run'](kb.root, path, config, 'scoped-release', tmp_path / 'raw/en', tmp_path / 'other-public',
+                  query_form='en', candidate_scope='all', _resume_completed=True)
+
+
+def test_public_identity_omits_nested_operational_secrets_and_keeps_private_identity_distinct():
+    ns = runpy.run_path(str(Path(__file__).parents[2] / 'tools/v15_run_retrieval_benchmark.py'))
+    identity = {'models': [{'endpoint': 'https://private.invalid/model', 'model_id': 'synthetic',
+                            'tokenizer_endpoint': 'https://private.invalid/tokenize'}],
+                'annotation_provenance': {'API_KEY': 'SYNTHETIC-SECRET',
+                    'reviewers': [{'headers': {'Authorization': 'SYNTHETIC-HEADER'}, 'kind': 'AI'}]}}
+    public = ns['public_run_identity'](identity)
+    assert 'private.invalid' not in json.dumps(public) and 'SYNTHETIC-SECRET' not in json.dumps(public)
+    assert 'SYNTHETIC-HEADER' not in json.dumps(public)
+    assert public['annotation_provenance']['reviewers'] == [{'kind': 'AI'}]
+    assert identity['models'][0]['endpoint'] == 'https://private.invalid/model'
+    changed = json.loads(json.dumps(identity))
+    changed['models'][0]['endpoint'] = 'https://other.invalid/model'
+    another = ns['public_run_identity'](changed)
+    assert public['models'][0]['service_identity_sha256'] != another['models'][0]['service_identity_sha256']

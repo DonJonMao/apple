@@ -1,6 +1,8 @@
 # v1.5 教材接入目录（开发中）
 
-最新增量把已在v1.4取得的S5、R5两个JATS版本注册到v1.5（70+80个单元）；没有新来源身份或新下载。文件级归属保持provisional，仅逐段审核项追加content_checked。实际新增149项文档向量，当前缓存44934；原44785、44736和44403分别保留各自时点/冻结身份。最新静态矩阵为 `artifacts/v15/knowledge/evidence-coverage-matrix-3.json`：原77项中24项无需RAG、33项有绑定、26项类型/领域静态齐备，均不是准确率或科学有效性。详见 [方法依据及权限](v15_method_evidence_and_rights.md)。
+另取得 Quer 等（2020）日静息心率研究的CC BY 4.0完整JATS主文，41单元以provisional注册并增量生成41项向量，当前文档缓存44975。Crossref/PubMed/JATS身份相符；未取得PDF、补充材料或参与者数据，也没有新增科学主张或指标绑定。新增来源家族只用于有限前瞻任务，不把Fitbit专有方法转为Apple协议、恢复真值或个人阈值。详见 [本轮来源及评测](v15_scoped_prospective_evaluation.md) 与 `artifacts/v15/sources/quer-rhr-prospective-acquisition-1.json`；原13文件清单不改。
+
+前一轮增量把已在v1.4取得的S5、R5两个JATS版本注册到v1.5（70+80个单元）；没有新来源身份或新下载。文件级归属保持provisional，仅逐段审核项追加content_checked。实际新增149项文档向量，当前缓存44934；原44785、44736和44403分别保留各自时点/冻结身份。最新静态矩阵为 `artifacts/v15/knowledge/evidence-coverage-matrix-3.json`：原77项中24项无需RAG、33项有绑定、26项类型/领域静态齐备，均不是准确率或科学有效性。详见 [方法依据及权限](v15_method_evidence_and_rights.md)。
 
 后续另外取得 Li 等的 [2023 年 Apple Women's Health Study 论文](https://doi.org/10.1038/s41746-023-00848-1)（PMID 37248288、PMCID PMC10226714）。这是独立于下文13份用户文件的新研究来源，不回写原PDF清单的数量。实际取得的是PMC JATS主文，50个原文Span；没有取得PDF、补充材料正文或2022年AWHS方法论文。
 
