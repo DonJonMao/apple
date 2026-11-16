@@ -2,6 +2,7 @@
 
 import json
 import runpy
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -68,6 +69,28 @@ def test_unregistered_source_is_detected_before_claim_creation(kb, tmp_path):
     with pytest.raises(ValueError, match="register_source_units_before"):
         apply_packet(kb.root, path, tmp_path / "receipt.json", tmp_path / "backup")
     assert not kb.lib.theories.execute("SELECT 1 FROM source_claim WHERE claim_id='fixture-claim'").fetchone()
+
+
+@pytest.mark.parametrize('invalid_binding', [
+    {'applicability': [{'field': 'protocol', 'op': 'present', 'origin': 'measurement_contract'}]},
+    {'relation': 'conflicts_with'},
+])
+def test_invalid_later_binding_rejects_entire_packet_before_scientific_writes(kb, tmp_path, invalid_binding):
+    path, packet, sid = packet_fixture(kb, tmp_path)
+    later = deepcopy(packet['claims'][0])
+    later['claim']['claim_id'] = 'later-invalid-claim'
+    later['bindings'][0].update(invalid_binding)
+    packet['claims'].append(later)
+    path.write_text(json.dumps(packet))
+    backup, output = tmp_path / 'backup', tmp_path / 'receipt.json'
+    with pytest.raises(ValueError, match='traceable_metric_binding_required_before_writes'):
+        apply_packet(kb.root, path, output, backup)
+    assert not backup.exists() and not output.exists()
+    assert not kb.lib.theories.execute('SELECT 1 FROM source_claim').fetchone()
+    assert not kb.lib.theories.execute('SELECT 1 FROM knowledge_evidence_edge').fetchone()
+    assert not kb.lib.sources.execute('SELECT 1 FROM retrieval_unit_domain_review').fetchone()
+    assert kb.lib.sources.execute('SELECT assignment_status FROM retrieval_unit WHERE span_id=?',
+        (sid,)).fetchone()[0] == 'provisional'
 
 
 def test_observation_binding_uses_its_explicit_profile_without_bypassing_missing_evidence(kb, tmp_path):

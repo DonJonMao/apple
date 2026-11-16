@@ -50,6 +50,9 @@ def apply_packet(root, packet_path, output, backup_dir):
             if old and tuple(old) != (dumps(claim), dumps(item["review"])):
                 raise ValueError("existing_claim_and_review_must_be_reused_exactly")
             for binding in item["bindings"]:
+                if (binding.get('relation') not in {'applies_to', 'defines', 'limits', 'required_by'}
+                        or not isinstance(binding.get('applicability'), dict)):
+                    raise ValueError('traceable_metric_binding_required_before_writes')
                 _review(binding["review"], application=True)
                 profile = domains.configuration(include_observations=True)['profiles'].get(binding['metric_id'])
                 if profile is None:

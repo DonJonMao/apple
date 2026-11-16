@@ -1,5 +1,7 @@
 # v1.5 检索设计（开发中）
 
+1.5.7 从实际 MetricResult 派生不可由调用者覆盖的直接 RIR 条件；新预印本主张不适用于 RPE 换算、混合、区间或未知观察。新冻结索引记录派生上下文语义版本，漂移时拒绝；旧成员不获得新绑定。候选书目信息可读取不可变版本中明确登记的 `bibliographic_version`，保留 canonical work URL 与实际版本阶段/年份。详情和已知任务验证见 [RIR 版本依据](v15_rir_preprint_evidence.md)。
+
 离线评测支持显式固定 `all` 或 `reviewed_metric` 范围，A–E和三表达转发同一选择；新范围须由Gold和来源发布共同固定。公开报告对服务地址/凭据字段脱敏，并用身份哈希保留可核验性；生产缓存身份不变。新增来源前瞻任务及范围含义见 [评测范围合同](v15_scoped_prospective_evaluation.md)。
 
 `MetricResult + AnalysisTask → 固定指标依赖 → 当前权限/许可/版本/条件 → lexical 与 dense → RRF → 有界聊天精排 → 逐主张证据与冲突/完整性核对`。

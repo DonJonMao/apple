@@ -1,0 +1,52 @@
+{
+  "schema": "rir-development-attempt-notes-1",
+  "created_at": "2026-11-16T22:49:02.570969+00:00",
+  "prior_failures_preserved": true,
+  "attempts": [
+    {
+      "stage": "claim_semantic_response_parse",
+      "outcome": "rejected_unrecognized_positive_clause_label",
+      "recovery": "Original model response and positive label retained; parser explicitly accepts supported_with_stated_limits as a positive clause alias. No replacement review request.",
+      "log_sha256": "45b93c9a121b94af179e79fef0beac0a90c73b013ead5293161b89fabde987a9"
+    },
+    {
+      "stage": "first_review_packet_application",
+      "outcome": "partial_new_definition_claim_and_domain_review_before_invalid_edge_type_rejected",
+      "reason": "Metric evidence edges require dictionary applicability; first packet supplied a list.",
+      "recovery": "Added whole-packet binding relation/type preflight with two regression cases. Packet2 reuses unchanged claim content/review, corrects only edge applicability representation. New backup/receipt paths; no historical row rollback or overwrite.",
+      "first_packet_sha256": "d6f5e072ceaf884baf0abdab546332030fdf6d84f919bce34d20f3368ee893dc",
+      "corrected_packet_sha256": "a96faf7e92919b07cfbe56a72bc7584036eb843b672f1f07b1398b5de790ee8a"
+    },
+    {
+      "stage": "first_development_freeze_and_product",
+      "outcome": "insufficient_evidence",
+      "release_id": "v15-rir-author-preprint-1",
+      "recovery": "Partial freeze retained unchanged; new correctly bound release is v15-rir-author-preprint-2.",
+      "log_sha256": "182c97622a07efb3bb12794937cf28f3e92971b20e6b7e72dcc26c725aca337b"
+    },
+    {
+      "stage": "initial_full_regression",
+      "outcome": "explicitly_interrupted_for_new_preflight_fix",
+      "pytest_exit_code": 2,
+      "completed_tests_before_interrupt": 79,
+      "recovery": "Interrupted run and changed-input report preserved; fresh full regression2 uses final code/test inputs.",
+      "receipt_sha256": "d795397d67164e7ea2b7bcb5a4b8ee927dfad3602550e7d97e3e561264bd69e7"
+    },
+    {
+      "stage": "corrected_product_run",
+      "outcome": "local_sqlite_lock_while_history_read_ran_concurrently",
+      "saved_completed_outputs": 5,
+      "recovery": "Finished public model outputs reused under unchanged code, fixtures and freeze; remaining product calls resumed after reader exited. History verification moved after all product/model work.",
+      "log_sha256": "5b8604ccf0cc6a8b28dafac8d9bfcd79ad114bd240abb37cc208c602fac0d727",
+      "resume_log_sha256": "6da412f4d79dc340b9e2fea1acfb82c5ccd9b7cbebde7d338fa66c0ed7fccfca"
+    },
+    {
+      "stage": "first_history_verifier",
+      "outcome": "assertion_used_logical_configuration_digest_as_if_raw_file_digest",
+      "recovery": "Verifier now checks original raw profile-file SHA256 against raw file bytes. No profile or old database row changed."
+    }
+  ],
+  "historical_scores_rewritten": false,
+  "new_independent_evaluation_cases": 0,
+  "scope": "Local development/orchestration attempts and transparent recovery; not hidden accuracy retries."
+}

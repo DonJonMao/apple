@@ -1,5 +1,7 @@
 # v1.5 教材接入目录（开发中）
 
+最新补充 S4 的 2021 作者预印本（CC BY 4.0，OSF 预印本 v1、文件 v4），不代表取得 2022 正式版。完整原 PDF 留本地，只将 6 个逐页核对的完整正文/脚注纳入检索，另外 267 个解析提案未登记；增量 6 项向量，当前文档缓存 44981。两项有限主张/四条指标边仅适用于实际直接精确 RIR。最新静态矩阵 4：24 项无需 RAG、33 项有绑定、28 项类型/领域齐备；这些不是准确率。版本异常、定位及审核限制见 [RIR 预印本说明](v15_rir_preprint_evidence.md)。下文数量保留先前时点。
+
 另取得 Quer 等（2020）日静息心率研究的CC BY 4.0完整JATS主文，41单元以provisional注册并增量生成41项向量，当前文档缓存44975。Crossref/PubMed/JATS身份相符；未取得PDF、补充材料或参与者数据，也没有新增科学主张或指标绑定。新增来源家族只用于有限前瞻任务，不把Fitbit专有方法转为Apple协议、恢复真值或个人阈值。详见 [本轮来源及评测](v15_scoped_prospective_evaluation.md) 与 `artifacts/v15/sources/quer-rhr-prospective-acquisition-1.json`；原13文件清单不改。
 
 前一轮增量把已在v1.4取得的S5、R5两个JATS版本注册到v1.5（70+80个单元）；没有新来源身份或新下载。文件级归属保持provisional，仅逐段审核项追加content_checked。实际新增149项文档向量，当前缓存44934；原44785、44736和44403分别保留各自时点/冻结身份。最新静态矩阵为 `artifacts/v15/knowledge/evidence-coverage-matrix-3.json`：原77项中24项无需RAG、33项有绑定、26项类型/领域静态齐备，均不是准确率或科学有效性。详见 [方法依据及权限](v15_method_evidence_and_rights.md)。

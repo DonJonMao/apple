@@ -14,9 +14,56 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.6"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.7"
 CANDIDATE_SCOPE_VERSION = "reviewed-metric-candidates-1.5.0"
 CANDIDATE_SCOPES = {"all", "reviewed_metric"}
+METRIC_EVIDENCE_CONTEXT_VERSION = "computed-evidence-context-1.5.0"
+
+
+def _direct_rir_only(metric_id, value):
+    """A source about reported RIR cannot validate an RPE conversion.
+
+    Read the already computed result, including every displayed comparison;
+    caller context cannot assert this observation identity.
+    """
+    def observed(number):
+        return (isinstance(number, (int, float)) and not isinstance(number, bool)
+                and 0 <= number < math.inf)
+
+    if metric_id == 'STR-10':
+        return bool(isinstance(value, list) and value and all(
+            isinstance(row, dict) and row.get('converted') is False
+            and observed(row.get('rir')) and row.get('rir_interval') is None for row in value))
+    if metric_id == 'STR-14' and isinstance(value, dict):
+        comparisons = [value]
+        series = value.get('comparison_series', [])
+        if not isinstance(series, list):
+            return False
+        for item in series:
+            if not isinstance(item, dict) or not isinstance(item.get('value'), dict):
+                return False
+            comparisons.append(item['value'])
+        return all(observed(row.get('rir_before')) and observed(row.get('rir_after')) for row in comparisons)
+    return False
+
+
+def _version_source_metadata(w, source, version_id, cache):
+    """An author manuscript keeps its own citation, separate from the work."""
+    if version_id not in cache:
+        row = w.lib.sources.execute(
+            "SELECT CASE WHEN json_type(metadata_json,'$.bibliographic_version')='object' "
+            "THEN json_extract(metadata_json,'$.bibliographic_version') END FROM version WHERE version_id=?",
+            (version_id,)).fetchone()
+        value = json.loads(row[0]) if row and isinstance(row[0], str) else None
+        cache[version_id] = value if isinstance(value, dict) else {}
+    citation = {key: source.get(key) for key in ('title', 'year', 'authors', 'edition_id', 'canonical_url')}
+    overrides = cache[version_id]
+    if overrides:
+        citation['canonical_work_url'] = source.get('canonical_url')
+        citation.update({key: overrides[key] for key in (
+            'title', 'year', 'authors', 'canonical_url', 'doi', 'publication_stage',
+            'version_label', 'related_published_doi') if key in overrides})
+    return citation
 
 
 def _lexical(query, candidates):
@@ -76,6 +123,9 @@ def _release(w, release_id):
     if (manifest.get('candidate_scope_version') is not None
             and manifest['candidate_scope_version'] != CANDIDATE_SCOPE_VERSION):
         raise ValueError('frozen_candidate_scope_configuration_changed')
+    if (manifest.get('metric_evidence_context_version') is not None
+            and manifest['metric_evidence_context_version'] != METRIC_EVIDENCE_CONTEXT_VERSION):
+        raise ValueError('frozen_metric_evidence_context_changed')
     refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
     return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
         "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
@@ -141,7 +191,7 @@ def eligible_candidates(w, requested_domains, context, release_id):
         raise ValueError("metric_retrieval_science_partitions_only")
     matches = vector_index.current_units(w, requested_domains)
     excluded.extend(vector_index.prefiltered_version_groups(w))
-    candidates = []
+    candidates, version_metadata = [], {}
     for row in matches:
         assignment = frozen_assignments.get(row['span_id']) if frozen_assignments is not None else vector_index.unit_assignment(w, row)
         if assignment is None:
@@ -188,7 +238,7 @@ def eligible_candidates(w, requested_domains, context, release_id):
             "review_status": "claim_checked" if sid in links else "source_only_claim_review_pending",
             "content": span["text"], "input_content_hash": span["text_hash"],
             "evidence_role": "reviewed_claim_evidence" if sid in links else "background_only",
-            "source_metadata": {key: source.get(key) for key in ("title", "year", "authors", "edition_id", "canonical_url")}})
+            "source_metadata": _version_source_metadata(w, source, span['version_id'], version_metadata)})
         if release_id is not None:
             # Old frozen releases have no structural children. They never silently
             # acquire a projection created after their membership was frozen.
@@ -427,6 +477,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
         raise ValueError("metric_not_declared_for_analysis_function")
     context = dict(context or {})  # Kept local, never interpolated into a model query.
+    context['metric_evidence'] = {'version': METRIC_EVIDENCE_CONTEXT_VERSION,
+        'direct_rir_only': _direct_rir_only(metric_id, metric_result['value'])}
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
     query, query_identity = query_forms.select(metric_id, analysis_task, config, form=query_form)
     query_key = [metric_id, analysis_task, profile_version, release_id]
@@ -441,6 +493,7 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
             "candidate_authority": "existing_application_rule_service_only"},
         "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
             "rights_usage_policy_version": source_rights.USAGE_POLICY_VERSION,
+            "metric_evidence_context_version": METRIC_EVIDENCE_CONTEXT_VERSION,
             "query_form": query_identity,
             "candidate_scope": candidate_scope,
             "candidate_scope_version": CANDIDATE_SCOPE_VERSION if candidate_scope != 'all' else None,
@@ -606,6 +659,7 @@ def freeze_index(w, release_id):
         "profile_sha256": digest(dumps(domains.configuration()).encode()),
         "query_forms_sha256": query_forms.identity(),
         "candidate_scope_version": CANDIDATE_SCOPE_VERSION,
+        "metric_evidence_context_version": METRIC_EVIDENCE_CONTEXT_VERSION,
         "claim_refs": [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version FROM source_claim WHERE status='verified' ORDER BY claim_id,version")],
         "edge_ids": [r[0] for r in w.lib.theories.execute("SELECT edge_id FROM knowledge_evidence_edge ORDER BY edge_id")],
         "unit_assignments": {r['span_id']: vector_index.unit_assignment(w, r) for r in units}}

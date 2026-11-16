@@ -1,5 +1,7 @@
 # v1.4 → v1.5 本地迁移（开发中）
 
+1.5.7 不迁移私人 schema：S4 追加明确标记的作者预印本版本、6 个完整段落、2 项条件性主张及4 条指标边，新冻结发布为 `v15-rir-author-preprint-2`。初次失败的部分审核/发布保留，不用覆盖旧发布恢复。当前 S4 来源行仅 `updated_at` 因 `record_version` 更新，原 canonical manifest、旧版本、旧审核和此前工件不变；引用显示实际预印本身份。完整备份、失败恢复及复现条件见 [本轮迁移依据](v15_rir_preprint_evidence.md)。
+
 实际修改前已经通过 SQLite backup API 备份两库至 `.local/v15/backups/pre-v15/`。旧公开知识工件和打包资源共 318 份，哈希保护清单保留于 `.local/v15/bootstrap/historical-protection.json`。备份包含已提交 WAL；没有改造私人健康或训练库。
 
 新增领域、关系、索引、向量与审计表采用幂等 CREATE IF NOT EXISTS，不以 executescript 隐式提交调用者事务。写入使用 SAVEPOINT，调用者可整体 rollback。既有 Source、SourceVersion、Span、Theory、SourceClaim、ApplicationRule 和发布行保持原身份。新增文件的原始字节按 SHA256 去重保存到本地 blobs。
