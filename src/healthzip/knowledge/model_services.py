@@ -17,6 +17,7 @@ DEFAULT_EMBEDDING_ENDPOINT = "http://111.19.156.74:8001/v1/embeddings"
 DEFAULT_RERANKER_ENDPOINT = "http://111.19.156.30:8006/v1/chat/completions"
 EMBEDDING_SCHEMA = "qwen-query-instruction-1.5.0"
 EMBEDDING_MAX_BYTES = 3500  # Conservative bound below observed 4096-token context.
+EMBEDDING_REQUEST_MAX_BYTES = 64000  # Resource limit; longer inputs still need exact token admission.
 RERANKER_MAX_BYTES = 24000  # Per-request resource budget, not a relevance threshold.
 QUERY_INSTRUCTION = "Instruct: Given an exercise science analysis task, retrieve original evidence that explains its measurement, applicability and limitations.\nQuery: "
 _UNVERIFIED_SESSION = uuid4().hex
@@ -36,6 +37,8 @@ class ServiceConfig:
     public_evidence_network_consent: bool = False
     provider: str = "openai_compatible"
     deployment_revision: str = "unverified-session"
+    tokenizer_endpoint: str | None = None
+    context_window_tokens: int | None = None
 
     def __post_init__(self):
         url = urllib.parse.urlsplit(self.endpoint)
@@ -44,6 +47,13 @@ class ServiceConfig:
         if (not self.model_id or not self.model_version or not self.deployment_revision
                 or not 0 < self.timeout_seconds <= 120 or url.query or url.fragment):
             raise ValueError("invalid_model_identity_or_timeout")
+        if self.tokenizer_endpoint is not None or self.context_window_tokens is not None:
+            tokenizer = urllib.parse.urlsplit(self.tokenizer_endpoint or "")
+            if (type(self.context_window_tokens) is not int or self.context_window_tokens < 1
+                    or (tokenizer.scheme, tokenizer.netloc) != (url.scheme, url.netloc)
+                    or tokenizer.username or tokenizer.password or tokenizer.query or tokenizer.fragment
+                    or tokenizer.path != "/tokenize"):
+                raise ValueError("same_origin_tokenizer_and_verified_context_window_required")
 
     @property
     def identity(self):
@@ -67,13 +77,13 @@ class ModelClient:
     def __init__(self, config):
         self.config = config
 
-    def post(self, payload):
+    def _post_payload(self, payload, *, endpoint=None):
         if not self.config.public_evidence_network_consent:
             raise ModelUnavailable("public_evidence_network_consent_required")
         headers = {"Content-Type": "application/json"}
         if self.config.api_key:
             headers["Authorization"] = "Bearer " + self.config.api_key
-        request = urllib.request.Request(self.config.endpoint, data=dumps(payload).encode(), headers=headers)
+        request = urllib.request.Request(endpoint or self.config.endpoint, data=dumps(payload).encode(), headers=headers)
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
         try:
             with opener.open(request, timeout=self.config.timeout_seconds) as response:
@@ -83,16 +93,55 @@ class ModelClient:
             value = json.loads(raw)
         except (OSError, ValueError, urllib.error.URLError):
             raise ModelUnavailable("model_transport_or_json_error") from None
-        if not isinstance(value, dict) or value.get("model") != self.config.model_id:
+        if not isinstance(value, dict):
+            raise ModelUnavailable("model_response_identity_mismatch")
+        return value
+
+    def post(self, payload):
+        value = self._post_payload(payload)
+        if value.get("model") != self.config.model_id:
             raise ModelUnavailable("model_response_identity_mismatch")
         return value
 
 
 class EmbeddingProvider(ModelClient):
+    def __init__(self, config):
+        super().__init__(config)
+        self._token_counts = {}
+
+    def input_admission(self, text):
+        """Only explicit same-service token counts admit larger whole evidence units."""
+        if not isinstance(text, str) or not text.strip():
+            return {"admitted": False, "reason": "embedding_input_budget_or_type"}
+        size = len(text.encode())
+        if size <= EMBEDDING_MAX_BYTES and (self.config.context_window_tokens is None
+                                            or self.config.context_window_tokens >= 4096):
+            return {"admitted": True, "method": "conservative_utf8_byte_bound"}
+        if size > EMBEDDING_REQUEST_MAX_BYTES or not self.config.tokenizer_endpoint:
+            return {"admitted": False, "reason": "structured_unit_exceeds_model_budget"}
+        identity = digest(text.encode())
+        if identity not in self._token_counts:
+            value = self._post_payload({"model": self.config.model_id, "prompt": text,
+                "add_special_tokens": True}, endpoint=self.config.tokenizer_endpoint)
+            count, maximum, token_ids = value.get("count"), value.get("max_model_len"), value.get("tokens")
+            if (type(count) is not int or count < 1 or type(maximum) is not int
+                    or maximum != self.config.context_window_tokens or not isinstance(token_ids, list)
+                    or count != len(token_ids) or any(type(t) is not int or t < 0 for t in token_ids)):
+                raise ModelUnavailable("tokenizer_count_or_context_identity_invalid")
+            self._token_counts[identity] = count
+        count = self._token_counts[identity]
+        return {"admitted": count <= self.config.context_window_tokens,
+            "method": "same_service_exact_tokens", "token_count": count,
+            "context_window_tokens": self.config.context_window_tokens,
+            "reason": None if count <= self.config.context_window_tokens else "structured_unit_exceeds_model_token_budget"}
+
     def _embed(self, texts):
-        if not texts or len(texts) > 16 or any(not isinstance(t, str) or not t.strip() or len(t.encode()) > EMBEDDING_MAX_BYTES for t in texts):
+        if not texts or len(texts) > 16 or any(not self.input_admission(t)["admitted"] for t in texts):
             raise ValueError("embedding_input_budget_or_type")
-        value = self.post({"model": self.config.model_id, "input": texts})
+        payload = {"model": self.config.model_id, "input": texts}
+        if any(len(t.encode()) > EMBEDDING_MAX_BYTES for t in texts):
+            payload['truncate_prompt_tokens'] = None
+        value = self.post(payload)
         data = value.get("data")
         if not isinstance(data, list) or len(data) != len(texts):
             raise ModelUnavailable("embedding_count_mismatch")
@@ -257,7 +306,9 @@ def load_services(root, *, config_path=None):
             api_key=os.environ.get("HEALTHZIP_" + name.upper() + "_API_KEY", entry.get("api_key", "")),
             timeout_seconds=data.get("timeout_seconds", 20), public_evidence_network_consent=consent,
             provider=entry.get("provider", provider),
-            deployment_revision=entry.get("deployment_revision", "unverified-session"))
+            deployment_revision=entry.get("deployment_revision", "unverified-session"),
+            tokenizer_endpoint=entry.get("tokenizer_endpoint") if name == "embedding" else None,
+            context_window_tokens=entry.get("context_window_tokens") if name == "embedding" else None)
         # A deployment epoch is an operator-controlled invalidation boundary,
         # never a claim that the remote weights were independently verified.
         result.append(EmbeddingProvider(config) if name == "embedding" else RerankerProvider(config))

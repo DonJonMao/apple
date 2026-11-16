@@ -8,7 +8,7 @@ import sys
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 
-from .model_services import EMBEDDING_MAX_BYTES, ModelUnavailable
+from .model_services import ModelUnavailable
 from .store import digest, dumps, now
 from .transactions import atomic
 
@@ -206,7 +206,7 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
     if max_documents is not None and (type(max_documents) is not int or max_documents < 1):
         raise ValueError('positive_indexing_document_budget_required')
     ensure_schema(w)
-    pending, excluded, reused = {}, [], 0
+    pending, excluded, reused, failures, token_admissions = {}, [], 0, [], []
     for row in current_units(w):
         span = w.lib.span(row['span_id'], include_metadata=False)
         if span and version_ids is not None and span['version_id'] not in version_ids:
@@ -217,18 +217,25 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
         if not span["text"].strip():
             excluded.append({"span_id": row['span_id'], "reason": "empty_structured_unit"})
             continue
-        if len(span["text"].encode()) > EMBEDDING_MAX_BYTES:
-            excluded.append({"span_id": row['span_id'], "reason": "structured_unit_exceeds_model_budget"})
-            continue
         if cached(w, provider, span["text"], "document") is not None:
             reused += 1
-        else:
-            pending[span["text_hash"]] = span["text"]
+            continue
+        try:
+            admission = provider.input_admission(span["text"])
+        except ModelUnavailable as exc:
+            failures.append({"span_id": row['span_id'], "stage": "input_admission", "error": str(exc)})
+            continue
+        if not admission['admitted']:
+            excluded.append({"span_id": row['span_id'], "reason": admission['reason']})
+            continue
+        if admission['method'] == 'same_service_exact_tokens':
+            token_admissions.append({"span_id": row['span_id'], "input_hash": span['text_hash'], **admission})
+        pending[span["text_hash"]] = span["text"]
     texts = list(pending.values())
     deferred = max(0, len(texts) - max_documents) if max_documents is not None else 0
     if max_documents is not None:
         texts = texts[:max_documents]
-    generated, failures = 0, []
+    generated = 0
     starts = iter(range(0, len(texts), batch_size))
     # Only model requests run concurrently. SQLite reads, writes, and progress
     # callbacks stay on the caller thread, with at most `workers` live batches.
@@ -262,4 +269,9 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
             "deferred_by_explicit_budget": deferred, "index_scope_version_ids": sorted(version_ids) if version_ids is not None else 'all_registered_units',
             "prefiltered_versions": prefiltered_version_groups(w),
             "request_workers": workers,
+            "whole_unit_token_admissions": token_admissions,
+            "input_admission": {"conservative_byte_limit": 3500,
+                "tokenizer_endpoint": provider.config.tokenizer_endpoint,
+                "context_window_tokens": provider.config.context_window_tokens,
+                "source_text_truncated": False},
             "raw_sources_modified": False, "retrieval_degraded": bool(failures)}
