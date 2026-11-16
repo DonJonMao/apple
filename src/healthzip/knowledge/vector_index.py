@@ -32,6 +32,11 @@ def ensure_schema(w):
           created_at TEXT NOT NULL,PRIMARY KEY(model_key,input_hash,purpose))""",
         """CREATE TABLE IF NOT EXISTS retrieval_model_dimension(
           model_key TEXT PRIMARY KEY,dimension INTEGER NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS retrieval_projection_set(
+          projection_set_id TEXT PRIMARY KEY,span_id TEXT NOT NULL,parent_text_hash TEXT NOT NULL,
+          parent_structure_hash TEXT NOT NULL,projection_version TEXT NOT NULL,
+          manifest_json TEXT NOT NULL,created_at TEXT NOT NULL)""",
+        "CREATE INDEX IF NOT EXISTS retrieval_projection_parent ON retrieval_projection_set(span_id)",
     ]
     conn.execute("SAVEPOINT retrieval_v15")
     try:
@@ -156,8 +161,12 @@ def _unpack(raw):
 
 
 def cached(w, provider, text, purpose):
+    return cached_hash(w, provider, digest(text.encode()), purpose)
+
+
+def cached_hash(w, provider, input_hash, purpose):
     row = w.lib.sources.execute("SELECT dimension,vector FROM retrieval_vector WHERE model_key=? AND input_hash=? AND purpose=?",
-        (provider.config.model_key, digest(text.encode()), purpose)).fetchone()
+        (provider.config.model_key, input_hash, purpose)).fetchone()
     if not row:
         return None
     try:
@@ -206,7 +215,8 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
     if max_documents is not None and (type(max_documents) is not int or max_documents < 1):
         raise ValueError('positive_indexing_document_budget_required')
     ensure_schema(w)
-    pending, excluded, reused, failures, token_admissions = {}, [], 0, [], []
+    from . import table_projection
+    pending, excluded, reused, failures, token_admissions, projections = {}, [], 0, [], [], []
     for row in current_units(w):
         span = w.lib.span(row['span_id'], include_metadata=False)
         if span and version_ids is not None and span['version_id'] not in version_ids:
@@ -227,6 +237,27 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
             continue
         if not admission['admitted']:
             excluded.append({"span_id": row['span_id'], "reason": admission['reason']})
+            if span['kind'] == 'table':
+                try:
+                    projection = table_projection.project(span)
+                    children = projection['children']
+                    child_inputs, reused_children = {}, 0
+                    for child in children:
+                        if cached_hash(w, provider, child['input_hash'], 'document') is not None:
+                            reused_children += 1
+                            continue
+                        child_admission = provider.input_admission(child['text'])
+                        if not child_admission['admitted']:
+                            raise ValueError('table_projection_indivisible_group_exceeds_input_budget')
+                        child_inputs[child['input_hash']] = child['text']
+                    table_projection.register(w, projection)
+                    pending.update(child_inputs)
+                    projections.append({"projection_set_id": projection['projection_set_id'],
+                        "parent_span_id": span['span_id'], "parent_text_hash": span['text_hash'],
+                        "projection_version": table_projection.VERSION, "children": projection['manifest']['children'],
+                        "reused_child_vectors": reused_children})
+                except (ValueError, ModelUnavailable) as exc:
+                    failures.append({"span_id": row['span_id'], "stage": "table_projection", "error": str(exc)})
             continue
         if admission['method'] == 'same_service_exact_tokens':
             token_admissions.append({"span_id": row['span_id'], "input_hash": span['text_hash'], **admission})
@@ -264,12 +295,17 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
                     queued.cancel()
                 break  # Retain committed batches; resumption reuses them.
             submit_next()
+    for projection in projections:
+        projection['available_child_vectors'] = sum(cached_hash(w, provider, child['input_hash'], 'document') is not None
+            for child in projection['children'])
+        projection['complete'] = projection['available_child_vectors'] == len(projection['children'])
     return {"model": provider.config.identity, "generated": generated, "reused_span_vectors": reused,
             "pending_unique_contents": len(texts)-generated, "failures": failures, "excluded": excluded,
             "deferred_by_explicit_budget": deferred, "index_scope_version_ids": sorted(version_ids) if version_ids is not None else 'all_registered_units',
             "prefiltered_versions": prefiltered_version_groups(w),
             "request_workers": workers,
             "whole_unit_token_admissions": token_admissions,
+            "structural_projections": projections,
             "input_admission": {"conservative_byte_limit": 3500,
                 "tokenizer_endpoint": provider.config.tokenizer_endpoint,
                 "context_window_tokens": provider.config.context_window_tokens,

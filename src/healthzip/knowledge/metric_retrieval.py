@@ -5,7 +5,7 @@ import json
 import math
 from collections import Counter
 
-from . import domains, vector_index
+from . import domains, table_projection, vector_index
 from .applicability import context_match
 from .model_services import ModelUnavailable, load_services, rerank_windows
 from .retrieval import tokens
@@ -13,7 +13,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.1"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.2"
 
 
 def _lexical(query, candidates):
@@ -66,7 +66,8 @@ def _release(w, release_id):
         raise ValueError("frozen_profile_configuration_changed")
     refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
     return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
-        "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids']}, manifest['unit_assignments']
+        "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
+        "projection_set_ids": manifest.get('projection_set_ids', {})}, manifest['unit_assignments']
 
 
 def _claim_links(w, context, allowed_refs):
@@ -165,6 +166,10 @@ def eligible_candidates(w, requested_domains, context, release_id):
             "content": span["text"], "input_content_hash": span["text_hash"],
             "evidence_role": "reviewed_claim_evidence" if sid in links else "background_only",
             "source_metadata": {key: source.get(key) for key in ("title", "year", "authors", "edition_id", "canonical_url")}})
+        if release_id is not None:
+            # Old frozen releases have no structural children. They never silently
+            # acquire a projection created after their membership was frozen.
+            candidates[-1]['allowed_projection_set_id'] = release.get('projection_set_ids', {}).get(sid, '')
     return candidates, claims, excluded, release
 
 
@@ -178,14 +183,47 @@ def _dense(w, provider, query, candidates):
         vector = provider.embed_queries([query])[0]
         vector_index.save_vectors(w, provider, [query], [vector], "query")
     similarities, missing = {}, 0
-    for candidate in candidates:
-        doc = vector_index.cached(w, provider, candidate["content"], "document")
-        if doc is None:
-            missing += 1
-            continue
+
+    def similarity(doc):
         if len(doc) != len(vector):
             raise ModelUnavailable("query_document_dimension_mismatch")
-        similarities[candidate["candidate_id"]] = float(np.dot(doc, vector)) if np is not None else sum(a*b for a, b in zip(doc, vector))
+        return float(np.dot(doc, vector)) if np is not None else sum(a*b for a, b in zip(doc, vector))
+
+    for candidate in candidates:
+        doc = vector_index.cached(w, provider, candidate["content"], "document")
+        if doc is not None:
+            similarities[candidate['candidate_id']] = similarity(doc)
+            continue
+        span = w.lib.span(candidate['span_id'], include_metadata=False)
+        if (not span or not w.lib.eligible(span, 'fulltext')[0]
+                or span['text_hash'] != candidate['input_content_hash']):
+            missing += 1
+            continue
+        try:
+            projection = table_projection.current(w, span, allowed_id=candidate.get('allowed_projection_set_id'))
+        except (ValueError, TypeError, KeyError):
+            raise ModelUnavailable('table_projection_manifest_integrity_invalid') from None
+        if projection is None:
+            missing += 1
+            continue
+        scores = []
+        for child in projection['children']:
+            child_doc = vector_index.cached_hash(w, provider, child['input_hash'], 'document')
+            if child_doc is not None:
+                scores.append((similarity(child_doc), child))
+        info = {"projection_set_id": projection['projection_set_id'], "projection_version": table_projection.VERSION,
+            "parent_span_id": candidate['span_id'], "parent_text_hash": span['text_hash'],
+            "expected_child_vectors": len(projection['children']), "available_child_vectors": len(scores),
+            "complete": len(scores) == len(projection['children']),
+            "aggregation": "max_child_cosine_complete_projection", "original_parent_returned": True}
+        candidate['dense_projection'] = info
+        if not info['complete']:
+            missing += 1
+            continue  # A subset of rows cannot masquerade as a complete searchable table.
+        score, winner = sorted(scores, key=lambda item: (-item[0], item[1]['child_id']))[0]
+        info['winning_child'] = winner
+        info['winning_cosine'] = score
+        similarities[candidate['candidate_id']] = score
     return sorted(similarities, key=lambda key: (-similarities[key], key)), missing
 
 
@@ -400,6 +438,7 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
             if embedding is None:
                 raise ModelUnavailable("embedding_unavailable")
             dense, missing = _dense(w, embedding, query, candidates)
+            audit['dense_structural_projections'] = [c['dense_projection'] for c in candidates if 'dense_projection' in c]
             if missing:
                 reasons.append("dense_index_incomplete:" + str(missing))
         except ModelUnavailable as exc:
@@ -511,6 +550,13 @@ def freeze_index(w, release_id):
         "claim_refs": [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version FROM source_claim WHERE status='verified' ORDER BY claim_id,version")],
         "edge_ids": [r[0] for r in w.lib.theories.execute("SELECT edge_id FROM knowledge_evidence_edge ORDER BY edge_id")],
         "unit_assignments": {r['span_id']: vector_index.unit_assignment(w, r) for r in units}}
+    projections = {}
+    for identity in span_ids:
+        span = w.lib.span(identity, include_metadata=False)
+        if span['kind'] == 'table' and (projection := table_projection.current(w, span)):
+            projections[identity] = projection['projection_set_id']
+    if projections:
+        manifest['projection_set_ids'] = projections
     serialized = dumps(manifest)
     old = w.lib.sources.execute("SELECT manifest_json FROM index_release WHERE release_id=?", (release_id,)).fetchone()
     if old and old[0] != serialized:

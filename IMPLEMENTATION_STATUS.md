@@ -47,7 +47,9 @@ schema v4迁移使用事务，已有私人表原列保持，默认库已有备�
 
 ## v1.5 增量交付（2026-11-17，检索质量待验收）
 
-最新输入准入适配以可选同源分词服务核对完整原文实际token数，默认仍保守准入；实测4096-token容量下18个原字节超限单元完整补建，文档缓存44403→44421，3个表格仍超限，原文和冻结评测副本不变。整仓1518项、Ruff通过，231份验证输入不变并与主目录逐字节匹配；没有重建既有向量、增加审核或数值权限。说明及回执见 [当前交付](docs/v15_delivery.md)、`model-input-capacity-1.json`、`whole-unit-token-indexing-1.json` 和 `regression-token-admission-1.json`。
+`metric-hybrid-1.5.2` 已为3个真正超限的JATS表格建立315个完整结构行组索引，文档缓存44421→44736，重复构建新增0/复用315。原Span保持完整，dense汇总仅在全组向量可用时参与，命中行列与完整性进入审计；保留旧冻结发布及评测副本，未增加科学来源、审核或数值权限。整仓1533项及Ruff通过，234份输入全程不变。实际固定任务调用和27张旧表/318份历史工件保护回执见 [结构索引说明](docs/v15_structural_table_indexing.md)、`structural-table-indexing-1.json` 和 `regression-table-projection-1.json`；新增独立分母0。
+
+此前输入准入适配以可选同源分词服务核对完整原文实际token数，默认仍保守准入；实测4096-token容量下18个原字节超限单元完整补建，文档缓存44403→44421，3个表格仍超限，原文和冻结评测副本不变。整仓1518项、Ruff通过，231份验证输入不变并与主目录逐字节匹配；没有重建既有向量、增加审核或数值权限。说明及回执见 [当前交付](docs/v15_delivery.md)、`model-input-capacity-1.json`、`whole-unit-token-indexing-1.json` 和 `regression-token-admission-1.json`。
 
 后续检索实现 `metric-hybrid-1.5.1`：完整结构单元的重叠精排窗口保留尾部候选，同一K预算内选择完整审核主张和显式依赖；依赖缺失、撤销、循环或适用性未知均拒绝，范围与限制传入解释。整仓1510项通过、Ruff通过、230份验证输入不变，318份历史工件保持原哈希。本批没有新增数据库表、资料主张或数值候选权限。完整工作包验收及尚未接通的心肺/周期MetricResult链路见 [目标验收清单](docs/v15_goal_acceptance_audit.md)；以下保留先前已发布基线及实际失败记录。
 
