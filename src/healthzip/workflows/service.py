@@ -2,7 +2,8 @@
 import json
 import sqlite3
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from healthzip.advice import build_advice_context
 from healthzip.analytics.v13 import analyze
@@ -33,6 +34,13 @@ def _select_metrics(analysis, request):
             raise ValueError("selected_task_not_visible_in_workflow_window")
         metrics.update(selected_task["metrics"])
     selected = {mid: metrics[mid] for mid in WORKFLOWS[request["workflow_id"]]["metrics"]}
+    if request["workflow_id"] == "W4":
+        outcome = request["result_metric_id"] or ("STR-11" if request["task_id"] else "BODY-MASS-DAILY")
+        if outcome != "STR-11":
+            # A selected non-strength outcome cannot inherit unrelated strength
+            # comparisons, factors, follow-up counts or source permissions.
+            selected = {mid: selected[mid] for mid in (outcome,)}
+            selected_task = None
     if request["outcome_series_id"]:
         found = False
         for mid, metric in list(selected.items()):
@@ -53,8 +61,14 @@ def _nodes(request, metrics, facts, missing, hypotheses, knowledge, supplements)
     if request["workflow_id"] == "W3":
         comparable = True if any(s["recorded_difference"] is not None for s in supplements.get("vo2_segments", [])) else None
     elif request["workflow_id"] in {"W2", "W4", "W5"}:
+        mids = ("STATE-RHR", "STATE-SDNN", "BODY-MASS-DAILY")
+        if request["workflow_id"] == "W4":
+            outcome = request["result_metric_id"] or ("STR-11" if request["task_id"] else "BODY-MASS-DAILY")
+            mids = (outcome,) if outcome != "STR-11" else ()
+            if mids:
+                comparisons = [metrics[outcome]]
         comparable = True if any(len(points) > 1 and all(points[0]["protocol"])
-            for mid in ("STATE-RHR", "STATE-SDNN", "BODY-MASS-DAILY")
+            for mid in mids
             for points in (metrics.get(mid, {}).get("value") or {}).values()) else comparable
     if comparable is None and any(m["data_status"] in {"incompatible", "conflicted"} for m in comparisons):
         comparable = False
@@ -106,6 +120,11 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
                 or bool(prior.get("retrospective")) != (request.mode == "retrospective")):
             raise ValueError("selected_analysis_time_or_mode_mismatch")
         selected_context = {**prior.get("selection_context", {}), **selected_context}
+    if request.workflow_id == "W2":
+        day_start = instant(declared_request["cutoff_time"]).astimezone(ZoneInfo(request.timezone)).replace(hour=0, minute=0, second=0, microsecond=0)
+        selected_context.update(baseline_window={"start": (day_start-timedelta(days=request.baseline_days)).isoformat(),
+            "end": declared_request["cutoff_time"], "timezone": request.timezone},
+            baseline_completed_days=request.baseline_days)
     # Existing selection services re-resolve record IDs and protocol/visibility.
     analysis = analyze(repo, request.window_days, cutoff_time=declared_request["cutoff_time"],
         timezone_name=request.timezone, retrospective=request.mode == "retrospective",
@@ -138,7 +157,7 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
                         window_start=analysis["window_start"], window_end=analysis["window_end"], context=selected_context)
                         for mid in WORKFLOWS[request.workflow_id]["metrics"] if mid.startswith("STR-")}})
     metrics, selected_task = _select_metrics(analysis, declared_request)
-    strength_points = scoped_metrics(repo, declared_request, analysis, selected_task, metrics) if request.workflow_id in {"W1", "W2", "W4"} else []
+    strength_points = scoped_metrics(repo, declared_request, analysis, selected_task, metrics) if "STR-11" in metrics else []
     from .longitudinal import pretraining_contexts, review
     long_review = review(strength_points, {"start": analysis["window_start"], "end": analysis["window_end"], "timezone": request.timezone})
     before_training = pretraining_contexts(repo, strength_points, declared_request, selected_context) if long_review["start_long_term_review"] else []
@@ -146,12 +165,16 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
     sessions = TrainingService(repo).sessions_as_of(cutoff_time=declared_request["cutoff_time"])
     try:
         knowledge = evidence.retrieve(request.workflow_id, metrics, sessions, declaration,
-                                      root=knowledge_root, release_id=request.release_id, background_metrics=background_metrics)
+                                      root=knowledge_root, release_id=request.release_id, background_metrics=background_metrics,
+                                      result_metric_id=request.result_metric_id or ("STR-11" if declared_request["task_id"] else "BODY-MASS-DAILY"))
     except (OSError, RuntimeError, sqlite3.Error) as exc:
         knowledge = {"status": "service_failure", "queries": [], "release_id": request.release_id,
                      "reason_codes": [type(exc).__name__], "facts_preserved": True}
     facts, missing = describe(metrics)
     hypotheses = factors(metrics) if request.workflow_id in {"W1", "W2", "W4"} else []
+    if request.workflow_id == "W4" and "STR-11" not in metrics:
+        kind = "body_mass" if "BODY-MASS-DAILY" in metrics else "sleep_state"
+        hypotheses = [h for h in hypotheses if h["hypothesis_id"] == kind]
     if before_training:
         hypotheses = [h for h in hypotheses if h["hypothesis_id"] not in {"sleep_state", "body_mass"}] + pretraining_factors(before_training)
     hypotheses = attach_evidence(hypotheses, knowledge)
@@ -169,7 +192,7 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
         supplements["partial_current_period"] = {"start": partial_period["window_start"], "end": partial_period["window_end"],
             "cutoff_time": declared_request["cutoff_time"], "metric_id": mid, "metric": partial_metric,
             "identity": "current_partial_calendar_period_not_compared_as_complete_total"}
-        partial_followup = {mid: partial_period["metrics"][mid] for mid in ("STR-27", "STR-28", "REPORT-RECOMMENDATION-FOLLOWUP")}
+        partial_followup = {key: partial_period["metrics"][key] for key in ("STR-27", "STR-28", "REPORT-RECOMMENDATION-FOLLOWUP")} if mid == "STR-11" else {}
         if partial_task:
             scoped_metrics(repo, declared_request, partial_period, partial_task, partial_followup)
         supplements["partial_current_period"]["followup"] = partial_followup
@@ -229,8 +252,11 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
                     task_selection=task_selection, target=target,
                     candidate_ref={key: candidate[key] for key in ("candidate_id", "cutoff_time", "created_at", "theory_version")}
                         if candidate else None)
+    if selected_context.get("baseline_window"):
+        analysis["dependency_window_start"] = min(analysis["window_start"], selected_context["baseline_window"]["start"], key=instant)
+        snapshot["dependency_window_start"] = analysis["dependency_window_start"]
     if before_training:
-        analysis["dependency_window_start"] = min([analysis["window_start"]] +
+        analysis["dependency_window_start"] = min([analysis.get("dependency_window_start", analysis["window_start"])] +
             [m["window"]["start"] for ctx in before_training for m in ctx["metrics"].values()], key=instant)
         snapshot["dependency_window_start"] = analysis["dependency_window_start"]
     if partial_period:
@@ -278,10 +304,11 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
         raise
 
 
-def resume_workflow(repo, run_id, *, context_id=None, cutoff_time=None, candidate_id=None, knowledge_root=".local/knowledge"):
+def resume_workflow(repo, run_id, *, context_id=None, cutoff_time=None, candidate_id=None, selection_analysis_id=None, knowledge_root=".local/knowledge"):
     previous = load_run(repo, run_id)
     request = WorkflowRequest(**previous["request"])
     request = replace(request, context_id=context_id if context_id is not None else request.context_id,
                       cutoff_time=cutoff_time or datetime.now(timezone.utc).isoformat(), trigger="context_updated",
+                      selection_analysis_id=selection_analysis_id if selection_analysis_id is not None else request.selection_analysis_id,
                       candidate_id=candidate_id if candidate_id is not None else request.candidate_id)
     return run_workflow(repo, request, knowledge_root=knowledge_root, parent_run_id=run_id)

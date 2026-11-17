@@ -1,6 +1,8 @@
 """Repository-backed prerequisites reach actual retrieval and current revocation."""
 import json
+import runpy
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 from test_v15_retrieval import add
@@ -54,4 +56,37 @@ def test_saved_session_prerequisites_and_revocation(kb, tmp_path, monkeypatch, s
         decision = check_current_use(repo, run["run_id"], knowledge_root=kb.root)
         assert "source_use_dependencies_changed" in decision["reason_codes"]
         assert load_run(repo, run["run_id"]) == run
+    repo.close()
+
+
+@pytest.mark.parametrize("metric_id,canonical", [("STATE-RHR", "resting_heart_rate_bpm"), ("STATE-SDNN", "hrv_sdnn_ms")])
+def test_selected_longitudinal_outcome_uses_its_own_source_and_current_check(kb, tmp_path, monkeypatch, metric_id, canonical):
+    import healthzip.knowledge
+    from healthzip.knowledge.domains import configuration
+    from healthzip.workflows import load_analysis
+    helpers = runpy.run_path(str(Path(__file__).parents[1] / "integration/test_analysis_observation_flows.py"))
+    profile = configuration()["profiles"][metric_id]
+    add(kb, identity="selected-outcome", mid=metric_id, assigned=profile["required_domains"],
+        text="Synthetic software fixture: resting heart rate RHR and SDNN measurement protocol uncertainty and scope limitations; no individual recovery or candidate authority.")
+    metric_retrieval.freeze_index(kb, "selected-outcome-release")
+    monkeypatch.setattr(healthzip.knowledge, "KnowledgeWorkbench", lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
+    repo = Repository(tmp_path / "selected.sqlite3")
+    bid = helpers["batch"](repo)
+    now = datetime.now(timezone.utc)
+    for days, value in ((4, 60), (2, 62)):
+        helpers["sample"](repo, bid, str(days), canonical, value, (now-timedelta(days=days)).isoformat())
+    repo.conn.commit()
+    context_id = save_context(repo, {"population": "adults"})
+    run = run_workflow(repo, WorkflowRequest("W4", result_metric_id=metric_id, context_id=context_id, release_id="selected-outcome-release"), knowledge_root=kb.root)
+    assert [q["metric_id"] for q in run["knowledge"]["queries"]] == [metric_id]
+    query = run["knowledge"]["queries"][0]
+    assert query["permissions"]["source_explanation"] is True, json.dumps(query, ensure_ascii=False)
+    assert query["permissions"]["candidate"] is False
+    assert query["audit"]["retrieval_degraded"] is False
+    metric = load_analysis(repo, run["run_id"])["metrics"][metric_id]
+    assert [p["value"] for points in metric["value"].values() for p in points] == [60, 62]
+    assert check_current_use(repo, run["run_id"], knowledge_root=kb.root)["status"] == "current"
+    kb.core_state("claim", "selected-outcome", "1", "revoked", actor="Synthetic", rationale="Synthetic revocation")
+    assert "source_use_dependencies_changed" in check_current_use(repo, run["run_id"], knowledge_root=kb.root)["reason_codes"]
+    assert load_run(repo, run["run_id"]) == run
     repo.close()

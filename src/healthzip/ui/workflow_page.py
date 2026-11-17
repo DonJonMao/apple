@@ -113,11 +113,19 @@ def render_run(repo, result):
             "W4": ("STR-11", "STR-12", "STR-19", "BODY-MASS-DAILY", "BODY-MASS-TREND", "STR-09"),
             "W5": ("BODY-MASS-DAILY", "BODY-MASS-TREND", "ENERGY-BASAL", "ENERGY-ACTIVE", "ENERGY-DEVICE-TOTAL"),
         }[result["workflow_id"]]
+        if result["workflow_id"] == "W4":
+            outcome = result["request"]["result_metric_id"] or ("STR-11" if result["request"]["task_id"] else "BODY-MASS-DAILY")
+            primary = (outcome,) + tuple(mid for mid in primary if mid != outcome and mid in metrics)
         from healthzip.science import definitions
         names = definitions(include_observations=True)
-        for mid in primary:
+        for mid in primary[:3]:
             if mid in metrics:
                 _metric(metrics[mid], names[mid]["title"])
+        if len(primary) > 3:
+            with st.expander("更多分项记录与限制"):
+                for mid in primary[3:]:
+                    if mid in metrics:
+                        _metric(metrics[mid], names[mid]["title"])
         if result["supplements"].get("energy_coverage"):
             for row in result["supplements"]["energy_coverage"]:
                 st.write(f"完整能量日 {row['complete_days']}/{row['window_days']}；这些完整日均值 "
@@ -246,6 +254,7 @@ def render_workflows(repo, analysis=None):
                     index=0 if targets else None, key="workflow_set")
     with st.expander("查看范围与已确认信息"):
         days = st.number_input("查看天数", min_value=1, value=30, key="workflow_days")
+        baseline_days = st.number_input("描述基线/练前背景回看天数（仅限定范围）", min_value=1, value=28, key="workflow_baseline_days")
         period = st.selectbox("时间范围", [None, "week", "month"],
             format_func=lambda value: {None: "按查看天数", "week": "本地日历周", "month": "本地日历月"}[value], key="workflow_period")
         population = st.selectbox("适用人群自报（可留未知）", ["unknown", "adults", "healthy_adults", "trained_adults", "adult_athletes"], key="workflow_population")
@@ -287,7 +296,7 @@ def render_workflows(repo, analysis=None):
         if (analysis or {}).get("selection_context"):
             from healthzip.analytics.v13 import persist
             selection_id = persist(repo, analysis)
-        return WorkflowRequest(wid, context_id=context_id, window_days=int(days), period=period,
+        return WorkflowRequest(wid, context_id=context_id, window_days=int(days), baseline_days=int(baseline_days), period=period,
             cutoff_time=cutoff or None, mode=mode, result_metric_id=result_metric_id, task_id=task_id,
             timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
             session_id=session["id"] if session else None, session_exercise_id=instance["id"] if instance else None,
@@ -325,11 +334,18 @@ def render_workflows(repo, analysis=None):
                     st.json(decision)
         except (OSError, RuntimeError) as exc:
             st.error("当前核对服务未完成，请重试：" + type(exc).__name__)
+    use_new_selection = bool((analysis or {}).get("selection_context")) and st.checkbox(
+        "本次续算采用分析页新选择的记录（须与原任务时区和模式一致）", key="workflow_resume_selection")
+    st.caption("补录后续算保留本次任务、范围与已确认信息并更新截止时刻；修改上方设置后点击运行分析可建立新任务。")
     if st.button("补录后重新分析", key="workflow_resume"):
         try:
-            from dataclasses import replace
-            request = replace(requested(), candidate_id=result["request"]["candidate_id"], trigger="context_updated")
-            refreshed = run_workflow(repo, request, parent_run_id=result["run_id"])
+            selection_id = None
+            if use_new_selection:
+                from healthzip.analytics.v13 import persist
+                # The service validates cutoff, timezone and mode against the
+                # saved task before accepting a newly selected sleep source.
+                selection_id = persist(repo, analysis)
+            refreshed = resume_workflow(repo, result["run_id"], selection_analysis_id=selection_id)
             st.session_state[key] = refreshed["run_id"]
             st.rerun()
         except ValueError as exc:

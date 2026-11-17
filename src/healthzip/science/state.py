@@ -224,36 +224,48 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
         if "baseline_daily" not in context:
             streams = []
             reasons = ["equal_weight_per_day", "current_day_excluded_from_own_reference"]
+            completed_days = context.get("baseline_completed_days")
+            day_start = instant(window.cutoff_time).astimezone(ZoneInfo(window.timezone)).replace(hour=0, minute=0, second=0, microsecond=0)
             valid = 0
             for canonical in ("resting_heart_rate_bpm", "hrv_sdnn_ms"):
                 for key, daily in daily_values(rows, canonical, window.timezone).items():
                     if not daily:
                         continue
                     current, past = daily[-1], daily[:-1]
+                    if completed_days:
+                        current = next((p for p in daily if p["date"] == day_start.date().isoformat()), None)
+                        past = [p for p in daily if (day_start-timedelta(days=completed_days)).date().isoformat() <= p["date"] < day_start.date().isoformat()]
+                    protocol = daily[-1]["protocol"]
                     center = median(v["value"] for v in past) if past else None
                     mad = median(abs(v["value"] - center) for v in past) if len(past) > 1 else None
-                    protocol_known = current["protocol"][2] is not None
-                    deviation = current["value"] - center if center is not None else None
-                    z = deviation / (1.4826 * mad) if protocol_known and mad is not None and mad > 0 else None
-                    streams.append({"canonical_type": canonical, "stream": key, "protocol": current["protocol"],
+                    protocol_known = all(protocol) if completed_days else protocol[2] is not None
+                    deviation = current["value"] - center if current is not None and center is not None else None
+                    z = deviation / (1.4826 * mad) if deviation is not None and protocol_known and mad is not None and mad > 0 else None
+                    streams.append({"canonical_type": canonical, "stream": key, "protocol": protocol,
                                     "baseline_daily_n": len(past), "baseline_median": center, "MAD": mad,
                                     "scaled_MAD": 1.4826 * mad if mad is not None else None,
-                                    "current_daily_value": current["value"], "current_date": current["date"],
+                                    "current_daily_value": current["value"] if current else None, "current_date": current["date"] if current else None,
                                     "absolute_deviation": deviation, "robust_z": z,
                                     "baseline_source_ids": [i for d in past for i in d["source_ids"]],
-                                    "current_source_ids": current["source_ids"],
-                                    "reference_window": context.get("baseline_window", window.as_dict()),
+                                    "current_source_ids": current["source_ids"] if current else [],
+                                    "reference_window": {"start": (day_start-timedelta(days=completed_days)).isoformat(), "end": day_start.isoformat(), "timezone": window.timezone} if completed_days else context.get("baseline_window", window.as_dict()),
+                                    "baseline_dates": [p["date"] for p in past],
                                     "protocol_known": protocol_known})
                     valid += len(past)
                     if not protocol_known:
                         reasons.append("unknown_protocol_stream_descriptive_only")
                     if mad == 0:
                         reasons.append("MAD_zero_standardized_deviation_not_estimable")
+                    if current is None:
+                        reasons.append("current_local_day_not_observed")
             if not context.get("baseline_window"):
                 reasons.append("baseline_window_equals_requested_window_product_default")
+            if completed_days:
+                reasons.append("explicit_completed_local_days_product_baseline")
             return emit({"streams": streams} if streams else None,
-                        "valid" if streams and all(v["baseline_daily_n"] >= 2 and v["protocol_known"] for v in streams)
+                        "valid" if streams and all(v["baseline_daily_n"] >= 2 and v["protocol_known"] and (metric_id != "STATE-DEVIATION" or v["absolute_deviation"] is not None) for v in streams)
                         else "partial" if valid else "insufficient", evidence_status="descriptive",
+                        parameter_set_id=f"completed-local-days-1.6.1:{completed_days}" if completed_days else None,
                         reasons=sorted(set(reasons)))
         baseline = context.get("baseline_daily", [])
         current = context.get("current_observation")

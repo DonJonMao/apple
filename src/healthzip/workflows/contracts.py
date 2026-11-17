@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from healthzip.science.contracts import instant
 
-VERSION = "analysis-workflows-1.6.0"
+VERSION = "analysis-workflows-1.6.1"
 FUNCTION_NAMES = {
     "strength": "力量进阶", "recovery": "训练负荷与恢复背景",
     "cardiorespiratory": "心肺观察", "longitudinal": "长期趋势与可能因素",
@@ -41,6 +41,7 @@ class WorkflowRequest:
     mode: str = "prospective"
     trigger: str = "user_review"
     window_days: int = 30
+    baseline_days: int = 28
     window_start: str | None = None
     window_end: str | None = None
     period: str | None = None
@@ -60,6 +61,8 @@ class WorkflowRequest:
             raise ValueError("unknown_workflow_or_mode")
         if type(self.window_days) is not int or self.window_days < 1:
             raise ValueError("positive_display_window_required")
+        if type(self.baseline_days) is not int or self.baseline_days < 1:
+            raise ValueError("positive_descriptive_baseline_window_required")
         if self.period not in {None, "week", "month"}:
             raise ValueError("unknown_calendar_period")
         if self.window_start is not None or self.window_end is not None:
@@ -69,6 +72,9 @@ class WorkflowRequest:
                 raise ValueError("explicit_window_must_be_nonempty")
         if self.result_metric_id not in {None, "STR-11", "BODY-MASS-DAILY", "STATE-RHR", "STATE-SDNN"}:
             raise ValueError("unknown_longitudinal_outcome")
+        if (self.workflow_id == "W4" and self.result_metric_id not in {None, "STR-11"}
+                and any((self.task_id, self.session_exercise_id, self.candidate_id))):
+            raise ValueError("strength_task_requires_strength_outcome")
         ZoneInfo(self.timezone)
         if self.trigger not in {"user_review", "record_saved", "followup", "context_updated"}:
             raise ValueError("unknown_workflow_trigger")

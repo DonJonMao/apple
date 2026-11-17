@@ -1,0 +1,2104 @@
+{
+  "schema": "analysis-core-acceptance-matrix-1.6.1",
+  "identity": "requirements_mapping_not_scientific_validation",
+  "metric_count": 77,
+  "observation_extensions": [
+    {
+      "metric_id": "OBS-VO2-REPORTED",
+      "consumer": "W3",
+      "code": "src/healthzip/analytics/observations.py",
+      "test": "tests/integration/test_analysis_observation_flows.py::test_w3_single_unknown_and_known_segmented_estimates_reach_page",
+      "boundary": "设备估计及来源版本分段，不增加原77项数量。"
+    },
+    {
+      "metric_id": "OBS-CYCLE-RECORDS",
+      "consumer": null,
+      "boundary": "不在本轮流程；保留旧数据，不调用 AWHS 周期分析。"
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "STR-01",
+      "title": "已完成工作组数",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-01-T03]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-02",
+      "title": "完成次数与等长持续时间",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-02-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-03",
+      "title": "负荷口径与可计算负荷",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-03-T03]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-04",
+      "title": "配重×次数汇总",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-04-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-05",
+      "title": "直接参与肌群工作组",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-05-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-06",
+      "title": "间接参与肌群工作组",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-06-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "no_current_supported_claim_component",
+        "missing": [
+          "anatomical_exercise_mapping"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-07",
+      "title": "可比暴露次数与观测跨度",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-07-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-08",
+      "title": "训练频率与场次间隔",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-08-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-09",
+      "title": "计划执行率",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-09-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-10",
+      "title": "逐组RIR与RPE",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-10-T02]"
+      ],
+      "production_evidence_status": "bounded_source_explanation_observed_in_actual-library-long-review-3.json",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-11",
+      "title": "参考工作组表现",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-11-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "personal_measurement_error"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-12",
+      "title": "同负荷次数变化",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-12-T01]"
+      ],
+      "production_evidence_status": "actual_library_case_has_applicability_or_sufficiency_limits; preserve_facts",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-13",
+      "title": "同次数负荷变化",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-13-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-14",
+      "title": "同工作量RIR变化",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-14-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-15",
+      "title": "同场组间表现下降",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-15-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "matched_actual_effort",
+          "within_session_decline_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-16",
+      "title": "普通e1RM参考",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-16-T03]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-17",
+      "title": "RIR修正e1RM实验值",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-17-T01]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "rir_conditions_unknown",
+          "combined_formula_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-18",
+      "title": "个人任务测量误差",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-18-T01]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-19",
+      "title": "局部表现趋势点估计",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-19-T02]"
+      ],
+      "production_evidence_status": "actual_library_case_has_applicability_or_sufficiency_limits; preserve_facts",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "complete_covariance_formula",
+          "personal_temporal_calibration"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-20",
+      "title": "趋势变化区间",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-20-T01]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "complete_covariance_formula",
+          "personal_interval_coverage"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-21",
+      "title": "实用变化范围",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-21-T01]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "task_specific_practical_margin"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-22",
+      "title": "持续无实质改善候选",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T03]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "valid_personal_uncertainty",
+          "repeated_look_control"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-23",
+      "title": "进阶机会是否被检验",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-23-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "observed_stop_reason"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-24",
+      "title": "重复查看的误报控制",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [
+        "W1"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-24-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "sequential_or_family_error_method"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-25",
+      "title": "可用负荷步长与增重候选",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S5",
+      "use_class": "separate_action_rule",
+      "workflow_consumers": [
+        "W1",
+        "W4_strength_action_entry"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-25-T02]"
+      ],
+      "production_evidence_status": "existing_actual_rules_exercised_in_actual-library-long-review-3.json; current_use_required",
+      "boundary": "由 advice 的用户计划、实际参考、当前状态、器械和有效 ApplicationRule 决定；通用工作流快照的缺项不取消该独立入口。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "actual_equipment_step",
+          "user_plan_and_eligibility"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-26",
+      "title": "停滞后策略试验候选",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S5",
+      "use_class": "separate_action_rule",
+      "workflow_consumers": [
+        "W1",
+        "W4_strength_action_entry"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-26-T01]"
+      ],
+      "production_evidence_status": "existing_actual_rules_exercised_in_actual-library-long-review-3.json; current_use_required",
+      "boundary": "由 advice 的用户计划、实际参考、当前状态、器械和有效 ApplicationRule 决定；通用工作流快照的缺项不取消该独立入口。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "individual_strategy_comparative_validity"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-27",
+      "title": "建议执行结果",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S6",
+      "use_class": "selection_execution_followup",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-27-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "分开采纳、执行、达标及后续变化；未知保留分母；不是疗效。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "observed_adoption_execution_outcomes",
+          "causal_followup_design"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-28",
+      "title": "建议结果汇总",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S6",
+      "use_class": "selection_execution_followup",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-28-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "分开采纳、执行、达标及后续变化；未知保留分母；不是疗效。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "observed_denominators",
+          "dependence_aware_followup_method"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STR-29",
+      "title": "力量记录覆盖与可比覆盖",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-29-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STR-30",
+      "title": "相对体重力量参考比",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/strength.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-30-T01]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "compatible_strength_measure",
+          "time_pairing_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STATE-SLEEP-MAIN",
+      "title": "主睡眠已观察时长",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-MAIN-T03]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-SLEEP-24H",
+      "title": "截止前24小时睡眠",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-24H-T02]"
+      ],
+      "production_evidence_status": "actual_library_case_has_applicability_or_sufficiency_limits; preserve_facts",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "rolling_24h_and_nap_ascertainment"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STATE-SLEEP-COVERAGE",
+      "title": "睡眠记录日期覆盖率",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-COVERAGE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-SLEEP-STAGE",
+      "title": "睡眠阶段时长与注释覆盖",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-STAGE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-SLEEP-TIMING",
+      "title": "睡眠时点与中点",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SLEEP-TIMING-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-RHR",
+      "title": "静息心率每日代表值",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W3",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-RHR-T02]"
+      ],
+      "production_evidence_status": "actual_library_case_has_applicability_or_sufficiency_limits; preserve_facts",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-SDNN",
+      "title": "同协议SDNN每日代表值",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2",
+        "W3",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SDNN-T03]"
+      ],
+      "production_evidence_status": "bounded_source_explanation_observed_in_actual-library-long-review-3.json",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MEDIAN",
+      "title": "个人参考中位数",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MEDIAN-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "personal_median_reference_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STATE-REFERENCE-MAD",
+      "title": "个人参考离散度",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-REFERENCE-MAD-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-DEVIATION",
+      "title": "绝对与稳健标准化偏离",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-DEVIATION-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "mad_threshold_validation",
+          "cause_or_recovery_validity"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "STATE-FATIGUE",
+      "title": "训练前总体疲劳自评",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-FATIGUE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-SORENESS",
+      "title": "肌群酸痛自评",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-SORENESS-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "STATE-PAIN",
+      "title": "疼痛/不适报告",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STATE-PAIN-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "LOAD-SRPE",
+      "title": "整次训练sRPE",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "LOAD-DURATION",
+      "title": "整次训练协议时长",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-DURATION-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "LOAD-SRPE-AU",
+      "title": "sRPE内部负荷代理",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/state.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W2"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[LOAD-SRPE-AU-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "BODY-MASS-DAILY",
+      "title": "每日可比体重",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W4",
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-DAILY-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "BODY-MASS-TREND",
+      "title": "真实时间体重趋势",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W1",
+        "W4",
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-TREND-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "BODY-MASS-RELATIVE",
+      "title": "相对体重变化速率",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[BODY-MASS-RELATIVE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "ENERGY-BASAL",
+      "title": "设备报告静息能量",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-BASAL-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "specific_source_resting_field_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "ENERGY-ACTIVE",
+      "title": "设备报告活动能量",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ACTIVE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "ENERGY-DEVICE-TOTAL",
+      "title": "设备报告总能量",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DEVICE-TOTAL-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "ENERGY-RECORD-COVERAGE",
+      "title": "能量记录日期覆盖",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S1/S2/S3",
+      "use_class": "recorded_or_deterministic_description",
+      "workflow_consumers": [
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-RECORD-COVERAGE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "记录和定义计算；科学解释须另核对当前主张/完整证据组，不能说明个人原因。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "ENERGY-NET-STORAGE",
+      "title": "平均净储能变化",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-NET-STORAGE-T03]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "body_composition_water_and_density_identification"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "ENERGY-DELTA-INTAKE",
+      "title": "相对初始平衡摄入变化",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T02]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-DELTA-INTAKE-T03]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "initial_equilibrium_activity_and_personal_parameters"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "ENERGY-ABSOLUTE-INTAKE",
+      "title": "绝对摄入条件估计",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-ABSOLUTE-INTAKE-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "ENERGY-IDENTIFIABILITY",
+      "title": "摄入与设备偏差可识别性状态",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/energy.py",
+      "node": "S2/S4",
+      "use_class": "model_identifiability_boundary",
+      "workflow_consumers": [
+        "W5"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[ENERGY-IDENTIFIABILITY-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "展示 D=E+b、Q=I−E 的非唯一性及未知量；不由缺少文献证明数学不可识别。",
+      "prior_task_review": {
+        "status": "no_current_supported_claim_component",
+        "missing": [
+          "structural_separation_of_intake_expenditure_and_bias"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "PRED-B0",
+      "title": "可比历史B0参考预测",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/prediction.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B0-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "forward_time_forecast_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "PRED-B1",
+      "title": "单状态增量B1研究预测",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/prediction.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-B1-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "no_current_supported_claim_component",
+        "missing": [
+          "current_supported_incremental_prediction_claim",
+          "forward_time_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "PRED-ERROR-GAIN",
+      "title": "B0/B1成对预测误差差异",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/prediction.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-ERROR-GAIN-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "no_current_supported_claim_component",
+        "missing": [
+          "current_supported_paired_forecast_error_claim"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "PRED-INTERVAL",
+      "title": "预测区间校准与宽度",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/prediction.py",
+      "node": "S2",
+      "use_class": "gated_research_or_design",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[PRED-INTERVAL-T02]"
+      ],
+      "production_evidence_status": "no_new_target_validation_or_production_authority",
+      "boundary": "本轮没有注入模型、个体误差、等效带或真人校准；保留缺项/研究身份，不授权个人行动。",
+      "prior_task_review": {
+        "status": "no_current_supported_claim_component",
+        "missing": [
+          "current_supported_future_outcome_interval_claim",
+          "coverage_and_width_validation"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "REPORT-PERIOD-COVERAGE",
+      "title": "周月指标记录覆盖",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/reports.py",
+      "node": "report",
+      "use_class": "report_aggregation",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-PERIOD-COVERAGE-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "现有周/月快照报告消费；工作流按组成事实复核，不把汇总当作新科学推断。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "REPORT-STATE-SUMMARY",
+      "title": "周月身体状态摘要",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/reports.py",
+      "node": "report",
+      "use_class": "report_aggregation",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-STATE-SUMMARY-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "现有周/月快照报告消费；工作流按组成事实复核，不把汇总当作新科学推断。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "actual_signal_protocol_and_coverage"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "REPORT-ENERGY-SUMMARY",
+      "title": "周月体重与能量摘要",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/reports.py",
+      "node": "report",
+      "use_class": "report_aggregation",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-ENERGY-SUMMARY-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "现有周/月快照报告消费；工作流按组成事实复核，不把汇总当作新科学推断。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "actual_components_intervals_and_coverage"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "REPORT-RECOMMENDATION-FOLLOWUP",
+      "title": "建议执行与后续结果",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/reports.py",
+      "node": "S6",
+      "use_class": "selection_execution_followup",
+      "workflow_consumers": [
+        "W1",
+        "W4"
+      ],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T01]",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[REPORT-RECOMMENDATION-FOLLOWUP-T02]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "分开采纳、执行、达标及后续变化；未知保留分母；不是疗效。",
+      "prior_task_review": {
+        "status": "bounded_components_only",
+        "missing": [
+          "followup_selection_confounding_and_denominators"
+        ],
+        "full_task_scientific_sufficiency": "not_established_by_this_review"
+      }
+    },
+    {
+      "metric_id": "QAL-01",
+      "title": "充分证据组召回",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-01-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-02",
+      "title": "检索证据精度与重复负担",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-02-T04]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-03",
+      "title": "引用可定位与邻近支持精度",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-03-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-04",
+      "title": "可检验主张支持率",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-04-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-05",
+      "title": "科学适用性错误率",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-05-T04]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-06",
+      "title": "无依据数字与因果越界",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-06-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-07",
+      "title": "证据不足与可回答情境的双向错误",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-07-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-08",
+      "title": "回退率、回退原因与完成情况",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-08-T04]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-09",
+      "title": "原文获取、理论审核与功能证据覆盖",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-09-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-10",
+      "title": "路由越权与数据隔离违反",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-10-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-11",
+      "title": "数值、单位和版本一致性",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-11-T05]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    },
+    {
+      "metric_id": "QAL-12",
+      "title": "来源身份、版本、权利与撤稿完整性",
+      "pdf": "appendix_B_77_metrics",
+      "code": "src/healthzip/science/evaluation.py",
+      "node": "offline_audit",
+      "use_class": "evaluation_audit_only",
+      "workflow_consumers": [],
+      "consumer_limit": "W4 non-strength selects only its explicit outcome; listed W4 metrics otherwise apply to strength review",
+      "tests": [
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T01]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T02]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T03]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T04]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T05]",
+        "tests/science/test_quality_acceptance.py::test_quality_catalog_accounting[QAL-12-T06]"
+      ],
+      "production_evidence_status": "definition_or_record_provenance_not_external_validation",
+      "boundary": "评测工具保留原分母；不进入健康结论、不作为个人置信分数。本轮不重开被取消比较。",
+      "prior_task_review": null
+    }
+  ],
+  "pdf_cases": [
+    {
+      "id": "T01",
+      "node": "S1",
+      "entry": "力量记录/导入",
+      "code": [
+        "src/healthzip/training/service.py",
+        "src/healthzip/science/strength.py"
+      ],
+      "assertions": "重传只计一次，真实相同两组分别计数",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_work_set_structure_and_retries"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T02",
+      "node": "S1/S5",
+      "entry": "力量进阶→候选",
+      "code": [
+        "src/healthzip/science/semantics.py",
+        "src/healthzip/advice.py"
+      ],
+      "assertions": "30→32.5每侧：配重+5，总阻力百分比未知",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_plate_load_and_assistance_semantics",
+        "tests/integration/test_analysis_w1_flow.py::test_smith_trial_normal_page_choice_execution_and_review"
+      ],
+      "production_evidence_status": "existing_actual_library_normal_path_in_actual-library-long-review-4.json; current_rules_required"
+    },
+    {
+      "id": "T03",
+      "node": "S2",
+      "entry": "分析→同条件任务",
+      "code": [
+        "src/healthzip/science/semantics.py",
+        "src/healthzip/workflows/selection.py"
+      ],
+      "assertions": "动作/器械/ROM/协议异同分段；未知不合并",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_reference_not_hindsight_best_and_effort_not_repetitions",
+        "tests/science/test_review_repairs.py::test_r02_protocol_identity_and_version_are_part_of_measurement_contract"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T04",
+      "node": "S1/S2",
+      "entry": "分析→参考组选择",
+      "code": [
+        "src/healthzip/analytics/reference_selection.py",
+        "src/healthzip/science/strength.py"
+      ],
+      "assertions": "事后最佳不冒充前瞻预指定参考",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_reference_not_hindsight_best_and_effort_not_repetitions"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T05",
+      "node": "S5",
+      "entry": "力量进阶→双重进阶",
+      "code": [
+        "src/healthzip/science/strength.py STR-25"
+      ],
+      "assertions": "30×10未到8–12上限，不自动进阶",
+      "tests": [
+        "tests/integration/test_analysis_w1_flow.py::test_smith_trial_normal_page_choice_execution_and_review"
+      ],
+      "production_evidence_status": "existing_actual_library_normal_path_in_actual-library-long-review-4.json; current_rules_required"
+    },
+    {
+      "id": "T06",
+      "node": "S5",
+      "entry": "练前建议→条件核对",
+      "code": [
+        "src/healthzip/science/strength.py STR-25"
+      ],
+      "assertions": "到上限但缺RIR：保留记录、不授相关数值候选",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T07",
+      "node": "S5/S6",
+      "entry": "候选→选择→实际训练→反馈",
+      "code": [
+        "src/healthzip/advice.py",
+        "src/healthzip/ui/recommendation_page.py"
+      ],
+      "assertions": "满足真实档位/计划/权限恰好生成候选；不加组",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_candidate_uses_plan_equipment_and_review_not_readiness_multiplier",
+        "tests/integration/test_review_candidate_flow.py::test_visible_candidate_task_end_to_end"
+      ],
+      "production_evidence_status": "existing_actual_library_normal_path_in_actual-library-long-review-4.json; current_rules_required"
+    },
+    {
+      "id": "T08",
+      "node": "S4/S5",
+      "entry": "为什么/知识解释",
+      "code": [
+        "src/healthzip/knowledge/core.py",
+        "src/healthzip/knowledge/metric_retrieval.py"
+      ],
+      "assertions": "解释权限不生成数值行动；有效背景仍可显示",
+      "tests": [
+        "tests/unit/test_regression_covariance_contract.py::test_n1_scope_has_no_personal_model_or_candidate_authority",
+        "tests/integration/test_v14_bounded_discussions.py::test_discussion_uses_actual_plan_records_and_explanation_without_numeric_rule"
+      ],
+      "production_evidence_status": "existing_corpus_case_plus_synthetic_software_boundary; not_new_scientific_validation"
+    },
+    {
+      "id": "T09",
+      "node": "S2/S5/S6",
+      "entry": "长期复核→允许策略试验",
+      "code": [
+        "src/healthzip/workflows/service.py",
+        "src/healthzip/science/strength.py STR-26"
+      ],
+      "assertions": "无严格停滞也可按有效规则试验32.5×8；次数是用户目标",
+      "tests": [
+        "tests/integration/test_analysis_w1_flow.py::test_smith_trial_normal_page_choice_execution_and_review",
+        "tests/integration/test_analysis_w1_flow.py::test_other_exercise_equipment_step_and_new_pain"
+      ],
+      "production_evidence_status": "existing_actual_library_normal_path_in_actual-library-long-review-4.json; current_rules_required"
+    },
+    {
+      "id": "T10",
+      "node": "S5",
+      "entry": "候选→核对当前使用",
+      "code": [
+        "src/healthzip/advice.py::current_use_status"
+      ],
+      "assertions": "新疼痛限制旧候选当前使用，旧快照不变",
+      "tests": [
+        "tests/integration/test_v14_advice_flow.py::test_new_symptom_changes_current_use_without_rewriting_frozen_task",
+        "tests/integration/test_analysis_w1_flow.py::test_other_exercise_equipment_step_and_new_pain"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T11",
+      "node": "S2/S3",
+      "entry": "更新分析/长期趋势/报告",
+      "code": [
+        "src/healthzip/workflows/longitudinal.py",
+        "src/healthzip/workflows/reports.py"
+      ],
+      "assertions": "多次无改善触发具体因素复核；已有RIR实际使用，无生理次数阈值",
+      "tests": [
+        "tests/integration/test_analysis_w1_flow.py::test_existing_rir_improvement_is_used_instead_of_called_missing",
+        "tests/integration/test_analysis_long_term_review.py::test_joint_components_do_not_mislabel_load_or_rir_progress",
+        "tests/integration/test_analysis_long_term_review.py::test_all_training_backgrounds_include_middle_changes_and_missing_branch"
+      ],
+      "production_evidence_status": "existing_actual_library_normal_path_in_actual-library-long-review-4.json; current_rules_required"
+    },
+    {
+      "id": "T12",
+      "node": "S2",
+      "entry": "长期趋势→方法限制",
+      "code": [
+        "src/healthzip/science/statistics.py",
+        "src/healthzip/science/strength.py STR-22"
+      ],
+      "assertions": "宽区间含0不表示等效；缺误差/校准不输出确定停滞",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_real_time_regression_and_zero_error_do_not_imply_plateau",
+        "tests/science/test_metric_acceptance.py::test_metric_catalog[STR-22-T01]"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T13",
+      "node": "S2",
+      "entry": "恢复背景→描述基线",
+      "code": [
+        "src/healthzip/science/state.py",
+        "src/healthzip/workflows/service.py"
+      ],
+      "assertions": "基线排当前日、日等权、MAD0时z未知；独立窗口",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_daily_equal_weight_baseline_excludes_current_and_mad_zero",
+        "tests/integration/test_analysis_scope_resume.py::test_w2_explicit_completed_day_baseline_independent_of_display"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T14",
+      "node": "S4",
+      "entry": "恢复背景→SDNN依据",
+      "code": [
+        "src/healthzip/science/state.py",
+        "src/healthzip/knowledge/metric_retrieval.py"
+      ],
+      "assertions": "SDNN≠RMSSD、RHR≠其他心率，不跨测量授恢复行动",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_sdnn_not_rmssd_and_rhr_not_any_heart_rate",
+        "tests/unit/test_knowledge.py::test_offline_missingness_and_protocol_identity"
+      ],
+      "production_evidence_status": "existing_corpus_case_plus_synthetic_software_boundary; not_new_scientific_validation"
+    },
+    {
+      "id": "T15",
+      "node": "S1",
+      "entry": "分析→睡眠来源选择",
+      "code": [
+        "src/healthzip/science/state.py",
+        "src/healthzip/analytics/sleep_selection.py"
+      ],
+      "assertions": "同源并集、跨午夜实际时间、不计inBed、多源需选择",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_inbed_generic_overlap_stage_conflict_and_explicit_episode",
+        "tests/science/test_state_energy_prediction.py::test_sleep_coverage_elapsed_dates_and_source_choice"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T16",
+      "node": "S1/S3",
+      "entry": "恢复背景",
+      "code": [
+        "src/healthzip/workflows/facts.py",
+        "src/healthzip/ui/workflow_page.py"
+      ],
+      "assertions": "3h仅为已记录时长，不认定实际只睡3h",
+      "tests": [
+        "tests/integration/test_analysis_workflow_runs.py::test_observed_three_hours_remains_a_fact_without_recovery_classification"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T17",
+      "node": "S1/S4",
+      "entry": "结束训练→恢复背景",
+      "code": [
+        "src/healthzip/science/state.py",
+        "src/healthzip/workflows/evidence.py"
+      ],
+      "assertions": "不以组RPE补整场；实际量表/时点/人群控制解释",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_session_rpe_is_not_set_median_and_preserves_collection_delay",
+        "tests/knowledge/test_analysis_workflow_evidence.py::test_saved_session_prerequisites_and_revocation"
+      ],
+      "production_evidence_status": "existing_corpus_case_plus_synthetic_software_boundary; not_new_scientific_validation"
+    },
+    {
+      "id": "T18",
+      "node": "S1",
+      "entry": "心肺观察",
+      "code": [
+        "src/healthzip/analytics/observations.py",
+        "src/healthzip/science/observations.py"
+      ],
+      "assertions": "未来修订不进入旧cutoff；不消费旧全历史卡",
+      "tests": [
+        "tests/science/test_source_observations.py::test_revisions_availability_and_half_open_window_do_not_resurrect_previous_values"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T19",
+      "node": "S1/S2",
+      "entry": "心肺观察",
+      "code": [
+        "src/healthzip/workflows/facts.py::vo2_segments"
+      ],
+      "assertions": "单点展示设备估计；不同版本分段；不诊断适能下降",
+      "tests": [
+        "tests/integration/test_analysis_observation_flows.py::test_w3_single_unknown_and_known_segmented_estimates_reach_page"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T20",
+      "node": "S1",
+      "entry": "体重与设备能量背景",
+      "code": [
+        "src/healthzip/workflows/facts.py::energy_coverage"
+      ],
+      "assertions": "4/7完整日、完整日均值2000kcal/日；不补周总量",
+      "tests": [
+        "tests/integration/test_analysis_observation_flows.py::test_w5_four_of_seven_complete_days_do_not_infer_intake_or_fill_missing"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T21",
+      "node": "S1",
+      "entry": "体重与设备能量背景",
+      "code": [
+        "src/healthzip/science/energy.py"
+      ],
+      "assertions": "basal+active，不重复加workout/TEF",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_device_energy_no_workout_doublecount_no_tef_or_missing_zero",
+        "tests/integration/test_analysis_observation_flows.py::test_w5_four_of_seven_complete_days_do_not_infer_intake_or_fill_missing"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T22",
+      "node": "S2/S4",
+      "entry": "体重与设备能量背景→为什么",
+      "code": [
+        "src/healthzip/science/energy.py",
+        "src/healthzip/workflows/service.py"
+      ],
+      "assertions": "体重下降+设备稳定仍不能识别摄入/真实消耗；无热量处方",
+      "tests": [
+        "tests/integration/test_analysis_observation_flows.py::test_w5_four_of_seven_complete_days_do_not_infer_intake_or_fill_missing",
+        "tests/science/test_state_energy_prediction.py::test_energy_boundary_no_uniform_rate_assumption_and_nonidentifiable_intake"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T23",
+      "node": "S2",
+      "entry": "研究入口；普通工作流无预测行动",
+      "code": [
+        "src/healthzip/science/prediction.py",
+        "src/healthzip/science/registry.py"
+      ],
+      "assertions": "模拟B1优势保持研究身份，不能授真人处方",
+      "tests": [
+        "tests/science/test_state_energy_prediction.py::test_temporal_b0_b1_same_batch_and_current_srpe_leakage_excluded",
+        "tests/science/test_state_energy_prediction.py::test_reproducible_simulation_reports_conditional_failures",
+        "tests/science/test_contracts_and_strength.py::test_registry_versions_error_budget_and_simulation_gate"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T24",
+      "node": "S4",
+      "entry": "本地资料检索",
+      "code": [
+        "src/healthzip/workflows/evidence.py",
+        "src/healthzip/knowledge/metric_retrieval.py"
+      ],
+      "assertions": "主动lexical非降级；请求语义服务失败才degraded（Prompt v2覆盖PDF旧句）",
+      "tests": [
+        "tests/knowledge/test_v15_retrieval.py::test_unavailable_models_report_lexical_degradation",
+        "tests/knowledge/test_analysis_workflow_evidence.py::test_selected_longitudinal_outcome_uses_its_own_source_and_current_check"
+      ],
+      "production_evidence_status": "existing_corpus_case_plus_synthetic_software_boundary; not_new_scientific_validation"
+    },
+    {
+      "id": "T25",
+      "node": "S4/S5",
+      "entry": "核对当前适用性",
+      "code": [
+        "src/healthzip/workflows/dependencies.py",
+        "src/healthzip/advice.py"
+      ],
+      "assertions": "撤销后新决策受限，旧结果不改；缓存不能恢复权限",
+      "tests": [
+        "tests/knowledge/test_v15_retrieval.py::test_current_lifecycle_overrides_frozen_membership",
+        "tests/knowledge/test_v15_retrieval.py::test_revocation_during_remote_ranking_cannot_restore_authority",
+        "tests/knowledge/test_analysis_workflow_evidence.py::test_saved_session_prerequisites_and_revocation"
+      ],
+      "production_evidence_status": "existing_corpus_case_plus_synthetic_software_boundary; not_new_scientific_validation"
+    },
+    {
+      "id": "T26",
+      "node": "S6",
+      "entry": "候选→反馈→复盘",
+      "code": [
+        "src/healthzip/science/strength.py STR-27/28",
+        "src/healthzip/analytics/followup.py"
+      ],
+      "assertions": "采纳未执行/未反馈success=null；保留分母",
+      "tests": [
+        "tests/science/test_contracts_and_strength.py::test_nonexecution_and_unknown_execution_cannot_count_success",
+        "tests/science/test_contracts_and_strength.py::test_followup_targets_are_frozen_and_unknowns_keep_denominators"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T27",
+      "node": "S1/S3",
+      "entry": "长期复核→练前背景",
+      "code": [
+        "src/healthzip/workflows/longitudinal.py"
+      ],
+      "assertions": "仅每条训练开始前事件；训练后睡眠不进练前因素",
+      "tests": [
+        "tests/integration/test_analysis_long_term_review.py::test_all_training_backgrounds_include_middle_changes_and_missing_branch",
+        "tests/science/test_state_energy_prediction.py::test_temporal_b0_b1_same_batch_and_current_srpe_leakage_excluded"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    },
+    {
+      "id": "T28",
+      "node": "S0/S4",
+      "entry": "知识/工作流请求边界",
+      "code": [
+        "src/healthzip/knowledge/retrieval.py",
+        "src/healthzip/workflows/contracts.py"
+      ],
+      "assertions": "原文不是指令，不读他人资料；伪造MetricResult不入工作流",
+      "tests": [
+        "tests/unit/test_knowledge.py::test_private_data_not_indexed_and_scope_does_not_expand",
+        "tests/knowledge/test_v15_retrieval.py::test_arithmetic_and_tenant_refusal_never_invoke_models",
+        "tests/integration/test_analysis_workflow_runs.py::test_forged_results_and_conditions_are_not_workflow_inputs"
+      ],
+      "production_evidence_status": "deterministic_record_or_software_contract; not_personal_effect_validation"
+    }
+  ]
+}

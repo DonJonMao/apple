@@ -62,7 +62,7 @@ def local_context(metric_id, metric, sessions, declaration):
     return context
 
 
-def retrieve(workflow_id, metrics, sessions, declaration, *, root, release_id, background_metrics=None):
+def retrieve(workflow_id, metrics, sessions, declaration, *, root, release_id, background_metrics=None, result_metric_id=None):
     """At most the registered primary and auxiliary query; lexical is intentional."""
     from healthzip.knowledge import KnowledgeWorkbench, metric_retrieval
     from healthzip.knowledge.domains import configuration
@@ -82,7 +82,8 @@ def retrieve(workflow_id, metrics, sessions, declaration, *, root, release_id, b
                     "reason_codes": ["compatible_frozen_metric_release_required"]}
         config = configuration(include_observations=True)
         answers = []
-        tasks = [("S4", mid, metrics.get(mid)) for mid in spec["queries"]]
+        queries = (result_metric_id,) if workflow_id == "W4" and result_metric_id and result_metric_id != "STR-11" else spec["queries"]
+        tasks = [("S4", mid, metrics.get(mid)) for mid in queries]
         if background_metrics:
             # A declared review node, not a free keyword expansion. The two
             # queried measurements are actual pre-training MetricResults.

@@ -1,0 +1,535 @@
+{
+  "schema": "analysis-core-parameter-inventory-1.6.1",
+  "registry_contract": "healthzip.science.registry.ParameterRegistry; validated in temporary registry",
+  "scope": "workflow/advice/science paths actually consumed; research-only constants listed without activating them",
+  "parameters": [
+    {
+      "parameter_id": "display_window",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "用户可改；限定查看范围，不是充分性/停滞阈值",
+      "value_or_distribution": 30,
+      "unit": "days",
+      "provenance": {
+        "basis": "workflows/contracts.py::WorkflowRequest",
+        "source_ids": [],
+        "source_location": "workflows/contracts.py::WorkflowRequest"
+      },
+      "scope": "用户可改；限定查看范围，不是充分性/停滞阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "要求正整数；无值采用明示默认"
+    },
+    {
+      "parameter_id": "completed_local_baseline",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "W2 可改；此前完整本地日，不含当前日；实际 n/日期列示",
+      "value_or_distribution": 28,
+      "unit": "completed local days",
+      "provenance": {
+        "basis": "workflows/service.py + science/state.py",
+        "source_ids": [],
+        "source_location": "workflows/service.py + science/state.py"
+      },
+      "scope": "W2 可改；此前完整本地日，不含当前日；实际 n/日期列示",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "无当前值则偏离未知；无基线则保留缺项"
+    },
+    {
+      "parameter_id": "pretraining_background_lookback",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "随请求 baseline_days 可改，参考训练前回看；不是观测新鲜度/生理阈值",
+      "value_or_distribution": 28,
+      "unit": "days",
+      "provenance": {
+        "basis": "workflows/longitudinal.py::pretraining_contexts",
+        "source_ids": [],
+        "source_location": "workflows/longitudinal.py::pretraining_contexts"
+      },
+      "scope": "随请求 baseline_days 可改，参考训练前回看；不是观测新鲜度/生理阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "无记录未知，不将旧观测当训练开始时测量"
+    },
+    {
+      "parameter_id": "candidate_history_window",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "既有候选参考记录搜索窗，非生理充分性",
+      "value_or_distribution": 365,
+      "unit": "days",
+      "provenance": {
+        "basis": "advice.py::build_advice_context",
+        "source_ids": [],
+        "source_location": "advice.py::build_advice_context"
+      },
+      "scope": "既有候选参考记录搜索窗，非生理充分性",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "无可比参考则无该数值候选"
+    },
+    {
+      "parameter_id": "sleep_rolling_window",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "现有睡眠指标前24小时定义，独立于查看范围",
+      "value_or_distribution": 24,
+      "unit": "hours",
+      "provenance": {
+        "basis": "science/engine.py STATE-SLEEP-24H",
+        "source_ids": [],
+        "source_location": "science/engine.py STATE-SLEEP-24H"
+      },
+      "scope": "现有睡眠指标前24小时定义，独立于查看范围",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "片段仅称已观察时长"
+    },
+    {
+      "parameter_id": "calendar_week",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "前两个完整本地周；月按日历首日，不按固定30日",
+      "value_or_distribution": 7,
+      "unit": "local calendar days",
+      "provenance": {
+        "basis": "workflows/calendar.py::completed_periods",
+        "source_ids": [],
+        "source_location": "workflows/calendar.py::completed_periods"
+      },
+      "scope": "前两个完整本地周；月按日历首日，不按固定30日",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "部分周期另列，缺日不填零"
+    },
+    {
+      "parameter_id": "history_page_size",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "历史控件分页/最多50已保存运行，非分析数据阈值",
+      "value_or_distribution": 50,
+      "unit": "rows",
+      "provenance": {
+        "basis": "ui/workflow_page.py",
+        "source_ids": [],
+        "source_location": "ui/workflow_page.py"
+      },
+      "scope": "历史控件分页/最多50已保存运行，非分析数据阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "可翻页训练；保存运行不删除"
+    },
+    {
+      "parameter_id": "primary_fact_limit",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "默认分项显示预算；其余可展开",
+      "value_or_distribution": 3,
+      "unit": "metric cards",
+      "provenance": {
+        "basis": "ui/workflow_page.py::render_run",
+        "source_ids": [],
+        "source_location": "ui/workflow_page.py::render_run"
+      },
+      "scope": "默认分项显示预算；其余可展开",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "不改变计算、权限或记录数量"
+    },
+    {
+      "parameter_id": "retrieval_span_budget",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "固定公共指标查询，完整组预算；每节点最多2个预声明查询",
+      "value_or_distribution": 6,
+      "unit": "spans",
+      "provenance": {
+        "basis": "workflows/evidence.py::retrieve",
+        "source_ids": [],
+        "source_location": "workflows/evidence.py::retrieve"
+      },
+      "scope": "固定公共指标查询，完整组预算；每节点最多2个预声明查询",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "不完整组不授解释；事实保留"
+    },
+    {
+      "parameter_id": "kg_per_lb",
+      "version": "1.6.1",
+      "kind": "unit_conversion",
+      "definition": "精确单位换算，同口径才可比",
+      "value_or_distribution": 0.45359237,
+      "unit": "kg/lb",
+      "provenance": {
+        "basis": "normalize/__init__.py; science/semantics.py",
+        "source_ids": [],
+        "source_location": "normalize/__init__.py; science/semantics.py"
+      },
+      "scope": "精确单位换算，同口径才可比",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "未知单位保持未知"
+    },
+    {
+      "parameter_id": "kj_per_kcal",
+      "version": "1.6.1",
+      "kind": "unit_conversion",
+      "definition": "设备原能量单位换算，不改成真实TEE",
+      "value_or_distribution": 4.184,
+      "unit": "kJ/kcal",
+      "provenance": {
+        "basis": "normalize/__init__.py",
+        "source_ids": [],
+        "source_location": "normalize/__init__.py"
+      },
+      "scope": "设备原能量单位换算，不改成真实TEE",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "单位不可验则不算数值"
+    },
+    {
+      "parameter_id": "time_unit_factors",
+      "version": "1.6.1",
+      "kind": "unit_conversion",
+      "definition": "实际经过时间与时区日历边界分别使用",
+      "value_or_distribution": {
+        "seconds_per_minute": 60,
+        "seconds_per_day": 86400,
+        "ms_per_second": 1000
+      },
+      "unit": "time units",
+      "provenance": {
+        "basis": "normalize/__init__.py; science/state.py; science/statistics.py",
+        "source_ids": [],
+        "source_location": "normalize/__init__.py; science/state.py; science/statistics.py"
+      },
+      "scope": "实际经过时间与时区日历边界分别使用",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "时间缺失拒绝对应差值/时长"
+    },
+    {
+      "parameter_id": "mad_normal_scale",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "正态尺度一致化常数；描述偏离，非个人正常/疲劳阈值",
+      "value_or_distribution": 1.4826,
+      "unit": "dimensionless",
+      "provenance": {
+        "basis": "science/state.py",
+        "source_ids": [],
+        "source_location": "science/state.py"
+      },
+      "scope": "正态尺度一致化常数；描述偏离，非个人正常/疲劳阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "MAD=0或当前日缺值时z未知"
+    },
+    {
+      "parameter_id": "difference_computability",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "差值/斜率的数学可计算条件，不是生理停滞次数门槛",
+      "value_or_distribution": {
+        "distinct_points_min": 2,
+        "nonzero_denominator_required": true
+      },
+      "unit": "observations",
+      "provenance": {
+        "basis": "workflows/longitudinal.py; science/statistics.py",
+        "source_ids": [],
+        "source_location": "workflows/longitudinal.py; science/statistics.py"
+      },
+      "scope": "差值/斜率的数学可计算条件，不是生理停滞次数门槛",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "保留单点，不判变化"
+    },
+    {
+      "parameter_id": "ols_estimability",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "截距+时间线性模型；点估计不等于真实适应",
+      "value_or_distribution": {
+        "design_rank": 2,
+        "interval_min_n": 3,
+        "df": "n-2"
+      },
+      "unit": "rank/observations",
+      "provenance": {
+        "basis": "science/statistics.py::linear_trend",
+        "source_ids": [],
+        "source_location": "science/statistics.py::linear_trend"
+      },
+      "scope": "截距+时间线性模型；点估计不等于真实适应",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "秩不足无斜率；自由度不足无区间"
+    },
+    {
+      "parameter_id": "numeric_fit_zero_tolerance",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "数值拟合残差接近零的保护，不是实用等效带",
+      "value_or_distribution": 1e-10,
+      "unit": "outcome units",
+      "provenance": {
+        "basis": "science/statistics.py::linear_trend",
+        "source_ids": [],
+        "source_location": "science/statistics.py::linear_trend"
+      },
+      "scope": "数值拟合残差接近零的保护，不是实用等效带",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "缺实际误差仍无个人区间"
+    },
+    {
+      "parameter_id": "circular_resultant_tolerance",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "数值近零合向量保护，非睡眠异常阈值",
+      "value_or_distribution": 1e-12,
+      "unit": "dimensionless",
+      "provenance": {
+        "basis": "science/state.py sleep timing",
+        "source_ids": [],
+        "source_location": "science/state.py sleep timing"
+      },
+      "scope": "数值近零合向量保护，非睡眠异常阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "方向不明确则中点未知"
+    },
+    {
+      "parameter_id": "descriptive_ols_alpha",
+      "version": "1.6.1",
+      "kind": "statistical_design",
+      "definition": "既有研究模型区间默认；正式查看另需预声明家族及匹配校准",
+      "value_or_distribution": 0.05,
+      "unit": "probability",
+      "provenance": {
+        "basis": "science/strength.py; science/statistics.py",
+        "source_ids": [],
+        "source_location": "science/strength.py; science/statistics.py"
+      },
+      "scope": "既有研究模型区间默认；正式查看另需预声明家族及匹配校准",
+      "validation_status": "pending_target_validation",
+      "may_determine_personal_action": false,
+      "missing_behavior": "不能据此发布个人停滞"
+    },
+    {
+      "parameter_id": "registered_look_alpha",
+      "version": "1.6.1",
+      "kind": "statistical_design",
+      "definition": "不可变预声明家族；同身份重试不重复花费；工作流默认不分配",
+      "value_or_distribution": "alpha_total/[k*(k+1)]",
+      "unit": "probability",
+      "provenance": {
+        "basis": "science/registry.py::ParameterRegistry.allocate_look",
+        "source_ids": [],
+        "source_location": "science/registry.py::ParameterRegistry.allocate_look"
+      },
+      "scope": "不可变预声明家族；同身份重试不重复花费；工作流默认不分配",
+      "validation_status": "pending_target_validation",
+      "may_determine_personal_action": false,
+      "missing_behavior": "无真实登记/绑定则拒区间行动"
+    },
+    {
+      "parameter_id": "registry_alpha_comparison_tolerance",
+      "version": "1.6.1",
+      "kind": "product_setting",
+      "definition": "核对持久化浮点回执，不是统计显著性阈值",
+      "value_or_distribution": 1e-15,
+      "unit": "probability",
+      "provenance": {
+        "basis": "science/registry.py::verified_look",
+        "source_ids": [],
+        "source_location": "science/registry.py::verified_look"
+      },
+      "scope": "核对持久化浮点回执，不是统计显著性阈值",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "超容差视为回执不匹配"
+    },
+    {
+      "parameter_id": "practical_equivalence",
+      "version": "1.6.1",
+      "kind": "statistical_design",
+      "definition": "任务、单位、时间范围及预声明身份需匹配",
+      "value_or_distribution": "explicit preregistered lower/upper bounds",
+      "unit": "target outcome unit",
+      "provenance": {
+        "basis": "science/strength.py::equivalence_reasons",
+        "source_ids": [],
+        "source_location": "science/strength.py::equivalence_reasons"
+      },
+      "scope": "任务、单位、时间范围及预声明身份需匹配",
+      "validation_status": "pending_target_validation",
+      "may_determine_personal_action": false,
+      "missing_behavior": "不默认等效带；宽区间含0不判等效"
+    },
+    {
+      "parameter_id": "personal_measurement_error",
+      "version": "1.6.1",
+      "kind": "personal_estimate",
+      "definition": "真人独立留出、误差、任务/协议/人群/时段范围",
+      "value_or_distribution": "registered matched calibration only",
+      "unit": "target outcome unit",
+      "provenance": {
+        "basis": "science/registry.py::calibration_scope_check",
+        "source_ids": [],
+        "source_location": "science/registry.py::calibration_scope_check"
+      },
+      "scope": "真人独立留出、误差、任务/协议/人群/时段范围",
+      "validation_status": "pending_target_validation",
+      "may_determine_personal_action": false,
+      "missing_behavior": "缺失未知；模拟不能授真人校准"
+    },
+    {
+      "parameter_id": "repeat_error_definition",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "独立同协议配对、等方差且无系统变化；定义不认证覆盖",
+      "value_or_distribution": {
+        "TE": "SD(differences)/sqrt(2)",
+        "MDC95": "1.96*sqrt(2)*TE"
+      },
+      "unit": "target outcome unit",
+      "provenance": {
+        "basis": "science/statistics.py::typical_error",
+        "source_ids": [],
+        "source_location": "science/statistics.py::typical_error"
+      },
+      "scope": "独立同协议配对、等方差且无系统变化；定义不认证覆盖",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "缺复测设计或少于2对则未知"
+    },
+    {
+      "parameter_id": "rir_rpe_conversion",
+      "version": "1.6.1",
+      "kind": "literature_model",
+      "definition": "明确量表才换算，converted=true；不得满足 direct_rir_only",
+      "value_or_distribution": "RIR = 10 - RPE for explicitly declared RIR-based 6–10 scale",
+      "unit": "repetitions",
+      "provenance": {
+        "basis": "science/strength.py STR-10",
+        "source_ids": [],
+        "source_location": "science/strength.py STR-10"
+      },
+      "scope": "明确量表才换算，converted=true；不得满足 direct_rir_only",
+      "validation_status": "literature_replication_only",
+      "may_determine_personal_action": false,
+      "missing_behavior": "无量表不换算；直接值/区间不补零"
+    },
+    {
+      "parameter_id": "recorded_scale_domains",
+      "version": "1.6.1",
+      "kind": "observation_definition",
+      "definition": "输入量表/目标合法域，非疲劳阈值；整场与逐组不同",
+      "value_or_distribution": {
+        "CR10": [
+          0,
+          10
+        ],
+        "Foster_modified_CR10": [
+          0,
+          10
+        ],
+        "Borg": [
+          6,
+          20
+        ],
+        "RIR_target": [
+          0,
+          10
+        ]
+      },
+      "unit": "scale units",
+      "provenance": {
+        "basis": "science/state.py; science/strength.py",
+        "source_ids": [],
+        "source_location": "science/state.py; science/strength.py"
+      },
+      "scope": "输入量表/目标合法域，非疲劳阈值；整场与逐组不同",
+      "validation_status": "definition",
+      "may_determine_personal_action": false,
+      "missing_behavior": "未知量表不伪称Foster；Borg保留但不算CR10 AU"
+    },
+    {
+      "parameter_id": "e1rm_formula_coefficients",
+      "version": "1",
+      "kind": "literature_model",
+      "definition": "三个独立公式身份；需要显式适用域；不反推保证次数",
+      "value_or_distribution": {
+        "epley_n3_0.0333": "w*(1+0.0333*r)",
+        "epley_r_over_30": "w*(1+r/30)",
+        "epley_rir_over_30": "w*(1+(r+RIR)/30)"
+      },
+      "unit": "kg",
+      "provenance": {
+        "basis": "science/formulas.py::FORMULAS; N3 Table 1 for 0.0333 only",
+        "source_ids": [],
+        "source_location": "science/formulas.py::FORMULAS; N3 Table 1 for 0.0333 only"
+      },
+      "scope": "三个独立公式身份；需要显式适用域；不反推保证次数",
+      "validation_status": "literature_replication_only",
+      "may_determine_personal_action": false,
+      "missing_behavior": "域/总负荷/RIR缺失拒算，实验值保持research_only"
+    },
+    {
+      "parameter_id": "user_targets",
+      "version": "1.6.1",
+      "kind": "user_plan",
+      "definition": "个人计划，沿用下限如实标注；需独立有效行动规则与当前条件",
+      "value_or_distribution": "versioned actual rep range / explicit next reps / optional RIR range / allowed strategy",
+      "unit": "reps/RIR",
+      "provenance": {
+        "basis": "advice.py; training/service.py; training_event",
+        "source_ids": [],
+        "source_location": "advice.py; training/service.py; training_event"
+      },
+      "scope": "个人计划，沿用下限如实标注；需独立有效行动规则与当前条件",
+      "validation_status": "user_declared",
+      "may_determine_personal_action": true,
+      "missing_behavior": "缺必需值拒相关候选；不自动填8、RIR2或加重百分比"
+    },
+    {
+      "parameter_id": "equipment_available_settings",
+      "version": "1.6.1",
+      "kind": "equipment_constraint",
+      "definition": "实际下一档仅物理可行候选；助力方向反转；总阻力另需完整分量",
+      "value_or_distribution": "versioned confirmed available_loads and load_basis",
+      "unit": "recorded equipment unit",
+      "provenance": {
+        "basis": "advice.py; science/semantics.py; training/service.py",
+        "source_ids": [],
+        "source_location": "advice.py; science/semantics.py; training/service.py"
+      },
+      "scope": "实际下一档仅物理可行候选；助力方向反转；总阻力另需完整分量",
+      "validation_status": "user_declared",
+      "may_determine_personal_action": true,
+      "missing_behavior": "不写死2.5kg；无杆重不算总百分比"
+    },
+    {
+      "parameter_id": "followup_window",
+      "version": "1.6.1",
+      "kind": "user_plan",
+      "definition": "按冻结约定追踪；采纳、执行、达标各自分母",
+      "value_or_distribution": "explicit frozen per-candidate window",
+      "unit": "timestamps",
+      "provenance": {
+        "basis": "analytics/followup.py; training_recommendation",
+        "source_ids": [],
+        "source_location": "analytics/followup.py; training_recommendation"
+      },
+      "scope": "按冻结约定追踪；采纳、执行、达标各自分母",
+      "validation_status": "user_declared",
+      "may_determine_personal_action": false,
+      "missing_behavior": "未到终点/未反馈保持未知"
+    }
+  ]
+}

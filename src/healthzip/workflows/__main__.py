@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--cutoff")
     parser.add_argument("--timezone", default="Asia/Shanghai")
     parser.add_argument("--days", type=int, default=30)
+    parser.add_argument("--baseline-days", type=int, default=28)
     parser.add_argument("--period", choices=["week", "month"])
     parser.add_argument("--context-id")
     parser.add_argument("--session-id", type=int)
@@ -35,7 +36,7 @@ def main():
             result = resume_workflow(repo, args.resume, cutoff_time=args.cutoff, context_id=args.context_id)
         else:
             result = run_workflow(repo, WorkflowRequest(args.workflow, cutoff_time=args.cutoff, timezone=args.timezone,
-                window_days=args.days, period=args.period, context_id=args.context_id,
+                window_days=args.days, baseline_days=args.baseline_days, period=args.period, context_id=args.context_id,
                 session_id=args.session_id, session_exercise_id=args.exercise_instance, selected_set_uuid=args.set_uuid,
                 task_id=args.task_id, outcome_series_id=args.series_id, result_metric_id=args.outcome,
                 candidate_id=args.candidate_id, mode="retrospective" if args.retrospective else "prospective",

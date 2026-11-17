@@ -263,6 +263,8 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
     if metric_id in {"STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION"} and context.get("baseline_window"):
         bounds = context["baseline_window"]
         selection_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
+        if context.get("baseline_completed_days"):
+            window = selection_window
     selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False),
                                      overlap=metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-")))
     plan_status_provenance = []

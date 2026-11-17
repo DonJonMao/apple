@@ -89,7 +89,7 @@ def pretraining_contexts(repo, points, request, selection=None):
     results, cache = [], {}
     for point in available:
         cutoff = instant(point["training_started_at"])
-        start = cutoff - timedelta(days=28)  # registered descriptive display window, not a physiological threshold
+        start = cutoff - timedelta(days=request.get("baseline_days", 28))  # product lookback, not a physiological threshold
         if point["session_id"] not in cache:
             records, inherited = snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
                 retrospective=request["mode"] == "retrospective",
@@ -115,5 +115,5 @@ def pretraining_contexts(repo, points, request, selection=None):
             cache[point["session_id"]] = {"metrics": metrics, "sleep_streams": [list(s) for s in sleep_streams]}
         results.append({"reference_record_id": point["record_id"], "session_id": point["session_id"],
             "training_started_at": cutoff.isoformat(), **cache[point["session_id"]],
-            "visibility": request["mode"], "baseline_days": 28, "baseline_kind": "product_display_window_not_recovery_threshold"})
+            "visibility": request["mode"], "baseline_days": request.get("baseline_days", 28), "baseline_kind": "product_display_window_not_recovery_threshold"})
     return results

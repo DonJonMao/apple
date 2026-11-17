@@ -24,10 +24,10 @@ def result(mid="STR-12"):
 
 
 
-def add(w, identity="first", *, conditions=None, assigned=None, status="content_checked", mid="STR-12", bind=True):
+def add(w, identity="first", *, conditions=None, assigned=None, status="content_checked", mid="STR-12", bind=True, text=None):
     w.lib.seed({"sources": [{"source_id": identity, "canonical_url": "https://example.invalid/" + identity,
                               "title": "Synthetic evidence", "corpus_roles": ["research"]}]}, {"cards": []})
-    text = domains.configuration()["profiles"][mid]["query"] + " Synthetic public evidence."
+    text = text or domains.configuration()["profiles"][mid]["query"] + " Synthetic public evidence."
     vid = w.lib.record_version(identity, (identity + text).encode(), "fulltext", {}, {},
         {"index_allowed": True, "license_id": "CC0"}, "matched",
         [{"text": text, "section_path": "Synthetic chapter", "locator": {"page": 1}}], "fixture-v15")

@@ -27,8 +27,11 @@ def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
         start = min(start, completed_periods(request["cutoff_time"], request["timezone"], request["period"])[0][0], key=instant)
     end = min(instant(analysis.get("dependency_window_end", analysis["window_end"])), instant(request["cutoff_time"])).isoformat()
     wid = request["workflow_id"]
+    selected_type = {"STATE-RHR": "resting_heart_rate_bpm", "STATE-SDNN": "hrv_sdnn_ms", "BODY-MASS-DAILY": "body_mass_kg"}.get(
+        request.get("result_metric_id") or ("STR-11" if request.get("task_id") else "BODY-MASS-DAILY")) if wid == "W4" else None
+    source_types = {selected_type} if selected_type else SOURCE_TYPES[wid]
     records, inherited = snapshot(repo, cutoff, window_start=start, window_end=end,
-        canonical_types=sorted(SOURCE_TYPES[wid]))
+        canonical_types=sorted(source_types))
     task = selected_task or analysis.get("task_selection") or {}
     exercise_id = task.get("exercise_id")
     selected_instance = None
@@ -48,18 +51,18 @@ def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
     for row in records:
         kind = row.get("record_kind")
         if kind == "strength_set":
-            if wid not in {"W1", "W2", "W4"}:
+            if wid not in {"W1", "W2", "W4"} or selected_type:
                 continue
             if exercise_id and row.get("catalog_id", row.get("exercise_id")) != exercise_id:
                 continue
             sessions.add(row.get("session_id"))
         elif kind == "subjective_log":
-            if wid not in {"W1", "W2", "W4"}:
+            if wid not in {"W1", "W2", "W4"} or selected_type:
                 continue
-        elif row.get("canonical_type") not in SOURCE_TYPES[wid]:
+        elif row.get("canonical_type") not in source_types:
             continue
         relevant[str(row["id"])] = canonical_hash(row)
-    outcomes = inherited.get("recommendation_outcomes", []) if wid in {"W1", "W4"} else []
+    outcomes = inherited.get("recommendation_outcomes", []) if wid in {"W1", "W4"} and not selected_type else []
     if request.get("task_id"):
         outcomes = [r for r in outcomes if r.get("task_id") == request["task_id"]]
     return {"version": "workflow-dependencies-1.6.0", "record_hashes": relevant,
@@ -90,7 +93,8 @@ def check_current_use(repo, run_id, *, knowledge_root=".local/knowledge"):
         knowledge = evidence.retrieve(run["workflow_id"], {**analysis["metrics"], **analysis["observations"]},
             TrainingService(repo).sessions_as_of(cutoff_time=now), declaration,
             root=knowledge_root, release_id=run["knowledge"].get("release_id"),
-            background_metrics=evidence.background_inputs(run["supplements"].get("pretraining_contexts", [])))
+            background_metrics=evidence.background_inputs(run["supplements"].get("pretraining_contexts", [])),
+            result_metric_id=run["request"].get("result_metric_id") or ("STR-11" if run["request"].get("task_id") else "BODY-MASS-DAILY"))
     except (OSError, RuntimeError, sqlite3.Error) as exc:
         check_failed = True
         knowledge = {"status": "service_failure", "queries": [], "reason_codes": [type(exc).__name__]}
