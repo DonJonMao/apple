@@ -1,0 +1,63 @@
+{
+  "schema": "prospective-census-annotation-quality-gate-1",
+  "created_at": "2026-11-17T02:17:59.705941+00:00",
+  "status": "failed_before_gold_freeze",
+  "annotation_receipt_sha256": "2f3aab99fd28a789b3656df4b7c7fddc8c0535b89b66567a700f420eb4c8e5d6",
+  "annotation_matrix_sha256": "84714aed54494eccce5984eae089905d26138858d8114b753442d4b86824af6d",
+  "source_group_count": 1675,
+  "metric_task_count": 29,
+  "source_grade_cell_count": 48575,
+  "source_grade_counts": {
+    "0": 46342,
+    "1": 2233,
+    "2": 0,
+    "3": 0
+  },
+  "source_positive_grade_cell_count": 0,
+  "current_claim_count": 61,
+  "claim_grade_counts": {
+    "0": 1546,
+    "1": 206,
+    "2": 17,
+    "3": 0
+  },
+  "semantic_consistency_counterexamples": [
+    {
+      "metric_id": "STATE-REFERENCE-MEDIAN",
+      "required_claim": {
+        "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+        "claim_version": "1.5.0"
+      },
+      "in_pool_support_span_ids": [
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+      ],
+      "source_grades": [
+        0,
+        0
+      ]
+    },
+    {
+      "metric_id": "STATE-DEVIATION",
+      "required_claim": {
+        "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+        "claim_version": "1.5.0"
+      },
+      "in_pool_support_span_ids": [
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+        "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+      ],
+      "source_grades": [
+        0,
+        0
+      ]
+    }
+  ],
+  "interpretation": "Mechanically complete AI labels failed semantic quality control. Original-source and supported-claim passes disagree on in-pool HRV evidence. All-zero positive source Gold cannot establish retrieval quality. Model explanations also treated some conceptual method tasks as requiring direct HealthZIP metric validation. Do not infer that the available literature is useless.",
+  "accepted_as_retrieval_gold": false,
+  "new_census_rankings_run": 0,
+  "new_accuracy_claim_permitted": false,
+  "all_original_requests_responses_and_failures_preserved": true,
+  "next_work": "Revise and calibrate annotation semantics using controlled examples, then rebuild and quality-check rank-blind source/claim Gold. Keep this failed attempt and original task/source population; do not manufacture grades or tune production retrieval against these unfinished labels.",
+  "expert_review": false
+}

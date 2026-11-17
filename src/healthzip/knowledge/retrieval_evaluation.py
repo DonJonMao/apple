@@ -8,15 +8,83 @@ from pathlib import Path
 
 from .store import digest, dumps, now
 
+EVIDENCE_GROUP_VERSION = 'source-context-evidence-groups-1.5.0'
+
+
+def _group_ranking(groups, returned):
+    """Optional new-Gold units: exact same-source text in the same context.
+
+    Alternative version/span IDs retain their exact provenance. They earn one
+    relevance gain per group while duplicate returns still consume the budget.
+    Legacy span-based Gold and its historical scores keep their original math.
+    """
+    if not isinstance(groups, list):
+        raise ValueError('explicit_evidence_group_list_required')
+    grades, alternatives = {}, {}
+    for group in groups:
+        identity = group.get('group_id') if isinstance(group, dict) else None
+        if not isinstance(identity, str) or not identity or identity in grades:
+            raise ValueError('unique_evidence_group_id_required')
+        grade = group.get('grade')
+        if type(grade) is not int or grade not in {2, 3}:
+            raise ValueError('positive_gold_group_grade_required')
+        members = group.get('alternatives')
+        if not isinstance(members, list) or not members:
+            raise ValueError('nonempty_exact_evidence_alternatives_required')
+        signature = None
+        for member in members:
+            if not isinstance(member, dict) or any(not isinstance(member.get(key), str)
+                    or not member[key] for key in ('source_id', 'source_version', 'span_id', 'text_hash', 'kind')):
+                raise ValueError('exact_group_member_identity_required')
+            if (len(member['text_hash']) != 64 or any(c not in '0123456789abcdef' for c in member['text_hash'])
+                    or not isinstance(member.get('section_path'), str)):
+                raise ValueError('exact_group_content_and_context_required')
+            current = tuple(member[key] for key in ('source_id', 'text_hash', 'kind', 'section_path'))
+            if signature is not None and current != signature:
+                raise ValueError('group_requires_same_source_exact_text_kind_and_context')
+            signature = current
+            if member['span_id'] in alternatives:
+                raise ValueError('span_must_belong_to_exactly_one_evidence_group')
+            alternatives[member['span_id']] = (identity, member)
+        grades[identity] = grade
+    ranked, gains, seen = [], [], set()
+    for span in returned:
+        match = alternatives.get(span['span_id'])
+        identity = None
+        if match:
+            proposed, member = match
+            content_hash = digest(span['content'].encode()) if isinstance(span.get('content'), str) else span.get('input_content_hash')
+            if (span.get('source_id') == member['source_id'] and span.get('source_version') == member['source_version']
+                    and span.get('section_path') == member['section_path'] and content_hash == member['text_hash']
+                    and span.get('input_content_hash', content_hash) == member['text_hash']
+                    and span.get('kind', member['kind']) == member['kind']
+                    and ('locator' not in member or span.get('locator') == member['locator'])):
+                identity = proposed
+        ranked.append(identity)
+        gains.append(grades[identity] if identity is not None and identity not in seen else 0)
+        if identity is not None:
+            seen.add(identity)
+    return grades, ranked, gains
+
 
 def score_case(case, result, *, k=6):
-    gold = set(case['gold_span_ids'])
     ranked = [s['span_id'] for s in result['evidence_spans'][:k]]
     if len(ranked) != len(set(ranked)):
         raise ValueError('duplicate_retrieved_span')
-    grades = case.get('relevance_grades', {s: 1 for s in gold})
-    hits = [int(s in gold) for s in ranked]
-    dcg = sum((2**grades.get(s, 0)-1) / math.log2(i+2) for i, s in enumerate(ranked))
+    grouped = 'gold_evidence_groups' in case
+    if grouped:
+        if case.get('evidence_unit_version') != EVIDENCE_GROUP_VERSION:
+            raise ValueError('explicit_supported_evidence_group_version_required')
+        grades, group_ids, gains = _group_ranking(case['gold_evidence_groups'], result['evidence_spans'][:k])
+        gold = set(grades)
+        hits = [int(gain > 0) for gain in gains]
+        exact_accuracy = len({identity for identity in group_ids if identity is not None}) / len(gold) if gold else None
+    else:
+        gold = set(case['gold_span_ids'])
+        grades = case.get('relevance_grades', {s: 1 for s in gold})
+        hits = [int(s in gold) for s in ranked]
+        gains = [grades.get(s, 0) for s in ranked]
+    dcg = sum((2**grade-1) / math.log2(i+2) for i, grade in enumerate(gains))
     ideal = sum((2**grade-1) / math.log2(i+2) for i, grade in
                 enumerate(sorted(grades.values(), reverse=True)[:k]))
     required_claims = {(c['claim_id'], c['claim_version']) for c in case.get('required_claims', [])}
@@ -27,6 +95,8 @@ def score_case(case, result, *, k=6):
     inapplicable = set(case.get('inapplicable_span_ids', []))
     exact_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in case.get('gold_evidence', [])}
     returned_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in result['evidence_spans'][:k]}
+    if not grouped:
+        exact_accuracy = len(exact_pairs & returned_pairs)/len(exact_pairs) if exact_pairs else None
     conflicts = bool(case.get('expected_conflict'))
     abstention = result['status'] in {'insufficient_evidence', 'not_required_deterministic_computation'}
     return {'case_id': case['case_id'], 'evidence_recall_at_k': sum(hits)/len(gold) if gold else None,
@@ -35,7 +105,7 @@ def score_case(case, result, *, k=6):
         'ndcg_at_k': dcg/ideal if ideal else None,
         'claim_coverage': len(required_claims & returned_claims)/len(required_claims) if required_claims else None,
         'domain_routing_accuracy': float(required_domains <= requested_domains),
-        'exact_source_span_accuracy': len(exact_pairs & returned_pairs)/len(exact_pairs) if exact_pairs else None,
+        'exact_source_span_accuracy': exact_accuracy,
         'applicability_error_rate': len(set(ranked) & inapplicable)/len(ranked) if ranked else 0.,
         'invalid_evidence_admission_rate': len(set(ranked) & invalid)/len(ranked) if ranked else 0.,
         'conflict_detection_recall': float(bool(result['conflicts'])) if conflicts else None,

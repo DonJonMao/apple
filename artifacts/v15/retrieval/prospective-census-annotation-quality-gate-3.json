@@ -1,0 +1,73 @@
+{
+  "schema": "prospective-census-annotation-quality-gate-3",
+  "created_at": "2026-11-17T02:43:38.191964+00:00",
+  "status": "failed_during_annotation_real_source_checks",
+  "annotation_matrix_complete": false,
+  "completed_effective_job_count": 56,
+  "planned_effective_job_count": 1014,
+  "protocol_calibration_passed": true,
+  "calibration_sha256": "8aac377f9839f9d64913c9b9d621421972a8939949d1214dc897d41768cbbe27",
+  "source_positive_grade_cells_in_completed_jobs": 78,
+  "counterexamples": [
+    {
+      "group_id": "G00104",
+      "source_id": "E6",
+      "metric_id": "STR-17",
+      "observed_grade": 2,
+      "result_sha256": "3e9dffc041fee5f74735a3a8c354d7ca8bc917774a61691011ab2c355290c1ac",
+      "exact_original_text_sha256": "9751c4f6cc6adebe79d5f7c51893412b68e1f0a944a244cc9c10b905b5bb2ca2",
+      "evidence_quote_sha256": "aa540b7185cb4a30d118aa92fd5f0e1f6247978db4d5cf1f66e6bedd38196c26",
+      "bridge_sha256": "bddd65d3b085e73eb6323397b74fbc8f79edbf1753046cab792718ce68908bbb",
+      "finding": "Source explains HR/accelerometry-derived energy-expenditure error. RIR+completed-repetition e1RM uses different variables; their superficial combination analogy does not supply a measurement method or limitation.",
+      "review_kind": "implementing_Codex_agent_rank_blind_semantic_quality_check_not_expert"
+    },
+    {
+      "group_id": "G00106",
+      "source_id": "E6",
+      "metric_id": "STR-17",
+      "observed_grade": 2,
+      "result_sha256": "3e9dffc041fee5f74735a3a8c354d7ca8bc917774a61691011ab2c355290c1ac",
+      "exact_original_text_sha256": "c4b810430574642048115f80cbd1ddfd6ab52e03b28e58a58b834c89a05b0d37",
+      "evidence_quote_sha256": "56e515ff6231327f8dc4e406dbcb85108ef784f0c2c2f78844bdc3e5b5ccc731",
+      "bridge_sha256": "06c65d469083f0f8465329935d4b9add453df90b06417f81c4f59f84ac40781b",
+      "finding": "Phase-dependent smartwatch-versus-ECG heart-rate error does not support an RIR/repetition formula task that consumes no measured heart rate.",
+      "review_kind": "implementing_Codex_agent_rank_blind_semantic_quality_check_not_expert"
+    },
+    {
+      "group_id": "G00105",
+      "source_id": "E6",
+      "metric_id": "STR-21",
+      "observed_grade": 2,
+      "result_sha256": "3e9dffc041fee5f74735a3a8c354d7ca8bc917774a61691011ab2c355290c1ac",
+      "exact_original_text_sha256": "c174d6bd6519c473a33f4da8bf0a675f91cca4f2daa5677e5c70021365dc2c73",
+      "evidence_quote_sha256": "3ebaa077b09ad36567c2686da6bf6fcf78b609d4b7738792495a2171e58bfb11",
+      "bridge_sha256": "c961afffa7894aba11fe5c752f50612c584ab62868bba0073bf7a1d9a21633ed",
+      "finding": "Exercise-order confounding in an HR/EE experiment does not define practical equivalence bounds or distinguish them from measurement error.",
+      "review_kind": "implementing_Codex_agent_rank_blind_semantic_quality_check_not_expert"
+    },
+    {
+      "group_id": "G00048",
+      "source_id": "E1",
+      "metric_id": "ENERGY-BASAL",
+      "observed_grade": 2,
+      "result_sha256": "99fb9da3decd01efc0983ae29fa49b285cda1a6c33d627e91b4ca4979f9def77",
+      "exact_original_text_sha256": "8c8c2d9ac4d7b56f9db3c0bfdbad9a1ef6d8e54ed7e6a158208c5dd6913977b9",
+      "evidence_quote_sha256": "7e64e9b4282939d67506d96a375ef24f672f83a793c3053786b2dd4abfded082",
+      "bridge_sha256": "f880bfa05d787519cc266180d0439993de66277b8087943828ac8ce8aee44b54",
+      "finding": "Energy required to maintain baseline body weight is total baseline energy expenditure, not resting/basal metabolism; the annotation bridge equated these quantities.",
+      "review_kind": "implementing_Codex_agent_rank_blind_semantic_quality_check_not_expert"
+    }
+  ],
+  "original_valid_labels_modified": false,
+  "accepted_as_retrieval_gold": false,
+  "gold_freeze_permitted": false,
+  "new_census_rankings_run": 0,
+  "new_accuracy_claim_permitted": false,
+  "process_stop_requested": true,
+  "process_id_local_only": false,
+  "reason": "Real-source semantic spot checks found unsupported transfer between different observed quantities and a total-versus-resting energy conflation. Exact quotations and synthetic control success do not establish relevance validity.",
+  "next_work": "Add explicit per-task scientific quantities/components and prohibit unsupported analogue bridges. Preserve this failed partial attempt; calibrate near-topic negative controls and inspect rank-blind pilot before another whole-pool annotation.",
+  "rankings_visible": false,
+  "production_binding_labels_visible": false,
+  "expert_review": false
+}

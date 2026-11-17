@@ -1,0 +1,69 @@
+{
+  "schema": "prospective-census-product-task-plan-1",
+  "created_at": "2026-11-17T01:54:19.362572+00:00",
+  "metrics": [
+    "STR-11",
+    "STR-17",
+    "STR-30",
+    "STATE-SLEEP-24H",
+    "STATE-REFERENCE-MEDIAN",
+    "STATE-DEVIATION",
+    "ENERGY-BASAL",
+    "ENERGY-NET-STORAGE",
+    "ENERGY-DELTA-INTAKE",
+    "ENERGY-IDENTIFIABILITY",
+    "STR-15",
+    "STR-19",
+    "PRED-B1"
+  ],
+  "selection_rule": "All10 census metrics with any pre-existing binding plus STR15/STR19/PRED-B1 controls, selected before reading census labels or rankings; not result-selected.",
+  "fixture_sha256": "ec6e396d98bedf531a07bc1546aaf1f7a0208b82f89c6a1bf8d3d1d1bddade35",
+  "task_policy_sha256": "470200b04e1f8e50b148e67186dc223fd4d2a11d1f00937c85ecf9e032e9191c",
+  "fixture_count": 13,
+  "nonempty_computed_metric_count": 12,
+  "planned_scopes": [
+    "all",
+    "reviewed_metric"
+  ],
+  "planned_product_entry_calls": 26,
+  "mode": "hybrid_rerank",
+  "query_form": "zh",
+  "k": 6,
+  "final_answer_rubric": [
+    {
+      "id": "computed_fidelity",
+      "requirement": "Preserve already computed value, units, count, cutoff and window; do not recompute, invent missing observations or conceal uncertain/data status."
+    },
+    {
+      "id": "bounded_evidence",
+      "requirement": "Substantive scientific explanation must follow the supplied original source evidence, current claim scope and limitations; do not turn a source-reported or estimated value into physiological truth."
+    },
+    {
+      "id": "no_causal_or_clinical_overreach",
+      "requirement": "Do not infer personal cause, disease, muscle recovery, hypertrophy, physiological plateau, calibrated prediction or individual treatment effect without specific authority."
+    },
+    {
+      "id": "no_prescription",
+      "requirement": "No invented weights, thresholds, percentages, RIR, complete plan or candidate permissions; a group result or general principle cannot become a personal numeric prescription."
+    },
+    {
+      "id": "abstention_integrity",
+      "requirement": "When the frozen task policy or deterministic capability denies source explanation, explicitly preserve insufficient evidence and confine output to computed descriptive facts."
+    },
+    {
+      "id": "source_and_version_fidelity",
+      "requirement": "Respect exact source/version and protocol boundaries, including 2021 author preprint versus published work; no claim of expert or personal validation."
+    },
+    {
+      "id": "degradation_disclosure",
+      "requirement": "Any unavailable model or degraded retrieval must remain visible; offline/template output is not a successful full hybrid or AI semantic explanation."
+    }
+  ],
+  "source_explanation_expectations": "Frozen census task judgments, not actual ranking outcomes. Deterministic capability and missing-calibration constraints remain authoritative.",
+  "explanation_network_enabled": false,
+  "synthetic_semantic_auditor_may_read_synthetic_outputs": true,
+  "real_private_health_database_opened": false,
+  "raw_synthetic_values_and_full_outputs_local_only": true,
+  "same_model_AI_semantic_check_not_expert": true,
+  "new_independent_task_count_beyond29": 0
+}
