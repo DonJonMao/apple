@@ -789,6 +789,7 @@ def import_training(repo, path, *, source_name="training_file") -> dict:
                             "ended_at",
                             "session_rpe",
                             "session_rpe_scale",
+                            "session_rpe_collected_at",
                             "duration_seconds",
                             "duration_protocol",
                         )

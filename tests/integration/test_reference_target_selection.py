@@ -153,7 +153,7 @@ def test_actual_analysis_ui_selects_repository_inputs_and_persists_result(tmp_pa
     repo = Repository(path)
     try:
         stored = [json.loads(row["result_json"]) for row in repo.rows("SELECT result_json FROM analysis_run")]
-        assert any(item.get("reference_selection", {}).get("selection", {}).get("reference_record_id") == "strength_set:"+saved[1]["set_uuid"] for item in stored)
+        assert any((item.get("reference_selection") or {}).get("selection", {}).get("reference_record_id") == "strength_set:"+saved[1]["set_uuid"] for item in stored)
     finally:
         repo.close()
 

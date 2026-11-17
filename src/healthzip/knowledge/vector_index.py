@@ -68,7 +68,7 @@ def register_spans(w, version_id, domains, *, assignment_status="provisional"):
     return len(rows)
 
 
-def current_units(w, requested_domains=None):
+def current_units(w, requested_domains=None, *, span_ids=None):
     """Materialize IDs before per-span reads, releasing the SQLite read cursor.
 
     SQL removes superseded parses and irrelevant domains; existing eligibility
@@ -84,6 +84,10 @@ def current_units(w, requested_domains=None):
         checked = ' OR '.join('instr(r.domains_json,?)>0' for _ in ordered)
         scope = f' AND (({clauses}) OR EXISTS(SELECT 1 FROM retrieval_unit_domain_review r WHERE r.span_id=u.span_id AND ({checked})))'
         parameters = [dumps(d) for d in ordered] * 2
+    if span_ids is not None:
+        # json_each avoids the SQLite parameter limit for large reviewed sets.
+        scope += ' AND u.span_id IN (SELECT value FROM json_each(?))'
+        parameters.append(dumps(sorted(span_ids)))
     return list(w.lib.sources.execute("""SELECT u.* FROM retrieval_unit u
         JOIN span s ON s.span_id=u.span_id JOIN version v ON v.version_id=s.version_id
         WHERE v.material_type='fulltext' AND NOT EXISTS(

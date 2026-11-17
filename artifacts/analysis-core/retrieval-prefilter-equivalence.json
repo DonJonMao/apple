@@ -1,0 +1,135 @@
+{
+  "identity": "actual_library_development_equivalence_not_independent_quality_evaluation",
+  "release_id": "v15-rir-author-preprint-2",
+  "model_network_calls": 0,
+  "private_data_used": false,
+  "cases": [
+    {
+      "metric_id": "STR-19",
+      "status": "insufficient_evidence",
+      "equal_fields": [
+        "status",
+        "matched_claims",
+        "evidence_spans",
+        "conflicts",
+        "capability_permissions",
+        "limitations",
+        "retrieved_domains"
+      ],
+      "candidate_ids_equal": true,
+      "candidate_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "result_sha256": "e37bad25ad9a8695c00122df5373f3035659117add6592ba7fa392b88064b946",
+      "prefilter_seconds": 2.7749008536338806,
+      "full_scan_seconds": 4.841854348778725,
+      "prefilter_audit": {
+        "count_domain": "currently_applicable_claim_spans",
+        "query_plan": "reviewed_claim_prefilter-1.6.0",
+        "eligible_domain_candidates": 147,
+        "background_candidates_excluded": 147,
+        "complete_group_refs": []
+      },
+      "full_scan_audit": {
+        "count_domain": "currently_applicable_claim_spans",
+        "query_plan": "reviewed_claim_prefilter-1.6.0",
+        "eligible_domain_candidates": 17518,
+        "background_candidates_excluded": 17518,
+        "complete_group_refs": []
+      }
+    },
+    {
+      "metric_id": "STATE-SDNN",
+      "status": "evidence_context_supported",
+      "equal_fields": [
+        "status",
+        "matched_claims",
+        "evidence_spans",
+        "conflicts",
+        "capability_permissions",
+        "limitations",
+        "retrieved_domains"
+      ],
+      "candidate_ids_equal": true,
+      "candidate_ids_sha256": "63eb99325c678bd211ff44ef04618b5b52b4a6258e1d5d0abd83e5adb6a3b5ff",
+      "result_sha256": "6ec39f89d59b098fbae3edfa4d4f65efebfc0446999ced6e9b66f7da6e0f9391",
+      "prefilter_seconds": 4.353221200406551,
+      "full_scan_seconds": 5.729233421385288,
+      "prefilter_audit": {
+        "count_domain": "currently_applicable_claim_spans",
+        "query_plan": "reviewed_claim_prefilter-1.6.0",
+        "eligible_domain_candidates": 140,
+        "background_candidates_excluded": 135,
+        "complete_group_refs": [
+          {
+            "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-HRV-PPG-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008"
+            ],
+            "required_claim_refs": []
+          }
+        ]
+      },
+      "full_scan_audit": {
+        "count_domain": "currently_applicable_claim_spans",
+        "query_plan": "reviewed_claim_prefilter-1.6.0",
+        "eligible_domain_candidates": 22639,
+        "background_candidates_excluded": 22634,
+        "complete_group_refs": [
+          {
+            "claim_id": "V15-CLAIM-HRV-BASELINE-SCOPE",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00006",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00021"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-HRV-PPG-UNCERTAINTY",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00007"
+            ],
+            "required_claim_refs": []
+          },
+          {
+            "claim_id": "V15-CLAIM-SDNN-PROTOCOL",
+            "claim_version": "1.5.0",
+            "evidence_span_ids": [
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00004",
+              "R3b:fulltext:680f5e25713c14b2c0f0:jats-owned-text-1.4.1:s00008"
+            ],
+            "required_claim_refs": []
+          }
+        ]
+      }
+    }
+  ],
+  "implementation_sha256": {
+    "src/healthzip/knowledge/metric_retrieval.py": "12ed679c055ed0193d67b0768886f1d3adc71c10ec21d57b5a7180d771815d34",
+    "src/healthzip/knowledge/vector_index.py": "d8fe217e7fcf5f4add90dce70656ce6d523f69a0bd60a73fe512083dd835d863"
+  },
+  "limitations": [
+    "Two fixed known tasks; synthetic MetricResults; no new independent quality denominator.",
+    "Timing is one local run per route, not P95.",
+    "Scan count domains differ explicitly; final ranked candidates and scientific results must match."
+  ]
+}

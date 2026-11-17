@@ -9,8 +9,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import lru_cache
 from importlib.resources import files
 from typing import Any, Optional
 
@@ -22,12 +24,29 @@ EVIDENCE_STATES = {
     "observed", "definition_based", "descriptive", "model_conditional", "research_only",
     "predictive_validated_for_scope", "intervention_validated_for_scope",
 }
-ALGORITHM_VERSION = "healthzip-science-1.4.5"
+ALGORITHM_VERSION = "healthzip-science-1.6.0"
+
+
+@lru_cache(maxsize=1)
+def _metric_definitions() -> dict[str, dict[str, Any]]:
+    """Package definitions are immutable for the lifetime of this code version."""
+    data = json.loads(files("healthzip.science").joinpath("metrics.json").read_text("utf-8"))
+    return {item["metric_id"]: item for item in data["metrics"]}
+
+
+def metric_ids() -> tuple[str, ...]:
+    return tuple(_metric_definitions())
+
+
+def metric_definition(metric_id: str) -> dict[str, Any]:
+    if metric_id in _metric_definitions():
+        return deepcopy(_metric_definitions()[metric_id])
+    from .observations import definitions as observation_definitions
+    return observation_definitions()[metric_id]
 
 
 def definitions(*, include_observations: bool = False) -> dict[str, dict[str, Any]]:
-    data = json.loads(files("healthzip.science").joinpath("metrics.json").read_text("utf-8"))
-    registered = {item["metric_id"]: item for item in data["metrics"]}
+    registered = deepcopy(_metric_definitions())
     if include_observations:
         from .observations import definitions as observation_definitions
         registered.update(observation_definitions())
@@ -165,7 +184,7 @@ def result(metric_id: str, window: Window, value: Any = None, *, unit: Optional[
            uncertainty: Optional[dict] = None, coverage: Optional[list[dict]] = None,
            parameter_set_id: Optional[str] = None, calibration: Optional[dict] = None,
            **extra: Any) -> dict:
-    definition = definitions(include_observations=True)[metric_id]
+    definition = metric_definition(metric_id)
     rows = records or []
     output = {
         "metric_id": metric_id, "algorithm_version": ALGORITHM_VERSION,

@@ -1365,6 +1365,9 @@ def _session(repo, svc, session):
             st.rerun()
         note = st.text_area("本次反馈 / 未完成原因", key="session_feedback")
         srpe = st.text_input("整次训练主观用力（0–10，可留空）", key="session_srpe")
+        srpe_scale = st.selectbox("整场评分的实际量表", ["cr10", "Foster_modified_CR10"],
+            format_func=lambda value: {"cr10": "CR-10（未确认 Foster 修改版）",
+                "Foster_modified_CR10": "Foster 修改 CR-10（回顾整场）"}[value], key="session_srpe_scale")
         minutes = st.text_input("整次训练时长（分钟，可留空）", key="session_minutes")
         if st.button("中断并保留记录"):
             if _act(
@@ -1378,11 +1381,14 @@ def _session(repo, svc, session):
 
             def finish():
                 duration = numeric(minutes, "训练时长分钟")
+                collected_at = _now()
                 return svc.end_session(
                     session["id"],
                     feedback={"notes": note},
                     session_rpe=srpe or None,
-                    rpe_scale="cr10" if srpe else None,
+                    ended_at=collected_at,
+                    rpe_scale=srpe_scale if srpe else None,
+                    rpe_collected_at=collected_at if srpe else None,
                     duration_seconds=duration * 60 if duration is not None else None,
                     duration_protocol="user_elapsed_including_rest" if minutes else None,
                 )

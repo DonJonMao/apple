@@ -451,6 +451,13 @@ def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=Fa
 
     from healthzip.analytics.v13 import analyze, metric_card
     output["v13"] = analyze(repo, window_days, timezone_name=timezone_name)
+    from healthzip.workflows.reports import review_analysis
+    if repo.conn.in_transaction:
+        output["workflow_review_state"] = "save_pending_edits_before_review"
+        output["workflow_reviews"] = []
+    else:
+        output["workflow_reviews"] = review_analysis(repo, output["v13"])
+        output["workflow_review_state"] = "computed_by_shared_core"
     cutoff = output["v13"]["cutoff_time"]
     output["period_snapshots"] = ({period: analyze(repo, cutoff_time=cutoff, period=period, timezone_name=timezone_name)
                                   for period in ("week", "month")} if include_periods else {})

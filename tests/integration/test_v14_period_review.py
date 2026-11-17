@@ -57,11 +57,15 @@ def test_e2e06_visible_period_report_shows_its_own_load_layers(tmp_path, period,
     ])
     repo.close()
     cutoff = "2026-11-19T12:00:00+00:00"
+    selection = {"sleep_selection": {"stream_id": "not-recorded", "episodes": [], "main_episode_id": None}} if period == "month" else None
+    # The synthetic cutoff includes records later than the real wall clock;
+    # prospective replay honors their declared availability at that cutoff.
+    retrospective = False
     script = ("from healthzip.db.repository import Repository\n"
               "from healthzip.analytics.v13 import analyze\n"
               "from healthzip.ui.analysis_page import render_analysis\n"
               f"repo=Repository({str(path)!r})\n"
-              f"render_analysis(repo, {{'v13': analyze(repo, cutoff_time={cutoff!r}, timezone_name='UTC')}})\n"
+              f"render_analysis(repo, {{'v13': analyze(repo, cutoff_time={cutoff!r}, timezone_name='UTC', context={selection!r}, retrospective={retrospective!r})}})\n"
               "repo.close()")
     app = AppTest.from_string(script).run(timeout=30)
     next(s for s in app.selectbox if s.label == "复盘周期").set_value(label)
@@ -78,8 +82,13 @@ def test_e2e06_visible_period_report_shows_its_own_load_layers(tmp_path, period,
     assert shown["停滞判断"].tolist() == ["尚不能确认", "尚不能确认"]
     repo = Repository(path)
     saved = [json.loads(r[0]) for r in repo.rows("SELECT result_json FROM analysis_run")]
-    report = next(r for r in saved if r["period"] == period)
+    # Workflow snapshots share analysis_run; select the full calendar report.
+    report = next(r for r in saved if r["period"] == period and "strength_tasks" in r)
     assert report["cutoff_time"] == cutoff
+    assert report["retrospective"] == retrospective
+    assert report["selection_context"] == (selection or {})
+    if selection:
+        assert report["sleep_selection"]["accepted"] is False
     assert report["window_start"] == ("2026-11-16T00:00:00+00:00" if period == "week" else "2026-11-01T00:00:00+00:00")
     series = report["strength_tasks"][0]["metrics"]["STR-19"]["series_results"]
     expected = records[3:7] if period == "week" else records[1:7]

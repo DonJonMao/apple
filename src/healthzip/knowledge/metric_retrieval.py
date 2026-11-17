@@ -175,7 +175,7 @@ def _claim_links(w, context, allowed_refs):
     return links, accepted, excluded
 
 
-def eligible_candidates(w, requested_domains, context, release_id):
+def eligible_candidates(w, requested_domains, context, release_id, *, reviewed_only=False):
     domains.ensure_schema(w)
     vector_index.ensure_schema(w)
     allowed_spans, allowed_refs, release, frozen_assignments = _release(w, release_id)
@@ -189,9 +189,15 @@ def eligible_candidates(w, requested_domains, context, release_id):
     roles = set(context.get("corpus_roles", ["core", "research"]))
     if not roles or not roles <= {"core", "research"}:
         raise ValueError("metric_retrieval_science_partitions_only")
-    matches = vector_index.current_units(w, requested_domains)
+    # A complete reviewed group can only contain accepted claim evidence,
+    # including every explicitly linked prerequisite. Push this necessary
+    # condition before reading unrelated full text. All claims stay available
+    # for conflict checks and the complete-group gate below is unchanged.
+    matches = vector_index.current_units(w, requested_domains, span_ids=links if reviewed_only else None)
     excluded.extend(vector_index.prefiltered_version_groups(w))
     candidates, version_metadata = [], {}
+    sources, eligibility, rights_checks = {}, {}, {}
+    source_revision = None
     for row in matches:
         assignment = frozen_assignments.get(row['span_id']) if frozen_assignments is not None else vector_index.unit_assignment(w, row)
         if assignment is None:
@@ -207,21 +213,42 @@ def eligible_candidates(w, requested_domains, context, release_id):
             excluded.append({"span_id": sid, "reason": "outside_frozen_release"})
             continue
         span = w.lib.span(sid, include_metadata=False)
-        ok, why = w.lib.eligible(span, "fulltext") if span else (False, "missing_span")
+        # Many units share one version and exactly the same component rights.
+        # Reuse only within this synchronous candidate scan, invalidating on
+        # writes from either this connection or another connection. Selected
+        # evidence still passes the existing _still_current checks afterward.
+        revision = (w.lib.sources.execute("PRAGMA data_version").fetchone()[0], w.lib.sources.total_changes)
+        if revision != source_revision:
+            sources.clear()
+            eligibility.clear()
+            rights_checks.clear()
+            version_metadata.clear()
+            source_revision = revision
+        eligibility_key = tuple(span[key] for key in (
+            "source_id", "version_id", "identity_status", "material_type", "rights_json")) if span else None
+        if eligibility_key not in eligibility:
+            eligibility[eligibility_key] = w.lib.eligible(span, "fulltext") if span else (False, "missing_span")
+        ok, why = eligibility[eligibility_key]
         if not ok:
             excluded.append({"span_id": sid, "reason": why})
             continue
         if not span["text"].strip():
             excluded.append({"span_id": sid, "reason": "empty_structured_unit"})
             continue
-        source = w.lib.source(span["source_id"])["manifest"]
+        if span["source_id"] not in sources:
+            sources[span["source_id"]] = w.lib.source(span["source_id"])["manifest"]
+        source = sources[span["source_id"]]
         if not set(source.get("corpus_roles", ["research"])) & roles:
             excluded.append({"span_id": sid, "reason": "corpus_partition_excluded"})
             continue
         # Unknown claim applicability never becomes applicable because its raw
         # excerpt is present in an index; such excerpts are reading-only.
-        rights = json.loads(span["rights_json"])
-        rejection = source_rights.usage_rejection(rights, context.get("usage_scope", "local_noncommercial"))
+        if span["rights_json"] not in rights_checks:
+            rights = json.loads(span["rights_json"])
+            rights_checks[span["rights_json"]] = (rights,
+                source_rights.usage_rejection(rights, context.get("usage_scope", "local_noncommercial")),
+                source_rights.noncommercial_only(rights))
+        rights, rejection, noncommercial = rights_checks[span["rights_json"]]
         if rejection:
             excluded.append({"span_id": sid, "reason": rejection})
             continue
@@ -233,10 +260,10 @@ def eligible_candidates(w, requested_domains, context, release_id):
             "applicability": {"status": "reviewed_claim_conditions_match" if sid in links else "unreviewed_source_reading_only"},
             "applicability_status": "matched" if sid in links else "not_reviewed_for_metric_inference",
             "rights_status": {**{key: rights.get(key) for key in ("status", "license_id", "index_allowed", "rights_scope")},
-                "noncommercial_only": source_rights.noncommercial_only(rights),
+                "noncommercial_only": noncommercial,
                 "usage_policy_version": source_rights.USAGE_POLICY_VERSION},
             "review_status": "claim_checked" if sid in links else "source_only_claim_review_pending",
-            "content": span["text"], "input_content_hash": span["text_hash"],
+            "content": span["text"], "input_content_hash": span["text_hash"], "kind": span["kind"],
             "evidence_role": "reviewed_claim_evidence" if sid in links else "background_only",
             "source_metadata": _version_source_metadata(w, source, span['version_id'], version_metadata)})
         if release_id is not None:
@@ -512,7 +539,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     if candidate_scope != 'all' and release_id is not None:
         if _release(w, release_id)[2].get('candidate_scope_version') != CANDIDATE_SCOPE_VERSION:
             raise ValueError('frozen_release_does_not_pin_candidate_scope')
-    candidates, claims, excluded, release = eligible_candidates(w, requested, context, release_id)
+    candidates, claims, excluded, release = eligible_candidates(w, requested, context, release_id,
+        reviewed_only=candidate_scope == 'reviewed_metric')
     if candidate_scope == 'reviewed_metric':
         # Derive the universe from current, applicable, fully reviewed metric
         # links and their explicit prerequisites. No query/Gold-specific IDs or
@@ -521,6 +549,8 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
             {c['span_id']: c for c in candidates}, context, release.get('edge_ids'))
         scoped_ids = {sid for group in groups for sid in group['evidence_span_ids']}
         audit['metric_candidate_scope'] = {
+            'count_domain': 'currently_applicable_claim_spans',
+            'query_plan': 'reviewed_claim_prefilter-1.6.0',
             'eligible_domain_candidates': len(candidates),
             'background_candidates_excluded': sum(c['span_id'] not in scoped_ids for c in candidates),
             'complete_group_refs': [{key: group[key] for key in

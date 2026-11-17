@@ -51,6 +51,9 @@ def render_report(
         lines.append(
             f"|{row.get('canonical_type') or '未知'}|{row.get('raw_type')}|{row.get('n')}|{row.get('observed_days')}|{row.get('first_date') or '—'}|{row.get('last_date') or '—'}|{row.get('source_count')}|"
         )
+    if analysis.get("workflow_reviews"):
+        from healthzip.workflows.reports import markdown
+        lines += markdown(analysis["workflow_reviews"])
     lines += ["", "## Evidence Cards", ""]
 
     def walk(obj):

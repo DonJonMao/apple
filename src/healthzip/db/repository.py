@@ -13,7 +13,7 @@ from healthzip.normalize import stable_fingerprint
 
 SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 
-CURRENT_SCHEMA_VERSION = 4
+CURRENT_SCHEMA_VERSION = 5
 
 
 def _json(value: Any) -> str:
@@ -56,6 +56,7 @@ class Repository:
         from healthzip.db.temporal_schema import migrate_temporal
         from healthzip.training.catalog_import import migrate_catalog
         from healthzip.training.schema import migrate_training
+        from healthzip.workflows.storage import migrate_workflows
 
         existing = self.conn.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()
         if existing and int(existing[0]) > CURRENT_SCHEMA_VERSION:
@@ -65,6 +66,7 @@ class Repository:
         migrate_catalog(self.conn)
         migrate_advice(self.conn)
         migrate_temporal(self.conn)
+        migrate_workflows(self.conn)
         self.conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(CURRENT_SCHEMA_VERSION),))
 
     def _migrate_v2(self) -> None:

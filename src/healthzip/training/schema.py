@@ -37,6 +37,7 @@ ADDITIONS = {
         "feedback_json": "TEXT",
         "session_rpe": "REAL",
         "session_rpe_scale": "TEXT",
+        "session_rpe_collected_at": "TEXT",
         "duration_seconds": "REAL",
         "duration_protocol": "TEXT",
         "deleted_at": "TEXT",

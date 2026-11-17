@@ -17,6 +17,43 @@ VERIFICATION = "在执行前指定参考组，记录实际重量、次数、RIR�
 PROFILE_FIELDS = {"age", "training_goal", "training_experience", "health_scope"}
 
 
+def candidate_basis(record):
+    """The same frozen provenance presentation for pages and reports."""
+    frozen, candidate = record["input_snapshot"], record["candidate"]
+    strategy = frozen.get("strategy")
+    rules = [p for p in frozen.get("theory_authority", {}).get("principles", [])
+             if strategy in p.get("permitted_actions", [])]
+    targets = candidate.get("target_range") or {}
+    modified = frozen.get("choice_modification")
+    has_target = candidate.get("proposed_change", {}).get("load") is not None
+    return {"candidate_id": record["candidate_id"], "strategy": strategy,
+        "strategy_basis": [{"rule_id": p.get("rule_id", p.get("theory_id")), "version": p["version"],
+            "capability": p["capability"], "source_spans": p.get("evidence_spans", []),
+            "claim_refs": p.get("claim_refs", []), "reviewer_kind": p.get("reviewer_kind"),
+            "application_logic": p.get("application_logic"), "limits": p.get("limits", [])} for p in rules],
+        "discussion_basis": frozen.get("discussion_explanation"),
+        "analysis_review": frozen.get("analysis_review"),
+        "personal_record_basis": {"reference_set_id": frozen.get("reference_set_id"),
+            "source_record_ids": frozen.get("source_record_ids", []), "cutoff_time": record["cutoff_time"],
+            "condition": frozen.get("condition"), "selected_target": frozen.get("selected_target"),
+            "reference_observation": frozen.get("reference_observation")},
+        "numeric_origins": [
+            {"field": "重量/档位", "value": candidate.get("proposed_change", {}).get("load"),
+             "unit": candidate.get("proposed_change", {}).get("load_unit"),
+             "origin": "未生成数值候选" if not has_target else "用户修改选择的已确认档位" if modified else
+                 "沿用可比参考组的实际负荷" if strategy == "repetition_progression" else "经匹配行动规则核对的实际可用档位",
+             "source": frozen.get("reference_set_id") if strategy == "repetition_progression" else frozen.get("advice_context", {}).get("available_loads", []),
+             "limitation": "下一档本身不证明适宜或最优；没有匹配规则时不构成系统数值候选。"},
+            {"field": "次数", "value": [targets.get("reps_min"), targets.get("reps_max")], "unit": "次",
+             "origin": "未生成数值候选" if not has_target else "用户修改后的目标" if modified else "沿用用户已确认计划的次数上限" if strategy == "repetition_progression" else "沿用用户已确认计划的次数下限",
+             "source": modified or frozen.get("selected_target"),
+             "limitation": "不是由资料库推导出的个人最优次数，也不是成功次数预测。"},
+            {"field": "RIR", "value": [targets.get("rir_min"), targets.get("rir_max")], "unit": "次余力",
+             "origin": "用户已确认的目标 RIR" if targets.get("rir_min") is not None else "RIR 目标未指定", "source": frozen.get("selected_target"),
+             "limitation": "不由睡眠、HRV 或其他状态换算。"}],
+        "identity": "optional_task_with_separate_rule_record_plan_equipment_provenance"}
+
+
 def migrate_advice(conn):
     conn.execute("""CREATE TABLE IF NOT EXISTS advice_profile_revision (
         revision INTEGER PRIMARY KEY, user_id TEXT NOT NULL, fields_json TEXT NOT NULL,
@@ -25,6 +62,10 @@ def migrate_advice(conn):
         event_id TEXT PRIMARY KEY, candidate_id TEXT NOT NULL, status TEXT NOT NULL,
         reasons_json TEXT NOT NULL, input_signature TEXT NOT NULL, recorded_at TEXT NOT NULL,
         UNIQUE(candidate_id,input_signature))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS recommendation_request (
+        user_id TEXT NOT NULL, request_hash TEXT NOT NULL,
+        candidate_id TEXT NOT NULL UNIQUE REFERENCES training_recommendation(candidate_id),
+        PRIMARY KEY(user_id,request_hash))""")
     conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('advice_profile_version','0')")
 
 
@@ -58,19 +99,20 @@ def save_profile(repo, fields, *, user_id="local"):
 
 
 def build_advice_context(repo, session_id, session_exercise_id, selected_set_uuid, available_loads,
-                         strategy, *, cutoff_time=None, timezone_name="Asia/Shanghai"):
+                         strategy, *, cutoff_time=None, timezone_name="Asia/Shanghai", retrospective=False):
     """Derive actual task fields; callers cannot remove them to widen scope."""
     svc = TrainingService(repo)
-    session = svc.get_session(session_id)
-    instance = svc.get_session_exercise(session_exercise_id)
-    if instance["session_id"] != session["id"]:
-        raise ValueError("所选动作不属于当前展示的训练")
-    effective = svc.current_targets(session_exercise_id)
+    cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
+    session = svc.get_session(session_id) if retrospective else svc.session_as_of(session_id, cutoff_time=cutoff.isoformat())
+    instance = next((item for item in session["exercises"]
+                     if item["id"] == session_exercise_id and not item.get("deleted_at")), None)
+    if instance is None:
+        raise ValueError("所选动作在截止时点不可见或不属于该训练")
+    effective = svc.targets_from_instance(instance)
     selected = next((s for s in effective["sets"] if s["set_uuid"] == selected_set_uuid), None)
     if selected_set_uuid and selected is None:
         raise ValueError("所选目标已删除或不属于当前动作")
-    cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
-    records, inherited = snapshot(repo, cutoff.isoformat(), include_sources=False)
+    records, inherited = snapshot(repo, cutoff.isoformat(), include_sources=False, retrospective=retrospective)
     key = instance.get("condition_key")
     baseline, current = [], []
     for raw in records:
@@ -104,7 +146,8 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
         task = analysis_task(references[-1])
     personal = profile(repo, svc.user_id, cutoff_time=cutoff.isoformat())
     context = {**inherited, **personal["fields"], **instance["condition"],
-               "advice_context_version": "1.4.0", "as_of": cutoff.isoformat(), "timezone": timezone_name,
+               "advice_context_version": "1.6.0", "as_of": cutoff.isoformat(), "timezone": timezone_name,
+               "retrospective": retrospective,
                "task_id": task["task_id"], "selected_set_uuid": selected_set_uuid,
                "outcome_series_id": series["outcome_series_id"] if series else None,
                "target_version": effective["revision"], "definition_version": instance["definition_version"],
@@ -130,8 +173,15 @@ def current_use_status(repo, record):
     if record is None:
         raise ValueError("候选不存在或不属于当前用户")
     frozen = record["input_snapshot"]
-    instance = svc.get_session_exercise(frozen["session_exercise_id"])
-    advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], frozen.get("strategy"))
+    try:
+        instance = svc.get_session_exercise(frozen["session_exercise_id"])
+        advice = build_advice_context(repo, instance["session_id"], instance["id"], None, [], frozen.get("strategy"))
+    except ValueError:
+        return _save_current_use(repo, record["candidate_id"], {
+            "status": "review_required", "reason_codes": ["selected_task_no_longer_available"],
+            "applicability": {"applicable": None, "status": "unknown",
+                              "reason_codes": ["selected_task_no_longer_available"]},
+            "authority_snapshot": None, "data_version": svc.data_version(), "profile_revision": None})
     reference_id = frozen.get("reference_set_id")
     reference = next((r for r in advice["records"] if r.get("set_uuid") == reference_id), None)
     check = candidate_applicability(reference, advice["context"]["current_session_observations"])
@@ -160,22 +210,54 @@ def current_use_status(repo, record):
     missing_authority = bool(old - active)
     if missing_authority:
         reasons.append("frozen_rule_dependencies_no_longer_current")
-    if record.get("stale"):
+    if frozen.get("request_hash"):
+        options = frozen.get("request_options", {})
+        try:
+            selected = frozen.get("selected_target") or {}
+            loads = frozen.get("advice_context", {}).get("available_loads", [])
+            current_inputs = build_advice_context(repo, instance["session_id"], instance["id"],
+                selected.get("set_uuid"), loads, frozen.get("strategy"),
+                timezone_name=frozen.get("advice_context", {}).get("timezone", "Asia/Shanghai"))
+            current_discussion = None
+            if discussion:
+                # Compare already resolved source identity, excluding the moving
+                # discussion observation-window clock from request identity.
+                current_discussion = {"source_explanation": current_explanation}
+            signature = _candidate_request(current_inputs, loads, frozen.get("strategy"),
+                options.get("followup_window"), options.get("available_minutes"), authority, current_discussion)
+            if signature != frozen["request_hash"]:
+                reasons.append("input_records_changed_since_freeze")
+        except ValueError:
+            reasons.append("input_records_changed_since_freeze")
+    elif record.get("stale"):
         reasons.append("input_records_changed_since_freeze")
     status = "review_required" if reasons else "active"
     decision = {"status": status, "reason_codes": sorted(set(reasons)), "applicability": check,
                 "authority_snapshot": authority.get("review_snapshot_sha256"),
                 "data_version": svc.data_version(), "profile_revision": advice["context"]["profile_revision"]}
+    return _save_current_use(repo, record["candidate_id"], decision)
+
+
+def _save_current_use(repo, candidate_id, decision):
+    owns_transaction = not repo.conn.in_transaction
     signature = canonical_hash(decision)
     repo.conn.execute("INSERT OR IGNORE INTO recommendation_use_event VALUES(?,?,?,?,?,?)",
-        (str(uuid4()), record["candidate_id"], status, json.dumps(decision, ensure_ascii=False), signature,
+        (str(uuid4()), candidate_id, decision["status"], json.dumps(decision, ensure_ascii=False), signature,
          datetime.now(timezone.utc).isoformat()))
-    repo.conn.commit()
+    if owns_transaction:
+        repo.conn.commit()
     return decision
 
 
 def modify_candidate(repo, record, proposed_load, target_range):
     """Freeze a separately validated user choice; never rewrite the old task."""
+    svc = TrainingService(repo)
+    # Local-only validation and the request identity share one writer lock.
+    with svc._transaction():
+        return _modify_candidate(repo, record, proposed_load, target_range)
+
+
+def _modify_candidate(repo, record, proposed_load, target_range):
     from copy import deepcopy
 
     svc = TrainingService(repo)
@@ -239,6 +321,12 @@ def modify_candidate(repo, record, proposed_load, target_range):
             raise ValueError("该策略须使用更难的可用档位；增重降次数试验还须低于参考次数")
     else:
         raise ValueError("当前策略没有可修改的数值任务")
+    modification_hash = canonical_hash({"version": "choice-modification-1.6.0",
+        "parent_candidate_id": record["candidate_id"], "load": proposed_load, "target_range": target_range})
+    existing = _existing_request(repo, svc, modification_hash)
+    if existing:
+        return existing
+
     candidate = deepcopy(original)
     candidate["candidate_id"] = str(uuid4())
     candidate["parent_candidate_id"] = record["candidate_id"]
@@ -258,7 +346,10 @@ def modify_candidate(repo, record, proposed_load, target_range):
          "unit": candidate["proposed_change"].get("load_unit"), "source": available},
         {"field": "target_range", "kind": "user_target", "value": target_range, "source": "explicit_choice_modification"}]
     now = datetime.now(timezone.utc).isoformat()
-    return svc.record_recommendation(candidate, frozen, cutoff_time=now, theory_version=record["theory_version"])
+    saved = svc.record_recommendation(candidate, frozen, cutoff_time=now, theory_version=record["theory_version"])
+    repo.conn.execute("INSERT INTO recommendation_request VALUES(?,?,?)",
+                      (svc.user_id, modification_hash, saved["candidate_id"]))
+    return saved
 
 
 def _register_parameters(repo, instance, plan, available, strategy):
@@ -287,14 +378,51 @@ def _register_parameters(repo, instance, plan, available, strategy):
         registry.close()
 
 
+def _candidate_request(advice, available, strategy, followup_window, available_minutes, authority, discussion=None):
+    """Relevant inputs only; clocks and unrelated database revisions are not intent.
+
+    This digest deduplicates requests, never real training records. Actual UUIDs
+    and revisions remain part of each input. The 365-day product lookback is
+    shared with the existing candidate calculator.
+    """
+    cutoff = instant(advice["context"]["as_of"])
+    records = [row for row in advice["records"]
+               if cutoff - timedelta(days=365) <= instant(row["ended_at"]) <= cutoff]
+    context = advice["context"]
+    return canonical_hash({
+        "version": "candidate-request-1.6.0", "user_id": "local",
+        "session": advice["session"]["session_uuid"], "instance": advice["instance"]["id"],
+        "condition": advice["instance"]["condition"], "selected": advice["selected_target"],
+        "records": records, "current": context["current_session_observations"],
+        "profile_revision": context["profile_revision"], "loads": sorted(set(available)),
+        "strategy": strategy, "followup": followup_window, "available_minutes": available_minutes,
+        "timezone": context["timezone"], "authority": authority["review_snapshot_sha256"],
+        "discussion_evidence": discussion.get("source_explanation") if discussion else None,
+        "discussion_targets": advice["effective_targets"] if discussion else None,
+    })
+
+
+def _existing_request(repo, svc, digest):
+    row = repo.conn.execute("SELECT candidate_id FROM recommendation_request WHERE user_id=? AND request_hash=?",
+                           (svc.user_id, digest)).fetchone()
+    if row:
+        from healthzip.training.service import _decode
+        return _decode(repo.conn.execute("SELECT * FROM training_recommendation WHERE candidate_id=? AND user_id=?",
+                                        (row[0], svc.user_id)).fetchone())
+    return None
+
+
 def freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, timezone_name="Asia/Shanghai", followup_window=None, available_minutes=None):
     from healthzip.knowledge import KnowledgeWorkbench
     from healthzip.training.followup import freeze_window
 
+    if svc.repo is not repo or svc.user_id != "local":
+        raise ValueError("候选必须绑定当前本地数据范围")
     advice = build_advice_context(repo, session["id"], instance["id"],
                                   selected["set_uuid"] if selected else None, available, strategy, timezone_name=timezone_name)
     if advice["effective_targets"]["revision"] != effective["revision"]:
         raise ValueError("逐组目标已变化，请重新加载后核对候选")
+    session, instance, effective = advice["session"], advice["instance"], advice["effective_targets"]
     records, context = advice["records"], advice["context"]
     selected = advice["selected_target"]
     now = instant(context["as_of"])
@@ -304,7 +432,6 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
             "next_target_reps": target.get("reps_min")}
     if not target:
         plan = None
-    parameters = _register_parameters(repo, instance, plan, available, strategy)
     knowledge = KnowledgeWorkbench(".local/knowledge")
     discussion = None
     try:
@@ -316,6 +443,17 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
             authority = {**authority, "principles": []}
     finally:
         knowledge.close()
+    request_hash = _candidate_request(advice, available, strategy, followup_window, available_minutes, authority, discussion)
+    existing = _existing_request(repo, svc, request_hash)
+    if existing:
+        return existing
+    # Every entry (including the ordinary pre-training page/CLI) consumes the
+    # same descriptive review as calendar reports, before constructing an action.
+    from healthzip.workflows import WorkflowRequest, run_workflow
+    review = run_workflow(repo, WorkflowRequest("W1", cutoff_time=now.isoformat(),
+        timezone=timezone_name, window_days=365, session_id=session["id"],
+        session_exercise_id=instance["id"], selected_set_uuid=selected["set_uuid"] if selected else None))
+    parameters = _register_parameters(repo, advice["instance"], plan, available, strategy)
     metric_id = "STR-25" if strategy == "double_progression" else "STR-26"
     metric = evaluate(metric_id, records, cutoff_time=now.isoformat(),
                       window_start=(now - timedelta(days=365)).isoformat(), window_end=now.isoformat(),
@@ -354,6 +492,9 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         "source_record_ids": context["baseline_record_ids"] + [identity for identity in context["current_session_record_ids"]
             if identity not in context["unknown_current_observation_ids"]],
         "unknown_current_observation_ids": context["unknown_current_observation_ids"], "metric_result": metric,
+        "analysis_review": {"run_id": review["run_id"], "workflow_version": review["workflow_version"],
+            "comparison_window": review["supplements"].get("long_term_review", {}).get("window"),
+            "long_term_review_started": review["nodes"][2]["long_term_review_trigger"]},
         "advice_context": context, "numeric_provenance": [
             {"field": "proposed_change.load", "kind": "observed" if strategy == "repetition_progression" else "equipment_step",
              "value": load, "unit": reference.get("load_unit"),
@@ -364,14 +505,51 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         "reference_set_id": reference.get("reference_set_id"),
         "condition": instance["condition"], "theory_authority": authority, "strategy": strategy,
         "session_exercise_id": instance["id"], "parameter_manifest": parameters,
+        "request_hash": request_hash, "creation_mode": "current_action_review",
+        "request_options": {"followup_window": followup_window, "available_minutes": available_minutes},
     }
+    frozen["numeric_provenance"].append({"field": "target_range.rir", "kind": "user_target",
+        "value": target.get("rir"), "unit": "repetitions_in_reserve", "source": selected})
+    observed = next((flatten_record(row) for row in records if row.get("set_uuid") == reference.get("reference_set_id")), {})
+    frozen["reference_observation"] = {key: observed.get(key) for key in (
+        "set_uuid", "revision", "ended_at", "load_value", "load_unit", "load_basis", "reps", "rir", "rir_interval", "quality", "stop_reason")}
     if discussion:
         frozen["discussion_explanation"] = discussion["source_explanation"]
         frozen["numeric_provenance"] = []
-    return svc.record_recommendation(
-        candidate, frozen, cutoff_time=now.isoformat(),
-        theory_version=str(authority.get("source_release") or authority.get("review_snapshot_sha256") or "none_reviewed_for_numerical_action"),
-    )
+    # Serialize the final check and both writes across processes. No external
+    # service runs under this lock; knowledge lookup above is local-only.
+    if repo.conn.in_transaction:
+        raise ValueError("请先保存当前编辑，再核对候选依据。")
+    repo.conn.execute("BEGIN IMMEDIATE")
+    try:
+        existing = _existing_request(repo, svc, request_hash)
+        if existing:
+            repo.conn.commit()
+            return existing
+        current = build_advice_context(repo, session["id"], instance["id"],
+                    selected["set_uuid"] if selected else None, available, strategy, timezone_name=timezone_name)
+        knowledge = KnowledgeWorkbench(".local/knowledge")
+        try:
+            current_authority = knowledge.reviewed_principles("progression", current["context"])
+            current_discussion = None
+            if discussion:
+                current_discussion = build_discussion(knowledge, current, strategy, available_minutes)
+                current_authority = {**current_authority, "principles": []}
+        finally:
+            knowledge.close()
+        if _candidate_request(current, available, strategy, followup_window, available_minutes,
+                              current_authority, current_discussion) != request_hash:
+            raise ValueError("核对期间训练或目标已变化，请重新加载")
+        saved = svc.record_recommendation(
+            candidate, frozen, cutoff_time=now.isoformat(),
+            theory_version=str(authority.get("source_release") or authority.get("review_snapshot_sha256") or "none_reviewed_for_numerical_action"),
+        )
+        repo.conn.execute("INSERT INTO recommendation_request VALUES(?,?,?)", (svc.user_id, request_hash, saved["candidate_id"]))
+        repo.conn.commit()
+        return saved
+    except BaseException:
+        repo.conn.rollback()
+        raise
 
 
 def main():

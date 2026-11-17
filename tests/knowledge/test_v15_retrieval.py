@@ -258,6 +258,7 @@ def test_unavailable_models_report_lexical_degradation(kb):
     rank = RerankerProvider(ServiceConfig("https://example.invalid/rank", "no-consent"))
     found = metric_retrieval.retrieve_for_metric(kb, "STR-12", "strength", result(), CONTEXT, services=(embed, rank))
     assert found["evidence_spans"] and found["retrieval_audit"]["retrieval_degraded"]
+    assert all(span["kind"] == kb.lib.span(span["span_id"])["kind"] for span in found["evidence_spans"])
     assert found["retrieval_audit"]["degradation_reasons"] == ["public_evidence_network_consent_required"] * 2
 
 

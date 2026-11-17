@@ -168,7 +168,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         session["session_id"] = session["id"]
         session["event_end"] = session.get("ended_at")
         session["srpe_protocol"] = session.get("session_rpe_scale")
-        session["srpe_collected_at"] = session.get("available_at")
+        session["srpe_collected_at"] = session.get("session_rpe_collected_at")
     session_uuids = {s["id"]: s.get("session_uuid") for s in sessions}
     for row in records:
         if row.get("record_kind") == "strength_set":
@@ -232,7 +232,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
 
 
 def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
-            context=None, retrospective=False, period=None, use_cache=True):
+            context=None, retrospective=False, period=None, use_cache=True, window_start=None, window_end=None):
     from healthzip.analytics.cache import cached
 
     # Automatic views refresh at most once a minute unless input versions change.
@@ -240,10 +240,12 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
     now = datetime.now(timezone.utc)
     arguments = {"window_days": window_days, "cutoff": cutoff_time or now.replace(second=0, microsecond=0).isoformat(),
                  "mode": "explicit" if cutoff_time else "auto", "timezone": timezone_name,
-                 "context": context, "retrospective": retrospective, "period": period}
+                 "context": context, "retrospective": retrospective, "period": period,
+                 "window_start": window_start, "window_end": window_end}
     def compute():
         value = _analyze_uncached(repo, window_days, cutoff_time=cutoff_time or now.isoformat(),
-                                  timezone_name=timezone_name, context=context, retrospective=retrospective, period=period)
+                                  timezone_name=timezone_name, context=context, retrospective=retrospective, period=period,
+                                  window_start=window_start, window_end=window_end)
         value["cutoff_mode"] = "explicit" if cutoff_time else "auto"
         value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
@@ -252,7 +254,7 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
-            context=None, retrospective=False, period=None):
+            context=None, retrospective=False, period=None, window_start=None, window_end=None):
     from healthzip.science import evaluate_all
 
     cutoff = datetime.fromisoformat(cutoff_time.replace("Z", "+00:00")) if cutoff_time else datetime.now(timezone.utc)
@@ -260,6 +262,13 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         raise ValueError("cutoff_requires_timezone")
     start = cutoff-timedelta(days=max(1, int(window_days)))
     end = cutoff
+    if window_start is not None or window_end is not None:
+        from healthzip.science.contracts import instant
+        if window_start is None or window_end is None or period:
+            raise ValueError("explicit_window_requires_both_bounds_and_no_calendar_override")
+        start, end = instant(window_start), instant(window_end)
+        if start >= end:
+            raise ValueError("explicit_window_must_be_nonempty")
     if period:
         local = cutoff.astimezone(ZoneInfo(timezone_name))
         if period == "month":
@@ -323,7 +332,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.5.0",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.6.0",
             "observations": observations['metrics'], "observation_registry": observations['registry_version'],
             "observation_query_plan": observations['query_plan'],
             "query_plan": inherited["query_plan"],

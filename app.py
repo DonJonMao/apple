@@ -119,6 +119,7 @@ try:
             "运动",
             "体重 / 有氧",
             "力量",
+            "分析",
             "营养",
             "周期",
             "报告",
@@ -130,6 +131,9 @@ try:
     analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name) if page not in {"导入与总览", "力量", "知识库"} else {}
     if analysis:
         persist_analysis(repo, analysis)
+    if page == "分析":
+        from healthzip.ui.analysis_page import render_analysis
+        render_analysis(repo, analysis)
     if page == "导入与总览":
         st.subheader("数据总览")
         st.dataframe(inv.get("sample_types", []), use_container_width=True)
@@ -225,11 +229,14 @@ try:
         report_path = st.text_input("报告输出路径", "reports/latest.md")
         period_label = st.selectbox("报告范围", ["当前分析窗口", "本周", "本月"])
         if st.button("生成 Markdown 报告"):
+            period = None
             if period_label != "当前分析窗口":
                 from healthzip.analytics.v13 import analyze
                 period = {"本周": "week", "本月": "month"}[period_label]
                 analysis["period_snapshots"] = {period: analyze(repo, cutoff_time=analysis["v13"]["cutoff_time"], period=period,
                                                               timezone_name=timezone_name)}
+            from healthzip.workflows.reports import review_analysis
+            analysis["workflow_reviews"] = review_analysis(repo, analysis["v13"], period=period, include_background=True)
             out = render_report(analysis, inv, report_path)
             st.success(f"已写入 {out}")
         st.write("报告会包含每个 Evidence Card 的窗口、事实、样本量和限制。")

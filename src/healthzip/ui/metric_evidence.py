@@ -4,13 +4,14 @@ import streamlit as st
 from healthzip.knowledge import KnowledgeWorkbench
 from healthzip.knowledge.domains import configuration
 from healthzip.science import definitions
+from healthzip.workflows.contracts import FUNCTION_NAMES
 
 
 def render_metric_evidence(metrics):
     cfg, names = configuration(include_observations=True), definitions(include_observations=True)
     with st.expander('指标的原始依据与解释'):
         task = st.selectbox('分析功能', list(cfg['functions']),
-            format_func=lambda key: cfg['functions'][key]['title'], key='metric_evidence_function')
+            format_func=lambda key: FUNCTION_NAMES.get(key, cfg['functions'][key]['title']), key='metric_evidence_function')
         available = [mid for mid in metrics if task in cfg['profiles'][mid]['analysis_functions']]
         if not available:
             st.info('当前结果没有此功能对应的 MetricResult，暂不能按指标检索。')

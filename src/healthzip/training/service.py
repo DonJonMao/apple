@@ -41,6 +41,7 @@ STOP_REASONS = {
 }
 SESSION_STATES = {"draft", "in_progress", "paused", "completed", "aborted"}
 SCALES = {"cr10": (0, 10), "borg6_20": (6, 20), "rir_rpe10": (1, 10)}
+SESSION_SCALES = {**SCALES, "Foster_modified_CR10": (0, 10)}
 
 
 def _decode(row) -> Optional[dict]:
@@ -67,19 +68,36 @@ class TrainingService:
             raise TrainingError("user_id/device_id 不能为空")
         self.repo, self.conn = repo, repo.conn
         self.user_id, self.device_id = user_id, device_id
-        migrate_training(self.conn)
-        self._seed_catalog()
+        owns_transaction = not self.conn.in_transaction
+        if owns_transaction:
+            self.conn.execute("BEGIN IMMEDIATE")
+        try:
+            migrate_training(self.conn)
+            self._seed_catalog()
+            if owns_transaction:
+                self.conn.commit()
+        except BaseException:
+            if owns_transaction:
+                self.conn.rollback()
+            raise
 
     @contextmanager
     def _transaction(self):
         token = "training_" + uuid4().hex
+        owns_transaction = not self.conn.in_transaction
+        if owns_transaction:
+            self.conn.execute("BEGIN IMMEDIATE")
         self.conn.execute(f"SAVEPOINT {token}")
         try:
             yield
             self.conn.execute(f"RELEASE SAVEPOINT {token}")
+            if owns_transaction:
+                self.conn.commit()
         except BaseException:
             self.conn.execute(f"ROLLBACK TO SAVEPOINT {token}")
             self.conn.execute(f"RELEASE SAVEPOINT {token}")
+            if owns_transaction:
+                self.conn.rollback()
             raise
 
     def _seed_catalog(self):
@@ -1747,6 +1765,7 @@ class TrainingService:
             "ended_at",
             "session_rpe",
             "session_rpe_scale",
+            "session_rpe_collected_at",
             "duration_seconds",
             "duration_protocol",
             "feedback",
@@ -1759,7 +1778,7 @@ class TrainingService:
             values = dict(changes)
             if "session_status" in values and values["session_status"] not in SESSION_STATES:
                 raise TrainingError("训练状态无效")
-            for key in ("started_at", "ended_at"):
+            for key in ("started_at", "ended_at", "session_rpe_collected_at"):
                 if values.get(key):
                     values[key] = timestamp(values[key])
             if values.get("started_at"):
@@ -1773,7 +1792,7 @@ class TrainingService:
             rpe = values.get("session_rpe", old.get("session_rpe"))
             if rpe is not None:
                 rpe = numeric(rpe, "session_rpe")
-                scale = SCALES.get(values.get("session_rpe_scale", old.get("session_rpe_scale")))
+                scale = SESSION_SCALES.get(values.get("session_rpe_scale", old.get("session_rpe_scale")))
                 if not scale or not scale[0] <= rpe <= scale[1]:
                     raise TrainingError("整次训练 RPE 必须独立填报并指定量表")
             if "duration_seconds" in values:
@@ -1811,6 +1830,7 @@ class TrainingService:
         ended_at=None,
         session_rpe=None,
         rpe_scale=None,
+        rpe_collected_at=None,
         duration_seconds=None,
         duration_protocol=None,
         base_revision=None,
@@ -1827,6 +1847,7 @@ class TrainingService:
                     "feedback": feedback or {},
                     "session_rpe": session_rpe,
                     "session_rpe_scale": rpe_scale,
+                    "session_rpe_collected_at": rpe_collected_at,
                     "duration_seconds": duration_seconds,
                     "duration_protocol": duration_protocol,
                 }
@@ -1850,6 +1871,7 @@ class TrainingService:
             "feedback": feedback or {},
             "session_rpe": session_rpe,
             "session_rpe_scale": rpe_scale,
+            "session_rpe_collected_at": rpe_collected_at,
             "duration_seconds": duration_seconds,
             "duration_protocol": duration_protocol,
         }
@@ -1905,6 +1927,11 @@ class TrainingService:
         its optimistic record revision. Actual performance never fills targets.
         """
         instance = self.get_session_exercise(session_exercise_id)
+        return self.targets_from_instance(instance)
+
+    @staticmethod
+    def targets_from_instance(instance: dict) -> dict:
+        """The same target identity for current objects and frozen event replay."""
         rows = [
             {
                 "set_uuid": row["set_uuid"],
@@ -1918,7 +1945,7 @@ class TrainingService:
         content = [{"set_uuid": row["set_uuid"], "target": row["target"]} for row in rows]
         explicit = [row["target"] for row in rows if row["target"]]
         return {
-            "session_exercise_id": session_exercise_id,
+            "session_exercise_id": instance["id"],
             "revision": hashlib.sha256(json_text(content).encode()).hexdigest(),
             "sets": rows,
             "targets": {"sets": explicit} if explicit else {},
@@ -2520,7 +2547,6 @@ class TrainingService:
         actual_record_ids = actual_record_ids or []
         for identity in actual_record_ids:
             self.get_set(identity)
-        event_id = event_id or str(uuid4())
         payload = {
             "candidate_id": candidate_id,
             "user_choice": user_choice,
@@ -2556,16 +2582,19 @@ class TrainingService:
             )
             return {**payload, "recorded_at": now}
 
-        return self._mutate(
-            "recommendation_feedback",
-            "recommendation",
-            candidate_id,
-            payload,
-            apply,
-            event_id=event_id,
-            occurred_at=occurred_at,
-            invalidates=False,
-        )
+        with self._transaction():
+            if event_id is None:
+                latest = self.conn.execute("SELECT payload_json,result_json,event_id FROM training_event "
+                    "WHERE user_id=? AND entity_type='recommendation' AND entity_id=? AND action='recommendation_feedback' "
+                    "AND status='applied' ORDER BY recorded_at DESC,rowid DESC LIMIT 1",
+                    (self.user_id, candidate_id)).fetchone()
+                if latest and json.loads(latest["payload_json"]) == payload:
+                    return {**json.loads(latest["result_json"]), "replayed": True}
+                event_id = _uuid(candidate_id, json_text({"previous": latest["event_id"] if latest else None, "payload": payload}))
+            return self._mutate(
+                "recommendation_feedback", "recommendation", candidate_id, payload, apply,
+                event_id=event_id, occurred_at=occurred_at, invalidates=False,
+            )
 
     def list_recommendations(self, *, cutoff_time=None, window_start=None, window_end=None) -> list[dict]:
         window = self._query_window(window_start, window_end)
@@ -2688,6 +2717,48 @@ class TrainingService:
             and datetime.fromisoformat(row["started_at"]) <= cutoff
             and (include_deleted or not row.get("deleted_at"))
         ]
+
+    def session_as_of(self, session_id, *, cutoff_time: str) -> dict:
+        """Reconstruct session, exercise definitions/conditions and set targets.
+
+        Never resolve historical objects through today's catalog or targets.
+        Session events may contain full nested snapshots (start, reorder, undo);
+        later visible exercise/set events supersede those snapshots in order.
+        """
+        events = self.events_as_of(cutoff_time=cutoff_time)
+        visible = self.sessions_as_of(cutoff_time=cutoff_time, _events=events)
+        session = next((row for row in visible if str(session_id) in
+                        {str(row["id"]), str(row.get("session_uuid"))}), None)
+        if session is None:
+            raise TrainingError("该训练在截止时点不可见或已删除")
+        instances, known_sets = {}, {}
+        for event in events:
+            row = event.get("after")
+            if event["status"] != "applied" or not isinstance(row, dict):
+                continue
+            if event["entity_type"] == "session" and row.get("id") == session["id"]:
+                for item in row.get("exercises", []):
+                    instances[item["id"]] = item
+                for child in row.get("sets", []):
+                    known_sets[child["set_uuid"]] = child
+            elif event["entity_type"] == "session_exercise" and row.get("session_id") == session["id"]:
+                instances[row["id"]] = row
+                for child in row.get("sets", []):
+                    known_sets[child["set_uuid"]] = child
+            elif event["entity_type"] == "set" and row.get("session_id") == session["id"]:
+                known_sets[row["set_uuid"]] = row
+        # A target can already be visible although its planned/entered execution
+        # time is future. This is the object/plan view; scientific observations
+        # still go through history_as_of's independent event-time checks.
+        sets = list(known_sets.values())
+        exercises = []
+        for item in instances.values():
+            rows = [row for row in sets if row.get("session_exercise_id") == item["id"]]
+            rows.sort(key=lambda row: (row["set_number"], row["id"]))
+            exercises.append({**item, "sets": rows})
+        exercises.sort(key=lambda item: (item["position"], item["id"]))
+        return {**session, "exercises": exercises, "sets": sets,
+                "snapshot_cutoff": timestamp(cutoff_time)}
 
     def update_set_target(
         self, set_id, planned: dict, *, base_revision: int, event_id=None

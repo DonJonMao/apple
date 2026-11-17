@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter, defaultdict
 from datetime import timedelta
@@ -19,8 +20,17 @@ def stream_key(row: dict) -> tuple:
     source = row.get("source_name") or row.get("source_bundle_id") or row.get("source")
     if source is None:
         source = "unknown_source:" + str(row.get("_source_id", row.get("id", "unidentified")))
-    return (source, row.get("device_id") or row.get("device"),
-            row.get("protocol_id"), row.get("source_version"))
+    protocol = row.get("protocol_id")
+    if protocol is None:
+        # Canonical JSON imports preserve explicit source metadata. No device
+        # name, HealthKit field or nonempty free text is inferred as validation.
+        try:
+            metadata = json.loads(row.get("metadata_json") or "{}")
+            declared = metadata.get("protocol_id") if isinstance(metadata, dict) else None
+            protocol = declared if isinstance(declared, str) and declared.strip() and declared != "unknown" else None
+        except (ValueError, TypeError):
+            protocol = None
+    return (source, row.get("device_id") or row.get("device"), protocol, row.get("source_version"))
 
 
 def union(intervals: list[tuple]) -> list[tuple]:
@@ -325,16 +335,26 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
                 duration = None
                 duration_source = "unknown_protocol"
             srpe = finite(session.get("session_rpe")) if session.get("srpe_protocol") else None
-            if srpe is not None and not 0 <= srpe <= 10:
+            # Repository sessions preserve their actual scale. The explicit
+            # offline research protocol contract remains a 0–10 input; it does
+            # not grant Foster applicability to a user's Borg or RIR-based RPE.
+            scale = session.get("session_rpe_scale")
+            bounds = {"cr10": (0, 10), "Foster_modified_CR10": (0, 10),
+                      "borg6_20": (6, 20), "rir_rpe10": (1, 10)}.get(scale, (0, 10) if scale is None else None)
+            if srpe is not None and (bounds is None or not bounds[0] <= srpe <= bounds[1]):
                 srpe = None
+            au_compatible = scale in {None, "cr10", "Foster_modified_CR10"}
+            if srpe is not None and not au_compatible:
+                duration_reasons.append("recorded_RPE_scale_not_session_CR10_load")
             delay = (instant(session["srpe_collected_at"]) - b).total_seconds() / 60 if session.get("srpe_collected_at") else None
             values.append({"session_id": session["session_id"], "session_rpe": srpe,
                            "duration_minutes": duration, "duration_source": duration_source,
                            "observed_elapsed_minutes": elapsed_seconds / 60, "union_pause_minutes": pause_seconds / 60,
                            "user_duration_seconds": explicit, "reason_codes": duration_reasons,
                            "actual_collection_delay_minutes": delay,
+                           "recorded_scale": scale, "recorded_scale_range": list(bounds) if bounds else None,
                            "srpe_protocol": session.get("srpe_protocol"), "duration_protocol": session.get("duration_protocol"),
-                           "AU": srpe * duration if srpe is not None and duration is not None else None})
+                           "AU": srpe * duration if au_compatible and srpe is not None and duration is not None else None})
         field = {"LOAD-SRPE": "session_rpe", "LOAD-DURATION": "duration_minutes", "LOAD-SRPE-AU": "AU"}[metric_id]
         valid = sum(v[field] is not None for v in values)
         return emit(values or None, "valid" if values and valid == len(values) else "partial" if valid else "insufficient",

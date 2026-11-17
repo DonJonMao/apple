@@ -19,6 +19,18 @@ END = "2026-12-01T00:00:00+00:00"
 CUTOFF = "2026-11-11T12:00:00+00:00"
 
 
+def test_registry_and_metric_results_cannot_mutate_cached_definitions():
+    original = definitions()["STR-01"]
+    exposed = definitions()
+    exposed["STR-01"]["evidence_refs"].append("caller-injected-authority")
+    exposed["STR-01"]["unit"] = "invented"
+    value = evaluate("STR-01", [], cutoff_time=CUTOFF, window_start=START, window_end=END)
+    assert value["unit"] == original["unit"]
+    assert value["evidence_refs"] == original["evidence_refs"]
+    value["evidence_refs"].append("result-mutation")
+    assert definitions()["STR-01"] == original
+
+
 def row(index=1, **values):
     moment = datetime(2026, 10, 1, tzinfo=timezone.utc) + timedelta(days=index * 2)
     return {"id": f"set-{index}", "set_id": f"set-{index}", "session_id": f"session-{index}",

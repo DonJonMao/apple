@@ -56,6 +56,60 @@ def test_matching_span_id_cannot_hide_wrong_version_content_or_context(changes):
     assert score['evidence_recall_at_k'] == score['exact_source_span_accuracy'] == 0
 
 
+@pytest.mark.parametrize('kind', [None, 1, [], {}, ''])
+def test_returned_kind_must_be_an_explicit_matching_string(kind):
+    case, result, first, *_ = fixture()
+    result['evidence_spans'] = [returned(first, kind=kind)]
+    score = score_case(case, result)
+    assert score['exact_source_span_accuracy'] == score['evidence_recall_at_k'] == 0
+
+
+@pytest.mark.parametrize('field', ['source_id', 'source_version', 'section_path', 'kind'])
+def test_missing_returned_identity_is_never_filled_from_gold(field):
+    case, result, first, *_ = fixture()
+    span = returned(first)
+    span.pop(field)
+    result['evidence_spans'] = [span]
+    score = score_case(case, result)
+    assert score['exact_source_span_accuracy'] == score['evidence_recall_at_k'] == 0
+
+
+def test_returned_content_or_its_actual_hash_is_required():
+    case, result, first, *_ = fixture()
+    span = returned(first)
+    result['evidence_spans'] = [span]
+    span.pop('content')
+    assert score_case(case, result)['exact_source_span_accuracy'] == .5
+    span.pop('input_content_hash')
+    # Gold-looking text_hash alone is not the returned content identity.
+    assert score_case(case, result)['exact_source_span_accuracy'] == 0
+
+
+@pytest.mark.parametrize('span_id', [None, '', [], 123])
+def test_grouped_return_without_string_span_identity_is_explicitly_rejected(span_id):
+    case, result, first, *_ = fixture()
+    result['evidence_spans'] = [returned(first, span_id=span_id)]
+    with pytest.raises(ValueError, match='returned_span_identity_required'):
+        score_case(case, result)
+
+
+def test_grouped_return_missing_span_identity_is_explicitly_rejected():
+    case, result, first, *_ = fixture()
+    span = returned(first)
+    span.pop('span_id')
+    result['evidence_spans'] = [span]
+    with pytest.raises(ValueError, match='returned_span_identity_required'):
+        score_case(case, result)
+
+
+def test_corrected_group_semantics_cannot_silently_reinterpret_frozen_old_version():
+    case, result, first, *_ = fixture()
+    case['evidence_unit_version'] = 'source-context-evidence-groups-1.5.0'
+    result['evidence_spans'] = [returned(first)]
+    with pytest.raises(ValueError, match='explicit_supported_evidence_group_version_required'):
+        score_case(case, result)
+
+
 def test_explicit_gold_locator_must_match_even_when_ids_and_content_are_correct():
     case, result, first, *_ = fixture()
     first['locator'] = {'page': 7, 'paragraph': 3}

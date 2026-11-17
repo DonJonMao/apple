@@ -31,7 +31,7 @@ def _freeze_candidate(repo, svc, session, instance, effective, selected, availab
                             followup_window=followup_window, available_minutes=available_minutes)
 
 
-def _create_form(repo, svc, session, instance, key):
+def _create_form(repo, svc, session, instance, key, on_created=None):
     from healthzip.advice import profile, save_profile
 
     personal = profile(repo, svc.user_id)
@@ -87,15 +87,17 @@ def _create_form(repo, svc, session, instance, key):
             available = [numeric(x.strip(), "器械档位") for x in loads.split(",") if x.strip()]
             if any(x is None or x < 0 for x in available):
                 raise ValueError("器械档位须为非负有限数字")
-            _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
+            saved = _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
                               followup_window=followup_window,
                               available_minutes=numeric(discussion_minutes, "可用训练时间") if discussion_minutes.strip() else None)
+            if on_created:
+                on_created(saved)
             st.success("已保存当前目标、策略、审核依据与缺项；采纳和执行单独记录。")
         except ValueError as exc:
             st.error(str(exc))
 
 
-def _render_feedback(repo, svc, instance, record, prefix):
+def _render_feedback(repo, svc, instance, record, prefix, on_changed=None):
     from healthzip.advice import current_use_status
 
     candidate = record["candidate"]
@@ -107,6 +109,16 @@ def _render_feedback(repo, svc, instance, record, prefix):
     st.write("候选 / 缺项", candidate["action_kind"], candidate["eligibility"])
     if candidate.get("proposed_change", {}).get("load") is not None:
         st.write("待选择的任务", candidate["proposed_change"], candidate["target_range"])
+        from healthzip.advice import candidate_basis
+        basis = candidate_basis(record)
+        render_candidate_basis(basis)
+    if record["input_snapshot"].get("analysis_review"):
+        review_ref = record["input_snapshot"]["analysis_review"]
+        with st.expander("本候选共用的分析与长期复核"):
+            from healthzip.workflows import load_run
+            from healthzip.workflows.reports import markdown
+            review = load_run(repo, review_ref["run_id"])
+            st.markdown("\n".join(markdown([review])))
     if candidate.get("discussion"):
         _render_discussion(candidate["discussion"])
     st.caption(candidate["verification_protocol"])
@@ -168,6 +180,8 @@ def _render_feedback(repo, svc, instance, record, prefix):
                 outcome={"user_note": reason},
                 actual_record_ids=selected_ids if execution in {"executed", "partially_executed"} else [],
             )
+            if on_changed:
+                on_changed({"candidate_id": feedback_id})
             st.rerun()
         except ValueError as exc:
             st.error(str(exc))
@@ -230,16 +244,29 @@ def _render_discussion(discussion):
         st.caption("数值任务仍受限制：" + "；".join(discussion["numeric_action_limitations"]))
 
 
-def render_candidates(repo, svc, session, instance, *, allow_create=True, key_prefix=""):
+def render_candidates(repo, svc, session, instance, *, allow_create=True, key_prefix="", on_created=None):
     key = key_prefix + instance["id"]
     with st.expander("本次候选与后续复核"):
         st.caption("可选改变来自明确计划和可比记录；未满足依据时保留缺项。采纳不会自动修改模板。")
         if allow_create and not instance.get("replaced_by_instance_id"):
-            _create_form(repo, svc, session, instance, key)
+            _create_form(repo, svc, session, instance, key, on_created=on_created)
         candidates = [record for record in svc.list_recommendations()
                       if record.get("target_session") == session["session_uuid"]
                       and record["input_snapshot"].get("session_exercise_id") == instance["id"]]
         if not allow_create and not candidates:
             st.caption("此动作没有已冻结候选。")
         for record in candidates:
-            _render_feedback(repo, svc, instance, record, key_prefix)
+            _render_feedback(repo, svc, instance, record, key_prefix, on_changed=on_created)
+
+
+def render_candidate_basis(basis):
+    st.write("重量、次数与 RIR 目标的来源")
+    st.caption("候选 " + basis["candidate_id"])
+    st.dataframe([{**{key: row[key] for key in ("field", "unit", "origin", "limitation")}, "value": str(row["value"])}
+                  for row in basis["numeric_origins"]], hide_index=True)
+    st.caption("个人记录依据：参考组 " + str(basis["personal_record_basis"]["reference_set_id"]))
+    with st.expander("策略依据与实际来源 · " + basis["candidate_id"][:8]):
+        st.write(basis["strategy_basis"])
+        if basis.get("discussion_basis"):
+            st.write(basis["discussion_basis"])
+        st.write(basis["personal_record_basis"])

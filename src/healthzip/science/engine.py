@@ -12,6 +12,7 @@ from .contracts import (
     canonical_hash,
     definitions,
     instant,
+    metric_ids,
     result,
     select_as_of,
     validate_result,
@@ -158,7 +159,7 @@ def _series_metric(metric_id, rows, window, context):
 def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_time: str,
              window_start: str, window_end: str, context: Optional[dict] = None,
              _normalized: Optional[list[dict]] = None) -> dict:
-    if metric_id not in definitions():
+    if metric_id not in metric_ids():
         raise ValueError("unregistered_metric_id")
     context = dict(context or {})
     window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))

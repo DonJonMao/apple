@@ -8,7 +8,10 @@ from pathlib import Path
 
 from .store import digest, dumps, now
 
-EVIDENCE_GROUP_VERSION = 'source-context-evidence-groups-1.5.0'
+# 1.5.0 implicitly supplied a missing returned kind from Gold. Reject that
+# version explicitly instead of changing the meaning of frozen group scores.
+# Original span-based Gold retains its existing mathematics and entry point.
+EVIDENCE_GROUP_VERSION = 'source-context-evidence-groups-1.5.1'
 
 
 def _group_ranking(groups, returned):
@@ -57,8 +60,8 @@ def _group_ranking(groups, returned):
             if (span.get('source_id') == member['source_id'] and span.get('source_version') == member['source_version']
                     and span.get('section_path') == member['section_path'] and content_hash == member['text_hash']
                     and span.get('input_content_hash', content_hash) == member['text_hash']
-                    and span.get('kind', member['kind']) == member['kind']
-                    and ('locator' not in member or span.get('locator') == member['locator'])):
+                    and span.get('kind') == member['kind']
+                    and ('locator' not in member or ('locator' in span and span['locator'] == member['locator']))):
                 identity = proposed
         ranked.append(identity)
         gains.append(grades[identity] if identity is not None and identity not in seen else 0)
@@ -68,13 +71,17 @@ def _group_ranking(groups, returned):
 
 
 def score_case(case, result, *, k=6):
-    ranked = [s['span_id'] for s in result['evidence_spans'][:k]]
-    if len(ranked) != len(set(ranked)):
-        raise ValueError('duplicate_retrieved_span')
     grouped = 'gold_evidence_groups' in case
     if grouped:
         if case.get('evidence_unit_version') != EVIDENCE_GROUP_VERSION:
             raise ValueError('explicit_supported_evidence_group_version_required')
+        if any(not isinstance(s, dict) or not isinstance(s.get('span_id'), str) or not s['span_id']
+               for s in result['evidence_spans'][:k]):
+            raise ValueError('returned_span_identity_required')
+    ranked = [s['span_id'] for s in result['evidence_spans'][:k]]
+    if len(ranked) != len(set(ranked)):
+        raise ValueError('duplicate_retrieved_span')
+    if grouped:
         grades, group_ids, gains = _group_ranking(case['gold_evidence_groups'], result['evidence_spans'][:k])
         gold = set(grades)
         hits = [int(gain > 0) for gain in gains]
@@ -93,9 +100,9 @@ def score_case(case, result, *, k=6):
     requested_domains = set(result['requested_domains'])
     invalid = set(case.get('invalid_span_ids', []))
     inapplicable = set(case.get('inapplicable_span_ids', []))
-    exact_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in case.get('gold_evidence', [])}
-    returned_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in result['evidence_spans'][:k]}
     if not grouped:
+        exact_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in case.get('gold_evidence', [])}
+        returned_pairs = {(e['source_id'], e['source_version'], e['span_id']) for e in result['evidence_spans'][:k]}
         exact_accuracy = len(exact_pairs & returned_pairs)/len(exact_pairs) if exact_pairs else None
     conflicts = bool(case.get('expected_conflict'))
     abstention = result['status'] in {'insufficient_evidence', 'not_required_deterministic_computation'}
