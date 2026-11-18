@@ -23,7 +23,7 @@ from .facts import (
     vo2_segments,
 )
 from .selection import scoped_metrics
-from .storage import context_as_of, load_run
+from .storage import context_as_of, load_analysis, load_run
 
 
 def _select_metrics(analysis, request, partial_period=None):
@@ -180,6 +180,24 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
                         window_start=analysis["window_start"], window_end=analysis["window_end"], context=selected_context)
                         for mid in WORKFLOWS[request.workflow_id]["metrics"] if mid.startswith("STR-")}})
     metrics, selected_task = _select_metrics(analysis, declared_request, partial_period)
+    source_report = None
+    if request.source_run_id:
+        source = load_run(repo, request.source_run_id)
+        source_snapshot = load_analysis(repo, source["run_id"])
+        if (request.workflow_id != "W1" or source["workflow_id"] not in {"W1", "W4"}
+                or not source.get("task_selection") or not selected_task
+                or source["task_selection"]["task_id"] != selected_task["task_id"]):
+            raise ValueError("action_source_task_mismatch")
+        if (any(declared_request[k] != source["request"].get(k) for k in ("context_id", "timezone", "mode", "release_id", "selection_analysis_id"))
+                or request.period is not None
+                or any(analysis[k] != source_snapshot[k] for k in ("window_start", "window_end"))
+                or instant(declared_request["cutoff_time"]) < instant(source["request"]["cutoff_time"])):
+            raise ValueError("action_source_scope_or_time_mismatch")
+        source_report = {"run_id": source["run_id"], "analysis_run_id": source["analysis_run_id"],
+            "cutoff_time": source["request"]["cutoff_time"], "context_id": source["context_id"],
+            "window_start": source_snapshot["window_start"], "window_end": source_snapshot["window_end"],
+            "current_action_cutoff_time": declared_request["cutoff_time"],
+            "identity": "new_review_of_fixed_historical_range_for_current_action"}
     strength_points = scoped_metrics(repo, declared_request, analysis, selected_task, metrics) if "STR-11" in metrics else []
     from .longitudinal import pretraining_contexts, review
     long_review = review(strength_points, {"start": analysis["window_start"], "end": analysis["window_end"], "timezone": request.timezone})
@@ -216,6 +234,8 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
         hypotheses = [h for h in hypotheses if h["hypothesis_id"] not in {"sleep_state", "body_mass"}] + pretraining_factors(before_training)
     hypotheses = attach_evidence(hypotheses, knowledge)
     supplements = {}
+    if source_report:
+        supplements["source_report"] = source_report
     if strength_points:
         supplements["strength_points"] = strength_points
         supplements["long_term_review"] = long_review
@@ -230,8 +250,10 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
             "cutoff_time": declared_request["cutoff_time"], "metric_id": mid, "metric": partial_metric,
             "identity": "current_partial_calendar_period_not_compared_as_complete_total"}
         partial_followup = {key: partial_period["metrics"][key] for key in ("STR-27", "STR-28", "REPORT-RECOMMENDATION-FOLLOWUP")} if mid == "STR-11" else {}
-        if partial_task:
-            scoped_metrics(repo, declared_request, partial_period, partial_task, partial_followup)
+        if selected_task:
+            # Feedback belongs to the selected task even without a completed
+            # reference in this period (e.g. a declined candidate).
+            scoped_metrics(repo, declared_request, partial_period, selected_task, partial_followup)
         supplements["partial_current_period"]["followup"] = partial_followup
     if request.workflow_id == "W3":
         supplements["vo2_segments"] = vo2_segments(metrics["OBS-VO2-REPORTED"])

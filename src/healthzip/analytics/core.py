@@ -452,7 +452,13 @@ def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=Fa
     from healthzip.analytics.v13 import analyze, metric_card
     output["v13"] = analyze(repo, window_days, timezone_name=timezone_name, context={"workflow_context_id": context_id} if context_id else None)
     from healthzip.workflows.reports import review_analysis
-    if repo.conn.in_transaction:
+    from healthzip.workflows.storage import current_context_problem
+    context_problem = current_context_problem(repo, context_id)
+    if context_problem:
+        output["workflow_review_state"] = "context_requires_confirmation"
+        output["workflow_context_problem"] = context_problem
+        output["workflow_reviews"] = []
+    elif repo.conn.in_transaction:
         output["workflow_review_state"] = "save_pending_edits_before_review"
         output["workflow_reviews"] = []
     else:

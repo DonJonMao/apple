@@ -103,6 +103,21 @@ def context_as_of(repo, context_id, cutoff_time, mode):
             "provenance": "explicit_user_declaration_not_professional_verification"}
 
 
+def current_context_problem(repo, context_id):
+    """A selected declaration may expire; callers can still present raw facts.
+
+    Keep the selected ID and explicit reason. Never substitute another version
+    or turn an invalid declaration into an unknown declaration.
+    """
+    try:
+        context_as_of(repo, context_id, datetime.now(timezone.utc).isoformat(), "prospective")
+    except ValueError as exc:
+        if str(exc) not in {"workflow_context_withdrawn_or_superseded", "workflow_context_not_found_in_local_scope"}:
+            raise
+        return str(exc)
+    return None
+
+
 def load_run(repo, run_id):
     row = repo.conn.execute("SELECT result_json FROM workflow_run WHERE run_id=? AND user_id='local'", (run_id,)).fetchone()
     if row is None:

@@ -72,7 +72,8 @@ def render_analysis(repo, value):
     reviews = value.get("workflow_reviews")
     if result.get("selection_context") != value.get("v13", {}).get("selection_context"):
         reviews = None
-    if reviews is None and not repo.conn.in_transaction:
+    context_problem = value.get("workflow_context_problem")
+    if reviews is None and not repo.conn.in_transaction and not context_problem:
         reviews = review_analysis(repo, result)
     for review in reviews or []:
         descriptive = review["supplements"].get("long_term_review", {})
@@ -194,7 +195,7 @@ def render_analysis(repo, value):
         period = {"本周": "week", "本月": "month"}[period_label]
         if st.button("生成当前周期复盘"):
             from healthzip.workflows.reports import review_analysis
-            period_reviews = review_analysis(repo, result, period=period, include_background=True)
+            period_reviews = [] if context_problem else review_analysis(repo, result, period=period, include_background=True)
             from healthzip.workflows.reports import markdown
             report_text = "\n".join(markdown(period_reviews, repo=repo))
             with st.expander("周期分析、建议依据与后续结果"):

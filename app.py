@@ -132,6 +132,9 @@ try:
         context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))) if page not in {"导入与总览", "力量", "知识库"} else {}
     if analysis:
         persist_analysis(repo, analysis)
+    if analysis.get("workflow_context_problem"):
+        st.warning("当前选择的适用声明已撤回或被替换，来源解释须重新确认。记录事实和历史分析仍保留；"
+                   "请在分析页的“查看范围与已确认信息”中确认信息并运行分析。")
     if page == "分析":
         from healthzip.ui.analysis_page import render_analysis
         render_analysis(repo, analysis)

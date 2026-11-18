@@ -99,6 +99,10 @@ def render_run(repo, result):
     st.write(result["title"] + " · " + STATUS.get(result["status"], result["status"]))
     st.caption(f"截止 {result['request']['cutoff_time']} · 时区 {result['request']['timezone']} · "
                + ("回顾分析" if result["request"]["mode"] == "retrospective" else "截止前可见记录"))
+    source = result["supplements"].get("source_report")
+    if source:
+        st.caption(f"历史报告截止 {source['cutoff_time']}；历史比较范围 {source['window_start']} 至 {source['window_end']}。"
+                   f"当前行动核对 {source['current_action_cutoff_time']}，原报告保持不变。")
     tabs = st.tabs(["发生了什么", "是否可比", "可能因素", "下一步", "为什么", "后来怎样"])
     with tabs[0]:
         _plot(result["supplements"].get("strength_points", []), "同负荷参考组记录", "次", "workflow_strength_points")
@@ -301,17 +305,44 @@ def render_workflows(repo, analysis=None):
     declarations = {"population": population} if population != "unknown" else {}
 
     def requested():
+        from dataclasses import replace
+        from datetime import datetime, timezone
+
+        from healthzip.science.contracts import instant
+        request = WorkflowRequest(wid, window_days=int(days), baseline_days=int(baseline_days), period=period,
+            cutoff_time=cutoff or None, mode=mode, result_metric_id=result_metric_id, task_id=task_id,
+            timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
+            session_id=session["id"] if session else None, session_exercise_id=instance["id"] if instance else None,
+            selected_set_uuid=selected)
+        request.normalized()  # Validate before saving or superseding any declaration.
+        if (analysis or {}).get("selection_context"):
+            if (analysis["timezone"] != request.timezone
+                    or bool(analysis.get("retrospective")) != (mode == "retrospective")
+                    or cutoff and instant(analysis["cutoff_time"]) > instant(cutoff)):
+                raise ValueError("selected_analysis_time_or_mode_mismatch")
         prior_context = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
+        if cutoff and mode == "prospective" and (declarations or prior_context):
+            from healthzip.workflows.storage import context_as_of, current_context_problem
+            # A newly confirmed declaration cannot be backdated. An unchanged,
+            # still valid version may be reused at its actual historical time.
+            prior = context_as_of(repo, prior_context, cutoff, mode)
+            problem = current_context_problem(repo, prior_context)
+            if problem:
+                raise ValueError(problem)
+            if prior["values"] != declarations or prior_context is None:
+                if instant(cutoff) < datetime.now(timezone.utc):
+                    raise ValueError("context_not_available_at_cutoff")
         context_id = save_context(repo, declarations, replaces_context_id=prior_context) if declarations or prior_context else None
+        # Saving is an explicit user action. If subsequent analysis fails, the
+        # page must point to the version that was actually committed.
+        contexts = dict(st.session_state.get("analysis_contexts", {}))
+        contexts[str(repo.path.resolve())] = context_id
+        st.session_state["analysis_contexts"] = contexts
         selection_id = None
         if (analysis or {}).get("selection_context"):
             from healthzip.analytics.v13 import persist
             selection_id = persist(repo, analysis)
-        return WorkflowRequest(wid, context_id=context_id, window_days=int(days), baseline_days=int(baseline_days), period=period,
-            cutoff_time=cutoff or None, mode=mode, result_metric_id=result_metric_id, task_id=task_id,
-            timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
-            session_id=session["id"] if session else None, session_exercise_id=instance["id"] if instance else None,
-            selected_set_uuid=selected, selection_analysis_id=selection_id)
+        return replace(request, context_id=context_id, selection_analysis_id=selection_id)
 
     saved = repo.rows("SELECT run_id,created_at FROM workflow_run WHERE user_id='local' AND workflow_id=? ORDER BY created_at DESC LIMIT 50", (wid,))
     if saved:
@@ -324,9 +355,6 @@ def render_workflows(repo, analysis=None):
         try:
             request = requested()
             result = run_workflow(repo, request, parent_run_id=st.session_state.get(key))
-            contexts = dict(st.session_state.get("analysis_contexts", {}))
-            contexts[str(repo.path.resolve())] = request.context_id
-            st.session_state["analysis_contexts"] = contexts
             st.session_state[key] = result["run_id"]
         except ValueError as exc:
             st.error(str(exc))
@@ -383,11 +411,19 @@ def render_workflows(repo, analysis=None):
             from healthzip.ui.recommendation_page import render_candidates
 
             def long_changed(record):
-                refreshed = resume_workflow(repo, st.session_state[key], candidate_id=record["candidate_id"])
-                st.session_state[key] = refreshed["run_id"]
+                # Feedback resumes the candidate's W1 review. Keep the selected
+                # historical W4 report and its calendar bounds unchanged.
+                saved_candidate = next(r for r in service.list_recommendations() if r["candidate_id"] == record["candidate_id"])
+                review_id = record.get("current_analysis_review", {}).get("run_id") or saved_candidate["input_snapshot"]["analysis_review"]["run_id"]
+                latest = repo.one("SELECT run_id FROM workflow_run WHERE user_id='local' AND workflow_id='W1' "
+                    "AND json_extract(request_json,'$.source_run_id')=? AND json_extract(request_json,'$.candidate_id')=? "
+                    "ORDER BY created_at DESC LIMIT 1", (result["run_id"], record["candidate_id"]))
+                if latest:
+                    review_id = latest["run_id"]
+                resume_workflow(repo, review_id, candidate_id=record["candidate_id"])
 
             render_candidates(repo, service, selected_session, selected_instance, key_prefix="workflow_long_", on_created=long_changed,
-                review_request=WorkflowRequest(**request),
+                review_request=WorkflowRequest(**{**request, "source_run_id": result["run_id"]}),
                 allow_create=request["mode"] == "prospective" and selected_session["session_status"] in {"draft", "in_progress", "paused"})
             st.caption("调整候选使用同一练前规则核对。结束的训练仍可补记选择、执行与结果；新任务请先在力量页开始训练。")
         else:
@@ -404,6 +440,6 @@ def render_workflows(repo, analysis=None):
 
         from healthzip.ui.recommendation_page import render_candidates
         render_candidates(repo, service, session, instance, key_prefix="workflow_", on_created=changed,
-                          review_request=WorkflowRequest(**request),
+                          review_request=WorkflowRequest(**{**request, "source_run_id": result["run_id"]}),
                           allow_create=request["mode"] == "prospective" and not session.get("deleted_at")
                           and session["session_status"] in {"draft", "in_progress", "paused"})

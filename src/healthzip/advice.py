@@ -452,7 +452,18 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
     if review_request is not None and not isinstance(review_request, WorkflowRequest):
         raise TypeError("review_requires_WorkflowRequest")
     scope = (review_request or WorkflowRequest("W1", cutoff_time=now.isoformat(), timezone=timezone_name)).normalized()
-    if review_request and review_request.workflow_id == "W4" and scope["period"]:
+    if scope["source_run_id"]:
+        from healthzip.workflows.storage import load_analysis, load_run
+        source = load_run(repo, scope["source_run_id"])
+        source_snapshot = load_analysis(repo, source["run_id"])
+        if source["workflow_id"] not in {"W1", "W4"} or not source.get("task_selection"):
+            raise ValueError("action_source_requires_selected_strength_task")
+        if source["task_selection"]["task_id"] != context["task_id"]:
+            raise ValueError("action_source_task_mismatch")
+        scope = {**WorkflowRequest(**source["request"]).normalized(),
+            "source_run_id": source["run_id"], "cutoff_time": now.isoformat(),
+            "period": None, "window_start": source_snapshot["window_start"], "window_end": source_snapshot["window_end"]}
+    elif review_request and review_request.workflow_id == "W4" and scope["period"]:
         # W4's review is the two preceding complete periods; W1's period option
         # otherwise means the current partial period. Transfer the actual bounds.
         from healthzip.workflows.calendar import completed_periods
@@ -519,6 +530,8 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         "unknown_current_observation_ids": context["unknown_current_observation_ids"], "metric_result": metric,
         "analysis_review": {"run_id": review["run_id"], "workflow_version": review["workflow_version"],
             "comparison_window": review["supplements"].get("long_term_review", {}).get("window"),
+            "source_run_id": scope["source_run_id"], "action_cutoff_time": review["request"]["cutoff_time"],
+            "source_report": review["supplements"].get("source_report"),
             "long_term_review_started": review["nodes"][2]["long_term_review_trigger"]},
         "advice_context": context, "numeric_provenance": [
             {"field": "proposed_change.load", "kind": "observed" if strategy == "repetition_progression" else "equipment_step",

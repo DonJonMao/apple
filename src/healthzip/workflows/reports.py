@@ -48,6 +48,11 @@ def markdown(runs, *, repo):
         from .storage import load_analysis, load_run
         run = load_run(repo, run["run_id"])
         lines += [f"### {run['title']}", "", f"运行 `{run['run_id']}`；截止 {run['request']['cutoff_time']}。", ""]
+        source = run["supplements"].get("source_report")
+        if source:
+            lines += [f"历史报告 `{source['run_id']}`：原截止 {source['cutoff_time']}；"
+                      f"历史比较范围 {source['window_start']} 至 {source['window_end']}（不含终点）。",
+                      f"本次行动核对时刻 {source['current_action_cutoff_time']}；当前目标及该历史范围内现可见资料另存为本次复核，原报告不变。", ""]
         lines += frozen_fact_lines(load_analysis(repo, run["run_id"]), run)
         review = run["supplements"].get("long_term_review")
         if review:

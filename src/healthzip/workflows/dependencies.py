@@ -7,7 +7,7 @@ from healthzip.training.service import TrainingService
 
 SOURCE_TYPES = {
     "W1": {"body_mass_kg", "resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"},
-    "W2": {"resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"},
+    "W2": {"body_mass_kg", "resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"},
     "W3": {"vo2_max_ml_kg_min", "resting_heart_rate_bpm", "hrv_sdnn_ms"},
     "W4": {"body_mass_kg", "resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"},
     "W5": {"body_mass_kg", "basal_energy_kcal", "active_energy_kcal"},
@@ -80,7 +80,9 @@ def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
     return {"version": "workflow-dependencies-1.6.0", "record_hashes": relevant,
         "selected_instance": selected_instance,
         "session_hashes": {str(s["session_id"]): canonical_hash(s) for s in inherited.get("sessions", [])
-                           if wid == "W2" or s["session_id"] in sessions},
+                           if (wid == "W2" and s.get("ended_at")
+                               and instant(s["ended_at"]) > instant(start)
+                               and instant(s["started_at"]) < instant(end)) or s["session_id"] in sessions},
         "outcome_hashes": {r["recommendation_id"]: canonical_hash(r) for r in outcomes}}
 
 

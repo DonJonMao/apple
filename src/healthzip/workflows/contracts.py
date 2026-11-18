@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from healthzip.analysis_settings import DEFAULT_BASELINE_DAYS, DEFAULT_TIMEZONE, DEFAULT_WINDOW_DAYS
 from healthzip.science.contracts import instant
 
-VERSION = "analysis-workflows-1.6.2"
+VERSION = "analysis-workflows-1.6.3"
 FUNCTION_NAMES = {
     "strength": "力量进阶", "recovery": "训练负荷与恢复背景",
     "cardiorespiratory": "心肺观察", "longitudinal": "长期趋势与可能因素",
@@ -56,6 +56,7 @@ class WorkflowRequest:
     release_id: str | None = None
     candidate_id: str | None = None
     selection_analysis_id: str | None = None
+    source_run_id: str | None = None
 
     def normalized(self):
         if self.workflow_id not in WORKFLOWS or self.mode not in {"prospective", "retrospective"}:
