@@ -100,7 +100,8 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     next_advice = newest_advice(repo, next_session["exercises"][0]["id"])
     assert next_advice["advice_id"] != before["advice_id"]
     next_run = load_run(repo, next_advice["review_run_id"])
-    # Ordinary actual data enter next review without becoming a reference group.
+    # Normal planned actuals now also carry a prospective reference declaration;
+    # the numeric-update assertion is covered by test_current_training_three_repairs.
     rir = load_analysis(repo, next_run["run_id"])["metrics"]["STR-10"]
     assert "strength_set:"+actual["set_uuid"] in rir["source_record_ids"]
     app.radio(key="main_workspace").set_value("分析").run()
@@ -338,7 +339,11 @@ def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_pa
     observations = runpy.run_path(str(Path(__file__).with_name("test_analysis_observation_flows.py")))
     repo, svc, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch, approved=False)
     measured = body(repo)
-    current = HELP["add_current"](svc, instance, "psa.ex.smith_squat")
+    # Preserve coverage of ordinary, unplanned records after automatic sampling
+    # was introduced for explicit planned work sets.
+    session = svc.start_session("Synthetic unplanned squat")
+    current = svc.add_exercise(session["id"], "psa.ex.smith_squat", instance["condition"])
+    svc.add_set(current["id"])
     actual = FLOW["finish"](svc, svc.get_session_exercise(current["id"])["sets"][0], load=38, reps=9)
     # Advance only this synthetic report's event clock within its calendar
     # period. Four complete input days stay four; no missing-day imputation.

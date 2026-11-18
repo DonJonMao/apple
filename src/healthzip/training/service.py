@@ -278,6 +278,21 @@ class TrainingService:
                     json_text(result),
                 ),
             )
+            if status == "applied" and action in {
+                "start_session", "add_exercise", "add_set", "edit_set", "delete_set", "undo_event",
+                "update_set_target", "update_condition", "replace_exercise", "reorder_exercises",
+            }:
+                from .reference import reconcile
+
+                session_id = result.get("session_id") if kind != "session" else result.get("id")
+                if session_id:
+                    reconcile(self, session_id, event_id)
+                    fetch = {"session": self.get_session, "session_exercise": self.get_session_exercise, "set": self.get_set}[kind]
+                    result = {**result, **fetch(result["id"])}
+                    # Keep the triggering snapshot and later selection events in
+                    # their real order; retries return the final saved revision.
+                    self.conn.execute("UPDATE training_event SET result_json=? WHERE event_id=?",
+                        (json_text(result), event_id))
             return result
 
     def get_exercise(self, exercise_id: str, version: Optional[int] = None) -> dict:
@@ -1364,8 +1379,8 @@ class TrainingService:
         condition = exercise["condition"]
         fields = self._actual(actual, condition, planned)
         if fields.get("reference_set"):
-            if fields["completion_state"] not in {"draft", "in_progress"}:
-                raise TrainingError("参考组必须在完成或失败之前预先指定")
+            if fields["completion_state"] != "draft" or fields.get("started_at") or fields.get("ended_at"):
+                raise TrainingError("参考组必须在开始之前预先指定")
             fields["reference_declared_at"] = now
         if (
             fields["completion_state"] in {"completed", "aborted"}
@@ -1414,6 +1429,15 @@ class TrainingService:
             f"INSERT INTO strength_set({','.join(columns)}) VALUES({','.join('?' for _ in columns)})",
             tuple(values.values()),
         )
+        if fields.get("reference_set"):
+            from .reference import manual_selection
+            meta = manual_selection(self, self.get_set(identity), now)
+            self.conn.execute("UPDATE strength_set SET reference_selection_json=? WHERE set_uuid=?",
+                (json_text(meta), identity))
+        elif "reference_set" in actual and actual["reference_set"] is False:
+            self.conn.execute("UPDATE strength_set SET reference_selection_json=? WHERE set_uuid=?",
+                (json_text({"state": "withdrawn_by_user", "invalidated_at": now,
+                    "reason": "user_explicit_withdrawal"}), identity))
         return self.get_set(identity)
 
     def add_set(
@@ -1515,12 +1539,16 @@ class TrainingService:
             actual = {k: old.get(k) for k in allowed if old.get(k) is not None}
             actual.update(changes)
             checked = self._actual(actual, condition, old.get("planned"))
-            if checked.get("reference_set") and not old.get("reference_set"):
-                if old.get("completion_state") not in {"draft", "in_progress"} or checked[
-                    "completion_state"
-                ] not in {"draft", "in_progress"}:
-                    raise TrainingError("参考组必须在完成或失败之前预先指定")
+            if changes.get("reference_set") and (not old.get("reference_set") or set(changes) == {"reference_set"}):
+                from .reference import manual_selection
+                if checked["completion_state"] != "draft" or checked.get("started_at") or checked.get("ended_at"):
+                    raise TrainingError("参考组必须在开始之前预先指定")
+                meta = manual_selection(self, old, now)
                 checked["reference_declared_at"] = now
+                checked["reference_selection_json"] = json_text(meta)
+            elif "reference_set" in changes and not changes["reference_set"]:
+                checked["reference_selection_json"] = json_text({**(old.get("reference_selection") or {}),
+                    "state": "withdrawn_by_user", "invalidated_at": now, "reason": "user_explicit_withdrawal"})
             if (
                 checked["completion_state"] in {"completed", "aborted"}
                 and not checked.get("ended_at")
@@ -2718,7 +2746,7 @@ class TrainingService:
             and (include_deleted or not row.get("deleted_at"))
         ]
 
-    def session_as_of(self, session_id, *, cutoff_time: str) -> dict:
+    def session_as_of(self, session_id, *, cutoff_time: str, include_deleted: bool = False) -> dict:
         """Reconstruct session, exercise definitions/conditions and set targets.
 
         Never resolve historical objects through today's catalog or targets.
@@ -2726,7 +2754,7 @@ class TrainingService:
         later visible exercise/set events supersede those snapshots in order.
         """
         events = self.events_as_of(cutoff_time=cutoff_time)
-        visible = self.sessions_as_of(cutoff_time=cutoff_time, _events=events)
+        visible = self.sessions_as_of(cutoff_time=cutoff_time, include_deleted=include_deleted, _events=events)
         session = next((row for row in visible if str(session_id) in
                         {str(row["id"]), str(row.get("session_uuid"))}), None)
         if session is None:
@@ -2869,6 +2897,13 @@ class TrainingService:
                 if row.get("completion_state") in {"draft", "in_progress"} and not row.get(
                     "deleted_at"
                 ):
+                    if row["completion_state"] == "draft" and not row.get("started_at") and not row.get("ended_at"):
+                        # Internal provenance, never inferred from editable notes.
+                        # Skipping an unstarted slot solely to replace its action
+                        # is a plan change, not a new observed performance.
+                        selection = {**(row.get("reference_selection") or {}), "replacement_before_start_event_id": eid}
+                        self.conn.execute("UPDATE strength_set SET reference_selection_json=? WHERE id=?",
+                            (json_text(selection), row["id"]))
                     self.edit_set(
                         row["id"],
                         {

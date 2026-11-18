@@ -35,6 +35,12 @@ def render_current_training(repo, instance, *, source_report_id=None):
             window_days=int(st.session_state.get("analysis_window_days", 30)),
             timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"), source_report_id=source_report_id)
         st.caption(f"本次建议的数据截止：{result['created_at']}。目标与实际记录分别保存。")
+        for excluded in result.get("reference_exclusions", []):
+            observed = excluded["observation"]
+            retained = excluded.get("retained_reference")
+            st.info(f"{observed['ended_at']}：{excluded['reason']}。" + (
+                f"本次保留的参考来自 {retained['ended_at']}：{retained['load_value']} {retained['load_unit']} × {retained['reps']} 次，RIR {retained['rir']}。"
+                if retained else "尚无合规参考。"))
         review = load_run(repo, result["review_run_id"])
         body = result.get("body") or {}
         if restriction := review["supplements"].get("context_restriction"):
@@ -56,6 +62,15 @@ def render_current_training(repo, instance, *, source_report_id=None):
                 st.caption(option["basis"]["weight_origin"] + "；" + option["basis"]["repetitions_origin"] + "；" + option["basis"]["rir_origin"])
                 with st.expander(f"目标组 {index} · {LABELS[option['strategy']]}的依据"):
                     st.write("个人参考记录", option["basis"]["reference_set_id"])
+                    observed = option["basis"].get("reference_observation")
+                    if observed:
+                        origin = (observed.get("reference_selection") or {}).get("origin")
+                        source = {"system_plan_protocol": "系统按训练前计划采样协议指定", "user_explicit": "用户在开始前明确指定"}.get(origin, "历史预指定记录，未记录选择来源")
+                        st.write(f"参考日期 {observed['ended_at']}；动作 {observed['exercise_name']}；负荷口径 {observed['load_basis']}；"
+                            f"{observed['load_value']} {observed['load_unit']} × {observed['reps']} 次；RIR {observed['rir']}。")
+                        st.caption(source)
+                    st.write("用户计划范围与 RIR", option["basis"]["plan"])
+                    st.write("实际器械档位及来源", result["settings"])
                     for rule in option["basis"]["rules"]:
                         st.write("策略依据", rule.get("application_logic") or rule.get("permitted_actions"))
                         st.write("来源与版本", rule.get("rule_id", rule.get("theory_id")), rule["version"], rule["evidence_spans"])
@@ -89,6 +104,8 @@ def render_objective_comparison(repo, instance_id):
               "linked_objectively": "已按本次任务和组关联", "ambiguous": "对应建议存在歧义",
               "no_prior_applicable_advice": "没有可唯一关联的练前建议"}
     st.caption("实际记录自动对照；这不表示采纳、拒绝、执行或效果。")
+    if (comparison.get("session_state") or {}).get("deleted_at"):
+        st.warning("所属训练已删除，当前对照及统计排除此训练；以下保留记录身份。")
     for index, row in enumerate(comparison["rows"], 1):
         actual = row["actual"]
         st.write(f"组 {index}：{labels[row['status']]}")

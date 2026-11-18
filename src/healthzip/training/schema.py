@@ -86,6 +86,7 @@ ADDITIONS = {
         "parent_set_uuid": "TEXT",
         "reference_set": "INTEGER",
         "reference_declared_at": "TEXT",
+        "reference_selection_json": "TEXT",
         "deleted_at": "TEXT",
     },
 }

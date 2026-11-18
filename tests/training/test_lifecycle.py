@@ -501,6 +501,10 @@ def test_targets_condition_and_reference_are_frozen_before_outcome(service):
     assert row["condition_key"] == updated["condition_key"] != instance["condition_key"]
     old = service.history_as_of(cutoff_time=prior, include_incomplete=True)[0]
     assert old["condition_key"] == instance["condition_key"] and old["planned"] == {}
+    # New planned drafts are automatically designated. Explicitly withdraw it
+    # so the original late-manual-designation rejection still tests a nonreference.
+    assert row["reference_selection"]["origin"] == "system_plan_protocol"
+    row = service.edit_set(row["id"], {"reference_set": False}, base_revision=row["revision"])
     with pytest.raises(TrainingError, match="参考组必须"):
         service.edit_set(row["id"], actual(reference_set=True), base_revision=row["revision"])
     row = service.edit_set(row["id"], {"reference_set": True}, base_revision=row["revision"])

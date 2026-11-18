@@ -126,6 +126,8 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
     from healthzip.workflows import evidence
 
     repo, svc, instance, target, _ = fixture(tmp_path, monkeypatch)
+    designated = svc.get_set(target["id"])["reference_selection"]
+    assert designated["origin"] == "system_plan_protocol"
     app = HELP["open_app"](repo.path)
 
     def unavailable(*args, **kwargs):
@@ -140,6 +142,7 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
         HELP["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, instance, 30, 11, reference=False)
         assert not app.exception and not app.error
         assert svc.get_set(target["set_uuid"])["reps"] == 11
+        assert svc.get_set(target["set_uuid"])["reference_selection"] == designated
     app.run()
     assert not app.exception and not app.error
     assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 1

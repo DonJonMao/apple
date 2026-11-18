@@ -823,10 +823,16 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         note = st.text_input(
             "动作质量 / 不适备注", value=row.get("quality_note") or "", key=prefix + "_note"
         )
-        st.caption("参考组必须在完成前指定；不事后选择表现最好的一组。")
+        st.caption("参考组必须在本任务开始观察之前指定；不事后选择表现最好的一组。")
+        selection = row.get("reference_selection") or {}
         if row.get("reference_set"):
-            st.caption("已预先指定参考组")
-        elif row.get("completion_state") in {"draft", "in_progress"}:
+            st.caption("已预先指定参考组：" + ("系统按计划顺序指定；这是产品采样规则，不保证数值建议适用。"
+                if selection.get("origin") == "system_plan_protocol" else "用户明确指定／历史预指定记录。"))
+        elif row.get("completion_state") == "draft":
+            from healthzip.training.reference import missing_requirements
+            missing = missing_requirements(row)
+            st.caption("未自动指定：" + ("；".join(missing) if missing else "本任务已有指定、已开始观察或已撤销指定；不能事后改选。"))
+        if row.get("completion_state") == "draft" and (not row.get("reference_set") or selection.get("origin") == "system_plan_protocol"):
             if st.button("将这组预先指定为参考组", key=prefix + "_reference"):
                 saved = _act(
                     svc.edit_set, identity, {"reference_set": True}, base_revision=revision
@@ -1560,6 +1566,8 @@ def _history(svc):
     selected = st.selectbox("训练历史", list(labels), format_func=labels.get,
                             key="training_history_session")
     detail = svc.get_session(selected)
+    if detail.get("deleted_at"):
+        st.warning("这场训练已删除，以下保留历史记录／历史版本。当前统计排除这场训练，撤销删除后重新核对。")
     st.dataframe(
         [
             {

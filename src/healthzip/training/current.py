@@ -21,7 +21,7 @@ from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, run_workflow
 from healthzip.workflows.dependencies import input_version
 
-VERSION = "current-training-1.0.0"
+VERSION = "current-training-1.1.0"
 STRATEGIES = ("double_progression", "heavier_lower_reps", "repetition_progression")
 
 
@@ -115,11 +115,13 @@ def _option(advice, target, loads, strategy, authority, cutoff, zone):
     load = value.get("next_load") if metric_id == "STR-25" else trial.get("load_value")
     reps = value.get("target_reps") if metric_id == "STR-25" else trial.get("reps_target")
     reference = value.get("reference_set_id") if metric_id == "STR-25" else trial.get("reference_set_id")
+    observed = next((r for r in advice["records"] if r.get("set_uuid") == reference), None)
     rules = [p for p in authority["principles"] if strategy in p.get("permitted_actions", [])]
     return {"strategy": strategy, "metric": metric, "load": load,
             "load_unit": value.get("load_unit") if metric_id == "STR-25" else trial.get("load_unit"),
             "reps": reps, "rir": target.get("rir") if load is not None else None,
             "basis": {"rules": rules, "reference_set_id": reference,
+                      "reference_observation": _reference_observation(observed) if observed else None,
                       "personal_record_ids": advice["context"]["baseline_record_ids"],
                       "weight_origin": "可比参考组的实际负荷" if strategy == "repetition_progression" else "匹配行动规则许可的实际器械档位",
                       "repetitions_origin": "沿用用户计划次数上限" if strategy == "repetition_progression" else "沿用用户计划次数下限",
@@ -129,19 +131,72 @@ def _option(advice, target, loads, strategy, authority, cutoff, zone):
             "excluded_rules": authority.get("excluded", [])}
 
 
+def _reference_observation(record):
+    from healthzip.science.semantics import flatten_record
+    row = flatten_record(record)
+    return {k: row.get(k) for k in ("set_uuid", "session_id", "session_exercise_id", "ended_at", "started_at",
+        "exercise_name", "load_value", "load_unit", "load_basis", "reps", "rir", "rir_interval", "rir_qualifier",
+        "reference_declared_at", "reference_selection", "condition", "quality_status", "stop_reason")}
+
+
+def _reference_exclusions(records, references):
+    chosen = references[-1] if references else None
+    recent = [r for r in records if not chosen or instant(r["ended_at"]) > instant(chosen["ended_at"])]
+    result = []
+    for row in recent:
+        if not row.get("reference_set"):
+            reason = "最近实际未在开始前指定为参考；普通实际仍参与描述分析"
+        elif not row.get("reference_declared_at") or not row.get("started_at") or instant(row["reference_declared_at"]) > instant(row["started_at"]):
+            reason = "参考指定时间或实际开始时间缺失，或指定晚于开始"
+        else:
+            reason = "同任务参考身份冲突或非完成工作组，不能自动择优替代"
+        result.append({"observation": _reference_observation(row), "reason": reason,
+            "retained_reference": _reference_observation(chosen) if chosen else None})
+    return result
+
+
+def _session_state(session):
+    return {k: session.get(k) for k in ("id", "session_uuid", "revision", "session_status",
+        "deleted_at", "started_at", "ended_at", "available_at")}
+
+
+def _instance_state(instance):
+    # Only authoritative training fields, shared by live and event-replayed rows.
+    return {**{k: instance.get(k) for k in ("id", "session_id", "revision", "condition", "planned",
+        "catalog_id", "definition_version", "deleted_at", "replaced_by_instance_id")},
+        "sets": [{k: s.get(k) for k in ("set_uuid", "revision", "completion_state", "deleted_at",
+            "started_at", "ended_at", "planned", "reference_set", "reference_declared_at",
+            "reference_selection")} for s in instance["sets"]]}
+
+
+def _validate_freeze(repo, svc, advice, revision, context_id, settings, knowledge_root, knowledge):
+    instance = svc.get_session_exercise(advice["instance"]["id"])
+    session = svc.get_session(instance["session_id"])
+    if (input_version(repo, context_id) != revision
+            or _instance_state(instance) != _instance_state(advice["instance"])
+            or _session_state(session) != _session_state(advice["session"])
+            or session.get("deleted_at") or instance.get("deleted_at") or instance.get("replaced_by_instance_id")
+            or equipment_loads(repo, instance) != settings
+            or knowledge_signature(knowledge_root) != knowledge):
+        raise ValueError("concurrent_current_advice_inputs_changed_retry_required")
+
+
 def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseline_days=28,
                    timezone_name="Asia/Shanghai", knowledge_root=".local/knowledge", source_report_id=None):
     """Generate once per relevant input version; cached rerenders do no retrieval."""
     svc = TrainingService(repo)
     if repo.conn.in_transaction:
         raise ValueError("save_pending_edits_before_current_advice")
-    instance = svc.get_session_exercise(instance_id)
+    revision = input_version(repo, context_id)
+    cutoff = datetime.now(timezone.utc).isoformat()
+    # This lookup supplies only the immutable parent identity. All business
+    # fields below come from the single cutoff-visible AdviceContext instance.
+    identity = svc.get_session_exercise(instance_id)
+    advice = build_advice_context(repo, identity["session_id"], instance_id, None, [], None,
+        cutoff_time=cutoff, timezone_name=timezone_name, generation_origin="automatic_training")
+    instance = advice["instance"]
     if instance.get("deleted_at") or instance.get("replaced_by_instance_id"):
         raise ValueError("selected_training_instance_unavailable")
-    cutoff = datetime.now(timezone.utc).isoformat()
-    revision = input_version(repo, context_id)
-    advice = build_advice_context(repo, instance["session_id"], instance_id, None, [], None,
-        cutoff_time=cutoff, timezone_name=timezone_name, generation_origin="automatic_training")
     if source_report_id:
         from healthzip.workflows import load_run
         source = load_run(repo, source_report_id)
@@ -162,9 +217,13 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
     row = repo.conn.execute("SELECT payload_json FROM current_training_advice WHERE user_id='local' "
                            "AND session_exercise_id=? AND input_hash=?", (instance_id, signature)).fetchone()
     if row:
-        if (revision != input_version(repo, context_id) or knowledge_signature(knowledge_root) != knowledge
-                or equipment_loads(repo, instance) != settings):
-            raise ValueError("concurrent_current_advice_inputs_changed_retry_required")
+        repo.conn.execute("BEGIN IMMEDIATE")
+        try:
+            _validate_freeze(repo, svc, advice, revision, context_id, settings, knowledge_root, knowledge)
+            repo.conn.commit()
+        except BaseException:
+            repo.conn.rollback()
+            raise
         saved = json.loads(row[0])
         _link_report(repo, saved["advice_id"], source_report_id)
         return saved
@@ -186,7 +245,9 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
         finally:
             workbench.close()
     targets = advice["effective_targets"]["sets"]
-    remaining = {s["set_uuid"] for s in instance["sets"] if s.get("completion_state") == "draft" and not s.get("deleted_at")}
+    remaining = {s["set_uuid"] for s in instance["sets"] if s.get("completion_state") == "draft"
+        and not s.get("deleted_at") and not s.get("started_at") and not s.get("ended_at")
+        and advice["session"].get("session_status") in {"draft", "in_progress", "paused"}}
     groups = []
     for selected in targets:
         if selected["set_uuid"] in remaining:
@@ -205,14 +266,13 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
         "original_plan": instance.get("planned"), "effective_targets": advice["effective_targets"],
         "groups": groups, "scope": "listed_draft_set_uuids_only_until_next_version_before_set_start",
         "reference_record": references[-1] if references else None,
+        "reference_exclusions": _reference_exclusions(advice["records"], references),
         "review_run_id": review["run_id"], "body": review["supplements"].get("current_body_context"),
         "source_report_id": source_report_id, "settings": settings, "knowledge_signature": knowledge,
         "unknown": [] if groups else ["尚无未开始的逐组目标；请确定动作和目标后核对具体数值，实际训练仍可直接记录。"]}
     repo.conn.execute("BEGIN IMMEDIATE")
     try:
-        if (input_version(repo, context_id) != revision or knowledge_signature(knowledge_root) != knowledge
-                or equipment_loads(repo, instance) != settings):
-            raise ValueError("concurrent_current_advice_inputs_changed_retry_required")
+        _validate_freeze(repo, svc, advice, revision, context_id, settings, knowledge_root, knowledge)
         repo.conn.execute("INSERT OR IGNORE INTO current_training_advice VALUES(?,?,?,?,?,?)",
             (payload["advice_id"], "local", instance_id, signature, cutoff, json.dumps(payload, ensure_ascii=False)))
         repo.conn.commit()
@@ -234,8 +294,9 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
     svc = TrainingService(repo)
     revision = input_version(repo, None)
     instance = svc.get_session_exercise(instance_id)
+    session = svc.get_session(instance["session_id"])
     if cutoff_time:
-        session = svc.session_as_of(instance["session_id"], cutoff_time=cutoff_time)
+        session = svc.session_as_of(instance["session_id"], cutoff_time=cutoff_time, include_deleted=True)
         instance = next((i for i in session["exercises"] if i["id"] == instance_id), None)
         if instance is None:
             raise ValueError("training_instance_not_visible_at_report_cutoff")
@@ -244,7 +305,8 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
         (instance_id,))]
     if cutoff_time:
         versions = [v for v in versions if instant(v["created_at"]) <= instant(cutoff_time)]
-    signature = canonical_hash([VERSION, cutoff_time, instance, [v["advice_id"] for v in versions]])
+    session_state = _session_state(session)
+    signature = canonical_hash([VERSION, cutoff_time, instance, session_state, [v["advice_id"] for v in versions]])
     previous = repo.conn.execute("SELECT payload_json FROM training_objective_comparison WHERE user_id='local' "
         "AND session_exercise_id=? AND input_hash=?", (instance_id, signature)).fetchone()
     if previous:
@@ -260,13 +322,14 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
         if visible:
             last = max(instant(v["created_at"]) for v in visible)
             visible = [v for v in visible if instant(v["created_at"]) == last]
-        valid = not actual.get("deleted_at") and not instance.get("deleted_at")
+        valid = not actual.get("deleted_at") and not instance.get("deleted_at") and not session.get("deleted_at")
         observed = valid and actual.get("completion_state") in {"completed", "aborted", "in_progress"}
         status = "record_removed" if not valid else "no_actual_record" if not observed else (
             "linked_objectively" if len(visible) == 1 else "ambiguous" if visible or (matches and not begun) else "no_prior_applicable_advice")
         selected = visible[0] if status == "linked_objectively" else None
         group = next(g for g in selected["groups"] if g["set_uuid"] == actual["set_uuid"]) if selected else None
         rows.append({"set_uuid": actual["set_uuid"], "actual_revision": actual["revision"], "status": status,
+            "exclusion_reason": "parent_session_deleted" if session.get("deleted_at") else "record_deleted" if not valid else None,
             "actual": {k: actual.get(k) for k in ("started_at", "ended_at", "completion_state", "load_value", "load_unit",
                         "reps", "rir", "quality_status", "stop_reason", "deleted_at")},
             "advice_id": selected["advice_id"] if selected else None,
@@ -274,10 +337,10 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
             "frozen_group": group, "intent": "unknown_not_inferred"})
     result = {"comparison_id": canonical_hash([instance_id, signature]), "version": VERSION,
         "session_exercise_id": instance_id, "session_id": instance["session_id"],
+        "session_state": session_state,
         "created_at": datetime.now(timezone.utc).isoformat(), "rows": rows,
         "cutoff_time": cutoff_time,
         "identity": "objective_records_not_adoption_execution_failure_or_causal_effect"}
-    session = svc.get_session(instance["session_id"]) if not cutoff_time else session
     cut = cutoff_time or result["created_at"]
     start = session["started_at"]
     source, inherited = snapshot(repo, cut, window_start=start, window_end=cut, include_sources=False)
