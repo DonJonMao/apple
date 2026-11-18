@@ -13,7 +13,7 @@ HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.p
 
 def fixture(tmp_path, monkeypatch, approved=True):
     values = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=approved)
-    save_equipment_loads(values[0], values[2]["id"], [30, 34, 38])
+    save_equipment_loads(values[0], values[2]["id"], [30, 34, 38], load_unit="kg")
     return values
 
 
@@ -50,7 +50,7 @@ def test_automatic_advice_permission_and_objective_actual_without_feedback(tmp_p
     assert row["status"] == "linked_objectively" and row["advice_id"] == advice["advice_id"]
     assert float(row["actual"]["load_value"]) == 30 and row["actual"]["reps"] == 11 and row["actual"]["rir"] == 2
     assert row["intent"] == "unknown_not_inferred"
-    assert row["reference_comparison"]["STR-12"]["value"]["delta_reps"] == 1
+    assert row["daily_comparisons"][0]["metrics"]["STR-12"]["value"]["delta_reps"] == 1
     assert objective_comparison(repo, instance["id"]) == comparison
     svc.edit_set(actual["id"], {"reps": 12}, base_revision=actual["revision"])
     revised = objective_comparison(repo, instance["id"])
@@ -127,7 +127,7 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
 
     repo, svc, instance, target, _ = fixture(tmp_path, monkeypatch)
     designated = svc.get_set(target["id"])["reference_selection"]
-    assert designated["origin"] == "system_plan_protocol"
+    assert not designated  # Daily recording never nominates a research reference.
     app = HELP["open_app"](repo.path)
 
     def unavailable(*args, **kwargs):

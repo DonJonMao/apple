@@ -14,7 +14,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
-    app = AppTest.from_string(script).run(timeout=30)
+    app = AppTest.from_string(script, default_timeout=30).run()
     assert not app.exception
     app.text_input(key="template_name_None").set_value("胸部计划")
     app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
@@ -152,7 +152,7 @@ def test_training_ui_condition_target_replacement_order_and_numeric_errors(tmp_p
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
-    app = AppTest.from_string(script).run(timeout=30)
+    app = AppTest.from_string(script, default_timeout=30).run()
     assert not app.exception
     prefix = "instance_" + original["id"]
     app.text_input(key=prefix + "_condition_rom").set_value("合成完整幅度")
@@ -213,7 +213,7 @@ def test_training_ui_empty_history_import_preview_apply_and_export(tmp_path, mon
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
-    app = AppTest.from_string(script).run(timeout=30)
+    app = AppTest.from_string(script, default_timeout=30).run()
     app.text_input(key="training_import_path").set_value(str(legacy))
     app.button(key="training_import_preview").click().run()
     assert not app.exception and not app.error

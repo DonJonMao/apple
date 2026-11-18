@@ -1,4 +1,8 @@
-"""Prospective sampling, concurrent freeze and parent deletion regressions."""
+"""Ordinary-history contract, concurrent freeze and parent deletion regressions.
+
+The daily all-record contract replaces automatic prospective nomination. The
+concurrency, historical freezing and optional specialist boundaries remain.
+"""
 import json
 import runpy
 from datetime import datetime, timezone
@@ -13,11 +17,11 @@ from healthzip.training.service import TrainingService
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
 
 
-def test_automatic_reference_updates_next_numeric_basis(tmp_path, monkeypatch):
+def test_ordinary_record_updates_next_numeric_basis(tmp_path, monkeypatch):
     repo, svc, instance, target, _ = FLOW["fixture"](tmp_path, monkeypatch)
     nominated = svc.get_set(target["id"])
-    assert nominated["reference_set"] == 1
-    assert nominated["reference_selection"]["origin"] == "system_plan_protocol"
+    assert not nominated["reference_set"]
+    assert nominated["reference_selection"] is None
     first = current_advice(repo, instance["id"])
     assert any(o["load"] == 34 for o in first["groups"][0]["options"])
     actual = FLOW["finish"](svc, nominated, 34, 12)
@@ -25,17 +29,18 @@ def test_automatic_reference_updates_next_numeric_basis(tmp_path, monkeypatch):
     following = FLOW["HELP"]["add_current"](svc, instance)
     advice = current_advice(repo, following["id"])
     option = next(o for o in advice["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
-    assert option["basis"]["reference_set_id"] == actual["set_uuid"]
+    assert option["basis"]["source_set_id"] == actual["set_uuid"]
     assert (option["load"], option["reps"], option["rir"]) == (38, 8, 2)
-    reference = option["basis"]["reference_observation"]
+    reference = option["basis"]["source_observation"]
     assert (float(reference["load_value"]), reference["reps"], reference["rir"]) == (34, 12, 2)
-    assert reference["reference_selection"]["origin"] == "system_plan_protocol"
+    stored = svc.get_set(option["basis"]["source_set_id"])
+    assert not stored["reference_set"] and stored["reference_selection"] is None
     assert repo.one("SELECT count(*) FROM training_recommendation_feedback")[0] == 0
     repo.close()
 
 
 @pytest.mark.parametrize("invalid_reference", [False, True])
-def test_never_promotes_better_ordinary_set_after_observation(tmp_path, monkeypatch, invalid_reference):
+def test_all_ordinary_sets_remain_facts_without_retrospective_nomination(tmp_path, monkeypatch, invalid_reference):
     repo, svc, instance, target, _ = FLOW["fixture"](tmp_path, monkeypatch)
     second = svc.add_set(instance["id"], planned={"reps_min": 8, "reps_max": 12, "rir": 2})
     actual = FLOW["finish"](svc, target, 34, 8)
@@ -48,17 +53,20 @@ def test_never_promotes_better_ordinary_set_after_observation(tmp_path, monkeypa
     svc.end_session(instance["session_id"])
     following = FLOW["HELP"]["add_current"](svc, instance)
     advice = current_advice(repo, following["id"])
-    assert advice["reference_record"]["set_uuid"] == actual["set_uuid"]
-    assert advice["reference_exclusions"][0]["observation"]["set_uuid"] == second["set_uuid"]
-    assert all(o["load"] != 38 for g in advice["groups"] for o in g["options"])
+    records = advice["daily_history"]["records"]
+    assert [r["set_uuid"] for r in records] == [actual["set_uuid"], second["set_uuid"]]
+    assert [r["reps"] for r in records] == [8, 12]
+    assert advice["reference_record"] is None
+    assert not any(r["reference_set"] for r in records)
+    assert advice["daily_decisions"]
     if invalid_reference:
+        assert records[0]["quality_status"] == "technique_limited"
         assert all(o["load"] is None for g in advice["groups"] for o in g["options"])
     repo.close()
 
 
 @pytest.mark.parametrize("mutation", ["start", "complete", "delete_set", "target", "condition", "replace", "delete_session", "equipment"])
 def test_second_connection_changes_before_freeze_are_rejected(tmp_path, monkeypatch, mutation):
-    import healthzip.training.current as current
 
     repo, svc, instance, target, _ = FLOW["fixture"](tmp_path, monkeypatch)
     original_advice = current_advice(repo, instance["id"])
@@ -68,7 +76,8 @@ def test_second_connection_changes_before_freeze_are_rejected(tmp_path, monkeypa
     save_profile(repo, {"age": 35, "training_goal": "strength", "training_experience": "trained", "health_scope": "healthy"})
     other = Repository(repo.path)
     writer = TrainingService(other)
-    original = current._option
+    import healthzip.training.daily_decisions as daily
+    original = daily.option
     fired = False
 
     def interleave(*args, **kwargs):
@@ -97,10 +106,10 @@ def test_second_connection_changes_before_freeze_are_rejected(tmp_path, monkeypa
                 session = writer.get_session(instance["session_id"])
                 writer.delete_session(session["id"], base_revision=session["revision"])
             else:
-                save_equipment_loads(other, instance["id"], [30, 35, 40])
+                save_equipment_loads(other, instance["id"], [30, 35, 40], load_unit="kg")
         return result
 
-    monkeypatch.setattr(current, "_option", interleave)
+    monkeypatch.setattr(daily, "option", interleave)
     with pytest.raises(ValueError, match="concurrent_current_advice"):
         current_advice(repo, instance["id"])
     assert fired
@@ -138,11 +147,11 @@ def test_cache_hit_checks_interleaved_session_deletion(tmp_path, monkeypatch):
 
 
 def test_rule_retraction_during_calculation_rejects_old_authority(tmp_path, monkeypatch):
-    import healthzip.training.current as current
     from healthzip.knowledge import KnowledgeWorkbench
 
     repo, _, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch)
-    original = current._option
+    import healthzip.training.daily_decisions as daily
+    original = daily.option
     fired = False
 
     def interleave(*args, **kwargs):
@@ -156,7 +165,7 @@ def test_rule_retraction_during_calculation_rejects_old_authority(tmp_path, monk
             workbench.close()
         return value
 
-    monkeypatch.setattr(current, "_option", interleave)
+    monkeypatch.setattr(daily, "option", interleave)
     with pytest.raises(ValueError, match="concurrent_current_advice"):
         current_advice(repo, instance["id"])
     assert fired and repo.one("SELECT count(*) FROM current_training_advice")[0] == 0
@@ -218,7 +227,7 @@ def test_parent_deletion_cutoff_and_undo(tmp_path, monkeypatch, cached):
     repo.close()
 
 
-def test_real_app_plan_reference_update_and_deleted_history(tmp_path, monkeypatch, record_property):
+def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch, record_property):
     from healthzip.analytics.v13 import analyze
     from healthzip.workflows.period_report import create_report, load_report
 
@@ -234,27 +243,26 @@ def test_real_app_plan_reference_update_and_deleted_history(tmp_path, monkeypatc
     session = svc.get_session(app.session_state["resume_training"])
     selected = session["exercises"][0]
     row = selected["sets"][0]
-    assert row["reference_set"] and row["reference_declared_at"] and row["completion_state"] == "draft"
-    assert row["reference_selection"]["template_id"] == template["id"]
+    assert not row["reference_set"] and not row["reference_declared_at"]
+    assert row["completion_state"] == "draft"
     before = json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE session_exercise_id=? ORDER BY created_at DESC LIMIT 1", (selected["id"],))[0])
     first_option = next(o for o in before["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
     assert (first_option["load"], first_option["reps"]) == (34, 8)
     FLOW["HELP"]["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, selected, 34, 12, reference=False)
     assert not app.exception and not app.error
     actual = svc.get_set(row["id"])
-    assert actual["reference_selection"]["origin"] == "system_plan_protocol"
-    assert actual["reference_declared_at"] <= actual["started_at"]
+    assert actual["reference_selection"] is None
+    assert not actual["reference_declared_at"]
     next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
     app.button(key="training_start").click().run()
     following = svc.get_session(app.session_state["resume_training"])["exercises"][0]
     advice = json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE session_exercise_id=? ORDER BY created_at DESC LIMIT 1", (following["id"],))[0])
     option = next(o for o in advice["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
-    assert option["basis"]["reference_set_id"] == actual["set_uuid"]
+    assert option["basis"]["source_set_id"] == actual["set_uuid"]
     assert (option["load"], option["reps"], option["rir"]) == (38, 8, 2)
-    assert any("参考日期" in m.value and "34" in m.value and "12" in m.value for m in app.markdown)
-    assert any("系统按训练前计划采样协议指定" in c.value for c in app.caption)
-    record_property("automatic_reference_evidence", json.dumps({"reference_set_id": actual["set_uuid"],
-        "reference": option["basis"]["reference_observation"], "next_option": {k: option[k] for k in ("load", "reps", "rir")}}, ensure_ascii=False))
+    assert advice["daily_history"]["records"][0]["set_uuid"] == actual["set_uuid"]
+    record_property("ordinary_record_evidence", json.dumps({"source_set_id": actual["set_uuid"],
+        "observation": option["basis"]["source_observation"], "next_option": {k: option[k] for k in ("load", "reps", "rir")}}, ensure_ascii=False))
     previous_reports = [create_report(repo, analyze(repo), period=p) for p in ("week", "month")]
     old_comparison = objective_comparison(repo, selected["id"])
     session = svc.get_session(session["id"])
@@ -273,20 +281,20 @@ def test_real_app_plan_reference_update_and_deleted_history(tmp_path, monkeypatc
     repo.close()
 
 
-def test_reference_draft_lifecycle_and_repeated_instances(tmp_path, monkeypatch):
+def test_ordinary_draft_lifecycle_and_repeated_instances(tmp_path, monkeypatch):
     repo, svc, instance, first, _ = FLOW["fixture"](tmp_path, monkeypatch, approved=False)
     first = svc.get_set(first["id"])
-    original_meta = first["reference_selection"]
+    assert first["reference_selection"] is None and not first["reference_set"]
     revised = svc.update_set_target(first["id"], {"reps_min": 9, "reps_max": 12, "rir": 2}, base_revision=first["revision"])
-    assert revised["reference_selection"]["target_version"] != original_meta["target_version"]
+    assert revised["reference_selection"] is None and not revised["reference_set"]
     second = svc.add_set(instance["id"], planned={"reps_min": 8, "reps_max": 12, "rir": 2}, event_id="synthetic-add-second")
     assert svc.add_set(instance["id"], planned={"reps_min": 8, "reps_max": 12, "rir": 2}, event_id="synthetic-add-second")["replayed"]
     first = svc.get_set(first["id"])
     removed = svc.delete_set(first["id"], base_revision=first["revision"])
     assert not svc.get_set(first["id"])["reference_set"]
-    assert svc.get_set(second["id"])["reference_set"]
+    assert not svc.get_set(second["id"])["reference_set"]
     svc.undo_event(removed["event_id"], base_revision=svc.get_set(first["id"])["revision"])
-    assert svc.get_set(first["id"])["reference_set"]
+    assert not svc.get_set(first["id"])["reference_set"]
     assert not svc.get_set(second["id"])["reference_set"]
     repeated = svc.add_exercise(instance["session_id"], instance["catalog_id"], instance["condition"],
         targets={"sets": [{"reps_min": 8, "reps_max": 12, "rir": 2}]})
@@ -294,11 +302,11 @@ def test_reference_draft_lifecycle_and_repeated_instances(tmp_path, monkeypatch)
     old = svc.get_session_exercise(instance["id"])
     changed = svc.replace_exercise(old["id"], "psa.ex.smith_squat", old["condition"], reason="before starting",
         targets={"sets": [{"reps_min": 8, "reps_max": 12, "rir": 2}]}, base_revision=old["revision"])
-    assert changed["sets"][0]["reference_set"]
-    assert changed["sets"][0]["reference_selection"]["task_id"] != original_meta["task_id"]
-    # The repeated original task can still be designated before any observation.
+    assert not changed["sets"][0]["reference_set"]
+    assert changed["catalog_id"] != instance["catalog_id"]
+    # Repeated ordinary instances keep their separate UUIDs without nominations.
     repeated = svc.get_session_exercise(repeated["id"])
-    assert repeated["sets"][0]["reference_set"]
+    assert not repeated["sets"][0]["reference_set"]
     target = changed["sets"][0]
     start = {"completion_state": "in_progress", "started_at": datetime.now(timezone.utc).isoformat()}
     started = svc.edit_set(target["id"], start, base_revision=target["revision"], event_id="synthetic-start-once")
@@ -329,7 +337,7 @@ def test_observed_or_skipped_task_cannot_reopen_sampling(tmp_path, monkeypatch, 
     repo.close()
 
 
-@pytest.mark.parametrize("missing", ["plan", "rir", "protocol", "equipment", "quality", "recorded_rir", "rule"])
+@pytest.mark.parametrize("missing", ["plan", "rir", "equipment", "quality", "recorded_rir", "rule"])
 def test_sampling_does_not_relax_science_conditions(tmp_path, monkeypatch, missing):
     from healthzip.training.current import save_equipment_loads
 
@@ -346,7 +354,7 @@ def test_sampling_does_not_relax_science_conditions(tmp_path, monkeypatch, missi
     elif missing == "protocol":
         svc.update_condition(instance["id"], {**instance["condition"], "reference_protocol": None}, base_revision=instance["revision"])
     elif missing == "equipment":
-        save_equipment_loads(repo, instance["id"], [])
+        save_equipment_loads(repo, instance["id"], [], load_unit="kg")
     advice = current_advice(repo, instance["id"])
     options = [o for g in advice["groups"] for o in g["options"]]
     if missing in {"rir", "recorded_rir"}:
@@ -358,7 +366,7 @@ def test_sampling_does_not_relax_science_conditions(tmp_path, monkeypatch, missi
             assert trial["rir"] is None
             assert "target_rir_unspecified_not_effort_matched" in trial["metric"]["reason_codes"]
         else:
-            assert trial["basis"]["reference_observation"]["rir"] is None
+            assert trial["basis"]["source_observation"]["rir"] is None
         assert trial["metric"]["value"]["task_trial"]["expected_success"] is None
     else:
         assert all(o["load"] is None for o in options)
@@ -384,14 +392,14 @@ def test_completed_ordinary_history_is_never_backfilled(tmp_path, monkeypatch):
     context = build_advice_context(repo, current["session_id"], current["id"], None, [], None)
     assert ordinary["set_uuid"] in context["context"]["baseline_record_ids"]
     advice = current_advice(repo, current["id"])
-    assert advice["reference_record"]["set_uuid"] != ordinary["set_uuid"]
-    assert any(e["observation"]["set_uuid"] == ordinary["set_uuid"] for e in advice["reference_exclusions"])
+    assert advice["reference_record"] is None
+    assert [r["set_uuid"] for r in advice["daily_history"]["records"]] == [ordinary["set_uuid"]]
     future = svc.get_session_exercise(current["id"])["sets"][0]
-    assert future["reference_set"]
+    assert not future["reference_set"]
     FLOW["finish"](svc, future, 34, 12)
     svc.end_session(current["session_id"])
     next_instance = FLOW["HELP"]["add_current"](svc, instance)
-    assert current_advice(repo, next_instance["id"])["reference_record"]["set_uuid"] == future["set_uuid"]
+    assert current_advice(repo, next_instance["id"])["daily_history"]["records"][0]["set_uuid"] == future["set_uuid"]
     assert not svc.get_set(ordinary["id"])["reference_set"]
     repo.close()
 
@@ -405,7 +413,11 @@ def test_explicit_plan_reference_and_unknown_policy(tmp_path, monkeypatch):
         {"reps_min": 8, "reps_max": 12, "rir": 2},
         {"reps_min": 8, "reps_max": 12, "rir": 2, "reference_set": True}]})
     assert not current["sets"][0]["reference_set"]
-    assert current["sets"][1]["reference_selection"]["selection_basis"] == "explicit_plan_set"
+    assert current["sets"][1]["reference_selection"] is None
+    assert not current["sets"][1]["reference_set"]
+    selected = svc.edit_set(current["sets"][1]["id"], {"reference_set": True}, base_revision=current["sets"][1]["revision"])
+    assert selected["reference_selection"]["selection_protocol"] == "explicit-set"
+    assert selected["reference_selection"]["policy_interpretation"] == "unrecognized_not_interpreted"
     session2 = svc.start_session("Synthetic unknown selection policy")
     unknown = svc.add_exercise(session2["id"], instance["catalog_id"], condition, targets={"sets": [
         {"reps_min": 8, "reps_max": 12, "rir": 2}]})
@@ -423,7 +435,9 @@ def test_draft_with_actual_start_time_is_not_pending_advice(tmp_path, monkeypatc
 def test_explicit_withdrawal_does_not_erase_another_reference(tmp_path, monkeypatch):
     repo, svc, instance, first, _ = FLOW["fixture"](tmp_path, monkeypatch, approved=False)
     second = svc.add_set(instance["id"], {"reference_set": False}, planned={"reps_min": 8, "reps_max": 12, "rir": 2})
-    assert not second["reference_set"] and svc.get_set(first["id"])["reference_set"]
+    assert not second["reference_set"] and not svc.get_set(first["id"])["reference_set"]
+    selected = svc.edit_set(first["id"], {"reference_set": True}, base_revision=svc.get_set(first["id"])["revision"])
+    assert selected["reference_set"]
     first = svc.get_set(first["id"])
     svc.edit_set(first["id"], {"reference_set": False}, base_revision=first["revision"])
     svc.add_set(instance["id"], planned={"reps_min": 8, "reps_max": 12, "rir": 2})

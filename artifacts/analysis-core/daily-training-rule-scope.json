@@ -1,0 +1,435 @@
+{
+  "schema_version": "daily-rule-scope-audit-1.0.0",
+  "checked_on": "2026-11-18",
+  "scope": "read-only existing four active application rules and their single progression claim; public metadata only; no source text, new review or private health records",
+  "rules": [
+    {
+      "rule_id": "CORE-F2-DOUBLE-PROGRESSION",
+      "version": "1.4.3",
+      "status": "active",
+      "application_logic": "A bounded single user-selected task operationalizes progressive overload/individualization; source does not prescribe this exact algorithm or personal weight. Scientific service separately validates quality/symptoms, comparable reference, target and feasible equipment step.",
+      "conditions": [
+        {
+          "field": "age",
+          "min": 18,
+          "op": "range",
+          "origin": "source_scope"
+        },
+        {
+          "field": "health_scope",
+          "op": "eq",
+          "origin": "source_scope",
+          "value": "healthy_adult_self_reported"
+        },
+        {
+          "field": "training_goal",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "strength",
+            "hypertrophy",
+            "general_fitness"
+          ]
+        },
+        {
+          "field": "training_experience",
+          "op": "in",
+          "origin": "source_scope",
+          "value": [
+            "novice",
+            "experienced"
+          ]
+        },
+        {
+          "field": "strategy",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "double_progression"
+          ]
+        }
+      ],
+      "numeric_provenance": {
+        "next_load": "equipment_constraint: confirmed available_loads and load_basis",
+        "rir": "user_plan: no fabricated RIR",
+        "success_probability": "not_estimated",
+        "target_reps": "user_plan: explicit target/selected trial"
+      },
+      "permitted_actions": [
+        "double_progression"
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "measurement_protocol",
+        "comparable_reference",
+        "equipment_options",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "selected_plan_or_verified_rule_requires_effort"
+        }
+      ],
+      "unknown_handling": "缺必要计划、档位或可比观察时不生成具体负重；保留事实和非数值解释",
+      "limits": [
+        "个人选择的一次试验任务；不是个人成功预测、最优处方或因果疗效。",
+        "正文支持一般原则，产品规则另行核对；AI核对不冒充专家。"
+      ],
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "capability_policy_version": "personal-trial-policy-1.4.0",
+      "review": {
+        "application_checked": true,
+        "reviewer_kind": "ai_assisted",
+        "independent_expert_validation": false,
+        "reviewed_at": "2026-11-11T11:50:37.423441+00:00"
+      },
+      "stored_row_sha256": "f5f27bf7c533055b9d779d8deac42bb4ac08c0ec4760ee9a57d8e707c2798715"
+    },
+    {
+      "rule_id": "CORE-F2-LOAD-REPS-TRIAL",
+      "version": "1.4.3",
+      "status": "active",
+      "application_logic": "A bounded single user-selected task operationalizes progressive overload/individualization; source does not prescribe this exact algorithm or personal weight. Scientific service separately validates quality/symptoms, comparable reference, target and feasible equipment step.",
+      "conditions": [
+        {
+          "field": "age",
+          "min": 18,
+          "op": "range",
+          "origin": "source_scope"
+        },
+        {
+          "field": "health_scope",
+          "op": "eq",
+          "origin": "source_scope",
+          "value": "healthy_adult_self_reported"
+        },
+        {
+          "field": "training_goal",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "strength",
+            "hypertrophy",
+            "general_fitness"
+          ]
+        },
+        {
+          "field": "training_experience",
+          "op": "in",
+          "origin": "source_scope",
+          "value": [
+            "novice",
+            "experienced"
+          ]
+        },
+        {
+          "field": "strategy",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "heavier_lower_reps"
+          ]
+        }
+      ],
+      "numeric_provenance": {
+        "next_load": "equipment_constraint: confirmed available_loads and load_basis",
+        "rir": "user_plan: no fabricated RIR",
+        "success_probability": "not_estimated",
+        "target_reps": "user_plan: explicit target/selected trial"
+      },
+      "permitted_actions": [
+        "heavier_lower_reps"
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "measurement_protocol",
+        "comparable_reference",
+        "equipment_options",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "selected_plan_or_verified_rule_requires_effort"
+        }
+      ],
+      "unknown_handling": "无档位或目标则不量化；未达到原次数上沿本身不禁止已允许试验",
+      "limits": [
+        "个人选择的一次试验任务；不是个人成功预测、最优处方或因果疗效。",
+        "正文支持一般原则，产品规则另行核对；AI核对不冒充专家。"
+      ],
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "capability_policy_version": "personal-trial-policy-1.4.0",
+      "review": {
+        "application_checked": true,
+        "reviewer_kind": "ai_assisted",
+        "independent_expert_validation": false,
+        "reviewed_at": "2026-11-11T11:50:37.428600+00:00"
+      },
+      "stored_row_sha256": "1116aaeb4fbea6ec7e1055d14398c3cd05b3910d72c7852cbec745adae3f9489"
+    },
+    {
+      "rule_id": "CORE-F2-REPETITION-TRIAL",
+      "version": "1.4.3",
+      "status": "active",
+      "application_logic": "A bounded single user-selected task operationalizes progressive overload/individualization; source does not prescribe this exact algorithm or personal weight. Scientific service separately validates quality/symptoms, comparable reference, target and feasible equipment step.",
+      "conditions": [
+        {
+          "field": "age",
+          "min": 18,
+          "op": "range",
+          "origin": "source_scope"
+        },
+        {
+          "field": "health_scope",
+          "op": "eq",
+          "origin": "source_scope",
+          "value": "healthy_adult_self_reported"
+        },
+        {
+          "field": "training_goal",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "strength",
+            "hypertrophy",
+            "general_fitness"
+          ]
+        },
+        {
+          "field": "training_experience",
+          "op": "in",
+          "origin": "source_scope",
+          "value": [
+            "novice",
+            "experienced"
+          ]
+        },
+        {
+          "field": "strategy",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "repetition_progression"
+          ]
+        }
+      ],
+      "numeric_provenance": {
+        "next_load": "equipment_constraint: confirmed available_loads and load_basis",
+        "rir": "user_plan: no fabricated RIR",
+        "success_probability": "not_estimated",
+        "target_reps": "user_plan: explicit target/selected trial"
+      },
+      "permitted_actions": [
+        "repetition_progression"
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "exercise_condition",
+        "comparable_reference",
+        "candidate_choice"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "effort_observation",
+          "when": "verified_rule_requires_effort"
+        }
+      ],
+      "unknown_handling": "无明确次数目标时只讨论方向，不编目标次数",
+      "limits": [
+        "个人选择的一次试验任务；不是个人成功预测、最优处方或因果疗效。",
+        "正文支持一般原则，产品规则另行核对；AI核对不冒充专家。"
+      ],
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "capability_policy_version": "personal-trial-policy-1.4.0",
+      "review": {
+        "application_checked": true,
+        "reviewer_kind": "ai_assisted",
+        "independent_expert_validation": false,
+        "reviewed_at": "2026-11-11T11:50:37.426131+00:00"
+      },
+      "stored_row_sha256": "36d3183f2bbc9eb42fb08e18cbfdf9be59f6ee9762c33a77de45a8453927215b"
+    },
+    {
+      "rule_id": "CORE-F3-STRATEGY-REVIEW",
+      "version": "1.4.3",
+      "status": "active",
+      "application_logic": "A bounded single user-selected task operationalizes progressive overload/individualization; source does not prescribe this exact algorithm or personal weight. Scientific service separately validates quality/symptoms, comparable reference, target and feasible equipment step.",
+      "conditions": [
+        {
+          "field": "age",
+          "min": 18,
+          "op": "range",
+          "origin": "source_scope"
+        },
+        {
+          "field": "health_scope",
+          "op": "eq",
+          "origin": "source_scope",
+          "value": "healthy_adult_self_reported"
+        },
+        {
+          "field": "training_goal",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "strength",
+            "hypertrophy",
+            "general_fitness"
+          ]
+        },
+        {
+          "field": "training_experience",
+          "op": "in",
+          "origin": "source_scope",
+          "value": [
+            "novice",
+            "experienced"
+          ]
+        },
+        {
+          "field": "strategy",
+          "op": "in",
+          "origin": "user_plan",
+          "value": [
+            "repetition_progression",
+            "heavier_lower_reps"
+          ]
+        }
+      ],
+      "numeric_provenance": {
+        "next_load": "equipment_constraint: confirmed available_loads and load_basis",
+        "rir": "user_plan: no fabricated RIR",
+        "success_probability": "not_estimated",
+        "target_reps": "user_plan: explicit target/selected trial"
+      },
+      "permitted_actions": [
+        "repetition_progression",
+        "heavier_lower_reps"
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "CORE-CLAIM-PROGRESSION",
+          "version": "1.4.3"
+        }
+      ],
+      "required_input_groups": [
+        "declared_goal",
+        "effective_plan",
+        "candidate_choice",
+        "selected_strategy"
+      ],
+      "conditional_input_groups": [
+        {
+          "group": "equipment_options",
+          "when": "load_change"
+        },
+        {
+          "group": "comparable_reference",
+          "when": "quantified_candidate"
+        },
+        {
+          "group": "measurement_protocol",
+          "when": "comparable_performance_trial"
+        }
+      ],
+      "unknown_handling": "没有必要依据则给观察/讨论任务，不随机调整多变量",
+      "limits": [
+        "个人选择的一次试验任务；不是个人成功预测、最优处方或因果疗效。",
+        "正文支持一般原则，产品规则另行核对；AI核对不冒充专家。"
+      ],
+      "numeric_constants": [],
+      "scientific_thresholds": [],
+      "capability_policy_version": "personal-trial-policy-1.4.0",
+      "review": {
+        "application_checked": true,
+        "reviewer_kind": "ai_assisted",
+        "independent_expert_validation": false,
+        "reviewed_at": "2026-11-11T11:50:37.431062+00:00"
+      },
+      "stored_row_sha256": "1e7a54cae8b2b1e1c949db22d9c2124edd6e376aaf337d5b1bdea0b105fdabde"
+    }
+  ],
+  "claim": {
+    "status": "verified",
+    "claim_id": "CORE-CLAIM-PROGRESSION",
+    "version": "1.4.3",
+    "scope": {
+      "aggregation": "group_evidence",
+      "applicable_goals": [
+        "strength",
+        "hypertrophy",
+        "general_fitness"
+      ],
+      "population": "healthy_adults",
+      "time_scale": "multiweek_programs"
+    },
+    "evidence_links": [
+      {
+        "source_id": "S1",
+        "source_version_id": "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1",
+        "span_ids": [
+          "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00011",
+          "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00061",
+          "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00062",
+          "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00070",
+          "S1:fulltext:6e002198c43cecbb3a9b:jats-owned-text-1.4.1:s00074"
+        ]
+      }
+    ],
+    "limitations": [
+      "主要为群体证据；所纳入研究大量来自训练经验较少者；不构成个人处方或效果保证。"
+    ],
+    "review": {
+      "content_checked": true,
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "reviewed_at": "2026-11-11T11:50:37.408249+00:00"
+    }
+  },
+  "interpretation": {
+    "source_scope": "general progression/individualization principles from group multiweek evidence; no personal starting load or exact algorithm",
+    "application_scope": "bounded single optional task, not all recorded sets or a full-session prescription",
+    "retained_conditions": [
+      "current active reviewed capability and rights",
+      "actual profile applicability",
+      "actual exercise/load/quality/symptoms",
+      "user target and feasible confirmed equipment settings",
+      "explicit user choice whenever a rule actually requires that condition"
+    ],
+    "removed_extra_daily_gates": [
+      "reference_set",
+      "reference_declared_at",
+      "fixed first-work-set identity",
+      "strict research task position"
+    ],
+    "synthetic_authority": "isolated existing reviewed fixtures verify software permission paths only; they do not modify or validate the production corpus"
+  }
+}

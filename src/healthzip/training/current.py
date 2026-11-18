@@ -21,7 +21,7 @@ from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, run_workflow
 from healthzip.workflows.dependencies import input_version
 
-VERSION = "current-training-1.1.0"
+VERSION = "current-training-2.0.0"
 STRATEGIES = ("double_progression", "heavier_lower_reps", "repetition_progression")
 
 
@@ -65,7 +65,7 @@ def knowledge_signature(root):
     return digest.hexdigest()
 
 
-def save_equipment_loads(repo, instance_id, loads):
+def save_equipment_loads(repo, instance_id, loads, *, load_unit=None):
     """Persist a user's actual settings for this physical condition, not a rule."""
     svc = TrainingService(repo)
     instance = svc.get_session_exercise(instance_id)
@@ -74,8 +74,11 @@ def save_equipment_loads(repo, instance_id, loads):
     values = [numeric(v, "器械档位") for v in loads]
     if any(v is None or v < 0 for v in values):
         raise ValueError("器械档位须为非负有限数字列表")
+    if load_unit not in {None, "kg", "lb", "level", "stack_level"}:
+        raise ValueError("器械档位单位须为 kg/lb/level/stack_level 或未知")
     condition = canonical_hash(instance["condition"])
-    payload = {"available_loads": sorted(set(values)), "load_basis": instance["condition"].get("load_basis"),
+    payload = {"available_loads": sorted(set(values)), "load_unit": load_unit,
+               "load_basis": instance["condition"].get("load_basis"),
                "condition": instance["condition"], "provenance": "user_confirmed_equipment_settings"}
     if equipment_loads(repo, instance) == payload:
         return payload
@@ -97,62 +100,9 @@ def equipment_loads(repo, instance):
     config = equipment.get("configuration", {})
     known = config.get("step_basis") == instance["condition"].get("load_basis") and bool(config.get("step_source"))
     return {"available_loads": config.get("available_loads", []) if known else [],
+            "load_unit": config.get("step_unit") if known else None,
             "provenance": config.get("step_source") if known else None, "equipment_id": identity,
             "load_basis": instance["condition"].get("load_basis")}
-
-
-def _option(advice, target, loads, strategy, authority, cutoff, zone):
-    plan = {"rep_upper": target.get("reps_max"), "next_target_reps": target.get("reps_min"),
-            "target_rir_min": target.get("rir"), "target_rir_max": target.get("rir"), "available_loads": loads}
-    metric_id = "STR-25" if strategy == "double_progression" else "STR-26"
-    metric = evaluate(metric_id, advice["records"], cutoff_time=cutoff,
-        window_start=(instant(cutoff)-timedelta(days=365)).isoformat(), window_end=cutoff,
-        context={**advice["context"], "timezone": zone, "strategy": strategy,
-                 "progression_plan": plan if target else None, "reviewed_principles": authority["principles"],
-                 "allowed_trial_actions": [strategy] if metric_id == "STR-26" else []})
-    value = metric.get("value") or {}
-    trial = value.get("task_trial") or {}
-    load = value.get("next_load") if metric_id == "STR-25" else trial.get("load_value")
-    reps = value.get("target_reps") if metric_id == "STR-25" else trial.get("reps_target")
-    reference = value.get("reference_set_id") if metric_id == "STR-25" else trial.get("reference_set_id")
-    observed = next((r for r in advice["records"] if r.get("set_uuid") == reference), None)
-    rules = [p for p in authority["principles"] if strategy in p.get("permitted_actions", [])]
-    return {"strategy": strategy, "metric": metric, "load": load,
-            "load_unit": value.get("load_unit") if metric_id == "STR-25" else trial.get("load_unit"),
-            "reps": reps, "rir": target.get("rir") if load is not None else None,
-            "basis": {"rules": rules, "reference_set_id": reference,
-                      "reference_observation": _reference_observation(observed) if observed else None,
-                      "personal_record_ids": advice["context"]["baseline_record_ids"],
-                      "weight_origin": "可比参考组的实际负荷" if strategy == "repetition_progression" else "匹配行动规则许可的实际器械档位",
-                      "repetitions_origin": "沿用用户计划次数上限" if strategy == "repetition_progression" else "沿用用户计划次数下限",
-                      "rir_origin": "用户计划 RIR；未指定时保持未知",
-                      "plan": target, "available_loads": loads},
-            "limitations": ["可选方案，不表示用户采纳或承诺执行。", "实际下一档不单独证明适宜；计划次数不是资料库推导的个人最优次数。"],
-            "excluded_rules": authority.get("excluded", [])}
-
-
-def _reference_observation(record):
-    from healthzip.science.semantics import flatten_record
-    row = flatten_record(record)
-    return {k: row.get(k) for k in ("set_uuid", "session_id", "session_exercise_id", "ended_at", "started_at",
-        "exercise_name", "load_value", "load_unit", "load_basis", "reps", "rir", "rir_interval", "rir_qualifier",
-        "reference_declared_at", "reference_selection", "condition", "quality_status", "stop_reason")}
-
-
-def _reference_exclusions(records, references):
-    chosen = references[-1] if references else None
-    recent = [r for r in records if not chosen or instant(r["ended_at"]) > instant(chosen["ended_at"])]
-    result = []
-    for row in recent:
-        if not row.get("reference_set"):
-            reason = "最近实际未在开始前指定为参考；普通实际仍参与描述分析"
-        elif not row.get("reference_declared_at") or not row.get("started_at") or instant(row["reference_declared_at"]) > instant(row["started_at"]):
-            reason = "参考指定时间或实际开始时间缺失，或指定晚于开始"
-        else:
-            reason = "同任务参考身份冲突或非完成工作组，不能自动择优替代"
-        result.append({"observation": _reference_observation(row), "reason": reason,
-            "retained_reference": _reference_observation(chosen) if chosen else None})
-    return result
 
 
 def _session_state(session):
@@ -169,12 +119,35 @@ def _instance_state(instance):
             "reference_selection")} for s in instance["sets"]]}
 
 
+def _recent_related_training(svc, instance, cutoff, window_days):
+    """Recent region facts are background, never a cross-exercise load basis."""
+    regions = set(instance["exercise"].get("display_regions") or [])
+    catalog = {r["exercise_id"]: r for r in svc.search_exercises()}
+    start = (instant(cutoff) - timedelta(days=window_days)).isoformat()
+    rows = svc.history_as_of(cutoff_time=cutoff, window_start=start, window_end=cutoff,
+                            include_incomplete=True)
+    result = []
+    for row in rows:
+        exercise = catalog.get(row.get("catalog_id", row.get("exercise_id")), {})
+        if row.get("session_id") == instance["session_id"]:
+            continue
+        if not regions.intersection(exercise.get("display_regions") or []):
+            continue
+        if row.get("completion_state") not in {"completed", "aborted", "failed", "in_progress"}:
+            continue
+        result.append({"session_id": row["session_id"], "occurred_at": row.get("ended_at") or row.get("started_at"),
+            "exercise_name": exercise.get("name") or row.get("exercise_name"), "record": row,
+            "purpose": "recent_same_region_context_no_load_conversion"})
+    return result
+
+
 def _validate_freeze(repo, svc, advice, revision, context_id, settings, knowledge_root, knowledge):
     instance = svc.get_session_exercise(advice["instance"]["id"])
     session = svc.get_session(instance["session_id"])
     if (input_version(repo, context_id) != revision
             or _instance_state(instance) != _instance_state(advice["instance"])
             or _session_state(session) != _session_state(advice["session"])
+            or session.get("session_status") not in {"draft", "in_progress", "paused"}
             or session.get("deleted_at") or instance.get("deleted_at") or instance.get("replaced_by_instance_id")
             or equipment_loads(repo, instance) != settings
             or knowledge_signature(knowledge_root) != knowledge):
@@ -192,27 +165,75 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
     # This lookup supplies only the immutable parent identity. All business
     # fields below come from the single cutoff-visible AdviceContext instance.
     identity = svc.get_session_exercise(instance_id)
+    visible_session = svc.session_as_of(identity["session_id"], cutoff_time=cutoff, include_deleted=True)
+    if visible_session.get("deleted_at") or visible_session.get("session_status") not in {"draft", "in_progress", "paused"}:
+        raise ValueError("current_training_session_ended:" + str(visible_session.get("session_status")))
     advice = build_advice_context(repo, identity["session_id"], instance_id, None, [], None,
         cutoff_time=cutoff, timezone_name=timezone_name, generation_origin="automatic_training")
     instance = advice["instance"]
     if instance.get("deleted_at") or instance.get("replaced_by_instance_id"):
         raise ValueError("selected_training_instance_unavailable")
+    source_report_mapping = None
     if source_report_id:
         from healthzip.workflows import load_run
         source = load_run(repo, source_report_id)
-        if (source.get("task_selection") or {}).get("task_id") != advice["context"]["task_id"]:
+        selected_task = source.get("task_selection") or {}
+        # A report is navigation, not a research input or an action authority.
+        # Preserve its strict task ID while checking the actual condition; set
+        # position cannot create a reference prerequisite for ordinary records.
+        if (selected_task.get("exercise_id") != instance["catalog_id"]
+                or not selected_task.get("condition_key")
+                or selected_task["condition_key"] != instance["condition"].get("condition_key")):
             raise ValueError("source_report_task_mismatch")
+        source_report_mapping = {"version": "daily-report-navigation-1.0.0",
+            "purpose": "same_condition_navigation_only_no_research_or_numeric_permission_transfer",
+            "source_task_id": selected_task.get("task_id"), "source_condition_key": selected_task["condition_key"],
+            "current_condition_key": instance["condition"]["condition_key"]}
+    from healthzip.science.semantics import analysis_task
+    from healthzip.training.daily_history import select_daily_history
+    history = select_daily_history(svc, instance, cutoff_time=cutoff)
+    # Daily matching never borrows a historical reference's strict task identity.
+    task = analysis_task({**instance["condition"], "set_number": None})
+    advice["records"] = history["records"]
+    advice["context"].update(task_id=task["task_id"], protocol=task["protocol"],
+        outcome_series_id=None, baseline_record_ids=[r["set_uuid"] for r in history["records"]],
+        history_purpose="daily_latest_session", history_match_version=history["match_version"])
+    current_observations = {r["set_uuid"]: r for r in advice["context"]["current_session_observations"]}
+    for observed in svc.history_as_of(cutoff_time=cutoff, include_incomplete=True):
+        if (observed.get("session_id") == instance["session_id"]
+                and observed.get("catalog_id", observed.get("exercise_id")) == instance["catalog_id"]
+                and (observed.get("completion_state") in {"completed", "aborted", "failed", "in_progress"}
+                     or observed.get("started_at") or observed.get("ended_at"))):
+            current_observations[observed["set_uuid"]] = observed
+    advice["context"]["current_session_observations"] = list(current_observations.values())
+    advice["context"]["current_session_record_ids"] = list(current_observations)
     settings = equipment_loads(repo, instance)
     records, _ = snapshot(repo, cutoff, window_start=(instant(cutoff)-timedelta(days=baseline_days)).isoformat(),
         window_end=cutoff, canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"])
     background = [r for r in records if r.get("record_kind") != "strength_set"]
+    from healthzip.db.temporal_schema import samples_as_of
+    from healthzip.training.daily_decisions import latest_symptom_reports
+    # Categorical symptom state has no product-defined expiry. Its latest
+    # dated reports are independent of metric/display lookback windows.
+    symptom_reports = latest_symptom_reports([{**r, "id": "subjective_log:" + str(r["id"]),
+        "record_kind": "subjective_log"} for r in samples_as_of(repo, cutoff, "subjective_log")
+        if r.get("observed_at") and instant(r["observed_at"]) <= instant(cutoff)])
+    recent_training = _recent_related_training(svc, instance, cutoff, window_days)
     knowledge = knowledge_signature(knowledge_root)
+    # Relative age and cutoff are presentation facts, not a new observation.
+    history_dependency = {**history, "latest_session": {k: v for k, v in (history.get("latest_session") or {}).items()
+        if k != "days_since"}, "selection": {k: v for k, v in history.get("selection", {}).items() if k != "cutoff_time"}}
+    history_dependency.pop("selection_hash", None)
     current_context = {k: v for k, v in advice["context"].items()
                        if k in {"profile_revision", "profile_provenance", "task_id", "protocol", "current_session_observations"}}
-    signature = canonical_hash({"version": VERSION, "instance": instance, "records": advice["records"],
-        "body": background, "context": current_context, "settings": settings, "context_id": context_id,
+    signature = canonical_hash({"version": VERSION, "instance": instance, "session": _session_state(advice["session"]), "history": history_dependency,
+        "body": background, "symptom_reports": symptom_reports,
+        "recent_training": recent_training, "context": current_context, "settings": settings, "context_id": context_id,
         "context_revision": {k: v for k, v in revision.items() if k.startswith("context")},
         "window_days": window_days, "baseline_days": baseline_days, "timezone": timezone_name,
+        # Rolling body windows are recomputed at their actual cutoff whenever
+        # observations exist; record IDs alone cannot validate moving windows.
+        "body_window_cutoff": cutoff if background else None,
         "date": instant(cutoff).astimezone(ZoneInfo(timezone_name)).date().isoformat(), "knowledge": knowledge})
     row = repo.conn.execute("SELECT payload_json FROM current_training_advice WHERE user_id='local' "
                            "AND session_exercise_id=? AND input_hash=?", (instance_id, signature)).fetchone()
@@ -232,6 +253,10 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
         session_exercise_id=instance_id, context_id=context_id, context_policy="preserve_facts"), knowledge_root=knowledge_root)
     if review["knowledge"]["status"] == "service_failure":
         raise RuntimeError("资料服务暂未完成，建议等待重新计算")
+    advice["context"].update(body_context=review["supplements"].get("current_body_context"),
+                             recent_related_training=recent_training,
+                             body_observations=symptom_reports, equipment_load_unit=settings.get("load_unit"),
+                             body_action_scopes=instance["exercise"].get("display_regions") or [])
     # A historical report is a navigation reference only. Its cutoff, selected
     # declaration and comparison windows never replace this current request.
     from healthzip.knowledge import KnowledgeWorkbench
@@ -244,6 +269,7 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
                     "strategy": strategy, "available_loads": settings["available_loads"]})
         finally:
             workbench.close()
+    from healthzip.training.daily_decisions import decisions, option
     targets = advice["effective_targets"]["sets"]
     remaining = {s["set_uuid"] for s in instance["sets"] if s.get("completion_state") == "draft"
         and not s.get("deleted_at") and not s.get("started_at") and not s.get("ended_at")
@@ -252,12 +278,10 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
     for selected in targets:
         if selected["set_uuid"] in remaining:
             groups.append({"set_uuid": selected["set_uuid"], "original_target": selected,
-                "options": [_option(advice, selected["target"], settings["available_loads"], strategy,
+                "options": [option(record, history, selected["target"], settings["available_loads"], strategy,
                     authorities.get(strategy, {"principles": [], "excluded": [{"reason": "local_knowledge_store_missing"}]}),
-                    cutoff, timezone_name) for strategy in STRATEGIES]})
-    from healthzip.science.semantics import flatten_record
-    from healthzip.science.strength import reference_rows
-    references = reference_rows([{**flatten_record(r), "_event_end": r["ended_at"]} for r in advice["records"]], {})
+                    advice["context"], target_set_uuid=selected["set_uuid"])
+                    for record in history["records"] or [None] for strategy in STRATEGIES]})
     payload = {"advice_id": canonical_hash([instance_id, signature]), "version": VERSION, "created_at": cutoff,
         "generation_origin": "automatic_training", "user_choice": None, "input_hash": signature,
         "session_id": instance["session_id"], "session_uuid": advice["session"]["session_uuid"],
@@ -265,11 +289,16 @@ def current_advice(repo, instance_id, *, context_id=None, window_days=30, baseli
         "exercise_name": instance["exercise"]["name"], "target_version": advice["effective_targets"]["revision"],
         "original_plan": instance.get("planned"), "effective_targets": advice["effective_targets"],
         "groups": groups, "scope": "listed_draft_set_uuids_only_until_next_version_before_set_start",
-        "reference_record": references[-1] if references else None,
-        "reference_exclusions": _reference_exclusions(advice["records"], references),
+        "reference_record": None, "reference_exclusions": [],
+        "daily_history": history, "daily_decisions": decisions(history, groups),
+        "recent_training": recent_training,
         "review_run_id": review["run_id"], "body": review["supplements"].get("current_body_context"),
-        "source_report_id": source_report_id, "settings": settings, "knowledge_signature": knowledge,
-        "unknown": [] if groups else ["尚无未开始的逐组目标；请确定动作和目标后核对具体数值，实际训练仍可直接记录。"]}
+        "dated_symptom_observations": symptom_reports,
+        "source_report_id": source_report_id, "source_report_mapping": source_report_mapping,
+        "settings": settings, "knowledge_signature": knowledge,
+        "unknown": [] if groups else ["尚无未开始的目标组；仍可自由记录，事实展示不要求模板或计划。"]}
+    payload["daily_decisions"].update(body_context=payload["body"], recent_related_training=recent_training,
+        current_targets=advice["effective_targets"], body_action_policy="facts_and_rule_applicability_only_no_state_to_load_mapping")
     repo.conn.execute("BEGIN IMMEDIATE")
     try:
         _validate_freeze(repo, svc, advice, revision, context_id, settings, knowledge_root, knowledge)
@@ -350,6 +379,28 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
         reference = chosen.get("reference_record")
         actual = next((r for r in actuals if r["set_uuid"] == row["set_uuid"]), None)
         row["reference_comparison"] = {}
+        row["daily_comparisons"] = []
+        if chosen.get("daily_history") and actual and row["status"] == "linked_objectively":
+            from healthzip.training.daily_decisions import observation
+            from healthzip.training.daily_history import daily_comparability
+            previous = chosen["daily_history"]["records"]
+            for recorded in previous:
+                comparison = daily_comparability(recorded, actual)
+                limits = list(comparison["reason_codes"])
+                metrics = {}
+                if len(previous) != 1:
+                    limits.append("multiple_historical_sets_no_unique_pairing_all_shown_without_best_match")
+                elif comparison["comparable"] and recorded.get("ended_at"):
+                    historical = {**recorded, "record_kind": "strength_set",
+                        "id": "strength_set:" + recorded["set_uuid"],
+                        "event_end": recorded.get("ended_at"), "event_start": recorded.get("started_at")}
+                    pair = [historical, actual]
+                    metrics = {mid: evaluate(mid, pair, cutoff_time=cut,
+                        window_start=min(start, recorded["ended_at"], key=instant), window_end=cut,
+                        context={"comparison_pair": pair}) for mid in ("STR-12", "STR-13", "STR-14")}
+                row["daily_comparisons"].append({"source_set_id": recorded["set_uuid"],
+                    "observation": observation(recorded), "actual_set_uuid": row["set_uuid"],
+                    "comparability": comparison, "metrics": metrics, "limitations": limits})
         if reference and actual and row["status"] == "linked_objectively":
             pair_start = min(start, reference["ended_at"], key=instant)
             pair = [reference, actual]

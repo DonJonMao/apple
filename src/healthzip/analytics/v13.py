@@ -216,7 +216,9 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
                     if datetime.fromisoformat(x["recorded_at"]) <= bound and datetime.fromisoformat(x["occurred_at"]) <= bound]
         latest = feedback[-1] if feedback else {}
         outcomes.append(_outcome(recommendation, latest, records, cutoff_time=cutoff_time))
+    from healthzip.science.semantics import flatten_record
     return records, {"sessions": sessions, "recommendation_outcomes": outcomes, "data_version": service.data_version(),
+                     "reference_inventory": [flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
                      "query_plan": {"window_start": window_start, "window_end": window_end,
                                     "canonical_types": canonical_types, "source_rows_returned": source_counts,
                                     "training_events_returned": len(events),

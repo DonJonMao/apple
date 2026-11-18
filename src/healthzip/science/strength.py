@@ -41,12 +41,16 @@ def _parents(rows: list[dict]) -> list[dict]:
 
 
 def reference_rows(rows: list[dict], context: dict) -> list[dict]:
+    from healthzip.training.reference import FIRST_POLICIES, specialist_policy_allows
+
     selected = []
     for row in rows:
         nominated = row.get("is_reference") is True or row.get("set_id", row.get("id")) in context.get("reference_set_ids", [])
         declared = row.get("reference_declared_at") or context.get("reference_protocol_declared_at")
         observation_start = row.get("event_start") or row.get("started_at") or row.get("_event_end")
-        if _completed(row) and nominated and declared and observation_start:
+        position_valid = (row.get("reference_policy_id") not in FIRST_POLICIES
+                          or specialist_policy_allows(row, context.get("reference_inventory", rows)))
+        if _completed(row) and nominated and declared and observation_start and position_valid:
             if instant(declared) <= instant(observation_start):
                 selected.append(row)
     groups = defaultdict(list)
@@ -260,7 +264,8 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
     total = len(rows)
     work = _parents([row for row in rows if _completed(row)])
     refs = reference_rows(rows, context)
-    kw = {"records": rows, "total_n": total}
+    kw = {"records": rows, "total_n": total,
+          "reference_selection_version": "specialist-first-position-1.1.0"}
     if code in {25, 26}:
         applicability = candidate_applicability(refs[-1] if refs else None, context.get("current_session_observations"))
         unknown_observations = context.get("current_session_observation_unknown_ids", [])
@@ -577,6 +582,96 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
             task_id=context.get("observed_task_id"), cutoff_time=window.cutoff_time)
         return emit(allocation, "valid" if allocation else "insufficient",
                     reasons=["union_bound_requires_each_interval_valid", "shared_family_across_actions_metrics"] if allocation else reasons)
+    if code in {25, 26}:
+        return progression_candidate(code, refs, context, applicability, emit)
+    if code in {27, 28}:
+        outcomes = context.get("recommendation_outcomes", [])
+        if code == 27:
+            values = []
+            for row in outcomes:
+                targets = row.get("frozen_targets", {})
+                actual = row.get("actual", {})
+                executed = row.get("execution_state") == "executed"
+                quality_known = isinstance(row.get("quality_comparable"), bool)
+                complete = executed and quality_known and bool(targets) and all(k in actual and actual[k] is not None for k in targets)
+                met = complete and row.get("quality_comparable") is True and all(
+                    spec["min"] <= actual[k] <= spec["max"] for k, spec in targets.items())
+                values.append({"recommendation_id": row.get("recommendation_id"), "adoption": row.get("adoption"),
+                               "strategy": row.get("strategy"), "task_id": row.get("task_id"), "rule_versions": row.get("rule_versions"),
+                               "execution_state": row.get("execution_state"),
+                               "short_term_success": bool(met) if complete else None,
+                               "reason_codes": (["execution_not_confirmed"] if not executed else ["task_condition_or_quality_unknown"] if not quality_known else [])
+                                   + row.get("comparison_reason_codes", []),
+                               "nonexecution_reason": row.get("nonexecution_reason"), "complete": complete,
+                               "frozen_targets": targets, "actual": actual,
+                               "target_comparisons": row.get("target_comparisons", []),
+                               "actual_observations": row.get("actual_observations", []),
+                               "execution_change": row.get("execution_change"),
+                               "execution_change_reason_codes": row.get("execution_change_reason_codes", []),
+                               "followup": row.get("followup"), "feedback_missing": row.get("feedback_missing"),
+                               "report_membership": row.get("report_membership")})
+            return emit(values or None, "valid" if values else "insufficient", count_domain="recommendations",
+                        valid_n=len(values), total_n=len(outcomes))
+        values = strength_metric("STR-27", rows, window, context)["value"] or []
+        responding = [r for r in values if r["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
+        complete = [r for r in values if r["short_term_success"] is not None]
+        def observation_counts(group):
+            return {"execution_numerator": sum(r.get("execution_state") == "executed" for r in group),
+                    "execution_denominator": sum(r.get("execution_state") in {"executed", "partially_executed", "not_executed"} for r in group),
+                    "execution_states": {state: sum((r.get("execution_state") or "unknown") == state for r in group)
+                    for state in ("executed", "partially_executed", "not_executed", "unknown")},
+                    "followup_states": {state: sum((r.get("followup") or {}).get("status", "not_planned") == state for r in group)
+                    for state in ("not_planned", "pending", "observed", "no_comparable_observation", "not_executed", "execution_unconfirmed", "unavailable")},
+                    "comparable_followup_observations": sum(len((r.get("followup") or {}).get("observations", [])) for r in group)}
+        groups, strata = defaultdict(list), []
+        for item in values:
+            identity = {key: item.get(key) for key in ("strategy", "task_id", "rule_versions")}
+            groups[canonical_hash(identity)].append(item)
+        for group in groups.values():
+            replied = [item for item in group if item["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
+            known = [item for item in group if item["short_term_success"] is not None]
+            strata.append({**{key: group[0].get(key) for key in ("strategy", "task_id", "rule_versions")},
+                           "recommendation_ids": [item["recommendation_id"] for item in group],
+                           "counts": {"adoption_numerator": sum(item["adoption"] == "adopted" for item in replied),
+                                      "adoption_denominator": len(replied), "unanswered": len(group) - len(replied),
+                                      "success_numerator": sum(item["short_term_success"] for item in known),
+                                      "success_denominator": len(known), "missing_outcomes": len(group) - len(known),
+                                      **observation_counts(group)}})
+        return emit({"adoption_numerator": sum(r["adoption"] == "adopted" for r in responding), "adoption_denominator": len(responding),
+                     "unanswered": len(values) - len(responding), "success_numerator": sum(r["short_term_success"] for r in complete),
+                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete), "strata": strata,
+                     **observation_counts(values)},
+                    "valid" if values else "insufficient", count_domain="recommendations", total_n=len(values), valid_n=len(complete))
+    if code == 29:
+        return emit({"fields": {k: {"numerator": sum(r.get(k) is not None for r in rows), "denominator": total}
+                                for k in ("entered_load", "reps", "rir", "stop_reason")},
+                     "comparable_references": sum(condition_key(r) is not None for r in refs), "candidate_references": len(refs),
+                     "protocol_complete_references": sum(analysis_task(r)["protocol_complete"] for r in refs),
+                     "outcome_series_eligible_references": sum(outcome_series(r)["eligible"] for r in refs),
+                     "outcome_series_ids": sorted({outcome_series(r)["outcome_series_id"] for r in refs if outcome_series(r)["eligible"]})},
+                    "valid" if rows else "insufficient", reasons=["no_aggregate_quality_score"])
+    if code == 30:
+        numerator = finite(context.get("strength_numerator"))
+        mass_record = context.get("body_mass_observation")
+        mass_numeric = quantity_value(mass_record) if mass_record else {}
+        mass = mass_numeric.get("value") if mass_numeric.get("unit") == "kg" else None
+        if numerator is None or context.get("strength_numerator_unit") != "kg" or mass is None or mass <= 0 or not context.get("complete_load_known"):
+            return emit(None, "insufficient", reasons=["complete_numerator_and_comparable_body_mass_required"])
+        return emit({"ratio": numerator / mass, "numerator": numerator, "body_mass_kg": mass,
+                     "body_mass_record_id": mass_record.get("id", mass_record.get("_source_id")),
+                     "body_mass_observed_at": mass_record.get("event_end", mass_record.get("end_utc")),
+                     "body_mass_source": mass_record.get("source_name"), "body_mass_normalization": mass_numeric,
+                     "numerator_identity": context.get("strength_numerator_identity")}, evidence_status=context.get("numerator_evidence_status", "descriptive"))
+    raise ValueError("unknown_strength_metric")
+
+
+def progression_candidate(code, refs, context, applicability, emit, *, require_protocol=True):
+    """Shared arithmetic. Callers select inputs and declare their purpose.
+
+    Strict metrics retain their preregistered protocol. Daily single-set options
+    use ordinary observations, with a separate business result/version; they
+    never become STR-25/26 research outputs or acquire reference identity.
+    """
     if code == 25:
         history = refs[-1] if refs else None
         plan = context.get("progression_plan")
@@ -585,7 +680,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if applicability["applicable"] is not True:
             return emit({"candidate": "review_observations_or_collect_reference", "next_load": None}, "partial",
                         reasons=["candidate_applicability_" + applicability["status"], *applicability["reason_codes"]])
-        if not comparable(history, history, protocol=True)[0]:
+        if not comparable(history, history, protocol=require_protocol)[0]:
             return emit(None, "insufficient", reasons=["complete_reference_protocol_required"])
         if not history.get("load_unit"):
             return emit(None, "insufficient", reasons=["reference_load_unit_required"])
@@ -679,7 +774,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if refs and "heavier_lower_reps" in actions and plan.get("next_target_reps") is not None:
             previous = refs[-1]
             target_reps = finite(plan.get("next_target_reps"))
-            if not comparable(previous, previous, protocol=True)[0]:
+            if not comparable(previous, previous, protocol=require_protocol)[0]:
                 return emit(None, "insufficient", reasons=["complete_reference_protocol_required"])
             if not previous.get("load_unit"):
                 return emit(None, "insufficient", reasons=["reference_load_unit_required"])
@@ -708,7 +803,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
             upper = finite(plan.get("rep_upper"))
             if not previous:
                 reasons.append("comparable_reference_required")
-            elif not comparable(previous, previous, protocol=True)[0]:
+            elif not comparable(previous, previous, protocol=require_protocol)[0]:
                 reasons.append("complete_reference_protocol_required")
             elif not previous.get("load_unit") or finite(previous.get("load_value")) is None:
                 reasons.append("reference_load_and_unit_required")
@@ -739,82 +834,3 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                      "task_trial": numerical, "verification_task": context.get("verification_task"), "personal_optimum": None},
                     "partial" if numerical is not None and effort is None else
                     "valid" if actions and len(reasons) == 1 else "insufficient", reasons=reasons)
-    if code in {27, 28}:
-        outcomes = context.get("recommendation_outcomes", [])
-        if code == 27:
-            values = []
-            for row in outcomes:
-                targets = row.get("frozen_targets", {})
-                actual = row.get("actual", {})
-                executed = row.get("execution_state") == "executed"
-                quality_known = isinstance(row.get("quality_comparable"), bool)
-                complete = executed and quality_known and bool(targets) and all(k in actual and actual[k] is not None for k in targets)
-                met = complete and row.get("quality_comparable") is True and all(
-                    spec["min"] <= actual[k] <= spec["max"] for k, spec in targets.items())
-                values.append({"recommendation_id": row.get("recommendation_id"), "adoption": row.get("adoption"),
-                               "strategy": row.get("strategy"), "task_id": row.get("task_id"), "rule_versions": row.get("rule_versions"),
-                               "execution_state": row.get("execution_state"),
-                               "short_term_success": bool(met) if complete else None,
-                               "reason_codes": (["execution_not_confirmed"] if not executed else ["task_condition_or_quality_unknown"] if not quality_known else [])
-                                   + row.get("comparison_reason_codes", []),
-                               "nonexecution_reason": row.get("nonexecution_reason"), "complete": complete,
-                               "frozen_targets": targets, "actual": actual,
-                               "target_comparisons": row.get("target_comparisons", []),
-                               "actual_observations": row.get("actual_observations", []),
-                               "execution_change": row.get("execution_change"),
-                               "execution_change_reason_codes": row.get("execution_change_reason_codes", []),
-                               "followup": row.get("followup"), "feedback_missing": row.get("feedback_missing"),
-                               "report_membership": row.get("report_membership")})
-            return emit(values or None, "valid" if values else "insufficient", count_domain="recommendations",
-                        valid_n=len(values), total_n=len(outcomes))
-        values = strength_metric("STR-27", rows, window, context)["value"] or []
-        responding = [r for r in values if r["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
-        complete = [r for r in values if r["short_term_success"] is not None]
-        def observation_counts(group):
-            return {"execution_numerator": sum(r.get("execution_state") == "executed" for r in group),
-                    "execution_denominator": sum(r.get("execution_state") in {"executed", "partially_executed", "not_executed"} for r in group),
-                    "execution_states": {state: sum((r.get("execution_state") or "unknown") == state for r in group)
-                    for state in ("executed", "partially_executed", "not_executed", "unknown")},
-                    "followup_states": {state: sum((r.get("followup") or {}).get("status", "not_planned") == state for r in group)
-                    for state in ("not_planned", "pending", "observed", "no_comparable_observation", "not_executed", "execution_unconfirmed", "unavailable")},
-                    "comparable_followup_observations": sum(len((r.get("followup") or {}).get("observations", [])) for r in group)}
-        groups, strata = defaultdict(list), []
-        for item in values:
-            identity = {key: item.get(key) for key in ("strategy", "task_id", "rule_versions")}
-            groups[canonical_hash(identity)].append(item)
-        for group in groups.values():
-            replied = [item for item in group if item["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
-            known = [item for item in group if item["short_term_success"] is not None]
-            strata.append({**{key: group[0].get(key) for key in ("strategy", "task_id", "rule_versions")},
-                           "recommendation_ids": [item["recommendation_id"] for item in group],
-                           "counts": {"adoption_numerator": sum(item["adoption"] == "adopted" for item in replied),
-                                      "adoption_denominator": len(replied), "unanswered": len(group) - len(replied),
-                                      "success_numerator": sum(item["short_term_success"] for item in known),
-                                      "success_denominator": len(known), "missing_outcomes": len(group) - len(known),
-                                      **observation_counts(group)}})
-        return emit({"adoption_numerator": sum(r["adoption"] == "adopted" for r in responding), "adoption_denominator": len(responding),
-                     "unanswered": len(values) - len(responding), "success_numerator": sum(r["short_term_success"] for r in complete),
-                     "success_denominator": len(complete), "missing_outcomes": len(values) - len(complete), "strata": strata,
-                     **observation_counts(values)},
-                    "valid" if values else "insufficient", count_domain="recommendations", total_n=len(values), valid_n=len(complete))
-    if code == 29:
-        return emit({"fields": {k: {"numerator": sum(r.get(k) is not None for r in rows), "denominator": total}
-                                for k in ("entered_load", "reps", "rir", "stop_reason")},
-                     "comparable_references": sum(condition_key(r) is not None for r in refs), "candidate_references": len(refs),
-                     "protocol_complete_references": sum(analysis_task(r)["protocol_complete"] for r in refs),
-                     "outcome_series_eligible_references": sum(outcome_series(r)["eligible"] for r in refs),
-                     "outcome_series_ids": sorted({outcome_series(r)["outcome_series_id"] for r in refs if outcome_series(r)["eligible"]})},
-                    "valid" if rows else "insufficient", reasons=["no_aggregate_quality_score"])
-    if code == 30:
-        numerator = finite(context.get("strength_numerator"))
-        mass_record = context.get("body_mass_observation")
-        mass_numeric = quantity_value(mass_record) if mass_record else {}
-        mass = mass_numeric.get("value") if mass_numeric.get("unit") == "kg" else None
-        if numerator is None or context.get("strength_numerator_unit") != "kg" or mass is None or mass <= 0 or not context.get("complete_load_known"):
-            return emit(None, "insufficient", reasons=["complete_numerator_and_comparable_body_mass_required"])
-        return emit({"ratio": numerator / mass, "numerator": numerator, "body_mass_kg": mass,
-                     "body_mass_record_id": mass_record.get("id", mass_record.get("_source_id")),
-                     "body_mass_observed_at": mass_record.get("event_end", mass_record.get("end_utc")),
-                     "body_mass_source": mass_record.get("source_name"), "body_mass_normalization": mass_numeric,
-                     "numerator_identity": context.get("strength_numerator_identity")}, evidence_status=context.get("numerator_evidence_status", "descriptive"))
-    raise ValueError("unknown_strength_metric")

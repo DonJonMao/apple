@@ -158,7 +158,9 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
     task = analysis_task(task_row)
     from healthzip.science.semantics import outcome_series
     from healthzip.science.strength import reference_rows
-    references = reference_rows([{**flatten_record(r), "_event_end": r["ended_at"]} for r in baseline], {})
+    inventory = [flatten_record(r) for r in records if r.get("record_kind") == "strength_set"]
+    references = reference_rows([{**flatten_record(r), "_event_end": r["ended_at"]} for r in baseline],
+                                {"reference_inventory": inventory})
     series = outcome_series(references[-1]) if references else None
     if references:
         task = analysis_task(references[-1])
@@ -176,6 +178,7 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
                "unknown_current_observation_ids": [r["set_uuid"] for r in current
                    if not (r.get("ended_at") or r.get("started_at"))],
                "current_session_observations": current,
+               "reference_inventory": inventory,
                "generation_origin": generation_origin,
                "user_choice": "requested_strategy_review" if generation_origin == "explicit_strategy_request" and strategy else None,
                "protocol": task["protocol"]}

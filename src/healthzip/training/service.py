@@ -278,21 +278,10 @@ class TrainingService:
                     json_text(result),
                 ),
             )
-            if status == "applied" and action in {
-                "start_session", "add_exercise", "add_set", "edit_set", "delete_set", "undo_event",
-                "update_set_target", "update_condition", "replace_exercise", "reorder_exercises",
-            }:
-                from .reference import reconcile
-
-                session_id = result.get("session_id") if kind != "session" else result.get("id")
-                if session_id:
-                    reconcile(self, session_id, event_id)
-                    fetch = {"session": self.get_session, "session_exercise": self.get_session_exercise, "set": self.get_set}[kind]
-                    result = {**result, **fetch(result["id"])}
-                    # Keep the triggering snapshot and later selection events in
-                    # their real order; retries return the final saved revision.
-                    self.conn.execute("UPDATE training_event SET result_json=? WHERE event_id=?",
-                        (json_text(result), event_id))
+            # Ordinary recording and plan edits never create, revoke or move a
+            # research reference designation. Existing identities remain in
+            # their original events; new designations require the explicit
+            # optional reference action.
             return result
 
     def get_exercise(self, exercise_id: str, version: Optional[int] = None) -> dict:

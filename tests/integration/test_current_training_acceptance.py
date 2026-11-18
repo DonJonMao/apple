@@ -92,7 +92,29 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     actual = svc.get_set(selected["sets"][0]["id"])
     assert actual["planned"] == frozen_target and actual["rir"] == 2
     compared = objective_comparison(repo, selected["id"])
-    assert compared["rows"][0]["advice_id"] == before["advice_id"]
+    # Body windows move with their actual cutoff. Repeated page renders can
+    # legitimately freeze a newer pre-start suggestion with the same records.
+    # Objective linkage must select that exact latest applicable version.
+    candidates = [json.loads(row[0]) for row in repo.conn.execute(
+        "SELECT payload_json FROM current_training_advice WHERE session_exercise_id=?",
+        (selected["id"],))]
+    candidates = [version for version in candidates
+        if datetime.fromisoformat(version["created_at"]) <= datetime.fromisoformat(actual["started_at"])
+        and any(group["set_uuid"] == actual["set_uuid"] for group in version["groups"])]
+    latest_cutoff = max(datetime.fromisoformat(version["created_at"]) for version in candidates)
+    prestart = [version for version in candidates if datetime.fromisoformat(version["created_at"]) == latest_cutoff]
+    assert len(prestart) == 1
+    frozen = prestart[0]
+    assert compared["rows"][0]["advice_id"] == frozen["advice_id"]
+    assert compared["rows"][0]["frozen_group"]["original_target"] == before["groups"][0]["original_target"]
+    frozen_option = next(option for option in frozen["groups"][0]["options"]
+                         if option["strategy"] == "heavier_lower_reps")
+    assert (frozen_option["load"], frozen_option["reps"], frozen_option["rir"]) == (34, 7, 2)
+    assert frozen["body"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+    assert [row["set_uuid"] for row in frozen["daily_history"]["records"]] == [
+        row["set_uuid"] for row in before["daily_history"]["records"]]
+    assert json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE advice_id=?",
+                              (before["advice_id"],))[0]) == before
     assert compared["rows"][0]["actual"]["reps"] == 11
     next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
     app.button(key="training_start").click().run()
@@ -125,7 +147,7 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         join = next(c for c in joins if c["session_id"] == session["id"])
         assert join["actual_records"][0]["reps"] == 11
         assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
-        assert any(c["rows"][0]["advice_id"] == before["advice_id"] for c in report["objective_comparisons"])
+        assert any(c["rows"][0]["advice_id"] == frozen["advice_id"] for c in report["objective_comparisons"])
         assert load_report(repo, report["report_id"])["markdown"] == report["markdown"]
     app.radio(key="main_workspace").set_value("报告").run()
     for label in ("本周", "本月"):
@@ -216,7 +238,7 @@ def test_interleaved_inputs_refuse_stale_advice_and_actual_save_still_works(tmp_
         elif change == "body":
             body(other)
         else:
-            save_equipment_loads(other, instance["id"], [30, 38, 42])
+            save_equipment_loads(other, instance["id"], [30, 38, 42], load_unit="kg")
         other.close()
         return run
 
@@ -275,7 +297,7 @@ def test_tied_advice_versions_keep_ambiguity_and_do_not_choose_closest_load(tmp_
     with monkeypatch.context() as patch:
         patch.setattr(module, "datetime", Clock)
         first = current_advice(repo, instance["id"])
-        save_equipment_loads(repo, instance["id"], [30, 38, 42])
+        save_equipment_loads(repo, instance["id"], [30, 38, 42], load_unit="kg")
         second = current_advice(repo, instance["id"])
     assert first["created_at"] == second["created_at"] and first["advice_id"] != second["advice_id"]
     FLOW["finish"](svc, target, load=38, reps=8)
@@ -300,7 +322,7 @@ def test_cached_advice_rechecks_equipment_changed_during_signature_read(tmp_path
         signature = original_signature(root)
         if not changed:
             changed = True
-            save_equipment_loads(repo, instance["id"], [30, 38, 42])
+            save_equipment_loads(repo, instance["id"], [30, 38, 42], load_unit="kg")
         return signature
 
     with monkeypatch.context() as patch:

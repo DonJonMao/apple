@@ -823,15 +823,11 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         note = st.text_input(
             "动作质量 / 不适备注", value=row.get("quality_note") or "", key=prefix + "_note"
         )
-        st.caption("参考组必须在本任务开始观察之前指定；不事后选择表现最好的一组。")
+        st.caption("可选专项测量：仅在需要特定测量协议时预先指定参考组。日常历史与建议使用普通实际记录。")
         selection = row.get("reference_selection") or {}
         if row.get("reference_set"):
             st.caption("已预先指定参考组：" + ("系统按计划顺序指定；这是产品采样规则，不保证数值建议适用。"
                 if selection.get("origin") == "system_plan_protocol" else "用户明确指定／历史预指定记录。"))
-        elif row.get("completion_state") == "draft":
-            from healthzip.training.reference import missing_requirements
-            missing = missing_requirements(row)
-            st.caption("未自动指定：" + ("；".join(missing) if missing else "本任务已有指定、已开始观察或已撤销指定；不能事后改选。"))
         if row.get("completion_state") == "draft" and (not row.get("reference_set") or selection.get("origin") == "system_plan_protocol"):
             if st.button("将这组预先指定为参考组", key=prefix + "_reference"):
                 saved = _act(
@@ -1318,15 +1314,16 @@ def _session(repo, svc, session):
             st.caption("此来源动作已停用，当前训练保留原定义与历史数值。")
         st.caption(LOAD_LABELS.get(instance["condition"]["load_basis"], "未知口径"))
         _instance_controls(svc, instance)
-        previous = svc.last_values(instance["id"])
-        if previous["status"] == "available":
-            st.write("上次同条件记录：", previous["suggested_actual"])
-            st.caption("来源时间：" + str(previous.get("source_event_time")))
-            if st.button("带入上次值为草稿", key="last_" + instance["id"]):
-                if _act(svc.add_set, instance["id"], previous["suggested_actual"]):
-                    st.rerun()
-        else:
-            st.info("同条件历史不足或条件尚未确认；仍可正常记录。")
+        with st.expander("可选：复制一条同条件历史记录为草稿"):
+            previous = svc.last_values(instance["id"])
+            if previous["status"] == "available":
+                st.write("可复制的单条记录：", previous["suggested_actual"])
+                st.caption("来源时间：" + str(previous.get("source_event_time")) + "；这条记录不代表整场训练或本次目标。")
+                if st.button("带入上次值为草稿", key="last_" + instance["id"]):
+                    if _act(svc.add_set, instance["id"], previous["suggested_actual"]):
+                        st.rerun()
+            else:
+                st.caption("暂无可复制的同条件记录；仍可正常记录。")
         from healthzip.ui.current_training import render_current_training
         render_current_training(repo, instance)
         with st.expander("可选：旧建议与手工反馈"):

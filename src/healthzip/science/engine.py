@@ -265,6 +265,11 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         selection_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
         if context.get("baseline_completed_days"):
             window = selection_window
+    # Named first-work protocols locate their position before successful/time
+    # filtering. Drafts without observation time still occupy their real slot.
+    if metric_id.startswith("STR-") and "reference_inventory" not in context:
+        context["reference_inventory"] = [row for row in relevant if row.get("available_at")
+            and instant(row["available_at"]) <= instant(cutoff_time)]
     selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False),
                                      overlap=metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-")))
     plan_status_provenance = []
@@ -341,7 +346,9 @@ def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, wind
     for metric_id in TASK_METRICS:
         task_results = []
         for task_id, rows in groups.items():
-            task_context = {**context, **context.get("task_contexts", {}).get(task_id, {}), "task_id": task_id}
+            task_context = {**context, **context.get("task_contexts", {}).get(task_id, {}), "task_id": task_id,
+                "reference_inventory": [row for row in normalized if row.get("available_at")
+                    and instant(row["available_at"]) <= instant(cutoff_time)]}
             task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(), "cutoff_time": cutoff_time,
                                                                  "data_version": str(context.get("data_version"))})
             calculated = safe_evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,

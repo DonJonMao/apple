@@ -1,5 +1,7 @@
 # HealthZIP v1.4 实现与验收状态
 
+2026-11-18 日常训练全组历史：基于 `d48d26b`，业务版本 `current-training-2.0.0`。普通记录不再自动预指定研究参考；最近一次同动作全部组、当前身体和相关训练共同进入事实与逐组可选建议。首工作组协议及已结束会话缓存同步修复，单位／冲突／症状及历史可见性保留限制。最终整仓 **1935 passed、0 failed、0 errors、0 skipped、0 pytest warnings，1372.37 秒**，既定 Ruff 通过，359 份最终受验输入哈希一致。首轮超时失败、254 项扩展回归及最终通过分别留有回执。最新设计与本轮验证见[日常全组历史验收](docs/daily_training_history.md)；下面各轮结果保留历史身份。
+
 2026-11-18 工作流六项修复：基于 `6f3a8e1`，版本 `analysis-workflows-1.6.2`。多任务读取、练前复核范围、确认上下文传递、当前周期新任务、冻结数值下载和计算中途修订均通过行为回归。最终隔离整仓 **1744 passed、0 failed、0 skipped、0 warnings**，既定 Ruff 通过，301 份受验输入保持一致。范围及本轮验证以 [修复验收](docs/workflow_six_repairs.md) 和 `artifacts/analysis-core/workflow-six-fixes-verification.json` 为准；未重启资料复核或扩大科学权限。
 
 2026-11-17 分析核心交付：按用户补充的原定功能验收细化，五流程、S0–S6、自动长期复核、候选依据及结果跟踪已接入同一服务。全文收尾复核修复历史续算保留设置、W4 结果隔离，并补齐独立可配置描述基线；隔离整仓 **1710 项全部通过**。正常路径与科学边界见 [交付说明](docs/analysis_core_delivery.md)，T01–T28、77 指标用途、29 参数及方法合同见 [逐项验收](docs/analysis_core_acceptance.md)，最新回执见 `artifacts/analysis-core/completion-verification.json`。主体提交的 `final-verification.json` 保留历史身份。schema 为 5；本轮仅使用隔离合成私人库和公共知识副本。下列既有资料审查与评分保持原时点身份。
