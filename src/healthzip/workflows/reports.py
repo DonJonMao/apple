@@ -5,7 +5,7 @@ from .contracts import WorkflowRequest
 from .service import run_workflow
 
 
-def review_analysis(repo, analysis, *, period=None, include_background=False, knowledge_root=".local/knowledge"):
+def review_analysis(repo, analysis, *, period=None, include_background=False, knowledge_root=".local/knowledge", include_session_background=False):
     cutoff, zone = analysis["cutoff_time"], analysis["timezone"]
     context_id = analysis.get("selection_context", {}).get("workflow_context_id")
     selection_id = None
@@ -29,14 +29,15 @@ def review_analysis(repo, analysis, *, period=None, include_background=False, kn
         runs.append(run_workflow(repo, WorkflowRequest("W4", cutoff_time=cutoff, timezone=zone,
             window_days=analysis.get("window_days", 30), period=period, task_id=task["task_id"], result_metric_id="STR-11",
             mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
-            selection_analysis_id=selection_id, **bounds_args),
+            selection_analysis_id=selection_id, context_policy="preserve_facts",
+            include_session_background=include_session_background, **bounds_args),
             knowledge_root=knowledge_root))
     if include_background:
         for wid in ("W2", "W3", "W5"):
             runs.append(run_workflow(repo, WorkflowRequest(wid, cutoff_time=cutoff, timezone=zone,
                 window_days=analysis.get("window_days", 30), period=period,
                 mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
-                selection_analysis_id=selection_id, **bounds_args), knowledge_root=knowledge_root))
+                selection_analysis_id=selection_id, context_policy="preserve_facts", **bounds_args), knowledge_root=knowledge_root))
     return runs
 
 
@@ -48,11 +49,15 @@ def markdown(runs, *, repo):
         from .storage import load_analysis, load_run
         run = load_run(repo, run["run_id"])
         lines += [f"### {run['title']}", "", f"运行 `{run['run_id']}`；截止 {run['request']['cutoff_time']}。", ""]
+        restriction = run["supplements"].get("context_restriction")
+        if restriction:
+            lines += [restriction["limitation"],
+                      f"原声明 `{restriction['context_id']}`；受限原因 `{restriction['reason']}`。", ""]
         source = run["supplements"].get("source_report")
         if source:
             lines += [f"历史报告 `{source['run_id']}`：原截止 {source['cutoff_time']}；"
                       f"历史比较范围 {source['window_start']} 至 {source['window_end']}（不含终点）。",
-                      f"本次行动核对时刻 {source['current_action_cutoff_time']}；当前目标及该历史范围内现可见资料另存为本次复核，原报告不变。", ""]
+                      f"本次行动核对时刻 {source['current_action_cutoff_time']}；历史报告仅作来源链接，当前目标与当前查看范围另行核对，原报告不变。", ""]
         lines += frozen_fact_lines(load_analysis(repo, run["run_id"]), run)
         review = run["supplements"].get("long_term_review")
         if review:

@@ -1,5 +1,7 @@
 # HealthZIP v1.4 实际设计
 
+> 本次训练主流程（2026-11-18）：当前产品合同见 [本次训练设计与验收](docs/current_training_flow.md)。练前自动呈现、自由实际记录、客观对照和身体—力量联合周/月报告已接入统一核心；旧候选采纳／执行反馈只保留可选兼容，不是完成主流程的前提。下文旧版本记录保留历史身份。
+
 v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`AdviceContext`统一事实、目标、适用信息和候选冻结；SourceClaim与ApplicationRule分开并带能力策略；按结果负荷分层的描述序列；窗口索引与有界版本缓存。具体实现、迁移及限制见 [v1.4验收](docs/v14_delivery.md)、[科学合同](docs/v14_science.md)、[目录](docs/v14_catalog.md)、[知识](docs/v14_knowledge.md)。
 
 完整需求见 [V1_3_GOAL.md](V1_3_GOAL.md) 与执行包；本文件描述本地实现。原MVP设计保存在 `docs/history/DESIGN_SPEC_v1.0.md`，旧固定建议规则不再适用。

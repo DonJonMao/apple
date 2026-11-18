@@ -190,27 +190,32 @@ def render_analysis(repo, value):
             if title == "复盘与个体学习":
                 st.caption("模拟评测只代表研究实现可运行；没有真实时间外验证时不声称个人预测有效。")
     with st.expander("本周 / 本月复盘"):
-        from healthzip.analytics.v13 import analyze, persist
+        from healthzip.workflows import load_run
+        from healthzip.workflows.period_report import create_report, load_report
         period_label = st.selectbox("复盘周期", ["本周", "本月"])
         period = {"本周": "week", "本月": "month"}[period_label]
+        report_key = "joint_period_" + str(repo.path.resolve()) + "_" + period
         if st.button("生成当前周期复盘"):
-            from healthzip.workflows.reports import review_analysis
-            period_reviews = [] if context_problem else review_analysis(repo, result, period=period, include_background=True)
-            from healthzip.workflows.reports import markdown
-            report_text = "\n".join(markdown(period_reviews, repo=repo))
+            try:
+                frozen_report = create_report(repo, result, period=period)
+                st.session_state[report_key] = frozen_report["report_id"]
+            except (ValueError, OSError, RuntimeError) as exc:
+                st.error(f"本次报告尚未冻结，请重新生成：{exc}")
+        if st.session_state.get(report_key):
+            frozen_report = load_report(repo, st.session_state[report_key])
+            period_reviews = [load_run(repo, identity) for identity in frozen_report["workflow_run_ids"]]
+            report_text = frozen_report["markdown"]
             with st.expander("周期分析、建议依据与后续结果"):
                 st.markdown(report_text)
                 st.download_button("下载周期复核报告", report_text, file_name=f"healthzip-{period}-review.md", mime="text/markdown")
             for review in period_reviews:
                 descriptive = review["supplements"].get("long_term_review", {})
                 if descriptive.get("start_long_term_review"):
-                    st.info("完整日历周期对照已启动长期复核；负荷、次数和已记录 RIR 共同参与。")
-                    st.write(descriptive)
-                    st.write(review["hypotheses"])
-            period_result = analyze(repo, cutoff_time=result["cutoff_time"], period=period,
-                timezone_name=result["timezone"], context=result.get("selection_context"),
-                retrospective=result.get("retrospective", False))
-            persist(repo, period_result)
+                    st.info("本期截至当前的记录对照已启动长期复核；负荷、次数和已记录 RIR 共同参与。")
+                    with st.expander("长期复核的比较记录与因素详情"):
+                        st.json(descriptive)
+                        st.json(review["hypotheses"])
+            period_result = frozen_report["current"]
             st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
             _render_period_training(period_result["metrics"])
             period_layers = []
@@ -242,7 +247,8 @@ def render_analysis(repo, value):
                     else:
                         st.write(names[mid]["title"], metric["value"])
                     st.caption(f"状态 {metric['data_status']} · {metric['valid_n']}/{metric['total_n']} · {'；'.join(metric['reason_codes'])}")
-            st.download_button("下载本周期完整结果", data=json.dumps({**period_result, "workflow_reviews": period_reviews}, ensure_ascii=False, indent=2),
+            st.download_button("下载本周期完整结果", data=json.dumps({**period_result, "workflow_reviews": period_reviews,
+                "joint_report": frozen_report}, ensure_ascii=False, indent=2),
                                file_name=f"healthzip-{period}.json", mime="application/json")
     with st.expander("AI 解释（可选）"):
         allow = st.checkbox("允许把当前结构化证据发送至已配置 AI 服务", value=False)

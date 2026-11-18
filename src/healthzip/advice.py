@@ -67,6 +67,21 @@ def migrate_advice(conn):
         candidate_id TEXT NOT NULL UNIQUE REFERENCES training_recommendation(candidate_id),
         PRIMARY KEY(user_id,request_hash))""")
     conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('advice_profile_version','0')")
+    conn.execute("""CREATE TABLE IF NOT EXISTS current_training_advice (
+        advice_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, session_exercise_id TEXT NOT NULL,
+        input_hash TEXT NOT NULL, created_at TEXT NOT NULL, payload_json TEXT NOT NULL,
+        UNIQUE(user_id,session_exercise_id,input_hash))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS training_advice_equipment (
+        setting_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, condition_hash TEXT NOT NULL,
+        payload_json TEXT NOT NULL, created_at TEXT NOT NULL)""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS training_objective_comparison (
+        comparison_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, session_exercise_id TEXT NOT NULL,
+        input_hash TEXT NOT NULL, created_at TEXT NOT NULL, payload_json TEXT NOT NULL,
+        UNIQUE(user_id,session_exercise_id,input_hash))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS current_advice_report_link (
+        advice_id TEXT NOT NULL REFERENCES current_training_advice(advice_id),
+        report_run_id TEXT NOT NULL REFERENCES workflow_run(run_id), recorded_at TEXT NOT NULL,
+        PRIMARY KEY(advice_id,report_run_id))""")
 
 
 def profile(repo, user_id="local", *, cutoff_time=None):
@@ -99,8 +114,11 @@ def save_profile(repo, fields, *, user_id="local"):
 
 
 def build_advice_context(repo, session_id, session_exercise_id, selected_set_uuid, available_loads,
-                         strategy, *, cutoff_time=None, timezone_name="Asia/Shanghai", retrospective=False):
+                         strategy, *, cutoff_time=None, timezone_name="Asia/Shanghai", retrospective=False,
+                         generation_origin="explicit_strategy_request"):
     """Derive actual task fields; callers cannot remove them to widen scope."""
+    if generation_origin not in {"explicit_strategy_request", "automatic_training"}:
+        raise ValueError("unknown_advice_generation_origin")
     svc = TrainingService(repo)
     cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
     session = svc.get_session(session_id) if retrospective else svc.session_as_of(session_id, cutoff_time=cutoff.isoformat())
@@ -158,7 +176,9 @@ def build_advice_context(repo, session_id, session_exercise_id, selected_set_uui
                "unknown_current_observation_ids": [r["set_uuid"] for r in current
                    if not (r.get("ended_at") or r.get("started_at"))],
                "current_session_observations": current,
-               "user_choice": "requested_strategy_review", "protocol": task["protocol"]}
+               "generation_origin": generation_origin,
+               "user_choice": "requested_strategy_review" if generation_origin == "explicit_strategy_request" and strategy else None,
+               "protocol": task["protocol"]}
     return {"records": baseline, "context": context, "session": session, "instance": instance,
             "effective_targets": effective, "selected_target": selected}
 
@@ -453,22 +473,20 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         raise TypeError("review_requires_WorkflowRequest")
     scope = (review_request or WorkflowRequest("W1", cutoff_time=now.isoformat(), timezone=timezone_name)).normalized()
     if scope["source_run_id"]:
-        from healthzip.workflows.storage import load_analysis, load_run
+        from healthzip.workflows.storage import load_run
         source = load_run(repo, scope["source_run_id"])
-        source_snapshot = load_analysis(repo, source["run_id"])
         if source["workflow_id"] not in {"W1", "W4"} or not source.get("task_selection"):
             raise ValueError("action_source_requires_selected_strength_task")
         if source["task_selection"]["task_id"] != context["task_id"]:
             raise ValueError("action_source_task_mismatch")
-        scope = {**WorkflowRequest(**source["request"]).normalized(),
-            "source_run_id": source["run_id"], "cutoff_time": now.isoformat(),
-            "period": None, "window_start": source_snapshot["window_start"], "window_end": source_snapshot["window_end"]}
+        # Source report is a navigation/audit reference. A new action reviews
+        # current records in the chosen recent viewing range, never its old
+        # complete-calendar window or record-selection snapshot.
+        scope.update(cutoff_time=now.isoformat(), period=None, window_start=None,
+                     window_end=None, selection_analysis_id=None)
     elif review_request and review_request.workflow_id == "W4" and scope["period"]:
-        # W4's review is the two preceding complete periods; W1's period option
-        # otherwise means the current partial period. Transfer the actual bounds.
-        from healthzip.workflows.calendar import completed_periods
-        periods = completed_periods(scope["cutoff_time"], scope["timezone"], scope["period"])
-        scope.update(period=None, window_start=periods[0][0], window_end=periods[-1][1])
+        scope.update(cutoff_time=now.isoformat(), period=None, window_start=None,
+                     window_end=None, selection_analysis_id=None)
     # A concurrent identical business request may finish while this review is
     # reading. Only that case retries a complete prospective review; it cannot
     # turn a concurrent training/source revision into a successful frozen run.

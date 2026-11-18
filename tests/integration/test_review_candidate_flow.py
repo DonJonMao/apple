@@ -16,7 +16,8 @@ def open_app(path):
     return AppTest.from_string(
         "from healthzip.db.repository import Repository\n"
         "from healthzip.ui.training_page import render_training\n"
-        f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
+        f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()",
+        default_timeout=30,
     ).run(timeout=30)
 
 

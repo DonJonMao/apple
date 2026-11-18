@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sqlite3
+from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import streamlit as st
@@ -232,17 +234,29 @@ try:
     if page == "报告":
         report_path = st.text_input("报告输出路径", "reports/latest.md")
         period_label = st.selectbox("报告范围", ["当前分析窗口", "本周", "本月"])
+        period = {"本周": "week", "本月": "month"}.get(period_label)
+        report_key = "report_page_joint_" + str(repo.path.resolve()) + "_" + str(period)
         if st.button("生成 Markdown 报告"):
-            period = None
-            if period_label != "当前分析窗口":
-                from healthzip.analytics.v13 import analyze
-                period = {"本周": "week", "本月": "month"}[period_label]
-                analysis["period_snapshots"] = {period: analyze(repo, cutoff_time=analysis["v13"]["cutoff_time"], period=period,
-                                                              timezone_name=timezone_name)}
-            from healthzip.workflows.reports import review_analysis
-            analysis["workflow_reviews"] = review_analysis(repo, analysis["v13"], period=period, include_background=True)
-            out = render_report(analysis, inv, report_path, repo=repo)
-            st.success(f"已写入 {out}")
+            try:
+                if period:
+                    from healthzip.workflows.period_report import create_report
+                    frozen_report = create_report(repo, analysis["v13"], period=period)
+                    out = Path(report_path)
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(frozen_report["markdown"], encoding="utf-8")
+                    st.session_state[report_key] = frozen_report["report_id"]
+                else:
+                    from healthzip.workflows.reports import review_analysis
+                    analysis["workflow_reviews"] = review_analysis(repo, analysis["v13"], include_background=True)
+                    out = render_report(analysis, inv, report_path, repo=repo)
+                st.success(f"已写入 {out}")
+            except (ValueError, OSError, RuntimeError, sqlite3.Error) as exc:
+                st.error(f"本次报告未完成，请重新生成：{exc}")
+        if period and st.session_state.get(report_key):
+            from healthzip.workflows.period_report import load_report
+            frozen_report = load_report(repo, st.session_state[report_key])
+            st.markdown(frozen_report["markdown"])
+            st.download_button("下载身体与力量联合报告", frozen_report["markdown"], file_name=f"healthzip-{period}.md", mime="text/markdown")
         st.write("报告会包含每个 Evidence Card 的窗口、事实、样本量和限制。")
 finally:
     repo.close()

@@ -82,6 +82,42 @@ def review(points, window):
                         "已记录 RIR 或区间参与比较，缺失不补零；自报差值不是已校准的容量变化。"]}
 
 
+def body_context(repo, cutoff_time, request, selection=None):
+    """One shared background calculation for real training starts and advice.
+
+    This creates no training/reference record. The caller labels the actual
+    time being described; product lookback is not a recovery threshold.
+    """
+    cutoff = instant(cutoff_time)
+    start = cutoff - timedelta(days=request.get("baseline_days", 28))
+    records, inherited = snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
+        retrospective=request["mode"] == "retrospective",
+        canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"])
+    context = {**inherited, "timezone": request["timezone"], "retrospective": request["mode"] == "retrospective"}
+    if (selection or {}).get("primary_sleep_stream"):
+        context["primary_sleep_stream"] = selection["primary_sleep_stream"]
+    metrics = {mid: evaluate(mid, records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+                window_end=cutoff.isoformat(), context=context) for mid in (
+        "STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SLEEP-STAGE", "STATE-SLEEP-TIMING",
+        "STATE-RHR", "STATE-SDNN", "STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION",
+        "STATE-FATIGUE", "STATE-SORENESS", "STATE-PAIN", "BODY-MASS-DAILY", "BODY-MASS-TREND")}
+    window = Window(start.isoformat(), cutoff.isoformat(), cutoff.isoformat(), request["timezone"])
+    if (selection or {}).get("sleep_selection"):
+        from healthzip.analytics.sleep_selection import selected_sleep_metrics
+        sleep, _ = selected_sleep_metrics(records, window, selection["sleep_selection"])
+        metrics.update({mid: value for mid, value in sleep.items() if mid in metrics})
+        binding = sleep["STATE-SLEEP-24H"].get("sleep_selection_binding", {})
+        if binding.get("accepted"):
+            context["primary_sleep_stream"] = binding["source"]["stream_key"]
+    visible, _ = select_as_of(records, window, retrospective=request["mode"] == "retrospective", overlap=True)
+    asleep, _ = sleep_intervals(visible, cutoff - timedelta(hours=24), cutoff, context)
+    sleep_streams = list(dict.fromkeys(stream_key(p["row"]) for p in asleep))
+    return {"metrics": metrics, "sleep_streams": [list(s) for s in sleep_streams],
+            "cutoff_time": cutoff.isoformat(), "visibility": request["mode"],
+            "baseline_days": request.get("baseline_days", 28),
+            "baseline_kind": "product_display_window_not_recovery_threshold"}
+
+
 def pretraining_contexts(repo, points, request, selection=None):
     """Each reference's context ends at its actual training start, including middle observations."""
     available = sorted((p for p in points if p.get("training_started_at")
@@ -89,30 +125,8 @@ def pretraining_contexts(repo, points, request, selection=None):
     results, cache = [], {}
     for point in available:
         cutoff = instant(point["training_started_at"])
-        start = cutoff - timedelta(days=request.get("baseline_days", 28))  # product lookback, not a physiological threshold
         if point["session_id"] not in cache:
-            records, inherited = snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
-                retrospective=request["mode"] == "retrospective",
-                canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"])
-            context = {**inherited, "timezone": request["timezone"], "retrospective": request["mode"] == "retrospective"}
-            if (selection or {}).get("primary_sleep_stream"):
-                context["primary_sleep_stream"] = selection["primary_sleep_stream"]
-            metrics = {mid: evaluate(mid, records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
-                        window_end=cutoff.isoformat(), context=context) for mid in (
-                "STATE-SLEEP-24H", "STATE-RHR", "STATE-SDNN", "STATE-FATIGUE", "STATE-SORENESS", "STATE-PAIN",
-                "BODY-MASS-DAILY", "BODY-MASS-TREND")}
-            window = Window(start.isoformat(), cutoff.isoformat(), cutoff.isoformat(), request["timezone"])
-            if (selection or {}).get("sleep_selection"):
-                from healthzip.analytics.sleep_selection import selected_sleep_metrics
-                sleep, _ = selected_sleep_metrics(records, window, selection["sleep_selection"])
-                metrics["STATE-SLEEP-24H"] = sleep["STATE-SLEEP-24H"]
-                binding = sleep["STATE-SLEEP-24H"].get("sleep_selection_binding", {})
-                if binding.get("accepted"):
-                    context["primary_sleep_stream"] = binding["source"]["stream_key"]
-            visible, _ = select_as_of(records, window, retrospective=request["mode"] == "retrospective", overlap=True)
-            asleep, _ = sleep_intervals(visible, cutoff - timedelta(hours=24), cutoff, context)
-            sleep_streams = list(dict.fromkeys(stream_key(p["row"]) for p in asleep))
-            cache[point["session_id"]] = {"metrics": metrics, "sleep_streams": [list(s) for s in sleep_streams]}
+            cache[point["session_id"]] = body_context(repo, cutoff.isoformat(), request, selection)
         results.append({"reference_record_id": point["record_id"], "session_id": point["session_id"],
             "training_started_at": cutoff.isoformat(), **cache[point["session_id"]],
             "visibility": request["mode"], "baseline_days": request.get("baseline_days", 28), "baseline_kind": "product_display_window_not_recovery_threshold"})

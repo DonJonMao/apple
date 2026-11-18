@@ -928,7 +928,7 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
 def render_training(repo):
     svc = TrainingService(repo)
     st.subheader("我的训练")
-    st.caption("先记录实际完成；目标和上次值始终需要确认。无手表或 AI 也能记录。")
+    st.caption("选择本次训练后自动查看历史、身体背景和有依据的建议；自由记录实际重量、次数与 RIR。")
     if notice := st.session_state.pop("training_notice", None):
         st.warning(notice)
     with st.expander("离线训练记录器"):
@@ -950,6 +950,28 @@ def render_training(repo):
         _history(svc)
     with pages[0]:
         templates = svc.list_templates()
+        region = st.selectbox("今天准备训练的部位（可选）", [None, *REGIONS],
+            format_func=lambda value: REGIONS.get(value, "直接选择已有计划或临时训练"), key="current_training_region")
+        if region:
+            matches = svc.search_exercises(regions=[region])
+            ids = {item["exercise_id"] for item in matches}
+            related = [t for t in templates if any(item["exercise_id"] in ids for item in t["items"])]
+            st.write("相关已有计划：", "、".join(t["name"] for t in related) or "尚无相关计划，可自主选择动作。")
+            st.dataframe([{"动作": item["name"], "部位": "、".join(REGIONS.get(r, r) for r in item.get("display_regions", [])),
+                "肌群标签": "、".join(p["muscle_id"] for p in item.get("muscle_participation_proposals", [])) or "待核对"}
+                for item in matches], hide_index=True)
+            st.caption("现有部位与肌群标签用于查找；未经审核的映射不用于计算训练剂量。确定动作前不生成具体重量或整套计划。")
+            from datetime import timedelta
+
+            from healthzip.analytics.v13 import snapshot
+            cutoff = datetime.now(timezone.utc)
+            rows, _ = snapshot(repo, cutoff.isoformat(), window_start=(cutoff-timedelta(days=30)).isoformat(),
+                window_end=cutoff.isoformat(), include_sources=False)
+            recent = [r for r in rows if r.get("catalog_id", r.get("exercise_id")) in ids and r.get("completion_state") == "completed"]
+            if recent:
+                st.write("近 30 日该部位的已有记录（查看范围，不是生理阈值）")
+                st.dataframe([{k: r.get(k) for k in ("ended_at", "exercise_name", "load_value", "load_unit", "reps", "rir")}
+                    for r in recent], hide_index=True)
         labels = {x["id"]: x["name"] for x in templates}
         selected = st.selectbox(
             "选择模板或临时训练",
@@ -962,6 +984,8 @@ def render_training(repo):
             result = _act(svc.start_session, name, template_id=selected)
             if result:
                 st.session_state["resume_training"] = result["id"]
+                if region:
+                    st.session_state["session_selector_regions"] = [region]
                 st.session_state.pop("active_training", None)
                 for key in (
                     "session_feedback",
@@ -1297,9 +1321,11 @@ def _session(repo, svc, session):
                     st.rerun()
         else:
             st.info("同条件历史不足或条件尚未确认；仍可正常记录。")
-        from healthzip.ui.recommendation_page import render_candidates
-
-        render_candidates(repo, svc, session, instance)
+        from healthzip.ui.current_training import render_current_training
+        render_current_training(repo, instance)
+        with st.expander("可选：旧建议与手工反馈"):
+            from healthzip.ui.recommendation_page import render_candidates
+            render_candidates(repo, svc, session, instance)
         index = session["exercises"].index(instance)
         if index and st.button("将此动作上移", key="session_up_" + instance["id"]):
             ids = [x["id"] for x in session["exercises"] if not x.get("deleted_at")]
@@ -1564,8 +1590,13 @@ def _history(svc):
             for row in instance["sets"]:
                 _set_editor(svc.repo, svc, row, instance, key_prefix="history")
     if detail.get("session_status") in {"completed", "aborted"}:
+        from healthzip.ui.current_training import render_objective_comparison
         from healthzip.ui.recommendation_page import render_candidates
 
+        with st.expander("本次训练的客观对照", expanded=True):
+            for instance in detail["exercises"]:
+                st.write(instance["exercise"]["name"])
+                render_objective_comparison(svc.repo, instance["id"])
         with st.expander("本次训练的建议与结束后反馈"):
             for instance in detail["exercises"]:
                 render_candidates(

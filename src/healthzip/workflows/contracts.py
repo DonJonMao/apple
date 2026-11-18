@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from healthzip.analysis_settings import DEFAULT_BASELINE_DAYS, DEFAULT_TIMEZONE, DEFAULT_WINDOW_DAYS
 from healthzip.science.contracts import instant
 
-VERSION = "analysis-workflows-1.6.3"
+VERSION = "analysis-workflows-1.7.0"
 FUNCTION_NAMES = {
     "strength": "力量进阶", "recovery": "训练负荷与恢复背景",
     "cardiorespiratory": "心肺观察", "longitudinal": "长期趋势与可能因素",
@@ -24,7 +24,7 @@ WORKFLOWS = {
         "queries": ("LOAD-SRPE-AU", "STATE-SDNN")},
     "W3": {"task": "cardiorespiratory", "metrics": ("OBS-VO2-REPORTED", "STATE-RHR", "STATE-SDNN"),
            "queries": ("OBS-VO2-REPORTED",)},
-    "W4": {"task": "longitudinal", "metrics": ("STR-01", "STR-08", "STR-09", "STR-11", "STR-12", "STR-13",
+    "W4": {"task": "longitudinal", "metrics": ("STR-01", "STR-02", "STR-03", "STR-04", "STR-05", "STR-06", "STR-07", "STR-08", "STR-09", "STR-11", "STR-12", "STR-13",
         "STR-10", "STR-14", "STR-15", "STR-19", "STR-22", "STR-23", "STR-27", "STR-28", "STR-29", "STR-30",
         "STATE-RHR", "STATE-SDNN", "STATE-SLEEP-24H", "BODY-MASS-DAILY", "BODY-MASS-TREND", "REPORT-RECOMMENDATION-FOLLOWUP"),
         "queries": ("STR-19",)},
@@ -57,10 +57,14 @@ class WorkflowRequest:
     candidate_id: str | None = None
     selection_analysis_id: str | None = None
     source_run_id: str | None = None
+    context_policy: str = "require_valid"
+    include_session_background: bool = False
 
     def normalized(self):
         if self.workflow_id not in WORKFLOWS or self.mode not in {"prospective", "retrospective"}:
             raise ValueError("unknown_workflow_or_mode")
+        if self.context_policy not in {"require_valid", "preserve_facts"}:
+            raise ValueError("unknown_context_policy")
         if type(self.window_days) is not int or self.window_days < 1:
             raise ValueError("positive_display_window_required")
         if type(self.baseline_days) is not int or self.baseline_days < 1:

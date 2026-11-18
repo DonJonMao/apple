@@ -256,8 +256,7 @@ def test_interleaved_real_revision_never_saves_old_facts_with_new_current_depend
 
 
 @pytest.mark.parametrize("period", ["week", "month"])
-def test_candidate_from_calendar_trend_keeps_complete_comparison_bounds(tmp_path, monkeypatch, period):
-    from healthzip.workflows.calendar import completed_periods
+def test_candidate_from_calendar_trend_uses_current_action_window(tmp_path, monkeypatch, period):
     repo, svc, instance, target, ids = W1["history"](tmp_path, monkeypatch)
     effective = svc.current_targets(instance["id"])
     cutoff = datetime.now(timezone.utc).isoformat()
@@ -265,11 +264,10 @@ def test_candidate_from_calendar_trend_keeps_complete_comparison_bounds(tmp_path
     candidate = freeze_candidate(repo, svc, svc.get_session(instance["session_id"]), instance,
         effective, effective["sets"][0], [30, 32.5, 35], "heavier_lower_reps", review_request=request)
     run = load_run(repo, candidate["input_snapshot"]["analysis_review"]["run_id"])
-    periods = completed_periods(cutoff, "UTC", period)
     analysis = load_analysis(repo, run["run_id"])
-    assert analysis["window_start"] == periods[0][0]
-    assert analysis["window_end"] == periods[-1][1]
-    assert run["request"]["cutoff_time"] == cutoff
+    assert datetime.fromisoformat(analysis["window_start"]) == datetime.fromisoformat(analysis["cutoff_time"])-timedelta(days=30)
+    assert analysis["window_end"] == run["request"]["cutoff_time"]
+    assert run["request"]["cutoff_time"] >= cutoff
     repo.close()
 
 

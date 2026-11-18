@@ -250,7 +250,7 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
         value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
         return value
-    return cached(repo, "canonical-source-observations-1.5.0", arguments, compute) if use_cache else compute()
+    return cached(repo, "canonical-current-training-1.7.0", arguments, compute) if use_cache else compute()
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
@@ -316,6 +316,32 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         for task in metric.get("task_results", []):
             entry = strength_tasks.setdefault(task["task_id"], {k: v for k, v in task.items() if k != "metric"} | {"metrics": {}})
             entry["metrics"][metric_id] = task["metric"]
+    # Task discovery is a record inventory, not a reference measurement. A new
+    # task with ordinary actual sets must appear in current reports; its STR-11
+    # and inference metrics still require genuinely designated references.
+    from healthzip.science import evaluate
+    from healthzip.science.contracts import canonical_hash
+    from healthzip.science.engine import TASK_METRICS
+    from healthzip.science.semantics import analysis_task, flatten_record
+    visible, _ = select_as_of([flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
+                              window, retrospective=retrospective)
+    observed_tasks = {}
+    for row in visible:
+        if row.get("status") not in {"completed", "aborted", "in_progress"}:
+            continue
+        task = analysis_task(row)
+        observed_tasks.setdefault(task["task_id"], {"task": task, "rows": []})["rows"].append(row)
+    for identity, item in observed_tasks.items():
+        if identity in strength_tasks:
+            continue
+        rows = item["rows"]
+        task_context = {**merged, "timezone": timezone_name, "task_id": identity}
+        task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(),
+            "cutoff_time": cutoff.isoformat(), "data_version": str(inherited["data_version"])})
+        strength_tasks[identity] = {**item["task"], "inventory_identity": "actual_records_no_reference_inferred",
+            "data_snapshot_hash": task_context["data_snapshot_hash"], "input_data_hash": canonical_hash(rows), "metrics": {
+                mid: evaluate(mid, records=rows, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+                              window_end=end.isoformat(), context=task_context) for mid in TASK_METRICS}}
     if selection_audit and selection_audit.get("reference"):
         selected_task = strength_tasks.get(selection_audit["reference"]["task_id"])
         if selected_task:
@@ -332,7 +358,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection", "workflow_context_id") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.6.0",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.7.0",
             "observations": observations['metrics'], "observation_registry": observations['registry_version'],
             "observation_query_plan": observations['query_plan'],
             "query_plan": inherited["query_plan"],

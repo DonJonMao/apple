@@ -24,6 +24,9 @@ def migrate_workflows(conn):
             event_id TEXT PRIMARY KEY, context_id TEXT NOT NULL REFERENCES workflow_context_revision(context_id),
             kind TEXT NOT NULL, replacement_id TEXT, recorded_at TEXT NOT NULL)""",
         "CREATE INDEX IF NOT EXISTS workflow_history ON workflow_run(user_id,workflow_id,created_at DESC)",
+        """CREATE TABLE IF NOT EXISTS joint_period_report (
+            report_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at TEXT NOT NULL,
+            payload_json TEXT NOT NULL, markdown TEXT NOT NULL)""",
     ):
         conn.execute(sql)
     conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('workflow_context_version','0')")
@@ -116,6 +119,33 @@ def current_context_problem(repo, context_id):
             raise
         return str(exc)
     return None
+
+
+def report_context(repo, context_id, cutoff_time, mode):
+    """Explicit restricted declaration, preserving identity and retirement history.
+
+    Retired values cannot authorize claims. Independent measurement-derived
+    conditions still go through the normal evidence gate, with no blanket ban.
+    """
+    try:
+        problem = current_context_problem(repo, context_id)
+        if problem:
+            raise ValueError(problem)
+        return context_as_of(repo, context_id, cutoff_time, mode)
+    except ValueError as exc:
+        if str(exc) not in {"workflow_context_withdrawn_or_superseded",
+                            "workflow_context_not_found_in_local_scope", "context_not_available_at_cutoff"}:
+            raise
+        row = repo.conn.execute("SELECT * FROM workflow_context_revision WHERE context_id=? AND user_id='local'",
+                                (context_id,)).fetchone()
+        events = [dict(r) for r in repo.conn.execute(
+            "SELECT * FROM workflow_context_event WHERE context_id=? ORDER BY recorded_at,event_id", (context_id,))]
+        return {"context_id": context_id, "values": {},
+                "recorded_at": row["recorded_at"] if row else None,
+                "status": "restricted_requires_reconfirmation", "reason": str(exc),
+                "historical_values": json.loads(row["payload_json"]) if row else None,
+                "lifecycle_events": events,
+                "limitation": "所选声明已失效或在截止时点不可用。记录事实保留；依赖该声明的解释需重新确认。独立依据按各自条件核对。"}
 
 
 def load_run(repo, run_id):

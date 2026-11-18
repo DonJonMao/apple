@@ -2,7 +2,7 @@
 from healthzip.analytics.v13 import snapshot
 from healthzip.science import evaluate
 from healthzip.science.contracts import Window, select_as_of, task_metric_results
-from healthzip.science.semantics import flatten_record, outcome_series
+from healthzip.science.semantics import analysis_task, flatten_record, outcome_series
 
 
 def strength_inputs(repo, request, analysis, task):
@@ -10,8 +10,7 @@ def strength_inputs(repo, request, analysis, task):
         window_start=analysis["window_start"], window_end=analysis["window_end"], include_sources=False)
     rows = [r for r in records if r.get("record_kind") == "strength_set"]
     if task:
-        rows = [r for r in rows if r.get("catalog_id", r.get("exercise_id")) == task["exercise_id"]
-                and r.get("condition_key") == task["condition_key"]]
+        rows = [r for r in rows if analysis_task(r)["task_id"] == task["task_id"]]
     ids = {r.get("set_uuid") for r in rows}
     window = Window(analysis["window_start"], analysis["window_end"], request["cutoff_time"], request["timezone"])
     plans, _ = select_as_of(context["session_plans"], window)
@@ -51,3 +50,26 @@ def scoped_metrics(repo, request, analysis, task, metrics):
             "source": raw.get("source_method", "manual"), "condition_key": row.get("condition_key"),
             "comparable": series["eligible"]})
     return points
+
+
+def session_backgrounds(repo, request, analysis, task, selection):
+    """Actual sessions including those without a designated reference set."""
+    from .longitudinal import body_context
+    rows, context = strength_inputs(repo, request, analysis, task)
+    sessions = {s["session_id"]: s for s in context.get("sessions", [])}
+    groups = {}
+    for row in rows:
+        if row.get("completion_state") in {"completed", "aborted", "in_progress"} and not row.get("deleted_at"):
+            groups.setdefault(row.get("session_id"), []).append(row)
+    result = []
+    for sid, actuals in groups.items():
+        session = sessions.get(sid, {})
+        start = session.get("started_at")
+        if not start:
+            continue
+        result.append({"session_id": sid, "training_started_at": start,
+            "reference_record_id": actuals[0]["id"], "actual_record_ids": [r["id"] for r in actuals],
+            "identity": "actual_session_background_no_reference_set_inferred",
+            "actual_records": [{k: r.get(k) for k in ("id", "set_uuid", "ended_at", "load_value", "load_unit", "reps", "rir", "condition_key")} for r in actuals],
+            **body_context(repo, start, request, selection)})
+    return sorted(result, key=lambda r: r["training_started_at"])

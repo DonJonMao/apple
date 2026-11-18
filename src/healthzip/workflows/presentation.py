@@ -97,10 +97,11 @@ def metric_lines(metric, *, title=None):
         lines += ["|记录日期|基础能量（kcal）|活动能量（kcal）|配对合计（kcal）|完整日|", "|---|---:|---:|---:|---|"]
         lines += [f"|{d['date']}|{display(d['basal_kcal'])}|{display(d['active_kcal'])}|{display(d['device_total_kcal'])}|{display(d['complete'])}|" for d in metric["daily_buckets"]]
         lines.append("")
-    lines += [f"计算版本 {metric['algorithm_version']}；参数版本 {display(metric.get('parameter_set_id'))}。",
+    lines += ["<details><summary>来源、算法版本与核对原因</summary>", "",
+        f"计算版本 {metric['algorithm_version']}；参数版本 {display(metric.get('parameter_set_id'))}。",
         "来源记录：" + "、".join(str(s) for s in metric["source_record_ids"]) + "。",
         "限制：" + "；".join(metric.get("limitations", [])) + "。",
-        "核对原因：" + "；".join(metric["reason_codes"]) + "。", ""]
+        "核对原因：" + "；".join(metric["reason_codes"]) + "。", "", "</details>", ""]
     return lines
 
 

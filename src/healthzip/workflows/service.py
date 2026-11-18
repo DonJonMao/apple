@@ -130,7 +130,9 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
         parent = load_run(repo, parent_run_id)
         if parent["workflow_id"] != request.workflow_id:
             raise ValueError("successor_must_keep_workflow_identity")
-    declaration = context_as_of(repo, request.context_id, declared_request["cutoff_time"], request.mode)
+    from .storage import report_context
+    resolve_context = report_context if request.context_policy == "preserve_facts" else context_as_of
+    declaration = resolve_context(repo, request.context_id, declared_request["cutoff_time"], request.mode)
     selected_context = {key: value for key, value in declaration["values"].items()
                         if key in {"primary_sleep_stream", "reference_selection", "sleep_selection"}}
     if request.selection_analysis_id:
@@ -165,7 +167,7 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     if request.session_exercise_id:
         advice = build_advice_context(repo, request.session_id, request.session_exercise_id,
             request.selected_set_uuid, [], None, cutoff_time=declared_request["cutoff_time"], timezone_name=request.timezone,
-            retrospective=request.mode == "retrospective")
+            retrospective=request.mode == "retrospective", generation_origin="automatic_training")
         if not declared_request["task_id"]:
             declared_request["task_id"] = advice["context"]["task_id"]
             if not any(task["task_id"] == declared_request["task_id"] for task in analysis["strength_tasks"]):
@@ -188,21 +190,23 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
                 or not source.get("task_selection") or not selected_task
                 or source["task_selection"]["task_id"] != selected_task["task_id"]):
             raise ValueError("action_source_task_mismatch")
-        if (any(declared_request[k] != source["request"].get(k) for k in ("context_id", "timezone", "mode", "release_id", "selection_analysis_id"))
-                or request.period is not None
-                or any(analysis[k] != source_snapshot[k] for k in ("window_start", "window_end"))
-                or instant(declared_request["cutoff_time"]) < instant(source["request"]["cutoff_time"])):
-            raise ValueError("action_source_scope_or_time_mismatch")
+        if instant(declared_request["cutoff_time"]) < instant(source["request"]["cutoff_time"]):
+            raise ValueError("action_source_time_after_current_action")
         source_report = {"run_id": source["run_id"], "analysis_run_id": source["analysis_run_id"],
             "cutoff_time": source["request"]["cutoff_time"], "context_id": source["context_id"],
             "window_start": source_snapshot["window_start"], "window_end": source_snapshot["window_end"],
             "current_action_cutoff_time": declared_request["cutoff_time"],
-            "identity": "new_review_of_fixed_historical_range_for_current_action"}
+            "current_window_start": analysis["window_start"], "current_window_end": analysis["window_end"],
+            "identity": "historical_report_link_with_independent_current_action_window"}
     strength_points = scoped_metrics(repo, declared_request, analysis, selected_task, metrics) if "STR-11" in metrics else []
-    from .longitudinal import pretraining_contexts, review
+    from .longitudinal import body_context, pretraining_contexts, review
     long_review = review(strength_points, {"start": analysis["window_start"], "end": analysis["window_end"], "timezone": request.timezone})
-    before_training = pretraining_contexts(repo, strength_points, declared_request, selected_context) if long_review["start_long_term_review"] else []
-    background_metrics = evidence.background_inputs(before_training)
+    before_training = pretraining_contexts(repo, strength_points, declared_request, selected_context)
+    current_body = body_context(repo, declared_request["cutoff_time"], declared_request, selected_context) if advice else None
+    from .selection import session_backgrounds
+    session_contexts = session_backgrounds(repo, declared_request, analysis, selected_task, selected_context) if request.include_session_background else []
+    background_contexts = before_training + session_contexts + ([current_body] if current_body else [])
+    background_metrics = evidence.background_inputs(background_contexts)
     sessions = TrainingService(repo).sessions_as_of(cutoff_time=declared_request["cutoff_time"])
     # Capture dependencies before evidence retrieval, over every input window.
     # A version change during the preceding reads refuses the freeze outright.
@@ -210,7 +214,7 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     starts = [analysis["window_start"]]
     if selected_context.get("baseline_window"):
         starts.append(selected_context["baseline_window"]["start"])
-    starts += [m["window"]["start"] for ctx in before_training for m in ctx["metrics"].values()]
+    starts += [m["window"]["start"] for ctx in background_contexts for m in ctx["metrics"].values()]
     dependency_analysis["dependency_window_start"] = min(starts, key=instant)
     if partial_period:
         dependency_analysis["dependency_window_end"] = partial_period["window_end"]
@@ -230,10 +234,18 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     if request.workflow_id == "W4" and "STR-11" not in metrics:
         kind = "body_mass" if "BODY-MASS-DAILY" in metrics else "sleep_state"
         hypotheses = [h for h in hypotheses if h["hypothesis_id"] == kind]
-    if before_training:
-        hypotheses = [h for h in hypotheses if h["hypothesis_id"] not in {"sleep_state", "body_mass"}] + pretraining_factors(before_training)
+    factor_contexts = session_contexts if request.include_session_background else before_training
+    if factor_contexts:
+        hypotheses = [h for h in hypotheses if h["hypothesis_id"] not in {"sleep_state", "body_mass"}] + pretraining_factors(factor_contexts)
     hypotheses = attach_evidence(hypotheses, knowledge)
     supplements = {}
+    if declaration.get("status") == "restricted_requires_reconfirmation":
+        supplements["context_restriction"] = declaration
+    if current_body:
+        supplements["current_body_context"] = {**current_body,
+            "identity": "background_visible_at_advice_cutoff_not_a_completed_training_record"}
+    if request.include_session_background:
+        supplements["training_session_contexts"] = session_contexts
     if source_report:
         supplements["source_report"] = source_report
     if strength_points:
@@ -314,9 +326,9 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     if selected_context.get("baseline_window"):
         analysis["dependency_window_start"] = min(analysis["window_start"], selected_context["baseline_window"]["start"], key=instant)
         snapshot["dependency_window_start"] = analysis["dependency_window_start"]
-    if before_training:
+    if background_contexts:
         analysis["dependency_window_start"] = min([analysis.get("dependency_window_start", analysis["window_start"])] +
-            [m["window"]["start"] for ctx in before_training for m in ctx["metrics"].values()], key=instant)
+            [m["window"]["start"] for ctx in background_contexts for m in ctx["metrics"].values()], key=instant)
         snapshot["dependency_window_start"] = analysis["dependency_window_start"]
     if partial_period:
         analysis["dependency_window_end"] = partial_period["window_end"]

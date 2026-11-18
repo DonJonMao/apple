@@ -265,7 +265,7 @@ def test_real_app_retired_selection_has_explicit_reconfirmation(tmp_path, monkey
 
 
 @pytest.mark.parametrize("period,age", [("week", 8), ("month", 35)])
-def test_historical_report_current_action_keeps_bounds_and_current_targets(tmp_path, monkeypatch, period, age):
+def test_historical_report_current_action_separates_bounds_and_current_targets(tmp_path, monkeypatch, period, age):
     from healthzip.advice import freeze_candidate
     repo, svc, instance, _, _ = HELP["W1"]["history"](tmp_path, monkeypatch)
     if period == "month":
@@ -296,12 +296,17 @@ def test_historical_report_current_action_keeps_bounds_and_current_targets(tmp_p
     ref = candidate["input_snapshot"]["analysis_review"]
     review = load_run(repo, ref["run_id"])
     snapshot = load_analysis(repo, ref["run_id"])
-    assert next(r for r in snapshot["metrics"]["STR-11"]["value"] if r["id"] == recorded["id"])["reps"] == 11
+    if datetime.fromisoformat(revised["ended_at"]) >= datetime.fromisoformat(snapshot["window_start"]):
+        assert next(r for r in snapshot["metrics"]["STR-11"]["value"] if r["id"] == recorded["id"])["reps"] == 11
+    else:
+        assert recorded["id"] not in {r["id"] for r in snapshot["metrics"]["STR-11"]["value"]}
     assert recorded["reps"] == 10
     assert review["request"]["cutoff_time"] > svc.get_session(current["session_id"])["started_at"]
     for key in ("window_start", "window_end"):
-        assert snapshot[key] == original[key]
+        assert snapshot[key] != original[key]
         assert review["supplements"]["source_report"][key] == original[key]
+    assert datetime.fromisoformat(snapshot["window_start"]) == datetime.fromisoformat(snapshot["cutoff_time"])-timedelta(days=30)
+    assert snapshot["window_end"] == snapshot["cutoff_time"]
     assert ref["source_run_id"] == old["run_id"]
     assert review["parent_run_id"] is None  # Cross-workflow references are not parent links.
     assert review["supplements"]["source_report"]["cutoff_time"] == old["request"]["cutoff_time"]

@@ -249,17 +249,25 @@ def render_workflows(repo, analysis=None):
         page = st.number_input("训练历史页码（每页 50 场）", min_value=1, value=1, key="workflow_session_page")
         sessions = service.list_sessions(limit=50, offset=(int(page)-1)*50)
         by_session = {row["id"]: row for row in sessions}
+        if st.session_state.get("workflow_session") not in by_session:
+            st.session_state.pop("workflow_session", None)
         sid = st.selectbox("选择训练", list(by_session), index=0 if by_session else None,
             format_func=lambda identity: f"{by_session[identity]['session_date']} · {by_session[identity].get('name') or '训练'}",
             key="workflow_session")
         if sid:
             session = service.get_session(sid)
             by_instance = {row["id"]: row for row in session["exercises"] if not row.get("deleted_at")}
+            # Equal display names can preserve Streamlit's widget identity when
+            # switching sessions. The old instance UUID is never a new option.
+            if st.session_state.get("workflow_exercise") not in by_instance:
+                st.session_state.pop("workflow_exercise", None)
             iid = st.selectbox("选择动作", list(by_instance), index=0 if by_instance else None,
                 format_func=lambda identity: by_instance[identity]["exercise"].get("name", identity), key="workflow_exercise")
             if iid:
                 instance = by_instance[iid]
                 targets = service.current_targets(iid)["sets"]
+                if st.session_state.get("workflow_set") not in {row["set_uuid"] for row in targets}:
+                    st.session_state.pop("workflow_set", None)
                 selected = st.selectbox("要复核的目标组", [row["set_uuid"] for row in targets],
                     index=0 if targets else None, key="workflow_set")
     with st.expander("查看范围与已确认信息"):
@@ -408,7 +416,10 @@ def render_workflows(repo, analysis=None):
             chosen = st.selectbox("为同一任务选择训练并核对调整候选", list(choices), key="workflow_action_target",
                 format_func=lambda key: choices[key][0]["session_date"] + " · " + str(choices[key][0].get("name") or "训练"))
             selected_session, selected_instance = choices[chosen]
+            from healthzip.ui.current_training import render_current_training
             from healthzip.ui.recommendation_page import render_candidates
+            if selected_session["session_status"] in {"draft", "in_progress", "paused"}:
+                render_current_training(repo, selected_instance, source_report_id=result["run_id"])
 
             def long_changed(record):
                 # Feedback resumes the candidate's W1 review. Keep the selected
@@ -423,7 +434,10 @@ def render_workflows(repo, analysis=None):
                 resume_workflow(repo, review_id, candidate_id=record["candidate_id"])
 
             render_candidates(repo, service, selected_session, selected_instance, key_prefix="workflow_long_", on_created=long_changed,
-                review_request=WorkflowRequest(**{**request, "source_run_id": result["run_id"]}),
+                review_request=WorkflowRequest("W1", source_run_id=result["run_id"],
+                    window_days=int(st.session_state.get("analysis_window_days", 30)),
+                    timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
+                    context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))),
                 allow_create=request["mode"] == "prospective" and selected_session["session_status"] in {"draft", "in_progress", "paused"})
             st.caption("调整候选使用同一练前规则核对。结束的训练仍可补记选择、执行与结果；新任务请先在力量页开始训练。")
         else:
@@ -435,11 +449,18 @@ def render_workflows(repo, analysis=None):
         st.caption("这里重新核对现在的条件；新候选和反馈生成关联的新运行，历史分析保持原样。")
 
         def changed(record):
-            refreshed = resume_workflow(repo, st.session_state[key], candidate_id=record["candidate_id"])
-            st.session_state[key] = refreshed["run_id"]
+            saved_candidate = next(r for r in service.list_recommendations() if r["candidate_id"] == record["candidate_id"])
+            review_id = record.get("current_analysis_review", {}).get("run_id") or saved_candidate["input_snapshot"]["analysis_review"]["run_id"]
+            latest = repo.one("SELECT run_id FROM workflow_run WHERE user_id='local' AND workflow_id='W1' "
+                "AND json_extract(request_json,'$.source_run_id')=? AND json_extract(request_json,'$.candidate_id')=? "
+                "ORDER BY created_at DESC LIMIT 1", (result["run_id"], record["candidate_id"]))
+            resume_workflow(repo, latest["run_id"] if latest else review_id, candidate_id=record["candidate_id"])
 
         from healthzip.ui.recommendation_page import render_candidates
         render_candidates(repo, service, session, instance, key_prefix="workflow_", on_created=changed,
-                          review_request=WorkflowRequest(**{**request, "source_run_id": result["run_id"]}),
+                          review_request=WorkflowRequest("W1", source_run_id=result["run_id"],
+                              window_days=int(st.session_state.get("analysis_window_days", 30)),
+                              timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
+                              context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))),
                           allow_create=request["mode"] == "prospective" and not session.get("deleted_at")
                           and session["session_status"] in {"draft", "in_progress", "paused"})

@@ -113,7 +113,9 @@ def check_current_use(repo, run_id, *, knowledge_root=".local/knowledge"):
         knowledge = evidence.retrieve(run["workflow_id"], {**analysis["metrics"], **analysis["observations"]},
             TrainingService(repo).sessions_as_of(cutoff_time=now), declaration,
             root=knowledge_root, release_id=run["knowledge"].get("release_id"),
-            background_metrics=evidence.background_inputs(run["supplements"].get("pretraining_contexts", [])),
+            background_metrics=evidence.background_inputs(run["supplements"].get("pretraining_contexts", [])
+                + run["supplements"].get("training_session_contexts", [])
+                + ([run["supplements"]["current_body_context"]] if run["supplements"].get("current_body_context") else [])),
             result_metric_id=run["request"].get("result_metric_id") or ("STR-11" if run["request"].get("task_id") else "BODY-MASS-DAILY"))
     except (OSError, RuntimeError, sqlite3.Error) as exc:
         check_failed = True

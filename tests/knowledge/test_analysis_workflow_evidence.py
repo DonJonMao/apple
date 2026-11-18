@@ -192,3 +192,62 @@ def test_selected_longitudinal_outcome_uses_its_own_source_and_current_check(kb,
     assert "source_use_dependencies_changed" in check_current_use(repo, run["run_id"], knowledge_root=kb.root)["reason_codes"]
     assert load_run(repo, run["run_id"]) == run
     repo.close()
+
+
+@pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+def test_joint_report_retirement_blocks_dependent_claim_but_keeps_independent_action_authority(tmp_path, monkeypatch, retirement):
+    from test_v15_retrieval import REVIEW
+
+    import healthzip.knowledge
+    from healthzip.analytics.v13 import analyze
+    from healthzip.knowledge import domains
+    from healthzip.knowledge.domains import configuration
+    from healthzip.training.current import current_advice
+    from healthzip.workflows.period_report import create_report, load_report
+    from healthzip.workflows.storage import withdraw_context
+
+    helpers = runpy.run_path(str(Path(__file__).parents[1] / "integration/test_current_training_acceptance.py"))
+    repo, svc, instance, _, _ = helpers["FLOW"]["fixture"](tmp_path, monkeypatch)
+    helpers["body"](repo)
+    recorded = helpers["HELP"]["add_current"](svc, instance)
+    helpers["FLOW"]["finish"](svc, svc.get_session_exercise(recorded["id"])["sets"][0])
+    workbench = KnowledgeWorkbench(tmp_path / ".local/knowledge", environment_kind="synthetic_test")
+    for mid, identity, conditions in (
+        ("STR-10", "dependent-population-rir", [{"field": "population", "op": "eq", "value": "adults", "origin": "measurement_contract"}]),
+        ("STATE-RHR", "independent-rhr-observation", []),
+    ):
+        _, span = add(workbench, identity=identity, mid=mid, assigned=configuration()["profiles"][mid]["required_domains"], conditions=conditions, bind=False,
+            text="Synthetic fixture: repetitions in reserve RIR direct recorded effort; resting heart rate RHR measurement protocol uncertainty and scope limitations. No individual causal claim or candidate authority.")
+        domains.link(workbench, origin={"type": "claim", "id": identity, "version": "1"}, relation="defines",
+            target={"type": "metric", "id": mid, "version": "metric-domains-1.5.0"}, span_ids=[span],
+            applicability={}, actor="Synthetic test", rationale="Only the claim's explicit conditions are required",
+            evidence_types=configuration()["profiles"][mid]["required_evidence_types"], review=REVIEW)
+    metric_retrieval.freeze_index(workbench, "synthetic-retired-joint")
+    workbench.close()
+    monkeypatch.setattr(healthzip.knowledge, "KnowledgeWorkbench", lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
+    selected = save_context(repo, {"population": "adults"})
+    snapshot = analyze(repo, context={"workflow_context_id": selected})
+    before = create_report(repo, snapshot, period="month")
+    before_queries = [q for identity in before["workflow_run_ids"] for q in load_run(repo, identity)["knowledge"]["queries"]]
+    assert any(q["metric_id"] == "STR-10" and q.get("permissions", {}).get("source_explanation") for q in before_queries)
+    if retirement == "withdrawn":
+        withdraw_context(repo, selected)
+    else:
+        save_context(repo, {"population": "trained_adults"}, replaces_context_id=selected)
+    current = create_report(repo, snapshot, period="month")
+    queries = [q for identity in current["workflow_run_ids"] for q in load_run(repo, identity)["knowledge"]["queries"]]
+    assert all(not q.get("permissions", {}).get("source_explanation") for q in queries if q["metric_id"] == "STR-10")
+    independent = next(q for q in queries if q["metric_id"] == "STATE-RHR")
+    assert any(c["claim_id"] == "independent-rhr-observation" for c in independent["claims"])
+    # A matched independent claim still cannot waive the existing RHR profile's
+    # population requirement. Preserve that restriction, while independently
+    # applicable numerical rules below retain their own profile/record inputs.
+    assert "missing_applicability_context:population" in independent["limitations"]
+    assert independent["permissions"]["source_explanation"] is False
+    automatic = current_advice(repo, instance["id"], context_id=selected)
+    assert any(o["load"] == 34 for g in automatic["groups"] for o in g["options"])
+    assert current["declaration"]["context_id"] == selected and current["declaration"]["status"] == "restricted_requires_reconfirmation"
+    assert "依赖该声明的解释需重新确认" in current["markdown"] and "61" in current["markdown"]
+    assert load_report(repo, before["report_id"]) == before
+    assert not svc.list_recommendations()
+    repo.close()

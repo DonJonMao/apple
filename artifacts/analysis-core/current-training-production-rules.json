@@ -1,0 +1,172 @@
+{
+  "scope": "Existing production rules read through SQLite mode=ro; synthetic private records only; no new review, retrieval benchmark, or authority change",
+  "rule_policy": "personal-trial-policy-1.4.0",
+  "input": {
+    "recorded_load": 30,
+    "recorded_rir": 2,
+    "available_loads": [
+      30,
+      34,
+      38
+    ],
+    "plan_reps": [
+      8,
+      12
+    ],
+    "plan_rir": 2,
+    "user_choice": null,
+    "origin": "automatic_training"
+  },
+  "results": {
+    "missing_profile": {
+      "double_progression": {
+        "load": null,
+        "load_unit": null,
+        "reps": null,
+        "rir": null,
+        "rules": [],
+        "reasons": [
+          "plan_upper_target_or_effort_or_quality_not_met"
+        ]
+      },
+      "heavier_lower_reps": {
+        "load": null,
+        "load_unit": null,
+        "reps": null,
+        "rir": null,
+        "rules": [],
+        "reasons": [
+          "reviewed_principles_missing",
+          "personal_intervention_effect_unvalidated"
+        ]
+      },
+      "repetition_progression": {
+        "load": null,
+        "load_unit": null,
+        "reps": null,
+        "rir": null,
+        "rules": [],
+        "reasons": [
+          "reviewed_principles_missing",
+          "personal_intervention_effect_unvalidated"
+        ]
+      }
+    },
+    "eligible_reference_10": {
+      "double_progression": {
+        "load": null,
+        "load_unit": null,
+        "reps": null,
+        "rir": null,
+        "rules": [
+          {
+            "id": "CORE-F2-DOUBLE-PROGRESSION",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "plan_upper_target_or_effort_or_quality_not_met"
+        ]
+      },
+      "heavier_lower_reps": {
+        "load": 34.0,
+        "load_unit": "kg",
+        "reps": 8,
+        "rir": 2,
+        "rules": [
+          {
+            "id": "CORE-F2-LOAD-REPS-TRIAL",
+            "version": "1.4.3"
+          },
+          {
+            "id": "CORE-F3-STRATEGY-REVIEW",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "trial_not_causal_effect_estimate"
+        ]
+      },
+      "repetition_progression": {
+        "load": 30.0,
+        "load_unit": "kg",
+        "reps": 12,
+        "rir": 2,
+        "rules": [
+          {
+            "id": "CORE-F2-REPETITION-TRIAL",
+            "version": "1.4.3"
+          },
+          {
+            "id": "CORE-F3-STRATEGY-REVIEW",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "trial_not_causal_effect_estimate"
+        ]
+      }
+    },
+    "eligible_upper_12": {
+      "double_progression": {
+        "load": 34.0,
+        "load_unit": "kg",
+        "reps": 8,
+        "rir": 2,
+        "rules": [
+          {
+            "id": "CORE-F2-DOUBLE-PROGRESSION",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "user_plan_candidate_not_guaranteed_success_or_optimal_prescription"
+        ]
+      },
+      "heavier_lower_reps": {
+        "load": 34.0,
+        "load_unit": "kg",
+        "reps": 8,
+        "rir": 2,
+        "rules": [
+          {
+            "id": "CORE-F2-LOAD-REPS-TRIAL",
+            "version": "1.4.3"
+          },
+          {
+            "id": "CORE-F3-STRATEGY-REVIEW",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "trial_not_causal_effect_estimate"
+        ]
+      },
+      "repetition_progression": {
+        "load": null,
+        "load_unit": null,
+        "reps": null,
+        "rir": null,
+        "rules": [
+          {
+            "id": "CORE-F2-REPETITION-TRIAL",
+            "version": "1.4.3"
+          },
+          {
+            "id": "CORE-F3-STRATEGY-REVIEW",
+            "version": "1.4.3"
+          }
+        ],
+        "reasons": [
+          "trial_not_causal_effect_estimate",
+          "user_upper_repetition_target_not_above_observation"
+        ]
+      }
+    }
+  },
+  "limits": [
+    "A permitted option is not optimal load or a success guarantee.",
+    "Numerical permissions are separate from metric source-explanation permissions.",
+    "Profile values in this receipt are synthetic, not the actual user."
+  ]
+}
