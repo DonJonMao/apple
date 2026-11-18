@@ -196,7 +196,7 @@ def render_analysis(repo, value):
             from healthzip.workflows.reports import review_analysis
             period_reviews = review_analysis(repo, result, period=period, include_background=True)
             from healthzip.workflows.reports import markdown
-            report_text = "\n".join(markdown(period_reviews))
+            report_text = "\n".join(markdown(period_reviews, repo=repo))
             with st.expander("周期分析、建议依据与后续结果"):
                 st.markdown(report_text)
                 st.download_button("下载周期复核报告", report_text, file_name=f"healthzip-{period}-review.md", mime="text/markdown")

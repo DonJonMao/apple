@@ -3,9 +3,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
+from healthzip.analysis_settings import DEFAULT_BASELINE_DAYS, DEFAULT_TIMEZONE, DEFAULT_WINDOW_DAYS
 from healthzip.science.contracts import instant
 
-VERSION = "analysis-workflows-1.6.1"
+VERSION = "analysis-workflows-1.6.2"
 FUNCTION_NAMES = {
     "strength": "力量进阶", "recovery": "训练负荷与恢复背景",
     "cardiorespiratory": "心肺观察", "longitudinal": "长期趋势与可能因素",
@@ -37,11 +38,11 @@ WORKFLOWS = {
 class WorkflowRequest:
     workflow_id: str
     cutoff_time: str | None = None
-    timezone: str = "Asia/Shanghai"
+    timezone: str = DEFAULT_TIMEZONE
     mode: str = "prospective"
     trigger: str = "user_review"
-    window_days: int = 30
-    baseline_days: int = 28
+    window_days: int = DEFAULT_WINDOW_DAYS
+    baseline_days: int = DEFAULT_BASELINE_DAYS
     window_start: str | None = None
     window_end: str | None = None
     period: str | None = None

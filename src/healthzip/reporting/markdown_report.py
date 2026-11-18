@@ -31,7 +31,7 @@ def _card(card: dict[str, Any]) -> str:
 
 
 def render_report(
-    analysis: dict[str, Any], inventory: dict[str, Any], output: Union[str, Path]
+    analysis: dict[str, Any], inventory: dict[str, Any], output: Union[str, Path], *, repo=None
 ) -> Path:
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -53,7 +53,7 @@ def render_report(
         )
     if analysis.get("workflow_reviews"):
         from healthzip.workflows.reports import markdown
-        lines += markdown(analysis["workflow_reviews"])
+        lines += markdown(analysis["workflow_reviews"], repo=repo)
     lines += ["", "## Evidence Cards", ""]
 
     def walk(obj):

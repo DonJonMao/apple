@@ -124,7 +124,7 @@ def test_w4_normal_page_produces_candidate_feedback_and_shared_reports(tmp_path,
         basis = next(b for r in runs for b in r["linked_candidate_bases"] if b["candidate_id"] == cid)
         assert basis["numeric_origins"][0]["value"] == 34
         assert basis["numeric_origins"][1]["origin"] == "沿用用户已确认计划的次数下限"
-        report = "\n".join(markdown(runs))
+        report = "\n".join(markdown(runs, repo=repo))
         assert "策略依据" in report and "个人记录依据" in report and "RIR" in report
         assert "not_executed" in report and "任务达成 None" in report
     repo.close()

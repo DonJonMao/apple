@@ -50,6 +50,12 @@ def _plot(points, title, unit, key):
 
 
 def _metric(metric, title):
+    if metric.get("task_results"):
+        from healthzip.science.contracts import task_metric_results
+        for task in task_metric_results(metric):
+            st.caption("独立任务：" + str(task.get("exercise_name") or task["task_id"]) + " · " + str(task.get("condition_key")))
+            _metric(task["metric"], title)
+        return
     value = metric["value"]
     st.write(title)
     if value is None:
@@ -253,7 +259,7 @@ def render_workflows(repo, analysis=None):
                 selected = st.selectbox("要复核的目标组", [row["set_uuid"] for row in targets],
                     index=0 if targets else None, key="workflow_set")
     with st.expander("查看范围与已确认信息"):
-        days = st.number_input("查看天数", min_value=1, value=30, key="workflow_days")
+        days = st.number_input("查看天数", min_value=1, value=int(st.session_state.get("analysis_window_days", 30)), key="workflow_days")
         baseline_days = st.number_input("描述基线/练前背景回看天数（仅限定范围）", min_value=1, value=28, key="workflow_baseline_days")
         period = st.selectbox("时间范围", [None, "week", "month"],
             format_func=lambda value: {None: "按查看天数", "week": "本地日历周", "month": "本地日历月"}[value], key="workflow_period")
@@ -277,6 +283,10 @@ def render_workflows(repo, analysis=None):
                     bounds = completed_periods(cut, st.session_state.get("analysis_timezone", "Asia/Shanghai"), period)
                     selection = analyze(repo, cutoff_time=cut, window_start=bounds[0][0], window_end=bounds[-1][1],
                         timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"), retrospective=mode == "retrospective")
+                    current = analyze(repo, cutoff_time=cut, period=period,
+                        timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"), retrospective=mode == "retrospective")
+                    selection["strength_tasks"] = list({task["task_id"]: task for task in
+                        selection["strength_tasks"] + current["strength_tasks"]}.values())
                 else:
                     selection = analyze(repo, int(days), cutoff_time=cutoff or None,
                         timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"), retrospective=mode == "retrospective")
@@ -291,7 +301,8 @@ def render_workflows(repo, analysis=None):
     declarations = {"population": population} if population != "unknown" else {}
 
     def requested():
-        context_id = save_context(repo, declarations) if declarations else None
+        prior_context = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
+        context_id = save_context(repo, declarations, replaces_context_id=prior_context) if declarations or prior_context else None
         selection_id = None
         if (analysis or {}).get("selection_context"):
             from healthzip.analytics.v13 import persist
@@ -313,6 +324,9 @@ def render_workflows(repo, analysis=None):
         try:
             request = requested()
             result = run_workflow(repo, request, parent_run_id=st.session_state.get(key))
+            contexts = dict(st.session_state.get("analysis_contexts", {}))
+            contexts[str(repo.path.resolve())] = request.context_id
+            st.session_state["analysis_contexts"] = contexts
             st.session_state[key] = result["run_id"]
         except ValueError as exc:
             st.error(str(exc))
@@ -373,6 +387,7 @@ def render_workflows(repo, analysis=None):
                 st.session_state[key] = refreshed["run_id"]
 
             render_candidates(repo, service, selected_session, selected_instance, key_prefix="workflow_long_", on_created=long_changed,
+                review_request=WorkflowRequest(**request),
                 allow_create=request["mode"] == "prospective" and selected_session["session_status"] in {"draft", "in_progress", "paused"})
             st.caption("调整候选使用同一练前规则核对。结束的训练仍可补记选择、执行与结果；新任务请先在力量页开始训练。")
         else:
@@ -389,5 +404,6 @@ def render_workflows(repo, analysis=None):
 
         from healthzip.ui.recommendation_page import render_candidates
         render_candidates(repo, service, session, instance, key_prefix="workflow_", on_created=changed,
+                          review_request=WorkflowRequest(**request),
                           allow_create=request["mode"] == "prospective" and not session.get("deleted_at")
                           and session["session_status"] in {"draft", "in_progress", "paused"})

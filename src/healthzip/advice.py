@@ -412,7 +412,7 @@ def _existing_request(repo, svc, digest):
     return None
 
 
-def freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, timezone_name="Asia/Shanghai", followup_window=None, available_minutes=None):
+def freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, timezone_name="Asia/Shanghai", followup_window=None, available_minutes=None, review_request=None):
     from healthzip.knowledge import KnowledgeWorkbench
     from healthzip.training.followup import freeze_window
 
@@ -445,14 +445,39 @@ def freeze_candidate(repo, svc, session, instance, effective, selected, availabl
         knowledge.close()
     request_hash = _candidate_request(advice, available, strategy, followup_window, available_minutes, authority, discussion)
     existing = _existing_request(repo, svc, request_hash)
-    if existing:
-        return existing
     # Every entry (including the ordinary pre-training page/CLI) consumes the
     # same descriptive review as calendar reports, before constructing an action.
+    from healthzip.analysis_settings import REVIEW_FIELDS
     from healthzip.workflows import WorkflowRequest, run_workflow
-    review = run_workflow(repo, WorkflowRequest("W1", cutoff_time=now.isoformat(),
-        timezone=timezone_name, window_days=365, session_id=session["id"],
-        session_exercise_id=instance["id"], selected_set_uuid=selected["set_uuid"] if selected else None))
+    if review_request is not None and not isinstance(review_request, WorkflowRequest):
+        raise TypeError("review_requires_WorkflowRequest")
+    scope = (review_request or WorkflowRequest("W1", cutoff_time=now.isoformat(), timezone=timezone_name)).normalized()
+    if review_request and review_request.workflow_id == "W4" and scope["period"]:
+        # W4's review is the two preceding complete periods; W1's period option
+        # otherwise means the current partial period. Transfer the actual bounds.
+        from healthzip.workflows.calendar import completed_periods
+        periods = completed_periods(scope["cutoff_time"], scope["timezone"], scope["period"])
+        scope.update(period=None, window_start=periods[0][0], window_end=periods[-1][1])
+    # A concurrent identical business request may finish while this review is
+    # reading. Only that case retries a complete prospective review; it cannot
+    # turn a concurrent training/source revision into a successful frozen run.
+    for attempt in range(3):  # Local request retry budget, no scientific meaning.
+        parent_id = existing["input_snapshot"].get("analysis_review", {}).get("run_id") if existing else None
+        try:
+            review = run_workflow(repo, WorkflowRequest("W1", **{key: scope[key] for key in REVIEW_FIELDS},
+                session_id=session["id"], session_exercise_id=instance["id"], selected_set_uuid=selected["set_uuid"] if selected else None,
+                candidate_id=existing["candidate_id"] if existing and instant(existing["created_at"]) <= instant(scope["cutoff_time"]) else None),
+                parent_run_id=parent_id)
+            break
+        except ValueError as exc:
+            if (str(exc) not in {"concurrent_workflow_inputs_during_read_retry_required", "concurrent_relevant_workflow_inputs_changed_retry_required"}
+                    or scope["mode"] != "prospective" or existing or attempt == 2):
+                raise
+            existing = _existing_request(repo, svc, request_hash)
+            if existing is None:
+                raise
+    if existing:
+        return {**existing, "current_analysis_review": {"run_id": review["run_id"], "request": review["request"]}}
     parameters = _register_parameters(repo, advice["instance"], plan, available, strategy)
     metric_id = "STR-25" if strategy == "double_progression" else "STR-26"
     metric = evaluate(metric_id, records, cutoff_time=now.isoformat(),
@@ -567,6 +592,9 @@ def main():
     parser.add_argument("--strategy", default="double_progression")
     parser.add_argument("--available-loads", default="")
     parser.add_argument("--timezone", default="Asia/Shanghai")
+    parser.add_argument("--review-days", type=int, default=30, help="共用分析查看范围；不同于候选的历史参考检索范围")
+    parser.add_argument("--review-cutoff")
+    parser.add_argument("--context-id", help="明确选定的已确认上下文版本")
     parser.add_argument("--available-minutes", type=float, help="用户声明的讨论时间约束；不产生数值训练处方")
     parser.add_argument("--freeze", action="store_true")
     parser.add_argument("--output")
@@ -577,12 +605,15 @@ def main():
         parser.error("器械档位须为非负有限值")
     repo = Repository(args.db)
     try:
+        from healthzip.workflows import WorkflowRequest
         session_id = int(args.session_id) if args.session_id.isdigit() else args.session_id
         advice = build_advice_context(repo, session_id, args.exercise_instance, args.set_uuid,
                                       loads, args.strategy, timezone_name=args.timezone)
         output = freeze_candidate(repo, TrainingService(repo), advice["session"], advice["instance"],
                                   advice["effective_targets"], advice["selected_target"], loads, args.strategy,
-                                  timezone_name=args.timezone, available_minutes=args.available_minutes) if args.freeze else advice
+                                  timezone_name=args.timezone, available_minutes=args.available_minutes,
+                                  review_request=WorkflowRequest("W1", window_days=args.review_days,
+                                      cutoff_time=args.review_cutoff, timezone=args.timezone, context_id=args.context_id)) if args.freeze else advice
         rendered = json.dumps(output, ensure_ascii=False, indent=2)
         if args.output:
             Path(args.output).write_text(rendered + "\n")

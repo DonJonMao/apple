@@ -24,14 +24,19 @@ EXECUTIONS = {"unknown": "尚未记录", "executed": "已执行", "partially_exe
 VERIFICATION = "在执行前指定参考组，记录实际重量、次数、RIR、动作质量与停止原因；不适合时可停止、改目标或结束动作。"
 
 
-def _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, followup_window=None, available_minutes=None):
+def _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy, *, followup_window=None, available_minutes=None, review_request=None):
     from healthzip.advice import freeze_candidate
+    from healthzip.workflows import WorkflowRequest
+    if review_request is None:
+        review_request = WorkflowRequest("W1", window_days=int(st.session_state.get("analysis_window_days", 30)),
+            timezone=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
+            context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve())))
     return freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
                             timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai"),
-                            followup_window=followup_window, available_minutes=available_minutes)
+                            followup_window=followup_window, available_minutes=available_minutes, review_request=review_request)
 
 
-def _create_form(repo, svc, session, instance, key, on_created=None):
+def _create_form(repo, svc, session, instance, key, on_created=None, review_request=None):
     from healthzip.advice import profile, save_profile
 
     personal = profile(repo, svc.user_id)
@@ -88,7 +93,7 @@ def _create_form(repo, svc, session, instance, key, on_created=None):
             if any(x is None or x < 0 for x in available):
                 raise ValueError("器械档位须为非负有限数字")
             saved = _freeze_candidate(repo, svc, session, instance, effective, selected, available, strategy,
-                              followup_window=followup_window,
+                              followup_window=followup_window, review_request=review_request,
                               available_minutes=numeric(discussion_minutes, "可用训练时间") if discussion_minutes.strip() else None)
             if on_created:
                 on_created(saved)
@@ -118,7 +123,12 @@ def _render_feedback(repo, svc, instance, record, prefix, on_changed=None):
             from healthzip.workflows import load_run
             from healthzip.workflows.reports import markdown
             review = load_run(repo, review_ref["run_id"])
-            st.markdown("\n".join(markdown([review])))
+            st.markdown("\n".join(markdown([review], repo=repo)))
+        latest = repo.conn.execute("SELECT run_id FROM workflow_run WHERE user_id='local' "
+            "AND json_extract(request_json,'$.candidate_id')=? ORDER BY created_at DESC LIMIT 1", (cid,)).fetchone()
+        if latest and latest[0] != review_ref["run_id"]:
+            with st.expander("这个候选后续保存的复核（原冻结依据仍保留）"):
+                st.markdown("\n".join(markdown([load_run(repo, latest[0])], repo=repo)))
     if candidate.get("discussion"):
         _render_discussion(candidate["discussion"])
     st.caption(candidate["verification_protocol"])
@@ -244,12 +254,12 @@ def _render_discussion(discussion):
         st.caption("数值任务仍受限制：" + "；".join(discussion["numeric_action_limitations"]))
 
 
-def render_candidates(repo, svc, session, instance, *, allow_create=True, key_prefix="", on_created=None):
+def render_candidates(repo, svc, session, instance, *, allow_create=True, key_prefix="", on_created=None, review_request=None):
     key = key_prefix + instance["id"]
     with st.expander("本次候选与后续复核"):
         st.caption("可选改变来自明确计划和可比记录；未满足依据时保留缺项。采纳不会自动修改模板。")
         if allow_create and not instance.get("replaced_by_instance_id"):
-            _create_form(repo, svc, session, instance, key, on_created=on_created)
+            _create_form(repo, svc, session, instance, key, on_created=on_created, review_request=review_request)
         candidates = [record for record in svc.list_recommendations()
                       if record.get("target_session") == session["session_uuid"]
                       and record["input_snapshot"].get("session_exercise_id") == instance["id"]]

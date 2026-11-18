@@ -7,37 +7,48 @@ from .service import run_workflow
 
 def review_analysis(repo, analysis, *, period=None, include_background=False, knowledge_root=".local/knowledge"):
     cutoff, zone = analysis["cutoff_time"], analysis["timezone"]
+    context_id = analysis.get("selection_context", {}).get("workflow_context_id")
     selection_id = None
     if analysis.get("selection_context"):
         from healthzip.analytics.v13 import persist
         selection_id = persist(repo, analysis)
     bounds_args = {} if period else {"window_start": analysis["window_start"], "window_end": analysis["window_end"]}
     selection = analysis
+    tasks = {task["task_id"]: task for task in analysis["strength_tasks"]}
     if period:
         from .calendar import completed_periods
         bounds = completed_periods(cutoff, zone, period)
         selection = analyze(repo, cutoff_time=cutoff, timezone_name=zone,
             window_start=bounds[0][0], window_end=bounds[-1][1], context=analysis.get("selection_context"),
             retrospective=analysis.get("retrospective", False))
+        current = analyze(repo, cutoff_time=cutoff, timezone_name=zone, period=period,
+            context=analysis.get("selection_context"), retrospective=analysis.get("retrospective", False))
+        tasks = {task["task_id"]: task for task in selection["strength_tasks"] + current["strength_tasks"]}
     runs = []
-    for task in selection["strength_tasks"]:
+    for task in tasks.values():
         runs.append(run_workflow(repo, WorkflowRequest("W4", cutoff_time=cutoff, timezone=zone,
             window_days=analysis.get("window_days", 30), period=period, task_id=task["task_id"], result_metric_id="STR-11",
-            mode="retrospective" if analysis.get("retrospective") else "prospective", selection_analysis_id=selection_id, **bounds_args),
+            mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
+            selection_analysis_id=selection_id, **bounds_args),
             knowledge_root=knowledge_root))
     if include_background:
         for wid in ("W2", "W3", "W5"):
             runs.append(run_workflow(repo, WorkflowRequest(wid, cutoff_time=cutoff, timezone=zone,
                 window_days=analysis.get("window_days", 30), period=period,
-                mode="retrospective" if analysis.get("retrospective") else "prospective", selection_analysis_id=selection_id, **bounds_args), knowledge_root=knowledge_root))
+                mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
+                selection_analysis_id=selection_id, **bounds_args), knowledge_root=knowledge_root))
     return runs
 
 
-def markdown(runs):
+def markdown(runs, *, repo):
     """Render frozen facts and authority origins, without new calculations."""
     lines = ["", "## 同一分析核心的复核", ""]
     for run in runs:
+        from .presentation import frozen_fact_lines
+        from .storage import load_analysis, load_run
+        run = load_run(repo, run["run_id"])
         lines += [f"### {run['title']}", "", f"运行 `{run['run_id']}`；截止 {run['request']['cutoff_time']}。", ""]
+        lines += frozen_fact_lines(load_analysis(repo, run["run_id"]), run)
         review = run["supplements"].get("long_term_review")
         if review:
             lines += [f"比较范围：{review['window']['start']} 至 {review['window']['end']}（不含终点）；每个可比任务以周期内首条预指定参考为起点。", ""]

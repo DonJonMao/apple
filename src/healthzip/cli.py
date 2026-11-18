@@ -174,7 +174,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         elif args.command == "report":
             result = all_analysis(repo, args.window_days)
             persist_analysis(repo, result)
-            out = render_report(result, inventory(repo), args.output)
+            out = render_report(result, inventory(repo), args.output, repo=repo)
             print(str(out))
         elif args.command == "ai-explain":
             result = all_analysis(repo, 30)

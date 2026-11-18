@@ -1,6 +1,6 @@
 """Finite factual summaries and predeclared factors over unchanged metric results."""
 from healthzip.science import definitions
-from healthzip.science.contracts import instant
+from healthzip.science.contracts import instant, task_metric_results
 from healthzip.science.state import local_date_domain
 
 
@@ -75,22 +75,26 @@ def factors(metrics):
                     and metrics[mid]["data_status"] in {"valid", "partial"}]
         support, against = [], []
         if identity == "task_conditions" and "STR-11" in observed:
-            rows = metrics["STR-11"]["value"]
-            keys = {row.get("condition_key") for row in rows}
-            if len(keys - {None}) > 1:
-                support.append("multiple_recorded_conditions")
-            coverage = (metrics.get("STR-29", {}).get("value") or {})
-            if len(rows) >= 2 and None not in keys and len(keys) == 1 and coverage.get("protocol_complete_references") == len(rows):
-                against.append("same_complete_declared_task_conditions")
+            tasks = task_metric_results(metrics["STR-11"])
+            for task in tasks:
+                rows = task["metric"]["value"] or []
+                keys = {row.get("condition_key") for row in rows}
+                if len(keys - {None}) > 1:
+                    support.append({"task_id": task["task_id"], "observation": "multiple_recorded_conditions"})
+                coverage = (metrics.get("STR-29", {}).get("value") or {})
+                if (len(tasks) == 1 and len(rows) >= 2 and None not in keys and len(keys) == 1
+                        and coverage.get("protocol_complete_references") == len(rows)):
+                    against.append({"task_id": task["task_id"], "observation": "same_complete_declared_task_conditions"})
         if identity == "unobserved_opportunity" and "STR-23" in observed:
-            for item in metrics["STR-23"]["value"]:
-                if item["observation"] == "capacity_unobserved":
-                    support.append(item["set_id"])
-                elif item["observation"] == "volitional_failure":
-                    against.append(item["set_id"])
-                elif item["observation"] == "submaximal_reference":
-                    against.append({"record_id": item["set_id"], "observation": "submaximal_reference",
-                        "meaning": "known_RIR_and_effort_protocol_not_missing_effort"})
+            for task in task_metric_results(metrics["STR-23"]):
+                for item in task["metric"]["value"] or []:
+                    if item["observation"] == "capacity_unobserved":
+                        support.append({"task_id": task["task_id"], "record_id": item["set_id"], "observation": item["observation"]})
+                    elif item["observation"] == "volitional_failure":
+                        against.append({"task_id": task["task_id"], "record_id": item["set_id"], "observation": item["observation"]})
+                    elif item["observation"] == "submaximal_reference":
+                        against.append({"task_id": task["task_id"], "record_id": item["set_id"], "observation": "submaximal_reference",
+                            "meaning": "known_RIR_and_effort_protocol_not_missing_effort"})
         if identity == "plan_execution" and "STR-09" in observed:
             value = metrics["STR-09"]["value"]
             if value["skipped"]:
@@ -125,7 +129,7 @@ def factors(metrics):
             "status": status, "metric_refs": observed, "support": support, "counterevidence": against,
             "unknown": [{"metric_id": mid, "reason_codes": metrics.get(mid, {}).get("reason_codes", ["metric_not_in_scope"])}
                         for mid in mids if mid not in observed] + ([{"reason_codes": ["submaximal_reference_does_not_directly_measure_capacity_limit"]}]
-                            if identity == "unobserved_opportunity" and any(isinstance(row, dict) for row in against) else []),
+                            if identity == "unobserved_opportunity" and any(row.get("observation") == "submaximal_reference" for row in against) else []),
             "predicate_identity": "exact_record_comparisons_not_causal_validation",
             "required_evidence": "record_identity_and_comparability_for_facts; separate_claim_for_mechanism",
             "allowed_statement": "当前观察与该因素相容或削弱；尚未确定其影响。",

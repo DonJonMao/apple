@@ -7,11 +7,12 @@ from zoneinfo import ZoneInfo
 
 from healthzip.advice import build_advice_context
 from healthzip.analytics.v13 import analyze
-from healthzip.science.contracts import canonical_hash, instant
+from healthzip.science.contracts import canonical_hash, instant, task_metric_results
 from healthzip.training.service import TrainingService
 
 from . import evidence
 from .contracts import FUNCTION_NAMES, VERSION, WORKFLOWS, WorkflowRequest, scientific_identity
+from .dependencies import input_version
 from .dependencies import inputs as dependency_inputs
 from .facts import (
     attach_evidence,
@@ -25,11 +26,19 @@ from .selection import scoped_metrics
 from .storage import context_as_of, load_run
 
 
-def _select_metrics(analysis, request):
+def _select_metrics(analysis, request, partial_period=None):
     metrics = {**analysis["metrics"], **analysis["observations"]}
     selected_task = None
     if request["task_id"]:
         selected_task = next((task for task in analysis["strength_tasks"] if task["task_id"] == request["task_id"]), None)
+        if selected_task is None and partial_period is not None:
+            current = next((task for task in partial_period["strength_tasks"] if task["task_id"] == request["task_id"]), None)
+            if current is not None:
+                from healthzip.science import evaluate
+                selected_task = {**current, "metrics": {mid: evaluate(mid, [], cutoff_time=request["cutoff_time"],
+                    window_start=analysis["window_start"], window_end=analysis["window_end"],
+                    context={"timezone": request["timezone"], "retrospective": request["mode"] == "retrospective"})
+                    for mid in current["metrics"]}}
         if selected_task is None:
             raise ValueError("selected_task_not_visible_in_workflow_window")
         metrics.update(selected_task["metrics"])
@@ -56,7 +65,8 @@ def _select_metrics(analysis, request):
 
 def _nodes(request, metrics, facts, missing, hypotheses, knowledge, supplements):
     has_facts = bool(facts)
-    comparisons = [metrics[mid] for mid in ("STR-12", "STR-13", "STR-14") if mid in metrics]
+    comparisons = [child["metric"] for mid in ("STR-12", "STR-13", "STR-14") if mid in metrics
+                   for child in task_metric_results(metrics[mid])]
     comparable = True if any(m["value"] is not None and m["data_status"] == "valid" for m in comparisons) else None
     if request["workflow_id"] == "W3":
         comparable = True if any(s["recorded_difference"] is not None for s in supplements.get("vo2_segments", [])) else None
@@ -94,6 +104,19 @@ def _nodes(request, metrics, facts, missing, hypotheses, knowledge, supplements)
 
 
 def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowledge", parent_run_id=None):
+    if not isinstance(request, WorkflowRequest):
+        raise TypeError("WorkflowRequest_required_no_client_metric_results")
+    if repo.conn.in_transaction:
+        raise ValueError("save_pending_edits_before_workflow")
+    TrainingService(repo)  # Finish idempotent initialization before the input clock.
+    request = replace(request, cutoff_time=request.normalized()["cutoff_time"])
+    version = input_version(repo, request.context_id)
+    visible_at = datetime.now(timezone.utc).isoformat()
+    return _run_workflow(repo, request, knowledge_root=knowledge_root, parent_run_id=parent_run_id,
+                         input_revision=version, data_visible_at=visible_at)
+
+
+def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_id, input_revision, data_visible_at):
     """Only repository calculations may populate this service's metric inputs.
 
     A public research MetricResult is deliberately not an accepted argument.
@@ -156,13 +179,27 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
                     "metrics": {mid: evaluate(mid, [], cutoff_time=declared_request["cutoff_time"],
                         window_start=analysis["window_start"], window_end=analysis["window_end"], context=selected_context)
                         for mid in WORKFLOWS[request.workflow_id]["metrics"] if mid.startswith("STR-")}})
-    metrics, selected_task = _select_metrics(analysis, declared_request)
+    metrics, selected_task = _select_metrics(analysis, declared_request, partial_period)
     strength_points = scoped_metrics(repo, declared_request, analysis, selected_task, metrics) if "STR-11" in metrics else []
     from .longitudinal import pretraining_contexts, review
     long_review = review(strength_points, {"start": analysis["window_start"], "end": analysis["window_end"], "timezone": request.timezone})
     before_training = pretraining_contexts(repo, strength_points, declared_request, selected_context) if long_review["start_long_term_review"] else []
     background_metrics = evidence.background_inputs(before_training)
     sessions = TrainingService(repo).sessions_as_of(cutoff_time=declared_request["cutoff_time"])
+    # Capture dependencies before evidence retrieval, over every input window.
+    # A version change during the preceding reads refuses the freeze outright.
+    dependency_analysis = dict(analysis)
+    starts = [analysis["window_start"]]
+    if selected_context.get("baseline_window"):
+        starts.append(selected_context["baseline_window"]["start"])
+    starts += [m["window"]["start"] for ctx in before_training for m in ctx["metrics"].values()]
+    dependency_analysis["dependency_window_start"] = min(starts, key=instant)
+    if partial_period:
+        dependency_analysis["dependency_window_end"] = partial_period["window_end"]
+    before_dependencies = dependency_inputs(repo, declared_request, dependency_analysis, selected_task=selected_task,
+        visible_at=data_visible_at if request.mode == "retrospective" else None)
+    if input_version(repo, request.context_id) != input_revision:
+        raise ValueError("concurrent_workflow_inputs_during_read_retry_required")
     try:
         knowledge = evidence.retrieve(request.workflow_id, metrics, sessions, declaration,
                                       root=knowledge_root, release_id=request.release_id, background_metrics=background_metrics,
@@ -277,6 +314,9 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
         "workflow_version": VERSION, "title": FUNCTION_NAMES[WORKFLOWS[request.workflow_id]["task"]],
         "user_scope": "local", "request": declared_request, "context_id": declaration["context_id"],
         "analysis_run_id": analysis_id, "input_hash": input_hash, "created_at": now, "dependencies": dependencies,
+        "input_consistency": {"scheme": "optimistic_input_versions_before_read_and_at_freeze",
+            "data_visible_at": data_visible_at, "input_revision": input_revision,
+            "event_cutoff_time": declared_request["cutoff_time"]},
         "status": "needs_review" if any(n["status"] == "needs_review" for n in nodes) else "bounded" if facts else "needs_data",
         "nodes": nodes, "facts": facts, "missing": missing,
         "hypotheses": hypotheses, "knowledge": knowledge, "supplements": supplements,
@@ -288,6 +328,16 @@ def run_workflow(repo, request: WorkflowRequest, *, knowledge_root=".local/knowl
         raise ValueError("save_pending_edits_before_workflow")
     repo.conn.execute("BEGIN IMMEDIATE")
     try:
+        if input_version(repo, request.context_id) != input_revision:
+            # No retrieval/external service under this lock. Only when clocks
+            # changed, recheck local relevant inputs to permit unrelated writes.
+            current_version = input_version(repo, request.context_id)
+            current_dependencies = dependency_inputs(repo, declared_request, dependency_analysis,
+                selected_task=selected_task, visible_at=datetime.now(timezone.utc).isoformat())
+            nonrecord_keys = set(input_revision) - {"training_data_version", "source_data_version"}
+            if (before_dependencies != dependencies or before_dependencies != current_dependencies
+                    or any(input_revision[k] != current_version.get(k) for k in nonrecord_keys)):
+                raise ValueError("concurrent_relevant_workflow_inputs_changed_retry_required")
         existing = repo.conn.execute("SELECT result_json FROM workflow_run WHERE run_id=? AND user_id='local'", (run_id,)).fetchone()
         if existing:
             repo.conn.commit()

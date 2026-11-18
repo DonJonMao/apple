@@ -406,14 +406,14 @@ def cycle_analysis(repo: Repository) -> dict[str, Any]:
     return {"card": card, "events": rows}
 
 
-def all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai") -> dict[str, Any]:
+def all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai", context_id=None) -> dict[str, Any]:
     from healthzip.analytics.cache import cached
-    return cached(repo, "complete_view", {"window_days": window_days, "include_periods": include_periods, "timezone": timezone_name,
+    return cached(repo, "complete_view", {"window_days": window_days, "include_periods": include_periods, "timezone": timezone_name, "context_id": context_id,
                   "automatic_minute": datetime.now(timezone.utc).replace(second=0, microsecond=0).isoformat()},
-                  lambda: _all_analysis(repo, window_days, include_periods=include_periods, timezone_name=timezone_name))
+                  lambda: _all_analysis(repo, window_days, include_periods=include_periods, timezone_name=timezone_name, context_id=context_id))
 
 
-def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai") -> dict[str, Any]:
+def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai", context_id=None) -> dict[str, Any]:
     # P1 strength/body-state functions are kept in a separate module to make
     # their more opinionated joins easy to audit.  Import lazily here because
     # that module reuses ``evidence_card`` from this core module.
@@ -450,7 +450,7 @@ def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=Fa
     }
 
     from healthzip.analytics.v13 import analyze, metric_card
-    output["v13"] = analyze(repo, window_days, timezone_name=timezone_name)
+    output["v13"] = analyze(repo, window_days, timezone_name=timezone_name, context={"workflow_context_id": context_id} if context_id else None)
     from healthzip.workflows.reports import review_analysis
     if repo.conn.in_transaction:
         output["workflow_review_state"] = "save_pending_edits_before_review"

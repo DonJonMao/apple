@@ -19,6 +19,108 @@ from healthzip.workflows import (
 )
 
 
+@pytest.mark.parametrize("population,expected", [("adults", True), (None, False), ("trained_adults", False)])
+def test_confirmed_context_reaches_automatic_review(kb, tmp_path, monkeypatch, population, expected):
+    import healthzip.knowledge
+    from healthzip.analytics.v13 import analyze
+    from healthzip.knowledge.domains import configuration
+    from healthzip.workflows.reports import review_analysis
+    helpers = runpy.run_path(str(Path(__file__).parents[1] / "integration/test_analysis_w1_flow.py"))
+    profile = configuration()["profiles"]["STR-10"]
+    add(kb, identity="explicit-rir-context", mid="STR-10", assigned=profile["required_domains"],
+        conditions=[{"field": "population", "op": "eq", "value": "adults", "origin": "measurement_contract"}],
+        text="Synthetic fixture: repetitions in reserve RIR direct recorded effort measurement protocol uncertainty; no candidate authority.")
+    metric_retrieval.freeze_index(kb, "context-release")
+    monkeypatch.setattr(healthzip.knowledge, "KnowledgeWorkbench", lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
+    repo, svc, instance, target, ids = helpers["history"](tmp_path, monkeypatch, approved=False)
+    cid = save_context(repo, {"population": population}) if population else None
+    analysis = analyze(repo, context={"workflow_context_id": cid})
+    manual = run_workflow(repo, WorkflowRequest("W1", cutoff_time=analysis["cutoff_time"], context_id=cid,
+        session_id=instance["session_id"], session_exercise_id=instance["id"]), knowledge_root=kb.root)
+    automatic = review_analysis(repo, analysis, knowledge_root=kb.root)[0]
+    for run in (manual, automatic):
+        query = next(q for q in run["knowledge"]["queries"] if q["metric_id"] == "STR-10")
+        assert query.get("permissions", {}).get("source_explanation") is expected, json.dumps(query, ensure_ascii=False)
+        assert query["permissions"]["candidate"] is False
+        assert run["context_id"] == cid
+    repo.close()
+
+
+@pytest.mark.parametrize("period", ["week", "month"])
+def test_cross_entry_context_multitask_candidate_reuse_and_calendar_download(kb, tmp_path, monkeypatch, period):
+    import healthzip.knowledge
+    from healthzip.advice import freeze_candidate
+    from healthzip.analytics.v13 import analyze
+    from healthzip.knowledge.domains import configuration
+    from healthzip.workflows import load_analysis, resume_workflow
+    from healthzip.workflows.reports import markdown, review_analysis
+    from healthzip.workflows.storage import withdraw_context
+    helpers = runpy.run_path(str(Path(__file__).parents[1] / "integration/test_analysis_w1_flow.py"))
+    repairs = runpy.run_path(str(Path(__file__).parents[1] / "integration/test_workflow_six_repairs.py"))
+    profile = configuration()["profiles"]["STR-10"]
+    add(kb, identity="cross-entry-rir", mid="STR-10", assigned=profile["required_domains"],
+        conditions=[{"field": "population", "op": "eq", "value": "adults", "origin": "measurement_contract"}],
+        text="Synthetic fixture: repetitions in reserve RIR direct recorded effort measurement protocol uncertainty; no candidate authority.")
+    metric_retrieval.freeze_index(kb, "cross-entry-release")
+    # Only the synthetic workbench environment/root changes; retrieval, metric
+    # prerequisites, source grouping and authority are the production services.
+    monkeypatch.setattr(healthzip.knowledge, "KnowledgeWorkbench", lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
+    repo, svc, instance, target, ids = helpers["history"](tmp_path, monkeypatch, approved=False)
+    (tmp_path / ".local").mkdir()
+    (tmp_path / ".local/knowledge").symlink_to(kb.root, target_is_directory=True)
+    repairs["record"](svc, monkeypatch, instance, days=300, reps=8)
+    equipment = svc.create_equipment("Synthetic new task", "smith")["id"]
+    new, row = repairs["record"](svc, monkeypatch, instance, days=0.1, equipment=equipment)
+    cid = save_context(repo, {"population": "adults"})
+    # An independently saved later declaration must not replace the selected one.
+    save_context(repo, {"population": "trained_adults"})
+    request = WorkflowRequest("W1", context_id=cid, window_days=30,
+        session_id=instance["session_id"], session_exercise_id=instance["id"])
+    manual = run_workflow(repo, request, knowledge_root=kb.root)
+    effective = svc.current_targets(instance["id"])
+    candidate = freeze_candidate(repo, svc, svc.get_session(instance["session_id"]), instance,
+        effective, effective["sets"][0], [30, 32.5, 35], "heavier_lower_reps", review_request=request)
+    frozen = candidate["input_snapshot"]
+    pretraining = load_run(repo, frozen["analysis_review"]["run_id"])
+    repeated = freeze_candidate(repo, svc, svc.get_session(instance["session_id"]), instance,
+        effective, effective["sets"][0], [30, 32.5, 35], "heavier_lower_reps", review_request=request)
+    assert repeated["candidate_id"] == candidate["candidate_id"] and repeated["input_snapshot"] == frozen
+    assert len(svc.list_recommendations()) == 1
+    svc.recommendation_feedback(candidate["candidate_id"], user_choice="declined", execution_state="not_executed", nonexecution_reason="user_choice")
+    analysis = analyze(repo, context={"workflow_context_id": cid})
+    automatic = review_analysis(repo, analysis, knowledge_root=kb.root)
+    selected = next(r for r in automatic if r["task_selection"]["condition_key"] == instance["condition_key"])
+    for run in (manual, pretraining, selected):
+        assert run["context_id"] == cid
+        assert run["nodes"][2]["long_term_review_trigger"] is True
+        assert len(run["supplements"]["pretraining_contexts"]) == 6
+        query = next(q for q in run["knowledge"]["queries"] if q["metric_id"] == "STR-10")
+        assert query["permissions"]["source_explanation"] is True, json.dumps(query)
+        assert query["permissions"]["candidate"] is False
+    runs = review_analysis(repo, analysis, period=period, include_background=True, knowledge_root=kb.root)
+    current = next(r for r in runs if r["task_selection"] and r["task_selection"]["condition_key"] == new["condition_key"])
+    assert all(p["metric"] is None for p in current["supplements"]["calendar_comparison"]["periods"])
+    assert current["supplements"]["partial_current_period"]["metric"]["value"][0]["reps"] == 10
+    report = "\n".join(markdown(runs, repo=repo))
+    assert "历史比较不足" in report and "本期未结束部分" in report and "RIR" in report and "not_executed" in report
+    assert all(r["context_id"] == cid for r in runs)
+    assert len({r["task_selection"]["task_id"] for r in runs if r["task_selection"]}) == 2
+    old_snapshot = load_analysis(repo, manual["run_id"])
+    actual = svc.get_set(ids[-1])
+    svc.edit_set(actual["id"], {"reps": 12}, base_revision=actual["revision"])
+    assert "\n".join(markdown(runs, repo=repo)) == report
+    replacement = save_context(repo, {"population": "unknown"}, replaces_context_id=cid)
+    assert "workflow_context_withdrawn_or_superseded" in check_current_use(repo, manual["run_id"], knowledge_root=kb.root)["reason_codes"]
+    resumed = resume_workflow(repo, manual["run_id"], context_id=replacement, knowledge_root=kb.root)
+    assert resumed["context_id"] == replacement
+    assert not next(q for q in resumed["knowledge"]["queries"] if q["metric_id"] == "STR-10")["permissions"]["source_explanation"]
+    withdraw_context(repo, replacement)
+    assert check_current_use(repo, resumed["run_id"], knowledge_root=kb.root)["status"] == "needs_review"
+    assert load_run(repo, manual["run_id"]) == manual and load_analysis(repo, manual["run_id"]) == old_snapshot
+    assert "\n".join(markdown(runs, repo=repo)) == report
+    repo.close()
+
+
 @pytest.mark.parametrize("scale,timing,expected", [
     ("Foster_modified_CR10", "after", True), ("cr10", "after", False),
     ("Foster_modified_CR10", None, False), ("Foster_modified_CR10", "before", False),
@@ -43,7 +145,7 @@ def test_saved_session_prerequisites_and_revocation(kb, tmp_path, monkeypatch, s
     request = WorkflowRequest("W2", context_id=context_id, release_id="synthetic-workflow")
     run = run_workflow(repo, request, knowledge_root=kb.root)
     query = next(q for q in run["knowledge"]["queries"] if q["metric_id"] == "LOAD-SRPE-AU")
-    assert query.get("permissions", {}).get("source_explanation") is expected, query
+    assert query.get("permissions", {}).get("source_explanation") is expected, json.dumps(query, ensure_ascii=False)
     assert query["permissions"]["candidate"] is False
     assert query["audit"]["private_context_sent"] is False
     assert query["audit"]["personal_metric_values_sent"] is False

@@ -14,6 +14,18 @@ SOURCE_TYPES = {
 }
 
 
+def input_version(repo, context_id):
+    """Monotone input clocks; output/audit writes do not change these clocks."""
+    versions = dict(repo.conn.execute("SELECT key,value FROM schema_meta WHERE key IN "
+        "('training_data_version','source_data_version','advice_profile_version','catalog_data_version')"))
+    if context_id:
+        versions["context"] = canonical_hash([tuple(row) for row in repo.conn.execute(
+            "SELECT * FROM workflow_context_revision WHERE context_id=?", (context_id,))])
+        versions["context_events"] = canonical_hash([tuple(row) for row in repo.conn.execute(
+            "SELECT * FROM workflow_context_event WHERE context_id=? ORDER BY recorded_at,event_id", (context_id,))])
+    return versions
+
+
 def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
     """Recheck a fixed event window with original or current visibility.
 
@@ -87,7 +99,13 @@ def check_current_use(repo, run_id, *, knowledge_root=".local/knowledge"):
     reasons = []
     if current != run["dependencies"]:
         reasons.append("relevant_records_or_targets_changed")
-    declaration = context_as_of(repo, run["context_id"], now, "prospective")
+    try:
+        declaration = context_as_of(repo, run["context_id"], now, "prospective")
+    except ValueError as exc:
+        if str(exc) != "workflow_context_withdrawn_or_superseded":
+            raise
+        reasons.append("workflow_context_withdrawn_or_superseded")
+        declaration = {"context_id": None, "values": {}, "recorded_at": None}
     check_failed = False
     try:
         knowledge = evidence.retrieve(run["workflow_id"], {**analysis["metrics"], **analysis["observations"]},

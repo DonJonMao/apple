@@ -1,7 +1,7 @@
 """Task-scoped calls to existing calculators, using repository-owned records."""
 from healthzip.analytics.v13 import snapshot
 from healthzip.science import evaluate
-from healthzip.science.contracts import Window, select_as_of
+from healthzip.science.contracts import Window, select_as_of, task_metric_results
 from healthzip.science.semantics import flatten_record, outcome_series
 
 
@@ -30,8 +30,8 @@ def scoped_metrics(repo, request, analysis, task, metrics):
             if mid in metrics:
                 metrics[mid] = evaluate(mid, rows, cutoff_time=request["cutoff_time"],
                     window_start=analysis["window_start"], window_end=analysis["window_end"], context=context)
-    references = (metrics.get("STR-11") or {}).get("value")
-    ids = {str(r["id"]) for r in references} if isinstance(references, list) else set()
+    references = task_metric_results(metrics["STR-11"]) if "STR-11" in metrics else []
+    ids = {str(r["id"]) for child in references for r in child["metric"]["value"] or []}
     points = []
     sessions = {s["session_id"]: s for s in context.get("sessions", [])}
     for raw in rows:

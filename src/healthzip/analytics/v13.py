@@ -329,7 +329,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
             "window_days": window_days, "reference_options": options, "reference_selection": selection_audit,
             "sleep_options": sleep_choices, "sleep_selection": sleep_audit,
-            "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection") if context and key in context},
+            "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection", "workflow_context_id") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
             "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.6.0",

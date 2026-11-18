@@ -254,3 +254,11 @@ def validate_result(value: dict, *, calibration: Optional[dict] = None) -> None:
             raise ValueError("coverage_exceeds_defined_denominator")
     # Prevent NaN and Infinity from entering SQLite JSON, reports or model payloads.
     json.dumps(value, allow_nan=False)
+def task_metric_results(metric):
+    """Read independent task children without flattening or changing a result.
+
+    evaluate_all retains complete MetricResults in task_results for both single
+    and multiple tasks. A directly evaluated (including missing) result is one
+    unlabelled child; its value is never reinterpreted as a task collection.
+    """
+    return metric.get("task_results") or [{"task_id": None, "metric": metric}]

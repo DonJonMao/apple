@@ -20,16 +20,23 @@ def migrate_workflows(conn):
         """CREATE TABLE IF NOT EXISTS workflow_use_check (
             run_id TEXT NOT NULL REFERENCES workflow_run(run_id), signature TEXT NOT NULL,
             result_json TEXT NOT NULL, checked_at TEXT NOT NULL, PRIMARY KEY(run_id,signature))""",
+        """CREATE TABLE IF NOT EXISTS workflow_context_event (
+            event_id TEXT PRIMARY KEY, context_id TEXT NOT NULL REFERENCES workflow_context_revision(context_id),
+            kind TEXT NOT NULL, replacement_id TEXT, recorded_at TEXT NOT NULL)""",
         "CREATE INDEX IF NOT EXISTS workflow_history ON workflow_run(user_id,workflow_id,created_at DESC)",
     ):
         conn.execute(sql)
+    conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('workflow_context_version','0')")
+    for table in ("workflow_context_revision", "workflow_context_event"):
+        conn.execute(f"""CREATE TRIGGER IF NOT EXISTS {table}_version AFTER INSERT ON {table} BEGIN
+            UPDATE schema_meta SET value=CAST(value AS INTEGER)+1 WHERE key='workflow_context_version'; END""")
 
 
 CONTEXT_FIELDS = {"population", "available_loads", "allowed_strategies", "session_exercise_id",
                   "primary_sleep_stream", "reference_selection", "sleep_selection", "followup_window"}
 
 
-def save_context(repo, values):
+def save_context(repo, values, *, replaces_context_id=None):
     """Persist a small explicit declaration, without conferring evidence authority."""
     if not isinstance(values, dict) or set(values) - CONTEXT_FIELDS:
         raise ValueError("unsupported_workflow_context_fields")
@@ -53,10 +60,31 @@ def save_context(repo, values):
     if not isinstance(strategies, list) or set(strategies) - {"double_progression", "heavier_lower_reps", "repetition_progression"}:
         raise ValueError("unsupported_user_strategy")
     identity = canonical_hash({"user_id": "local", "payload": payload})
+    if replaces_context_id and not repo.conn.execute(
+            "SELECT 1 FROM workflow_context_revision WHERE context_id=? AND user_id='local'", (replaces_context_id,)).fetchone():
+        raise ValueError("workflow_context_not_found_in_local_scope")
+    if repo.conn.execute("SELECT 1 FROM workflow_context_event WHERE context_id=?", (identity,)).fetchone():
+        # Reconfirmation is a new declaration; never resurrect a retired version.
+        identity = canonical_hash({"payload": payload, "reconfirmed_at": datetime.now(timezone.utc).isoformat()})
     repo.conn.execute("INSERT OR IGNORE INTO workflow_context_revision VALUES(?,?,?,?)",
         (identity, "local", json.dumps(payload, ensure_ascii=False, sort_keys=True), datetime.now(timezone.utc).isoformat()))
+    if replaces_context_id and replaces_context_id != identity:
+        _context_event(repo, replaces_context_id, "superseded", identity)
     repo.conn.commit()
     return identity
+
+
+def _context_event(repo, context_id, kind, replacement_id=None):
+    if not repo.conn.execute("SELECT 1 FROM workflow_context_revision WHERE context_id=? AND user_id='local'", (context_id,)).fetchone():
+        raise ValueError("workflow_context_not_found_in_local_scope")
+    identity = canonical_hash([context_id, kind, replacement_id])
+    repo.conn.execute("INSERT OR IGNORE INTO workflow_context_event VALUES(?,?,?,?,?)",
+        (identity, context_id, kind, replacement_id, datetime.now(timezone.utc).isoformat()))
+
+
+def withdraw_context(repo, context_id):
+    _context_event(repo, context_id, "withdrawn")
+    repo.conn.commit()
 
 
 def context_as_of(repo, context_id, cutoff_time, mode):
@@ -67,6 +95,10 @@ def context_as_of(repo, context_id, cutoff_time, mode):
         raise ValueError("workflow_context_not_found_in_local_scope")
     if mode == "prospective" and instant(row["recorded_at"]) > instant(cutoff_time):
         raise ValueError("context_not_available_at_cutoff")
+    visible_at = instant(cutoff_time) if mode == "prospective" else datetime.now(timezone.utc)
+    if any(instant(event[0]) <= visible_at for event in repo.conn.execute(
+            "SELECT recorded_at FROM workflow_context_event WHERE context_id=?", (context_id,))):
+        raise ValueError("workflow_context_withdrawn_or_superseded")
     return {"context_id": context_id, "values": json.loads(row["payload_json"]), "recorded_at": row["recorded_at"],
             "provenance": "explicit_user_declaration_not_professional_verification"}
 

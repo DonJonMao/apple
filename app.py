@@ -66,7 +66,7 @@ zip_path = st.sidebar.text_input("Apple Health ZIP 路径", "")
 sync_path = st.sidebar.text_input("手机增量同步目录（JSON/JSONL）", "")
 sync_source = st.sidebar.text_input("同步来源名称", "phone_export")
 include_cycle = st.sidebar.checkbox("启用周期数据导入（可选）", value=False)
-window_days = st.sidebar.number_input("分析窗口（天）", min_value=7, max_value=3650, value=30)
+window_days = st.sidebar.number_input("分析窗口（天）", min_value=7, max_value=3650, value=30, key="analysis_window_days")
 timezone_name = st.sidebar.text_input("分析时区", "Asia/Shanghai", key="analysis_timezone")
 try:
     ZoneInfo(timezone_name)
@@ -128,7 +128,8 @@ try:
     )
     page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
     inv = inventory(repo) if page in {"导入与总览", "报告"} else {}
-    analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name) if page not in {"导入与总览", "力量", "知识库"} else {}
+    analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name,
+        context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))) if page not in {"导入与总览", "力量", "知识库"} else {}
     if analysis:
         persist_analysis(repo, analysis)
     if page == "分析":
@@ -237,7 +238,7 @@ try:
                                                               timezone_name=timezone_name)}
             from healthzip.workflows.reports import review_analysis
             analysis["workflow_reviews"] = review_analysis(repo, analysis["v13"], period=period, include_background=True)
-            out = render_report(analysis, inv, report_path)
+            out = render_report(analysis, inv, report_path, repo=repo)
             st.success(f"已写入 {out}")
         st.write("报告会包含每个 Evidence Card 的窗口、事实、样本量和限制。")
 finally:
