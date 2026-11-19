@@ -105,6 +105,42 @@ def test_cache_reuses_exact_snapshot_and_invalidates_input_timezone_and_context(
     repo.close()
 
 
+def test_complete_view_initializes_before_its_first_cache_identity(tmp_path, monkeypatch):
+    from healthzip.analytics import core
+
+    monkeypatch.chdir(tmp_path)
+    frozen_now = datetime.now(timezone.utc)
+
+    class FixedClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return frozen_now.astimezone(tz) if tz else frozen_now.replace(tzinfo=None)
+
+    monkeypatch.setattr(core, "datetime", FixedClock)
+    repo = _repo(tmp_path)
+    _sample(repo, "cold-complete-view", (frozen_now - timedelta(days=1)).isoformat())
+    repo.conn.commit()
+    try:
+        first = core.all_analysis(repo)
+        calls = []
+        original = repo.rows
+        changes = repo.conn.total_changes
+
+        def counted(sql, parameters=()):
+            calls.append(sql)
+            return original(sql, parameters)
+
+        monkeypatch.setattr(repo, "rows", counted)
+        second = core.all_analysis(repo)
+        assert first == second and not calls
+        assert repo.conn.total_changes == changes
+        assert not repo.conn.in_transaction
+        second["v13"]["metrics"].clear()
+        assert core.all_analysis(repo)["v13"]["metrics"]
+    finally:
+        repo.close()
+
+
 def test_apple_child_metadata_and_normalization_version_survive_import(tmp_path):
     import json
     from zipfile import ZipFile

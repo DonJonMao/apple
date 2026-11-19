@@ -21,6 +21,7 @@ from healthzip.analytics import (
     persist_analysis,
     workout_analysis,
 )
+from healthzip.analytics.workspaces import analyze_workspace
 from healthzip.config import DEFAULT_DB_PATH
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
@@ -139,6 +140,8 @@ try:
     # freezing the full scientific/workflow result here adds unrelated work.
     if page == "数据质量":
         analysis = {"readiness": readiness(repo, window_days=int(window_days), as_of=date.today().isoformat())}
+    elif page in {"心率 / HRV", "睡眠", "体重 / 有氧"}:
+        analysis = analyze_workspace(repo, page, window_days=int(window_days), timezone_name=timezone_name)
     elif page == "运动":
         analysis = {"workouts": workout_analysis(repo, int(window_days))}
     elif page == "营养":
@@ -149,7 +152,7 @@ try:
         analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name, context_id=context_id)
     else:
         analysis = {}
-    if page in {"数据质量", "运动", "营养", "周期"}:
+    if page in {"数据质量", "心率 / HRV", "睡眠", "运动", "体重 / 有氧", "营养", "周期"}:
         from healthzip.workflows.storage import current_context_problem
         analysis["workflow_context_problem"] = current_context_problem(repo, context_id)
     if analysis:

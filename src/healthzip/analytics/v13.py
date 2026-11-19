@@ -238,6 +238,9 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
             context=None, retrospective=False, period=None, use_cache=True, window_start=None, window_end=None):
     from healthzip.analytics.cache import cached
 
+    # Cold migration/seed markers are inputs to the revision identity. Finish
+    # initialization before freezing the cache key and automatic cutoff.
+    TrainingService(repo)
     # Automatic views refresh at most once a minute unless input versions change.
     # This is a documented UI cache cadence; the exact computed cutoff is shown.
     now = datetime.now(timezone.utc)

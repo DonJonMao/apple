@@ -409,6 +409,11 @@ def cycle_analysis(repo: Repository) -> dict[str, Any]:
 
 def all_analysis(repo: Repository, window_days: int = 30, *, include_periods=False, timezone_name="Asia/Shanghai", context_id=None) -> dict[str, Any]:
     from healthzip.analytics.cache import cached
+    from healthzip.training.service import TrainingService
+
+    # The canonical analysis below must not initialize training after this
+    # outer view has already frozen its input revision identity.
+    TrainingService(repo)
     return cached(repo, "complete_view", {"window_days": window_days, "include_periods": include_periods, "timezone": timezone_name, "context_id": context_id,
                   "automatic_minute": datetime.now(timezone.utc).replace(second=0, microsecond=0).isoformat()},
                   lambda: _all_analysis(repo, window_days, include_periods=include_periods, timezone_name=timezone_name, context_id=context_id))
