@@ -100,7 +100,7 @@ def test_r02_three_sessions_from_page_produce_protocol_identified_trend(tmp_path
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
-    app = AppTest.from_string(script).run(timeout=30)
+    app = AppTest.from_string(script, default_timeout=30).run()
     app.text_input(key="template_name_None").set_value("同协议观察")
     app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
     app.text_input(key="template_condition_new_machine").set_value("合成设备")
