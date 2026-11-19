@@ -15,6 +15,47 @@ class UnsafeZipError(ValueError):
     pass
 
 
+class _RootFound(Exception):
+    """Stop parsing as soon as the actual document element is known."""
+
+
+class _RootProbe:
+    def start(self, tag, attributes):
+        raise _RootFound(tag)
+
+    def close(self):
+        return None
+
+
+def _health_data_root(zf: ZipFile, name: str) -> bool:
+    """Inspect at most 1 MiB of a member without building its document tree.
+
+    Apple exports can have an internal declaration before HealthData. Stop at
+    the first element, including for a malformed body whose partial-import
+    status belongs to the existing full parser. DTD/entity loading is disabled.
+    """
+    from lxml import etree
+
+    parser = etree.XMLParser(
+        target=_RootProbe(), resolve_entities=False, load_dtd=False,
+        no_network=True, huge_tree=False,
+    )
+    remaining = 1024 * 1024
+    with zf.open(name) as stream:
+        while remaining:
+            chunk = stream.read(min(4096, remaining))
+            if not chunk:
+                break
+            remaining -= len(chunk)
+            try:
+                parser.feed(chunk)
+            except _RootFound as root:
+                return root.args[0] == "HealthData"
+            except etree.XMLSyntaxError:
+                return False
+    return False
+
+
 def _clear_element(elem) -> None:
     """Release element text/children and already-processed siblings."""
     elem.clear()
@@ -78,11 +119,14 @@ def _find_xml(zf: ZipFile) -> str:
             candidates.append(info.filename)
     if not candidates:
         raise ValueError("ZIP does not contain an XML export")
-    # Prefer Apple's conventional path, but inspect arbitrary roots too.
+    # Names can be localized or decoded differently by ZIP producers. Prefer
+    # the conventional basename only when it actually contains HealthData;
+    # export_cda.xml and unrelated XML are different documents.
+    candidates.sort(key=lambda name: name.replace("\\", "/").rsplit("/", 1)[-1].lower() != "export.xml")
     for name in candidates:
-        if name.lower().endswith("export.xml"):
+        if _health_data_root(zf, name):
             return name
-    return candidates[0]
+    raise ValueError("ZIP does not contain a HealthData XML root within the inspection limit")
 
 
 def inspect_zip(path: Union[str, Path], limits: Optional[ImportLimits] = None) -> ZipInspection:
