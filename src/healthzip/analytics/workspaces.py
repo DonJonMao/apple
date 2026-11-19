@@ -10,6 +10,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+from healthzip.db.temporal_schema import samples_as_of
+from healthzip.normalize import quantity_value
 from healthzip.science import evaluate
 from healthzip.science.contracts import instant
 from healthzip.training.service import TrainingService
@@ -18,12 +20,48 @@ from .cache import cached
 from .core import vo2_analysis
 from .v13 import metric_card, snapshot
 
-SCOPE_VERSION = "body-workspace-scope-v1.0.0"
+SCOPE_VERSION = "body-workspace-scope-v1.1.0"
 _SPECS = {
     "心率 / HRV": (("resting_heart_rate_bpm", "hrv_sdnn_ms"), ("STATE-RHR", "STATE-SDNN")),
     "睡眠": (("sleep_stage",), ("STATE-SLEEP-24H", "REPORT-STATE-SUMMARY")),
     "体重 / 有氧": (("body_mass_kg",), ("BODY-MASS-DAILY", "BODY-MASS-TREND")),
 }
+
+
+def _latest_weight_observations(repo, cutoff, before, timezone_name):
+    """Find an outside-window reference using indexed, expanding time pages.
+
+    Each page uses the same latest-visible-revision selector as canonical
+    analysis, so a deleted or moved recent record cannot resurrect its past
+    version. Paging changes query cost only, never historical eligibility.
+    """
+    cursor, width = before, 365
+    floor = datetime.min.replace(tzinfo=timezone.utc)
+    pages = 0
+    while cursor > floor:
+        start = cursor - timedelta(days=width) if (cursor - floor).days >= width else floor
+        candidates = []
+        for table, event_key in (("health_sample", "end_utc"), ("body_measurement", "measured_at")):
+            rows = samples_as_of(repo, cutoff.isoformat(), table, window_start=start.isoformat(),
+                                 window_end=cursor.isoformat(), canonical_types=["body_mass_kg"])
+            for row in rows:
+                event = instant(row[event_key])
+                numeric = quantity_value(row)
+                if event >= cursor or numeric["value"] is None or numeric["unit"] != "kg" or numeric["value"] <= 0:
+                    continue
+                candidates.append({"date": event.astimezone(ZoneInfo(timezone_name)).date().isoformat(),
+                    "event_end": event.isoformat(), "available_at": row.get("available_at"),
+                    "value": numeric["value"], "unit": "kg",
+                    "source": row.get("source_name") or row.get("source_bundle_id") or row.get("source"),
+                    "source_record_ids": [f"{table}:{row['id']}"], "numeric_provenance": numeric,
+                    "temporal_provenance": row.get("temporal_provenance"),
+                    "scope": "historical_reference_outside_selected_window"})
+        pages += 1
+        if candidates:
+            latest = max(instant(point["event_end"]) for point in candidates)
+            return [point for point in candidates if instant(point["event_end"]) == latest], pages
+        cursor, width = start, width * 2
+    return [], pages
 
 
 def analyze_workspace(repo, workspace, window_days=30, timezone_name="Asia/Shanghai", cutoff_time=None):
@@ -84,6 +122,12 @@ def analyze_workspace(repo, workspace, window_days=30, timezone_name="Asia/Shang
                 {"date": fact["date"], "kg": fact["value"], "source": source,
                  "source_ids": fact["source_ids"], "algorithm_version": daily["algorithm_version"]}
                 for source, facts in (daily["value"] or {}).items() for fact in facts]}
+            if not output["weight"]["daily"]:
+                latest, pages = _latest_weight_observations(repo, cutoff, start, timezone_name)
+                output["weight"]["latest_observations"] = latest
+                scope["history_reference"] = {"selection": "latest_visible_usable_weight_by_event_time",
+                    "scope": "outside_selected_window", "cutoff_time": cutoff.isoformat(),
+                    "searched_time_pages": pages, "included_in_window_metrics": False}
             output["vo2"] = vo2_analysis(repo)
             scope["vo2_scope"] = "current_active_record_inventory_without_asof_or_window_filter"
         return output

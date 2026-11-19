@@ -35,6 +35,6 @@ SQLite 仍然只有一个并发写入者；修复避免在普通连接初始化�
 - `tests/integration/test_repository_open_concurrency.py`：真实写锁下暖开库、版本拒绝、旧 v5 原子升级、并发升级锁后重查及取消回滚。
 - `tests/training/test_initialization_locking.py`：暖服务不写、每连接函数与真实事件投影、种子版本变化、外层事务和并发冷初始化。
 - `tests/integration/test_analysis_persistence_locking.py`：准备阶段仍允许另一连接写入、批次失败和取消、提交失败时保留调用者编辑及冻结结果。
-- `tests/integration/test_workspace_switching.py`：完整 `app.py` 路径切换全部 12 个工作区；另一个连接持有写锁时总览仍可重新加载；营养与周期保持各自实际数据。
+- `tests/integration/test_workspace_switching.py`：完整 `app.py` 路径切换当前启用的 10 个工作区（营养和知识库按日常界面合同隐藏）；另一个连接持有写锁时总览仍可重新加载，身体记录使用可读表格。
 - `tests/integration/test_workspace_analysis_scope.py`：限定工作区与原规范计算的指标、来源、时区及修订可见性一致，查询类型受限，睡眠与体重保留来源分流，不生成完整分析冻结。
 - `tests/science/test_energy_interval_scaling.py`：嵌套、同起点、邻接、多流和无效边界的原冲突顺序，以及数千条来源的完整保留。

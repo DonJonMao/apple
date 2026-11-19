@@ -3,6 +3,7 @@
 import json
 import socket
 import sqlite3
+from contextlib import closing
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from xml.etree.ElementTree import Element, SubElement, tostring
@@ -14,6 +15,7 @@ from streamlit.testing.v1 import AppTest
 
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
+from healthzip.training.service import TrainingService
 from healthzip.workflows import save_context
 from healthzip.workflows.storage import withdraw_context
 
@@ -51,11 +53,12 @@ def assert_page_ok(app):
     assert not app.error
 
 
-def test_all_actual_workspaces_switch_and_nutrition_cycle_keep_distinct_routes(isolated_workspace):
+def test_all_visible_workspaces_switch_and_optional_sections_stay_hidden(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     assert_page_ok(app)
     workspaces = list(app.radio(key="main_workspace").options)
-    assert len(workspaces) == 12
+    assert len(workspaces) == 10
+    assert "营养" not in workspaces and "知识库" not in workspaces
     for page in workspaces:
         app.radio(key="main_workspace").set_value(page).run()
         assert_page_ok(app)
@@ -68,22 +71,15 @@ def test_all_actual_workspaces_switch_and_nutrition_cycle_keep_distinct_routes(i
             assert "训练分析" in headers
             assert "营养记录与完整度" not in headers
             assert "周期记录回顾" not in headers
-        elif page == "营养":
-            assert "营养记录与完整度" in headers
-            assert "周期记录回顾" not in headers
-            rows = [table.value for table in app.dataframe if "energy_kcal" in table.value.columns]
-            assert len(rows) == 1
-            assert rows[0]["energy_kcal"].tolist() == [1800.0]
         elif page == "周期":
             assert "周期记录回顾" in headers
             assert "营养记录与完整度" not in headers
-            rows = [table.value for table in app.dataframe if "category_value" in table.value.columns]
+            rows = [table.value for table in app.dataframe if "记录" in table.value.columns]
             assert len(rows) == 1
-            assert rows[0]["category_value"].tolist() == ["synthetic_observation"]
+            assert rows[0]["记录"].tolist() == ["已记录，类型未识别"]
+            assert set(rows[0].columns) == {"日期", "记录", "来源"}
         elif page == "报告":
             assert any(element.label == "报告输出路径" for element in app.text_input)
-        elif page == "知识库":
-            assert any(element.label == "知识主题" for element in app.selectbox)
     app.radio(key="main_workspace").set_value("导入与总览").run()
     assert_page_ok(app)
     assert Path(app.sidebar.text_input[0].value).resolve() == isolated_workspace
@@ -113,7 +109,7 @@ def test_factual_workspaces_do_not_freeze_unused_full_analysis_and_keep_context_
     repo.close()
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     app.session_state["analysis_contexts"] = {str(isolated_workspace): context_id}
-    for page in ("数据质量", "运动", "营养", "周期"):
+    for page in ("数据质量", "运动", "周期"):
         app.radio(key="main_workspace").set_value(page).run()
         assert_page_ok(app)
         assert any("当前选择的适用声明已撤回或被替换" in warning.value for warning in app.warning)
@@ -124,8 +120,8 @@ def test_factual_workspaces_do_not_freeze_unused_full_analysis_and_keep_context_
     with sqlite3.connect(isolated_workspace) as conn:
         cards = dict(conn.execute("SELECT id,title FROM insight"))
         assert cards["workout_summary"] == "训练频率与时长"
-        assert cards["nutrition_completeness"] == "营养记录与完整度"
         assert cards["cycle_review"] == "周期记录回顾"
+        assert conn.execute("SELECT energy_kcal FROM nutrition_day").fetchone()[0] == 1800
 
 
 def test_body_workspaces_show_source_separated_observations_without_full_freeze(isolated_workspace):
@@ -180,15 +176,63 @@ def test_body_workspaces_show_source_separated_observations_without_full_freeze(
             assert all("synthetic_watch_" in source for source in heart_values)
             sdnn_values = cards["STATE-SDNN"][0]["value"]
             assert sorted(day["value"] for days in sdnn_values.values() for day in days) == [30, 40]
+            tables = [table.value for table in app.dataframe if "指标" in table.value.columns]
+            assert len(tables) == 2
+            assert sorted(tables[0]["数值"].tolist()) == [55, 65]
+            assert sorted(tables[1]["数值"].tolist()) == [30, 40]
+            assert all(set(table.columns) == {"日期", "指标", "数值", "单位", "来源"} for table in tables)
         elif page == "睡眠":
-            tables = [table.value for table in app.dataframe if "sleep_hours" in table.value.columns]
+            tables = [table.value for table in app.dataframe if "睡眠时长（小时）" in table.value.columns]
             assert len(tables) == 1
-            assert sorted(tables[0]["sleep_hours"].tolist()) == [3, 5]
-            assert tables[0]["source"].nunique() == 2
+            assert sorted(tables[0]["睡眠时长（小时）"].tolist()) == [3, 5]
+            assert tables[0]["来源"].nunique() == 2
+            assert set(tables[0].columns) == {"日期", "睡眠时长（小时）", "来源"}
         else:
-            tables = [table.value for table in app.dataframe if "kg" in table.value.columns]
+            tables = [table.value for table in app.dataframe if "体重（kg）" in table.value.columns]
             assert len(tables) == 1
-            assert sorted(tables[0]["kg"].tolist()) == [70, 80]
-            assert tables[0]["source"].nunique() == 2
-            assert any(table.value.get("value", []).tolist() == [42] for table in app.dataframe
-                       if "metric" in table.value.columns and table.value["metric"].tolist() == ["vo2_max"])
+            assert sorted(tables[0]["体重（kg）"].tolist()) == [70, 80]
+            assert tables[0]["来源"].nunique() == 2
+            assert any(table.value["VO₂ max（mL/kg/min）"].tolist() == [42] for table in app.dataframe
+                       if "VO₂ max（mL/kg/min）" in table.value.columns)
+
+
+def test_overview_shows_readable_updates_and_direct_recording_entry(isolated_workspace):
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    assert_page_ok(app)
+    assert not app.json
+    assert len(app.dataframe) == 1
+    assert set(app.dataframe[0].value.columns) == {"项目", "最近记录", "数据状态"}
+    assert {item.label for item in app.metric} == {"最近身体／运动记录", "运动记录", "力量训练记录"}
+    app.button(key="overview_open_training").click().run()
+    assert_page_ok(app)
+    assert app.radio(key="main_workspace").value == "力量"
+    assert app.button(key="training_start").label == "新增训练"
+    app.button(key="training_start").click().run()
+    assert_page_ok(app)
+    session_id = app.session_state["resume_training"]
+    app.text_input(key="session_selector_query").set_value("杠铃卧推").run()
+    app.selectbox(key="session_selector_choice").set_value("psa.ex.barbell_bench_press")
+    app.checkbox(key="session_condition_confirmed").check()
+    app.button(key="training_add_exercise").click().run()
+    assert_page_ok(app)
+    with closing(Repository(isolated_workspace)) as repo:
+        session = TrainingService(repo).get_session(session_id)
+        assert session["template_id"] is None and len(session["exercises"]) == 1
+        instance_id = session["exercises"][0]["id"]
+    app.button(key="add_set_" + instance_id).click().run()
+    with closing(Repository(isolated_workspace)) as repo:
+        row = TrainingService(repo).get_session(session_id)["sets"][0]
+    prefix = "set_" + row["set_uuid"]
+    app.button(key=prefix + "_in_progress").click().run()
+    app.text_input(key=prefix + "_load_value").set_value("40").run()
+    app.text_input(key=prefix + "_reps").set_value("8").run()
+    app.button(key=prefix + "_completed").click().run()
+    assert_page_ok(app)
+    app.button(key="training_end").click().run()
+    assert_page_ok(app)
+    with closing(Repository(isolated_workspace)) as repo:
+        finished = TrainingService(repo).get_session(session_id)
+        assert finished["session_status"] == "completed" and finished["completed_sets"] == 1
+        actual = finished["sets"][0]
+        assert float(actual["load_value"]) == 40 and actual["reps"] == 8 and actual["rir"] is None
+        assert not actual.get("reference_set") and not actual.get("reference_declared_at")

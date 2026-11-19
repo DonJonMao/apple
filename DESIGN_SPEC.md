@@ -12,6 +12,8 @@ v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`Advic
 
 `app.py` 使用 Streamlit，`healthzip.cli` 提供命令，根启动器协调网页和本地REST。`importers/` 保留ZIP流式解析、CSV及JSON/JSONL增量导入。XML禁用外部实体与网络，ZIP检查路径/大小/压缩比；来源、原始单位与时间均保留。
 
+日常界面显示中文逐日身体记录、运动日历汇总及直接训练入口；营养暂不显示，知识库不作为日常展示页面。首页以更新概况替代原始目录与 JSON，睡眠仅对有效正时长记录做页面统计，缺失不推断未佩戴，窗口外体重保留独立历史参考。展示与记录合同及回归见 [日常界面](docs/daily_ui.md)。
+
 `Repository` 在同一SQLite上执行显式事务升级至schema v5，拒绝更高版本降级；`db/schema.sql` 为单一基表定义，`training/schema.py` 与 `db/temporal_schema.py` 增量扩展。升级不将历史未知负荷、器械、ROM或可见时间补成已知值。备份使用SQLite backup API包含已提交WAL，恢复只能写新路径。
 
 正常连接通过独立迁移标记只读核对就绪状态；冷升级才获取写锁并在锁后重查。训练初始化也有版本及种子字节标记，分析行准备与写入分开，取消和提交失败释放本批次写锁。工作区并发边界与回归见 [数据库并发](docs/database_concurrency.md)。
