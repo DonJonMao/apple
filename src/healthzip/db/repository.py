@@ -14,6 +14,9 @@ from healthzip.normalize import stable_fingerprint
 SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 
 CURRENT_SCHEMA_VERSION = 5
+# Bump for any additive migration, including changes below schema version 5.
+# This marker is committed only after the complete migration succeeds.
+REPOSITORY_MIGRATION_REVISION = 1
 
 
 def _json(value: Any) -> str:
@@ -23,22 +26,51 @@ def _json(value: Any) -> str:
 
 
 class Repository:
-    def __init__(self, path: Union[str, Path]):
+    def __init__(self, path: Union[str, Path], *, timeout: float = 30.0):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(self.path))
+        self.conn = sqlite3.connect(str(self.path), timeout=timeout)
         self.conn.row_factory = sqlite3.Row
-        self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.execute("PRAGMA foreign_keys=ON")
         try:
+            from healthzip.training.history_candidates import register_history_functions
+
+            self.conn.execute("PRAGMA foreign_keys=ON")
+            register_history_functions(self.conn)
+            current = self._schema_is_current()
+            if self.conn.execute("PRAGMA journal_mode").fetchone()[0].lower() != "wal":
+                self.conn.execute("PRAGMA journal_mode=WAL")
+            if current:
+                return
             self.conn.execute("BEGIN IMMEDIATE")
-            self._execute_schema(SCHEMA)
-            self._migrate_schema()
+            # A concurrent opener may have completed the migration while this
+            # connection waited for the writer. Recheck under the acquired lock.
+            if not self._schema_is_current():
+                self._execute_schema(SCHEMA)
+                self._migrate_schema()
+                self.conn.execute(
+                    "INSERT OR REPLACE INTO schema_meta(key,value) VALUES('repository_migration_revision',?)",
+                    (str(REPOSITORY_MIGRATION_REVISION),),
+                )
             self.conn.commit()
         except BaseException:
             self.conn.rollback()
             self.conn.close()
             raise
+
+    def _schema_is_current(self) -> bool:
+        """Check migration state without starting a transaction or changing data."""
+        if not self.conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_meta'"
+        ).fetchone():
+            return False
+        metadata = dict(self.conn.execute(
+            "SELECT key,value FROM schema_meta WHERE key IN ('schema_version','repository_migration_revision')"
+        ))
+        version = int(metadata.get("schema_version", "0"))
+        revision = int(metadata.get("repository_migration_revision", "0"))
+        if version > CURRENT_SCHEMA_VERSION or revision > REPOSITORY_MIGRATION_REVISION:
+            raise ValueError("database_schema_newer_than_application")
+        return version == CURRENT_SCHEMA_VERSION and revision == REPOSITORY_MIGRATION_REVISION
 
     def _execute_schema(self, script: str) -> None:
         # sqlite3.executescript implicitly commits and would break rollback.
@@ -159,7 +191,7 @@ class Repository:
         try:
             yield self.conn
             self.conn.commit()
-        except Exception:
+        except BaseException:
             self.conn.rollback()
             raise
 

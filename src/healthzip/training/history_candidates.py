@@ -17,6 +17,11 @@ def _instant_microseconds(value):
             + difference.microseconds)
 
 
+def register_history_functions(conn):
+    """Install connection-local functions required by persisted event triggers."""
+    conn.create_function("healthzip_instant_us", 1, _instant_microseconds, deterministic=True)
+
+
 def _last_values_candidate_insert(event, source=""):
     """Project immutable snapshot scalars; the authoritative replay stays unchanged."""
     return f"""INSERT OR REPLACE INTO training_event_set_candidate(
@@ -50,7 +55,7 @@ def _last_values_candidate_insert(event, source=""):
 def migrate_history_candidates(conn):
     # Repository and direct TrainingService/migrate_training callers all pass
     # here on every connection, including a warm database with an existing marker.
-    conn.create_function("healthzip_instant_us", 1, _instant_microseconds, deterministic=True)
+    register_history_functions(conn)
     marker = conn.execute(
         "SELECT value FROM schema_meta WHERE key='training_last_values_projection'"
     ).fetchone()

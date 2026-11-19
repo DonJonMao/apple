@@ -119,7 +119,8 @@ def atomic_energy(rows: list[dict], canonical: str, window: Window) -> dict:
         intervals.sort(key=lambda p: p[0])
         stream_conflicted = False
         for i, first in enumerate(intervals):
-            for second in intervals[i + 1:]:
+            for j in range(i + 1, len(intervals)):
+                second = intervals[j]
                 if second[0] >= first[1]:
                     break
                 if min(first[1], second[1]) > max(first[0], second[0]):

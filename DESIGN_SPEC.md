@@ -14,6 +14,8 @@ v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`Advic
 
 `Repository` 在同一SQLite上执行显式事务升级至schema v5，拒绝更高版本降级；`db/schema.sql` 为单一基表定义，`training/schema.py` 与 `db/temporal_schema.py` 增量扩展。升级不将历史未知负荷、器械、ROM或可见时间补成已知值。备份使用SQLite backup API包含已提交WAL，恢复只能写新路径。
 
+正常连接通过独立迁移标记只读核对就绪状态；冷升级才获取写锁并在锁后重查。训练初始化也有版本及种子字节标记，分析行准备与写入分开，取消和提交失败释放本批次写锁。工作区并发边界与回归见 [数据库并发](docs/database_concurrency.md)。
+
 ## 训练领域
 
 `training/service.py` 是动作目录、别名/收藏/自定义、器械、模板版本、会话、逐组实际、修改/删除/撤销、冲突、计时和建议反馈的统一服务，真实写入既有strength_session/set。原始动作名与稳定目录ID分别保存；条件快照包含动作版本、器械实例、设置、侧别、ROM、负荷口径及次数语义。

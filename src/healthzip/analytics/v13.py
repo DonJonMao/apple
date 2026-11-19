@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from healthzip.db.temporal_schema import current_source_rows, samples_as_of
@@ -371,16 +372,34 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
 def persist(repo, result):
     payload = json.dumps(result, ensure_ascii=False, sort_keys=True, default=str)
     run_id = hashlib.sha256(payload.encode()).hexdigest()
-    repo.conn.execute("INSERT OR IGNORE INTO analysis_run(run_id,cutoff_time,computed_at,algorithm_version,data_hash,result_json) VALUES(?,?,?,?,?,?)",
-                      (run_id, result["cutoff_time"], datetime.now(timezone.utc).isoformat(),
-                       result["algorithm_version"], result["data_hash"], payload))
+    # Finish connection initialization before the first analysis write, so
+    # compatibility migrations/seed checks do not extend its write lock.
     service = TrainingService(repo)
-    pending = service.pending_invalidations()
-    if (pending and result["data_version"] == service.data_version()
-            and all(datetime.fromisoformat(x["created_at"].replace("Z", "+00:00"))
-                    <= datetime.fromisoformat(result["cutoff_time"].replace("Z", "+00:00")) for x in pending)):
-        service.mark_recomputed(result["algorithm_version"], max(x["id"] for x in pending))
-    repo.conn.commit()
+    savepoint = "analysis_run_" + uuid4().hex
+    had_transaction = repo.conn.in_transaction
+    repo.conn.execute(f"SAVEPOINT {savepoint}")
+    try:
+        repo.conn.execute("INSERT OR IGNORE INTO analysis_run(run_id,cutoff_time,computed_at,algorithm_version,data_hash,result_json) VALUES(?,?,?,?,?,?)",
+                          (run_id, result["cutoff_time"], datetime.now(timezone.utc).isoformat(),
+                           result["algorithm_version"], result["data_hash"], payload))
+        pending = service.pending_invalidations()
+        if (pending and result["data_version"] == service.data_version()
+                and all(datetime.fromisoformat(x["created_at"].replace("Z", "+00:00"))
+                        <= datetime.fromisoformat(result["cutoff_time"].replace("Z", "+00:00")) for x in pending)):
+            service.mark_recomputed(result["algorithm_version"], max(x["id"] for x in pending))
+        repo.conn.commit()
+    except BaseException:
+        try:
+            if repo.conn.in_transaction:
+                repo.conn.execute(f"ROLLBACK TO SAVEPOINT {savepoint}")
+                repo.conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+        except BaseException:
+            if not had_transaction:
+                try:
+                    repo.conn.rollback()
+                except BaseException:
+                    pass
+        raise
     return run_id
 
 

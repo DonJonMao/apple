@@ -6,6 +6,7 @@ import json
 from datetime import date, datetime, timedelta, timezone
 from statistics import median, quantiles
 from typing import Any, Optional
+from uuid import uuid4
 
 from healthzip.db.repository import Repository
 from healthzip.quality.coverage import readiness
@@ -485,7 +486,11 @@ def _all_analysis(repo: Repository, window_days: int = 30, *, include_periods=Fa
 
 
 def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
-    """Persist Evidence Cards and selected daily/weekly features for rebuildability."""
+    """Prepare cache rows before taking the short batch write transaction.
+
+    Canonical analysis runs retain their independent frozen commits. A failed
+    or interrupted cache batch rolls back its own insights/features together.
+    """
     now = datetime.now(timezone.utc).isoformat()
     if analysis.get("v13"):
         from healthzip.analytics.v13 import persist
@@ -504,14 +509,15 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             for child in value:
                 yield from walk_cards(child)
 
+    insight_rows = []
+    daily_rows = []
     seen: set[str] = set()
     for card in walk_cards(analysis):
         if card["id"] in seen:
             continue
         seen.add(card["id"])
         window = card.get("window", {})
-        repo.conn.execute(
-            "INSERT OR REPLACE INTO insight(id,title,status,window_start,window_end,summary,facts_json,limitations_json,allowed_actions_json,source_feature_ids_json,algorithm_version,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+        insight_rows.append(
             (
                 card["id"],
                 card.get("title"),
@@ -554,8 +560,7 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             sample_count = row.get("sample_count")
             if sample_count is None:
                 sample_count = len(row.get("source_set_ids") or row.get("source_ids") or []) or 1
-            repo.conn.execute(
-                "INSERT OR REPLACE INTO daily_feature(feature_key,local_date,metric,value,unit,sample_count,quality_state,window_start,window_end,algorithm_version,source_ids_json,limitations_json,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            daily_rows.append(
                 (
                     f"{key}_{day}_{algorithm_version}_{row.get('session_id', 'daily')}_{row.get('source', '')}",
                     day,
@@ -621,4 +626,34 @@ def persist_analysis(repo: Repository, analysis: dict[str, Any]) -> None:
             "kg·reps",
             algorithm_version=analysis.get("strength_quality", {}).get("card", {}).get("algorithm_version", "p1-1.4.5"),
         )
-    repo.conn.commit()
+    # Traversal and JSON encoding above can be expensive for real exports.
+    # No cache write lock is held while constructing these parameter rows.
+    savepoint = "analysis_cache_" + uuid4().hex
+    had_transaction = repo.conn.in_transaction
+    repo.conn.execute(f"SAVEPOINT {savepoint}")
+    try:
+        repo.conn.executemany(
+            "INSERT OR REPLACE INTO insight(id,title,status,window_start,window_end,summary,facts_json,limitations_json,allowed_actions_json,source_feature_ids_json,algorithm_version,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            insight_rows,
+        )
+        repo.conn.executemany(
+            "INSERT OR REPLACE INTO daily_feature(feature_key,local_date,metric,value,unit,sample_count,quality_state,window_start,window_end,algorithm_version,source_ids_json,limitations_json,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            daily_rows,
+        )
+        # COMMIT releases the savepoint on success. Keep it available until
+        # then so a commit failure can roll back this batch alone.
+        repo.conn.commit()
+    except BaseException:
+        try:
+            if repo.conn.in_transaction:
+                repo.conn.execute(f"ROLLBACK TO SAVEPOINT {savepoint}")
+                repo.conn.execute(f"RELEASE SAVEPOINT {savepoint}")
+        except BaseException:
+            # Preserve the original failure if SQLite already removed the
+            # savepoint. Never discard a caller's unrelated pending edits.
+            if not had_transaction:
+                try:
+                    repo.conn.rollback()
+                except BaseException:
+                    pass
+        raise

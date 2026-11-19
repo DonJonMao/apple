@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import date
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -15,14 +16,17 @@ except ImportError:  # pragma: no cover - optional UI dependency
 
 from healthzip.analytics import (
     all_analysis,
+    cycle_analysis,
+    nutrition_analysis,
     persist_analysis,
+    workout_analysis,
 )
 from healthzip.config import DEFAULT_DB_PATH
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
 from healthzip.importers.apple_zip import inspect_zip
 from healthzip.importers.incremental import sync_folder
-from healthzip.quality import inventory
+from healthzip.quality import inventory, readiness
 from healthzip.reporting import render_report
 
 
@@ -130,8 +134,24 @@ try:
     )
     page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
     inv = inventory(repo) if page in {"导入与总览", "报告"} else {}
-    analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name,
-        context_id=st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))) if page not in {"导入与总览", "力量", "知识库"} else {}
+    context_id = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
+    # These workspaces consume their existing factual views. Computing and
+    # freezing the full scientific/workflow result here adds unrelated work.
+    if page == "数据质量":
+        analysis = {"readiness": readiness(repo, window_days=int(window_days), as_of=date.today().isoformat())}
+    elif page == "运动":
+        analysis = {"workouts": workout_analysis(repo, int(window_days))}
+    elif page == "营养":
+        analysis = {"nutrition": nutrition_analysis(repo)}
+    elif page == "周期":
+        analysis = {"cycle": cycle_analysis(repo)}
+    elif page not in {"导入与总览", "力量", "知识库"}:
+        analysis = all_analysis(repo, int(window_days), timezone_name=timezone_name, context_id=context_id)
+    else:
+        analysis = {}
+    if page in {"数据质量", "运动", "营养", "周期"}:
+        from healthzip.workflows.storage import current_context_problem
+        analysis["workflow_context_problem"] = current_context_problem(repo, context_id)
     if analysis:
         persist_analysis(repo, analysis)
     if analysis.get("workflow_context_problem"):
@@ -154,13 +174,13 @@ try:
             use_container_width=True,
         )
     for tab, key in (
-        (pages[2], "heart"),
-        (pages[3], "sleep"),
-        (pages[4], "workouts"),
-        (pages[5], "weight"),
-        (pages[6], "strength"),
-        (pages[7], "nutrition"),
-        (pages[8], "cycle"),
+        ("心率 / HRV", "heart"),
+        ("睡眠", "sleep"),
+        ("运动", "workouts"),
+        ("体重 / 有氧", "weight"),
+        ("力量", "strength"),
+        ("营养", "nutrition"),
+        ("周期", "cycle"),
     ):
         if page == tab:
             value = analysis.get(key, {})

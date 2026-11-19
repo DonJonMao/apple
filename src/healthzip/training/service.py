@@ -15,8 +15,15 @@ from pathlib import Path
 from typing import Callable, Optional
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
-from .history_candidates import latest_values_as_of
-from .schema import EVENT_END_SQL, EVENT_SESSION_SQL, EVENT_START_SQL, migrate_training
+from .history_candidates import latest_values_as_of, register_history_functions
+from .schema import (
+    EVENT_END_SQL,
+    EVENT_QUERY_PROJECTION,
+    EVENT_SESSION_SQL,
+    EVENT_START_SQL,
+    TRAINING_SCHEMA_VERSION,
+    migrate_training,
+)
 from .semantics import (
     LOAD_BASES,
     MEASUREMENT_MODES,
@@ -42,6 +49,10 @@ STOP_REASONS = {
 SESSION_STATES = {"draft", "in_progress", "paused", "completed", "aborted"}
 SCALES = {"cr10": (0, 10), "borg6_20": (6, 20), "rir_rpe10": (1, 10)}
 SESSION_SCALES = {**SCALES, "Foster_modified_CR10": (0, 10)}
+# Increase this revision whenever training initialization gains an additive
+# migration, including additions that retain the public training schema version.
+TRAINING_INITIALIZATION_VERSION = "training-service-init-v1"
+TRAINING_INITIALIZATION_KEY = "training_service_initialization"
 
 
 def _decode(row) -> Optional[dict]:
@@ -68,18 +79,39 @@ class TrainingService:
             raise TrainingError("user_id/device_id 不能为空")
         self.repo, self.conn = repo, repo.conn
         self.user_id, self.device_id = user_id, device_id
-        owns_transaction = not self.conn.in_transaction
-        if owns_transaction:
-            self.conn.execute("BEGIN IMMEDIATE")
-        try:
+        register_history_functions(self.conn)
+        seed_bytes = Path(__file__).with_name("exercise_catalog_seed.json").read_bytes()
+        initialization = (
+            TRAINING_INITIALIZATION_VERSION + ":" + hashlib.sha256(seed_bytes).hexdigest()
+        )
+        if self._initialization_ready(initialization):
+            return
+        with self._transaction():
+            # A concurrent initializer may have completed while we waited for
+            # the write lock. Read its committed markers before running DDL.
+            if self._initialization_ready(initialization):
+                return
             migrate_training(self.conn)
-            self._seed_catalog()
-            if owns_transaction:
-                self.conn.commit()
-        except BaseException:
-            if owns_transaction:
-                self.conn.rollback()
-            raise
+            self._seed_catalog(json.loads(seed_bytes))
+            self.conn.execute(
+                "INSERT INTO schema_meta(key,value) VALUES(?,?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (TRAINING_INITIALIZATION_KEY, initialization),
+            )
+
+    def _initialization_ready(self, initialization):
+        metadata = dict(self.conn.execute(
+            "SELECT key,value FROM schema_meta WHERE key IN (?,?,?,?,?)",
+            (TRAINING_INITIALIZATION_KEY, "training_schema_version", "training_data_version",
+             "training_event_query_projection", "training_last_values_projection"),
+        ))
+        return (
+            metadata.get(TRAINING_INITIALIZATION_KEY) == initialization
+            and metadata.get("training_schema_version") == str(TRAINING_SCHEMA_VERSION)
+            and "training_data_version" in metadata
+            and metadata.get("training_event_query_projection") == EVENT_QUERY_PROJECTION
+            and metadata.get("training_last_values_projection") == "1"
+        )
 
     @contextmanager
     def _transaction(self):
@@ -100,8 +132,9 @@ class TrainingService:
                 self.conn.rollback()
             raise
 
-    def _seed_catalog(self):
-        seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
+    def _seed_catalog(self, seed=None):
+        if seed is None:
+            seed = json.loads(Path(__file__).with_name("exercise_catalog_seed.json").read_text())
         with self._transaction():
             for item in seed["exercises"]:
                 self.conn.execute(
