@@ -214,11 +214,60 @@ class BrowserCheck:
             assert dimensions["document"] <= dimensions["viewport"], dimensions
             assert dimensions["body"] <= dimensions["viewport"], dimensions
             assert not dimensions["bad"], dimensions
-            values.append({"width": width, **dimensions})
+            outer = self.page.evaluate("""() => ({
+                viewport: document.documentElement.clientWidth,
+                document: document.documentElement.scrollWidth,
+                body: document.body.scrollWidth
+            })""")
+            assert outer["document"] <= outer["viewport"], outer
+            assert outer["body"] <= outer["viewport"], outer
+            strength_navigation = self.page.get_by_role("radio", name="力量", exact=True)
+            assert strength_navigation.is_visible() and strength_navigation.is_enabled()
+            values.append({"width": width, **dimensions, "outer_page": outer,
+                           "main_strength_navigation_reachable": True})
         self.page.set_viewport_size({"width": 390, "height": 844})
         self.page.wait_for_timeout(350)
         self.close_mobile_sidebar()
         self.passed("responsive_" + label, widths=values)
+
+    def run_home_empty_session_delete(self, manifest):
+        """Delete a completed zero-action card directly, with real revision/undo."""
+        identity = manifest["calendar_session_ids"][1]
+        original = self.service_read(lambda svc: svc.get_session(identity))
+        assert original["session_status"] == "completed"
+        assert not original["exercises"] and not original["sets"]
+        before_count = self.service_read(lambda svc: svc.count_sessions())
+        before_events = self.service_read(lambda svc: len(svc.audit_events()))
+        card = self.testid("session-card-" + str(identity))
+        assert "尚未添加动作" in card.inner_text() and "0 组完成 · 0 个动作" in card.inner_text()
+        # Delete is a sibling button; opening confirmation never opens detail.
+        self.click("home-delete-session", identity)
+        assert self.testid("session-delete-confirmation").is_visible()
+        assert not self.testid("training-detail").count()
+        assert self.service_read(lambda svc: svc.get_session(identity))["deleted_at"] is None
+        assert self.service_read(lambda svc: len(svc.audit_events())) == before_events
+        self.click("cancel-delete-session")
+        assert self.testid("strength-home").is_visible()
+        assert self.testid("session-card-" + str(identity)).is_visible()
+        assert self.service_read(lambda svc: svc.get_session(identity))["revision"] == original["revision"]
+        self.click("home-delete-session", identity)
+        self.screenshot("12-home-empty-session-delete-mobile.png")
+        self.click("confirm-delete-session")
+        self.wait(lambda: self.testid("session-card-" + str(identity)).count() == 0,
+                  "deleted empty card removed after real acknowledgement")
+        deleted = self.service_read(lambda svc: svc.get_session(identity))
+        assert deleted["deleted_at"] and deleted["revision"] == original["revision"] + 1
+        assert self.service_read(lambda svc: svc.count_sessions()) == before_count - 1
+        # Recovery uses the existing real undo event and restores one identity.
+        self.click("undo")
+        restored = self.service_read(lambda svc: svc.get_session(identity))
+        assert restored["deleted_at"] is None and restored["revision"] == deleted["revision"] + 1
+        assert self.service_read(lambda svc: svc.count_sessions()) == before_count
+        assert self.testid("session-card-" + str(identity)).count() == 1
+        self.passed("home_empty_session_delete", completed_zero_action_zero_set=True,
+                    direct_card_button=True, separate_detail_action=True,
+                    cancellation_no_write=True, real_revision_delete=True,
+                    undo_restores_single_session=True)
 
     def run_primary(self, manifest):
         """Visible clicks/inputs only; database reads verify committed facts."""
@@ -240,6 +289,7 @@ class BrowserCheck:
         self.passed("11_calendar", month_sessions=63, same_day_independent_sessions=61,
                     deleted_excluded=True, utc_month_boundary_included=True, cross_year_navigation=True)
         self.assert_widths("home")
+        self.run_home_empty_session_delete(manifest)
         self.testid("start-training").click()
         self.wait(lambda: self.testid("start-free-training").is_visible(), "free start panel")
         self.screenshot("02-start-empty-mobile.png")
@@ -339,6 +389,22 @@ class BrowserCheck:
         self.wait(lambda: self.testid("training-workbench").is_visible(), "restored saved draft")
         self.idle()
         assert self.row(draft["set_uuid"]).locator('[data-field="load_value"]').input_value() == "34.25"
+        # Real, unified workspace navigation must preserve unsubmitted input.
+        self.row(draft["set_uuid"]).locator('[data-field="reps"]').fill("5")
+        saved_before_switch = self.service_read(lambda svc: svc.get_set(draft["set_uuid"]))
+        assert saved_before_switch["reps"] == 6
+        for workspace, heading in (("睡眠", "睡眠记录"), ("心率 / HRV", "心率与 HRV 记录")):
+            self.page.get_by_role("radio", name=workspace, exact=True).check(force=True)
+            self.wait(lambda title=heading: self.page.get_by_role("heading", name=title, exact=True).is_visible(),
+                      "real " + workspace + " workspace")
+        self.page.get_by_role("radio", name="力量", exact=True).check(force=True)
+        self.wait(lambda: self.testid("training-workbench").is_visible(), "return to same workbench")
+        self.idle()
+        assert self.row(draft["set_uuid"]).locator('[data-field="reps"]').input_value() == "5"
+        saved_after_switch = self.service_read(lambda svc: svc.get_set(draft["set_uuid"]))
+        assert saved_after_switch["reps"] == 6 and saved_after_switch["revision"] == saved_before_switch["revision"]
+        self.passed("workspace_switch_preserves_unsaved", routes=["力量", "睡眠", "心率 / HRV", "力量"],
+                    local_unsaved_reps=5, database_saved_reps=6, training_revision_unchanged=True)
         # Current row keeps unsaved input while entering and leaving history.
         self.row(draft["set_uuid"]).locator('[data-field="reps"]').fill("6")
         self.click("history", instance_id)
@@ -588,7 +654,8 @@ def main():
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     root = Path(__file__).resolve().parents[2]
-    source_names = ["app.py", "src/healthzip/ui/training_page.py",
+    source_names = ["app.py", "src/healthzip/analytics/workspace_summary.py",
+                    "src/healthzip/ui/workspace_summary.py", "src/healthzip/ui/training_page.py",
                     "src/healthzip/ui/training_bridge.py", "src/healthzip/ui/training_workbench.py",
                     "src/healthzip/training/service.py",
                     "src/healthzip/ui/strength_component/index.html",

@@ -26,6 +26,7 @@ from healthzip.reporting import render_report
 from healthzip.ui.body_pages import render_heart, render_sleep, render_weight
 from healthzip.ui.overview import render_overview
 from healthzip.ui.workout_page import render_workouts
+from healthzip.ui.workspace_summary import render_workspace_summary
 
 
 def render_evidence_card(card: dict) -> None:
@@ -114,26 +115,15 @@ try:
         st.session_state["main_workspace"] = "力量"
     if st.session_state.get("main_workspace", pages[0]) not in pages:
         st.session_state["main_workspace"] = pages[0]
-    if st.session_state.get("main_workspace") == "力量":
-        # Keep the phone workbench usable. The standard sidebar still provides
-        # every workspace and the original local storage/import settings.
-        page = st.sidebar.radio("工作区", pages, key="main_workspace")
-        st.markdown(
-            "<style>[data-testid='stMainBlockContainer']{padding:3rem 0.5rem 0;"
-            "max-width:1000px} [data-testid='stMain']{background:#26262B}"
-            "[data-testid='stHeader']{height:2.75rem;background:#26262B}"
-            "[data-testid='stToolbar']{display:none}</style>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.title("训练与健康记录")
-        st.caption("查看身体趋势，记录每次训练。")
-        page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
+    st.title("训练与健康记录")
+    st.caption("查看身体趋势，记录每次训练。")
+    page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
     if page == "力量":
         if st.query_params.get("workspace") != "strength":
             st.query_params["workspace"] = "strength"
     elif st.query_params.get("workspace") == "strength":
         del st.query_params["workspace"]
+    render_workspace_summary(repo, page, timezone_name=timezone_name)
     inv = inventory(repo) if page == "报告" else {}
     context_id = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
     # These workspaces consume their existing factual views. Computing and
