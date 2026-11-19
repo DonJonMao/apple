@@ -8,6 +8,7 @@ import pytest
 from healthzip.advice import build_advice_context, current_use_status, freeze_candidate
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
+from tests.strength_ui_harness import legacy
 
 HELPERS = runpy.run_path(str(Path(__file__).with_name("test_v14_advice_flow.py")))
 
@@ -97,7 +98,8 @@ def test_ui_cleared_time_keeps_current_pain_in_frozen_candidate_evidence(tmp_pat
     row = svc.get_session_exercise(instance["id"])["sets"][0]
     path = repo.path
     repo.close()
-    app = HELPERS["HELPERS"]["open_app"](path)
+    app = HELPERS["HELPERS"]["open_app"](path, monkeypatch)
+    legacy(app, "set_details", set_id=row["set_uuid"])
     key = "set_" + row["set_uuid"]
     app.button(key=key + "_in_progress").click().run(timeout=30)
     app.selectbox(key=key + "_pain").set_value(True)
@@ -105,6 +107,7 @@ def test_ui_cleared_time_keeps_current_pain_in_frozen_candidate_evidence(tmp_pat
     app.selectbox(key=key + "_stop").set_value("pain")
     app.text_input(key=key + "_start").set_value("")
     app.button(key=key + "_save_fields").click().run(timeout=30)
+    HELPERS["HELPERS"]["show_recommendations"](app, instance)
     app.selectbox(key="candidate_target_" + instance["id"]).set_value(row["set_uuid"])
     app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
     app.button(key="candidate_" + instance["id"]).click().run(timeout=30)

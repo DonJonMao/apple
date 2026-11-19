@@ -5,6 +5,7 @@ from pathlib import Path
 
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
+from tests.strength_ui_harness import legacy
 
 HELPERS = runpy.run_path(str(Path(__file__).with_name("test_review_candidate_flow.py")))
 
@@ -42,7 +43,8 @@ def test_f03_current_pain_remains_in_frozen_evidence_and_blocks_upgrade(tmp_path
     limited = _reference(svc, instance, pain=True)
     target = svc.add_set(instance["id"], planned={"reps_min": 6, "reps_max": 8, "rir": 2})
     repo.close()
-    app = HELPERS["open_app"](path)
+    app = HELPERS["open_app"](path, monkeypatch)
+    HELPERS["show_recommendations"](app, instance)
     app.selectbox(key="candidate_target_" + instance["id"]).set_value(target["set_uuid"])
     app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
     app.button(key="candidate_" + instance["id"]).click().run(timeout=30)
@@ -124,15 +126,17 @@ def test_partial_visible_targets_freeze_missing_conditions_without_crashing(tmp_
     target_id = svc.current_targets(instance["id"])["sets"][0]["set_uuid"]
     path = repo.path
     repo.close()
-    app = HELPERS["open_app"](path)
+    app = HELPERS["open_app"](path, monkeypatch)
     prefix = "set_" + target_id
     # Clear each target through the actual saved UI form. Every partial shape
     # must retain the missing fact rather than crash or freeze an incomplete load task.
     for missing in ("high", "rir", "low"):
+        legacy(app, "set_details", set_id=target_id)
         for field, value in (("low", "6"), ("high", "8"), ("rir", "2")):
             app.text_input(key=prefix + "_target_" + field).set_value("" if field == missing else value)
         app.button(key=prefix + "_target_save").click().run(timeout=30)
         assert not app.exception and not app.error
+        HELPERS["show_recommendations"](app, instance)
         app.selectbox(key="candidate_target_" + instance["id"]).set_value(target_id)
         app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
         app.button(key="candidate_" + instance["id"]).click().run(timeout=30)

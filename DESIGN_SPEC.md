@@ -24,7 +24,9 @@ v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`Advic
 
 模板版本在开始时冻结。计划不是完成事实；组具有draft/in_progress/completed/aborted/skipped等状态。客户端事件ID幂等，真实相同组用不同UUID，乐观版本冲突保留双方修改。修订使分析缓存失效，历史事件可按当时可见性重放。
 
-`ui/training_page.py` 为日常窄屏操作，`ui/offline_recorder.html` 为无需远程资产的本地浏览器记录器。后者用localStorage保存草稿/缓存/待发送事件，导入导出作为恢复入口；浏览器清理数据会失去尚未导出的本地资料。REST token鉴权，CORS仅允许同源及本地文件null origin，不是云同步系统。
+`ui/training_page.py` 路由到局部双向力量组件：`training_workbench.py` 按需打开高级工具，`training_bridge.py` 验证命令并调用原训练事件服务，`strength_component/` 随包托管本地生产资源。月历、单动作展开、多选、主行录入及回执恢复见[力量工作台](docs/strength_workbench.md)。未提交编辑按数据库、用户、会话、组隔离在本浏览器；已存草稿在原SQLite中。清理浏览器会丢失未提交编辑。
+
+`ui/offline_recorder.html` 仍为可下载的本地浏览器记录器，用localStorage保存草稿/缓存/待发送事件，导入导出作为恢复入口。REST token鉴权，CORS仅允许同源及本地文件null origin，力量组件没有放宽这些边界。
 
 ## 时间与来源
 

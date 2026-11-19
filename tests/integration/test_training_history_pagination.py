@@ -1,7 +1,12 @@
 """All history remains reachable through bounded normal training-page controls."""
 
+import runpy
+from pathlib import Path
+
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
+
+UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
 
 
 def populated(path):
@@ -36,6 +41,7 @@ def test_paged_session_inventory_preserves_all_ids_and_filters(tmp_path):
 def test_normal_training_page_paginates_and_keeps_active_session(tmp_path, monkeypatch):
     from streamlit.testing.v1 import AppTest
 
+    UI["install"](monkeypatch)
     path = tmp_path / "synthetic-ui-pages.sqlite3"
     repo, _, old, current = populated(path)
     repo.close()
@@ -54,9 +60,10 @@ def test_normal_training_page_paginates_and_keeps_active_session(tmp_path, monke
               f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()")
     app = AppTest.from_string(script).run(timeout=30)
     assert not app.exception
+    UI["management"](app, "历史记录与撤销")
     history = next(widget for widget in app.selectbox if widget.label == "训练历史")
     assert len(history.options) == 50
-    assert app.selectbox(key="resume_training").value == current["id"]
+    assert UI["snapshot"](app)["active_sessions"][0]["id"] == current["id"]
     app.number_input(key="training_history_page").set_value(2).run(timeout=30)
     assert not app.exception
     history = app.selectbox(key="training_history_session")
@@ -65,7 +72,7 @@ def test_normal_training_page_paginates_and_keeps_active_session(tmp_path, monke
     app.text_input(key=f"history_session_name_{old[0]}").set_value("Corrected oldest synthetic")
     next(widget for widget in app.button if widget.label == "保存训练信息").click().run(timeout=30)
     assert not app.exception and not app.error
-    assert app.selectbox(key="resume_training").value == current["id"]
+    assert UI["snapshot"](app)["active_sessions"][0]["id"] == current["id"]
     assert app.selectbox(key="training_history_session").value == old[0]
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -73,6 +80,6 @@ def test_normal_training_page_paginates_and_keeps_active_session(tmp_path, monke
     assert svc.get_session(current["id"])["session_status"] == "in_progress"
     assert len(svc.list_sessions(include_deleted=True)) == 54
     repo.close()
-    assert all(size <= 50 for _, size in returned[:-1])
+    assert all(size <= 50 for args, size in returned[:-1] if args.get("include_deleted"))
     assert all(args.get("active_only") or args.get("limit") == 50
                for args, _ in returned[:-1])

@@ -135,12 +135,17 @@ def test_explicit_step_unit_limits_only_its_incompatible_source_in_mixed_unit_se
 
 
 def test_real_app_shows_dated_pain_beyond_body_window_without_expiry_or_numeric_trial(tmp_path, monkeypatch):
+    from tests.strength_ui_harness import install, legacy, send
+
+    install(monkeypatch)
     repo, _, instance, rows, _, _ = PAGE["ordinary_setup"](tmp_path, monkeypatch)
     observed = (datetime.now(timezone.utc) - timedelta(days=29)).isoformat()
     save_state(repo, observed_at=observed, pain="reported", muscle="chest")
     app = PAGE["HELP"]["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
     assert not app.exception and not app.error
+    assert send(app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
+    legacy(app, "recommendations", instance_id=instance["id"])
     advice = PAGE["latest"](repo, instance)
     assert advice["daily_decisions"]["input_record_ids"] == [row["set_uuid"] for row in rows]
     assert not numeric(advice)

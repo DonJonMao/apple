@@ -14,6 +14,7 @@ from healthzip.db.repository import Repository
 from healthzip.training.current import current_advice, objective_comparison
 from healthzip.training.service import TrainingService
 
+UI = runpy.run_path(str(Path(__file__).resolve().parents[1] / "strength_ui_harness.py"))
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
 
 
@@ -235,27 +236,33 @@ def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch
     template = svc.create_template("Synthetic reference plan", [{"exercise_id": instance["catalog_id"],
         "condition": instance["condition"], "targets": {"sets": [{"reps_min": 8, "reps_max": 12, "rir": 2}]}}])
     svc.end_session(instance["session_id"])
+    UI["install"](monkeypatch)
     app = FLOW["HELP"]["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
-    app.selectbox(key="start_template").set_value(template["id"])
-    app.button(key="training_start").click().run()
+    started = UI["send"](app, "start_session", {"template_id": template["id"]})
+    assert started["status"] == "saved"
     assert not app.exception and not app.error
-    session = svc.get_session(app.session_state["resume_training"])
+    session = svc.get_session(started["data"]["id"])
     selected = session["exercises"][0]
     row = selected["sets"][0]
     assert not row["reference_set"] and not row["reference_declared_at"]
     assert row["completion_state"] == "draft"
+    assert UI["send"](app, "advice", {"instance_id": selected["id"]})["status"] == "saved"
     before = json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE session_exercise_id=? ORDER BY created_at DESC LIMIT 1", (selected["id"],))[0])
     first_option = next(o for o in before["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
     assert (first_option["load"], first_option["reps"]) == (34, 8)
+    UI["legacy"](app, "set_details", set_id=row["set_uuid"])
     FLOW["HELP"]["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, selected, 34, 12, reference=False)
     assert not app.exception and not app.error
     actual = svc.get_set(row["id"])
     assert actual["reference_selection"] is None
     assert not actual["reference_declared_at"]
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
-    app.button(key="training_start").click().run()
-    following = svc.get_session(app.session_state["resume_training"])["exercises"][0]
+    current_session = svc.get_session(session["id"])
+    assert UI["send"](app, "end_session", {"session_id": current_session["id"], "base_revision": current_session["revision"]})["status"] == "saved"
+    following_start = UI["send"](app, "start_session", {"template_id": template["id"]})
+    assert following_start["status"] == "saved"
+    following = svc.get_session(following_start["data"]["id"])["exercises"][0]
+    assert UI["send"](app, "advice", {"instance_id": following["id"]})["status"] == "saved"
     advice = json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE session_exercise_id=? ORDER BY created_at DESC LIMIT 1", (following["id"],))[0])
     option = next(o for o in advice["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
     assert option["basis"]["source_set_id"] == actual["set_uuid"]
@@ -267,7 +274,7 @@ def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch
     old_comparison = objective_comparison(repo, selected["id"])
     session = svc.get_session(session["id"])
     svc.delete_session(session["id"], base_revision=session["revision"])
-    app.run()
+    UI["management"](app, "历史记录与撤销")
     app.selectbox(key="training_history_session").set_value(session["id"]).run()
     assert not app.exception and not app.error
     assert any("这场训练已删除" in w.value for w in app.warning)

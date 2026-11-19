@@ -1,7 +1,12 @@
 """Real Streamlit widget interaction writes and reads the existing Repository."""
 
+import runpy
+from pathlib import Path
+
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
+
+UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
 
 
 def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
@@ -9,6 +14,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
 
     path = tmp_path / "ui.sqlite3"
     monkeypatch.chdir(tmp_path)
+    UI["install"](monkeypatch)
     script = (
         "from healthzip.db.repository import Repository\n"
         "from healthzip.ui.training_page import render_training\n"
@@ -16,6 +22,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     )
     app = AppTest.from_string(script, default_timeout=30).run()
     assert not app.exception
+    UI["management"](app, "模板")
     app.text_input(key="template_name_None").set_value("胸部计划")
     app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
     app.text_input(key="template_condition_new_machine").set_value("合成验收史密斯")
@@ -41,9 +48,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     plan = TrainingService(repo).list_templates()[0]["id"]
     repo.close()
     app.run()
-    app.selectbox(key="start_template").set_value(plan)
-    app.text_input(key="start_name").set_value("第一次胸部")
-    app.button(key="training_start").click().run()
+    UI["send"](app, "start_session", {"template_id": plan, "name": "第一次胸部"})
     assert not app.exception
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -51,6 +56,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     set_id = first["sets"][0]["set_uuid"]
     assert first["completed_sets"] == 0
     repo.close()
+    UI["legacy"](app, "set_details", set_id=set_id)
     for field, value in (("load_value", "30"), ("reps", "10"), ("rir", "2")):
         app.text_input(key=f"set_{set_id}_{field}").set_value(value).run()
         assert not app.exception and not app.error
@@ -66,12 +72,9 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
         "plan_target",
     )
     repo.close()
-    app.text_area(key="session_feedback").set_value("合成验收：完成，无手表数据")
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+    UI["send"](app, "end_session", {"session_id": first["session_uuid"], "base_revision": first["revision"], "notes": "合成验收：完成，无手表数据"})
     assert not app.exception and not app.error
-    app.selectbox(key="start_template").set_value(plan)
-    app.text_input(key="start_name").set_value("第二次胸部")
-    app.button(key="training_start").click().run()
+    UI["send"](app, "start_session", {"template_id": plan, "name": "第二次胸部"})
     assert not app.exception
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -80,6 +83,8 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     assert second["completed_sets"] == 0
     assert svc.last_values(instance_id)["suggested_actual"]["load_value"] == "30"
     repo.close()
+    UI["legacy"](app, "recommendations", instance_id=instance_id)
+    app.checkbox(key="strength_old_recommendations").check().run()
     app.button(key="candidate_" + instance_id).click().run()
     assert not app.exception and not app.error
     repo = Repository(path)
@@ -90,7 +95,7 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     assert candidate["input_snapshot"]["source_record_ids"] == [actual["set_uuid"]]
     assert any("候选 / 缺项" in str(x.value) for x in app.markdown)
     repo.close()
-    app.button(key="last_" + instance_id).click().run()
+    UI["send"](app, "copy_history", {"instance_id": instance_id, "base_revision": second["exercises"][0]["revision"], "source_set_id": actual["set_uuid"]})
     assert not app.exception
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -99,17 +104,20 @@ def test_chest_template_smith_two_sessions_end_to_end(tmp_path, monkeypatch):
     assert copied["completion_state"] == "draft" and second["completed_sets"] == 0
     repo.close()
     set_id = copied["set_uuid"]
+    UI["legacy"](app, "set_details", set_id=set_id)
     app.text_input(key=f"set_{set_id}_load_value").set_value("32.5").run()
     app.text_input(key=f"set_{set_id}_reps").set_value("8").run()
     app.text_input(key=f"set_{set_id}_rir").set_value("2").run()
     app.selectbox(key=f"set_{set_id}_stop").set_value("plan_target")
     app.button(key=f"set_{set_id}_completed").click().run()
     assert not app.exception and not app.error
-    assert any("两侧配重合计变化：+5 kg" in str(x.value) for x in app.markdown)
-    app.text_area(key="session_feedback").set_value("合成验收：第二场完成8次")
-    app.text_input(key="session_srpe").set_value("7")
-    app.text_input(key="session_minutes").set_value("45")
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+    from healthzip.training.semantics import load_change
+    check = Repository(path)
+    latest = TrainingService(check).get_set(set_id)
+    check.close()
+    assert load_change(actual, latest, latest["condition"])["plates_total_change_kg"] == 5
+    UI["send"](app, "end_session", {"session_id": second["session_uuid"], "base_revision": second["revision"],
+        "notes": "合成验收：第二场完成8次", "session_rpe": "7", "duration_minutes": "45"})
     assert not app.exception and not app.error
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -139,6 +147,7 @@ def test_training_ui_condition_target_replacement_order_and_numeric_errors(tmp_p
     from streamlit.testing.v1 import AppTest
 
     monkeypatch.chdir(tmp_path)
+    UI["install"](monkeypatch)
     path = tmp_path / "maintenance.sqlite3"
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -154,10 +163,12 @@ def test_training_ui_condition_target_replacement_order_and_numeric_errors(tmp_p
     )
     app = AppTest.from_string(script, default_timeout=30).run()
     assert not app.exception
+    UI["legacy"](app, "instance_settings", instance_id=original["id"])
     prefix = "instance_" + original["id"]
     app.text_input(key=prefix + "_condition_rom").set_value("合成完整幅度")
     app.button(key=prefix + "_condition_save").click().run()
     assert not app.exception and not app.error
+    UI["legacy"](app, "set_details", set_id=one["set_uuid"])
     set_prefix = "set_" + one["set_uuid"]
     app.text_input(key=set_prefix + "_target_low").set_value("6")
     app.text_input(key=set_prefix + "_target_high").set_value("8")
@@ -167,6 +178,7 @@ def test_training_ui_condition_target_replacement_order_and_numeric_errors(tmp_p
     app.text_input(key=set_prefix + "_reps").set_value("8").run()
     app.button(key=set_prefix + "_completed").click().run()
     assert not app.exception and not app.error
+    UI["legacy"](app, "instance_settings", instance_id=original["id"])
     app.text_input(key=prefix + "_condition_rom").set_value("不能覆盖已执行条件")
     app.button(key=prefix + "_condition_save").click().run()
     assert not app.exception and any("测量条件不可覆盖" in str(x.value) for x in app.error)
@@ -183,17 +195,23 @@ def test_training_ui_condition_target_replacement_order_and_numeric_errors(tmp_p
     assert svc.get_set(two["id"])["completion_state"] == "skipped"
     replacement = svc.get_session_exercise(original["id"])["replaced_by_instance_id"]
     repo.close()
-    app.button(key="session_up_" + replacement).click().run()
+    UI["legacy"](app, "instance_settings", instance_id=replacement)
+    next(b for b in app.button if b.label == "将此动作上移").click().run()
     assert not app.exception and not app.error
     repo = Repository(path)
     assert TrainingService(repo).get_session(session["id"])["exercises"][0]["id"] == replacement
     repo.close()
-    app.text_input(key="timer_target").set_value("不是数字")
-    next(b for b in app.button if b.label == "开始休息计时").click().run()
-    assert not app.exception and app.error
-    app.text_input(key="session_minutes").set_value("不是数字")
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
-    assert not app.exception and app.error
+    repo = Repository(path)
+    current_revision = TrainingService(repo).get_session(session["id"])["revision"]
+    repo.close()
+    assert UI["send"](app, "timer", {"session_id": session["session_uuid"],
+        "base_revision": current_revision,
+        "action": "start", "target_seconds": "不是数字"})["status"] == "error"
+    check = Repository(path)
+    current_session = TrainingService(check).get_session(session["id"])
+    check.close()
+    assert UI["send"](app, "end_session", {"session_id": session["session_uuid"],
+        "base_revision": current_session["revision"], "duration_minutes": "不是数字"})["status"] == "error"
     repo = Repository(path)
     assert TrainingService(repo).get_session(session["id"])["session_status"] == "in_progress"
     repo.close()
@@ -203,6 +221,7 @@ def test_training_ui_empty_history_import_preview_apply_and_export(tmp_path, mon
     from streamlit.testing.v1 import AppTest
 
     monkeypatch.chdir(tmp_path)
+    UI["install"](monkeypatch)
     legacy = tmp_path / "legacy.csv"
     legacy.write_text(
         "date,exercise_name,equipment,weight,reps,weight_unit,warmup\n2026-11-01,Synthetic Bench,smith,30,10,kg,false\n"
@@ -214,6 +233,7 @@ def test_training_ui_empty_history_import_preview_apply_and_export(tmp_path, mon
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
     app = AppTest.from_string(script, default_timeout=30).run()
+    UI["management"](app, "导入导出")
     app.text_input(key="training_import_path").set_value(str(legacy))
     app.button(key="training_import_preview").click().run()
     assert not app.exception and not app.error

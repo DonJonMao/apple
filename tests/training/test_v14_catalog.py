@@ -485,6 +485,9 @@ def test_no_source_muscle_tag_promotes_professional_relation(repo, tmp_path):
 def test_f05_real_ui_new_session_and_explicit_resume(tmp_path, monkeypatch):
     from streamlit.testing.v1 import AppTest
 
+    from tests.strength_ui_harness import install, send, snapshot
+
+    install(monkeypatch)
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "ui.sqlite3"
     script = (
@@ -492,39 +495,34 @@ def test_f05_real_ui_new_session_and_explicit_resume(tmp_path, monkeypatch):
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
     app = AppTest.from_string(script).run(timeout=30)
-    app.text_input(key="start_name").set_value("第一场")
-    app.button(key="training_start").click().run(timeout=30)
-    first = app.selectbox(key="resume_training").value
-    app.text_input(key="start_name").set_value("第二场")
-    app.button(key="training_start").click().run(timeout=30)
-    second = app.selectbox(key="resume_training").value
-    assert first != second and not app.exception
-    app.text_input(key="session_selector_query").set_value("杠铃平板卧推").run(timeout=30)
-    app.selectbox(key="session_condition_basis").set_value("unknown")
-    next(b for b in app.button if b.label == "添加到本次训练").click().run(timeout=30)
+    first = send(app, "start_session", {"name": "第一场"})["data"]
+    second = send(app, "start_session", {"name": "第二场"})["data"]
+    assert first["id"] != second["id"] and not app.exception
+    assert send(app, "add_exercises", {"session_id": second["id"],
+        "base_revision": second["revision"], "exercises": ["psa.ex.barbell_bench_press"]})["status"] == "saved"
     repo = Repository(path)
     svc = TrainingService(repo)
-    assert not svc.get_session(first)["exercises"]
-    assert svc.get_session(second)["exercises"][0]["catalog_id"] == "psa.ex.barbell_bench_press"
-    second_instance = svc.get_session(second)["exercises"][0]["id"]
+    assert not svc.get_session(first["id"])["exercises"]
+    assert svc.get_session(second["id"])["exercises"][0]["catalog_id"] == "psa.ex.barbell_bench_press"
+    row = svc.get_session(second["id"])["sets"][0]
     repo.close()
-    app.button(key="add_set_" + second_instance).click().run(timeout=30)
-    repo = Repository(path)
-    second_set = TrainingService(repo).get_session(second)["sets"][0]["set_uuid"]
-    repo.close()
-    app.text_input(key="set_" + second_set + "_reps").set_value("8")
-    app.button(key="set_" + second_set + "_completed").click().run(timeout=30)
-    app.selectbox(key="resume_training").set_value(first).run(timeout=30)
-    app.text_input(key="session_selector_query").set_value("平板支撑").run(timeout=30)
-    app.selectbox(key="session_selector_choice").set_value("psa.ex.plank")
-    app.selectbox(key="session_condition_basis").set_value("unknown")
-    next(b for b in app.button if b.label == "添加到本次训练").click().run(timeout=30)
+    assert send(app, "save_set", {"set_id": row["set_uuid"], "base_revision": row["revision"],
+        "changes": {"reps": "8"}, "complete": True})["status"] == "saved"
+    assert send(app, "session", {"session_id": first["id"]})["status"] == "saved"
+    assert snapshot(app)["session"]["id"] == first["id"]
+    assert send(app, "add_exercises", {"session_id": first["id"],
+        "base_revision": first["revision"], "exercises": ["psa.ex.plank"]})["status"] == "saved"
     assert not app.exception
     repo = Repository(path)
-    assert TrainingService(repo).get_session(first)["exercises"][0]["catalog_id"] == "psa.ex.plank"
-    assert len(TrainingService(repo).get_session(second)["exercises"]) == 1
-    assert TrainingService(repo).get_session(second)["sets"][0]["reps"] == 8
-    assert not TrainingService(repo).get_session(first)["sets"]
+    svc = TrainingService(repo)
+    selected = svc.get_session(first["id"])
+    assert selected["exercises"][0]["catalog_id"] == "psa.ex.plank"
+    assert len(svc.get_session(second["id"])["exercises"]) == 1
+    assert svc.get_session(second["id"])["sets"][0]["reps"] == 8
+    # The new contract supplies one empty draft, never a completed fact.
+    assert len(selected["sets"]) == 1 and selected["completed_sets"] == 0
+    assert selected["sets"][0]["completion_state"] == "draft"
+    assert all(selected["sets"][0].get(field) is None for field in ("load_value", "duration_s", "rir"))
     repo.close()
 
 

@@ -12,8 +12,7 @@ from uuid import uuid4
 import streamlit as st
 
 from healthzip.db.repository import Repository
-from healthzip.training.offline import recorder_html
-from healthzip.training.semantics import LOAD_BASES, load_change, numeric
+from healthzip.training.semantics import LOAD_BASES, numeric
 from healthzip.training.service import TrainingService
 
 LOAD_LABELS = {
@@ -911,7 +910,8 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
         ("失败尝试 / 中止", "aborted"),
         ("跳过", "skipped"),
     ]:
-        if st.button(label, key=prefix + "_" + state, type="primary" if state == "completed" else "secondary"):
+        if st.button(label, key=prefix + "_" + state, type="primary" if state == "completed" else "secondary",
+                     disabled=state == "completed" and row.get("completion_state") == "completed"):
             dirty = _form_dirty(prefix, baseline)
             updates = {key: value for key, value in updates.items() if key in dirty}
             updates["completion_state"] = state
@@ -941,93 +941,10 @@ def _set_editor(repo, svc, row, instance, key_prefix="set"):
 
 
 def render_training(repo):
-    svc = TrainingService(repo)
-    st.subheader("我的训练")
-    st.caption("新增训练 → 选择动作 → 新增一组 → 保存实际记录。没有模板也可以开始。")
-    if notice := st.session_state.pop("training_notice", None):
-        st.warning(notice)
+    """Render exactly one daily view; secondary editors are loaded on demand."""
+    from healthzip.ui.training_workbench import render_workbench
 
-    st.markdown("### 新增训练")
-    templates = svc.list_templates()
-    region = st.selectbox("今天准备训练的部位（可选）", [None, *REGIONS],
-        format_func=lambda value: REGIONS.get(value, "直接选择动作或已有计划"), key="current_training_region")
-    if region:
-        matches = svc.search_exercises(regions=[region])
-        ids = {item["exercise_id"] for item in matches}
-        related = [t for t in templates if any(item["exercise_id"] in ids for item in t["items"])]
-        st.write("相关已有计划：", "、".join(t["name"] for t in related) or "尚无相关计划，可自主选择动作。")
-        with st.expander("查看该部位的动作与近期训练背景"):
-            st.dataframe([{"动作": item["name"], "部位": "、".join(REGIONS.get(r, r) for r in item.get("display_regions", [])),
-                "肌群标签": "、".join(p["muscle_id"] for p in item.get("muscle_participation_proposals", [])) or "待核对"}
-                for item in matches], hide_index=True)
-            st.caption("现有部位与肌群标签用于查找；未经审核的映射不用于计算训练剂量。确定动作前不生成具体重量或整套计划。")
-            from datetime import timedelta
-
-            cutoff = datetime.now(timezone.utc)
-            rows = svc.history_as_of(cutoff_time=cutoff.isoformat(),
-                window_start=(cutoff-timedelta(days=30)).isoformat(), window_end=cutoff.isoformat())
-            recent = [r for r in rows if r.get("catalog_id", r.get("exercise_id")) in ids and r.get("completion_state") == "completed"]
-            if recent:
-                st.write("近 30 日该部位的已有记录（查看范围，不是生理阈值）")
-                st.dataframe([{k: r.get(k) for k in ("ended_at", "exercise_name", "load_value", "load_unit", "reps", "rir")}
-                    for r in recent], hide_index=True)
-    labels = {x["id"]: x["name"] for x in templates}
-    selected = st.selectbox(
-        "使用已有计划（可选）",
-        [None, *labels],
-        format_func=lambda x, labels=labels: labels.get(x, "不使用计划，自由记录"),
-        key="start_template",
-    )
-    name = st.text_input("本次训练名称（可留空）", key="start_name")
-    if st.button("新增训练", key="training_start", type="primary"):
-        result = _act(svc.start_session, name, template_id=selected)
-        if result:
-            st.session_state["resume_training"] = result["id"]
-            if region:
-                st.session_state["session_selector_regions"] = [region]
-            else:
-                st.session_state.pop("session_selector_regions", None)
-            st.session_state.pop("active_training", None)
-            for key in (
-                "session_feedback",
-                "session_srpe",
-                "session_minutes",
-                "timer_target",
-                "timer_extension",
-            ):
-                st.session_state.pop(key, None)
-            st.rerun()
-    active = svc.list_sessions(active_only=True)
-    if active:
-        st.markdown("### 当前训练")
-        labels = {x["id"]: f"{x['session_date']} · {x['name']} · #{x['id']}" for x in active}
-        if st.session_state.get("resume_training") not in labels:
-            st.session_state.pop("resume_training", None)
-        identity = st.selectbox(
-            "继续未结束训练", list(labels), format_func=labels.get, key="resume_training"
-        )
-        _session(repo, svc, svc.get_session(identity))
-    else:
-        st.info("当前没有进行中的训练。点击“新增训练”，再选择本次要做的动作。")
-
-    st.markdown("### 训练管理")
-    pages = st.tabs(["模板", "动作维护", "历史 / 冲突"])
-    with pages[0]:
-        _templates(svc)
-    with pages[1]:
-        _catalog(svc)
-    with pages[2]:
-        _history(svc)
-    with st.expander("离线训练记录器"):
-        st.download_button(
-            "下载可离线打开的记录器",
-            recorder_html(repo),
-            file_name="HealthZIP_离线记录器.html",
-            mime="text/html",
-        )
-        st.caption(
-            "先连接本机接收器并缓存模板。独立文件可断网刷新，草稿保存在本浏览器；恢复连接后按原请求ID同步。手机填电脑局域网地址和token；普通局域网页面断网重开不保证可用。"
-        )
+    render_workbench(repo)
 
 
 def _templates(svc):
@@ -1274,189 +1191,6 @@ def _instance_controls(svc, instance):
                         base_revision=instance["revision"],
                     ):
                         st.rerun()
-
-
-def _finish_session(svc, session):
-    """Save optional session fields through the same service from either entry."""
-    minutes = st.session_state.get("session_minutes", "")
-    srpe = st.session_state.get("session_srpe", "")
-    duration = numeric(minutes, "训练时长分钟")
-    collected_at = _now()
-    return svc.end_session(
-        session["id"],
-        feedback={"notes": st.session_state.get("session_feedback", "")},
-        session_rpe=srpe or None,
-        ended_at=collected_at,
-        rpe_scale=st.session_state.get("session_srpe_scale", "cr10") if srpe else None,
-        rpe_collected_at=collected_at if srpe else None,
-        duration_seconds=duration * 60 if duration is not None else None,
-        duration_protocol="user_elapsed_including_rest" if minutes else None,
-    )
-
-
-def _session(repo, svc, session):
-    st.write(f"{session['name']} · 已确认完成 {session['completed_sets']} 组")
-    with st.expander("训练前状态（可选）"):
-        from healthzip.state_log import ANCHORS, save_state
-
-        st.caption("这是本产品的记录问卷，不是已验证临床量表。留空表示未记录。")
-        fatigue = st.selectbox(
-            "当前总体疲劳",
-            [None, 0, 1, 2, 3, 4],
-            format_func=lambda x: "未回答" if x is None else ANCHORS[str(x)],
-            key="pre_fatigue",
-        )
-        soreness = st.selectbox(
-            "当前酸痛",
-            [None, 0, 1, 2, 3, 4],
-            format_func=lambda x: "未回答" if x is None else ANCHORS[str(x)],
-            key="pre_soreness",
-        )
-        muscle = st.text_input("酸痛部位 / 侧别", key="pre_muscle")
-        pain = st.selectbox(
-            "疼痛或不适",
-            [None, "reported", "denied", "unknown"],
-            format_func=lambda x: {
-                None: "未回答",
-                "reported": "有",
-                "denied": "明确没有",
-                "unknown": "不确定",
-            }[x],
-            key="pre_pain",
-        )
-        impact = st.text_input("不适对动作的影响", key="pre_impact")
-        if st.button("保存当前状态"):
-            if _act(
-                save_state,
-                repo,
-                fatigue=fatigue,
-                soreness=soreness,
-                pain=pain,
-                muscle=muscle or None,
-                movement_impact=impact or None,
-            ):
-                st.success("已保存观察和录入时间。它不会自动换算为重量或恢复总分。")
-    with st.expander("选择动作并添加到本次训练", expanded=not session["exercises"]):
-        item = _selector(svc, "session_selector")
-        if item:
-            try:
-                condition = _condition_form(svc, item, "session_condition", compact=True)
-            except ValueError:
-                st.info("杆重应为数字或留空。")
-                return
-            if st.button("添加到本次训练", key="training_add_exercise", type="primary"):
-                if _act(svc.add_exercise, session["id"], item["exercise_id"], condition):
-                    st.rerun()
-    for instance in session["exercises"]:
-        if instance.get("deleted_at"):
-            continue
-        st.markdown("### " + instance["exercise"]["name"])
-        if instance.get("catalog_active") is False:
-            st.caption("此来源动作已停用，当前训练保留原定义与历史数值。")
-        st.caption(LOAD_LABELS.get(instance["condition"]["load_basis"], "未知口径"))
-        if not instance["sets"]:
-            st.info("动作已加入。点击“新增一组”，填写实际重量、次数等，再点击“保存实际记录（确认完成）”。")
-        if not instance.get("replaced_by_instance_id") and st.button(
-            "新增一组", key="add_set_" + instance["id"], type="primary"
-        ):
-            if _act(svc.add_set, instance["id"], {"load_unit": "kg"}):
-                st.rerun()
-        for row in instance["sets"]:
-            _set_editor(repo, svc, row, instance)
-        _instance_controls(svc, instance)
-        with st.expander("可选：复制一条同条件历史记录为草稿"):
-            previous = svc.last_values(instance["id"])
-            if previous["status"] == "available":
-                st.write("可复制的单条记录：", previous["suggested_actual"])
-                st.caption("来源时间：" + str(previous.get("source_event_time")) + "；这条记录不代表整场训练或本次目标。")
-                if st.button("带入上次值为草稿", key="last_" + instance["id"]):
-                    if _act(svc.add_set, instance["id"], previous["suggested_actual"]):
-                        st.rerun()
-            else:
-                st.caption("暂无可复制的同条件记录；仍可正常记录。")
-        from healthzip.ui.current_training import render_current_training
-        render_current_training(repo, instance)
-        with st.expander("可选：旧建议与手工反馈"):
-            from healthzip.ui.recommendation_page import render_candidates
-            render_candidates(repo, svc, session, instance)
-        index = session["exercises"].index(instance)
-        if index and st.button("将此动作上移", key="session_up_" + instance["id"]):
-            ids = [x["id"] for x in session["exercises"] if not x.get("deleted_at")]
-            pos = ids.index(instance["id"])
-            ids[pos - 1], ids[pos] = ids[pos], ids[pos - 1]
-            if _act(svc.reorder_exercises, session["id"], ids, base_revision=session["revision"]):
-                st.rerun()
-        completed = [
-            x
-            for x in instance["sets"]
-            if x.get("completion_state") == "completed" and not x.get("deleted_at")
-        ]
-        if completed and previous.get("suggested_actual"):
-            delta = load_change(previous["suggested_actual"], completed[-1], instance["condition"])
-            if delta["plates_total_change_kg"] is not None:
-                st.write(f"两侧配重合计变化：{delta['plates_total_change_kg']:+g} kg")
-                if delta["external_total_change_kg"] is None:
-                    st.caption("有效杆重未知，未计算含杆总负荷或百分比。")
-    if st.button("结束训练", key="training_end", type="primary"):
-        if _act(_finish_session, svc, session):
-            st.rerun()
-    st.caption("已保存的实际记录会保留；整场反馈和主观用力评分可留空。")
-    with st.expander("休息计时与整场反馈（可选）"):
-        target = st.text_input("本次休息目标秒数（留空为正计时）", key="timer_target")
-        if st.button("开始休息计时"):
-            if _act(svc.rest_timer, session["id"], "start", target_seconds=target or None):
-                st.rerun()
-        timer = session.get("rest_timer")
-        if timer:
-            st.write(timer)
-            st.caption("计时提示不等于实际休息；实际休息由两组的真实结束/开始事件计算。")
-            for label, action in (
-                ("暂停计时", "pause"),
-                ("继续计时", "resume"),
-                ("跳过休息", "skip"),
-            ):
-                if st.button(label):
-                    if _act(svc.rest_timer, session["id"], action):
-                        st.rerun()
-            extension = st.text_input("增加休息秒数", key="timer_extension")
-            if st.button("延长休息"):
-                if extension:
-                    if _act(svc.rest_timer, session["id"], "extend", target_seconds=extension):
-                        st.rerun()
-        if st.button("继续训练"):
-            _act(
-                svc.update_session,
-                session["id"],
-                {"session_status": "in_progress"},
-                base_revision=session["revision"],
-            )
-            st.rerun()
-        if st.button("暂停训练"):
-            _act(
-                svc.update_session,
-                session["id"],
-                {"session_status": "paused"},
-                base_revision=session["revision"],
-            )
-            st.rerun()
-        note = st.text_area("本次反馈 / 未完成原因", key="session_feedback")
-        st.text_input("整次训练主观用力（0–10，可留空）", key="session_srpe")
-        st.selectbox("整场评分的实际量表", ["cr10", "Foster_modified_CR10"],
-            format_func=lambda value: {"cr10": "CR-10（未确认 Foster 修改版）",
-                "Foster_modified_CR10": "Foster 修改 CR-10（回顾整场）"}[value], key="session_srpe_scale")
-        st.text_input("整次训练时长（分钟，可留空）", key="session_minutes")
-        if st.button("中断并保留记录"):
-            if _act(
-                svc.update_session,
-                session["id"],
-                {"session_status": "aborted", "ended_at": _now(), "feedback": {"notes": note}},
-                base_revision=session["revision"],
-            ):
-                st.rerun()
-        if st.button("结束训练并保存反馈"):
-            result = _act(_finish_session, svc, session)
-            if result:
-                st.rerun()
 
 
 def _exchange(svc):

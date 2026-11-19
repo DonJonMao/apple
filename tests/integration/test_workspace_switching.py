@@ -1,6 +1,7 @@
 """Full local app workspaces use their own routes and avoid opener write locks."""
 
 import json
+import runpy
 import socket
 import sqlite3
 from contextlib import closing
@@ -20,10 +21,12 @@ from healthzip.workflows import save_context
 from healthzip.workflows.storage import withdraw_context
 
 APP = Path(__file__).resolve().parents[2] / "app.py"
+UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
 
 
 @pytest.fixture
 def isolated_workspace(tmp_path, monkeypatch):
+    UI["install"](monkeypatch)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("STREAMLIT_BROWSER_GATHER_USAGE_STATS", "false")
 
@@ -66,7 +69,8 @@ def test_all_visible_workspaces_switch_and_optional_sections_stay_hidden(isolate
         if page == "导入与总览":
             assert "数据总览" in headers
         elif page == "力量":
-            assert "我的训练" in headers
+            assert UI["snapshot"](app)["today"]
+            assert not app.tabs
         elif page == "分析":
             assert "训练分析" in headers
             assert "营养记录与完整度" not in headers
@@ -206,29 +210,22 @@ def test_overview_shows_readable_updates_and_direct_recording_entry(isolated_wor
     app.button(key="overview_open_training").click().run()
     assert_page_ok(app)
     assert app.radio(key="main_workspace").value == "力量"
-    assert app.button(key="training_start").label == "新增训练"
-    app.button(key="training_start").click().run()
-    assert_page_ok(app)
-    session_id = app.session_state["resume_training"]
-    app.text_input(key="session_selector_query").set_value("杠铃卧推").run()
-    app.selectbox(key="session_selector_choice").set_value("psa.ex.barbell_bench_press")
-    app.checkbox(key="session_condition_confirmed").check()
-    app.button(key="training_add_exercise").click().run()
+    UI["send"](app, "start_session")
+    session = UI["snapshot"](app)["session"]
+    session_id = session["id"]
+    assert UI["send"](app, "add_exercises", {"session_id": session["session_uuid"],
+        "base_revision": session["revision"], "exercises": ["psa.ex.barbell_bench_press"]})["status"] == "saved"
     assert_page_ok(app)
     with closing(Repository(isolated_workspace)) as repo:
         session = TrainingService(repo).get_session(session_id)
         assert session["template_id"] is None and len(session["exercises"]) == 1
-        instance_id = session["exercises"][0]["id"]
-    app.button(key="add_set_" + instance_id).click().run()
-    with closing(Repository(isolated_workspace)) as repo:
-        row = TrainingService(repo).get_session(session_id)["sets"][0]
-    prefix = "set_" + row["set_uuid"]
-    app.button(key=prefix + "_in_progress").click().run()
-    app.text_input(key=prefix + "_load_value").set_value("40").run()
-    app.text_input(key=prefix + "_reps").set_value("8").run()
-    app.button(key=prefix + "_completed").click().run()
+        assert len(session["sets"]) == 1 and session["completed_sets"] == 0
+        row = session["sets"][0]
+    assert UI["send"](app, "save_set", {"set_id": row["set_uuid"], "base_revision": row["revision"],
+        "complete": True, "changes": {"load_value": "40", "load_unit": "kg", "reps": "8"}})["status"] == "saved"
     assert_page_ok(app)
-    app.button(key="training_end").click().run()
+    assert UI["send"](app, "end_session", {"session_id": session["session_uuid"],
+        "base_revision": UI["snapshot"](app)["session"]["revision"]})["status"] == "saved"
     assert_page_ok(app)
     with closing(Repository(isolated_workspace)) as repo:
         finished = TrainingService(repo).get_session(session_id)

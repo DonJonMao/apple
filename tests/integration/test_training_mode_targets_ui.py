@@ -1,5 +1,7 @@
 """The normal per-set editor preserves mode, plan history and optimistic edits."""
+import runpy
 from contextlib import closing
+from pathlib import Path
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -7,8 +9,11 @@ from streamlit.testing.v1 import AppTest
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
 
+UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
+
 
 def setup_app(tmp_path, monkeypatch, mode, target):
+    UI["install"](monkeypatch)
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "synthetic-mode-target.sqlite3"
     with closing(Repository(path)) as repo:
@@ -23,6 +28,7 @@ def setup_app(tmp_path, monkeypatch, mode, target):
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     ).run(timeout=30)
     assert not app.exception and not app.error
+    UI["legacy"](app, "set_details", set_id=session["sets"][0]["set_uuid"])
     return app, path, session, exercise
 
 

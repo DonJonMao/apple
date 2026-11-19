@@ -1,16 +1,20 @@
 """Review R03/R08: candidate tasks start from visible training controls.
 
 Knowledge authority is synthetic and confined to pytest's temporary directory.
-Training inputs, protocols, targets, execution and feedback use real UI controls.
+Training commands use the real component transport adapter; advanced protocols,
+targets, execution and feedback use real secondary Streamlit controls. Browser
+interactions are verified separately by the workbench browser acceptance.
 """
 
 import pytest
 
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
+from tests.strength_ui_harness import install, legacy, management, send, snapshot
 
 
-def open_app(path):
+def open_app(path, monkeypatch):
+    install(monkeypatch)
     from streamlit.testing.v1 import AppTest
 
     return AppTest.from_string(
@@ -31,19 +35,33 @@ def current(path):
 
 
 def start_with_exercise(app, path):
-    app.text_input(key="start_name").set_value("Synthetic review trial")
-    app.button(key="training_start").click().run()
-    app.text_input(key="session_selector_query").set_value("杠铃卧推").run()
-    app.checkbox(key="session_condition_confirmed").check()
-    next(b for b in app.button if b.label == "添加到本次训练").click().run()
+    assert send(app, "start_session", {"name": "Synthetic review trial"})["status"] == "saved"
+    session = snapshot(app)["session"]
+    assert send(app, "add_exercises", {"session_id": session["id"],
+        "base_revision": session["revision"],
+        "exercises": [{"exercise_id": "psa.ex.barbell_bench_press"}]})["status"] == "saved"
+    instance = current(path)["exercises"][0]
+    legacy(app, "recommendations", instance_id=instance["id"])
+    app.checkbox(key="strength_old_recommendations").check().run()
     assert not app.exception and not app.error, [e.value for e in app.error]
-    return current(path)["exercises"][0]
+    return instance
+
+
+def end_current(app, path):
+    session = current(path)
+    assert send(app, "end_session", {"session_id": session["id"],
+        "base_revision": session["revision"]})["status"] == "saved"
+
+
+def show_recommendations(app, instance):
+    legacy(app, "recommendations", instance_id=instance["id"])
+    app.checkbox(key="strength_old_recommendations").check().run()
 
 
 def test_r03_visible_strategy_choice(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "trial.sqlite3"
-    app = open_app(path)
+    app = open_app(path, monkeypatch)
     instance = start_with_exercise(app, path)
     assert "strategy_" + instance["id"] in {w.key for w in app.selectbox}
 
@@ -51,7 +69,7 @@ def test_r03_visible_strategy_choice(tmp_path, monkeypatch):
 def test_r08_feedback_remains_after_finishing_session(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "feedback.sqlite3"
-    app = open_app(path)
+    app = open_app(path, monkeypatch)
     instance = start_with_exercise(app, path)
     app.button(key="candidate_" + instance["id"]).click().run()
     assert not app.exception and not app.error
@@ -59,7 +77,8 @@ def test_r08_feedback_remains_after_finishing_session(tmp_path, monkeypatch):
     record = TrainingService(repo).list_recommendations()[0]
     repo.close()
 
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+    end_current(app, path)
+    management(app, "历史记录与撤销")
     assert not app.exception and not app.error
     cid = record["candidate_id"]
     assert "history_feedback_" + cid in {b.key for b in app.button}
@@ -123,6 +142,7 @@ def configure_condition(app, prefix, *, complete_protocol=True):
 def finish_reference(app, path, instance, load, reps, *, reference=True, unit="kg"):
     selected = next(x for x in current(path)["exercises"] if x["id"] == instance["id"])
     row = selected["sets"][-1]
+    legacy(app, "set_details", set_id=row["set_uuid"])
     key = "set_" + row["set_uuid"]
     if reference:
         app.button(key=key + "_reference").click().run()
@@ -154,19 +174,25 @@ def test_visible_candidate_task_end_to_end(tmp_path, monkeypatch, mode, strategy
     path = tmp_path / "visible-candidate.sqlite3"
     if approved:
         synthetic_authority(tmp_path / ".local/knowledge", "external_total_kg")
-    app = open_app(path)
-    prefix = "template_condition" if mode == "template" else "session_condition"
-    selector = "template_selector" if mode == "template" else "session_selector"
-    if mode == "temporary":
-        app.text_input(key="start_name").set_value("Synthetic temporary history")
-        app.button(key="training_start").click().run()
-    app.text_input(key=selector + "_query").set_value("杠铃平板卧推").run()
+    app = open_app(path, monkeypatch)
+    template_id = None
+    if mode == "template":
+        management(app, "模板")
+        prefix = "template_condition"
+        app.text_input(key="template_selector_query").set_value("杠铃平板卧推").run()
+    else:
+        send(app, "start_session", {"name": "Synthetic temporary history"})
+        session = snapshot(app)["session"]
+        send(app, "add_exercises", {"session_id": session["id"], "base_revision": session["revision"],
+            "exercises": [{"exercise_id": "psa.ex.barbell_bench_press"}]})
+        instance = current(path)["exercises"][0]
+        legacy(app, "instance_settings", instance_id=instance["id"])
+        prefix = "instance_" + instance["id"] + "_condition"
     app.text_input(key=prefix + "_new_machine").set_value("Synthetic bench station")
     app.button(key=prefix + "_add_machine").click().run()
     repo = Repository(path)
     machine = TrainingService(repo).list_equipment()[0]["id"]
     repo.close()
-
     app.selectbox(key=prefix + "_instance").set_value(machine)
     configure_condition(app, prefix, complete_protocol=complete_protocol)
     if mode == "template":
@@ -177,39 +203,40 @@ def test_visible_candidate_task_end_to_end(tmp_path, monkeypatch, mode, strategy
         repo = Repository(path)
         template_id = TrainingService(repo).list_templates()[0]["id"]
         repo.close()
-        app.run()
-        app.selectbox(key="start_template").set_value(template_id)
-        app.text_input(key="start_name").set_value("Synthetic template history")
-        app.button(key="training_start").click().run()
+        send(app, "start_session", {"name": "Synthetic template history", "template_id": template_id})
     else:
-        next(b for b in app.button if b.label == "添加到本次训练").click().run()
-        instance = current(path)["exercises"][0]
-        app.button(key="add_set_" + instance["id"]).click().run()
+        app.button(key="instance_" + instance["id"] + "_condition_save").click().run()
     assert not app.exception and not app.error, [e.value for e in app.error]
     instance = current(path)["exercises"][0]
     reference_id = finish_reference(app, path, instance, 50, prior_reps)
     if approved and complete_protocol and mode == "template":
         # A later ordinary group must never supply the reference task's unit.
-        app.button(key="add_set_" + instance["id"]).click().run()
+        fresh = next(x for x in current(path)["exercises"] if x["id"] == instance["id"])
+        send(app, "add_set", {"instance_id": fresh["id"], "base_revision": fresh["revision"]})
         finish_reference(app, path, instance, 110, 10, reference=False, unit="lb")
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+    end_current(app, path)
+    management(app, "历史记录与撤销")
 
-    app.text_input(key="start_name").set_value("Synthetic next task")
-    app.button(key="training_start").click().run()
+    send(app, "start_session", {"name": "Synthetic next task", "template_id": template_id})
     if mode == "temporary":
-        app.text_input(key="session_selector_query").set_value("杠铃平板卧推").run()
-        app.selectbox(key="session_condition_instance").set_value(machine)
-        configure_condition(app, "session_condition", complete_protocol=complete_protocol)
-        next(b for b in app.button if b.label == "添加到本次训练").click().run()
+        session = snapshot(app)["session"]
+        send(app, "add_exercises", {"session_id": session["id"], "base_revision": session["revision"],
+            "exercises": [{"exercise_id": "psa.ex.barbell_bench_press"}]})
         instance = current(path)["exercises"][0]
-        app.button(key="add_set_" + instance["id"]).click().run()
+        legacy(app, "instance_settings", instance_id=instance["id"])
+        prefix = "instance_" + instance["id"] + "_condition"
+        app.selectbox(key=prefix + "_instance").set_value(machine)
+        configure_condition(app, prefix, complete_protocol=complete_protocol)
+        app.button(key="instance_" + instance["id"] + "_condition_save").click().run()
     session = current(path)
     instance = session["exercises"][0]
     sid = instance["sets"][0]["set_uuid"]
+    legacy(app, "set_details", set_id=sid)
     # Modify a group's effective target through the UI: R07 must feed this exact revision.
     for field, value in (("low", "6"), ("high", "8"), ("rir", "2")):
         app.text_input(key="set_" + sid + "_target_" + field).set_value(value)
     app.button(key="set_" + sid + "_target_save").click().run()
+    show_recommendations(app, instance)
     app.selectbox(key="strategy_" + instance["id"]).set_value(strategy)
     app.text_input(key="loads_" + instance["id"]).set_value("50,52.5,55")
     app.button(key="candidate_" + instance["id"]).click().run()
@@ -235,7 +262,8 @@ def test_visible_candidate_task_end_to_end(tmp_path, monkeypatch, mode, strategy
     app.selectbox(key="choice_" + cid).set_value("accepted")
     app.button(key="feedback_" + cid).click().run()
     actual_id = finish_reference(app, path, instance, 52.5, 6)
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+    end_current(app, path)
+    management(app, "历史记录与撤销")
     # Choose this completed session in the actual history selector.
     history = next(w for w in app.selectbox if w.label == "训练历史")
     history.set_value(session["id"]).run()
@@ -259,7 +287,8 @@ def test_multiaction_ui_history_reaches_default_analysis(tmp_path, monkeypatch):
 
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "multi-action.sqlite3"
-    app = open_app(path)
+    app = open_app(path, monkeypatch)
+    management(app, "模板")
     template_id = None
     for query in ("杠铃平板卧推", "高脚杯深蹲"):
         if template_id:
@@ -282,15 +311,13 @@ def test_multiaction_ui_history_reaches_default_analysis(tmp_path, monkeypatch):
         template_id = TrainingService(repo).list_templates()[0]["id"]
         repo.close()
         app.run()
-    app.selectbox(key="start_template").set_value(template_id)
     for repetition in range(3):
-        app.text_input(key="start_name").set_value(f"Synthetic multi-action {repetition}")
-        app.button(key="training_start").click().run()
+        send(app, "start_session", {"template_id": template_id, "name": f"Synthetic multi-action {repetition}"})
         exercises = current(path)["exercises"]
         assert len(exercises) == 2
         for index, instance in enumerate(exercises):
             finish_reference(app, path, instance, 50 if index == 0 else 20, 6 + index + repetition)
-        next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
+        end_current(app, path)
         assert not app.exception and not app.error, [e.value for e in app.error]
     repo = Repository(path)
     analysis = analyze(repo)

@@ -8,6 +8,7 @@ import pytest
 
 from healthzip.training.current import current_advice, objective_comparison, save_equipment_loads
 
+UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.py")))
 
 
@@ -103,10 +104,14 @@ def test_explicit_choice_condition_is_not_forged_for_automatic_options(tmp_path,
 
 def test_real_app_training_automatically_shows_options_and_free_actual(tmp_path, monkeypatch):
     repo, svc, instance, target, _ = fixture(tmp_path, monkeypatch)
+    UI["install"](monkeypatch)
     # Real root app, not a wrapper rendering just the new fragment.
     app = HELP["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
     assert not app.exception, [e.message for e in app.exception]
+    UI["send"](app, "session", {"session_id": instance["session_id"]})
+    assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
+    UI["legacy"](app, "recommendations", instance_id=instance["id"])
     advice = json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE session_exercise_id=? ORDER BY created_at DESC", (instance["id"],))[0])
     assert advice["groups"] and any(o["load"] == 34 for o in advice["groups"][0]["options"])
     assert any("本次训练建议与实际记录" in m.value for m in app.markdown)
@@ -126,6 +131,7 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
     from healthzip.workflows import evidence
 
     repo, svc, instance, target, _ = fixture(tmp_path, monkeypatch)
+    UI["install"](monkeypatch)
     designated = svc.get_set(target["id"])["reference_selection"]
     assert not designated  # Daily recording never nominates a research reference.
     app = HELP["open_app"](repo.path)
@@ -137,13 +143,16 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
         patch.setattr(evidence, "retrieve", unavailable)
         app.radio(key="main_workspace").set_value("力量").run()
         assert not app.exception
+        assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "error"
+        UI["legacy"](app, "recommendations", instance_id=instance["id"])
         assert any("本次建议待更新" in w.value for w in app.warning)
         assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 0
         HELP["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, instance, 30, 11, reference=False)
         assert not app.exception and not app.error
         assert svc.get_set(target["set_uuid"])["reps"] == 11
         assert svc.get_set(target["set_uuid"])["reference_selection"] == designated
-    app.run()
+    assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
+    UI["legacy"](app, "recommendations", instance_id=instance["id"])
     assert not app.exception and not app.error
     assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 1
     assert not any("本次建议待更新" in w.value for w in app.warning)

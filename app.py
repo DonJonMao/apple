@@ -44,17 +44,12 @@ def render_evidence_card(card: dict) -> None:
 
 
 def render_strength_tab(repo: Repository, value: dict) -> None:
-    from healthzip.ui.analysis_page import render_analysis
     from healthzip.ui.training_page import render_training
 
     render_training(repo)
-    if st.checkbox("查看表现分析与复盘", value=False, key="show_training_analysis"):
-        render_analysis(repo, value)
 
 
 st.set_page_config(page_title="Health ZIP Workbench", layout="wide")
-st.title("训练与健康记录")
-st.caption("查看身体趋势，记录每次训练。")
 
 with st.sidebar.expander("导入与存储设置", expanded=False):
     db_path = st.text_input("SQLite 路径", str(DEFAULT_DB_PATH))
@@ -112,9 +107,33 @@ try:
             "报告",
         ]
     )
+    if destination := st.session_state.pop("strength_workspace_next", None):
+        if destination in pages:
+            st.session_state["main_workspace"] = destination
+    if "main_workspace" not in st.session_state and st.query_params.get("workspace") == "strength":
+        st.session_state["main_workspace"] = "力量"
     if st.session_state.get("main_workspace", pages[0]) not in pages:
         st.session_state["main_workspace"] = pages[0]
-    page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
+    if st.session_state.get("main_workspace") == "力量":
+        # Keep the phone workbench usable. The standard sidebar still provides
+        # every workspace and the original local storage/import settings.
+        page = st.sidebar.radio("工作区", pages, key="main_workspace")
+        st.markdown(
+            "<style>[data-testid='stMainBlockContainer']{padding:3rem 0.5rem 0;"
+            "max-width:1000px} [data-testid='stMain']{background:#26262B}"
+            "[data-testid='stHeader']{height:2.75rem;background:#26262B}"
+            "[data-testid='stToolbar']{display:none}</style>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.title("训练与健康记录")
+        st.caption("查看身体趋势，记录每次训练。")
+        page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
+    if page == "力量":
+        if st.query_params.get("workspace") != "strength":
+            st.query_params["workspace"] = "strength"
+    elif st.query_params.get("workspace") == "strength":
+        del st.query_params["workspace"]
     inv = inventory(repo) if page == "报告" else {}
     context_id = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
     # These workspaces consume their existing factual views. Computing and

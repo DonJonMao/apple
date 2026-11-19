@@ -2,12 +2,14 @@
 
 from healthzip.db.repository import Repository
 from healthzip.training import TrainingService
+from tests.strength_ui_harness import install, legacy, management, send, snapshot
 
 
 def review_app(tmp_path, monkeypatch):
     from streamlit.testing.v1 import AppTest
 
     monkeypatch.chdir(tmp_path)
+    install(monkeypatch)
     path = tmp_path / "review-ui.sqlite3"
     repo = Repository(path)
     svc = TrainingService(repo)
@@ -20,17 +22,20 @@ def review_app(tmp_path, monkeypatch):
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
-    return AppTest.from_string(script).run(timeout=30), path, session, instance, row
+    app = AppTest.from_string(script).run(timeout=30)
+    management(app, "历史记录与撤销")
+    return app, path, session, instance, row
 
 
 def test_r04_clean_history_save_cannot_revert_current_view(tmp_path, monkeypatch):
     app, path, _, _, row = review_app(tmp_path, monkeypatch)
     identity = row["set_uuid"]
     assert app.text_input(key=f"history_{identity}_reps").value == "10"
-    app.text_input(key=f"set_{identity}_reps").set_value("9").run()
-    assert not app.exception
+    # The other browser edits through the real service while this history editor is open.
     repo = Repository(path)
-    revision = TrainingService(repo).get_set(identity)["revision"]
+    svc = TrainingService(repo)
+    svc.edit_set(identity, {"reps": 9}, base_revision=svc.get_set(identity)["revision"])
+    revision = svc.get_set(identity)["revision"]
     repo.close()
     app.run()
     app.button(key=f"history_{identity}_save_fields").click().run()
@@ -45,7 +50,10 @@ def test_r04_dirty_history_keeps_loaded_revision_and_reports_conflict(tmp_path, 
     app, path, _, _, row = review_app(tmp_path, monkeypatch)
     identity = row["set_uuid"]
     app.text_input(key=f"history_{identity}_note").set_value("历史视图尚未保存的备注").run()
-    app.text_input(key=f"set_{identity}_reps").set_value("9").run()
+    repo = Repository(path)
+    svc = TrainingService(repo)
+    svc.edit_set(identity, {"reps": 9}, base_revision=svc.get_set(identity)["revision"])
+    repo.close()
     app.run()
     app.button(key=f"history_{identity}_save_fields").click().run()
     assert not app.exception
@@ -72,7 +80,8 @@ def fill_reference_protocol(app, prefix, *, protocol_id="fixed_reference", versi
 
 def test_r02_structured_protocol_is_entered_through_condition_widgets(tmp_path, monkeypatch):
     app, path, _, instance, _ = review_app(tmp_path, monkeypatch)
-    # Use the ordinary template form; execution conditions are intentionally immutable.
+    # Use the explicit secondary template form; execution conditions stay immutable.
+    management(app, "模板")
     app.text_input(key="template_name_None").set_value("结构化协议模板")
     app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
     fill_reference_protocol(app, "template_condition")
@@ -94,6 +103,7 @@ def test_r02_three_sessions_from_page_produce_protocol_identified_trend(tmp_path
     from healthzip.analytics.v13 import analyze
 
     monkeypatch.chdir(tmp_path)
+    install(monkeypatch)
     path = tmp_path / "protocol-ui.sqlite3"
     script = (
         "from healthzip.db.repository import Repository\n"
@@ -101,6 +111,7 @@ def test_r02_three_sessions_from_page_produce_protocol_identified_trend(tmp_path
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     )
     app = AppTest.from_string(script, default_timeout=30).run()
+    management(app, "模板")
     app.text_input(key="template_name_None").set_value("同协议观察")
     app.text_input(key="template_selector_query").set_value("上斜史密斯").run()
     app.text_input(key="template_condition_new_machine").set_value("合成设备")
@@ -129,13 +140,14 @@ def test_r02_three_sessions_from_page_produce_protocol_identified_trend(tmp_path
     app.run()
     # A repetitions trend is one fixed-load task, not three different loads.
     for reps in (6, 7, 8):
-        app.selectbox(key="start_template").set_value(plan_id)
-        app.button(key="training_start").click().run()
+        receipt = send(app, "start_session", {"template_id": plan_id})
+        assert receipt["status"] == "saved"
         repo = Repository(path)
         service = TrainingService(repo)
         session = service.get_session(service.list_sessions()[0]["id"])
         row = session["sets"][0]
         repo.close()
+        legacy(app, "set_details", set_id=row["set_uuid"])
         prefix = "set_" + row["set_uuid"]
         app.button(key=prefix + "_reference").click().run()
         app.text_input(key=prefix + "_load_value").set_value("30")
@@ -144,7 +156,9 @@ def test_r02_three_sessions_from_page_produce_protocol_identified_trend(tmp_path
         app.selectbox(key=prefix + "_quality").set_value("acceptable")
         app.button(key=prefix + "_completed").click().run()
         assert not app.exception and not app.error
-        next(button for button in app.button if button.label == "结束训练并保存反馈").click().run()
+        receipt = send(app, "end_session", {"session_id": session["id"],
+                         "base_revision": snapshot(app)["session"]["revision"]})
+        assert receipt["status"] == "saved"
         assert not app.exception and not app.error
     repo = Repository(path)
     result = analyze(repo)

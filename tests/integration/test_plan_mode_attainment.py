@@ -108,6 +108,11 @@ def test_offline_plan_slots_keep_frozen_mode_after_definition_revision(tmp_path,
 
 @pytest.mark.parametrize("mode,field,label", MODES)
 def test_normal_template_set_editor_and_week_month_report_keep_original_mode_target(tmp_path, monkeypatch, mode, field, label):
+    import runpy
+    from pathlib import Path
+
+    ui = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
+    ui["install"](monkeypatch)
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "synthetic-normal-mode.sqlite3"
     with closing(Repository(path)) as repo:
@@ -117,6 +122,7 @@ def test_normal_template_set_editor_and_week_month_report_keep_original_mode_tar
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     ).run(timeout=30)
+    ui["management"](app, "模板")
     app.text_input(key="template_selector_query").set_value(exercise["name"]).run(timeout=30)
     app.checkbox(key="template_condition_confirmed").check()
     app.text_input(key="template_name_None").set_value("Synthetic mode plan")
@@ -126,22 +132,23 @@ def test_normal_template_set_editor_and_week_month_report_keep_original_mode_tar
     assert not app.exception and not app.error, [error.value for error in app.error]
     with closing(Repository(path)) as repo:
         template = TrainingService(repo).list_templates()[0]
-    app.selectbox(key="start_template").set_value(template["id"])
-    app.button(key="training_start").click().run(timeout=30)
+    ui["send"](app, "start_session", {"template_id": template["id"]})
     assert not app.exception and not app.error
     with closing(Repository(path)) as repo:
         svc = TrainingService(repo)
         session = svc.get_session(svc.list_sessions()[0]["id"])
+    ui["legacy"](app, "set_details", set_id=session["sets"][0]["set_uuid"])
     first = "set_" + session["sets"][0]["set_uuid"]
     app.text_input(key=first + "_target_quantity").set_value("12")
     app.button(key=first + "_target_save").click().run(timeout=30)
     for row, actual in zip(session["sets"], (12, 30, 40)):
+        ui["legacy"](app, "set_details", set_id=row["set_uuid"])
         prefix = "set_" + row["set_uuid"]
         app.button(key=prefix + "_in_progress").click().run(timeout=30)
         app.text_input(key=prefix + "_" + field).set_value(str(actual)).run(timeout=30)
         app.button(key=prefix + "_completed").click().run(timeout=30)
         assert not app.exception and not app.error
-    next(button for button in app.button if button.label == "结束训练并保存反馈").click().run(timeout=30)
+    ui["send"](app, "end_session", {"session_id": session["session_uuid"], "base_revision": session["revision"]})
     assert not app.exception and not app.error
     cutoff = datetime.now(timezone.utc).isoformat()
     with closing(Repository(path)) as repo:

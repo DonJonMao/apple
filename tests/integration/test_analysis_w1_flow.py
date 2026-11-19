@@ -114,9 +114,9 @@ def test_smith_trial_normal_page_choice_execution_and_review(tmp_path, monkeypat
     app.button(key="workflow_feedback_" + cid).click().run(timeout=30)
     assert not app.exception and not app.error
     # Actual recording and completion use the normal training controls.
-    training = TRAINING["open_app"](path)
+    training = TRAINING["open_app"](path, monkeypatch)
     actual = TRAINING["finish_reference"](training, path, instance, 32.5, 8)
-    next(button for button in training.button if button.label == "结束训练并保存反馈").click().run()
+    TRAINING["end_current"](training, path)
     assert not training.exception and not training.error
     app.run(timeout=30)
     app.selectbox(key="workflow_execution_" + cid).set_value("executed")

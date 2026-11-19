@@ -1885,6 +1885,7 @@ class TrainingService:
         duration_protocol=None,
         base_revision=None,
         event_id=None,
+        notes=None,
     ) -> dict:
         current = self._session(session_id)
         if event_id:
@@ -1901,12 +1902,15 @@ class TrainingService:
                     "duration_seconds": duration_seconds,
                     "duration_protocol": duration_protocol,
                 }
+                if notes is not None:
+                    expected["notes"] = notes
                 payload = json.loads(prior["payload_json"])
                 valid = (
                     prior["user_id"] == self.user_id
                     and prior["entity_id"] == (current["session_uuid"] or str(current["id"]))
                     and prior["action"] == "update_session"
                     and all(payload.get(key) == value for key, value in expected.items())
+                    and ("notes" in payload) == (notes is not None)
                 )
                 if ended_at is not None:
                     valid = valid and payload.get("ended_at") == ended_at
@@ -1925,6 +1929,8 @@ class TrainingService:
             "duration_seconds": duration_seconds,
             "duration_protocol": duration_protocol,
         }
+        if notes is not None:
+            changes["notes"] = notes
         return self.update_session(
             session_id,
             changes,

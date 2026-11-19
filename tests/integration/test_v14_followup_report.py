@@ -242,7 +242,8 @@ def test_visible_candidate_form_freezes_optional_user_window(tmp_path, monkeypat
     repo, svc, instance, _ = _clean_candidate(tmp_path, monkeypatch)
     path = repo.path
     repo.close()
-    app = HELPERS["open_app"](path)
+    app = HELPERS["open_app"](path, monkeypatch)
+    HELPERS["show_recommendations"](app, instance)
     key = instance["id"]
     app.checkbox(key="followup_enabled_" + key).check().run()
     start = datetime.now(timezone.utc) + timedelta(days=2)

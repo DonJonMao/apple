@@ -14,6 +14,7 @@ from healthzip.workflows import WorkflowRequest, load_analysis, load_run, run_wo
 from healthzip.workflows.period_report import create_report, load_report
 from healthzip.workflows.reports import markdown
 
+UI = runpy.run_path(str(Path(__file__).resolve().parents[1] / "strength_ui_harness.py"))
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
 HELP = FLOW["HELP"]
 LONG = runpy.run_path(str(Path(__file__).with_name("test_analysis_long_term_review.py")))
@@ -68,18 +69,19 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         return original_download(label, data, **kwargs)
 
     monkeypatch.setattr(st, "download_button", capture)
+    UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
-    app.selectbox(key="current_training_region").set_value("chest").run()
+    UI["send"](app, "catalog", {"regions": ["chest"]})
     assert not app.exception
     assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 0
-    assert any("相关已有计划" in m.value for m in app.markdown)
-    app.selectbox(key="start_template").set_value(template["id"])
-    app.text_input(key="start_name").set_value("Synthetic current chest")
-    app.button(key="training_start").click().run()
+    assert template["id"] in {item["id"] for item in UI["snapshot"](app)["templates"]}
+    started = UI["send"](app, "start_session", {"template_id": template["id"], "name": "Synthetic current chest"})
+    assert started["status"] == "saved"
     assert not app.exception and not app.error
-    session = svc.get_session(app.session_state["resume_training"])
+    session = svc.get_session(started["data"]["id"])
     selected = session["exercises"][0]
+    assert UI["send"](app, "advice", {"instance_id": selected["id"]})["status"] == "saved"
     before = newest_advice(repo, selected["id"])
     option = next(o for o in before["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
     assert (option["load"], option["reps"], option["rir"]) == (34, 7, 2)
@@ -87,6 +89,7 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     for mid, value in (("STATE-RHR", 61), ("STATE-SDNN", 41), ("BODY-MASS-DAILY", 81)):
         assert {p["value"] for points in before["body"]["metrics"][mid]["value"].values() for p in points} == {value}
     frozen_target = svc.get_set(selected["sets"][0]["id"])["planned"]
+    UI["legacy"](app, "set_details", set_id=selected["sets"][0]["set_uuid"])
     HELP["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, selected, 30, 11, reference=False)
     assert not app.exception and not app.error
     actual = svc.get_set(selected["sets"][0]["id"])
@@ -116,14 +119,17 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     assert json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE advice_id=?",
                               (before["advice_id"],))[0]) == before
     assert compared["rows"][0]["actual"]["reps"] == 11
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
-    app.button(key="training_start").click().run()
-    next_session = svc.get_session(app.session_state["resume_training"])
+    current_session = svc.get_session(session["id"])
+    assert UI["send"](app, "end_session", {"session_id": current_session["id"], "base_revision": current_session["revision"]})["status"] == "saved"
+    following_start = UI["send"](app, "start_session", {"template_id": template["id"]})
+    assert following_start["status"] == "saved"
+    next_session = svc.get_session(following_start["data"]["id"])
+    assert UI["send"](app, "advice", {"instance_id": next_session["exercises"][0]["id"]})["status"] == "saved"
     next_advice = newest_advice(repo, next_session["exercises"][0]["id"])
     assert next_advice["advice_id"] != before["advice_id"]
     next_run = load_run(repo, next_advice["review_run_id"])
-    # Normal planned actuals now also carry a prospective reference declaration;
-    # the numeric-update assertion is covered by test_current_training_three_repairs.
+    # Ordinary actuals remain un-nominated; numeric-update coverage is shared
+    # with test_current_training_three_repairs.
     rir = load_analysis(repo, next_run["run_id"])["metrics"]["STR-10"]
     assert "strength_set:"+actual["set_uuid"] in rir["source_record_ids"]
     app.radio(key="main_workspace").set_value("分析").run()

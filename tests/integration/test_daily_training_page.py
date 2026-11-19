@@ -17,6 +17,7 @@ from healthzip.workflows.period_report import load_report
 
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.py")))
 REVIEW = runpy.run_path(str(Path(__file__).with_name("test_review_candidate_flow.py")))
+UI = runpy.run_path(str(Path(__file__).resolve().parents[1] / "strength_ui_harness.py"))
 ACCEPTANCE = runpy.run_path(str(Path(__file__).with_name("test_current_training_acceptance.py")))
 
 
@@ -89,31 +90,36 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
         return original_download(label, data, **kwargs)
 
     monkeypatch.setattr(st, "download_button", capture)
+    UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
     assert not app.exception and not app.error
+    assert UI["send"](app, "session", {"session_id": instance["session_id"]})["status"] == "saved"
+    assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
     before = latest(repo, instance)
     assert before["daily_history"]["latest_session"]["id"] == previous["id"]
     assert {r["set_uuid"] for r in before["daily_history"]["records"]} == {r["set_uuid"] for r in rows}
     assert set(before["daily_decisions"]["input_record_ids"]) == {r["set_uuid"] for r in rows}
-    text = page_text(app)
-    assert "最近一次这个动作的实际记录" in text
-    for load, reps in ((55, 10), (55, 9), (50, 11)):
-        assert f"{load}" in text and f"× {reps} 次" in text
-    assert "420" in text and "Synthetic watch" in text
+    shown = UI["snapshot"](app)["advice"]
+    assert [(float(row["load_value"]), row["reps"]) for row in shown["daily_history"]["records"]] == [(55, 10), (55, 9), (50, 11)]
+    assert shown["body"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+    assert "Synthetic watch" in json.dumps(shown)
     assert before["reference_record"] is None
     assert all(option["basis"]["scope"] == "one_optional_set_trial_not_all_sets"
                for group in before["groups"] for option in group["options"] if option["load"] is not None)
     # Use normal actual controls, with no reference or feedback interaction.
+    UI["legacy"](app, "set_details", set_id=instance["sets"][0]["set_uuid"])
     REVIEW["finish_reference"](app, repo.path, instance, 55, 12, reference=False)
     assert not app.exception and not app.error
     actual = svc.get_set(instance["sets"][0]["set_uuid"])
     assert not actual["reference_set"] and not actual["reference_declared_at"]
-    next(b for b in app.button if b.label == "结束训练并保存反馈").click().run()
-    app.selectbox(key="start_template").set_value(template["id"])
-    app.button(key="training_start").click().run()
+    current_session = svc.get_session(instance["session_id"])
+    assert UI["send"](app, "end_session", {"session_id": current_session["id"], "base_revision": current_session["revision"]})["status"] == "saved"
+    started = UI["send"](app, "start_session", {"template_id": template["id"]})
+    assert started["status"] == "saved"
     assert not app.exception and not app.error
-    next_instance = svc.get_session(app.session_state["resume_training"])["exercises"][0]
+    next_instance = svc.get_session(started["data"]["id"])["exercises"][0]
+    assert UI["send"](app, "advice", {"instance_id": next_instance["id"]})["status"] == "saved"
     after = latest(repo, next_instance)
     assert after["daily_history"]["latest_session"]["id"] == instance["session_id"]
     assert [r["set_uuid"] for r in after["daily_history"]["records"]] == [actual["set_uuid"]]
@@ -140,22 +146,26 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
 @pytest.mark.parametrize("history,age", [(True, 500), (False, 0)])
 def test_real_app_old_history_and_new_action_need_no_reference_or_plan(tmp_path, monkeypatch, history, age):
     repo, svc, instance, rows, previous, _ = ordinary_setup(tmp_path, monkeypatch, age=age, history=history, planned=False)
+    UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
     assert not app.exception and not app.error
+    assert UI["send"](app, "session", {"session_id": instance["session_id"]})["status"] == "saved"
+    assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
     advice = latest(repo, instance)
     assert not svc.list_templates()
     assert svc.get_session(instance["session_id"])["template_id"] is None
-    text = page_text(app)
+    shown = UI["snapshot"](app)["advice"]["daily_history"]
     if history:
         assert advice["daily_history"]["latest_session"]["id"] == previous["id"]
         assert {r["set_uuid"] for r in advice["daily_history"]["records"]} == {r["set_uuid"] for r in rows}
-        assert rows[0]["started_at"][:10] in text
-        assert "历史表现不等于今天的能力" in text
+        assert shown["records"][0]["started_at"][:10] == rows[0]["started_at"][:10]
+        assert "historical_performance_is_observation_not_current_capacity" in shown["limitations"]
     else:
         assert not advice["daily_history"]["records"]
-        assert "暂无该动作的个人训练记录" in text
+        assert shown["status"] == "no_history"
     assert not any(option["load"] is not None for group in advice["groups"] for option in group["options"])
+    UI["legacy"](app, "set_details", set_id=instance["sets"][0]["set_uuid"])
     REVIEW["finish_reference"](app, repo.path, instance, 50, 8, reference=False)
     assert not app.exception and not app.error
     actual = svc.get_set(instance["sets"][0]["id"])
@@ -175,9 +185,11 @@ def test_real_app_equipment_unit_is_explicit_unknown_and_mismatch_do_not_license
     repo, svc, instance, rows, _, _ = ordinary_setup(tmp_path, monkeypatch,
         actions=["double_progression", "heavier_lower_reps", "repetition_progression"])
     save_equipment_loads(repo, instance["id"], [50, 55, 60, 65], load_unit=None)
+    UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
     app.radio(key="main_workspace").set_value("力量").run()
     assert not app.exception and not app.error
+    UI["legacy"](app, "recommendations", instance_id=instance["id"])
     assert app.selectbox(key="current_load_unit_" + instance["id"]).value is None
     unknown = latest(repo, instance)
     assert not any(option["load"] is not None for group in unknown["groups"] for option in group["options"]

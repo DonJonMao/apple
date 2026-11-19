@@ -170,8 +170,13 @@ def test_service_undated_skip_is_known_plan_nonexecution_without_a_fake_endpoint
 
 
 def test_ui_skip_retains_known_nonexecution_in_analysis(tmp_path, monkeypatch):
+    import runpy
+    from pathlib import Path
+
     from streamlit.testing.v1 import AppTest
 
+    ui = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
+    ui["install"](monkeypatch)
     monkeypatch.chdir(tmp_path)
     path = tmp_path / "synthetic-ui-skip.sqlite3"
     with closing(Repository(path)) as repo:
@@ -182,6 +187,7 @@ def test_ui_skip_retains_known_nonexecution_in_analysis(tmp_path, monkeypatch):
         "from healthzip.ui.training_page import render_training\n"
         f"repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()"
     ).run(timeout=30)
+    ui["legacy"](app, "set_details", set_id=identity)
     app.button(key="set_" + identity + "_skipped").click().run(timeout=30)
     assert not app.exception and not app.error
     with closing(Repository(path)) as repo:
