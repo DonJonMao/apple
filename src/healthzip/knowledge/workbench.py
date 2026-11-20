@@ -26,6 +26,8 @@ class KnowledgeWorkbench:
         self.environment_kind = environment_kind
         from .core import ensure_schema
         ensure_schema(self)
+        from .revisions import ensure_knowledge_revisions
+        ensure_knowledge_revisions(self)
         self.routes = json.loads((self.spec_dir / "knowledge_routes.json").read_text())
 
     def seed_core(self):

@@ -1,0 +1,212 @@
+{
+  "status": "passed",
+  "data": "synthetic_only",
+  "isolation": "Temporary source copy with no production .local; synthetic SQLite and local-loopback model fixtures only",
+  "command": "python -m pytest tests/knowledge/test_authority_revisions.py tests/knowledge/test_health_explanation_lifecycle.py tests/unit/test_health_explanation_feedback.py tests/unit/test_health_detail_redesign.py tests/unit/test_explanation_workspace.py tests/unit/test_ai_consent.py tests/knowledge/test_async_explanation_consent.py tests/knowledge/test_v15_metric_evidence_ui.py tests/knowledge/test_v15_source_observation_entry.py -q --junitxml=<temporary-output>",
+  "test_count": 38,
+  "passed": 38,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 27.85,
+  "exit_code": 0,
+  "source_sha256": {
+    "src/healthzip/ui/health_explanation.py": "60842a31ad9167bb34323f96c70831817423ca521ec95e0972bfd6ef72d3f690",
+    "src/healthzip/knowledge/revisions.py": "c4223c0915d51c501a02e48d93b5e24192e40e28e651be835f9bd583a4cc49f9",
+    "src/healthzip/knowledge/workbench.py": "8157b0f9357845f85a18e48b503d8faa01f887231421d4794ef1afea871aa24c",
+    "src/healthzip/knowledge/domains.py": "1c10bd5cd5bfc2d9e8a937d1cc5354f18e389a70b61381734d3732aff98f0f65",
+    "src/healthzip/knowledge/vector_index.py": "31522137fde55c936380ef0a562c8cf910432a71a555ae6289f667715681fa46"
+  },
+  "test_cases": [
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_real_retrieval_audits_and_wal_checkpoint_leave_authority_unchanged",
+      "status": "passed",
+      "seconds": 0.103
+    },
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_source_change_in_another_process_invalidates_without_a_shared_connection",
+      "status": "passed",
+      "seconds": 0.095
+    },
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_claim_update_and_delete_invalidate_and_rollback_does_not",
+      "status": "passed",
+      "seconds": 0.062
+    },
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_query_vectors_are_outputs_but_document_vectors_change_the_index",
+      "status": "passed",
+      "seconds": 0.039
+    },
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_upgrade_preserves_existing_source_payload_and_reopening_is_read_only",
+      "status": "passed",
+      "seconds": 0.035
+    },
+    {
+      "name": "tests.knowledge.test_authority_revisions::test_readonly_clock_does_not_create_missing_libraries",
+      "status": "passed",
+      "seconds": 0.002
+    },
+    {
+      "name": "tests.knowledge.test_health_explanation_lifecycle::test_success_survives_worker_close_and_other_retrieval_audit[DELETE]",
+      "status": "passed",
+      "seconds": 1.504
+    },
+    {
+      "name": "tests.knowledge.test_health_explanation_lifecycle::test_success_survives_worker_close_and_other_retrieval_audit[WAL]",
+      "status": "passed",
+      "seconds": 1.224
+    },
+    {
+      "name": "tests.knowledge.test_health_explanation_lifecycle::test_real_claim_revocation_hides_old_result_and_rechecks_permission",
+      "status": "passed",
+      "seconds": 1.233
+    },
+    {
+      "name": "tests.unit.test_health_explanation_feedback::test_insufficient_evidence_shows_retrieval_receipt_gaps_and_readable_original",
+      "status": "passed",
+      "seconds": 0.985
+    },
+    {
+      "name": "tests.unit.test_health_explanation_feedback::test_supported_local_evidence_is_visible_without_a_configured_model",
+      "status": "passed",
+      "seconds": 1.021
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_cardio_and_weight_have_independent_cards_and_details",
+      "status": "passed",
+      "seconds": 2.348
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_cardio_old_observation_is_only_a_dated_history_reference",
+      "status": "passed",
+      "seconds": 1.241
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_vo2_same_name_different_protocol_is_never_merged",
+      "status": "passed",
+      "seconds": 0.002
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_sparse_chart_has_only_real_points_and_no_line_across_missing_dates",
+      "status": "passed",
+      "seconds": 1.095
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_same_source_first_last_difference_is_not_a_previous_period_comparison",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_explanation_queue_returns_immediately_and_coalesces_identical_work",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_explanation_failure_is_retryable_and_does_not_expose_transport_details",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_same_day_vo2_first_last_respects_observation_order_not_value_sort",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_dense_chart_bound_preserves_brief_extreme_without_changing_statistics",
+      "status": "passed",
+      "seconds": 0.007
+    },
+    {
+      "name": "tests.unit.test_health_detail_redesign::test_sleep_next_step_targets_actual_short_record_without_guessing_a_cause",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_explanation_workspace::test_switch_workspace_does_not_reuse_equal_metric_request",
+      "status": "passed",
+      "seconds": 1.06
+    },
+    {
+      "name": "tests.unit.test_explanation_workspace::test_standalone_metric_requests_are_isolated_between_browser_sessions",
+      "status": "passed",
+      "seconds": 2.086
+    },
+    {
+      "name": "tests.unit.test_ai_consent::test_withdrawn_grant_never_revives_after_new_authorization",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.unit.test_ai_consent::test_revocation_during_payload_preparation_is_checked_at_transport",
+      "status": "passed",
+      "seconds": 0.005
+    },
+    {
+      "name": "tests.unit.test_ai_consent::test_queued_job_uses_current_grant_when_it_starts",
+      "status": "passed",
+      "seconds": 0.002
+    },
+    {
+      "name": "tests.unit.test_ai_consent::test_broken_dynamic_consent_check_fails_closed",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "name": "tests.knowledge.test_async_explanation_consent::test_settings_withdrawal_during_real_retrieval_prevents_first_model_request[none]",
+      "status": "passed",
+      "seconds": 1.669
+    },
+    {
+      "name": "tests.knowledge.test_async_explanation_consent::test_settings_withdrawal_during_real_retrieval_prevents_first_model_request[revoke]",
+      "status": "passed",
+      "seconds": 1.534
+    },
+    {
+      "name": "tests.knowledge.test_async_explanation_consent::test_settings_withdrawal_during_real_retrieval_prevents_first_model_request[revoke_then_allow]",
+      "status": "passed",
+      "seconds": 1.532
+    },
+    {
+      "name": "tests.knowledge.test_v15_metric_evidence_ui::test_session_rpe_page_keeps_unknown_scope_and_accepts_explicit_recorded_protocol",
+      "status": "passed",
+      "seconds": 1.261
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_real_source_ledger_feeds_observations_separately_and_revisions_invalidate_cache",
+      "status": "passed",
+      "seconds": 0.169
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_extension_configuration_never_changes_original_profiles_or_frozen_base_hash",
+      "status": "passed",
+      "seconds": 0.24
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_new_frozen_release_refuses_changed_observation_profile",
+      "status": "passed",
+      "seconds": 0.065
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_unified_service_requires_extension_binding_and_honors_revocation[OBS-VO2-REPORTED-cardiorespiratory]",
+      "status": "passed",
+      "seconds": 0.096
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_unified_service_requires_extension_binding_and_honors_revocation[OBS-CYCLE-RECORDS-cycle]",
+      "status": "passed",
+      "seconds": 0.096
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_actual_analysis_page_reaches_new_entry_without_missing_metric_placeholder[cardiorespiratory]",
+      "status": "passed",
+      "seconds": 1.85
+    },
+    {
+      "name": "tests.knowledge.test_v15_source_observation_entry::test_actual_analysis_page_reaches_new_entry_without_missing_metric_placeholder[cycle]",
+      "status": "passed",
+      "seconds": 1.762
+    }
+  ]
+}

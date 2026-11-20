@@ -1,5 +1,7 @@
 # HealthZIP 产品体验改版
 
+后续修复：心率、睡眠“查阅依据并解释变化”的缓存过期与查询日志误失效问题，见[依据查询结果修复](rag_result_fix.md)。下文完整改版冻结成绩属于 `42f43dc`；后续补丁验证单独记录。
+
 本轮基线 `351822c`，工作分支 `feat/healthzip-product-redesign`。实现留在工作分支，不合并主分支、不部署。旧 [PR #1](https://github.com/DonJonMao/apple/pull/1) 核对时仍为未合并草稿，仅复用经重新验证的窄范围代码；五份原有未跟踪 PDF 未修改。
 
 ## 现在怎样使用

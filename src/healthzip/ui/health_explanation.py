@@ -57,17 +57,10 @@ def _fact_identity(value):
 
 
 def knowledge_clock(root):
-    """A cheap conservative UI freshness check; authority is rechecked in the worker."""
-    output = []
-    for name in ("sources.sqlite3", "theories.sqlite3"):
-        for suffix in ("", "-wal"):
-            path = Path(root) / (name + suffix)
-            try:
-                stat = path.stat()
-                output.append((name + suffix, stat.st_ino, stat.st_mtime_ns, stat.st_size))
-            except OSError:
-                output.append((name + suffix, None))
-    return output
+    """Only source/review changes invalidate results, never audit/checkpoint IO."""
+    from healthzip.knowledge.revisions import knowledge_authority_clock
+
+    return knowledge_authority_clock(root)
 
 
 def _model_identity():
@@ -129,17 +122,19 @@ def _context_still_current(context):
 def _reviewed_explanation(metrics, context, allow_network, root, *, mode="lexical",
                           candidate_scope="reviewed_metric", task="explain_metric", include_empty=False):
     from healthzip.knowledge import KnowledgeWorkbench
-    from healthzip.training.current import knowledge_signature
 
     if not all((Path(root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
         return {"status": "no_library", "knowledge_clock": knowledge_clock(root), "items": []}
     workbench = KnowledgeWorkbench(root)
     try:
+        from healthzip.knowledge.revisions import prepare_retrieval_revisions
+
+        prepare_retrieval_revisions(workbench)
         # Old libraries may finish an idempotent schema/profile upgrade during
         # their first lookup. Discard that answer and retry against the new
         # authoritative snapshot once; never relabel a stale answer as current.
         for _ in range(2):
-            before = knowledge_signature(root)
+            before = knowledge_clock(root)
             items = []
             if not _context_still_current(context):
                 return {"status": "context_changed", "items": [], "knowledge_clock": knowledge_clock(root)}
@@ -153,11 +148,55 @@ def _reviewed_explanation(metrics, context, allow_network, root, *, mode="lexica
                 ))
             if not _context_still_current(context):
                 return {"status": "context_changed", "items": [], "knowledge_clock": knowledge_clock(root)}
-            if knowledge_signature(root) == before:
-                return {"status": "ready", "items": items, "knowledge_clock": knowledge_clock(root)}
+            if knowledge_clock(root) == before:
+                return {"status": "ready", "items": items, "knowledge_clock": before}
         return {"status": "changed", "items": [], "knowledge_clock": knowledge_clock(root)}
     finally:
         workbench.close()
+
+
+def _missing_evidence_notes(evidence):
+    labels = {"population": "适用人群", "measurement_protocol": "测量方法与协议",
+              "srpe_scale": "整场感知强度量表", "srpe_collection": "整场评分采集时点"}
+    notes = []
+    for reason in evidence.get("limitations", []):
+        if reason.startswith("missing_applicability_context:"):
+            field = reason.split(":", 1)[1]
+            notes.append("尚未确认" + labels.get(field, "这项指标所需的适用信息"))
+        elif reason.startswith(("missing_required_domain:", "missing_evidence_type:")):
+            notes.append("现有资料尚未覆盖这项指标所需的全部依据")
+        elif reason == "explicit_conflicting_claims_require_resolution":
+            notes.append("相关依据存在尚未解决的冲突")
+        elif reason == "no_complete_reviewed_metric_group":
+            notes.append("尚无通过审核且适用的完整依据")
+    return list(dict.fromkeys(notes))
+
+
+def _show_sources(evidence, *, supported):
+    label = "为什么这样判断 · 来源与适用范围" if supported else "查阅检索到的原文 · 暂不用于本期解释"
+    with st.expander(label, expanded=False):
+        seen = set()
+        for source in evidence.get("source_metadata", []):
+            title = source.get("title") or "原始来源"
+            url = source.get("canonical_url")
+            identity = (title, url, source.get("year"))
+            if identity in seen:
+                continue
+            seen.add(identity)
+            if url and str(url).startswith(("https://", "http://")):
+                st.markdown(f"[{title}]({url})")
+            else:
+                st.write(title)
+            if source.get("year"):
+                st.caption(str(source["year"]))
+        for span in evidence.get("evidence_spans", []):
+            st.caption(span.get("section_path") or "原文片段")
+            st.write(span.get("content", ""))
+        if supported:
+            for claim in evidence.get("matched_claims", []):
+                for limitation in claim.get("limitations", []):
+                    st.caption(limitation)
+        st.caption("原文可供核对；是否适用于本期数据仍取决于审核、测量条件与适用范围。")
 
 
 def _show_reviewed_result(result, extra_windows=None):
@@ -170,18 +209,39 @@ def _show_reviewed_result(result, extra_windows=None):
     if result.get("status") == "changed":
         st.caption("计算期间依据发生更新，请重新获取解释。")
         return
-    supported = [item for item in result.get("items", [])
+    items = result.get("items", [])
+    supported = [item for item in items
                  if item["evidence_context"]["capability_permissions"].get("source_explanation")]
+    spans = {span.get("span_id", (item.get("metric_id"), index)) for item in items
+             for index, span in enumerate(item["evidence_context"].get("evidence_spans", []))}
+    st.markdown("**依据查询结果**")
+    st.caption(f"已查询 {len(items)} 项指标，找到 {len(spans)} 段可查阅原文；"
+               f"其中 {len(supported)} 项满足本期解释所需条件。")
+    if not items:
+        st.caption("用于此项解释的记录不足。上方日值与趋势仍可查看；可展开“分析依据与范围”核对解释指标使用的时间范围。")
+        return
+    if items and not any(item.get("explanation", {}).get("source") == "ai" for item in items):
+        st.caption("本次展示本地检索依据，未生成模型回答。模型配置与联网授权可在设置中查看。")
     if not supported:
         st.caption("当前缺少通过审核且适用的完整依据，暂不能判断变化原因。可在复盘中补充已确认的适用信息；记录与趋势继续保留。")
-        return
-    st.markdown("**可能的解释**")
-    st.caption("以下是来源支持的一般解释，不能据此确认本次变化的原因。")
-    for item in supported:
+    else:
+        st.markdown("**可能的解释**")
+        st.caption("以下是来源支持的一般解释，不能据此确认本次变化的原因。")
+    from healthzip.science import definitions
+    names = definitions(include_observations=True)
+    for item in items:
+        evidence = item["evidence_context"]
+        allowed = evidence["capability_permissions"].get("source_explanation")
+        st.write(names.get(item.get("metric_id"), {}).get("title", "本期指标"))
+        if not allowed:
+            notes = _missing_evidence_notes(evidence)
+            st.caption("；".join(notes) if notes else "现有依据尚不足以支持本期变化的解释。")
+            if evidence.get("evidence_spans") or evidence.get("source_metadata"):
+                _show_sources(evidence, supported=False)
+            continue
         extra = (extra_windows or {}).get(item.get("metric_id"), {})
         if extra:
             st.caption(extra.get("label", "此指标使用独立时间窗口"))
-        evidence = item["evidence_context"]
         statements = list(dict.fromkeys(statement for claim in evidence.get("matched_claims", [])
                                          for statement in claim.get("statements", [])))
         for statement in statements[:2]:
@@ -189,23 +249,7 @@ def _show_reviewed_result(result, extra_windows=None):
         explanation = item.get("explanation", {})
         if explanation.get("source") == "ai":
             st.write(explanation["summary"])
-        with st.expander("为什么这样判断 · 来源与适用范围", expanded=False):
-            for source in evidence.get("source_metadata", []):
-                title = source.get("title") or "原始来源"
-                url = source.get("canonical_url")
-                if url and str(url).startswith(("https://", "http://")):
-                    st.markdown(f"[{title}]({url})")
-                else:
-                    st.write(title)
-                if source.get("year"):
-                    st.caption(str(source["year"]))
-            for span in evidence.get("evidence_spans", []):
-                st.caption(f"{span.get('section_path') or '原文片段'} · {span.get('source_version', '')}")
-                st.write(span.get("content", ""))
-            for claim in evidence.get("matched_claims", []):
-                for limitation in claim.get("limitations", []):
-                    st.caption(limitation)
-            st.caption("仅使用当前通过审核、许可和适用范围检查的资料；审核身份保留，不等于个人因果验证。")
+        _show_sources(evidence, supported=True)
 
 
 def render_health_explanation(view, *, workspace, context=None, allow_network=False,
@@ -219,12 +263,31 @@ def render_health_explanation(view, *, workspace, context=None, allow_network=Fa
              if key not in {"timings_ms", "query_plan", "cache_policy"}}
     identity = _digest([PROMPT_VERSION, workspace, _fact_identity(scope),
                         context, allow_network, grant.identity, _model_identity()])
-    ui_key = "health_explanation_job_" + workspace
+    ui_key = "health_explanation_job_" + _digest([workspace, scope.get("workspace")])
+    request_key = ui_key + ":requested"
+    submission_error = False
+    # A fragment can outlive the page's factual cache. Its click records intent;
+    # the full rerun first obtains the current page snapshot, then submits it.
+    # Submitting inside the old fragment would immediately invalidate its own
+    # result when the rerun advances an expired automatic cutoff.
+    request = st.session_state.pop(request_key, None)
+    if request is not None:
+        snapshot = copy.deepcopy(metrics)
+        job_key = _digest([identity, knowledge_clock(root)])
+        if request["retry"]:
+            job_key = _digest([job_key, time.monotonic_ns()])
+        try:
+            submit_job(job_key, lambda: _reviewed_explanation(snapshot, context, grant, root))
+            st.session_state[ui_key] = {"identity": identity, "key": job_key}
+        except RuntimeError:
+            submission_error = True
     selected = st.session_state.get(ui_key)
     pending = selected and selected["identity"] == identity and job_result(selected["key"])["status"] == "pending"
 
     @st.fragment(run_every=0.75 if pending else None)
     def panel():
+        if submission_error:
+            st.caption("解释任务较多，请稍后重试。事实与趋势不受影响。")
         selected = st.session_state.get(ui_key)
         status = job_result(selected["key"]) if selected and selected["identity"] == identity else None
         if status and status["status"] == "ready":
@@ -244,16 +307,9 @@ def render_health_explanation(view, *, workspace, context=None, allow_network=Fa
             st.caption("范围或记录已更新，旧解释不再用于本期数据。")
         if st.button("查阅依据并解释变化", key="health_explanation_run",
                      disabled=bool(status and status["status"] == "pending")):
-            snapshot = copy.deepcopy(metrics)
-            key = _digest([identity, knowledge_clock(root)])
-            if status and status["status"] in {"failed", "expired"}:
-                key = _digest([key, time.monotonic_ns()])
-            try:
-                submit_job(key, lambda: _reviewed_explanation(snapshot, context, grant, root))
-                st.session_state[ui_key] = {"identity": identity, "key": key}
-                st.rerun()
-            except RuntimeError:
-                st.caption("解释任务较多，请稍后重试。事实与趋势不受影响。")
+            st.session_state[request_key] = {
+                "retry": bool(status and status["status"] in {"failed", "expired"})}
+            st.rerun()
         if pending and status and status["status"] != "pending":
             st.rerun()
     panel()

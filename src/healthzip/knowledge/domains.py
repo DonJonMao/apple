@@ -51,6 +51,8 @@ def ensure_schema(w):
     try:
         for statement in statements:
             conn.execute(statement)
+        from .revisions import ensure_authority_revision
+        ensure_authority_revision(conn, "theories")
         conn.execute("RELEASE domains_v15")
     except BaseException:
         conn.execute("ROLLBACK TO domains_v15")

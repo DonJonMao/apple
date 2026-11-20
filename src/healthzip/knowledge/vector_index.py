@@ -42,6 +42,8 @@ def ensure_schema(w):
     try:
         for statement in statements:
             conn.execute(statement)
+        from .revisions import ensure_authority_revision
+        ensure_authority_revision(conn, "sources")
         conn.execute("RELEASE retrieval_v15")
     except BaseException:
         conn.execute("ROLLBACK TO retrieval_v15")
