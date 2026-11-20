@@ -16,16 +16,51 @@ from healthzip.science import evaluate
 from healthzip.science.contracts import instant
 from healthzip.training.service import TrainingService
 
-from .cache import cached
+from .cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
 from .core import vo2_analysis
-from .v13 import metric_card, snapshot
+from .v13 import metric_card
 
-SCOPE_VERSION = "body-workspace-scope-v1.1.0"
+SCOPE_VERSION = "body-workspace-scope-v1.2.0"
 _SPECS = {
     "心率 / HRV": (("resting_heart_rate_bpm", "hrv_sdnn_ms"), ("STATE-RHR", "STATE-SDNN")),
     "睡眠": (("sleep_stage",), ("STATE-SLEEP-24H", "REPORT-STATE-SUMMARY")),
     "体重 / 有氧": (("body_mass_kg",), ("BODY-MASS-DAILY", "BODY-MASS-TREND")),
 }
+
+
+class WorkspaceInputsChanged(RuntimeError):
+    """Concurrent source writes prevented a consistent body view."""
+
+
+def _body_snapshot(repo, cutoff, start, canonical_types):
+    """Adapt only the source tables consumed by this view, with canonical IDs.
+
+    Resolving training events, recommendations and subjective logs cannot
+    change these body metrics and is deliberately absent from the read path.
+    """
+    records, counts = [], {}
+    tables = ["health_sample"]
+    if "body_mass_kg" in canonical_types:
+        tables.append("body_measurement")
+    for table in tables:
+        rows = samples_as_of(repo, cutoff.isoformat(), table, window_start=start.isoformat(),
+                             window_end=cutoff.isoformat(), canonical_types=list(canonical_types))
+        counts[table] = len(rows)
+        for original in rows:
+            row = dict(original)
+            row.update(record_kind=table, raw_id=row["id"], id=f"{table}:{row['id']}")
+            row["source_name"] = row.get("source_name") or row.get("source_bundle_id") or row.get("source")
+            row["event_end"] = row.get("end_utc") or row.get("measured_at")
+            row["event_start"] = row.get("start_utc") or row["event_end"]
+            records.append(row)
+    return records, {
+        "data_version": TrainingService(repo).data_version(),
+        "query_plan": {"window_start": start.isoformat(), "window_end": cutoff.isoformat(),
+                       "canonical_types": list(canonical_types), "source_rows_returned": counts,
+                       "training_events_returned": 0, "training_sets_returned": 0,
+                       "training_sessions_returned": 0, "training_recommendations_returned": 0,
+                       "revision_order": "latest_visible_before_support_filter"},
+    }
 
 
 def _latest_weight_observations(repo, cutoff, before, timezone_name):
@@ -79,17 +114,13 @@ def analyze_workspace(repo, workspace, window_days=30, timezone_name="Asia/Shang
     days = max(1, int(window_days))
     arguments = {"scope_version": SCOPE_VERSION, "workspace": workspace, "window_days": days,
                  "timezone": timezone_name, "cutoff": cutoff.isoformat() if cutoff_time else
-                 now.replace(second=0, microsecond=0).isoformat(),
+                 now.astimezone(ZoneInfo(timezone_name)).date().isoformat(),
                  "cutoff_mode": "explicit" if cutoff_time else "auto"}
 
     def compute():
         start = cutoff - timedelta(days=days)
         canonical_types, metric_ids = _SPECS[workspace]
-        records, inherited = snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(),
-                                      window_end=cutoff.isoformat(), canonical_types=list(canonical_types))
-        # snapshot() also adapts training and other source tables. They are not
-        # inputs to these scoped body metrics; keep the narrower audit explicit.
-        records = [row for row in records if row.get("canonical_type") in canonical_types]
+        records, inherited = _body_snapshot(repo, cutoff, start, canonical_types)
         context = {"timezone": timezone_name, "data_version": inherited["data_version"]}
         metrics = {identity: evaluate(identity, records, cutoff_time=cutoff.isoformat(),
                    window_start=start.isoformat(), window_end=cutoff.isoformat(), context=context)
@@ -102,7 +133,8 @@ def analyze_workspace(repo, workspace, window_days=30, timezone_name="Asia/Shang
                  "data_version": inherited["data_version"], "query_plan": inherited["query_plan"],
                  "input_scope": "workspace_canonical_types_only",
                  "audit_scope": "unrelated_source_and_context_inventory_not_included",
-                 "cache_policy": {"automatic_refresh_seconds": 60, "revision_invalidated": True}}
+                 "cache_policy": {"automatic_refresh_seconds": WORKSPACE_CACHE_SECONDS,
+                                  "revision_invalidated": True}}
         output = {"workspace_scope": scope}
         if workspace == "心率 / HRV":
             output["heart"] = {"cards": [metric_card(metrics[identity]) for identity in metric_ids]}
@@ -135,4 +167,10 @@ def analyze_workspace(repo, workspace, window_days=30, timezone_name="Asia/Shang
     # Cold initialization changes revision metadata. Finish it before choosing
     # the cache key; subsequent calls remain read-only and reuse the first run.
     TrainingService(repo)
-    return cached(repo, SCOPE_VERSION, arguments, compute)
+    for _ in range(2):
+        baseline = revision_identity(repo)
+        value = cached(repo, SCOPE_VERSION, arguments, compute,
+                       max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS)
+        if revision_identity(repo) == baseline:
+            return value
+    raise WorkspaceInputsChanged("workspace_inputs_changed_retry_later")

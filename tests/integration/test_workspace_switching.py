@@ -1,6 +1,5 @@
 """Full local app workspaces use their own routes and avoid opener write locks."""
 
-import json
 import runpy
 import socket
 import sqlite3
@@ -106,6 +105,45 @@ def test_overview_rerun_reads_current_repository_while_writer_holds_lock(isolate
         writer.close()
 
 
+@pytest.mark.parametrize("page", ["心率 / HRV", "睡眠", "体重 / 有氧"])
+def test_body_pages_open_and_rerun_without_waiting_for_writer(isolated_workspace, page):
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    assert_page_ok(app)
+    writer = sqlite3.connect(isolated_workspace)
+    try:
+        writer.execute("BEGIN IMMEDIATE")
+        writer.execute("INSERT INTO schema_meta VALUES('synthetic_pending_edit','not_committed')")
+        # Both the first view and a cached rerun must remain readers. Before
+        # this repair persist_analysis waited here for the 30-second timeout.
+        app.radio(key="main_workspace").set_value(page).run(timeout=3)
+        assert_page_ok(app)
+        app.run(timeout=3)
+        assert_page_ok(app)
+        assert writer.in_transaction
+    finally:
+        writer.rollback()
+        writer.close()
+
+
+def test_body_page_keeps_navigation_and_retry_during_concurrent_import(isolated_workspace, monkeypatch):
+    import healthzip.analytics.workspaces as workspaces
+
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    original = workspaces.analyze_workspace
+
+    def changing(*args, **kwargs):
+        raise workspaces.WorkspaceInputsChanged("workspace_inputs_changed_retry_later")
+
+    monkeypatch.setattr(workspaces, "analyze_workspace", changing)
+    app.radio(key="main_workspace").set_value("心率 / HRV").run()
+    assert_page_ok(app)
+    assert any("数据正在更新" in item.value for item in app.info)
+    monkeypatch.setattr(workspaces, "analyze_workspace", original)
+    app.button(key="body_workspace_retry").click().run()
+    assert_page_ok(app)
+    assert "心率与 HRV 记录" in {item.value for item in app.subheader}
+
+
 def test_factual_workspaces_do_not_freeze_unused_full_analysis_and_keep_context_warning(isolated_workspace):
     repo = Repository(isolated_workspace)
     context_id = save_context(repo, {"population": "adults"})
@@ -172,19 +210,14 @@ def test_body_workspaces_show_source_separated_observations_without_full_freeze(
             assert conn.execute("SELECT count(*) FROM analysis_run").fetchone()[0] == 0
             assert conn.execute("SELECT count(*) FROM workflow_run").fetchone()[0] == 0
             assert conn.execute("SELECT count(*) FROM workflow_use_check").fetchone()[0] == 0
-            cards = {row[0]: json.loads(row[1]) for row in conn.execute("SELECT id,facts_json FROM insight")}
+            assert conn.execute("SELECT count(*) FROM insight").fetchone()[0] == 0
         if page == "心率 / HRV":
-            heart_values = cards["STATE-RHR"][0]["value"]
-            assert len(heart_values) == 2
-            assert sorted(day["value"] for days in heart_values.values() for day in days) == [55, 65]
-            assert all("synthetic_watch_" in source for source in heart_values)
-            sdnn_values = cards["STATE-SDNN"][0]["value"]
-            assert sorted(day["value"] for days in sdnn_values.values() for day in days) == [30, 40]
             tables = [table.value for table in app.dataframe if "指标" in table.value.columns]
             assert len(tables) == 2
             assert sorted(tables[0]["数值"].tolist()) == [55, 65]
             assert sorted(tables[1]["数值"].tolist()) == [30, 40]
             assert all(set(table.columns) == {"日期", "指标", "数值", "单位", "来源"} for table in tables)
+            assert all(table["来源"].nunique() == 2 for table in tables)
         elif page == "睡眠":
             tables = [table.value for table in app.dataframe if "睡眠时长（小时）" in table.value.columns]
             assert len(tables) == 1

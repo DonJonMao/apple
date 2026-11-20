@@ -14,7 +14,7 @@ v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`Advic
 
 日常界面显示中文逐日身体记录、运动日历汇总及直接训练入口；营养暂不显示，知识库不作为日常展示页面。首页以更新概况替代原始目录与 JSON，睡眠仅对有效正时长记录做页面统计，缺失不推断未佩戴，窗口外体重保留独立历史参考。展示与记录合同及回归见 [日常界面](docs/daily_ui.md)。
 
-各工作区共享标题与主区导航，力量样式限于局部组件。统一界面使用沙色纸纹、陶土/橄榄配色、本地 Fraunces/Inter 与中文衬线字体；总览叶形图片、真实记录统计和四个身体工作区入口延续同一风格。页头导航吸顶，力量组件采用同一视觉；布局、记录、权限和计算合同保持一致，详见[界面设计与验证](docs/earthy_ui.md)。`analytics/workspace_summary.py` 使用当地日历周/月窗口和既有可见修订、规范指标生成描述性结论；缓存按数据库修订及时钟分钟复用，显示真实计算截止，不持久写入、不运行全77项或生成健康评分。详情见[当前数据分析](docs/workspace_summaries.md)。
+各工作区共享标题与主区导航，力量样式限于局部组件。统一界面使用沙色纸纹、陶土/橄榄配色、本地 Fraunces/Inter 与中文衬线字体；总览叶形图片、真实记录统计和四个身体工作区入口延续同一风格。页头导航吸顶，力量组件采用同一视觉；布局、记录、权限和计算合同保持一致，详见[界面设计与验证](docs/earthy_ui.md)。`analytics/workspace_summary.py` 使用当地日历周/月窗口和既有可见修订、规范指标生成描述性结论；缓存按数据库修订复用，自动结果自计算完成起最长复用5分钟、当地日期改变即失效，显示真实计算截止，不持久写入、不运行全77项或生成健康评分。详情见[当前数据分析](docs/workspace_summaries.md)。
 
 `Repository` 在同一SQLite上执行显式事务升级至schema v5，拒绝更高版本降级；`db/schema.sql` 为单一基表定义，`training/schema.py` 与 `db/temporal_schema.py` 增量扩展。升级不将历史未知负荷、器械、ROM或可见时间补成已知值。备份使用SQLite backup API包含已提交WAL，恢复只能写新路径。
 
@@ -26,7 +26,7 @@ v1.4在以下基础上增加：schema v4的版本化目录/本地媒体；`Advic
 
 模板版本在开始时冻结。计划不是完成事实；组具有draft/in_progress/completed/aborted/skipped等状态。客户端事件ID幂等，真实相同组用不同UUID，乐观版本冲突保留双方修改。修订使分析缓存失效，历史事件可按当时可见性重放。
 
-`ui/training_page.py` 路由到局部双向力量组件：`training_workbench.py` 按需打开高级工具，`training_bridge.py` 验证命令并调用原训练事件服务，`strength_component/` 随包托管本地生产资源。月历、单动作展开、多选、主行录入及回执恢复见[力量工作台](docs/strength_workbench.md)。未提交编辑按数据库、用户、会话、组隔离在本浏览器；已存草稿在原SQLite中。清理浏览器会丢失未提交编辑。
+`ui/training_page.py` 路由到局部双向力量组件：`training_workbench.py` 按需打开高级工具，`training_bridge.py` 验证命令并调用原训练事件服务，`strength_component/` 随包托管本地生产资源。月历、选中动作后直接返回训练页、主行录入及回执恢复见[力量工作台](docs/strength_workbench.md)。未提交编辑按数据库、用户、会话、组隔离在本浏览器；已存草稿在原SQLite中。清理浏览器会丢失未提交编辑。
 
 `ui/offline_recorder.html` 仍为可下载的本地浏览器记录器，用localStorage保存草稿/缓存/待发送事件，导入导出作为恢复入口。REST token鉴权，CORS仅允许同源及本地文件null origin，力量组件没有放宽这些边界。
 

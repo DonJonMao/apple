@@ -18,7 +18,7 @@ from healthzip.science.observations import evaluate as evaluate_observation
 from healthzip.science.state import local_date_domain, stream_key
 from healthzip.training.service import TrainingService
 
-from .cache import cached, revision_identity
+from .cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
 from .workouts import _nonnegative, _recorded_energy, _totals
 
 SUMMARY_VERSION = "workspace-calendar-summary-1.0.0"
@@ -304,7 +304,7 @@ def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_tim
     domains = _DOMAINS.get(workspace, _ALL)
     service = TrainingService(repo)  # cold initialization precedes cache identity
     arguments = {"workspace": workspace, "timezone": timezone_name,
-                 "cutoff": cutoff.isoformat() if cutoff_time else cutoff.replace(second=0, microsecond=0).isoformat(),
+                 "cutoff": cutoff.isoformat() if cutoff_time else cutoff.astimezone(zone).date().isoformat(),
                  "cutoff_mode": "explicit" if cutoff_time else "auto"}
     for _ in range(2):
         baseline = revision_identity(repo)
@@ -316,11 +316,12 @@ def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_tim
             return {"workspace": workspace, "algorithm_version": SUMMARY_VERSION,
                     "cutoff_time": cutoff.isoformat(), "timezone": timezone_name,
                     "periods": periods, "query_plan": plan,
-                    "cache_policy": {"automatic_refresh_seconds": 60, "revision_invalidated": True,
+                    "cache_policy": {"automatic_refresh_seconds": WORKSPACE_CACHE_SECONDS, "revision_invalidated": True,
                                      "storage": "bounded_process_memory", "persistent_writes": False}}
 
         try:
-            value = cached(repo, SUMMARY_VERSION, arguments, compute)
+            value = cached(repo, SUMMARY_VERSION, arguments, compute,
+                           max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS)
         except _RevisionChanged:
             continue
         if revision_identity(repo) == baseline:

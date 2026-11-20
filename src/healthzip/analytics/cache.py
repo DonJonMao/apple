@@ -7,11 +7,13 @@ import json
 from collections import OrderedDict
 from pathlib import Path
 from threading import RLock
+from time import monotonic
 
 _RESULTS = OrderedDict()
 _LOCK = RLock()
 CACHE_LIMIT = 16  # product memory budget, unrelated to scientific eligibility
 CACHE_VERSION = "analysis-cache-v1.6.0"
+WORKSPACE_CACHE_SECONDS = 300  # UI freshness bound; edits invalidate immediately.
 
 
 def revision_identity(repo, knowledge_root=".local/knowledge"):
@@ -29,17 +31,28 @@ def revision_identity(repo, knowledge_root=".local/knowledge"):
             "cache_version": CACHE_VERSION}
 
 
-def cached(repo, namespace, arguments, compute):
-    """Return a copy so a UI cannot mutate another caller's frozen result."""
+def cached(repo, namespace, arguments, compute, *, max_age_seconds=None):
+    """Return an isolated result, optionally expiring from its actual creation.
+
+    A TTL avoids misses at every wall-clock minute boundary. Uncommitted views
+    never enter the process cache, where another connection could read them.
+    """
+    if repo.conn.in_transaction:
+        return compute()
     identity = {"revision": revision_identity(repo), "namespace": namespace, "arguments": arguments}
     key = hashlib.sha256(json.dumps(identity, sort_keys=True, default=str).encode()).hexdigest()
     with _LOCK:
         if key in _RESULTS:
-            _RESULTS.move_to_end(key)
-            return copy.deepcopy(_RESULTS[key])
+            created, result = _RESULTS[key]
+            if max_age_seconds is None or monotonic() - created < max_age_seconds:
+                _RESULTS.move_to_end(key)
+                return copy.deepcopy(result)
+            del _RESULTS[key]
     value = compute()
+    if repo.conn.in_transaction or revision_identity(repo) != identity["revision"]:
+        return value
     with _LOCK:
-        _RESULTS[key] = copy.deepcopy(value)
+        _RESULTS[key] = (monotonic(), copy.deepcopy(value))
         _RESULTS.move_to_end(key)
         while len(_RESULTS) > CACHE_LIMIT:
             _RESULTS.popitem(last=False)

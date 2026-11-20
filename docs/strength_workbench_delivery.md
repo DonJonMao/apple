@@ -1,5 +1,22 @@
 # 力量工作台验收记录
 
+## 2026-11-20：选动作后直接返回训练页
+
+当前流程为：训练页“添加动作”→选择页点一个动作“添加”→保存成功后自动返回训练页并展开新动作→填写重量、次数和 RIR。选择页不再要求多选确认。继续添加或取消选择保留已有未提交输入；重复动作仍使用明确的“再次添加此动作”，同一待回执请求重试保持命令 ID。
+
+本次验证：真实训练服务与入口回归 28 项通过；生产 JavaScript 事件回归 3 项通过，覆盖单选命令、成功/失败回执、按返回身份展开、原始输入保留、取消搜索、重复动作和同 ID 重试。事件回归使用 Node VM 和最小 DOM 适配器运行原始组件处理器，不验证浏览器布局。执行：
+
+```sh
+node --test tests/training/strength_picker_events_check.cjs
+node --check src/healthzip/ui/strength_component/workbench.js
+python -m pytest -q tests/integration/test_training_bridge.py tests/integration/test_training_entrypoint_ui.py
+ruff check tests/training/strength_workbench_browser_check.py
+```
+
+完整浏览器脚本已更新为上述单选流程，但本次环境的 Chromium 启动因 `socket() failed: Operation not permitted` 失败，备用云浏览器也无法连接本地服务。本次不把以下旧截图和浏览器通过记录当作新流程的验收。
+
+## 既有版本的历史验收
+
 本轮以 `d91976e36d09a6c8415336f6c60c82a297d582f8` 为兼容基线，在原仓库上增量实施。入口、私人数据库、训练事件、修订、原有建议权限和科学分析继续保留。
 
 ## 实际界面

@@ -196,3 +196,100 @@ def test_scoped_entry_validates_cutoff_timezone_and_workspace(synthetic_repo):
         analyze_workspace(repo, "心率 / HRV", cutoff_time="2026-11-18T12:00:00")
     with pytest.raises(ValueError, match="unsupported_body_workspace"):
         analyze_workspace(repo, "力量", cutoff_time=CUTOFF)
+
+
+@pytest.mark.parametrize("workspace", ["心率 / HRV", "睡眠", "体重 / 有氧"])
+def test_cold_body_view_never_reads_unrelated_training(synthetic_repo, monkeypatch, workspace):
+    repo, _ = synthetic_repo
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError("body page must not read training history or recommendations")
+
+    for method in ("events_as_of", "history_as_of", "sessions_as_of", "legacy_records", "list_recommendations"):
+        monkeypatch.setattr(TrainingService, method, unexpected)
+    view = analyze_workspace(repo, workspace, cutoff_time=CUTOFF)
+    assert view["workspace_scope"]["query_plan"]["training_events_returned"] == 0
+
+
+def test_workspace_cache_survives_reopened_connection_and_external_edit_invalidates(synthetic_repo, monkeypatch):
+    import healthzip.analytics.workspaces as workspaces
+
+    repo, ids = synthetic_repo
+    first = analyze_workspace(repo, "心率 / HRV", cutoff_time=CUTOFF)
+    reader = Repository(repo.path)
+    try:
+        original = workspaces._body_snapshot
+        calls = []
+
+        def counted(*args, **kwargs):
+            calls.append(1)
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(workspaces, "_body_snapshot", counted)
+        assert analyze_workspace(reader, "心率 / HRV", cutoff_time=CUTOFF) == first
+        assert calls == []
+        identifier = int(ids["rhr-b"].split(":")[1])
+        repo.conn.execute("UPDATE health_sample SET normalized_value=68,raw_value='68' WHERE id=?", (identifier,))
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-11-18T02:00:00+00:00' "
+                          "WHERE revision_id=(SELECT MAX(revision_id) FROM source_revision)")
+        repo.conn.commit()
+        updated = analyze_workspace(reader, "心率 / HRV", cutoff_time=CUTOFF)
+        assert calls == [1]
+        assert any(item["value"] == 68 for item in updated["workspace_scope"]["metrics"]["STATE-RHR"]["numeric_provenance"])
+    finally:
+        reader.close()
+
+
+def test_automatic_body_cache_crosses_minutes_but_expires(synthetic_repo, monkeypatch):
+    from datetime import datetime
+
+    import healthzip.analytics.cache as cache
+    import healthzip.analytics.workspaces as workspaces
+
+    repo, _ = synthetic_repo
+    clock = {"now": datetime.fromisoformat(CUTOFF), "age": 0}
+
+    class ControlledDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return clock["now"]
+
+    monkeypatch.setattr(workspaces, "datetime", ControlledDatetime)
+    monkeypatch.setattr(cache, "monotonic", lambda: clock["age"])
+    first = analyze_workspace(repo, "心率 / HRV")
+    clock.update(now=datetime.fromisoformat("2026-11-18T12:01:00+00:00"), age=60)
+    assert analyze_workspace(repo, "心率 / HRV") == first
+    clock.update(now=datetime.fromisoformat("2026-11-18T12:05:00+00:00"), age=300)
+    assert analyze_workspace(repo, "心率 / HRV")["workspace_scope"]["cutoff_time"] != first["workspace_scope"]["cutoff_time"]
+
+
+def test_rolled_back_values_never_poison_a_later_committed_cache_entry(synthetic_repo):
+    repo, ids = synthetic_repo
+    identifier = int(ids["rhr-b"].split(":")[1])
+    first = analyze_workspace(repo, "心率 / HRV", cutoff_time=CUTOFF)
+    reader = Repository(repo.path)
+
+    def edit(value):
+        repo.conn.execute("UPDATE health_sample SET normalized_value=?,raw_value=? WHERE id=?",
+                          (value, str(value), identifier))
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-11-18T02:00:00+00:00' "
+                          "WHERE revision_id=(SELECT MAX(revision_id) FROM source_revision)")
+
+    def observed(view):
+        return next(item["value"] for item in view["workspace_scope"]["metrics"]["STATE-RHR"]["numeric_provenance"]
+                    if item["id"] == ids["rhr-b"])
+
+    try:
+        edit(68)
+        assert observed(analyze_workspace(repo, "心率 / HRV", cutoff_time=CUTOFF)) == 68
+        assert repo.conn.in_transaction
+        assert analyze_workspace(reader, "心率 / HRV", cutoff_time=CUTOFF) == first
+        repo.conn.rollback()
+        assert analyze_workspace(repo, "心率 / HRV", cutoff_time=CUTOFF) == first
+        # The rolled-back version counter can recur, with different content.
+        edit(69)
+        repo.conn.commit()
+        assert observed(analyze_workspace(reader, "心率 / HRV", cutoff_time=CUTOFF)) == 69
+    finally:
+        repo.conn.rollback()
+        reader.close()
