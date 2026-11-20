@@ -1,0 +1,128 @@
+{
+  "case_id": "sparse_unequal_windows",
+  "title": "稀疏记录与不等长窗口",
+  "synthetic_input": {
+    "synthetic_only": true,
+    "previous_window": {
+      "dates": "合成11月1日至7日，共7天",
+      "resting_hr_observations_bpm": [
+        60,
+        62,
+        61
+      ],
+      "observation_dates": [
+        "11月1日",
+        "11月4日",
+        "11月7日"
+      ],
+      "recorded_sleep_hours": [
+        6.5,
+        7.0
+      ]
+    },
+    "current_window": {
+      "dates": "合成11月8日至10日，共3天",
+      "resting_hr_observations_bpm": [
+        67
+      ],
+      "observation_dates": [
+        "11月10日"
+      ],
+      "recorded_sleep_hours": []
+    },
+    "measurement": "两期来自同一设备，但具体测量协议未知；没有症状、训练、压力或睡眠覆盖记录",
+    "question": "本期这条心率记录说明什么？能否把两个窗口直接判为持续恶化，或把没有睡眠记录解释成没有睡觉？给具体下一步。"
+  },
+  "request": {
+    "model": "deepseek-v4-flash",
+    "temperature": 0,
+    "max_tokens": 2600,
+    "messages": [
+      {
+        "role": "system",
+        "content": "你在进行一个明确授权的产品研发试验，所有输入都为完全合成的测试数据，不对应任何真实个人。\n你可以使用一般医学、睡眠和运动科学知识直接回答；本次没有进行RAG、联网文献检索或本地知识库查询。\n必须分开写：观察到什么、可能为什么、具体下一步、还无法确定什么。不要把时间先后或相关性写成确定因果。\n不要虚构未提供的训练、症状、测量条件、人群信息；缺失不是零。不要把SDNN、RMSSD和未定义的HRV混为一谈。\n不要诊断疾病、给个体用药或精确训练负荷处方。一般知识只能提供候选解释，不能成为已验证的个人原因。\n可以给最多3条你有把握准确定位的真实参考来源，便于后续核对；不要求DOI，有把握才提供。不能编造来源。\n所有参考一律标成“待核验参考建议”，不能声称它已被检索、已被本地审核或已验证。没有把握时直接说明缺乏可靠引用。\n只返回一个JSON对象，中文正文约500至900字。键为 observations（字符串数组）、possible_explanations（含hypothesis/why_consistent/what_is_missing的对象数组）、next_steps（含action/purpose的对象数组）、unknowns（字符串数组）、references（含citation/locating_information/verification_status的对象数组）。\n即使无法比较，也应解释限制并给一两个具体的记录或核对步骤，而不是只输出免责声明。"
+      },
+      {
+        "role": "user",
+        "content": "以下完全是合成测试案例，不是真实用户数据。\n{\n  \"synthetic_only\": true,\n  \"previous_window\": {\n    \"dates\": \"合成11月1日至7日，共7天\",\n    \"resting_hr_observations_bpm\": [\n      60,\n      62,\n      61\n    ],\n    \"observation_dates\": [\n      \"11月1日\",\n      \"11月4日\",\n      \"11月7日\"\n    ],\n    \"recorded_sleep_hours\": [\n      6.5,\n      7.0\n    ]\n  },\n  \"current_window\": {\n    \"dates\": \"合成11月8日至10日，共3天\",\n    \"resting_hr_observations_bpm\": [\n      67\n    ],\n    \"observation_dates\": [\n      \"11月10日\"\n    ],\n    \"recorded_sleep_hours\": []\n  },\n  \"measurement\": \"两期来自同一设备，但具体测量协议未知；没有症状、训练、压力或睡眠覆盖记录\",\n  \"question\": \"本期这条心率记录说明什么？能否把两个窗口直接判为持续恶化，或把没有睡眠记录解释成没有睡觉？给具体下一步。\"\n}"
+      }
+    ]
+  },
+  "status": "received",
+  "elapsed_seconds": 41.548,
+  "returned_model": "deepseek-v4-flash",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 559,
+    "total_tokens": 1840,
+    "completion_tokens": 1281,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "response_text": "{\n  \"observations\": [\n    \"前一个窗口（合成11月1日至7日）记录了3次静息心率：60、62、61 bpm，分布在11月1日、4日、7日；同时记录了2次睡眠时长：6.5小时和7.0小时，但未注明具体日期。\",\n    \"当前窗口（合成11月8日至10日）仅记录了1次静息心率：67 bpm，发生在11月10日；该窗口内无任何睡眠时长记录。\",\n    \"两期数据来自同一设备，但测量协议（如测量时间、姿势、是否排空膀胱、是否在咖啡因/运动后等）未知。\",\n    \"没有提供任何症状、训练负荷、压力水平或睡眠质量（如深睡比例、醒来次数）的记录。\"\n  ],\n  \"possible_explanations\": [\n    {\n      \"hypothesis\": \"当前窗口的67 bpm可能反映短期生理波动，而非持续恶化。\",\n      \"why_consistent\": \"一般医学知识中，静息心率在一天内可因脱水、轻微感染、咖啡因摄入、情绪紧张或测量时间差异而波动3-5 bpm。前窗口的60-62 bpm与当前67 bpm的差值（5-7 bpm）在无其他信息时，可落在正常日间变异范围内。\",\n      \"what_is_missing\": \"缺少当前窗口的多次测量（如连续3天晨起数据）以判断趋势；缺少同期睡眠时长、质量及压力/活动记录；缺少测量条件（如是否晨起空腹、静坐5分钟后）。\"\n    },\n    {\n      \"hypothesis\": \"当前窗口无睡眠记录不能直接解释为“没有睡觉”。\",\n      \"why_consistent\": \"睡眠记录缺失最常见的原因是设备未佩戴、未同步、电池耗尽或用户未开启睡眠模式，而非实际睡眠时间为零。一般医学上，连续3天完全不睡觉会导致严重认知和生理障碍，但本案例无任何症状记录支持。\",\n      \"what_is_missing\": \"缺少设备佩戴日志、同步时间戳、电池状态；缺少用户主观睡眠日志（如“我睡了但没记录”）；缺少任何疲劳、困倦或认知下降的症状报告。\"\n    },\n    {\n      \"hypothesis\": \"两个窗口不能直接判为持续恶化，因为数据点稀疏且条件不可比。\",\n      \"why_consistent\": \"前窗口7天有3次测量，当前窗口3天仅1次测量，采样密度和分布不同。静息心率受测量时间影响大：若前窗口测量均在晨起，而当前窗口在午后，则67 bpm可能仅反映昼夜节律差异。\",\n      \"what_is_missing\": \"缺少每个测量点的具体时间戳（如几点几分）；缺少前窗口最后几天（11月5-7日）的心率数据以判断趋势连续性；缺少任何急性事件（如生病、熬夜、剧烈运动）的记录。\"\n    }\n  ],\n  \"next_steps\": [\n    {\n      \"action\": \"在合成11月11日至13日连续3天，每天晨起（起床后1小时内、排空膀胱、静坐5分钟后）测量并记录静息心率，同时记录测量时间。\",\n      \"purpose\": \"获取当前窗口的多次、标准化测量，以判断67 bpm是孤立波动还是持续上升趋势。\"\n    },\n    {\n      \"action\": \"在合成11月11日至13日，每晚睡前手动记录“是否佩戴设备”、“是否开启睡眠模式”、“估计睡眠时长（小时）”，并检查设备同步状态。\",\n      \"purpose\": \"区分睡眠记录缺失是技术问题还是实际无睡眠，并获取同期睡眠时长数据以评估心率-睡眠关联。\"\n    },\n    {\n      \"action\": \"回顾合成11月8日至10日期间是否有任何已知干扰因素：如咖啡因/酒精摄入、感冒症状、剧烈运动、情绪压力或测量前未静坐。\",\n      \"purpose\": \"识别67 bpm的可能短期原因，避免误判为长期恶化。\"\n    }\n  ],\n  \"unknowns\": [\n    \"当前窗口67 bpm的测量时间、姿势、是否空腹、是否静坐足够时长。\",\n    \"前窗口最后几天（11月5-7日）的心率数据，以及当前窗口前2天（11月8-9日）的心率数据。\",\n    \"两期之间是否有任何急性疾病、训练变化、药物使用或睡眠剥夺事件。\",\n    \"设备型号、算法版本及测量协议（如是否自动剔除运动伪影）。\",\n    \"用户年龄、性别、基础健康状况及平时静息心率基线范围。\"\n  ],\n  \"references\": [\n    {\n      \"citation\": \"Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. (1996). Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation, 93(5), 1043-1065.\",\n      \"locating_information\": \"可通过PubMed或Circulation期刊官网检索标题获取全文\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Carter, J. B., Banister, E. W., & Blaber, A. P. (2003). Effect of endurance exercise on autonomic control of heart rate. Sports Medicine, 33(1), 33-46.\",\n      \"locating_information\": \"可通过PubMed或Sports Medicine期刊官网检索标题获取摘要\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Shaffer, F., & Ginsberg, J. P. (2017). An overview of heart rate variability metrics and norms. Frontiers in Public Health, 5, 258.\",\n      \"locating_information\": \"可通过PubMed Central (PMC) 或Frontiers官网检索标题获取全文\",\n      \"verification_status\": \"待核验参考建议\"\n    }\n  ]\n}",
+  "parsed_response": {
+    "observations": [
+      "前一个窗口（合成11月1日至7日）记录了3次静息心率：60、62、61 bpm，分布在11月1日、4日、7日；同时记录了2次睡眠时长：6.5小时和7.0小时，但未注明具体日期。",
+      "当前窗口（合成11月8日至10日）仅记录了1次静息心率：67 bpm，发生在11月10日；该窗口内无任何睡眠时长记录。",
+      "两期数据来自同一设备，但测量协议（如测量时间、姿势、是否排空膀胱、是否在咖啡因/运动后等）未知。",
+      "没有提供任何症状、训练负荷、压力水平或睡眠质量（如深睡比例、醒来次数）的记录。"
+    ],
+    "possible_explanations": [
+      {
+        "hypothesis": "当前窗口的67 bpm可能反映短期生理波动，而非持续恶化。",
+        "why_consistent": "一般医学知识中，静息心率在一天内可因脱水、轻微感染、咖啡因摄入、情绪紧张或测量时间差异而波动3-5 bpm。前窗口的60-62 bpm与当前67 bpm的差值（5-7 bpm）在无其他信息时，可落在正常日间变异范围内。",
+        "what_is_missing": "缺少当前窗口的多次测量（如连续3天晨起数据）以判断趋势；缺少同期睡眠时长、质量及压力/活动记录；缺少测量条件（如是否晨起空腹、静坐5分钟后）。"
+      },
+      {
+        "hypothesis": "当前窗口无睡眠记录不能直接解释为“没有睡觉”。",
+        "why_consistent": "睡眠记录缺失最常见的原因是设备未佩戴、未同步、电池耗尽或用户未开启睡眠模式，而非实际睡眠时间为零。一般医学上，连续3天完全不睡觉会导致严重认知和生理障碍，但本案例无任何症状记录支持。",
+        "what_is_missing": "缺少设备佩戴日志、同步时间戳、电池状态；缺少用户主观睡眠日志（如“我睡了但没记录”）；缺少任何疲劳、困倦或认知下降的症状报告。"
+      },
+      {
+        "hypothesis": "两个窗口不能直接判为持续恶化，因为数据点稀疏且条件不可比。",
+        "why_consistent": "前窗口7天有3次测量，当前窗口3天仅1次测量，采样密度和分布不同。静息心率受测量时间影响大：若前窗口测量均在晨起，而当前窗口在午后，则67 bpm可能仅反映昼夜节律差异。",
+        "what_is_missing": "缺少每个测量点的具体时间戳（如几点几分）；缺少前窗口最后几天（11月5-7日）的心率数据以判断趋势连续性；缺少任何急性事件（如生病、熬夜、剧烈运动）的记录。"
+      }
+    ],
+    "next_steps": [
+      {
+        "action": "在合成11月11日至13日连续3天，每天晨起（起床后1小时内、排空膀胱、静坐5分钟后）测量并记录静息心率，同时记录测量时间。",
+        "purpose": "获取当前窗口的多次、标准化测量，以判断67 bpm是孤立波动还是持续上升趋势。"
+      },
+      {
+        "action": "在合成11月11日至13日，每晚睡前手动记录“是否佩戴设备”、“是否开启睡眠模式”、“估计睡眠时长（小时）”，并检查设备同步状态。",
+        "purpose": "区分睡眠记录缺失是技术问题还是实际无睡眠，并获取同期睡眠时长数据以评估心率-睡眠关联。"
+      },
+      {
+        "action": "回顾合成11月8日至10日期间是否有任何已知干扰因素：如咖啡因/酒精摄入、感冒症状、剧烈运动、情绪压力或测量前未静坐。",
+        "purpose": "识别67 bpm的可能短期原因，避免误判为长期恶化。"
+      }
+    ],
+    "unknowns": [
+      "当前窗口67 bpm的测量时间、姿势、是否空腹、是否静坐足够时长。",
+      "前窗口最后几天（11月5-7日）的心率数据，以及当前窗口前2天（11月8-9日）的心率数据。",
+      "两期之间是否有任何急性疾病、训练变化、药物使用或睡眠剥夺事件。",
+      "设备型号、算法版本及测量协议（如是否自动剔除运动伪影）。",
+      "用户年龄、性别、基础健康状况及平时静息心率基线范围。"
+    ],
+    "references": [
+      {
+        "citation": "Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. (1996). Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation, 93(5), 1043-1065.",
+        "locating_information": "可通过PubMed或Circulation期刊官网检索标题获取全文",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Carter, J. B., Banister, E. W., & Blaber, A. P. (2003). Effect of endurance exercise on autonomic control of heart rate. Sports Medicine, 33(1), 33-46.",
+        "locating_information": "可通过PubMed或Sports Medicine期刊官网检索标题获取摘要",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Shaffer, F., & Ginsberg, J. P. (2017). An overview of heart rate variability metrics and norms. Frontiers in Public Health, 5, 258.",
+        "locating_information": "可通过PubMed Central (PMC) 或Frontiers官网检索标题获取全文",
+        "verification_status": "待核验参考建议"
+      }
+    ]
+  },
+  "json_object": true
+}

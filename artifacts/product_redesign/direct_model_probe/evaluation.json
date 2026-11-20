@@ -1,0 +1,184 @@
+{
+  "experiment": "direct_chat_without_retrieval",
+  "model": "deepseek-v4-flash",
+  "evaluator": "Codex manual review of synthetic responses; not independent scientific or clinical validation",
+  "network_requests": 4,
+  "successful_requests": 4,
+  "retries": 0,
+  "total_elapsed_seconds": 147.862,
+  "elapsed_range_seconds": [
+    35.081,
+    41.548
+  ],
+  "tokens": {
+    "prompt_tokens": 2156,
+    "completion_tokens": 4588,
+    "total_tokens": 6744
+  },
+  "limits": [
+    "Four fixed exploratory cases, not an accuracy benchmark or production acceptance test.",
+    "No source retrieval occurred. All model citations remain unverified suggestions in this evaluation.",
+    "Separate reference-verification.json confirms eight journal bibliographies; one book chapter remains unverified. Full-text support for each generated claim has not been verified.",
+    "No real health records were transmitted; no production path, model configuration or private network authorization changed."
+  ],
+  "conclusion": "The model can produce useful explanations and next steps directly, but its unsupported quantification, population assumptions and factual contradictions prevent using the raw response as a trustworthy product explanation. More source acquisition is not yet shown to be the primary bottleneck; faithful fact binding, context preservation and claim-level evidence support need attention first.",
+  "cases": [
+    {
+      "case_id": "matched_7_day_heart_sleep",
+      "strengths": [
+        "Correctly reports 60→65 bpm, SDNN 45→36 ms and recorded sleep 6.8→5.9 h.",
+        "Keeps SDNN distinct from RMSSD and treats missing training, infection and stress as unknown.",
+        "Gives plausible candidate mechanisms and two concrete data-review actions; does not diagnose or assert a unique cause."
+      ],
+      "shortcomings": [
+        {
+          "severity": "material",
+          "category": "mechanism_overgeneralization",
+          "quote": "睡眠不足…可导致交感神经活性相对增强、副交感活性减弱，表现为静息心率上升、HRV（SDNN）下降",
+          "assessment": "The direction is presented too generally for SDNN; duration, protocol, population and supporting source spans are not bound to this claim. Unverified sleep completeness further weakens the premise."
+        },
+        {
+          "severity": "material",
+          "category": "unsupported_numeric_cutoffs",
+          "quote": "单日睡眠时长极低（如<4小时）或连续多日低于6小时",
+          "assessment": "Adds cutoffs not provided in the facts and not justified by a linked source. Inspecting the full daily distribution does not require these thresholds."
+        },
+        {
+          "severity": "minor",
+          "category": "unnecessary_measurement_request",
+          "quote": "缺少睡眠质量指标（如深睡比例、觉醒次数）",
+          "assessment": "Device-estimated deep-sleep proportion is not established here as a necessary or reliable next measurement; first verify duration completeness and timing."
+        }
+      ],
+      "narrative_usefulness": "Useful first draft with material correction needed",
+      "reference_reliability": "Unverified bibliography and unverified claim support"
+    },
+    {
+      "case_id": "sleep_duration_unknown_coverage",
+      "strengths": [
+        "Preserves 4/7 versus 5/7 observed nights and unknown overnight completeness.",
+        "Explicitly discusses selective missingness and avoids equating unrecorded nights with zero sleep.",
+        "Suggests checking wear/sync/battery history and recording bedtime, wake time and naps."
+      ],
+      "shortcomings": [
+        {
+          "severity": "material",
+          "category": "population_applicability",
+          "quote": "睡眠不足状态仍可能存在，因为6.1小时仍低于多数成人推荐的7-9小时范围",
+          "assessment": "Age and adult status are explicitly unknown; adult guidance should first be presented as conditional background, not used as a reason to suspect insufficient sleep in this case."
+        },
+        {
+          "severity": "material",
+          "category": "contradicts_supplied_context",
+          "quote": "前期与本期之间的时间间隔…未知",
+          "assessment": "The input explicitly states consecutive seven-day windows, so their interval is known."
+        },
+        {
+          "severity": "minor",
+          "category": "excess_specificity",
+          "quote": "连续记录至少14天（每天有效）",
+          "assessment": "A precise required duration is added without identifying its source or its status as a pragmatic logging plan; the request asked for one or two actions but three are given."
+        },
+        {
+          "severity": "minor",
+          "category": "wording_overstates_fact",
+          "quote": "睡眠时长确实有所增加（从5.4小时增至6.1小时）",
+          "assessment": "Placed under hypothesis, but wording should say observed-night recorded mean increased; true duration and whole-window mean remain unknown."
+        }
+      ],
+      "narrative_usefulness": "Useful handling of missingness; population and known-window context need correction",
+      "reference_reliability": "Unverified bibliography; no source-to-claim mapping"
+    },
+    {
+      "case_id": "unknown_protocol_population",
+      "strengths": [
+        "States the HRV definition and device comparability are unknown.",
+        "Does not silently convert undefined HRV to SDNN or RMSSD.",
+        "Concludes the cause cannot be determined and population thresholds cannot be applied; recommends verifying device/metric identity."
+      ],
+      "shortcomings": [
+        {
+          "severity": "material",
+          "category": "interpretation_before_comparability",
+          "quote": "静息心率下降3 bpm、HRV上升14 ms可能提示副交感神经活性相对增强…常见于…恢复状态改善",
+          "assessment": "Starts with physiological interpretation before resolving a change of device and an undefined HRV metric. Recovery improvement is not supported by this comparison."
+        },
+        {
+          "severity": "material",
+          "category": "unsupported_numeric_ranges",
+          "quote": "HRV基线偏移10-20 ms；…产生3-5 bpm差异",
+          "assessment": "Specific technical and posture error ranges have no traceable evidence and are not valid generic corrections for unidentified devices/protocols."
+        },
+        {
+          "severity": "material",
+          "category": "unsupported_reference_claim",
+          "quote": "至少5分钟晨起仰卧位记录…技术误差（约5-10%）",
+          "assessment": "Attributes a precise protocol and significance threshold to Plews et al. without verifying the text or applicability. A real citation does not establish this assertion."
+        },
+        {
+          "severity": "minor",
+          "category": "excess_specificity",
+          "quote": "至少10次同步记录…至少5-7条有效记录",
+          "assessment": "Presents exact sample requirements without support and asks for simultaneous device validation before checking whether both devices report the same HRV metric."
+        }
+      ],
+      "narrative_usefulness": "Substantial revision needed; the comparability limitation should lead",
+      "reference_reliability": "Unverified bibliography plus particularly concerning unsupported source attribution"
+    },
+    {
+      "case_id": "sparse_unequal_windows",
+      "strengths": [
+        "Preserves the three previous HR values and the current single 67 bpm observation.",
+        "Explicitly distinguishes seven versus three days and rejects a sustained deterioration conclusion.",
+        "Explicitly says no sleep records do not mean no sleep and suggests checking technical recording causes."
+      ],
+      "shortcomings": [
+        {
+          "severity": "material",
+          "category": "unsupported_normality_range",
+          "quote": "波动3-5 bpm…差值（5-7 bpm）…可落在正常日间变异范围内",
+          "assessment": "Adds a general normality range without evidence, and the given range does not cover all of the observed difference. This may provide unjustified reassurance."
+        },
+        {
+          "severity": "material",
+          "category": "contradicts_supplied_fact",
+          "quote": "缺少前窗口最后几天（11月5-7日）的心率数据",
+          "assessment": "The input includes a dated 61 bpm observation on November 7; the answer acknowledges it initially and later forgets it."
+        },
+        {
+          "severity": "material",
+          "category": "window_mismatch",
+          "quote": "11月11日至13日…获取当前窗口的多次…测量",
+          "assessment": "New dates cannot populate the fixed November 8–10 comparison window. They form a separate prospective follow-up period."
+        },
+        {
+          "severity": "minor",
+          "category": "unworkable_logging_timing",
+          "quote": "每晚睡前手动记录…估计睡眠时长",
+          "assessment": "Actual overnight sleep should be estimated after waking; a bedtime estimate is a plan, not an observed duration."
+        },
+        {
+          "severity": "minor",
+          "category": "irrelevant_detail_and_reference",
+          "quote": "连续3天完全不睡觉会导致严重认知和生理障碍",
+          "assessment": "This detail is unnecessary to establish missing-not-zero. Two suggested HRV references are not clearly relevant to a case without HRV observations."
+        }
+      ],
+      "narrative_usefulness": "Helpful missingness explanation but material fact/window errors",
+      "reference_reliability": "Unverified bibliography; relevance to the actual claims is unclear"
+    }
+  ],
+  "proposed_next_steps": [
+    "Keep deterministic observations, windows, sample counts and protocol availability separate from model-generated hypotheses; check generated text against those facts.",
+    "Require source spans for scientific mechanisms and numeric thresholds; do not upgrade remembered bibliography to retrieved or reviewed evidence.",
+    "Resolve existing context propagation and applicability gaps before deciding which new documents are genuinely missing.",
+    "Use asynchronous generation with visible status: direct-call latency here was 35–42 seconds.",
+    "Do not connect this exploratory raw response to the production explanation path without the above controls."
+  ],
+  "validation": {
+    "ruff": "passed: tools/product_direct_model_probe.py",
+    "git_diff_check": "passed",
+    "secret_scan": "passed for configured endpoints and credential values in probe script and JSON artifacts"
+  },
+  "reference_verification_artifact": "reference-verification.json"
+}

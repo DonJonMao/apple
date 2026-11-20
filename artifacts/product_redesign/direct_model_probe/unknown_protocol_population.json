@@ -1,0 +1,104 @@
+{
+  "case_id": "unknown_protocol_population",
+  "title": "测量协议、人群和HRV定义未知",
+  "synthetic_input": {
+    "synthetic_only": true,
+    "comparison": "两个7天窗口各3条记录；前期来自设备A，本期来自设备B，测量时段和体位未知",
+    "previous": {
+      "labelled_resting_heart_rate_mean_bpm": 60,
+      "undefined_hrv_mean_ms": 34
+    },
+    "current": {
+      "labelled_resting_heart_rate_mean_bpm": 57,
+      "undefined_hrv_mean_ms": 48
+    },
+    "hrv_definition": "源字段只写HRV（毫秒），不知道SDNN还是RMSSD，也不知道采样长度与伪差处理",
+    "person_context": "年龄、成年人身份、健康状况、训练背景、用药均未知",
+    "sleep": "没有记录",
+    "question": "能否据此认为身体状态或恢复改善？在解释前应核对什么，哪些现成阈值或研究结论不能直接套用？"
+  },
+  "request": {
+    "model": "deepseek-v4-flash",
+    "temperature": 0,
+    "max_tokens": 2600,
+    "messages": [
+      {
+        "role": "system",
+        "content": "你在进行一个明确授权的产品研发试验，所有输入都为完全合成的测试数据，不对应任何真实个人。\n你可以使用一般医学、睡眠和运动科学知识直接回答；本次没有进行RAG、联网文献检索或本地知识库查询。\n必须分开写：观察到什么、可能为什么、具体下一步、还无法确定什么。不要把时间先后或相关性写成确定因果。\n不要虚构未提供的训练、症状、测量条件、人群信息；缺失不是零。不要把SDNN、RMSSD和未定义的HRV混为一谈。\n不要诊断疾病、给个体用药或精确训练负荷处方。一般知识只能提供候选解释，不能成为已验证的个人原因。\n可以给最多3条你有把握准确定位的真实参考来源，便于后续核对；不要求DOI，有把握才提供。不能编造来源。\n所有参考一律标成“待核验参考建议”，不能声称它已被检索、已被本地审核或已验证。没有把握时直接说明缺乏可靠引用。\n只返回一个JSON对象，中文正文约500至900字。键为 observations（字符串数组）、possible_explanations（含hypothesis/why_consistent/what_is_missing的对象数组）、next_steps（含action/purpose的对象数组）、unknowns（字符串数组）、references（含citation/locating_information/verification_status的对象数组）。\n即使无法比较，也应解释限制并给一两个具体的记录或核对步骤，而不是只输出免责声明。"
+      },
+      {
+        "role": "user",
+        "content": "以下完全是合成测试案例，不是真实用户数据。\n{\n  \"synthetic_only\": true,\n  \"comparison\": \"两个7天窗口各3条记录；前期来自设备A，本期来自设备B，测量时段和体位未知\",\n  \"previous\": {\n    \"labelled_resting_heart_rate_mean_bpm\": 60,\n    \"undefined_hrv_mean_ms\": 34\n  },\n  \"current\": {\n    \"labelled_resting_heart_rate_mean_bpm\": 57,\n    \"undefined_hrv_mean_ms\": 48\n  },\n  \"hrv_definition\": \"源字段只写HRV（毫秒），不知道SDNN还是RMSSD，也不知道采样长度与伪差处理\",\n  \"person_context\": \"年龄、成年人身份、健康状况、训练背景、用药均未知\",\n  \"sleep\": \"没有记录\",\n  \"question\": \"能否据此认为身体状态或恢复改善？在解释前应核对什么，哪些现成阈值或研究结论不能直接套用？\"\n}"
+      }
+    ]
+  },
+  "status": "received",
+  "elapsed_seconds": 35.081,
+  "returned_model": "deepseek-v4-flash",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 522,
+    "total_tokens": 1645,
+    "completion_tokens": 1123,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "response_text": "{\n  \"observations\": [\n    \"前期7天窗口内静息心率均值约60 bpm，HRV均值约34 ms；本期7天窗口内静息心率均值约57 bpm，HRV均值约48 ms。\",\n    \"两个窗口各仅有3条记录，样本量极小，且测量时段、体位、设备型号均未知。\",\n    \"HRV字段仅标注为“HRV（毫秒）”，未明确是SDNN还是RMSSD，也未提供采样长度与伪差处理信息。\"\n  ],\n  \"possible_explanations\": [\n    {\n      \"hypothesis\": \"静息心率下降3 bpm、HRV上升14 ms可能提示副交感神经活性相对增强或交感驱动降低。\",\n      \"why_consistent\": \"一般生理学知识中，静息心率降低与HRV升高常伴随迷走神经张力增加，常见于有氧适应或恢复状态改善。\",\n      \"what_is_missing\": \"缺乏同期运动负荷、睡眠质量、情绪压力、药物影响、体位标准化记录；设备A与B的测量一致性未验证；3条记录不足以排除偶然波动或测量误差。\"\n    },\n    {\n      \"hypothesis\": \"设备差异或测量条件不同可完全解释数值变化。\",\n      \"why_consistent\": \"不同品牌/型号的心率传感器在算法、采样率、伪差过滤上存在差异，可导致HRV基线偏移10-20 ms；静息心率也可能因测量时段（晨起vs午后）或体位（仰卧vs坐位）产生3-5 bpm差异。\",\n      \"what_is_missing\": \"未提供设备A与B的型号、校准状态、同步对比数据；未记录每次测量的具体时间、体位、环境温度。\"\n    }\n  ],\n  \"next_steps\": [\n    {\n      \"action\": \"核对两个设备在同一人、同一时段、同一体位下的至少10次同步记录，计算差值均值与标准差。\",\n      \"purpose\": \"评估设备间系统偏差，判断观察到的变化是否在设备差异范围内。\"\n    },\n    {\n      \"action\": \"在后续7天窗口内，使用同一设备、固定晨起仰卧位、静息5分钟后采集至少5-7条有效记录。\",\n      \"purpose\": \"提高数据稳定性，减少测量条件混杂，获得更可靠的个体基线。\"\n    },\n    {\n      \"action\": \"明确HRV指标定义：要求设备输出SDNN（ms）和RMSSD（ms）分开记录，并注明采样时长（如5分钟或逐搏）。\",\n      \"purpose\": \"SDNN反映总体变异性，RMSSD主要反映副交感活性，两者不可互换；采样时长影响绝对值比较。\"\n    }\n  ],\n  \"unknowns\": [\n    \"无法确定HRV均值34 ms和48 ms分别对应SDNN还是RMSSD，因此不能套用任何已知的参考阈值（如SDNN<50 ms提示风险或RMSSD>30 ms视为正常）。\",\n    \"无法确定静息心率与HRV的变化是否由生理适应、设备差异、测量条件或随机波动引起。\",\n    \"缺乏年龄、性别、训练背景、用药、睡眠、情绪等个体信息，无法将数值与任何人群参考范围进行有意义的比较。\"\n  ],\n  \"references\": [\n    {\n      \"citation\": \"Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation. 1996;93(5):1043-1065.\",\n      \"locating_information\": \"PubMed ID: 8598068；全文可通过Circulation官网或PubMed Central获取。\",\n      \"verification_status\": \"待核验参考建议：该文献定义了SDNN、RMSSD等指标的标准测量方法与参考范围，但未提供针对个体变化的最小有意义差值。\"\n    },\n    {\n      \"citation\": \"Nunan D, Sandercock GR, Brodie DA. A quantitative systematic review of normal values for short-term heart rate variability in healthy adults. Pacing Clin Electrophysiol. 2010;33(11):1407-1417.\",\n      \"locating_information\": \"PubMed ID: 20663071；可通过Wiley Online Library或PubMed获取。\",\n      \"verification_status\": \"待核验参考建议：该综述汇总了健康成人短时HRV正常值，但强调年龄、性别、测量条件的影响，且不适用于个体纵向比较。\"\n    },\n    {\n      \"citation\": \"Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation and heart rate variability in elite endurance athletes: opening the door to effective monitoring. Sports Med. 2013;43(9):773-781.\",\n      \"locating_information\": \"PubMed ID: 23852425；可通过SpringerLink或PubMed获取。\",\n      \"verification_status\": \"待核验参考建议：该研究讨论了运动员HRV个体化监测的阈值问题，但强调需要至少5分钟晨起仰卧位记录，且个体内变化需超过技术误差（约5-10%）才可能具有生理意义。\"\n    }\n  ]\n}",
+  "parsed_response": {
+    "observations": [
+      "前期7天窗口内静息心率均值约60 bpm，HRV均值约34 ms；本期7天窗口内静息心率均值约57 bpm，HRV均值约48 ms。",
+      "两个窗口各仅有3条记录，样本量极小，且测量时段、体位、设备型号均未知。",
+      "HRV字段仅标注为“HRV（毫秒）”，未明确是SDNN还是RMSSD，也未提供采样长度与伪差处理信息。"
+    ],
+    "possible_explanations": [
+      {
+        "hypothesis": "静息心率下降3 bpm、HRV上升14 ms可能提示副交感神经活性相对增强或交感驱动降低。",
+        "why_consistent": "一般生理学知识中，静息心率降低与HRV升高常伴随迷走神经张力增加，常见于有氧适应或恢复状态改善。",
+        "what_is_missing": "缺乏同期运动负荷、睡眠质量、情绪压力、药物影响、体位标准化记录；设备A与B的测量一致性未验证；3条记录不足以排除偶然波动或测量误差。"
+      },
+      {
+        "hypothesis": "设备差异或测量条件不同可完全解释数值变化。",
+        "why_consistent": "不同品牌/型号的心率传感器在算法、采样率、伪差过滤上存在差异，可导致HRV基线偏移10-20 ms；静息心率也可能因测量时段（晨起vs午后）或体位（仰卧vs坐位）产生3-5 bpm差异。",
+        "what_is_missing": "未提供设备A与B的型号、校准状态、同步对比数据；未记录每次测量的具体时间、体位、环境温度。"
+      }
+    ],
+    "next_steps": [
+      {
+        "action": "核对两个设备在同一人、同一时段、同一体位下的至少10次同步记录，计算差值均值与标准差。",
+        "purpose": "评估设备间系统偏差，判断观察到的变化是否在设备差异范围内。"
+      },
+      {
+        "action": "在后续7天窗口内，使用同一设备、固定晨起仰卧位、静息5分钟后采集至少5-7条有效记录。",
+        "purpose": "提高数据稳定性，减少测量条件混杂，获得更可靠的个体基线。"
+      },
+      {
+        "action": "明确HRV指标定义：要求设备输出SDNN（ms）和RMSSD（ms）分开记录，并注明采样时长（如5分钟或逐搏）。",
+        "purpose": "SDNN反映总体变异性，RMSSD主要反映副交感活性，两者不可互换；采样时长影响绝对值比较。"
+      }
+    ],
+    "unknowns": [
+      "无法确定HRV均值34 ms和48 ms分别对应SDNN还是RMSSD，因此不能套用任何已知的参考阈值（如SDNN<50 ms提示风险或RMSSD>30 ms视为正常）。",
+      "无法确定静息心率与HRV的变化是否由生理适应、设备差异、测量条件或随机波动引起。",
+      "缺乏年龄、性别、训练背景、用药、睡眠、情绪等个体信息，无法将数值与任何人群参考范围进行有意义的比较。"
+    ],
+    "references": [
+      {
+        "citation": "Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation. 1996;93(5):1043-1065.",
+        "locating_information": "PubMed ID: 8598068；全文可通过Circulation官网或PubMed Central获取。",
+        "verification_status": "待核验参考建议：该文献定义了SDNN、RMSSD等指标的标准测量方法与参考范围，但未提供针对个体变化的最小有意义差值。"
+      },
+      {
+        "citation": "Nunan D, Sandercock GR, Brodie DA. A quantitative systematic review of normal values for short-term heart rate variability in healthy adults. Pacing Clin Electrophysiol. 2010;33(11):1407-1417.",
+        "locating_information": "PubMed ID: 20663071；可通过Wiley Online Library或PubMed获取。",
+        "verification_status": "待核验参考建议：该综述汇总了健康成人短时HRV正常值，但强调年龄、性别、测量条件的影响，且不适用于个体纵向比较。"
+      },
+      {
+        "citation": "Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation and heart rate variability in elite endurance athletes: opening the door to effective monitoring. Sports Med. 2013;43(9):773-781.",
+        "locating_information": "PubMed ID: 23852425；可通过SpringerLink或PubMed获取。",
+        "verification_status": "待核验参考建议：该研究讨论了运动员HRV个体化监测的阈值问题，但强调需要至少5分钟晨起仰卧位记录，且个体内变化需超过技术误差（约5-10%）才可能具有生理意义。"
+      }
+    ]
+  },
+  "json_object": true
+}

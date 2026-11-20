@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-21",
+  "scope": "synthetic_pure_function_reproduction_only",
+  "network_requests": 0,
+  "database_access": false,
+  "business_code_changed": false,
+  "measurement_validity_demonstrated": false,
+  "bounds": {
+    "cutoff_time": "2026-11-08T00:00:00+00:00",
+    "window_start": "2026-11-07T00:00:00+00:00",
+    "window_end": "2026-11-08T00:00:00+00:00"
+  },
+  "declaration": {
+    "values": {
+      "population": "adults"
+    }
+  },
+  "cases": [
+    {
+      "name": "sleep_explicit_protocol_lost",
+      "metric_id": "STATE-SLEEP-24H",
+      "records": [
+        {
+          "record_kind": "health_sample",
+          "source_name": "synthetic_watch",
+          "device_id": "synthetic_device",
+          "source_version": "synthetic_v1",
+          "available_at": "2026-11-07T07:00:00+00:00",
+          "id": "synthetic-sleep",
+          "canonical_type": "sleep_stage",
+          "stage": "asleep",
+          "event_start": "2026-11-07T00:00:00+00:00",
+          "event_end": "2026-11-07T06:00:00+00:00",
+          "protocol_id": "synthetic_sleep_protocol"
+        }
+      ],
+      "computation_context": {},
+      "metric_value": {
+        "observed_minutes": 360.0,
+        "complete_episode": false,
+        "attribution_date": null,
+        "intervals": [
+          {
+            "start": "2026-11-07T00:00:00+00:00",
+            "end": "2026-11-07T06:00:00+00:00"
+          }
+        ]
+      },
+      "metric_data_status": "partial",
+      "retrieval_context": {
+        "user_id": "local",
+        "population": "adults",
+        "measurement_protocol": null,
+        "usage_scope": "local_noncommercial"
+      }
+    },
+    {
+      "name": "sdnn_daily_explicit_protocol_preserved",
+      "metric_id": "STATE-SDNN",
+      "records": [
+        {
+          "record_kind": "health_sample",
+          "source_name": "synthetic_watch",
+          "device_id": "synthetic_device",
+          "source_version": "synthetic_v1",
+          "available_at": "2026-11-07T07:00:00+00:00",
+          "id": "synthetic-hrv",
+          "canonical_type": "hrv_sdnn_ms",
+          "value": 40,
+          "unit": "ms",
+          "event_end": "2026-11-07T06:00:00+00:00",
+          "protocol_id": "synthetic_hrv_protocol"
+        }
+      ],
+      "computation_context": {},
+      "metric_value": {
+        "('synthetic_watch', 'synthetic_device', 'synthetic_hrv_protocol', 'synthetic_v1')": [
+          {
+            "date": "2026-11-07",
+            "value": 40.0,
+            "n": 1,
+            "source_ids": [
+              "synthetic-hrv"
+            ],
+            "protocol": [
+              "synthetic_watch",
+              "synthetic_device",
+              "synthetic_hrv_protocol",
+              "synthetic_v1"
+            ],
+            "numeric_provenance": [
+              {
+                "value": 40.0,
+                "unit": "ms",
+                "status": "known",
+                "raw_value": 40,
+                "raw_unit": "ms",
+                "conversion_id": "hrv_sdnn_ms:ms->ms",
+                "conversion_version": "healthzip-units-1.4.1",
+                "reprocessed_from_raw": false,
+                "reason_codes": []
+              }
+            ]
+          }
+        ]
+      },
+      "metric_data_status": "valid",
+      "retrieval_context": {
+        "user_id": "local",
+        "population": "adults",
+        "measurement_protocol": "synthetic_hrv_protocol",
+        "usage_scope": "local_noncommercial"
+      }
+    },
+    {
+      "name": "sdnn_cleaning_protocol_not_recognized",
+      "metric_id": "STATE-SDNN",
+      "records": [],
+      "computation_context": {
+        "clean_nn_intervals_ms": [
+          800,
+          820,
+          780,
+          810
+        ],
+        "artifact_cleaning_protocol": "synthetic_nn_cleaning"
+      },
+      "metric_value": {
+        "SDNN_ms": 17.07825127659933,
+        "n_NN": 4,
+        "cleaning_protocol": "synthetic_nn_cleaning"
+      },
+      "metric_data_status": "valid",
+      "retrieval_context": {
+        "user_id": "local",
+        "population": "adults",
+        "measurement_protocol": null,
+        "usage_scope": "local_noncommercial"
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "case_id": "matched_7_day_heart_sleep",
+  "title": "同口径七天：静息心率、SDNN与睡眠一起变化",
+  "synthetic_input": {
+    "synthetic_only": true,
+    "comparison": "两个连续且完整的7天窗口，每个窗口都有7个心率日值和7个睡眠记录日",
+    "person_context": "合成成年人，未提供病史、用药和训练经验",
+    "measurement": "同一设备与版本；心率及HRV均在晨起同一时间段、坐位静息5分钟后采集；HRV字段明确为SDNN毫秒，不能换成RMSSD",
+    "previous": {
+      "resting_heart_rate_mean_bpm": 60,
+      "sdnn_mean_ms": 45,
+      "recorded_sleep_mean_hours": 6.8
+    },
+    "current": {
+      "resting_heart_rate_mean_bpm": 65,
+      "sdnn_mean_ms": 36,
+      "recorded_sleep_mean_hours": 5.9
+    },
+    "sleep_scope": "只有设备记录的睡眠时长，未独立验证整夜完整性与真实入睡时间",
+    "not_recorded": [
+      "训练量及动作顺序",
+      "感染症状",
+      "饮酒和咖啡因",
+      "用药",
+      "压力及主观疲劳"
+    ],
+    "question": "这些变化可能怎样理解？最值得先核对什么？可以做哪一两项具体行动，哪些原因目前无法判断？"
+  },
+  "request": {
+    "model": "deepseek-v4-flash",
+    "temperature": 0,
+    "max_tokens": 2600,
+    "messages": [
+      {
+        "role": "system",
+        "content": "你在进行一个明确授权的产品研发试验，所有输入都为完全合成的测试数据，不对应任何真实个人。\n你可以使用一般医学、睡眠和运动科学知识直接回答；本次没有进行RAG、联网文献检索或本地知识库查询。\n必须分开写：观察到什么、可能为什么、具体下一步、还无法确定什么。不要把时间先后或相关性写成确定因果。\n不要虚构未提供的训练、症状、测量条件、人群信息；缺失不是零。不要把SDNN、RMSSD和未定义的HRV混为一谈。\n不要诊断疾病、给个体用药或精确训练负荷处方。一般知识只能提供候选解释，不能成为已验证的个人原因。\n可以给最多3条你有把握准确定位的真实参考来源，便于后续核对；不要求DOI，有把握才提供。不能编造来源。\n所有参考一律标成“待核验参考建议”，不能声称它已被检索、已被本地审核或已验证。没有把握时直接说明缺乏可靠引用。\n只返回一个JSON对象，中文正文约500至900字。键为 observations（字符串数组）、possible_explanations（含hypothesis/why_consistent/what_is_missing的对象数组）、next_steps（含action/purpose的对象数组）、unknowns（字符串数组）、references（含citation/locating_information/verification_status的对象数组）。\n即使无法比较，也应解释限制并给一两个具体的记录或核对步骤，而不是只输出免责声明。"
+      },
+      {
+        "role": "user",
+        "content": "以下完全是合成测试案例，不是真实用户数据。\n{\n  \"synthetic_only\": true,\n  \"comparison\": \"两个连续且完整的7天窗口，每个窗口都有7个心率日值和7个睡眠记录日\",\n  \"person_context\": \"合成成年人，未提供病史、用药和训练经验\",\n  \"measurement\": \"同一设备与版本；心率及HRV均在晨起同一时间段、坐位静息5分钟后采集；HRV字段明确为SDNN毫秒，不能换成RMSSD\",\n  \"previous\": {\n    \"resting_heart_rate_mean_bpm\": 60,\n    \"sdnn_mean_ms\": 45,\n    \"recorded_sleep_mean_hours\": 6.8\n  },\n  \"current\": {\n    \"resting_heart_rate_mean_bpm\": 65,\n    \"sdnn_mean_ms\": 36,\n    \"recorded_sleep_mean_hours\": 5.9\n  },\n  \"sleep_scope\": \"只有设备记录的睡眠时长，未独立验证整夜完整性与真实入睡时间\",\n  \"not_recorded\": [\n    \"训练量及动作顺序\",\n    \"感染症状\",\n    \"饮酒和咖啡因\",\n    \"用药\",\n    \"压力及主观疲劳\"\n  ],\n  \"question\": \"这些变化可能怎样理解？最值得先核对什么？可以做哪一两项具体行动，哪些原因目前无法判断？\"\n}"
+      }
+    ]
+  },
+  "status": "received",
+  "elapsed_seconds": 36.092,
+  "returned_model": "deepseek-v4-flash",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 601,
+    "total_tokens": 1718,
+    "completion_tokens": 1117,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "response_text": "{\n  \"observations\": [\n    \"当前7天窗口的静息心率均值（65 bpm）比前一个7天窗口（60 bpm）升高了5 bpm。\",\n    \"当前7天窗口的晨起坐位SDNN均值（36 ms）比前一个7天窗口（45 ms）降低了9 ms。\",\n    \"当前7天窗口的设备记录睡眠时长均值（5.9小时）比前一个7天窗口（6.8小时）减少了约0.9小时。\",\n    \"所有数据均来自同一设备与版本，测量条件（晨起、坐位静息5分钟后）一致，HRV字段明确为SDNN。\",\n    \"未提供当前窗口内的训练量、感染症状、饮酒、咖啡因、用药、压力及主观疲劳等记录。\"\n  ],\n  \"possible_explanations\": [\n    {\n      \"hypothesis\": \"睡眠时长减少可能部分解释了静息心率升高和SDNN降低。\",\n      \"why_consistent\": \"一般睡眠科学知识表明，睡眠不足（尤其是连续多日）可导致交感神经活性相对增强、副交感活性减弱，表现为静息心率上升、HRV（SDNN）下降。当前窗口睡眠时长均值减少0.9小时，与这一方向一致。\",\n      \"what_is_missing\": \"缺少睡眠质量指标（如深睡比例、觉醒次数）、真实入睡时间与起床时间验证，以及睡眠不足是否由环境、压力或疾病引起的信息。\"\n    },\n    {\n      \"hypothesis\": \"累积训练负荷或恢复不足可能影响自主神经平衡。\",\n      \"why_consistent\": \"运动科学中，训练量增加或恢复不充分常伴随静息心率升高和HRV降低。当前窗口未记录训练量，但若训练负荷增加而睡眠减少，两者叠加效应可能更明显。\",\n      \"what_is_missing\": \"完全缺失训练量、强度、频率及动作顺序记录，无法确认训练负荷是否变化。\"\n    },\n    {\n      \"hypothesis\": \"亚临床感染、心理压力或饮食因素（如咖啡因、酒精）可能独立或协同影响指标。\",\n      \"why_consistent\": \"一般医学知识中，感染早期、急性心理应激、咖啡因或酒精摄入均可导致心率升高、HRV降低。这些因素在未记录的情况下无法排除。\",\n      \"what_is_missing\": \"未提供任何感染症状、压力评分、咖啡因/酒精摄入记录，无法评估其存在与否。\"\n    }\n  ],\n  \"next_steps\": [\n    {\n      \"action\": \"核对当前7天窗口内每日的睡眠记录原始数据，检查是否存在单日睡眠时长极低（如<4小时）或连续多日低于6小时的情况，并对比前7天窗口的每日分布。\",\n      \"purpose\": \"确认睡眠减少是均匀分布还是由个别极端日驱动，这有助于判断是否为主要影响因素。\"\n    },\n    {\n      \"action\": \"回顾当前窗口内是否有任何可记录的事件，如感冒症状、情绪波动、咖啡因或酒精摄入、训练课表变化，并记录在日志中。\",\n      \"purpose\": \"填补缺失的关键变量，为后续分析提供依据，避免将相关误判为因果。\"\n    }\n  ],\n  \"unknowns\": [\n    \"无法确定静息心率升高和SDNN降低是否由睡眠减少单独引起，因为训练量、感染、压力、饮食等均未记录。\",\n    \"无法判断这些变化是否反映病理状态（如感染或过度训练综合征），因为缺乏症状、实验室检查和专业评估。\",\n    \"无法确定SDNN降低是否伴随RMSSD变化，因为仅提供了SDNN，且两者反映的自主神经成分不同。\",\n    \"无法确认设备记录的睡眠时长是否代表真实睡眠时间，因为未独立验证整夜完整性与实际入睡时间。\"\n  ],\n  \"references\": [\n    {\n      \"citation\": \"Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation. 1996;93(5):1043-1065.\",\n      \"locating_information\": \"PubMed ID: 8598068\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation and heart rate variability in elite endurance athletes: opening the door to effective monitoring. Sports Med. 2013;43(9):773-781.\",\n      \"locating_information\": \"PubMed ID: 23852425\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Czeisler CA, Buxton OM. The human circadian timing system and sleep-wake regulation. In: Kryger MH, Roth T, Dement WC, eds. Principles and Practice of Sleep Medicine. 6th ed. Elsevier; 2017:362-376.\",\n      \"locating_information\": \"ISBN: 978-0-323-24288-2\",\n      \"verification_status\": \"待核验参考建议\"\n    }\n  ]\n}",
+  "parsed_response": {
+    "observations": [
+      "当前7天窗口的静息心率均值（65 bpm）比前一个7天窗口（60 bpm）升高了5 bpm。",
+      "当前7天窗口的晨起坐位SDNN均值（36 ms）比前一个7天窗口（45 ms）降低了9 ms。",
+      "当前7天窗口的设备记录睡眠时长均值（5.9小时）比前一个7天窗口（6.8小时）减少了约0.9小时。",
+      "所有数据均来自同一设备与版本，测量条件（晨起、坐位静息5分钟后）一致，HRV字段明确为SDNN。",
+      "未提供当前窗口内的训练量、感染症状、饮酒、咖啡因、用药、压力及主观疲劳等记录。"
+    ],
+    "possible_explanations": [
+      {
+        "hypothesis": "睡眠时长减少可能部分解释了静息心率升高和SDNN降低。",
+        "why_consistent": "一般睡眠科学知识表明，睡眠不足（尤其是连续多日）可导致交感神经活性相对增强、副交感活性减弱，表现为静息心率上升、HRV（SDNN）下降。当前窗口睡眠时长均值减少0.9小时，与这一方向一致。",
+        "what_is_missing": "缺少睡眠质量指标（如深睡比例、觉醒次数）、真实入睡时间与起床时间验证，以及睡眠不足是否由环境、压力或疾病引起的信息。"
+      },
+      {
+        "hypothesis": "累积训练负荷或恢复不足可能影响自主神经平衡。",
+        "why_consistent": "运动科学中，训练量增加或恢复不充分常伴随静息心率升高和HRV降低。当前窗口未记录训练量，但若训练负荷增加而睡眠减少，两者叠加效应可能更明显。",
+        "what_is_missing": "完全缺失训练量、强度、频率及动作顺序记录，无法确认训练负荷是否变化。"
+      },
+      {
+        "hypothesis": "亚临床感染、心理压力或饮食因素（如咖啡因、酒精）可能独立或协同影响指标。",
+        "why_consistent": "一般医学知识中，感染早期、急性心理应激、咖啡因或酒精摄入均可导致心率升高、HRV降低。这些因素在未记录的情况下无法排除。",
+        "what_is_missing": "未提供任何感染症状、压力评分、咖啡因/酒精摄入记录，无法评估其存在与否。"
+      }
+    ],
+    "next_steps": [
+      {
+        "action": "核对当前7天窗口内每日的睡眠记录原始数据，检查是否存在单日睡眠时长极低（如<4小时）或连续多日低于6小时的情况，并对比前7天窗口的每日分布。",
+        "purpose": "确认睡眠减少是均匀分布还是由个别极端日驱动，这有助于判断是否为主要影响因素。"
+      },
+      {
+        "action": "回顾当前窗口内是否有任何可记录的事件，如感冒症状、情绪波动、咖啡因或酒精摄入、训练课表变化，并记录在日志中。",
+        "purpose": "填补缺失的关键变量，为后续分析提供依据，避免将相关误判为因果。"
+      }
+    ],
+    "unknowns": [
+      "无法确定静息心率升高和SDNN降低是否由睡眠减少单独引起，因为训练量、感染、压力、饮食等均未记录。",
+      "无法判断这些变化是否反映病理状态（如感染或过度训练综合征），因为缺乏症状、实验室检查和专业评估。",
+      "无法确定SDNN降低是否伴随RMSSD变化，因为仅提供了SDNN，且两者反映的自主神经成分不同。",
+      "无法确认设备记录的睡眠时长是否代表真实睡眠时间，因为未独立验证整夜完整性与实际入睡时间。"
+    ],
+    "references": [
+      {
+        "citation": "Task Force of the European Society of Cardiology and the North American Society of Pacing and Electrophysiology. Heart rate variability: standards of measurement, physiological interpretation, and clinical use. Circulation. 1996;93(5):1043-1065.",
+        "locating_information": "PubMed ID: 8598068",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Plews DJ, Laursen PB, Stanley J, Kilding AE, Buchheit M. Training adaptation and heart rate variability in elite endurance athletes: opening the door to effective monitoring. Sports Med. 2013;43(9):773-781.",
+        "locating_information": "PubMed ID: 23852425",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Czeisler CA, Buxton OM. The human circadian timing system and sleep-wake regulation. In: Kryger MH, Roth T, Dement WC, eds. Principles and Practice of Sleep Medicine. 6th ed. Elsevier; 2017:362-376.",
+        "locating_information": "ISBN: 978-0-323-24288-2",
+        "verification_status": "待核验参考建议"
+      }
+    ]
+  },
+  "json_object": true
+}

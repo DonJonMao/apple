@@ -1,0 +1,105 @@
+{
+  "case_id": "sleep_duration_unknown_coverage",
+  "title": "只有睡眠时长，记录完整性未知",
+  "synthetic_input": {
+    "synthetic_only": true,
+    "comparison": "连续两个7天窗口；前期只有4晚有效记录，本期只有5晚有效记录，其他日期没有记录",
+    "previous_observed_nights_mean_hours": 5.4,
+    "current_observed_nights_mean_hours": 6.1,
+    "coverage": "不知道每晚记录是否完整；没有可核对的上床/入睡/起床时间、午睡和佩戴中断记录",
+    "other_health_data": "无心率、无HRV、无白天嗜睡或精神状态记录；年龄与病史未知",
+    "question": "能否说睡眠已经改善或仍然睡眠不足？怎样区分时长变化和漏记，下一步具体补哪些信息？"
+  },
+  "request": {
+    "model": "deepseek-v4-flash",
+    "temperature": 0,
+    "max_tokens": 2600,
+    "messages": [
+      {
+        "role": "system",
+        "content": "你在进行一个明确授权的产品研发试验，所有输入都为完全合成的测试数据，不对应任何真实个人。\n你可以使用一般医学、睡眠和运动科学知识直接回答；本次没有进行RAG、联网文献检索或本地知识库查询。\n必须分开写：观察到什么、可能为什么、具体下一步、还无法确定什么。不要把时间先后或相关性写成确定因果。\n不要虚构未提供的训练、症状、测量条件、人群信息；缺失不是零。不要把SDNN、RMSSD和未定义的HRV混为一谈。\n不要诊断疾病、给个体用药或精确训练负荷处方。一般知识只能提供候选解释，不能成为已验证的个人原因。\n可以给最多3条你有把握准确定位的真实参考来源，便于后续核对；不要求DOI，有把握才提供。不能编造来源。\n所有参考一律标成“待核验参考建议”，不能声称它已被检索、已被本地审核或已验证。没有把握时直接说明缺乏可靠引用。\n只返回一个JSON对象，中文正文约500至900字。键为 observations（字符串数组）、possible_explanations（含hypothesis/why_consistent/what_is_missing的对象数组）、next_steps（含action/purpose的对象数组）、unknowns（字符串数组）、references（含citation/locating_information/verification_status的对象数组）。\n即使无法比较，也应解释限制并给一两个具体的记录或核对步骤，而不是只输出免责声明。"
+      },
+      {
+        "role": "user",
+        "content": "以下完全是合成测试案例，不是真实用户数据。\n{\n  \"synthetic_only\": true,\n  \"comparison\": \"连续两个7天窗口；前期只有4晚有效记录，本期只有5晚有效记录，其他日期没有记录\",\n  \"previous_observed_nights_mean_hours\": 5.4,\n  \"current_observed_nights_mean_hours\": 6.1,\n  \"coverage\": \"不知道每晚记录是否完整；没有可核对的上床/入睡/起床时间、午睡和佩戴中断记录\",\n  \"other_health_data\": \"无心率、无HRV、无白天嗜睡或精神状态记录；年龄与病史未知\",\n  \"question\": \"能否说睡眠已经改善或仍然睡眠不足？怎样区分时长变化和漏记，下一步具体补哪些信息？\"\n}"
+      }
+    ]
+  },
+  "status": "received",
+  "elapsed_seconds": 35.141,
+  "returned_model": "deepseek-v4-flash",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 474,
+    "total_tokens": 1541,
+    "completion_tokens": 1067,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "response_text": "{\n  \"observations\": [\n    \"前期7天窗口内仅有4晚有效记录，平均睡眠时长5.4小时；本期7天窗口内仅有5晚有效记录，平均睡眠时长6.1小时。\",\n    \"两个窗口的有效记录天数均不足7天，且缺失日期的原因未知（可能为漏戴、设备故障、未入睡或数据未同步）。\",\n    \"没有上床时间、入睡时间、起床时间、午睡记录或佩戴中断记录，无法判断每晚记录是否完整。\",\n    \"没有心率、HRV、白天嗜睡或精神状态等辅助数据，年龄与病史未知。\"\n  ],\n  \"possible_explanations\": [\n    {\n      \"hypothesis\": \"睡眠时长确实有所增加（从5.4小时增至6.1小时），但两个窗口的有效记录天数不同，均值可能受缺失日期的选择性影响。\",\n      \"why_consistent\": \"如果缺失日期是随机漏记，则均值变化可能反映真实趋势；一般睡眠科学中，连续多晚均值可部分抵消单晚变异。\",\n      \"what_is_missing\": \"缺失日期的具体原因（漏戴、设备故障、未入睡）、每晚完整的时间序列（上床-入睡-醒来-起床）、午睡记录、白天功能指标（如嗜睡评分、认知测试）。\"\n    },\n    {\n      \"hypothesis\": \"均值差异主要由有效记录天数的构成不同导致，而非真实睡眠改善。\",\n      \"why_consistent\": \"前期仅4晚、本期仅5晚，若缺失日期多为短睡或长睡夜，均值会系统性偏移；例如前期缺失的3晚可能都是长睡夜，导致前期均值偏低。\",\n      \"what_is_missing\": \"缺失日期的睡眠时长估计（即使不完整）、每日佩戴日志（是否整夜佩戴）、设备电量与同步记录。\"\n    },\n    {\n      \"hypothesis\": \"睡眠不足状态仍可能存在，因为6.1小时仍低于多数成人推荐的7-9小时范围（一般知识）。\",\n      \"why_consistent\": \"一般睡眠医学共识认为持续低于7小时与认知、代谢风险相关；但个体需求有差异，且无白天功能数据无法确认。\",\n      \"what_is_missing\": \"个体基线需求（如既往长期平均）、白天嗜睡量表（如Epworth）、反应时测试、主观恢复感评分。\"\n    }\n  ],\n  \"next_steps\": [\n    {\n      \"action\": \"补全两个窗口内缺失日期的记录原因：检查设备佩戴日志、同步记录、电池状态，确认是漏戴、设备故障还是未入睡。\",\n      \"purpose\": \"区分真实睡眠缺失与数据缺失，避免将漏记误判为短睡。\"\n    },\n    {\n      \"action\": \"收集每晚完整时间序列：上床时间、入睡时间、醒来时间、起床时间、夜间清醒次数与时长，以及午睡记录。\",\n      \"purpose\": \"计算更准确的睡眠效率、入睡潜伏期和总睡眠时间，判断记录完整性。\"\n    },\n    {\n      \"action\": \"连续记录至少14天（每天有效）并同时记录白天嗜睡程度（如Karolinska嗜睡量表）和主观恢复感（1-10分）。\",\n      \"purpose\": \"获得稳定基线，结合功能指标判断睡眠是否充足，而非仅依赖时长均值。\"\n    }\n  ],\n  \"unknowns\": [\n    \"缺失日期的具体原因（漏戴、设备故障、未入睡、数据未同步）未知。\",\n    \"每晚记录是否完整（是否整夜佩戴、有无中断）未知。\",\n    \"个体年龄、性别、基础疾病、用药、咖啡因/酒精摄入、轮班工作等影响睡眠的因素未知。\",\n    \"白天嗜睡、认知功能、情绪状态等睡眠充足性指标未知。\",\n    \"前期与本期之间的时间间隔、期间有无干预或生活变化未知。\"\n  ],\n  \"references\": [\n    {\n      \"citation\": \"Watson NF, et al. Recommended Amount of Sleep for a Healthy Adult: A Joint Consensus Statement of the AASM and SRS. Sleep. 2015;38(6):843-844.\",\n      \"locating_information\": \"PubMed ID 26039963\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Ohayon M, et al. National Sleep Foundation's sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.\",\n      \"locating_information\": \"PubMed ID 28346153\",\n      \"verification_status\": \"待核验参考建议\"\n    },\n    {\n      \"citation\": \"Ancoli-Israel S, et al. The role of actigraphy in the study of sleep and circadian rhythms. Sleep. 2003;26(3):342-392.\",\n      \"locating_information\": \"PubMed ID 12749557\",\n      \"verification_status\": \"待核验参考建议\"\n    }\n  ]\n}",
+  "parsed_response": {
+    "observations": [
+      "前期7天窗口内仅有4晚有效记录，平均睡眠时长5.4小时；本期7天窗口内仅有5晚有效记录，平均睡眠时长6.1小时。",
+      "两个窗口的有效记录天数均不足7天，且缺失日期的原因未知（可能为漏戴、设备故障、未入睡或数据未同步）。",
+      "没有上床时间、入睡时间、起床时间、午睡记录或佩戴中断记录，无法判断每晚记录是否完整。",
+      "没有心率、HRV、白天嗜睡或精神状态等辅助数据，年龄与病史未知。"
+    ],
+    "possible_explanations": [
+      {
+        "hypothesis": "睡眠时长确实有所增加（从5.4小时增至6.1小时），但两个窗口的有效记录天数不同，均值可能受缺失日期的选择性影响。",
+        "why_consistent": "如果缺失日期是随机漏记，则均值变化可能反映真实趋势；一般睡眠科学中，连续多晚均值可部分抵消单晚变异。",
+        "what_is_missing": "缺失日期的具体原因（漏戴、设备故障、未入睡）、每晚完整的时间序列（上床-入睡-醒来-起床）、午睡记录、白天功能指标（如嗜睡评分、认知测试）。"
+      },
+      {
+        "hypothesis": "均值差异主要由有效记录天数的构成不同导致，而非真实睡眠改善。",
+        "why_consistent": "前期仅4晚、本期仅5晚，若缺失日期多为短睡或长睡夜，均值会系统性偏移；例如前期缺失的3晚可能都是长睡夜，导致前期均值偏低。",
+        "what_is_missing": "缺失日期的睡眠时长估计（即使不完整）、每日佩戴日志（是否整夜佩戴）、设备电量与同步记录。"
+      },
+      {
+        "hypothesis": "睡眠不足状态仍可能存在，因为6.1小时仍低于多数成人推荐的7-9小时范围（一般知识）。",
+        "why_consistent": "一般睡眠医学共识认为持续低于7小时与认知、代谢风险相关；但个体需求有差异，且无白天功能数据无法确认。",
+        "what_is_missing": "个体基线需求（如既往长期平均）、白天嗜睡量表（如Epworth）、反应时测试、主观恢复感评分。"
+      }
+    ],
+    "next_steps": [
+      {
+        "action": "补全两个窗口内缺失日期的记录原因：检查设备佩戴日志、同步记录、电池状态，确认是漏戴、设备故障还是未入睡。",
+        "purpose": "区分真实睡眠缺失与数据缺失，避免将漏记误判为短睡。"
+      },
+      {
+        "action": "收集每晚完整时间序列：上床时间、入睡时间、醒来时间、起床时间、夜间清醒次数与时长，以及午睡记录。",
+        "purpose": "计算更准确的睡眠效率、入睡潜伏期和总睡眠时间，判断记录完整性。"
+      },
+      {
+        "action": "连续记录至少14天（每天有效）并同时记录白天嗜睡程度（如Karolinska嗜睡量表）和主观恢复感（1-10分）。",
+        "purpose": "获得稳定基线，结合功能指标判断睡眠是否充足，而非仅依赖时长均值。"
+      }
+    ],
+    "unknowns": [
+      "缺失日期的具体原因（漏戴、设备故障、未入睡、数据未同步）未知。",
+      "每晚记录是否完整（是否整夜佩戴、有无中断）未知。",
+      "个体年龄、性别、基础疾病、用药、咖啡因/酒精摄入、轮班工作等影响睡眠的因素未知。",
+      "白天嗜睡、认知功能、情绪状态等睡眠充足性指标未知。",
+      "前期与本期之间的时间间隔、期间有无干预或生活变化未知。"
+    ],
+    "references": [
+      {
+        "citation": "Watson NF, et al. Recommended Amount of Sleep for a Healthy Adult: A Joint Consensus Statement of the AASM and SRS. Sleep. 2015;38(6):843-844.",
+        "locating_information": "PubMed ID 26039963",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Ohayon M, et al. National Sleep Foundation's sleep quality recommendations: first report. Sleep Health. 2017;3(1):6-19.",
+        "locating_information": "PubMed ID 28346153",
+        "verification_status": "待核验参考建议"
+      },
+      {
+        "citation": "Ancoli-Israel S, et al. The role of actigraphy in the study of sleep and circadian rhythms. Sleep. 2003;26(3):342-392.",
+        "locating_information": "PubMed ID 12749557",
+        "verification_status": "待核验参考建议"
+      }
+    ]
+  },
+  "json_object": true
+}
