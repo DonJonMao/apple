@@ -2,6 +2,8 @@
 
 `index.html`、`workbench.css`、`workbench.js` 是可直接运行的生产资源；没有 Node/npm 构建步骤、运行时 CDN、外部字体或额外开发服务器。Python 的 `training_workbench.py` 使用 Streamlit `components.declare_component(path=...)` 提供这些文件。安装包通过 `pyproject.toml` 的 package-data 包含资源。
 
+力量界面与健康系统共用沙色背景、陶土色主要操作、橄榄色完成状态和衬线标题。`fonts/` 随组件本地提供 Fraunces、Inter 和 Noto Serif SC；字体使用 `font-display: swap`，未加载时仍可通过系统字体记录。视觉样式仅作用于组件内部，紧凑的组行、单动作展开和原有保存/修订服务保持一致。
+
 前端使用 Streamlit v1 组件消息协议。它仅负责视图、输入与显式命令；`training_bridge.py` 验证命令并调用原有 `TrainingService`、事件修订与科学分析。REST 接口、token、CORS 及训练数据库不因组件改变。
 
 主要视图为首页月历、开始面板、当前训练、动作选择、历史详情；备注、结束摘要、休息计时及原有高级管理为按需打开的次级视图。动作卡片只渲染一个完整组编辑器。只有显式打开建议才会调用建议服务；每秒计时仅更新文本。

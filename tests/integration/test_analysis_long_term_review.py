@@ -93,6 +93,11 @@ def test_all_training_backgrounds_include_middle_changes_and_missing_branch(tmp_
 
 def test_w4_normal_page_produces_candidate_feedback_and_shared_reports(tmp_path, monkeypatch):
     repo, svc, instance, target, ids = HELPERS["history"](tmp_path, monkeypatch)
+    # This positive report fixture has unchanged performance in every calendar
+    # slice. The shared helper's middle dip can otherwise become a weekly
+    # anchor and correctly turn later equal records into an improvement.
+    middle = svc.get_set(ids[2])
+    svc.edit_set(middle["id"], {"reps": 10}, base_revision=middle["revision"])
     path = repo.path
     repo.close()
     app = HELPERS["PAGE"]["open_workflow"](path)

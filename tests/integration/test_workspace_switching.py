@@ -206,7 +206,10 @@ def test_overview_shows_readable_updates_and_direct_recording_entry(isolated_wor
     assert not app.json
     assert len(app.dataframe) == 1
     assert set(app.dataframe[0].value.columns) == {"项目", "最近记录", "数据状态"}
-    assert {item.label for item in app.metric} == {"最近身体／运动记录", "运动记录", "力量训练记录"}
+    assert {item.label for item in app.metric} == {
+        "最近身体／运动记录", "运动记录", "力量训练记录", "已有数据项目",
+    }
+    assert next(item.value for item in app.metric if item.label == "已有数据项目") == "0 项"
     app.button(key="overview_open_training").click().run()
     assert_page_ok(app)
     assert app.radio(key="main_workspace").value == "力量"
@@ -233,3 +236,6 @@ def test_overview_shows_readable_updates_and_direct_recording_entry(isolated_wor
         actual = finished["sets"][0]
         assert float(actual["load_value"]) == 40 and actual["reps"] == 8 and actual["rir"] is None
         assert not actual.get("reference_set") and not actual.get("reference_declared_at")
+    app.radio(key="main_workspace").set_value("导入与总览").run()
+    assert_page_ok(app)
+    assert next(item.value for item in app.metric if item.label == "已有数据项目") == "1 项"

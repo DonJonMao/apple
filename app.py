@@ -25,6 +25,7 @@ from healthzip.quality import inventory, readiness
 from healthzip.reporting import render_report
 from healthzip.ui.body_pages import render_heart, render_sleep, render_weight
 from healthzip.ui.overview import render_overview
+from healthzip.ui.theme import apply_theme, render_footer, render_header
 from healthzip.ui.workout_page import render_workouts
 from healthzip.ui.workspace_summary import render_workspace_summary
 
@@ -51,6 +52,7 @@ def render_strength_tab(repo: Repository, value: dict) -> None:
 
 
 st.set_page_config(page_title="Health ZIP Workbench", layout="wide")
+apply_theme()
 
 with st.sidebar.expander("导入与存储设置", expanded=False):
     db_path = st.text_input("SQLite 路径", str(DEFAULT_DB_PATH))
@@ -115,15 +117,14 @@ try:
         st.session_state["main_workspace"] = "力量"
     if st.session_state.get("main_workspace", pages[0]) not in pages:
         st.session_state["main_workspace"] = pages[0]
-    st.title("训练与健康记录")
-    st.caption("查看身体趋势，记录每次训练。")
-    page = st.radio("工作区", pages, horizontal=True, key="main_workspace")
+    page = render_header(pages)
     if page == "力量":
         if st.query_params.get("workspace") != "strength":
             st.query_params["workspace"] = "strength"
     elif st.query_params.get("workspace") == "strength":
         del st.query_params["workspace"]
-    render_workspace_summary(repo, page, timezone_name=timezone_name)
+    if page != "导入与总览":
+        render_workspace_summary(repo, page, timezone_name=timezone_name)
     inv = inventory(repo) if page == "报告" else {}
     context_id = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
     # These workspaces consume their existing factual views. Computing and
@@ -154,7 +155,9 @@ try:
     if page == "导入与总览":
         render_overview(repo, timezone_name=timezone_name,
                         last_import=st.session_state.get("last_import"),
-                        last_sync=st.session_state.get("last_sync"))
+                        last_sync=st.session_state.get("last_sync"),
+                        summary_renderer=lambda: render_workspace_summary(
+                            repo, page, timezone_name=timezone_name))
     if page == "数据质量":
         st.caption("状态是产品数据质量门槛，不是医学阈值。")
         quality_labels = {"resting_heart_rate": "静息心率", "hrv_sdnn": "HRV（SDNN）",
@@ -235,3 +238,5 @@ try:
         st.write("报告会包含每个 Evidence Card 的窗口、事实、样本量和限制。")
 finally:
     repo.close()
+
+render_footer()

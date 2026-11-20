@@ -61,6 +61,11 @@ TRANSPORT_CONTROL = """(() => {
 @contextmanager
 def isolated_app(root, folder):
     """Start the real entrypoint; logs and database stay in temporary storage."""
+    public_config = root / ".streamlit/config.toml"
+    if public_config.is_file():
+        target = folder / ".streamlit/config.toml"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(public_config.read_bytes())
     with socket.socket() as connection:
         connection.bind(("127.0.0.1", 0))
         port = connection.getsockname()[1]
@@ -94,6 +99,17 @@ def isolated_app(root, folder):
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.wait(timeout=5)
+
+
+def product_source_hashes(root, extra=()):
+    """Include the actual shell, public config and every shipped theme asset."""
+    names = {"app.py", "pyproject.toml", ".streamlit/config.toml", *extra}
+    names.update(str(path.relative_to(root)) for path in (root / "src/healthzip/ui").glob("*.py"))
+    for directory in ("src/healthzip/ui/assets", "src/healthzip/ui/strength_component"):
+        names.update(str(path.relative_to(root)) for path in (root / directory).rglob("*")
+                     if path.is_file())
+    return {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+            for name in sorted(names)}
 
 
 class BrowserCheck:
@@ -661,7 +677,7 @@ def main():
                     "src/healthzip/ui/strength_component/index.html",
                     "src/healthzip/ui/strength_component/workbench.js",
                     "src/healthzip/ui/strength_component/workbench.css"]
-    source_hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in source_names}
+    source_hashes = product_source_hashes(root, source_names)
     report = {"data": "synthetic_only", "entrypoint": "app.py", "results": {},
               "checked_at": datetime.now(timezone.utc).isoformat(),
               "tested_source_sha256": source_hashes}
@@ -696,8 +712,7 @@ def main():
                 check.run_batch_and_cards(manifest)
                 check.run_existing_plan(manifest)
                 assert not errors and not external, {"page_errors": errors, "external_requests": external}
-                assert all(hashlib.sha256((root / name).read_bytes()).hexdigest() == digest
-                           for name, digest in source_hashes.items()), "Product source changed during browser run"
+                assert product_source_hashes(root, source_names) == source_hashes, "Product source changed during browser run"
                 report["sources_unchanged_during_run"] = True
                 report["status"] = "passed"
                 (output / "failure.png").unlink(missing_ok=True)

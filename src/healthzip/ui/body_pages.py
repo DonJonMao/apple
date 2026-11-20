@@ -150,8 +150,10 @@ def _window(view):
 
 def _chart(rows, value, title):
     if rows and px is not None:
-        st.plotly_chart(px.line(rows, x="日期", y=value, color="来源", markers=True, title=title),
-                        use_container_width=True)
+        figure = px.line(rows, x="日期", y=value, color="来源", markers=True, title=title,
+                         color_discrete_sequence=["#a64f30", "#6b7048", "#986c40", "#5c5345"])
+        figure.update_layout(font={"family": "Inter, sans-serif", "color": "#2b251d"})
+        st.plotly_chart(figure, use_container_width=True)
 
 
 def _details(view):

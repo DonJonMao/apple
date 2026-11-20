@@ -7,7 +7,6 @@ browser check. Every record and screenshot is synthetic; production is unused.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import tempfile
 from contextlib import closing
@@ -18,7 +17,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from zoneinfo import ZoneInfo
 
 from playwright.sync_api import sync_playwright
-from strength_workbench_browser_check import BrowserCheck, isolated_app
+from strength_workbench_browser_check import BrowserCheck, isolated_app, product_source_hashes
 
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
@@ -74,6 +73,7 @@ def settled(page):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--chromium", help="Optional local Chromium executable")
     args = parser.parse_args()
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -83,7 +83,7 @@ def main():
                "src/healthzip/ui/training_workbench.py", "src/healthzip/ui/training_bridge.py",
                "src/healthzip/ui/strength_component/workbench.js",
                "src/healthzip/ui/strength_component/workbench.css"]
-    hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sources}
+    hashes = product_source_hashes(root, sources)
     report = {"data": "synthetic_only", "entrypoint": "app.py", "tested_source_sha256": hashes,
               "checked_at": datetime.now(timezone.utc).isoformat(), "results": {}}
     external, errors = [], []
@@ -93,7 +93,10 @@ def main():
         report["fixture"] = create_body_fixture(database)
         before = training_counts(database)
         with isolated_app(root, folder) as base, sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=True, args=["--no-sandbox"])
+            options = {"headless": True, "args": ["--no-sandbox"]}
+            if args.chromium:
+                options["executable_path"] = args.chromium
+            browser = playwright.chromium.launch(**options)
             report["browser"] = browser.version
             context = browser.new_context(viewport={"width": 390, "height": 844})
 
@@ -144,8 +147,7 @@ def main():
             after = training_counts(database)
             assert before == after, {"before": before, "after": after}
             assert not errors and not external, {"page_errors": errors, "external_requests": external}
-            assert all(hashlib.sha256((root / name).read_bytes()).hexdigest() == value
-                       for name, value in hashes.items()), "Product source changed during browser run"
+            assert product_source_hashes(root, sources) == hashes, "Product source changed during browser run"
             report.update(status="passed", page_errors=errors, external_requests=external,
                           training_counts_before=before, training_counts_after=after,
                           sources_unchanged_during_run=True, real_iphone_keyboard="not_verified")

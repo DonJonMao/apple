@@ -28,7 +28,7 @@ def _value(value):
 
 
 def render_workspace_summary(repo, workspace, *, timezone_name="Asia/Shanghai"):
-    with st.container(border=True):
+    with st.container(border=True, key="earthy_summary"):
         st.markdown("**当前数据分析**")
         period = st.radio("分析粒度", ["week", "month"], horizontal=True,
                           format_func=lambda value: {"week": "本周", "month": "本月"}[value],

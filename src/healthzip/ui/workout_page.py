@@ -81,7 +81,7 @@ def render_workouts(repo, timezone_name="Asia/Shanghai"):
     values = [item[field] / divisor if item[field] is not None else None for item in periods]
     if any(value is not None for value in values):
         st.bar_chart({"周期": [item["period_label"] for item in periods], chart: values},
-                     x="周期", y=chart)
+                     x="周期", y=chart, color="#a64f30")
     else:
         st.info("所选周期没有可绘制的该项记录。")
 
