@@ -1,6 +1,6 @@
 """Synthetic SQL and Streamlit coverage for the current Workout workspace."""
 
-from datetime import date, datetime, timezone
+from datetime import date
 
 import pytest
 
@@ -161,87 +161,59 @@ def test_unknown_activity_keeps_raw_metadata_and_inventory_reads_during_another_
         observer.close()
 
 
-def _app(repo, timezone_name="Asia/Shanghai"):
+def _app(repo, timezone_name="Asia/Shanghai", *, start="2019-01-01T00:00:00+00:00",
+         cutoff="2035-01-01T00:00:00+00:00"):
     from streamlit.testing.v1 import AppTest
 
     repo.conn.commit()
     return AppTest.from_string(
+        "import streamlit as st\n"
         "from healthzip.db.repository import Repository\n"
         "from healthzip.ui.workout_page import render_workouts\n"
         f"repo=Repository({str(repo.path)!r})\n"
-        f"render_workouts(repo, timezone_name={timezone_name!r})\n"
+        f"render_workouts(repo, timezone_name={timezone_name!r}, window_start={start!r}, cutoff_time={cutoff!r})\n"
         "repo.close()", default_timeout=30,
     ).run()
 
 
-def test_real_streamlit_wrapper_filters_dates_and_switches_all_calendar_periods(repo):
+def test_real_streamlit_wrapper_uses_one_scope_for_cards_and_folded_history(repo):
     _workout(repo, "old", "2020-12-31T12:00:00Z", energy=None, duration=None)
     _workout(repo, "new-jan", "2021-01-03T12:00:00Z", activity="HKWorkoutActivityTypeTraditionalStrengthTraining")
     _workout(repo, "new-feb", "2021-02-01T12:00:00Z")
-    app = _app(repo)
+    app = _app(repo, start="2021-01-01T00:00:00+08:00")
     assert not app.exception
-    assert app.selectbox(key="workout_year").value == "2021"
-    assert app.date_input(key="workout_dates_2021").value == (date(2021, 1, 1), date(2021, 12, 31))
-    assert app.metric[0].value == "2"
-    details = app.dataframe[-1].value
+    assert app.metric[0].value == "2 次"
+    details = next(item.value for item in app.dataframe if "运动类型" in item.value.columns)
     assert "传统力量训练" in details["运动类型"].tolist()
+    assert "2020-12-31" not in details.to_string()
     assert "id" not in " ".join(details.columns).lower()
-    app.selectbox(key="workout_year").select("全部年份").run()
-    assert not app.exception
-    assert app.metric[0].value == "3"
-    weeks = app.dataframe[0].value
-    assert weeks["周期"].tolist() == ["2020年第53周", "2021年第05周"]
-    app.radio(key="workout_period").set_value("按月").run()
-    assert app.dataframe[0].value["周期"].tolist() == ["2020年12月", "2021年01月", "2021年02月"]
-    app.radio(key="workout_period").set_value("按年").run()
-    assert app.dataframe[0].value["周期"].tolist() == ["2020年", "2021年"]
-    app.date_input(key="workout_dates_全部年份").set_value((date(2021, 1, 1), date(2021, 1, 31))).run()
-    assert not app.exception
-    assert app.metric[0].value == "1"
-    assert "2021-01-03" in app.dataframe[-1].value.iloc[0]["开始时间（本地）"]
+    assert all(not expander.proto.expanded for expander in app.expander)
+    assert not app.date_input
+    assert {item.label for item in app.expander} == {"原始明细", "分析依据与范围"}
+    full = _app(repo)
+    assert full.metric[0].value == "3 次"
 
 
-def test_real_streamlit_wrapper_shows_unknown_totals_and_missing_counts(repo):
+def test_real_streamlit_wrapper_keeps_unknown_totals_and_does_not_invent_chart_points(repo):
     _workout(repo, "missing", "2020-01-01T12:00:00Z", energy=None, duration=None)
     app = _app(repo)
     assert not app.exception
-    assert [metric.value for metric in app.metric] == ["1", "未记录", "未记录", "1"]
-    assert app.dataframe[0].value["能量缺失（次）"].tolist() == [1]
+    assert [metric.value for metric in app.metric] == ["1 次", "未记录", "1 天"]
     assert any("TEE" in caption.value for caption in app.caption)
+    assert any("时长缺失 1 次；能量缺失 1 次" in caption.value for caption in app.caption)
     app.selectbox(key="workout_chart").select("记录能量（kcal）").run()
     assert not app.exception
     assert any("没有可绘制" in item.value for item in app.info)
+    assert not app.get("plotly_chart")
 
 
-def test_current_year_defaults_to_local_today_and_full_year_remains_user_selectable(repo, monkeypatch):
-    from healthzip.ui import workout_page
-
-    frozen = datetime(2026, 11, 18, 17, tzinfo=timezone.utc)
-
-    class FixedClock(datetime):
-        @classmethod
-        def now(cls, tz=None):
-            return frozen.astimezone(tz) if tz else frozen.replace(tzinfo=None)
-
-    monkeypatch.setattr(workout_page, "datetime", FixedClock)
-    _workout(repo, "january", "2026-01-01T12:00:00Z")
-    _workout(repo, "local-today", "2026-11-18T17:00:00Z")
-    _workout(repo, "future", "2026-12-01T12:00:00Z")
-    app = _app(repo)
+def test_activity_window_uses_local_instant_boundaries_and_excludes_future(repo):
+    _workout(repo, "before-local-midnight", "2026-11-18T15:30:00Z")
+    _workout(repo, "after-local-midnight", "2026-11-18T17:00:00Z")
+    _workout(repo, "future", "2036-12-01T12:00:00Z")
+    app = _app(repo, start="2026-11-19T00:00:00+08:00")
     assert not app.exception
-    assert app.date_input(key="workout_dates_2026").value == (date(2026, 1, 1), date(2026, 11, 19))
-    app.radio(key="workout_period").set_value("按年").run()
-    assert not app.exception
-    assert app.metric[0].value == "2"
-    assert app.dataframe[0].value["周期范围"].tolist() == ["筛选仅含部分日期"]
-    selected = _summary(repo, "year", "Asia/Shanghai", date(2026, 1, 1), date(2026, 11, 19))
-    assert selected["periods"][0]["partial_period"] is True
-    assert any("晚于今天（2026-11-19）" in item.value for item in app.info)
-    app.date_input(key="workout_dates_2026").set_value((date(2026, 1, 1), date(2026, 12, 31))).run()
-    assert not app.exception
-    assert app.metric[0].value == "3"
-    assert app.dataframe[0].value["周期范围"].tolist() == ["筛选包含整周期"]
-    assert any("不表示记录完整或周期已经结束" in caption.value for caption in app.caption)
-    utc_app = _app(repo, "UTC")
-    assert not utc_app.exception
-    assert utc_app.date_input(key="workout_dates_2026").value == (date(2026, 1, 1), date(2026, 11, 18))
+    assert app.metric[0].value == "1 次"
+    details = next(item.value for item in app.dataframe if "运动类型" in item.value.columns)
+    assert "2026-11-19" in details.iloc[0]["开始时间（本地）"]
+    assert "2036" not in details.to_string()

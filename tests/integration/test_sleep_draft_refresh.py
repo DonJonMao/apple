@@ -26,7 +26,7 @@ def draft_app(tmp_path, *, days=30, period=None):
         "    def now(cls, tz=None):\n"
         "        return datetime.fromisoformat(st.session_state.get('test_clock','2026-11-18T12:00:00+00:00')).astimezone(tz or timezone.utc)\n"
         f"repo=Repository({str(path)!r})\n"
-        "with patch('healthzip.analytics.v13.datetime',Clock), patch('healthzip.ui.sleep_selection._now',lambda:Clock.now(timezone.utc)):\n"
+        "with patch('healthzip.analytics.v13.datetime',Clock), patch('healthzip.ui.sleep_selection._now',lambda:Clock.now(timezone.utc)), patch('healthzip.analytics.cache.monotonic',lambda:Clock.now(timezone.utc).timestamp()):\n"
         f"    render_analysis(repo, {{'v13':analyze(repo,timezone_name='UTC',window_days=st.session_state.get('test_days',{days}),period={period!r})}})\n"
         "repo.close()"
     ).run(timeout=30)
@@ -39,7 +39,7 @@ def draft_app(tmp_path, *, days=30, period=None):
     return app
 
 
-def test_automatic_minute_refresh_preserves_declared_night_and_main_choice(tmp_path):
+def test_automatic_cross_minute_and_revision_refresh_preserve_declared_night_and_main_choice(tmp_path):
     app = draft_app(tmp_path)
     original = app.session_state["analysis_sleep_declarations"]
     app.selectbox(key="analysis_sleep_main").select(original[0]["id"]).run(timeout=30)

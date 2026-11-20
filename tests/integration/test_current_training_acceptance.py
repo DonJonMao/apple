@@ -132,7 +132,9 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     # with test_current_training_three_repairs.
     rir = load_analysis(repo, next_run["run_id"])["metrics"]["STR-10"]
     assert "strength_set:"+actual["set_uuid"] in rir["source_record_ids"]
-    app.radio(key="main_workspace").set_value("分析").run()
+    app.radio(key="main_workspace").set_value("复盘").run()
+    app.radio(key="review_section").set_value("问题分析").run()
+    app.button(key="review_compute").click().run()
     for period, label in (("week", "本周"), ("month", "本月")):
         next(s for s in app.selectbox if s.label == "复盘周期").select(label)
         for selector in app.selectbox:
@@ -155,7 +157,9 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
         assert any(c["rows"][0]["advice_id"] == frozen["advice_id"] for c in report["objective_comparisons"])
         assert load_report(repo, report["report_id"])["markdown"] == report["markdown"]
-    app.radio(key="main_workspace").set_value("报告").run()
+    app.radio(key="main_workspace").set_value("复盘").run()
+    app.radio(key="review_section").set_value("报告").run()
+    app.button(key="review_compute").click().run()
     for label in ("本周", "本月"):
         next(s for s in app.selectbox if s.label == "报告范围").select(label)
         next(b for b in app.button if b.label == "生成 Markdown 报告").click().run()

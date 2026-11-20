@@ -8,16 +8,78 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
+import time
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from pathlib import Path
+from threading import BoundedSemaphore
 
 import streamlit as st
 import streamlit.components.v1 as components
 
+from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
 
 _component = components.declare_component(
     "healthzip_strength_workbench", path=str(Path(__file__).with_name("strength_component"))
 )
+
+
+# Optional advice has its own bounded queue and connection. No UI thread waits
+# for knowledge retrieval, and a worker never reuses Streamlit's SQLite handle.
+_ADVICE_EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix="strength-advice")
+_ADVICE_SLOTS = BoundedSemaphore(4)
+
+
+def _advice_worker(database, command, context):
+    from healthzip.ui.training_bridge import handle_command
+
+    try:
+        with closing(Repository(database)) as repo:
+            receipt = handle_command(repo, command, context)
+        return receipt, {key: context.get(key) for key in
+            ("advice", "advice_dependencies", "advice_stale")}
+    finally:
+        _ADVICE_SLOTS.release()
+
+
+def _collect_advice(state):
+    job = state.get("advice_job")
+    if not job:
+        return
+    future = job["future"]
+    if future.done():
+        try:
+            receipt, result = future.result()
+            state.update(result)
+            public = {"status": "ready" if receipt["status"] == "saved" else "error",
+                      "message": receipt.get("message")}
+        except Exception:
+            public = {"status": "error", "message": "建议暂不可用，实际记录仍可继续。"}
+        state["advice_job_public"] = public
+        state.pop("advice_job", None)
+    elif time.monotonic() - job["started"] > 20:
+        state["advice_job_public"] = {"status": "slow", "message": "建议核对耗时较长，可返回继续记录。"}
+
+
+def _start_advice(repo, command, state):
+    _collect_advice(state)
+    target = (command.get("payload") or {}).get("instance_id")
+    if state.get("advice_job") and state["advice_job"].get("instance_id") != target:
+        return {"id": command["id"], "action": "advice", "status": "error",
+                "message": "上一动作的建议仍在核对，可继续训练，稍后再读取本动作。"}
+    if not state.get("advice_job"):
+        if not _ADVICE_SLOTS.acquire(blocking=False):
+            return {"id": command["id"], "action": "advice", "status": "error",
+                    "message": "建议服务正在处理其他请求，请稍后再试；训练可继续。"}
+        context = {key: state.get(key) for key in ("context_id", "window_days", "timezone_name")}
+        context["window_days"] = context.get("window_days") or 30
+        context["timezone_name"] = context.get("timezone_name") or "Asia/Shanghai"
+        state["advice_job"] = {"started": time.monotonic(), "instance_id": target,
+            "future": _ADVICE_EXECUTOR.submit(_advice_worker, str(repo.path.resolve()), command, context)}
+        state["advice_job_public"] = {"status": "running"}
+        state.pop("advice", None)
+    return {"id": command["id"], "action": "advice", "status": "saved", "data": {"queued": True}}
 
 
 def _scope(repo):
@@ -38,6 +100,7 @@ def render_workbench(repo):
         except (ValueError, KeyError, OSError, sqlite3.Error):
             st.error("这条训练记录暂时无法打开，请返回工作台重新选择；本地输入仍会保留。")
         return
+    _collect_advice(state)
     try:
         snapshot = build_snapshot(
             repo, state, timezone_name=st.session_state.get("analysis_timezone", "Asia/Shanghai")
@@ -66,6 +129,11 @@ def render_workbench(repo):
     elif command.get("action") == "legacy":
         state["legacy"] = dict(command.get("payload") or {})
         state["receipt"] = {"id": command["id"], "status": "saved", "action": "legacy"}
+    elif command.get("action") == "advice":
+        state["receipt"] = _start_advice(repo, command, state)
+    elif command.get("action") == "advice_status":
+        _collect_advice(state)
+        state["receipt"] = {"id": command["id"], "action": "advice_status", "status": "saved"}
     else:
         state["receipt"] = handle_command(repo, command, state)
     st.rerun()

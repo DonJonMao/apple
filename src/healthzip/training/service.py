@@ -74,12 +74,16 @@ def _uuid(event_id: str, suffix: str) -> str:
 
 
 class TrainingService:
-    def __init__(self, repo, user_id: str = "local", device_id: str = "local"):
+    def __init__(self, repo, user_id: str = "local", device_id: str = "local", *, initialize=True):
         if not user_id.strip() or not device_id.strip():
             raise TrainingError("user_id/device_id 不能为空")
         self.repo, self.conn = repo, repo.conn
         self.user_id, self.device_id = user_id, device_id
         register_history_functions(self.conn)
+        # Repository already ensures the schema. Read-only summaries do not
+        # need catalog seeding and must not wait for an unrelated writer.
+        if not initialize:
+            return
         seed_bytes = Path(__file__).with_name("exercise_catalog_seed.json").read_bytes()
         initialization = (
             TRAINING_INITIALIZATION_VERSION + ":" + hashlib.sha256(seed_bytes).hexdigest()

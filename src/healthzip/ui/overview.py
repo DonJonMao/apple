@@ -1,214 +1,153 @@
-"""A small, readable landing page; private inventories stay behind the UI."""
-
+"""Calendar overview: current facts, one trend and a useful next action."""
 from __future__ import annotations
 
-import base64
 from datetime import datetime
-from functools import lru_cache
 from html import escape
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import streamlit as st
 
-BODY_TYPES = (
-    ("心率", ("heart_rate_bpm", "resting_heart_rate_bpm")),
-    ("HRV", ("hrv_sdnn_ms",)),
-    ("睡眠", ("sleep_stage",)),
-    ("体重", ("body_mass_kg",)),
-    ("有氧适能", ("vo2_max_ml_kg_min",)),
-)
+from healthzip.analytics.workspace_summary import workspace_summary
+from healthzip.analytics.workspaces import latest_observation_dates
+from healthzip.ui.theme import open_workspace
 
 
-def overview_data(repo):
-    """Read latest dates with the existing type/date index, without raw rows."""
-    updates = []
-    for label, types in BODY_TYPES:
-        found, dates = False, []
-        for canonical in types:
-            row = repo.one(
-                "SELECT local_date FROM health_sample WHERE canonical_type=? "
-                "AND record_status='active' ORDER BY local_date DESC LIMIT 1",
-                (canonical,),
-            )
-            found = found or row is not None
-            if row and row[0]:
-                dates.append(row[0])
-        if label == "体重":
-            row = repo.one(
-                "SELECT local_date FROM body_measurement WHERE canonical_type='body_mass_kg' "
-                "ORDER BY local_date DESC LIMIT 1"
-            )
-            found = found or row is not None
-            if row and row[0]:
-                dates.append(row[0])
-        updates.append({"项目": label, "最近记录": max(dates) if dates else
-                        ("日期未知" if found else "暂无记录"),
-                        "数据状态": "已有记录" if found else "暂无记录"})
-    workouts = repo.one("SELECT COUNT(*),MAX(local_date) FROM workout WHERE record_status='active'")
-    updates.append({"项目": "运动", "最近记录": workouts[1] or
-                    ("日期未知" if workouts[0] else "暂无记录"),
-                    "数据状态": "已有记录" if workouts[0] else "暂无记录"})
-    latest_dates = [row["最近记录"] for row in updates if row["最近记录"][:4].isdigit()]
-    sessions = repo.one("SELECT COUNT(*) FROM strength_session WHERE deleted_at IS NULL")[0]
+def overview_data(repo, timezone_name="Asia/Shanghai"):
+    """Small metadata reads; empty/draft sessions cannot become completion counts."""
+    observed = [day for day in latest_observation_dates(repo, timezone_name).values() if day]
     batch = repo.one("SELECT imported_at,status FROM import_batch ORDER BY id DESC LIMIT 1")
-    return {"updates": updates, "latest_date": max(latest_dates) if latest_dates else None,
-            "workout_count": workouts[0], "training_count": sessions,
-            "recorded_categories": sum(row["数据状态"] == "已有记录" for row in updates) + int(sessions > 0),
-            "latest_import": dict(batch) if batch else None}
+    active = repo.one("SELECT id,name,started_at FROM strength_session WHERE deleted_at IS NULL "
+                      "AND session_status IN ('draft','in_progress','paused') ORDER BY id DESC LIMIT 1")
+    return {"latest_date": max(observed) if observed else None,
+            "latest_import": dict(batch) if batch else None, "active": dict(active) if active else None}
 
 
-def _open_workspace(workspace):
-    st.session_state["main_workspace"] = workspace
+def _select_cards(facts):
+    groups = [
+        ("完成训练", ("已完成训练次数", "已完成训练", "完成训练场次")),
+        ("有效工作组", ("已完成工作组", "有效工作组")),
+        ("平均睡眠", ("已观察睡眠",)),
+        ("静息心率", ("静息心率",)),
+        ("体重", ("体重",)),
+    ]
+    selected = []
+    for title, labels in groups:
+        matches = [fact for fact in facts if fact.get("label") in labels and fact.get("value") is not None]
+        if matches:
+            selected.append((title, max(matches, key=lambda fact: fact.get("observed_days", 0))))
+    return selected
 
 
-@lru_cache(maxsize=1)
-def _overview_style():
-    return (Path(__file__).with_name("assets") / "overview.css").read_text(encoding="utf-8")
-
-
-@lru_cache(maxsize=1)
-def _meadow_image():
-    data = (Path(__file__).with_name("assets") / "overview-meadow.jpg").read_bytes()
-    return "data:image/jpeg;base64," + base64.b64encode(data).decode("ascii")
-
-
-_CARD_ICONS = {
-    "sleep": '<path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/>',
-    "heart": '<path d="M20.8 4.7a5.5 5.5 0 0 0-7.8 0L12 5.8l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.5a5.5 5.5 0 0 0 0-7.8Z"/><path d="m5 12 3 0 2-4 3 8 2-4h4"/>',
-    "workouts": '<path d="m6 18 6-13 6 13M8 14h8M3 21h18"/><path d="M18 4h3v3"/>',
-    "weight": '<rect x="4" y="4" width="16" height="17" rx="4"/><path d="M8 8a6 6 0 0 1 8 0M12 8v4"/>',
-}
-
-
-def _card_icon(name):
-    return ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
-            'stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-            + _CARD_ICONS[name] + '</svg>')
-
-
-def _latest_category(data, labels):
-    rows = [row for row in data["updates"] if row["项目"] in labels]
-    dates = [row["最近记录"] for row in rows if row["最近记录"][:4].isdigit()]
-    if dates:
-        return "最近记录 " + max(dates)
-    return "日期未注明" if any(row["数据状态"] == "已有记录" for row in rows) else "等待第一条记录"
-
-
-def _overview_hero(data):
-    with st.container(key="earthy_overview_hero"):
-        copy, visual = st.columns([1.13, 1], gap="large", vertical_alignment="center")
-        with copy:
-            st.markdown(
-                '<div class="overview-hero overview-hero-copy"><span class="overview-eyebrow">'
-                '<span class="overview-spark" aria-hidden="true">✧</span> A LITTLE CARE, EVERY DAY</span>'
-                '<h2>让日常的记录，<br><em>长成清晰的变化。'
-                '<svg viewBox="0 0 460 22" preserveAspectRatio="none" aria-hidden="true">'
-                '<path d="M4 14C100 0 259 2 453 10M18 20C155 7 298 10 440 16"/>'
-                '</svg></em></h2><p>从睡眠、心率到每一次训练，<br>'
-                '留一点耐心，看见属于自己的节奏。</p></div>',
-                unsafe_allow_html=True,
-            )
-            primary, secondary = st.columns(2, gap="small")
-            primary.button("记录力量训练", on_click=_open_workspace, args=("力量",),
-                           key="overview_open_training", type="primary", use_container_width=True)
-            secondary.button("查看心率与 HRV", on_click=_open_workspace, args=("心率 / HRV",),
-                             key="overview_open_heart", use_container_width=True)
-            st.markdown('<div class="overview-trust"><span>本地保存</span><i></i>'
-                        '<span>真实记录</span><i></i><span>按需分析</span></div>',
-                        unsafe_allow_html=True)
-        with visual:
-            latest = escape(data["latest_date"] or "等待第一条记录")
-            st.markdown(
-                '<div class="overview-hero-visual"><div class="overview-photo-wash"></div>'
-                f'<img src="{_meadow_image()}" alt="夕阳下起伏的金色田野，作为页面装饰" '
-                'class="overview-meadow"><div class="overview-photo-badge">'
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
-                'aria-hidden="true"><path d="M12 21V10M12 15C3 15 3 7 3 7s9-1 9 8Z'
-                'M12 12C12 4 21 3 21 3s1 9-9 9Z"/></svg>慢慢来，也在向前</div>'
-                '<div class="overview-photo-note"><span>YOUR LATEST OBSERVATION</span>'
-                f'<strong>{latest}</strong><p>最近身体／运动记录 · 按实际发生日期</p></div></div>',
-                unsafe_allow_html=True,
-            )
-
-
-def _workspace_cards(data):
-    st.markdown('<div class="overview-section-label">YOUR EVERYDAY CANVAS</div>', unsafe_allow_html=True)
-    st.subheader("从一个小小的观察开始")
-    st.caption("各项记录各有来处。选一个工作区，看看已有数据讲述了什么。")
-    cards = (
-        ("sleep", "01", "睡眠", "留意每一夜的节奏", "查看已观察睡眠时长，按周、按月回看。", "查看睡眠记录", "睡眠", ("睡眠",)),
-        ("heart", "02", "心率与 HRV", "听见身体的起伏", "分别查看静息心率与 SDNN 的真实记录。", "查看心率记录", "心率 / HRV", ("心率", "HRV")),
-        ("workouts", "03", "运动", "记住动起来的日子", "回看运动次数、已有时长和设备记录能量。", "查看运动记录", "运动", ("运动",)),
-        ("weight", "04", "体重与有氧", "给变化一点时间", "按来源查看称重记录与有氧适能估计。", "查看体重与有氧", "体重 / 有氧", ("体重", "有氧适能")),
-    )
-    columns = st.columns(4, gap="medium")
-    for column, (name, number, title, headline, description, action, page, labels) in zip(columns, cards):
-        with column, st.container(key="earthy_card_" + name):
-            st.markdown(
-                f'<div class="overview-workspace-card overview-{name}">'
-                f'<div class="overview-card-art"><span class="overview-card-category">{title}</span>'
-                f'<span class="overview-card-number">{number}</span>{_card_icon(name)}</div>'
-                f'<h3>{headline}</h3><p>{description}</p>'
-                f'<span class="overview-card-date">{escape(_latest_category(data, labels))}</span></div>',
-                unsafe_allow_html=True,
-            )
-            st.button(action, key="earthy_open_" + name, on_click=_open_workspace,
-                      args=(page,), use_container_width=True)
-
-
-def _import_summary(result, *, sync=False):
-    batches = result.get("batches", []) if sync else [result]
-    added = sum(int(row.get("new", row.get("records_inserted", 0)) or 0) for row in batches)
-    duplicates = sum(int(row.get("duplicate", row.get("records_deduplicated", 0)) or 0) for row in batches)
-    updated = sum(int(row.get("updated", 0) or 0) for row in batches)
-    invalid = sum(int(row.get("invalid", row.get("errors_count", 0)) or 0) for row in batches)
-    errors = len(result.get("errors") or []) if sync else 0
-    message = f"新增 {added:,} 条，重复 {duplicates:,} 条"
-    if sync:
-        message += f"，更新 {updated:,} 条"
-    if errors or invalid or result.get("status") in {"partial_failed", "failed"}:
-        st.warning(f"本次导入部分未完成：{message}；{errors + invalid} 项需要检查。")
+def _trend(item):
+    import plotly.graph_objects as go
+    strength = item.get("strength_daily", [])
+    if strength:
+        values = [(row["date"], row.get("completed_work_sets", row.get("work_sets", 0))) for row in strength]
+        fig = go.Figure(go.Bar(x=[p[0] for p in values], y=[p[1] for p in values], marker_color="#38BFA3", width=43200000))
+        fig.update_xaxes(type="date", tickformat="%m/%d", tickmode="array", tickvals=[p[0] for p in values])
+        title, unit = "本期已完成工作组", "组"
     else:
-        st.success("本次同步完成：" + message if sync else "本次导入完成：" + message)
+        series = []
+        for identity, title, unit in (("STATE-RHR", "静息心率日值", "bpm"),
+                                      ("BODY-MASS-DAILY", "体重日值", "kg")):
+            metric = item.get("metrics", {}).get(identity, {})
+            for points in (metric.get("value") or {}).values():
+                valid = [point for point in points if point.get("value") is not None]
+                if valid:
+                    series.append((valid, title, unit))
+            if series:
+                break
+        if not series:
+            metric = item.get("metrics", {}).get("REPORT-STATE-SUMMARY", {})
+            valid = [dict(point, value=point["value"] / 60) for point in metric.get("daily_facts", [])
+                     if point.get("series_id") == "observed_sleep_by_wake_date" and (point.get("value") or 0) > 0]
+            if valid:
+                # Each source is still a separate series; never connect unlike watches.
+                source = valid[0].get("source_id")
+                series = [([point for point in valid if point.get("source_id") == source], "已观察睡眠", "小时")]
+        if not series:
+            return False
+        points, title, unit = max(series, key=lambda value: len(value[0]))
+        points = sorted(points, key=lambda point: point["date"])
+        fig = go.Figure(go.Scatter(x=[p["date"] for p in points], y=[p["value"] for p in points],
+                                  mode="markers", marker={"size": 8, "color": "#38BFA3"}))
+    st.write(title)
+    fig.update_layout(height=260, margin={"l": 12, "r": 12, "t": 16, "b": 44},
+                      yaxis_title=unit, xaxis_title=None, showlegend=False)
+    fig.update_traces(hovertemplate=f"%{{x}}<br>%{{y:.1f}} {unit}<extra></extra>")
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key="overview_trend")
+    st.caption("仅展示实际观测日期；缺失日期不填零。")
+    return True
 
 
-def render_overview(repo, *, timezone_name="Asia/Shanghai", last_import=None, last_sync=None,
-                    summary_renderer=None):
-    data = overview_data(repo)
-    st.markdown("<style>" + _overview_style() + "</style>", unsafe_allow_html=True)
-    st.subheader("数据总览")
-    _overview_hero(data)
-    with st.container(key="earthy_overview_stats"):
-        columns = st.columns(4)
-        columns[0].metric("最近身体／运动记录", data["latest_date"] or "暂无记录")
-        columns[1].metric("运动记录", f"{data['workout_count']:,} 次")
-        columns[2].metric("力量训练记录", f"{data['training_count']:,} 次")
-        columns[3].metric("已有数据项目", f"{data['recorded_categories']} 项")
-        st.markdown('<p class="overview-stats">只陈述当前已有记录；项目数量不代表记录完整程度或身体评分。</p>',
-                    unsafe_allow_html=True)
-    if summary_renderer is not None:
-        summary_renderer()
-    _workspace_cards(data)
-    st.markdown('<div class="overview-section-label">A NOTE FROM YOUR RECORDS</div>', unsafe_allow_html=True)
-    st.subheader("数据更新概况")
-    st.dataframe(data["updates"], hide_index=True, use_container_width=True)
-    st.caption("这里显示实际记录的日期；没有记录不能确定是否佩戴手表。")
-    latest = data["latest_import"]
-    if latest:
-        try:
-            imported = datetime.fromisoformat(latest["imported_at"].replace("Z", "+00:00"))
-            imported_text = imported.astimezone(ZoneInfo(timezone_name)).strftime("%Y-%m-%d %H:%M")
-        except (ValueError, TypeError, AttributeError):
-            imported_text = "时间未记录"
-        statuses = {"completed": "已完成", "partial_failed": "部分未完成",
-                    "failed": "未完成", "running": "导入中"}
-        st.caption(f"最近一次导入：{imported_text} · {statuses.get(latest['status'], '状态待核对')}")
-    if last_import:
-        _import_summary(last_import)
-    if last_sync:
-        _import_summary(last_sync, sync=True)
-    with st.expander("如何导入后续数据"):
-        st.write("展开左侧“导入与存储设置”，填写新的 Apple Health ZIP 路径后点击“流式导入”。")
-        st.write("手机增量文件放入配置的同步目录后，点击“扫描增量数据”；已经导入的重复记录会自动识别。")
-        st.caption("导入与训练记录分别保存；还没有身体数据时也可以正常记录力量训练。")
+def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
+    st.subheader("总览")
+    with st.container(key="overview_period"):
+        label = st.radio("总结范围", ["本周", "本月"], horizontal=True, key="overview_period_choice", label_visibility="collapsed")
+    result = workspace_summary(repo, "总览", timezone_name=timezone_name)
+    period = "week" if label == "本周" else "month"
+    item = next(row for row in result["periods"] if row["period"] == period)
+    zone = ZoneInfo(timezone_name)
+    first = datetime.fromisoformat(item["window"]["start"]).astimezone(zone)
+    end = datetime.fromisoformat(item["window"]["end"]).astimezone(zone)
+    st.caption(f"{first:%Y-%m-%d} — {end:%Y-%m-%d %H:%M} · {timezone_name}")
+    data = overview_data(repo, timezone_name)
+    cards = _select_cards(item["facts"])
+    if cards:
+        columns = st.columns(len(cards))
+        for column, (title, fact) in zip(columns, cards):
+            value = fact["value"]
+            number = f"{value:,.0f}" if fact.get("unit") in {"次", "场", "组"} else f"{value:,.1f}"
+            comparison = item.get("comparison", {})
+            previous = next((row for row in comparison.get("facts", [])
+                             if row["label"] == fact["label"]
+                             and row.get("source_identity") == fact.get("source_identity")
+                             and row.get("value") is not None), None)
+            comparable_days = comparison.get("coverage", {}).get("window_days") == item["coverage"]["window_days"]
+            delta = (f"{value - previous['value']:+.1f} {fact.get('unit', '')} · "
+                     + comparison.get("label", "上期同期")) if previous and comparable_days else None
+            column.metric(title, f"{number} {fact.get('unit', '')}", delta=delta, delta_color="off")
+            if fact.get("source") and title not in {"完成训练", "有效工作组"}:
+                column.caption(fact["source"])
+        _trend(item)
+        st.write("本期发现")
+        # The same period's deterministic statements; no full-period comparison.
+        allowed = {fact["label"] for _, fact in cards}
+        findings = [text for text in item["conclusions"] if any(label in text for label in allowed)]
+        for text in (findings or item["conclusions"])[:3]:
+            st.markdown("- " + text)
+        comparison = item.get("comparison", {})
+        if comparison:
+            bounds = comparison["window"]
+            prior_start = datetime.fromisoformat(bounds["start"]).astimezone(zone)
+            prior_end = datetime.fromisoformat(bounds["end"]).astimezone(zone)
+            st.caption(f"卡片比较{comparison['label']}：{prior_start:%m-%d %H:%M} — {prior_end:%m-%d %H:%M}；只比较相同来源的已记录值。")
+            if comparison["coverage"]["window_days"] != item["coverage"]["window_days"]:
+                st.caption("上一周期较短；范围长度不同时不显示差值，避免把不同天数的记录直接相比。")
+        st.caption("本期尚未结束，变化不代表完整周期或因果关系。")
+    else:
+        last = data["latest_date"]
+        message = f"本期没有可用于总结的记录。最近一次健康或运动观测在 {last}。" if last else "本期还没有健康与训练记录。"
+        st.markdown(f'<div class="hz-empty">{escape(message)}<br>可以直接开始力量训练，或在设置中导入健康数据。</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        active = data["active"]
+        st.write("继续本次训练" if active else "下一次训练，从一组开始")
+        if active:
+            st.caption(active["name"] or "进行中的训练")
+        else:
+            st.caption("直接添加动作并记录；无需先创建计划。")
+        st.button("继续本次训练" if active else "开始训练", key="overview_open_training",
+                  type="primary", on_click=open_workspace, args=("力量",))
+    if cards:
+        st.caption("下次记录尽量沿用同一来源和测量条件，让前后变化更容易比较。")
+    left, right = st.columns(2)
+    left.button("查看健康趋势", on_click=open_workspace, args=("心率",), use_container_width=True)
+    right.button("导入与同步", on_click=open_workspace, args=("设置",), use_container_width=True)
+    with st.expander("分析依据与范围"):
+        for note in item.get("limitations", []):
+            st.caption(note)
+        st.caption(f"本期 {item['coverage']['observed_days']} 个观测日期；同类指标按来源分别统计，卡片优先显示观测日期最多的来源。")
+    last = data["latest_date"] or "暂无健康或运动观测"
+    imported = data["latest_import"]
+    updated = imported["imported_at"] if imported else "尚未导入"
+    st.caption(f"最近观测日期：{last} · 数据导入时间：{updated}")

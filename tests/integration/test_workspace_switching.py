@@ -1,6 +1,5 @@
 """Full local app workspaces use their own routes and avoid opener write locks."""
 
-import json
 import runpy
 import socket
 import sqlite3
@@ -58,184 +57,162 @@ def assert_page_ok(app):
 
 def test_all_visible_workspaces_switch_and_optional_sections_stay_hidden(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    assert_page_ok(app)
-    workspaces = list(app.radio(key="main_workspace").options)
-    assert len(workspaces) == 10
-    assert "营养" not in workspaces and "知识库" not in workspaces
-    for page in workspaces:
+    expected = ["总览", "力量", "心率", "睡眠", "体重", "有氧", "运动", "复盘", "设置"]
+    assert list(app.radio(key="main_workspace").options) == expected
+    for page in expected:
         app.radio(key="main_workspace").set_value(page).run()
         assert_page_ok(app)
-        headers = {element.value for element in app.subheader}
-        if page == "导入与总览":
-            assert "数据总览" in headers
-        elif page == "力量":
+        assert not app.sidebar.text_input and not app.sidebar.radio
+        if page == "力量":
             assert UI["snapshot"](app)["today"]
-            assert not app.tabs
-        elif page == "分析":
-            assert "训练分析" in headers
-            assert "营养记录与完整度" not in headers
-            assert "周期记录回顾" not in headers
-        elif page == "周期":
-            assert "周期记录回顾" in headers
-            assert "营养记录与完整度" not in headers
-            rows = [table.value for table in app.dataframe if "记录" in table.value.columns]
-            assert len(rows) == 1
-            assert rows[0]["记录"].tolist() == ["已记录，类型未识别"]
-            assert set(rows[0].columns) == {"日期", "记录", "来源"}
-        elif page == "报告":
-            assert any(element.label == "报告输出路径" for element in app.text_input)
-    app.radio(key="main_workspace").set_value("导入与总览").run()
-    assert_page_ok(app)
-    assert Path(app.sidebar.text_input[0].value).resolve() == isolated_workspace
+        else:
+            assert page in {element.value for element in app.subheader}
+    with closing(Repository(isolated_workspace)) as repo:
+        assert repo.one("SELECT count(*) FROM cycle_event")[0] == 1
+        assert repo.one("SELECT count(*) FROM nutrition_day")[0] == 1
+        assert repo.one("SELECT count(*) FROM analysis_run")[0] == 0
 
 
-def test_overview_rerun_reads_current_repository_while_writer_holds_lock(isolated_workspace):
+def test_overview_and_health_reruns_are_readonly_while_writer_holds_lock(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     assert_page_ok(app)
     writer = sqlite3.connect(isolated_workspace)
     try:
         writer.execute("BEGIN IMMEDIATE")
         writer.execute("INSERT INTO schema_meta VALUES('synthetic_pending_edit','not_committed')")
-        app.run(timeout=3)
-        assert_page_ok(app)
-        assert writer.in_transaction
-        assert app.radio(key="main_workspace").value == "导入与总览"
-        assert "数据总览" in {element.value for element in app.subheader}
+        for page in ("总览", "心率", "睡眠", "体重", "有氧", "运动", "复盘"):
+            app.radio(key="main_workspace").set_value(page).run(timeout=3)
+            assert_page_ok(app)
+            assert writer.in_transaction
+        assert writer.execute("SELECT count(*) FROM insight").fetchone()[0] == 0
     finally:
         writer.rollback()
         writer.close()
 
 
-def test_factual_workspaces_do_not_freeze_unused_full_analysis_and_keep_context_warning(isolated_workspace):
-    repo = Repository(isolated_workspace)
-    context_id = save_context(repo, {"population": "adults"})
-    withdraw_context(repo, context_id)
-    repo.close()
+def test_factual_workspaces_do_not_freeze_analysis_and_keep_context_warning(isolated_workspace):
+    with closing(Repository(isolated_workspace)) as repo:
+        context_id = save_context(repo, {"population": "adults"})
+        withdraw_context(repo, context_id)
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     app.session_state["analysis_contexts"] = {str(isolated_workspace): context_id}
-    for page in ("数据质量", "运动", "周期"):
+    for page in ("心率", "睡眠", "体重", "有氧"):
         app.radio(key="main_workspace").set_value(page).run()
         assert_page_ok(app)
         assert any("当前选择的适用声明已撤回或被替换" in warning.value for warning in app.warning)
-        with sqlite3.connect(isolated_workspace) as conn:
-            assert conn.execute("SELECT count(*) FROM analysis_run").fetchone()[0] == 0
-            assert conn.execute("SELECT count(*) FROM workflow_run").fetchone()[0] == 0
-            assert conn.execute("SELECT count(*) FROM workflow_use_check").fetchone()[0] == 0
     with sqlite3.connect(isolated_workspace) as conn:
-        cards = dict(conn.execute("SELECT id,title FROM insight"))
-        assert cards["workout_summary"] == "训练频率与时长"
-        assert cards["cycle_review"] == "周期记录回顾"
-        assert conn.execute("SELECT energy_kcal FROM nutrition_day").fetchone()[0] == 1800
+        for table in ("analysis_run", "workflow_run", "workflow_use_check", "insight"):
+            assert conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0] == 0
 
 
-def test_body_workspaces_show_source_separated_observations_without_full_freeze(isolated_workspace):
+def test_body_workspaces_show_separate_sources_and_weight_cardio_without_writes(isolated_workspace):
     root = Element("HealthData")
     observed = datetime.now(ZoneInfo("Asia/Shanghai")) - timedelta(days=1)
-
-    def record(raw_type, source, value, unit=None, *, start=None, end=None):
-        attrs = {"type": raw_type, "sourceName": source, "sourceVersion": "synthetic-1",
+    def record(kind, source, value, unit=None, hours=0):
+        attrs = {"type": kind, "sourceName": source, "sourceVersion": "synthetic-1",
                  "device": source + "-device", "value": str(value),
-                 "startDate": (start or observed).strftime("%Y-%m-%d %H:%M:%S %z"),
-                 "endDate": (end or observed).strftime("%Y-%m-%d %H:%M:%S %z"),
+                 "startDate": (observed - timedelta(hours=hours)).strftime("%Y-%m-%d %H:%M:%S %z"),
+                 "endDate": observed.strftime("%Y-%m-%d %H:%M:%S %z"),
                  "creationDate": observed.strftime("%Y-%m-%d %H:%M:%S %z")}
         if unit:
             attrs["unit"] = unit
         SubElement(root, "Record", attrs)
-
-    for source, heart, sdnn, weight, sleep_hours in (
-        ("synthetic_watch_a", 55, 30, 70, 3),
-        ("synthetic_watch_b", 65, 40, 80, 5),
-    ):
+    for source, heart, sdnn, weight, hours in (("合成手表甲", 55, 30, 70, 3), ("合成手表乙", 65, 40, 80, 5)):
         record("HKQuantityTypeIdentifierRestingHeartRate", source, heart, "count/min")
         record("HKQuantityTypeIdentifierHeartRateVariabilitySDNN", source, sdnn, "ms")
         record("HKQuantityTypeIdentifierBodyMass", source, weight, "kg")
-        record("HKCategoryTypeIdentifierSleepAnalysis", source,
-               "HKCategoryValueSleepAnalysisAsleepCore", start=observed-timedelta(hours=sleep_hours))
-    record("HKQuantityTypeIdentifierVO2Max", "synthetic_watch_a", 42, "mL/(kg·min)")
-    archive_path = isolated_workspace.parent / "synthetic-workspaces.zip"
-    with ZipFile(archive_path, "w", ZIP_DEFLATED) as archive:
-        archive.writestr("export.xml", tostring(root))
-    repo = Repository(isolated_workspace)
-    result = import_apple_zip(archive_path, repo)
-    assert result.status == "completed" and result.records_inserted == 9
-    context_id = save_context(repo, {"population": "adults"})
-    withdraw_context(repo, context_id)
-    repo.close()
-
+        record("HKCategoryTypeIdentifierSleepAnalysis", source, "HKCategoryValueSleepAnalysisAsleepCore", hours=hours)
+    record("HKQuantityTypeIdentifierVO2Max", "合成手表甲", 42, "mL/(kg·min)")
+    archive = isolated_workspace.parent / "synthetic-workspaces.zip"
+    with ZipFile(archive, "w", ZIP_DEFLATED) as zipped:
+        zipped.writestr("export.xml", tostring(root))
+    with closing(Repository(isolated_workspace)) as repo:
+        assert import_apple_zip(archive, repo).records_inserted == 9
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    app.session_state["analysis_contexts"] = {str(isolated_workspace): context_id}
-    for page in ("心率 / HRV", "睡眠", "体重 / 有氧"):
+    for page, field, expected in (("心率", "数值", [30, 40, 55, 65]),
+                                   ("睡眠", "睡眠时长（小时）", [3, 5]),
+                                   ("体重", "体重（kg）", [70, 80]),
+                                   ("有氧", "VO₂ max（mL/kg/min）", [42])):
         app.radio(key="main_workspace").set_value(page).run()
         assert_page_ok(app)
-        assert any("当前选择的适用声明已撤回或被替换" in warning.value for warning in app.warning)
-        with sqlite3.connect(isolated_workspace) as conn:
-            assert conn.execute("SELECT count(*) FROM analysis_run").fetchone()[0] == 0
-            assert conn.execute("SELECT count(*) FROM workflow_run").fetchone()[0] == 0
-            assert conn.execute("SELECT count(*) FROM workflow_use_check").fetchone()[0] == 0
-            cards = {row[0]: json.loads(row[1]) for row in conn.execute("SELECT id,facts_json FROM insight")}
-        if page == "心率 / HRV":
-            heart_values = cards["STATE-RHR"][0]["value"]
-            assert len(heart_values) == 2
-            assert sorted(day["value"] for days in heart_values.values() for day in days) == [55, 65]
-            assert all("synthetic_watch_" in source for source in heart_values)
-            sdnn_values = cards["STATE-SDNN"][0]["value"]
-            assert sorted(day["value"] for days in sdnn_values.values() for day in days) == [30, 40]
-            tables = [table.value for table in app.dataframe if "指标" in table.value.columns]
-            assert len(tables) == 2
-            assert sorted(tables[0]["数值"].tolist()) == [55, 65]
-            assert sorted(tables[1]["数值"].tolist()) == [30, 40]
-            assert all(set(table.columns) == {"日期", "指标", "数值", "单位", "来源"} for table in tables)
-        elif page == "睡眠":
-            tables = [table.value for table in app.dataframe if "睡眠时长（小时）" in table.value.columns]
-            assert len(tables) == 1
-            assert sorted(tables[0]["睡眠时长（小时）"].tolist()) == [3, 5]
-            assert tables[0]["来源"].nunique() == 2
-            assert set(tables[0].columns) == {"日期", "睡眠时长（小时）", "来源"}
-        else:
-            tables = [table.value for table in app.dataframe if "体重（kg）" in table.value.columns]
-            assert len(tables) == 1
-            assert sorted(tables[0]["体重（kg）"].tolist()) == [70, 80]
-            assert tables[0]["来源"].nunique() == 2
-            assert any(table.value["VO₂ max（mL/kg/min）"].tolist() == [42] for table in app.dataframe
-                       if "VO₂ max（mL/kg/min）" in table.value.columns)
+        tables = [table.value for table in app.dataframe if field in table.value.columns]
+        assert sorted(value for table in tables for value in table[field].tolist()) == expected
+        if page == "体重":
+            assert not any("VO₂ max（mL/kg/min）" in table.value.columns for table in app.dataframe)
+        if page == "有氧":
+            assert not any("体重（kg）" in table.value.columns for table in app.dataframe)
+        assert {expander.label for expander in app.expander} >= {"原始明细", "分析依据与范围"}
+    with sqlite3.connect(isolated_workspace) as conn:
+        assert conn.execute("SELECT count(*) FROM insight").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM analysis_run").fetchone()[0] == 0
 
 
-def test_overview_shows_readable_updates_and_direct_recording_entry(isolated_workspace):
+def test_overview_direct_training_counts_only_completed_facts(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     assert_page_ok(app)
-    assert not app.json
-    assert len(app.dataframe) == 1
-    assert set(app.dataframe[0].value.columns) == {"项目", "最近记录", "数据状态"}
-    assert {item.label for item in app.metric} == {
-        "最近身体／运动记录", "运动记录", "力量训练记录", "已有数据项目",
-    }
-    assert next(item.value for item in app.metric if item.label == "已有数据项目") == "0 项"
+    assert not app.metric  # Missing health data is not a wall of zero-filled cards.
+    assert not app.dataframe and not app.json
     app.button(key="overview_open_training").click().run()
-    assert_page_ok(app)
     assert app.radio(key="main_workspace").value == "力量"
     UI["send"](app, "start_session")
     session = UI["snapshot"](app)["session"]
-    session_id = session["id"]
     assert UI["send"](app, "add_exercises", {"session_id": session["session_uuid"],
         "base_revision": session["revision"], "exercises": ["psa.ex.barbell_bench_press"]})["status"] == "saved"
-    assert_page_ok(app)
-    with closing(Repository(isolated_workspace)) as repo:
-        session = TrainingService(repo).get_session(session_id)
-        assert session["template_id"] is None and len(session["exercises"]) == 1
-        assert len(session["sets"]) == 1 and session["completed_sets"] == 0
-        row = session["sets"][0]
+    row = UI["snapshot"](app)["session"]["sets"][0]
     assert UI["send"](app, "save_set", {"set_id": row["set_uuid"], "base_revision": row["revision"],
-        "complete": True, "changes": {"load_value": "40", "load_unit": "kg", "reps": "8"}})["status"] == "saved"
-    assert_page_ok(app)
+        "complete": True, "changes": {"load_value": "32.5", "load_unit": "kg", "reps": "8", "rir": 0}})["status"] == "saved"
+    app.radio(key="main_workspace").set_value("总览").run()
+    assert next(item.value for item in app.metric if item.label == "完成训练") == "0 次"
+    app.radio(key="main_workspace").set_value("力量").run()
     assert UI["send"](app, "end_session", {"session_id": session["session_uuid"],
         "base_revision": UI["snapshot"](app)["session"]["revision"]})["status"] == "saved"
+    app.radio(key="main_workspace").set_value("总览").run()
     assert_page_ok(app)
+    assert next(item.value for item in app.metric if item.label == "完成训练") == "1 次"
     with closing(Repository(isolated_workspace)) as repo:
-        finished = TrainingService(repo).get_session(session_id)
-        assert finished["session_status"] == "completed" and finished["completed_sets"] == 1
-        actual = finished["sets"][0]
-        assert float(actual["load_value"]) == 40 and actual["reps"] == 8 and actual["rir"] is None
+        actual = TrainingService(repo).get_set(row["set_uuid"])
+        assert float(actual["load_value"]) == 32.5 and actual["reps"] == 8 and actual["rir"] == 0
         assert not actual.get("reference_set") and not actual.get("reference_declared_at")
-    app.radio(key="main_workspace").set_value("导入与总览").run()
+
+
+def test_settings_network_consent_survives_page_changes(isolated_workspace):
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    app.radio(key="main_workspace").set_value("设置").run()
+    app.checkbox(key="_setting_network_consent").check().run()
+    app.radio(key="main_workspace").set_value("心率").run()
+    assert app.session_state["health_explanation_network_consent"] is True
+    app.radio(key="main_workspace").set_value("设置").run()
+    assert app.checkbox(key="_setting_network_consent").value is True
+    app.checkbox(key="_setting_network_consent").uncheck().run()
+    assert app.session_state["health_explanation_network_consent"] is False
+
+
+def test_short_custom_window_remains_valid_in_review(isolated_workspace):
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    app.radio(key="main_workspace").set_value("心率").run()
+    app.radio(key="body_period").set_value("自定义").run()
+    app.number_input(key="analysis_window_days").set_value(1).run()
+    app.radio(key="main_workspace").set_value("复盘").run()
     assert_page_ok(app)
-    assert next(item.value for item in app.metric if item.label == "已有数据项目") == "1 项"
+    assert app.number_input(key="review_window_days").value == 1
+    app.radio(key="main_workspace").set_value("心率").run()
+    assert app.radio(key="body_period").value == "自定义"
+    assert app.number_input(key="analysis_window_days").value == 1
+
+
+def test_import_receipts_are_workspace_scoped_and_failure_replaces_old_success(isolated_workspace):
+    app = AppTest.from_file(str(APP), default_timeout=30).run()
+    app.session_state["workspace_import_results"] = {str(isolated_workspace): {
+        "import": {"status": "completed", "records_inserted": 5}}}
+    app.radio(key="main_workspace").set_value("设置").run()
+    assert any("新增 5 条" in row.value for row in app.success)
+    next(item for item in app.text_input if item.label == "Apple Health ZIP 路径").set_value("missing-synthetic.zip")
+    next(item for item in app.button if item.label == "流式导入").click().run()
+    assert not any("新增 5 条" in row.value for row in app.success)
+    assert any("未完成" in row.value for row in app.warning)
+    second = isolated_workspace.parent / "synthetic-second.sqlite3"
+    next(item for item in app.text_input if item.label == "SQLite 路径").set_value(str(second))
+    next(item for item in app.button if item.label == "保存工作区设置").click().run()
+    assert_page_ok(app)
+    assert not app.warning
+    assert not any("本次导入" in row.value for row in app.success)

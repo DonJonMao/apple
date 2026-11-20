@@ -1,6 +1,7 @@
 """Actual Repository and page paths consume explicit canonical observation extensions."""
 import json
 from contextlib import closing
+from functools import partial
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -122,8 +123,11 @@ def test_actual_analysis_page_reaches_new_entry_without_missing_metric_placehold
     path = tmp_path / 'page.sqlite3'
     with closing(Repository(path)) as repo:
         insert_samples(repo)
-    monkeypatch.setattr(metric_evidence, 'KnowledgeWorkbench',
-        lambda root: KnowledgeWorkbench(kb.root, environment_kind='synthetic_test'))
+    from healthzip.ui import health_explanation
+    monkeypatch.setattr(metric_evidence, 'render_metric_request',
+        partial(health_explanation.render_metric_request, root=str(kb.root)))
+    monkeypatch.setattr('healthzip.knowledge.KnowledgeWorkbench',
+        lambda root: KnowledgeWorkbench(root, environment_kind='synthetic_test'))
     app = AppTest.from_string('from healthzip.db.repository import Repository\n'
         'from healthzip.analytics.v13 import analyze\nfrom healthzip.ui.analysis_page import render_analysis\n'
         f'repo=Repository({str(path)!r})\n'
@@ -135,5 +139,12 @@ def test_actual_analysis_page_reaches_new_entry_without_missing_metric_placehold
     assert app.selectbox(key='metric_evidence_metric').value == expected
     app.button(key='metric_evidence_run').click().run()
     assert not app.exception
-    assert json.loads(app.json[-1].value)['permissions']['source_explanation'] is False
+    # The request runs on its own knowledge connections. Complete the worker,
+    # then rerender the local explanation fragment; factual UI stayed usable.
+    request = app.session_state['metric_evidence_job']
+    response = health_explanation._JOBS[request['key']][1].result(timeout=10)
+    assert response['items'][0]['evidence_context']['capability_permissions']['source_explanation'] is False
+    app.run(timeout=30)
+    assert not app.exception
+    assert any('缺少通过审核且适用的完整依据' in str(item.value) for item in app.caption)
     assert not any('没有此功能对应' in str(item.value) for item in app.info)

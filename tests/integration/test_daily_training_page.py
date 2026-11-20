@@ -129,7 +129,9 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
     assert trial["basis"]["source_set_id"] == actual["set_uuid"]
     assert trial["basis"]["repetitions_origin"] == "沿用用户计划次数下限"
     assert trial["basis"]["rules"]
-    app.radio(key="main_workspace").set_value("报告").run()
+    app.radio(key="main_workspace").set_value("复盘").run()
+    app.radio(key="review_section").set_value("报告").run()
+    app.button(key="review_compute").click().run()
     for label in ("本周", "本月"):
         next(selector for selector in app.selectbox if selector.label == "报告范围").select(label)
         next(button for button in app.button if button.label == "生成 Markdown 报告").click().run()

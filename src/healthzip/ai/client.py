@@ -17,6 +17,8 @@ from typing import Any, Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from .consent import NetworkPermission, network_allowed
+
 
 @dataclass(frozen=True)
 class AIConfig:
@@ -293,13 +295,13 @@ def explain_analysis(
     question: str = "",
     *,
     config: Optional[AIConfig] = None,
-    allow_network: bool = False,
+    allow_network: NetworkPermission = False,
 ) -> dict[str, Any]:
     # Full structured metrics remain available locally. Projection happens
     # only at the network boundary, including when previewing its payload.
     cards = _analysis_cards(analysis)
     local_cards = _safe_cards(cards, True, network_projection=False)
-    if not allow_network:
+    if not network_allowed(allow_network):
         fallback = _fallback(local_cards, "network_disabled")
         return {
             "summary": fallback.text,
@@ -318,7 +320,7 @@ def explain_analysis(
             "limitations": ["AI 解释不可用：未配置 endpoint 或 API key。"] + fallback.limitations,
             "actions": fallback.allowed_actions,
         }
-    result = AIClient(selected).explain(cards, question)
+    result = AIClient(selected).explain(cards, question, allow_network=allow_network)
     return {
         "summary": result.text,
         "source": "ai" if result.source == "ai" else "local_fallback",
@@ -450,7 +452,8 @@ class AIClient:
         config = AIConfig.from_env()
         return cls(config) if config else None
 
-    def explain(self, cards: list[dict[str, Any]], question: str = "") -> AIResult:
+    def explain(self, cards: list[dict[str, Any]], question: str = "", *,
+                allow_network: NetworkPermission = True) -> AIResult:
         safe = _safe_cards(cards, self.config.allow_sensitive)
         if not safe:
             return _fallback(cards, "no_evidence")
@@ -485,6 +488,11 @@ class AIClient:
                 },
                 method="POST",
             )
+            # Consent can be withdrawn while this task waits, retrieves public
+            # evidence or prepares its minimal payload. Recheck immediately
+            # before the first transport call, not only when work is submitted.
+            if not network_allowed(allow_network):
+                return _fallback(cards, "network_disabled")
             with urlopen(req, timeout=self.config.timeout_seconds) as response:
                 raw = json.loads(response.read().decode("utf-8"))
             content = raw.get("choices", [{}])[0].get("message", {}).get("content", "")

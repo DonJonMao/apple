@@ -27,12 +27,9 @@ def _value(value):
     return value if isinstance(value, str) else "见记录说明"
 
 
-def render_workspace_summary(repo, workspace, *, timezone_name="Asia/Shanghai"):
-    with st.container(border=True, key="earthy_summary"):
-        st.markdown("**当前数据分析**")
-        period = st.radio("分析粒度", ["week", "month"], horizontal=True,
-                          format_func=lambda value: {"week": "本周", "month": "本月"}[value],
-                          key="workspace_summary_period")
+def render_workspace_summary(repo, workspace, *, timezone_name="Asia/Shanghai", period="week"):
+    with st.container(key="workspace_findings"):
+        st.markdown("**本期发现**")
         try:
             from healthzip.analytics.workspace_summary import workspace_summary
 
@@ -45,7 +42,7 @@ def render_workspace_summary(repo, workspace, *, timezone_name="Asia/Shanghai"):
         if not selected:
             st.caption("当前范围暂无可显示的分析。")
             return
-        for conclusion in selected.get("conclusions", []):
+        for conclusion in selected.get("conclusions", [])[:3]:
             st.write(conclusion)
         coverage = selected.get("coverage", {})
         window = selected.get("window", {})

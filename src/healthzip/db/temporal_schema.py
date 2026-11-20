@@ -6,12 +6,50 @@ import sqlite3
 
 EVENT_END_SQL = "julianday(COALESCE(json_extract(payload_json,'$.end_utc'),json_extract(payload_json,'$.measured_at'),json_extract(payload_json,'$.observed_at')))"
 EVENT_START_SQL = "julianday(COALESCE(json_extract(payload_json,'$.start_utc'),json_extract(payload_json,'$.end_utc'),json_extract(payload_json,'$.measured_at'),json_extract(payload_json,'$.observed_at')))"
-QUERY_PROJECTION_VERSION = "4.3"
+CANONICAL_TYPE_SQL = "json_extract(payload_json,'$.canonical_type')"
+TYPE_EVENT_INDEX = "source_revision_type_window"
+QUERY_PROJECTION_VERSION = "4.5"
+
+
+def latest_visible_source(repo, table, cutoff_time, *, canonical_types=(), before=None, sources=()):
+    """Find a recent active observation without decoding the full source history."""
+    import json
+
+    from healthzip.training.history_candidates import _instant_microseconds
+
+    if table not in {"health_sample", "body_measurement", "workout", "subjective_log"}:
+        raise ValueError("unsupported_source_table")
+    cutoff_us = _instant_microseconds(cutoff_time)
+    before = before or cutoff_time
+    event_text = "COALESCE(json_extract(payload_json,'$.end_utc'),json_extract(payload_json,'$.measured_at'),json_extract(payload_json,'$.observed_at'))"
+    clauses = ["table_name=?", f"{EVENT_END_SQL}<=julianday(?)+0.001/86400",
+               f"healthzip_instant_us({event_text})<?", "healthzip_instant_us(available_at)<=?",
+               "COALESCE(json_extract(payload_json,'$.record_status'),'active')='active'",
+               """NOT EXISTS (SELECT 1 FROM source_revision AS newer
+                    WHERE newer.table_name=current.table_name AND newer.record_id=current.record_id
+                      AND newer.revision_id>current.revision_id
+                      AND healthzip_instant_us(newer.available_at)<=?)"""]
+    args = [table, before, _instant_microseconds(before), cutoff_us, cutoff_us]
+    if canonical_types:
+        clauses.append(CANONICAL_TYPE_SQL + " IN (" + ",".join("?" for _ in canonical_types) + ")")
+        args.extend(canonical_types)
+    if sources:
+        clauses.append("COALESCE(json_extract(payload_json,'$.source_name'),json_extract(payload_json,'$.source_bundle_id'),json_extract(payload_json,'$.source')) IN (" + ",".join("?" for _ in sources) + ")")
+        args.extend(sources)
+    index = TYPE_EVENT_INDEX if canonical_types else "source_revision_event_window"
+    rows = repo.rows("SELECT payload_json,available_at FROM source_revision AS current INDEXED BY " + index +
+                    " WHERE " + " AND ".join(clauses) + f" ORDER BY {EVENT_END_SQL} DESC LIMIT 1", args)
+    return {**json.loads(rows[0]["payload_json"]), "available_at": rows[0]["available_at"]} if rows else None
 
 
 def migrate_temporal(conn: sqlite3.Connection) -> None:
     marker = conn.execute("SELECT value FROM schema_meta WHERE key='temporal_query_projection'").fetchone()
     if marker and marker[0] == QUERY_PROJECTION_VERSION:
+        return
+    if marker and marker[0] in {"4.3", "4.4"}:
+        # Existing ledger bytes and indexes are already valid. Upgrade only
+        # the new query index and dependency triggers, without rewriting data.
+        _migrate_scoped_queries(conn)
         return
     conn.execute("""CREATE TABLE IF NOT EXISTS source_revision (
         revision_id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, record_id INTEGER NOT NULL,
@@ -74,11 +112,34 @@ def migrate_temporal(conn: sqlite3.Connection) -> None:
             AFTER {operation} ON source_revision BEGIN
             UPDATE schema_meta SET value=CAST(value AS INTEGER)+1 WHERE key='source_data_version';
             END""")
+    _migrate_scoped_queries(conn)
+
+
+def _migrate_scoped_queries(conn):
+    conn.execute(f"CREATE INDEX IF NOT EXISTS source_revision_type_window ON source_revision(table_name,{CANONICAL_TYPE_SQL},{EVENT_END_SQL},{EVENT_START_SQL},record_id)")
+    for operation in ("INSERT", "UPDATE", "DELETE"):
+        # These are cache dependency versions, not scientific data. Bump all
+        # historical types associated with the changed identity: resolving a
+        # correction away from a type must invalidate that type's old result.
+        reference = "OLD" if operation == "DELETE" else "NEW"
+        conn.execute(f"DROP TRIGGER IF EXISTS source_domain_{operation.lower()}")
+        old = (" UNION SELECT OLD.table_name,COALESCE(json_extract(OLD.payload_json,'$.canonical_type'),'*')"
+               if operation in {"UPDATE", "DELETE"} else "")
+        conn.execute(f"""CREATE TRIGGER source_domain_{operation.lower()}
+            AFTER {operation} ON source_revision BEGIN
+            INSERT INTO schema_meta(key,value)
+              SELECT 'source_domain:' || domain_table || ':' || domain_type, '1' FROM (
+                SELECT table_name AS domain_table,COALESCE({CANONICAL_TYPE_SQL},'*') AS domain_type
+                FROM source_revision WHERE table_name={reference}.table_name AND record_id={reference}.record_id
+                UNION SELECT {reference}.table_name,'*' {old}
+              ) WHERE true
+              ON CONFLICT(key) DO UPDATE SET value=CAST(value AS INTEGER)+1;
+            END""")
     conn.execute("INSERT OR REPLACE INTO schema_meta(key,value) VALUES('temporal_query_projection',?)", (QUERY_PROJECTION_VERSION,))
 
 
 def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
-                  window_start=None, window_end=None, canonical_types=None) -> list[dict]:
+                  window_start=None, window_end=None, canonical_types=None, timings=None) -> list[dict]:
     """Read latest visible revisions of window candidates, then filter support.
 
     Candidate IDs may be found by any revision's support, but all their visible
@@ -89,6 +150,7 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
     """
     import json
     from datetime import datetime
+    from time import perf_counter
 
     def when(value):
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -115,11 +177,16 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
     if canonical_types:
         clauses.append("json_extract(payload_json,'$.canonical_type') IN (" + ",".join("?" for _ in canonical_types) + ")")
         args.extend(canonical_types)
-    candidate = "SELECT DISTINCT record_id FROM source_revision WHERE " + " AND ".join(clauses)
+    # The type index narrows *candidate identities*, never the latest-version
+    # resolution below. Newer tombstones/date/type corrections still win.
+    index = " INDEXED BY source_revision_type_window" if canonical_types else ""
+    candidate = "SELECT DISTINCT record_id FROM source_revision" + index + " WHERE " + " AND ".join(clauses)
+    query_started = perf_counter()
     rows = repo.rows("SELECT revision_id,record_id,available_at,payload_json,temporal_provenance FROM source_revision "
                      "WHERE table_name=? AND record_id IN (" + candidate + ") "
                      "AND julianday(available_at)<=julianday(?)+0.001/86400 ORDER BY record_id,revision_id DESC",
                      (table, *args, cutoff_time))
+    query_finished = perf_counter()
     output = []
     seen = set()
     for row in rows:
@@ -142,6 +209,10 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
         payload["available_at"] = row["available_at"]
         payload["temporal_provenance"] = row["temporal_provenance"]
         output.append(payload)
+    if timings is not None:
+        timings["sqlite_query_ms"] = timings.get("sqlite_query_ms", 0) + (query_finished - query_started) * 1000
+        timings["revision_decode_ms"] = timings.get("revision_decode_ms", 0) + (perf_counter() - query_finished) * 1000
+        timings["candidate_revision_rows"] = timings.get("candidate_revision_rows", 0) + len(rows)
     return output
 
 

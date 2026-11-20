@@ -16,7 +16,7 @@ SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 CURRENT_SCHEMA_VERSION = 5
 # Bump for any additive migration, including changes below schema version 5.
 # This marker is committed only after the complete migration succeeds.
-REPOSITORY_MIGRATION_REVISION = 1
+REPOSITORY_MIGRATION_REVISION = 3
 
 
 def _json(value: Any) -> str:

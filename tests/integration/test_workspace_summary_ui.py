@@ -85,6 +85,8 @@ def summary_workspace(tmp_path, monkeypatch):
             service.end_session(session["id"], ended_at=(at + timedelta(minutes=15)).isoformat())
     module = import_module("healthzip.analytics.workspace_summary")
     monkeypatch.setattr(module, "workspace_summary", partial(module.workspace_summary, cutoff_time=cutoff.isoformat()))
+    body = import_module("healthzip.analytics.workspaces")
+    monkeypatch.setattr(body, "analyze_workspace", partial(body.analyze_workspace, cutoff_time=cutoff.isoformat()))
     return database
 
 
@@ -97,9 +99,10 @@ def assert_shared_navigation(app, workspace):
     assert_app_ok(app)
     main = [radio for radio in app.main.radio if radio.key == "main_workspace"]
     assert len(main) == 1 and main[0].value == workspace
-    assert len(main[0].options) == 10 and main[0].horizontal
+    assert len(main[0].options) == 9 and main[0].horizontal
     assert not any(radio.key == "main_workspace" for radio in app.sidebar.radio)
-    assert [title.value for title in app.title] == ["训练与健康记录"]
+    assert not app.sidebar.radio and not app.sidebar.text_input
+    assert "数据质量" not in main[0].options and "周期" not in main[0].options
 
 
 def main_text(app):
@@ -113,7 +116,7 @@ def event_count(database):
 
 def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_workspaces(summary_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    assert_shared_navigation(app, "导入与总览")
+    assert_shared_navigation(app, "总览")
     app.main.radio(key="main_workspace").set_value("力量").run()
     assert_shared_navigation(app, "力量")
     assert UI["send"](app, "start_session")["status"] == "saved"
@@ -129,11 +132,12 @@ def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_wor
         "changes": {"load_value": "32.5", "load_unit": "kg", "reps": "8", "rir": None},
     })["status"] == "saved"
     before = event_count(summary_workspace)
-    for workspace in ("睡眠", "心率 / HRV", "力量"):
+    for workspace in ("睡眠", "心率", "力量"):
         app.main.radio(key="main_workspace").set_value(workspace).run()
         assert_shared_navigation(app, workspace)
-        assert "当前数据分析" in main_text(app)
-        assert app.main.radio(key="workspace_summary_period").value == "week"
+        assert not any(radio.key == "workspace_summary_period" for radio in app.radio)
+        if workspace != "力量":
+            assert app.main.radio(key="body_period").value == "近30天"
     restored = UI["snapshot"](app)["session"]
     assert restored["session_uuid"] == session["session_uuid"]
     assert restored["sets"][0]["set_uuid"] == row["set_uuid"]
@@ -145,35 +149,23 @@ def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_wor
     assert event_count(summary_workspace) == before
 
 
-def test_week_month_summaries_use_actual_body_and_strength_records(summary_workspace):
+def test_week_month_cards_trends_and_details_use_the_same_snapshot(summary_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     before = event_count(summary_workspace)
-    expected = {
-        "睡眠": {"week": ["已观察睡眠：7.5 小时"], "month": ["已观察睡眠：6.75 小时"]},
-        "心率 / HRV": {
-            "week": ["静息心率：60 bpm", "HRV（SDNN）：50 ms"],
-            "month": ["静息心率：65 bpm", "HRV（SDNN）：40 ms"],
-        },
-        "力量": {
-            "week": ["已完成实际组：2 组", "有完成组的训练场次：1 场"],
-            "month": ["已完成实际组：3 组", "有完成组的训练场次：2 场"],
-        },
-    }
-    for workspace in ("睡眠", "心率 / HRV", "力量"):
+    expected = {"睡眠": {"本周": ["7.5 小时"], "本月": ["6.8 小时"]},
+                "心率": {"本周": ["60.0 次/分", "50.0 毫秒"], "本月": ["65.0 次/分", "40.0 毫秒"]}}
+    for workspace in ("睡眠", "心率"):
         app.main.radio(key="main_workspace").set_value(workspace).run()
-        assert_shared_navigation(app, workspace)
-        selector = app.main.radio(key="workspace_summary_period")
-        assert selector.options == ["本周", "本月"]
-        for period, label in (("week", "本周"), ("month", "本月")):
-            app.main.radio(key="workspace_summary_period").set_value(period).run()
+        for label in ("本周", "本月"):
+            app.main.radio(key="body_period").set_value(label).run()
             assert_shared_navigation(app, workspace)
-            assert app.main.radio(key="workspace_summary_period").value == period
-            text = main_text(app)
-            assert "当前数据分析" in text and "分析暂未更新" not in text
-            assert any(caption.value.startswith(label + "：") for caption in app.caption)
-            assert all(fact in text for fact in expected[workspace][period]), text
-            assert f"有记录日期 {1 if period == 'week' else 2} 天" in text
-            assert "合成摘要手表" in text or workspace == "力量"
+            assert all(value in [metric.value for metric in app.metric] for value in expected[workspace][label])
+            assert any("所选范围" in caption.value for caption in app.caption)
+            assert "合成摘要手表" in main_text(app)
+            assert all(not expander.proto.expanded for expander in app.expander)
+            tables = [item.value for item in app.dataframe if "日期" in item.value.columns]
+            assert len({day for table in tables for day in table["日期"]}) == (1 if label == "本周" else 2)
+            assert not any(radio.key == "workspace_summary_period" for radio in app.radio)
     assert event_count(summary_workspace) == before
     with sqlite3.connect(summary_workspace) as connection:
         assert connection.execute("SELECT count(*) FROM analysis_run").fetchone()[0] == 0
@@ -189,10 +181,11 @@ def test_optional_summary_failure_preserves_navigation_and_real_training_recordi
 
     monkeypatch.setattr("healthzip.analytics.workspace_summary.workspace_summary", unavailable)
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    for workspace in ("睡眠", "心率 / HRV", "力量"):
+    for workspace in ("睡眠", "心率", "力量"):
         app.main.radio(key="main_workspace").set_value(workspace).run()
         assert_shared_navigation(app, workspace)
-        assert "当前分析暂未更新，可继续查看记录或记录训练。" in main_text(app)
+        assert "本次解释未完成" not in main_text(app)
+        # Optional overview summaries are no longer a dependency of body pages or training.
     assert UI["send"](app, "start_session")["status"] == "saved"
     session = UI["snapshot"](app)["session"]
     assert UI["send"](app, "add_exercises", {

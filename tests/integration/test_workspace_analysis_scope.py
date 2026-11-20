@@ -2,7 +2,6 @@
 
 import pytest
 
-from healthzip.analytics.core import vo2_analysis
 from healthzip.analytics.v13 import analyze, metric_card
 from healthzip.analytics.workspaces import analyze_workspace
 from healthzip.db.repository import Repository
@@ -77,7 +76,8 @@ def test_first_cold_workspace_result_is_reused_without_another_snapshot(tmp_path
     try:
         assert repo.one("SELECT value FROM schema_meta WHERE key='training_service_initialization'") is None
         first = analyze_workspace(repo, workspace, cutoff_time=CUTOFF)
-        assert repo.one("SELECT value FROM schema_meta WHERE key='training_service_initialization'") is not None
+        # Browsing a body page must not initialize unrelated training seeds.
+        assert repo.one("SELECT value FROM schema_meta WHERE key='training_service_initialization'") is None
         changes = repo.conn.total_changes
         calls = []
         original_rows = repo.rows
@@ -111,7 +111,7 @@ def test_scoped_views_match_full_canonical_values_sources_units_and_dates(synthe
     assert scope["audit_scope"] == "unrelated_source_and_context_inventory_not_included"
     assert repo.conn.total_changes == changes and not repo.conn.in_transaction
     for identity, metric in scope["metrics"].items():
-        if identity != "REPORT-STATE-SUMMARY":
+        if identity not in {"REPORT-STATE-SUMMARY", "OBS-VO2-REPORTED"}:
             assert stable_metric(metric) == stable_metric(full["metrics"][identity])
         assert not identity.startswith(("STR-", "ENERGY-"))
         assert ids["energy"] not in metric["source_record_ids"]
@@ -136,8 +136,9 @@ def test_scoped_views_match_full_canonical_values_sources_units_and_dates(synthe
         assert {point["date"] for point in view["weight"]["daily"]} == {day}
         assert sorted(point["kg"] for point in view["weight"]["daily"]) == pytest.approx([70, 180 * 0.45359237])
         assert len({point["source"] for point in view["weight"]["daily"]}) == 2
-        assert view["vo2"] == vo2_analysis(repo)
-        assert scope["vo2_scope"] == "current_active_record_inventory_without_asof_or_window_filter"
+        assert [point["normalized_value"] for point in view["vo2"]["points"]] == [42]
+        assert scope["vo2_scope"] == "latest_visible_revision_in_selected_window"
+        assert view["vo2"]["metric"]["window"]["start"] == scope["window_start"]
     assert repo.one("SELECT COUNT(*) FROM analysis_run")[0] == 0
     assert repo.one("SELECT COUNT(*) FROM workflow_run")[0] == 0
 

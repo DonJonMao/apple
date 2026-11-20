@@ -1,0 +1,147 @@
+{
+  "kind": "synthetic_backend_lifecycle_not_browser",
+  "cohorts": [
+    {
+      "health_samples_before_scenario": 100000,
+      "fresh_process": {
+        "module_import_ms": 74.63369518518448,
+        "repository_open_ms": 2.791792154312134,
+        "first_compute_ms": 14.878638088703156,
+        "process_body_ms": 92.30412542819977,
+        "timings": {
+          "sqlite_query_ms": 0.8141398429870605,
+          "revision_decode_ms": 0.4445761442184448,
+          "candidate_revision_rows": 17,
+          "scientific_evaluation_ms": 11.257529258728027,
+          "server_compute_ms": 12.639135122299194
+        },
+        "subprocess_wall_ms": 148.72998744249344
+      },
+      "scenarios": [
+        {
+          "scenario": "running_process_empty_cache",
+          "milliseconds": 15.119165182113647,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.623364+00:00"
+        },
+        {
+          "scenario": "repeat_visit",
+          "milliseconds": 1.4604106545448303,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.623364+00:00"
+        },
+        {
+          "scenario": "visit_sleep",
+          "milliseconds": 12.64452189207077,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.639763+00:00"
+        },
+        {
+          "scenario": "return_from_sleep",
+          "milliseconds": 1.4353320002555847,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.623364+00:00"
+        },
+        {
+          "scenario": "cross_minute_same_committed_revision",
+          "milliseconds": 1.479126513004303,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.623364+00:00"
+        },
+        {
+          "scenario": "empty_cache_while_other_connection_holds_write_transaction",
+          "milliseconds": 8.816815912723541,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.657548+00:00"
+        },
+        {
+          "scenario": "before_other_process_import",
+          "milliseconds": 1.565493643283844,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.657548+00:00"
+        },
+        {
+          "scenario": "after_other_process_import",
+          "milliseconds": 9.685128927230835,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.758009+00:00"
+        }
+      ],
+      "typed_query_plan": [
+        "SEARCH source_revision USING INDEX source_revision_type_window (table_name=? AND <expr>=? AND <expr>>?)",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    {
+      "health_samples_before_scenario": 1000000,
+      "fresh_process": {
+        "module_import_ms": 75.84241032600403,
+        "repository_open_ms": 2.7433261275291443,
+        "first_compute_ms": 37.06839680671692,
+        "process_body_ms": 115.65413326025009,
+        "timings": {
+          "sqlite_query_ms": 3.2237842679023743,
+          "revision_decode_ms": 3.4326761960983276,
+          "candidate_revision_rows": 163,
+          "scientific_evaluation_ms": 23.374035954475403,
+          "server_compute_ms": 30.499421060085297
+        },
+        "subprocess_wall_ms": 173.79777133464813
+      },
+      "scenarios": [
+        {
+          "scenario": "running_process_empty_cache",
+          "milliseconds": 31.286008656024933,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.948274+00:00"
+        },
+        {
+          "scenario": "repeat_visit",
+          "milliseconds": 6.488241255283356,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.948274+00:00"
+        },
+        {
+          "scenario": "visit_sleep",
+          "milliseconds": 70.95682621002197,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:32.986148+00:00"
+        },
+        {
+          "scenario": "return_from_sleep",
+          "milliseconds": 5.635693669319153,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.948274+00:00"
+        },
+        {
+          "scenario": "cross_minute_same_committed_revision",
+          "milliseconds": 5.562208592891693,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:32.948274+00:00"
+        },
+        {
+          "scenario": "empty_cache_while_other_connection_holds_write_transaction",
+          "milliseconds": 29.398150742053986,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:33.071348+00:00"
+        },
+        {
+          "scenario": "before_other_process_import",
+          "milliseconds": 6.039343774318695,
+          "queries": 3,
+          "computed_cutoff": "2026-11-20T11:03:33.071348+00:00"
+        },
+        {
+          "scenario": "after_other_process_import",
+          "milliseconds": 30.790366232395172,
+          "queries": 6,
+          "computed_cutoff": "2026-11-20T11:03:33.190749+00:00"
+        }
+      ],
+      "typed_query_plan": [
+        "SEARCH source_revision USING INDEX source_revision_type_window (table_name=? AND <expr>=? AND <expr>>?)",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    }
+  ]
+}

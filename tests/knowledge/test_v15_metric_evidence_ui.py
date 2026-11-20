@@ -1,6 +1,6 @@
 """The actual page must collect the protocol needed by its reviewed evidence."""
 
-import json
+from functools import partial
 
 from streamlit.testing.v1 import AppTest
 
@@ -28,8 +28,11 @@ def test_session_rpe_page_keeps_unknown_scope_and_accepts_explicit_recorded_prot
         target={"type": "metric", "id": "LOAD-SRPE", "version": "metric-domains-1.5.0"}, span_ids=[sid],
         applicability={}, actor="Synthetic UI", rationale="Synthetic source binding",
         evidence_types=domains.configuration()["profiles"]["LOAD-SRPE"]["required_evidence_types"], review=review)
-    monkeypatch.setattr(metric_evidence, "KnowledgeWorkbench",
-                        lambda root: KnowledgeWorkbench(kb.root, environment_kind="synthetic_test"))
+    from healthzip.ui import health_explanation
+    monkeypatch.setattr(metric_evidence, "render_metric_request",
+                        partial(health_explanation.render_metric_request, root=str(kb.root)))
+    monkeypatch.setattr("healthzip.knowledge.KnowledgeWorkbench",
+                        lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
     app = AppTest.from_string('''from healthzip.science import evaluate
 from healthzip.ui.metric_evidence import render_metric_evidence
 metric = evaluate("LOAD-SRPE", [], cutoff_time="2026-11-17T00:00:00+00:00",
@@ -39,11 +42,20 @@ render_metric_evidence({"LOAD-SRPE": metric})
     app.selectbox(key="metric_evidence_function").select("recovery").run()
     app.button(key="metric_evidence_run").click().run()
     assert not app.exception
-    assert json.loads(app.json[-1].value)["permissions"]["source_explanation"] is False
+    request = app.session_state["metric_evidence_job"]
+    first = health_explanation._JOBS[request["key"]][1].result(timeout=10)
+    assert first["items"][0]["evidence_context"]["capability_permissions"]["source_explanation"] is False
+    app.run()
+    assert any("缺少通过审核且适用的完整依据" in item.value for item in app.caption), [item.value for item in app.caption]
     app.selectbox(key="metric_evidence_population").select("adult_athletes")
     app.text_input(key="metric_evidence_protocol").input("Synthetic recorded same protocol")
     app.selectbox(key="metric_evidence_srpe_scale").select("Foster_modified_CR10")
     app.selectbox(key="metric_evidence_srpe_collection").select("retrospective_after_session")
     app.button(key="metric_evidence_run").click().run()
     assert not app.exception
-    assert json.loads(app.json[-1].value)["permissions"]["source_explanation"] is True
+    request = app.session_state["metric_evidence_job"]
+    second = health_explanation._JOBS[request["key"]][1].result(timeout=10)
+    assert second["items"][0]["evidence_context"]["capability_permissions"]["source_explanation"] is True
+    app.run()
+    assert not app.exception
+    assert any("Synthetic whole-session explanation." in item.value for item in app.markdown)

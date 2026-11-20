@@ -26,8 +26,12 @@ APP = Path(__file__).resolve().parents[2] / "app.py"
 
 def open_app(path):
     app = AppTest.from_file(str(APP), default_timeout=60).run()
-    app.sidebar.text_input[0].set_value(str(path)).run()
-    app.radio(key="main_workspace").set_value("分析").run()
+    app.radio(key="main_workspace").set_value("设置").run()
+    next(item for item in app.text_input if item.label == "SQLite 路径").set_value(str(path))
+    next(item for item in app.button if item.label == "保存工作区设置").click().run()
+    app.radio(key="main_workspace").set_value("复盘").run()
+    app.radio(key="review_section").set_value("问题分析").run()
+    app.button(key="review_compute").click().run()
     assert not app.exception
     return app
 

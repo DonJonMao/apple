@@ -7,7 +7,7 @@ energy or estimate true expenditure. Only current active records participate.
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from healthzip.normalize import normalize_value, parse_number
@@ -123,6 +123,67 @@ def workout_inventory(repo, timezone_name="Asia/Shanghai"):
         })
     return {"rows": sorted(output, key=lambda row: row["local_start"], reverse=True),
             "undated_count": undated, "timezone": timezone_name}
+
+
+def scoped_workout_inventory(repo, timezone_name="Asia/Shanghai", *, period="30d",
+                             cutoff_time=None, window_start=None, window_days=30):
+    """One cached temporal snapshot for the activity page's cards and history.
+
+    The unversioned statistic attachment is deliberately not used to fabricate
+    historical values. Current all-history inventory retains its explicit API.
+    """
+    from healthzip.analytics.cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
+    from healthzip.analytics.workspaces import WorkspaceInputsChanged, workspace_window
+    from healthzip.db.temporal_schema import samples_as_of
+    from healthzip.science.contracts import instant
+
+    zone = ZoneInfo(timezone_name)
+    cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
+    start, cutoff = workspace_window(cutoff, timezone_name, period=period, window_start=window_start,
+                                     window_days=window_days)
+    dependencies = [("workout", None)]
+    arguments = {"timezone": timezone_name, "period": period, "window_start": window_start,
+                 "window_days": window_days,
+                 "cutoff": cutoff.isoformat() if cutoff_time else cutoff.astimezone(zone).date().isoformat(),
+                 "cutoff_mode": "explicit" if cutoff_time else "auto"}
+    for _ in range(2):
+        baseline = revision_identity(repo, dependencies=dependencies)
+
+        def compute():
+            selected = (samples_as_of(repo, cutoff.isoformat(), "workout", window_start=start.isoformat(),
+                                     window_end=cutoff.isoformat()) if start < cutoff else [])
+            rows = []
+            for workout in selected:
+                when = _instant(workout.get("start_utc"))
+                if when is None or not start <= when < cutoff:
+                    continue
+                energy, energy_source, reason = _recorded_energy(workout, [])
+                local = when.astimezone(zone)
+                rows.append({"id": workout["id"], "local_start": local, "local_date": local.date(),
+                    "activity_name": activity_name(workout.get("activity_type")),
+                    "raw_activity_type": workout.get("activity_type"),
+                    "duration_seconds": _nonnegative(workout.get("duration_seconds")),
+                    "energy_kcal": energy, "energy_source": energy_source, "energy_reason": reason,
+                    "raw_energy_value": workout.get("energy_value"), "raw_energy_unit": workout.get("energy_unit"),
+                    "source_name": workout.get("source_name"),
+                    "suspected_duplicate": bool(workout.get("suspected_duplicate"))})
+            if revision_identity(repo, dependencies=dependencies) != baseline:
+                raise WorkspaceInputsChanged("workout_inputs_changed")
+            return {"rows": sorted(rows, key=lambda row: row["local_start"], reverse=True),
+                    "undated_count": 0, "timezone": timezone_name,
+                    "workspace_scope": {"window_start": start.isoformat(), "window_end": cutoff.isoformat(),
+                        "cutoff_time": cutoff.isoformat(), "timezone": timezone_name, "period": period,
+                        "scope_version": "workout-page-2.0.0", "source": "latest_visible_workout_revision",
+                        "limitations": ["能量使用本期运动记录自身的已保存字段；没有可追溯修订的附表不补作历史能量。"]}}
+
+        try:
+            value = cached(repo, "workout-page-2.0.0", arguments, compute, dependencies=dependencies,
+                           max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS)
+        except WorkspaceInputsChanged:
+            continue
+        if revision_identity(repo, dependencies=dependencies) == baseline:
+            return value
+    raise WorkspaceInputsChanged("workout_inputs_changed_retry_later")
 
 
 def _totals(rows):

@@ -4,6 +4,7 @@ Only Streamlit's component message channel is replaced. The app router,
 command validation, TrainingService, SQLite events and scientific rules remain
 real. Tests must never use this harness as evidence for browser interactions.
 """
+import time
 from uuid import uuid4
 
 
@@ -28,7 +29,21 @@ def send(app, action, payload=None, *, command_id=None):
     }
     app.run(timeout=30)
     assert not app.exception, [item.value for item in app.exception]
-    return app.session_state["strength_test_receipt"]
+    receipt = app.session_state["strength_test_receipt"]
+    if action == "advice" and receipt.get("status") == "saved":
+        # Production remains asynchronous. This transport helper explicitly
+        # waits for its real worker so old service-oriented assertions can read
+        # the completed result; it is not browser latency evidence.
+        deadline = time.monotonic() + 30
+        while snapshot(app).get("advice_job", {}).get("status") in {"running", "slow"}:
+            if time.monotonic() >= deadline:
+                raise AssertionError("Training advice worker did not finish")
+            time.sleep(0.02)
+            send(app, "advice_status")
+        outcome = snapshot(app).get("advice_job") or {}
+        receipt = {**receipt, "status": "error" if outcome.get("status") == "error" else "saved",
+                   "message": outcome.get("message"), "data": snapshot(app).get("advice")}
+    return receipt
 
 
 def snapshot(app):

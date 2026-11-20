@@ -110,8 +110,8 @@ def _media(svc, exercise_id):
     return thumbnail, result
 
 
-def _catalog_item(svc, item):
-    thumbnail, media = _media(svc, item["exercise_id"])
+def _catalog_item(svc, item, *, include_media=True):
+    thumbnail, media = _media(svc, item["exercise_id"]) if include_media else (None, [])
     return {
         "id": item["exercise_id"], "exercise_id": item["exercise_id"],
         "name": item.get("name") or item.get("name_zh"),
@@ -121,6 +121,10 @@ def _catalog_item(svc, item):
         "equipment_type": item.get("equipment_type"),
         "equipment_label": EQUIPMENT_LABELS.get(item.get("equipment_type"), "其他／待确认"),
         "regions": item.get("display_regions", []), "favorite": bool(item.get("favorite")),
+        "last_used_at": item.get("last_used_at"), "custom": bool(item.get("custom")),
+        "search_terms": [str(name).casefold() for name in [item.get("name", ""),
+            item.get("name_en", ""), item["exercise_id"], *item.get("aliases_zh", []),
+            *item.get("user_aliases", [])] if name],
         "thumbnail": thumbnail, "media": media,
     }
 
@@ -249,8 +253,30 @@ def _catalog(svc, payload):
         equipment=[equipment] if equipment else None, view=payload.get("view", "all"),
         offset=int(payload.get("offset", 0)), limit=int(payload.get("limit", 30)),
     )
+    definitions = svc.search_exercises()
+    # A bounded metadata index supports local names/aliases and filters. Media
+    # stays on the requested page; unusually large catalogs keep server paging.
+    search_index = ([_catalog_item(svc, item, include_media=False) for item in definitions]
+        if len(definitions) <= 5000 else None)
     return {**result, "items": [_catalog_item(svc, item) for item in result["items"]],
-            "query": payload.get("query", ""), "filters": payload}
+            "query": payload.get("query", ""), "filters": payload,
+            "search_index": search_index, "data_version": svc.data_version(),
+            "catalog_version": _catalog_version(svc)}
+
+
+def _catalog_version(svc):
+    row = svc.conn.execute("SELECT value FROM schema_meta WHERE key='catalog_data_version'").fetchone()
+    # Aliases/favorites are user preferences, without training-event revisions.
+    # Include their actual committed values so another process cannot leave the
+    # component's metadata snapshot valid after editing them.
+    aliases = [tuple(value) for value in svc.conn.execute(
+        "SELECT exercise_id,alias FROM exercise_alias WHERE user_id=? ORDER BY exercise_id,alias",
+        (svc.user_id,))]
+    preferences = [tuple(value) for value in svc.conn.execute(
+        "SELECT exercise_id,favorite,last_used_at FROM exercise_preference WHERE user_id=? ORDER BY exercise_id",
+        (svc.user_id,))]
+    return hashlib.sha256(json.dumps([row[0] if row else "0", aliases, preferences],
+        ensure_ascii=False).encode()).hexdigest()
 
 
 def build_snapshot(repo, state, timezone_name="Asia/Shanghai"):
@@ -263,6 +289,10 @@ def build_snapshot(repo, state, timezone_name="Asia/Shanghai"):
     state.setdefault("selected_date", today)
     state["timezone_name"] = timezone_name
     version = svc.data_version()
+    cached_catalog = state.get("catalog")
+    if cached_catalog and (cached_catalog.get("data_version") != version
+            or cached_catalog.get("catalog_version") != _catalog_version(svc)):
+        state.pop("catalog", None)
     if (state.get("calendar_dirty", True) or state.get("calendar_month") != month
             or state.get("calendar_version") != version):
         state["calendar"], state["calendar_version"] = _calendar_snapshot(svc, month, timezone_name)
@@ -303,7 +333,8 @@ def build_snapshot(repo, state, timezone_name="Asia/Shanghai"):
         "session": session, "templates": [{"id": item["id"], "name": item["name"]} for item in svc.list_templates()],
         "regions": state["regions"], "equipment_types": state["equipment_types"],
         "catalog": state.get("catalog"), "history": state.get("history"),
-        "advice": advice, "receipt": state.get("receipt"), "data_version": version,
+        "advice": advice, "advice_job": state.get("advice_job_public"),
+        "receipt": state.get("receipt"), "data_version": version,
     }
 
 
@@ -398,7 +429,7 @@ def _save_set(svc, payload, event_id):
                         "message": "此组已完成且数值不同；输入已保留，请核对后使用更正"}
                 return {**current, "status": "saved", "already_completed": True}
             raise TrainingError("已完成组请使用“更正”保存修改")
-    else:
+    elif not payload.get("correction"):
         _require_active(svc, current["session_id"])
     if payload.get("complete"):
         changes["completion_state"] = "completed"
@@ -412,7 +443,10 @@ def _save_set(svc, payload, event_id):
 def _dispatch(svc, action, p, state, event_id):
     if action == "start_session":
         # Never accept a selected calendar date as today's occurrence time.
-        result = svc.start_session(str(p.get("name", "")), template_id=p.get("template_id") or None,
+        title = str(p.get("name") or "")
+        if not title and not p.get("template_id"):
+            title = datetime.now(ZoneInfo(state.get("timezone_name", "Asia/Shanghai"))).strftime("%m月%d日 %H:%M 训练")
+        result = svc.start_session(title, template_id=p.get("template_id") or None,
             event_id=event_id)
         state["session_id"] = result["session_uuid"]
         return result
@@ -439,6 +473,10 @@ def _dispatch(svc, action, p, state, event_id):
                 raise TrainingError("复制上一组只能使用本动作实例的记录")
             actual = _copy_values(row)
         return svc.add_set(instance["id"], actual, event_id=event_id)
+    if action == "reorder_exercises":
+        _require_active(svc, p["session_id"])
+        return svc.reorder_exercises(p["session_id"], p["instance_ids"],
+            base_revision=_revision(p), event_id=event_id)
     if action == "save_set":
         return _save_set(svc, p, event_id)
     if action == "abort_session":
@@ -532,11 +570,12 @@ def handle_command(repo, command, state):
         elif action == "advice":
             from healthzip.training.current import current_advice
 
+            dependencies = _advice_dependencies(svc, state, p["instance_id"])
             data = state["advice"] = {**current_advice(repo, p["instance_id"],
                 context_id=state.get("context_id"), window_days=int(state.get("window_days", 30)),
                 timezone_name=state.get("timezone_name", "Asia/Shanghai")), "instance_id": p["instance_id"]}
-            state["advice_dependencies"] = _advice_dependencies(svc, state, p["instance_id"])
-            state["advice_stale"] = False
+            state["advice_dependencies"] = dependencies
+            state["advice_stale"] = dependencies != _advice_dependencies(svc, state, p["instance_id"])
         else:
             # One wrapper ledger entry makes retrying the whole batch or timer
             # safe even after the browser/Streamlit session was recreated.
@@ -552,6 +591,8 @@ def handle_command(repo, command, state):
             elif data.get("session_id"):
                 state["session_id"] = svc._session(data["session_id"])["session_uuid"]
             state["calendar_dirty"] = True
+            if action == "favorite" and state.get("catalog"):
+                state["catalog"] = _catalog(svc, state["catalog"].get("filters") or {})
             receipt = {"id": identity, "action": action, "status": saved["status"],
                 "data": data, "replayed": saved.get("replayed", False),
                 "event_id": data.get("event_id")}

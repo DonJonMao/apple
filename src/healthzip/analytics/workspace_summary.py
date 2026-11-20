@@ -18,11 +18,13 @@ from healthzip.science.observations import evaluate as evaluate_observation
 from healthzip.science.state import local_date_domain, stream_key
 from healthzip.training.service import TrainingService
 
-from .cache import cached, revision_identity
+from .cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
 from .workouts import _nonnegative, _recorded_energy, _totals
 
-SUMMARY_VERSION = "workspace-calendar-summary-1.0.0"
+SUMMARY_VERSION = "workspace-calendar-summary-2.0.0"
 _DOMAINS = {
+    "总览": ("heart", "sleep", "workout", "body", "strength"),
+    "心率": ("heart",), "体重": ("weight",), "有氧": ("cardio",),
     "心率 / HRV": ("heart",), "睡眠": ("sleep",), "运动": ("workout",),
     "体重 / 有氧": ("body",), "力量": ("strength",), "周期": ("cycle",),
 }
@@ -30,6 +32,7 @@ _ALL = ("heart", "sleep", "workout", "body", "strength", "cycle")
 _COMPOSITE = {"导入与总览", "数据质量", "分析", "报告"}
 _TYPES = {
     "heart": ("resting_heart_rate_bpm", "hrv_sdnn_ms"), "sleep": ("sleep_stage",),
+    "weight": ("body_mass_kg",), "cardio": ("vo2_max_ml_kg_min",),
     "body": ("body_mass_kg", "vo2_max_ml_kg_min"), "cycle": ("menstrual_flow",),
 }
 _MISSING = "缺少记录保持未知；有记录日期不代表完整采集覆盖。"
@@ -219,6 +222,13 @@ def _strength_summary(rows, output, start, cutoff, zone):
         return
     dates = sorted({instant(row["ended_at"]).astimezone(zone).date().isoformat() for row in valid})
     sessions = {row["session_id"] for row in valid}
+    completed_sessions = {row["session_id"] for row in valid if row.get("session_status") == "completed"}
+    work_sets = [row for row in valid if row.get("set_type") == "work"]
+    daily = [{"date": day,
+              "completed_sets": sum(instant(row["ended_at"]).astimezone(zone).date().isoformat() == day for row in valid),
+              "work_sets": sum(instant(row["ended_at"]).astimezone(zone).date().isoformat() == day for row in work_sets)}
+             for day in dates]
+    output["strength_daily"] = daily
     exercises = {row.get("session_exercise_id") for row in valid} - {None}
     common = {"source": "本地力量训练记录", "sample_count": len(valid), "observed_days": len(dates),
               "dates": dates, "source_record_ids": sorted(f"strength_set:{row['set_uuid']}" for row in valid),
@@ -226,18 +236,34 @@ def _strength_summary(rows, output, start, cutoff, zone):
                                "涉及场次不等于整场已完成或已完整记录；未按跨动作、单位或负荷口径计算容量。"]}
     output["facts"].extend([{**common, "label": "已完成实际组", "value": len(valid), "unit": "组"},
         {**common, "label": "有完成组的训练场次", "value": len(sessions), "unit": "场"},
-        {**common, "label": "有完成组的动作实例", "value": len(exercises), "unit": "个"}])
+        {**common, "label": "有完成组的动作实例", "value": len(exercises), "unit": "个"},
+        {**common, "label": "已完成训练", "value": len(completed_sessions), "unit": "次",
+         "limitations": ["整场状态已结束且本期至少有一组实际完成；空会话与进行中训练不计为完成训练。"]},
+        {**common, "label": "有效工作组", "value": len(work_sets), "unit": "组",
+         "limitations": ["仅已完成、明确标为工作组的实际记录；未知组类型不猜测为工作组。"]}])
     output["conclusions"].append(f"力量训练：{len(dates)} 个日期记录了 {len(valid)} 个完成组，涉及 {len(sessions)} 场训练、{len(exercises)} 个动作实例；草稿、跳过与删除记录未计入。")
 
 
 def _compute(repo, service, domains, cutoff, zone):
-    periods = _calendar(cutoff, zone)
+    current = _calendar(cutoff, zone)
+    periods = [(period, label, start, cutoff) for period, label, start in current]
+    local = cutoff.astimezone(zone)
+    for period, label, start in current:
+        if period == "week":
+            previous_start = start - timedelta(days=7)
+            previous_end = local - timedelta(days=7)
+        else:
+            previous_start = (start - timedelta(days=1)).replace(day=1)
+            # Equal elapsed local dates/time, clipped if the earlier month was shorter.
+            previous_end = min(start, previous_start + (local - start))
+        periods.append((period + "_previous", "上周同期" if period == "week" else "上月同期",
+                        previous_start, previous_end.astimezone(timezone.utc)))
     earliest = min(instant(item[2]) for item in periods)
     types = sorted({canonical for domain in domains for canonical in _TYPES.get(domain, ())})
     records, source_counts = [], {}
     if types and earliest < cutoff:
         for table in ("health_sample", "body_measurement"):
-            if table == "body_measurement" and "body" not in domains:
+            if table == "body_measurement" and not {"body", "weight"}.intersection(domains):
                 continue
             selected = samples_as_of(repo, cutoff.isoformat(), table, window_start=earliest.isoformat(),
                 window_end=cutoff.isoformat(), canonical_types=types if table == "health_sample" else ["body_mass_kg"])
@@ -249,33 +275,35 @@ def _compute(repo, service, domains, cutoff, zone):
                window_end=cutoff.isoformat()) if "strength" in domains and earliest < cutoff else []
     labels = _source_labels(records + workouts)
     output = []
-    for period, label, local_start in periods:
+    for period, label, local_start, selected_end in periods:
         start = instant(local_start)
+        selected_end = instant(selected_end)
         item = {"period": period, "label": label,
-                "window": {"start": start.isoformat(), "end": cutoff.isoformat(), "closure": "[start,end)", "partial": True},
+                "window": {"start": start.isoformat(), "end": selected_end.isoformat(), "closure": "[start,end)", "partial": True},
                 "conclusions": [], "facts": [], "metrics": {}, "limitations": [_MISSING],
                 "_source_labels": labels,
-                "coverage": {"observed_days": 0, "window_days": len(local_date_domain(start, cutoff, zone.key)), "record_count": 0}}
-        if start < cutoff:
+                "coverage": {"observed_days": 0, "window_days": len(local_date_domain(start, selected_end, zone.key)), "record_count": 0}}
+        if start < selected_end:
             item["_evaluation"] = {"cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
-                                   "window_end": cutoff.isoformat(), "context": {"timezone": zone.key}}
+                                   "window_end": selected_end.isoformat(), "context": {"timezone": zone.key}}
             if "heart" in domains:
                 _daily_summary(records, item, "STATE-RHR", "静息心率", "bpm")
                 _daily_summary(records, item, "STATE-SDNN", "HRV（SDNN）", "ms")
                 item["limitations"].append("来源、设备、协议与版本分别统计；SDNN 不等于 RMSSD。日内优先原主记录，否则取日中位数，再对有效日等权汇总。")
             if "sleep" in domains:
                 _sleep_summary([row for row in records if row.get("canonical_type") == "sleep_stage"], item)
-            if "body" in domains:
+            if {"body", "weight"}.intersection(domains):
                 _daily_summary(records, item, "BODY-MASS-DAILY", "体重", "kg", positive=True)
+            if {"body", "cardio"}.intersection(domains):
                 _observation_summary(records, item, "OBS-VO2-REPORTED", zone)
                 item["limitations"].append("仅使用本期可见体重与 VO₂max 记录；窗口外历史体重不计作本期。来源分组不证明测量可比性。")
             if "cycle" in domains:
                 _observation_summary(records, item, "OBS-CYCLE-RECORDS", zone)
                 item["limitations"].append("不推断周期阶段、排卵、生理状态或训练处方；缺少类别记录不等于没有月经。")
             if "workout" in domains:
-                _workout_summary(workouts, item, start, cutoff, zone)
+                _workout_summary(workouts, item, start, selected_end, zone)
             if "strength" in domains:
-                _strength_summary(strength, item, start, cutoff, zone)
+                _strength_summary(strength, item, start, selected_end, zone)
             item.pop("_evaluation")
         item.pop("_source_labels")
         if not item["conclusions"]:
@@ -285,6 +313,11 @@ def _compute(repo, service, domains, cutoff, zone):
         item["coverage"].update(observed_days=len(dates), record_count=len(ids))
         item["limitations"] = list(dict.fromkeys(item["limitations"] + [text for fact in item["facts"] for text in fact.get("limitations", [])]))
         output.append(item)
+    comparisons = {item["period"].removesuffix("_previous"): item for item in output if item["period"].endswith("_previous")}
+    output = [item for item in output if not item["period"].endswith("_previous")]
+    for item in output:
+        item["comparison"] = comparisons[item["period"]]
+        item["comparison"]["method"] = "previous_calendar_period_same_elapsed_local_time_clipped_to_period_end"
     return output, {"source_rows_returned": source_counts, "workout_rows_returned": len(workouts),
                     "training_rows_returned": len(strength), "window_start": earliest.isoformat(),
                     "full_analysis": False, "bounded_by_current_calendar_windows": True}
@@ -302,27 +335,35 @@ def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_tim
     zone = ZoneInfo(timezone_name)
     cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
     domains = _DOMAINS.get(workspace, _ALL)
-    service = TrainingService(repo)  # cold initialization precedes cache identity
+    service = TrainingService(repo, initialize=False) if "strength" in domains else None
+    dependencies = [("health_sample", canonical) for domain in domains for canonical in _TYPES.get(domain, ())]
+    if {"body", "weight"}.intersection(domains):
+        dependencies.append(("body_measurement", "body_mass_kg"))
+    if "workout" in domains:
+        dependencies.append(("workout", None))
+    if "strength" in domains:
+        dependencies.append(("training", None))
     arguments = {"workspace": workspace, "timezone": timezone_name,
-                 "cutoff": cutoff.isoformat() if cutoff_time else cutoff.replace(second=0, microsecond=0).isoformat(),
+                 "cutoff": cutoff.isoformat() if cutoff_time else cutoff.astimezone(zone).date().isoformat(),
                  "cutoff_mode": "explicit" if cutoff_time else "auto"}
     for _ in range(2):
-        baseline = revision_identity(repo)
+        baseline = revision_identity(repo, dependencies=dependencies)
 
         def compute():
             periods, plan = _compute(repo, service, domains, cutoff, zone)
-            if revision_identity(repo) != baseline:
+            if revision_identity(repo, dependencies=dependencies) != baseline:
                 raise _RevisionChanged("summary_inputs_changed")
             return {"workspace": workspace, "algorithm_version": SUMMARY_VERSION,
                     "cutoff_time": cutoff.isoformat(), "timezone": timezone_name,
                     "periods": periods, "query_plan": plan,
-                    "cache_policy": {"automatic_refresh_seconds": 60, "revision_invalidated": True,
+                    "cache_policy": {"automatic_refresh_seconds": WORKSPACE_CACHE_SECONDS, "revision_invalidated": True,
                                      "storage": "bounded_process_memory", "persistent_writes": False}}
 
         try:
-            value = cached(repo, SUMMARY_VERSION, arguments, compute)
+            value = cached(repo, SUMMARY_VERSION, arguments, compute, dependencies=dependencies,
+                           max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS)
         except _RevisionChanged:
             continue
-        if revision_identity(repo) == baseline:
+        if revision_identity(repo, dependencies=dependencies) == baseline:
             return value
     raise RuntimeError("workspace_summary_inputs_changed_retry_later")

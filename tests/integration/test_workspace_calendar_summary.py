@@ -264,7 +264,7 @@ def test_concurrent_correction_recomputes_from_new_baseline(repo, monkeypatch):
     assert fact(result, "静息心率")["value"] == 75 and len(calls) == 2
 
 
-def test_automatic_minute_cache_retains_original_actual_cutoff(repo, monkeypatch):
+def test_automatic_cache_crosses_minutes_but_expires_at_local_date(repo, monkeypatch):
     clock = {"now": datetime.fromisoformat(CUTOFF)}
 
     class ControlledDatetime(datetime):
@@ -277,6 +277,8 @@ def test_automatic_minute_cache_retains_original_actual_cutoff(repo, monkeypatch
     clock["now"] = datetime.fromisoformat("2026-11-19T10:00:59+00:00")
     assert workspace_summary(repo, "睡眠")["cutoff_time"] == first["cutoff_time"]
     clock["now"] = datetime.fromisoformat("2026-11-19T10:01:00+00:00")
+    assert workspace_summary(repo, "睡眠")["cutoff_time"] == first["cutoff_time"]
+    clock["now"] = datetime.fromisoformat("2026-11-19T16:00:01+00:00")
     assert workspace_summary(repo, "睡眠")["cutoff_time"] != first["cutoff_time"]
 
 

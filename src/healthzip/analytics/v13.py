@@ -236,15 +236,16 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
 
 def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
             context=None, retrospective=False, period=None, use_cache=True, window_start=None, window_end=None):
-    from healthzip.analytics.cache import cached
+    from healthzip.analytics.cache import WORKSPACE_CACHE_SECONDS, cached
 
     # Cold migration/seed markers are inputs to the revision identity. Finish
     # initialization before freezing the cache key and automatic cutoff.
     TrainingService(repo)
-    # Automatic views refresh at most once a minute unless input versions change.
-    # This is a documented UI cache cadence; the exact computed cutoff is shown.
+    # Automatic views keep their actual computed cutoff across minute changes.
+    # Local date boundaries and a bounded TTL refresh time-dependent windows;
+    # committed input revisions still invalidate immediately.
     now = datetime.now(timezone.utc)
-    arguments = {"window_days": window_days, "cutoff": cutoff_time or now.replace(second=0, microsecond=0).isoformat(),
+    arguments = {"window_days": window_days, "cutoff": cutoff_time or now.astimezone(ZoneInfo(timezone_name)).date().isoformat(),
                  "mode": "explicit" if cutoff_time else "auto", "timezone": timezone_name,
                  "context": context, "retrospective": retrospective, "period": period,
                  "window_start": window_start, "window_end": window_end}
@@ -253,10 +254,11 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
                                   timezone_name=timezone_name, context=context, retrospective=retrospective, period=period,
                                   window_start=window_start, window_end=window_end)
         value["cutoff_mode"] = "explicit" if cutoff_time else "auto"
-        value["cache_policy"] = {"automatic_refresh_seconds": 60, "parameter_kind": "product_parameter",
+        value["cache_policy"] = {"automatic_refresh_seconds": WORKSPACE_CACHE_SECONDS if not cutoff_time else None, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
         return value
-    return cached(repo, "canonical-current-training-1.7.0", arguments, compute) if use_cache else compute()
+    return cached(repo, "canonical-current-training-1.7.1", arguments, compute,
+                  max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS) if use_cache else compute()
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",

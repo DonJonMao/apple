@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any, Optional, Tuple
 
-UNIT_CONVERSION_VERSION = "healthzip-units-1.4"
+UNIT_CONVERSION_VERSION = "healthzip-units-1.4.1"
 
 TYPE_MAP = {
     "HKQuantityTypeIdentifierHeartRate": ("heart_rate_bpm", "count/min"),
@@ -123,7 +123,7 @@ def normalize_value(
         return (number - 32) * 5 / 9, "degC", "converted"
     if canonical == "exercise_minutes" and u in {"s", "sec", "seconds"}:
         return number / 60, "min", "converted"
-    if canonical == "vo2_max_ml_kg_min" and u in {"ml/min·kg", "ml/(kg·min)", "ml/kg/min"}:
+    if canonical == "vo2_max_ml_kg_min" and u in {"ml/min·kg", "ml/(kg·min)", "ml/(kg*min)", "ml/kg/min"}:
         return number, "mL/(kg·min)", "known"
     aliases = {"count/min": {"count/min", "bpm", "beats/min", "breaths/min"},
                "degC": {"degc", "°c", "c"}, "fraction": {"fraction", "1"}}

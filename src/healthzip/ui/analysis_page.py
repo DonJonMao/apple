@@ -6,7 +6,7 @@ import json
 
 import streamlit as st
 
-from healthzip.ai.client import explain_analysis
+from healthzip.ui.health_explanation import render_optional_ai
 
 GROUPS = {"可比力量表现": ("STR-",), "每日训练候选": ("STR-25", "STR-26", "STR-27", "STR-28", "STR-29", "STR-30"),
           "停滞与调整试验": ("STR-18", "STR-19", "STR-20", "STR-21", "STR-22", "STR-23", "STR-24"),
@@ -59,22 +59,17 @@ def render_analysis(repo, value):
     names = definitions()
     result = value.get("v13")
     if result is None:
-        from healthzip.analytics.v13 import analyze, persist
+        from healthzip.analytics.v13 import analyze
         result = analyze(repo, value.get("analysis_window_days", 30), timezone_name=value.get("analysis_timezone", "Asia/Shanghai"))
-        persist(repo, result)
     st.subheader("训练分析")
     st.caption(f"数据截止 {result['cutoff_time']} · 版本 {result['algorithm_version']}。未知保留为空；模型有效性与数据可用性分别显示。")
     from healthzip.ui.reference_selection import render_reference_selection
     result = render_reference_selection(repo, result)
     from healthzip.ui.sleep_selection import render_sleep_selection
     result = render_sleep_selection(repo, result)
-    from healthzip.workflows.reports import review_analysis
     reviews = value.get("workflow_reviews")
     if result.get("selection_context") != value.get("v13", {}).get("selection_context"):
         reviews = None
-    context_problem = value.get("workflow_context_problem")
-    if reviews is None and not repo.conn.in_transaction and not context_problem:
-        reviews = review_analysis(repo, result)
     for review in reviews or []:
         descriptive = review["supplements"].get("long_term_review", {})
         if descriptive.get("start_long_term_review"):
@@ -197,7 +192,17 @@ def render_analysis(repo, value):
         report_key = "joint_period_" + str(repo.path.resolve()) + "_" + period
         if st.button("生成当前周期复盘"):
             try:
-                frozen_report = create_report(repo, result, period=period)
+                from healthzip.analytics.v13 import analyze
+                report_context = dict(result.get("selection_context") or {})
+                current_context = st.session_state.get("analysis_contexts", {}).get(
+                    str(repo.path.resolve()), report_context.get("workflow_context_id"))
+                if current_context is not None:
+                    report_context["workflow_context_id"] = current_context
+                report_snapshot = analyze(repo, value.get("analysis_window_days", 30),
+                    cutoff_time=result["cutoff_time"] if result.get("cutoff_mode") == "explicit" else None,
+                    timezone_name=result.get("timezone", "Asia/Shanghai"), context=report_context,
+                    retrospective=result.get("retrospective", False))
+                frozen_report = create_report(repo, report_snapshot, period=period)
                 st.session_state[report_key] = frozen_report["report_id"]
             except (ValueError, OSError, RuntimeError) as exc:
                 st.error(f"本次报告尚未冻结，请重新生成：{exc}")
@@ -251,15 +256,19 @@ def render_analysis(repo, value):
                 "joint_report": frozen_report}, ensure_ascii=False, indent=2),
                                file_name=f"healthzip-{period}.json", mime="application/json")
     with st.expander("AI 解释（可选）"):
-        allow = st.checkbox("允许把当前结构化证据发送至已配置 AI 服务", value=False)
+        def remember_consent():
+            from healthzip.ui.health_explanation import set_network_consent
+
+            set_network_consent(st.session_state["_review_network_consent"])
+        allow = st.checkbox("允许把当前结构化证据发送至已配置 AI 服务",
+                            value=bool(st.session_state.get("health_explanation_network_consent", False)),
+                            key="_review_network_consent", on_change=remember_consent)
         question = st.text_input("解释问题", "请解释可用记录与仍缺少的信息。")
-        if st.button("解释当前证据"):
-            response = explain_analysis({"metrics": metrics}, question=question, allow_network=allow)
-            st.write(response["summary"])
-            st.caption(response["source"])
+        render_optional_ai({"metrics": metrics}, key="review_ai_" + str(repo.path.resolve()),
+                           question=question, allow_network=allow)
     from healthzip.ui.metric_evidence import render_metric_evidence
     from healthzip.ui.source_observations import render_source_observations
     observations = result.get('observations', {})
     render_source_observations(observations)
-    render_metric_evidence({**metrics, **observations})
+    render_metric_evidence({**metrics, **observations}, workspace=repo.path)
 
