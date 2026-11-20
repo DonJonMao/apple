@@ -51,7 +51,7 @@ SCALES = {"cr10": (0, 10), "borg6_20": (6, 20), "rir_rpe10": (1, 10)}
 SESSION_SCALES = {**SCALES, "Foster_modified_CR10": (0, 10)}
 # Increase this revision whenever training initialization gains an additive
 # migration, including additions that retain the public training schema version.
-TRAINING_INITIALIZATION_VERSION = "training-service-init-v1"
+TRAINING_INITIALIZATION_VERSION = "training-service-init-v2"
 TRAINING_INITIALIZATION_KEY = "training_service_initialization"
 
 
@@ -97,6 +97,9 @@ class TrainingService:
                 return
             migrate_training(self.conn)
             self._seed_catalog(json.loads(seed_bytes))
+            from .catalog_import import migrate_default_recording_modes
+
+            migrate_default_recording_modes(self.conn)
             self.conn.execute(
                 "INSERT INTO schema_meta(key,value) VALUES(?,?) "
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value",

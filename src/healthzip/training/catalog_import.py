@@ -25,6 +25,7 @@ ENDPOINTS = (
     "exercisecategory",
 )
 BASE_URL = "https://wger.de/api/v2/"
+DEFAULT_RECORDING_MODE_BASIS = "product_default_repetitions"
 
 
 def now():
@@ -63,6 +64,36 @@ def migrate_catalog(conn):
         conn.execute(
             "UPDATE training_session_exercise SET definition_snapshot_json=(SELECT definition_json FROM exercise_catalog c WHERE c.exercise_id=catalog_id AND c.definition_version=training_session_exercise.definition_version)"
         )
+
+
+def migrate_default_recording_modes(conn):
+    """Append usable current definitions; never reinterpret frozen history.
+
+    Called inside the versioned TrainingService initialization transaction.
+    An existing explicit duration/distance/repetition definition is preserved.
+    """
+    rows = conn.execute(
+        "SELECT c.exercise_id,c.definition_version,c.owner_id,c.name,c.definition_json,"
+        "c.custom,c.active FROM exercise_catalog c WHERE c.owner_id='public' AND c.custom=0 "
+        "AND json_extract(c.definition_json,'$.recording_mode')='unknown' "
+        "AND c.definition_version=(SELECT MAX(x.definition_version) FROM exercise_catalog x "
+        "WHERE x.exercise_id=c.exercise_id)"
+    ).fetchall()
+    for identity, version, owner, name, definition_json, custom, active in rows:
+        definition = json.loads(definition_json)
+        definition.update(definition_version=version + 1, recording_mode="repetitions",
+                          mode_basis=DEFAULT_RECORDING_MODE_BASIS)
+        conn.execute(
+            "INSERT INTO exercise_catalog(exercise_id,definition_version,owner_id,name,"
+            "definition_json,custom,active,created_at) VALUES(?,?,?,?,?,?,?,?)",
+            (identity, version + 1, owner, name, encoded(definition), custom, active, now()),
+        )
+    if rows:
+        conn.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('catalog_data_version','1') "
+            "ON CONFLICT(key) DO UPDATE SET value=CAST(value AS INTEGER)+1"
+        )
+    return len(rows)
 
 
 def fetch_url(url):
@@ -295,8 +326,8 @@ def normalized(row, objects, snapshot_id):
         ),
         "description": plain((chinese or english).get("description")),
         "description_language": languages.get((chinese or english).get("language"), "unknown"),
-        "recording_mode": "unknown",
-        "mode_basis": "requires_user_confirmation",
+        "recording_mode": "repetitions",
+        "mode_basis": DEFAULT_RECORDING_MODE_BASIS,
         "equipment_type": category,
         "default_load_basis": "unknown",
         "requires_load_basis_confirmation": True,
@@ -492,6 +523,14 @@ def publish_snapshot(repo, folder):
             if previous:
                 previous_definition = json.loads(previous["definition_json"])
                 item["definition_version"] = previous["definition_version"]
+                # Upstream supplies no recording-mode semantics. The product
+                # default must not overwrite an already explicit local mode.
+                if previous_definition.get("recording_mode") in {"repetitions", "duration", "distance"}:
+                    item["recording_mode"] = previous_definition["recording_mode"]
+                    if "mode_basis" in previous_definition:
+                        item["mode_basis"] = previous_definition["mode_basis"]
+                    else:
+                        item.pop("mode_basis", None)
                 # Only source semantic changes create a new definition, never labels/media.
                 changed = (
                     any(
