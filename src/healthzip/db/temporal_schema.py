@@ -6,12 +6,27 @@ import sqlite3
 
 EVENT_END_SQL = "julianday(COALESCE(json_extract(payload_json,'$.end_utc'),json_extract(payload_json,'$.measured_at'),json_extract(payload_json,'$.observed_at')))"
 EVENT_START_SQL = "julianday(COALESCE(json_extract(payload_json,'$.start_utc'),json_extract(payload_json,'$.end_utc'),json_extract(payload_json,'$.measured_at'),json_extract(payload_json,'$.observed_at')))"
-QUERY_PROJECTION_VERSION = "4.3"
+QUERY_PROJECTION_VERSION = "4.4"
+TYPE_EVENT_INDEX = "source_revision_type_event_window"
+
+
+def _typed_event_index(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        f"CREATE INDEX IF NOT EXISTS {TYPE_EVENT_INDEX} ON source_revision("
+        f"table_name,json_extract(payload_json,'$.canonical_type'),{EVENT_END_SQL},{EVENT_START_SQL})"
+    )
 
 
 def migrate_temporal(conn: sqlite3.Connection) -> None:
     marker = conn.execute("SELECT value FROM schema_meta WHERE key='temporal_query_projection'").fetchone()
     if marker and marker[0] == QUERY_PROJECTION_VERSION:
+        return
+    if marker and marker[0] == "4.3":
+        # Existing ledgers need only this additive index. Do not re-run source
+        # backfills or rewrite historical payloads for a query-plan upgrade.
+        _typed_event_index(conn)
+        conn.execute("UPDATE schema_meta SET value=? WHERE key='temporal_query_projection'",
+                     (QUERY_PROJECTION_VERSION,))
         return
     conn.execute("""CREATE TABLE IF NOT EXISTS source_revision (
         revision_id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, record_id INTEGER NOT NULL,
@@ -63,6 +78,7 @@ def migrate_temporal(conn: sqlite3.Connection) -> None:
     # correct for old revisions and explicit availability corrections alike.
     conn.execute("DROP INDEX IF EXISTS source_revision_event_window")
     conn.execute(f"CREATE INDEX source_revision_event_window ON source_revision(table_name,{EVENT_END_SQL},{EVENT_START_SQL})")
+    _typed_event_index(conn)
     conn.execute("CREATE INDEX IF NOT EXISTS source_revision_record_versions ON source_revision(table_name,record_id,revision_id DESC)")
     conn.execute("CREATE INDEX IF NOT EXISTS analysis_run_invalidation ON analysis_run(invalidated_at)")
     for table, field in (("health_sample", "end_utc"), ("workout", "end_utc"),
@@ -115,7 +131,12 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
     if canonical_types:
         clauses.append("json_extract(payload_json,'$.canonical_type') IN (" + ",".join("?" for _ in canonical_types) + ")")
         args.extend(canonical_types)
-    candidate = "SELECT DISTINCT record_id FROM source_revision WHERE " + " AND ".join(clauses)
+    # Without this access path SQLite may favor record_id ordering for DISTINCT
+    # and decode every source type, including millions of raw heart-rate rows.
+    # Only candidate discovery is typed; the outer query still resolves ALL
+    # visible revisions so a type change or tombstone cannot revive old data.
+    source = f"source_revision INDEXED BY {TYPE_EVENT_INDEX}" if canonical_types else "source_revision"
+    candidate = "SELECT DISTINCT record_id FROM " + source + " WHERE " + " AND ".join(clauses)
     rows = repo.rows("SELECT revision_id,record_id,available_at,payload_json,temporal_provenance FROM source_revision "
                      "WHERE table_name=? AND record_id IN (" + candidate + ") "
                      "AND julianday(available_at)<=julianday(?)+0.001/86400 ORDER BY record_id,revision_id DESC",

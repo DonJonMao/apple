@@ -15,7 +15,7 @@ from healthzip.analytics import (
     persist_analysis,
     workout_analysis,
 )
-from healthzip.analytics.workspaces import analyze_workspace
+from healthzip.analytics.workspaces import WorkspaceInputsChanged, analyze_workspace
 from healthzip.config import DEFAULT_DB_PATH
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
@@ -132,7 +132,13 @@ try:
     if page == "数据质量":
         analysis = {"readiness": readiness(repo, window_days=int(window_days), as_of=date.today().isoformat())}
     elif page in {"心率 / HRV", "睡眠", "体重 / 有氧"}:
-        analysis = analyze_workspace(repo, page, window_days=int(window_days), timezone_name=timezone_name)
+        try:
+            analysis = analyze_workspace(repo, page, window_days=int(window_days), timezone_name=timezone_name)
+        except WorkspaceInputsChanged:
+            st.info("数据正在更新，请重新读取。")
+            if st.button("重新读取", key="body_workspace_retry"):
+                st.rerun()
+            st.stop()
     elif page == "运动":
         analysis = {"workouts": workout_analysis(repo, int(window_days))}
     elif page == "周期":
@@ -144,7 +150,9 @@ try:
     if page in {"数据质量", "心率 / HRV", "睡眠", "运动", "体重 / 有氧", "周期"}:
         from healthzip.workflows.storage import current_context_problem
         analysis["workflow_context_problem"] = current_context_problem(repo, context_id)
-    if analysis:
+    # Body pages are read-only views. Persisting their derived cards on every
+    # click waits for an importer/writer's SQLite lock (up to 30 seconds).
+    if analysis and "workspace_scope" not in analysis:
         persist_analysis(repo, analysis)
     if analysis.get("workflow_context_problem"):
         st.warning("当前选择的适用声明已撤回或被替换，来源解释须重新确认。记录事实和历史分析仍保留；"

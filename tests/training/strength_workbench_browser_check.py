@@ -317,8 +317,8 @@ class BrowserCheck:
         assert datetime.fromisoformat(session["started_at"]).date() == datetime.now().date()
         self.testid("catalog-search").fill("杠铃卧推")
         self.wait(lambda: self.frame.locator(".catalog-card").count() == 1, "catalog alias result")
-        self.frame.locator(".catalog-card").get_by_role("button", name="添加", exact=True).click()
-        self.screenshot("03-catalog-selected-mobile.png")
+        assert not self.testid("catalog-confirm").count()
+        self.screenshot("03-catalog-picker-mobile.png")
         self.button("关闭动作选择").click()
         assert not self.active()["exercises"]
         self.testid("add-exercises").click()
@@ -326,7 +326,8 @@ class BrowserCheck:
         self.testid("catalog-search").fill("杠铃卧推")
         self.wait(lambda: self.frame.locator(".catalog-card").count() == 1, "catalog search again")
         self.frame.locator(".catalog-card").get_by_role("button", name="添加", exact=True).click()
-        self.testid("catalog-confirm").click()
+        self.wait(lambda: self.testid("training-workbench").is_visible(), "automatic return after selection")
+        self.idle()
         self.wait(lambda: self.frame.locator(".exercise-card").count() == 1, "saved exercise card")
         session = self.active()
         assert len(session["exercises"]) == 1 and len(session["sets"]) == 1
@@ -335,6 +336,10 @@ class BrowserCheck:
         assert not draft.get("reference_set") and not draft.get("reference_declared_at")
         assert draft["completion_state"] == "draft" and session["completed_sets"] == 0
         self.fill_row(draft["set_uuid"], load="32.5", quantity="8")
+        self.click("open-catalog")
+        self.click("close-catalog")
+        assert self.row(draft["set_uuid"]).locator('[data-field="load_value"]').input_value() == "32.5"
+        assert self.row(draft["set_uuid"]).locator('[data-field="reps"]').input_value() == "8"
         self.screenshot("04-compact-set-input-mobile.png")
         self.complete_row(draft["set_uuid"])
         self.wait(lambda: self.active()["completed_sets"] == 1, "committed ordinary completed set")
@@ -525,7 +530,7 @@ class BrowserCheck:
         self.idle()
         self.wait(lambda: self.testid("catalog-item-" + identity).is_visible(), "requested catalog result")
 
-    def run_batch_and_cards(self, manifest):
+    def run_actions_and_cards(self, manifest):
         self.click("home")
         self.testid("start-training").click()
         self.testid("start-free-training").click()
@@ -533,28 +538,43 @@ class BrowserCheck:
         self.idle()
         self.click("catalog-region", "")
         ordered = [manifest["catalog_ids"][index] for index in (3, 0, 4, 2, 1, 5)]
-        for identity in ordered:
+        first_row_id = None
+        for index, identity in enumerate(ordered):
+            if index:
+                self.click("open-catalog")
             self.search_catalog(identity)
+            assert not self.testid("catalog-confirm").count()
             if identity == manifest["catalog_ids"][5]:
                 media = self.testid("catalog-item-" + identity).locator("img.thumbnail")
                 assert media.count() == 1
                 media.evaluate("image => {image.src = 'data:image/png;base64,aW52YWxpZA==';}")
                 self.wait(lambda: self.testid("catalog-item-" + identity).locator(".failure-image").is_visible(),
                           "real image decoding failure fallback")
+                self.assert_widths("catalog")
+                self.screenshot("08-catalog-single-choice-mobile.png")
             self.click("catalog-select", identity)
-        selected = self.frame.locator(".selected-list li").all_text_contents()
-        assert len(selected) == 6
-        self.testid("catalog-search").fill("")
-        self.page.wait_for_timeout(450)
-        self.idle()
-        self.assert_widths("catalog")
-        self.screenshot("08-catalog-multiselect-mobile.png")
-        self.click("catalog-confirm")
-        session = self.active()
+            self.wait(lambda: self.testid("training-workbench").is_visible(),
+                      "selection returns directly to training")
+            session = self.active()
+            assert len(session["exercises"]) == index + 1
+            added = session["exercises"][-1]
+            assert self.testid("exercise-card-" + added["id"]).locator(".card-body").is_visible()
+            assert all(added["sets"][0].get(field) is None
+                       for field in ("load_value", "reps", "duration_s", "distance_m", "rir"))
+            if index == 0:
+                first_row_id = added["sets"][0]["set_uuid"]
+                self.fill_row(first_row_id, quantity="17.5", mode="duration_s", rir="2")
+            else:
+                first = session["exercises"][0]
+                self.click("toggle-card", first["id"])
+                assert self.row(first_row_id).locator('[data-field="duration_s"]').input_value() == "17.5"
+                assert self.row(first_row_id).locator('[data-field="rir"]').input_value() == "2"
+                self.click("toggle-card", added["id"])
         assert [item["catalog_id"] for item in session["exercises"]] == ordered
         assert all(len(item["sets"]) == 1 for item in session["exercises"])
-        self.passed("02_batch_actions", ordered_six=True, cancellation_no_write=True,
-                    accidental_duplicate_instances=0, selected_across_search=True)
+        self.passed("02_select_and_return", ordered_six=True, cancellation_no_write=True,
+                    no_confirmation_step=True, each_selection_returns=True,
+                    newly_added_action_expanded=True, unsaved_input_retained=True)
         for item in session["exercises"]:
             if self.testid("exercise-card-" + item["id"]).locator(".card-body").count() == 0:
                 self.click("toggle-card", item["id"])
@@ -617,7 +637,7 @@ class BrowserCheck:
         self.search_catalog(ordered[1])
         assert self.testid("catalog-item-" + ordered[1]).get_by_role("button", name="再次添加此动作", exact=True).is_visible()
         self.click("catalog-select", ordered[1])
-        self.click("catalog-confirm")
+        assert self.testid("training-workbench").is_visible()
         assert len(self.active()["exercises"]) == 7
         self.passed("10_directory_empty_and_media", no_results=True, neutral_media_placeholders=True,
                     real_image_decode_failure_fallback=True,
@@ -709,7 +729,7 @@ def main():
             try:
                 check.open_strength(base)
                 check.run_primary(manifest)
-                check.run_batch_and_cards(manifest)
+                check.run_actions_and_cards(manifest)
                 check.run_existing_plan(manifest)
                 assert not errors and not external, {"page_errors": errors, "external_requests": external}
                 assert product_source_hashes(root, source_names) == source_hashes, "Product source changed during browser run"

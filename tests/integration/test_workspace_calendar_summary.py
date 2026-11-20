@@ -264,8 +264,11 @@ def test_concurrent_correction_recomputes_from_new_baseline(repo, monkeypatch):
     assert fact(result, "静息心率")["value"] == 75 and len(calls) == 2
 
 
-def test_automatic_minute_cache_retains_original_actual_cutoff(repo, monkeypatch):
+def test_automatic_cache_crosses_minutes_expires_and_resets_at_local_midnight(repo, monkeypatch):
+    import healthzip.analytics.cache as cache_module
+
     clock = {"now": datetime.fromisoformat(CUTOFF)}
+    age = {"seconds": 0}
 
     class ControlledDatetime(datetime):
         @classmethod
@@ -273,11 +276,22 @@ def test_automatic_minute_cache_retains_original_actual_cutoff(repo, monkeypatch
             return clock["now"]
 
     monkeypatch.setattr(summary_module, "datetime", ControlledDatetime)
+    monkeypatch.setattr(cache_module, "monotonic", lambda: age["seconds"])
     first = workspace_summary(repo, "睡眠")
     clock["now"] = datetime.fromisoformat("2026-11-19T10:00:59+00:00")
     assert workspace_summary(repo, "睡眠")["cutoff_time"] == first["cutoff_time"]
     clock["now"] = datetime.fromisoformat("2026-11-19T10:01:00+00:00")
+    age["seconds"] = 60
+    assert workspace_summary(repo, "睡眠")["cutoff_time"] == first["cutoff_time"]
+    clock["now"] = datetime.fromisoformat("2026-11-19T10:05:00+00:00")
+    age["seconds"] = 300
     assert workspace_summary(repo, "睡眠")["cutoff_time"] != first["cutoff_time"]
+    clock["now"] = datetime.fromisoformat("2026-11-19T15:59:59+00:00")
+    age["seconds"] = 301
+    old_day = workspace_summary(repo, "睡眠")
+    clock["now"] = datetime.fromisoformat("2026-11-19T16:00:00+00:00")
+    age["seconds"] = 302
+    assert workspace_summary(repo, "睡眠")["cutoff_time"] != old_day["cutoff_time"]
 
 
 def test_input_validation(repo):

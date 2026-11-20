@@ -1,0 +1,39 @@
+{
+  "fixture": "synthetic source_revision only; 500000 window-local health_sample revisions, 30 resting-heart-rate and 499970 raw-heart-rate",
+  "scope": "samples_as_of only, not full page latency",
+  "python": "3.12.14",
+  "sqlite": "3.53.1",
+  "runs": {
+    "before": {
+      "seconds": [
+        0.40215773999807425,
+        0.40608853600133443,
+        0.41878938599984394
+      ],
+      "median_seconds": 0.40608853600133443,
+      "returned_rows": 30,
+      "plan": [
+        "SEARCH source_revision USING INDEX source_revision_record_versions (table_name=? AND record_id=?)",
+        "LIST SUBQUERY 1",
+        "SEARCH source_revision USING INDEX source_revision_event_window (table_name=? AND <expr>>?)",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    },
+    "after": {
+      "seconds": [
+        0.0008461030010948889,
+        0.0002533250008127652,
+        0.00016056799722719006
+      ],
+      "median_seconds": 0.0002533250008127652,
+      "returned_rows": 30,
+      "plan": [
+        "SEARCH source_revision USING INDEX source_revision_record_versions (table_name=? AND record_id=?)",
+        "LIST SUBQUERY 1",
+        "SEARCH source_revision USING INDEX source_revision_type_event_window (table_name=? AND <expr>=? AND <expr>>?)",
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    }
+  },
+  "ratio": 1603.0337893948263
+}

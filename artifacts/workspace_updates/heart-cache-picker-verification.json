@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-20",
+  "scope": "isolated synthetic fixtures; final product code frozen across four copied workspaces",
+  "python_tests": [
+    {
+      "shard": 0,
+      "exit_code": 0,
+      "seconds": 103.95,
+      "test_files": 34,
+      "tests": 412,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "shard": 1,
+      "exit_code": 0,
+      "seconds": 106.82,
+      "test_files": 34,
+      "tests": 577,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "shard": 2,
+      "exit_code": 0,
+      "seconds": 92.15,
+      "test_files": 34,
+      "tests": 506,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "shard": 3,
+      "exit_code": 0,
+      "seconds": 124.01,
+      "test_files": 33,
+      "tests": 581,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "totals": {
+    "tests": 2076,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "javascript_event_tests": {
+    "passed": 3,
+    "command": "node --test tests/training/strength_picker_events_check.cjs",
+    "scope": "production JS event handlers with minimal DOM; not browser layout"
+  },
+  "ruff": "passed: python -m ruff check src app.py tests",
+  "javascript_syntax": "passed: node --check src/healthzip/ui/strength_component/workbench.js",
+  "wheel_build": "passed: python -m pip wheel . --no-deps --no-build-isolation",
+  "product_source_sha256": {
+    "app.py": "a2be6c0aa0f06031595b8c1e1a5931eda3ac53d6017863ab26497a50db4a9886",
+    "src/healthzip/analytics/cache.py": "4c843a848f37314f184e2ca424900d714f3637701b65d4b8f9f8758a70cd3412",
+    "src/healthzip/analytics/workspaces.py": "a667ca6bdd726361e92761bbce186fa58be06d5eacd170a8edb68842a82e36f5",
+    "src/healthzip/analytics/workspace_summary.py": "a12acd2f9a6e38e20e03cc22de10362a4a5edaa3a7ac30072e90cdd28a793e58",
+    "src/healthzip/db/repository.py": "3fe941390d719825525d7d6a96ab45b2a826ef71db18b2cf7ee78c3e13d1c492",
+    "src/healthzip/db/temporal_schema.py": "51982cde999a77b0e179b67b64ee3b2c7cacb1706e48f7abe50207d502944f73",
+    "src/healthzip/ui/strength_component/workbench.js": "ac0d23c0d0abcd8040f7afe3ee70468564bc82e9e3ea4004be6dbd30c2b68a45"
+  },
+  "browser_validation": "not completed: Chromium socket creation denied; fallback browser could not access local instance",
+  "earlier_run": "interrupted with exit 130 after product source changed during execution; replaced by the four frozen-source runs above",
+  "production_deployment": "not performed"
+}

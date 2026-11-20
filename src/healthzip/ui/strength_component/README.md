@@ -6,7 +6,7 @@
 
 前端使用 Streamlit v1 组件消息协议。它仅负责视图、输入与显式命令；`training_bridge.py` 验证命令并调用原有 `TrainingService`、事件修订与科学分析。REST 接口、token、CORS 及训练数据库不因组件改变。
 
-主要视图为首页月历、开始面板、当前训练、动作选择、历史详情；备注、结束摘要、休息计时及原有高级管理为按需打开的次级视图。动作卡片只渲染一个完整组编辑器。只有显式打开建议才会调用建议服务；每秒计时仅更新文本。
+主要视图为首页月历、开始面板、当前训练、动作选择、历史详情；备注、结束摘要、休息计时及原有高级管理为按需打开的次级视图。选择页点“添加”即加入一个动作，成功后自动返回训练页并展开空白组行；可再次添加，原有未提交输入保留。动作卡片只渲染一个完整组编辑器。只有显式打开建议才会调用建议服务；每秒计时仅更新文本。
 
 浏览器 localStorage 的命名空间包含不透明数据库/用户身份，组草稿进一步使用 session UUID/set UUID。它保存未提交输入、当前视图和待回执命令，不向外部服务发送数据。草稿只有收到后端成功回执才称为“已保存”。清理浏览器存储会移除未提交输入；已经保存的数据库草稿仍可重新读取。
 
@@ -16,6 +16,7 @@
 
 ```bash
 node --check src/healthzip/ui/strength_component/workbench.js
+node --test tests/training/strength_picker_events_check.cjs
 ```
 
-真实浏览器验收另见项目交付文档与 `artifacts/strength_workbench/`。Streamlit AppTest 的 transport 夹具验证 Python 命令路径，不能替代组件 DOM、手机布局或键盘验收。
+Node 事件回归执行生产脚本的输入、选择与回执处理器，检查自动返回和草稿保留；其最小 DOM 适配器不替代布局或实际浏览器验收。真实浏览器验收另见项目交付文档与 `artifacts/strength_workbench/`。Streamlit AppTest 的 transport 夹具验证 Python 命令路径，不能替代组件 DOM、手机布局或键盘验收。
