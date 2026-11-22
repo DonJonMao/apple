@@ -91,6 +91,12 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
     first = datetime.fromisoformat(item["window"]["start"]).astimezone(zone)
     end = datetime.fromisoformat(item["window"]["end"]).astimezone(zone)
     st.caption(f"{first:%Y-%m-%d} — {end:%Y-%m-%d %H:%M} · {timezone_name}")
+    if repo.one("SELECT 1 FROM sqlite_master WHERE type='table' AND name='advice_profile_revision'"):
+        from healthzip.advice import profile
+        from healthzip.ui.basic_profile import GOALS
+        goal = profile(repo)["fields"].get("training_goal")
+        if goal:
+            st.write("当前目标 · " + GOALS.get(goal, str(goal)))
     data = overview_data(repo, timezone_name)
     cards = _select_cards(item["facts"])
     if cards:
@@ -109,6 +115,8 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
             column.metric(title, f"{number} {fact.get('unit', '')}", delta=delta, delta_color="off")
             if fact.get("source") and title not in {"完成训练", "有效工作组"}:
                 column.caption(fact["source"])
+            destination = {"平均睡眠": "睡眠", "静息心率": "心率", "体重": "体重"}.get(title, "训练")
+            column.button("查看" + title, key="overview_fact:" + title, on_click=_open_fact, args=(destination, label))
         _trend(item)
         st.write("本期发现")
         # The same period's deterministic statements; no full-period comparison.
@@ -140,9 +148,27 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
                   type="primary", on_click=open_workspace, args=("力量",))
     if cards:
         st.caption("下次记录尽量沿用同一来源和测量条件，让前后变化更容易比较。")
+    from healthzip.workflows.actions import list_actions
+    active_actions = [action for action in list_actions(repo) if action.get("status") not in {"executed", "stopped"}]
+    if active_actions:
+        action = active_actions[0]
+        with st.container(border=True):
+            st.write("当前行动 · " + action["action_text"])
+            st.caption("计划复评 " + datetime.fromisoformat(action["review_due"]).astimezone(zone).date().isoformat())
+            st.button("查看执行与后续观察", on_click=_open_action, args=(action["action_id"],))
     left, right = st.columns(2)
-    left.button("查看健康趋势", on_click=open_workspace, args=("心率",), use_container_width=True)
-    right.button("导入与同步", on_click=open_workspace, args=("设置",), use_container_width=True)
+    left.button("查看身体主题", on_click=open_workspace, args=("身体",), use_container_width=True)
+    right.button("导入与同步", on_click=open_workspace, args=("导入与同步",), use_container_width=True)
+    recent = repo.rows("SELECT name,started_at,session_uuid FROM strength_session WHERE deleted_at IS NULL AND session_status='completed' ORDER BY started_at DESC LIMIT 3")
+    if recent:
+        st.write("最近训练")
+        for row in recent:
+            if st.button(f"{(row['started_at'] or '')[:10]} · {row['name'] or '训练'}", key="recent_training:" + row["session_uuid"]):
+                from healthzip.ui.training_workbench import open_recorded_session
+                open_recorded_session(repo, row["session_uuid"])
+                st.rerun()
+        st.button("查看训练历史", on_click=open_workspace, args=("训练",), key="overview_history")
+    st.button("周月复盘与行动复评", on_click=open_workspace, args=("复盘",), key="overview_review")
     with st.expander("分析依据与范围"):
         for note in item.get("limitations", []):
             st.caption(note)
@@ -151,3 +177,17 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
     imported = data["latest_import"]
     updated = imported["imported_at"] if imported else "尚未导入"
     st.caption(f"最近观测日期：{last} · 数据导入时间：{updated}")
+
+
+def _open_action(action_id):
+    st.session_state["review_action_id"] = action_id
+    st.session_state["review_section"] = "行动复评"
+    open_workspace("复盘")
+
+
+def _open_fact(destination, period_label):
+    st.session_state["body_period"] = period_label
+    if destination in {"睡眠", "心率", "体重"}:
+        from healthzip.ui.body_workspace import _SUMMARIES
+        st.session_state["body_metric:" + destination] = _SUMMARIES[destination]
+    open_workspace(destination)

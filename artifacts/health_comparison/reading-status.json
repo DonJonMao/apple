@@ -1,0 +1,193 @@
+{
+  "schema": "health-comparison-reading-status-1",
+  "units": [
+    {
+      "source_id": "HC-APPLE-HEART-2024",
+      "source_version": "HC-APPLE-HEART-2024:fulltext:cd7601a52d52f5811e91:pdfplumber-layout-1.3.0",
+      "material_read": "fulltext",
+      "locator": "PDF pages 12–13",
+      "reading_scope": "selected original sections, methods and boundaries",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:54.072079+00:00",
+      "evidence_unit": {
+        "population": "consumer device documentation, not an individual validation cohort",
+        "device": "Apple Watch; November 2024 software description",
+        "metrics": [
+          "daily restingHeartRate",
+          "heartRateVariabilitySDNN"
+        ],
+        "conditions": "daily RHR from inactive awake background samples; HRV from still background tachograms and active Breathe sessions",
+        "comparison": "field generation and sampling modes; no personal reference interval",
+        "missing": "measurement availability depends on motion and signal quality",
+        "conclusion": "ordinary heart rate is not daily RHR; active and background HRV protocols can differ",
+        "cannot_infer": "current user firmware applicability or personal recovery; no thresholds transferred"
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "APPLE_RHR",
+      "source_version": "APPLE_RHR:fulltext:98327fc8ea6904e2a426:apple-docc-json-1",
+      "material_read": "fulltext",
+      "locator": "Apple DocC abstract/discussion",
+      "reading_scope": "selected original sections, methods and boundaries",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.405067+00:00",
+      "evidence_unit": {
+        "population": "HealthKit field documentation",
+        "device": "HealthKit recorded source; watchOS/iOS availability versions in source JSON",
+        "metrics": [
+          "restingHeartRate"
+        ],
+        "conditions": "daily resting heart rate field, count per minute",
+        "comparison": "field identity, not an all-day ordinary HR mean",
+        "missing": "field absence remains missing",
+        "conclusion": "read dedicated daily restingHeartRate field",
+        "cannot_infer": "recording quality or personal physiology from existence alone"
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "R3a",
+      "source_version": "R3a:fulltext:1f2970b0f92d2bb51b19:apple-docc-json-1",
+      "material_read": "fulltext",
+      "locator": "Apple DocC abstract/discussion",
+      "reading_scope": "selected original sections, methods and boundaries",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.405744+00:00",
+      "evidence_unit": {
+        "population": "HealthKit field documentation",
+        "device": "HealthKit HRV source",
+        "metrics": [
+          "heartRateVariabilitySDNN"
+        ],
+        "conditions": "normal-to-normal interval standard deviation, time units",
+        "comparison": "SDNN distinct from RMSSD",
+        "missing": "absence not zero",
+        "conclusion": "preserve SDNN identity and units",
+        "cannot_infer": "24-hour SDNN from brief episodes or recovery direction"
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "HC-APPLE-SLEEP-2025",
+      "source_version": "HC-APPLE-SLEEP-2025:fulltext:c2675763f44f6db26119:pdfplumber-layout-1.3.0",
+      "material_read": "fulltext",
+      "locator": "PDF pages 3–4 and 9–11",
+      "reading_scope": "selected original sections, methods and boundaries",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.406305+00:00",
+      "evidence_unit": {
+        "population": "adult development/held-out PSG validation; clinical set separately reported",
+        "device": "Apple Watch algorithm revisions 2024/watchOS11 and 2025/watchOS26",
+        "metrics": [
+          "sleep duration",
+          "Core/N1+N2",
+          "Deep/N3",
+          "REM",
+          "Awake"
+        ],
+        "conditions": "accelerometer stage classification; algorithm update changes quiet wake detection",
+        "comparison": "epochs versus PSG, held-out from development; version-specific",
+        "missing": "2024 short-session binary asleep/wake can lack full staging",
+        "conclusion": "duration remains meaningful without stages; version changes affect comparability",
+        "cannot_infer": "a short detected event must be a nap or non-wear; individual stage correction from group accuracy"
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "HC-AASM-ADULT-SLEEP-2015",
+      "source_version": "HC-AASM-ADULT-SLEEP-2015:fulltext:0672baf415e3990a7628:public-html-review-1",
+      "material_read": "fulltext",
+      "locator": "CONSENSUS STATEMENT / METHODOLOGY / DISCUSSION",
+      "reading_scope": "selected original sections, methods and boundaries",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.411219+00:00",
+      "evidence_unit": {
+        "population": "adults aged 18–60",
+        "device": "not a wearable validation",
+        "metrics": [
+          "habitual nightly sleep duration"
+        ],
+        "conditions": "general health consensus, not one recorded night",
+        "comparison": "modified RAND appropriateness literature consensus",
+        "missing": "does not identify non-wear or authorize missing-night imputation",
+        "conclusion": "age and habitual true sleep matter; unknown/minor/out-of-scope age cannot inherit adult guidance",
+        "cannot_infer": "individual sleep need or a diagnosis from short device records",
+        "numeric_units": [
+          {
+            "value": 7,
+            "unit": "hours/night",
+            "meaning": "population consensus recommendation at least this on a regular basis",
+            "population": "18–60 years",
+            "locator": "CONSENSUS STATEMENT",
+            "use": "not enabled; source rights pending"
+          }
+        ]
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "HC-PLEWS-COMPLIANCE-2014",
+      "source_version": "HC-PLEWS-COMPLIANCE-2014:abstract:858054997b306aa9e186:pubmed-1.3.1",
+      "material_read": "abstract",
+      "locator": "PubMed abstract Purpose/Methods/Results/Conclusions",
+      "reading_scope": "abstract only",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.411819+00:00",
+      "evidence_unit": {
+        "population": "trained triathletes; abstract-only details",
+        "device": "standardized HRV protocol; full equipment details unverified",
+        "metrics": [
+          "lnRMSSD"
+        ],
+        "conditions": "training phases and randomized within-week observation subsets; morning protocol fulltext unverified",
+        "comparison": "sampled-week averages versus whole-week averages",
+        "missing": "subset compliance study, not missing raw IBI",
+        "conclusion": "cannot convert lnRMSSD sampling research into Apple SDNN minimum days",
+        "cannot_infer": "full-text verification, Apple protocol or personal action threshold",
+        "numeric_units": [
+          {
+            "value": 3,
+            "unit": "valid points/week",
+            "meaning": "abstract author recommendation under studied lnRMSSD protocol",
+            "population": "trained triathletes",
+            "locator": "abstract Conclusions",
+            "use": "not applied to Apple SDNN"
+          }
+        ]
+      },
+      "index_or_application_permission_granted": false
+    },
+    {
+      "source_id": "HC-BELLENGER-2016",
+      "source_version": "HC-BELLENGER-2016:abstract:e7b35a01af4cf798862a:pubmed-1.3.1",
+      "material_read": "abstract",
+      "locator": "PubMed abstract Methods/Results/Conclusion",
+      "reading_scope": "abstract only",
+      "reviewer_kind": "ai_assisted",
+      "independent_expert_validation": false,
+      "read_at": "2026-11-22T02:12:58.412438+00:00",
+      "evidence_unit": {
+        "population": "15 male runners/triathletes",
+        "device": "supine and standing vagally mediated HRV protocol; fulltext unverified",
+        "metrics": [
+          "RMSSD",
+          "training tolerance",
+          "5-km treadmill performance"
+        ],
+        "conditions": "light/heavy/taper phases; rolling averages",
+        "comparison": "within-person training-phase changes",
+        "missing": "not stated in abstract",
+        "conclusion": "standing RMSSD increased in both functional overreaching and improved performance conditions; subjective tolerance needed",
+        "cannot_infer": "Apple SDNN validity, generalized fatigue diagnosis, completed fulltext review"
+      },
+      "index_or_application_permission_granted": false
+    }
+  ]
+}

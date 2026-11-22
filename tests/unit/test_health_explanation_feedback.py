@@ -45,3 +45,23 @@ def test_supported_local_evidence_is_visible_without_a_configured_model():
     assert "可能的解释" in text and "Synthetic reviewed interpretation." in text
     assert "Synthetic original source" in text
     assert any("1 项满足本期解释所需条件" in x.value for x in app.caption)
+
+
+def test_measurement_context_retains_fact_and_deduplicates_original_links():
+    app = _render(False)
+    result = app.session_state["result"]
+    item = result["items"][0]
+    item["deterministic_observations"] = [{"summary": "本期 68 bpm，记录 2/7 天。"}]
+    item["measurement_explanations"] = [{"statement": "记录条件影响比较的解释。",
+        "limitations": ["不能证明个人病因。"], "sources": [
+            {"title": "Specific source", "canonical_url": "https://example.invalid/method"},
+            {"title": "Specific source", "canonical_url": "https://example.invalid/method"}]}]
+    item["local_next_steps"] = ["核对对应日期的采样时段。"]
+    item["explanation"]["reason_code"] = "validation_failed"
+    app.session_state["result"] = result
+    app.run()
+    text = "\n".join(x.value for x in app.markdown)
+    assert "本期 68 bpm，记录 2/7 天。" in text
+    assert text.count("https://example.invalid/method") == 1
+    assert "核对对应日期的采样时段" in text
+    assert any("未通过核验" in item.value for item in app.caption)

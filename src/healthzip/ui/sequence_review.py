@@ -141,3 +141,104 @@ def render_sequence_review(repo):
         if pending and status and status["status"] != "pending":
             st.rerun()
     panel()
+
+
+def render_exercise_progress(repo, catalog_id=None):
+    """Read two selected actual instances from the same local exercise catalog."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from healthzip.training.sequence_review import compare_work_sets
+    from healthzip.ui.training_page import STOP_LABELS
+    from healthzip.ui.training_workbench import open_recorded_session
+
+    st.subheader("动作进展")
+    svc = TrainingService(repo, initialize=False)
+    timezone = ZoneInfo(st.session_state.get("analysis_timezone", "Asia/Shanghai"))
+    # One query to the recorded instances. A repeated movement within a session
+    # stays separately selectable. Public catalog defaults cannot assign conditions.
+    records = repo.conn.execute(
+        "SELECT e.id,e.session_id,e.catalog_id,e.position,s.name,s.started_at,s.session_date,"
+        "s.session_uuid,julianday(s.started_at) AS start_jd,COALESCE(json_extract(e.definition_snapshot_json,'$.name_zh'),"
+        "json_extract(e.definition_snapshot_json,'$.name'),e.catalog_id) AS exercise_name "
+        "FROM training_session_exercise e JOIN strength_session s ON s.id=e.session_id "
+        "WHERE s.deleted_at IS NULL AND e.deleted_at IS NULL AND s.user_id=? AND e.user_id=? "
+        "AND EXISTS (SELECT 1 FROM strength_set g WHERE g.session_exercise_id=e.id AND "
+        "g.deleted_at IS NULL AND g.completion_state='completed' AND g.set_type='work') "
+        "ORDER BY COALESCE(julianday(s.started_at),julianday(s.session_date)) DESC,"
+        "s.id DESC,e.position", (svc.user_id, svc.user_id)).fetchall()
+    if not records:
+        st.info("还没有可比较的已完成工作组。记录一组后可以在这里查看。")
+        return
+    names = {row["catalog_id"]: row["exercise_name"] for row in records}
+    scope = str(repo.path.resolve())
+    saved = st.session_state.setdefault("exercise_progress_selection", {}).setdefault(scope, {})
+
+    def choose(label, options, labels, key):
+        default = saved.get(key)
+        value = st.selectbox(label, options, index=options.index(default) if default in options else 0,
+                             format_func=labels.get, key="progress_" + key + str(hash(scope)))
+        saved[key] = value
+        return value
+
+    if catalog_id is None:
+        catalog_id = choose("动作", list(names), names, "exercise")
+    elif catalog_id not in names:
+        st.info("该动作尚无已完成工作组，可以先记录本次训练。")
+        return
+    else:
+        st.write(names[catalog_id])
+    rows = [row for row in records if row["catalog_id"] == catalog_id]
+    labels = {}
+    for row in rows:
+        at = datetime.fromisoformat(row["started_at"]) if row["started_at"] else None
+        local = at.astimezone(timezone).strftime("%Y-%m-%d %H:%M") if at and at.tzinfo else row["session_date"]
+        labels[row["id"]] = f"{local or '日期未知'} · {row['name'] or '训练'} · 第 {row['position'] + 1} 个动作"
+    current = choose("查看场次", list(labels), labels, "current_" + catalog_id)
+    entry = next(row for row in rows if row["id"] == current)
+    previous_choices = [row["id"] for row in rows if row["session_id"] != entry["session_id"] and
+                        row["start_jd"] is not None and entry["start_jd"] is not None and
+                        row["start_jd"] < entry["start_jd"]]
+    previous = choose("比较场次", previous_choices, labels, "previous_" + catalog_id) if previous_choices else None
+    sources = [("本次", svc.get_session_exercise(current))]
+    if previous:
+        sources.insert(0, ("比较场次", svc.get_session_exercise(previous)))
+    values = []
+    for label, inst in sources:
+        for row in inst["sets"]:
+            if row.get("deleted_at") or row.get("completion_state") != "completed" or row.get("set_type") != "work":
+                continue
+            values.append({"场次": label, "组": row["set_number"], "负荷": row.get("load_value"),
+                           "单位": row.get("load_unit"), "口径": LOAD_LABELS.get(row.get("load_basis"), "未知"),
+                           "次数": row.get("reps"), "秒数": row.get("duration_s"), "米数": row.get("distance_m"),
+                           "RIR": row.get("rir"), "RIR限定": "至少" if row.get("rir_qualifier") == "at_least" else None,
+                           "停止原因": STOP_LABELS.get(row.get("stop_reason")), "组前休息（秒）": row.get("rest_recorded_s")})
+    if previous:
+        comparison = compare_work_sets(sources[0][1]["sets"], sources[1][1]["sets"])
+        for fact in comparison["observations"]:
+            st.write(fact)
+        for pair in comparison["comparisons"]:
+            if pair["reps_change"] is not None:
+                st.write(f"第 {pair['set_number']} 组同口径负荷，"
+                         f"{pair['previous_reps']} → {pair['current_reps']} 次。")
+            elif pair["same_reps_load_change"] is not None:
+                st.write(f"第 {pair['set_number']} 组均为 {pair['current_reps']} 次，"
+                         f"{pair['previous_load_value']} {pair['previous_load_unit']} → "
+                         f"{pair['load_value']} {pair['load_unit']}。")
+        if not comparison["comparisons"] or any(not pair["comparable"] for pair in comparison["comparisons"]):
+            st.caption("部分组缺少可比条件，或两次负荷不同。下方保留各次实际记录。")
+        if comparison["unmatched_previous"] or comparison["unmatched_current"]:
+            st.caption("两场部分工作组的原组序不一致，已单独列出。")
+        for step in comparison["next_steps"]:
+            st.write(step)
+    else:
+        st.caption("此场之前尚无可定位的同动作训练。")
+    if values:
+        visible = [key for key in values[0] if any(row[key] is not None for row in values)
+                   or key in {"RIR", "次数"}]
+        st.dataframe([{key: row[key] for key in visible} for row in values],
+                     hide_index=True, width="stretch")
+    for label, inst in sources:
+        record = next(row for row in rows if row["id"] == inst["id"])
+        st.button(f"打开{label}原始训练", key="progress_record_" + inst["id"],
+                  on_click=open_recorded_session, args=(repo, record["session_uuid"]))

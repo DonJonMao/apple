@@ -91,10 +91,10 @@ def _outcome(recommendation, latest, records, *, cutoff_time=None):
 
 
 def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, window_end=None,
-             canonical_types=None, include_sources=True):
+             canonical_types=None, include_sources=True, include_training=True, training_session_ids=None):
     service = TrainingService(repo)
-    recommendations = service.list_recommendations(cutoff_time=cutoff_time,
-        window_start=window_start, window_end=window_end)
+    recommendations = (service.list_recommendations(cutoff_time=cutoff_time,
+        window_start=window_start, window_end=window_end) if include_training else [])
     bound = datetime.fromisoformat(cutoff_time.replace("Z", "+00:00"))
     support_windows, required_set_ids = [], set()
     for recommendation in recommendations:
@@ -119,7 +119,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
                 support_windows.append((followup["start"], followup["end"]))
     events = service.events_as_of(cutoff_time=datetime.now(timezone.utc).isoformat() if retrospective else cutoff_time,
         window_start=window_start, window_end=window_end, support_windows=support_windows,
-        required_set_ids=required_set_ids)
+        required_set_ids=required_set_ids, _session_ids=training_session_ids, _share_report_readonly=True) if include_training else []
     session_ids = sorted({event["after"].get("id") if event["entity_type"] == "session"
                           else event["after"].get("session_id") for event in events
                           if isinstance(event.get("after"), dict)
@@ -144,11 +144,12 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
             if retrospective:
                 row["temporal_provenance"] = row.get("temporal_provenance") or "retrospective_snapshot"
             records.append(row)
-    sets = ([dict(r) for r in repo.rows("SELECT * FROM strength_set WHERE user_id=? AND deleted_at IS NULL "
+    sets = (([dict(r) for r in repo.rows("SELECT * FROM strength_set WHERE user_id=? AND deleted_at IS NULL "
                 "AND (session_id IN (SELECT value FROM json_each(?)) OR set_uuid IS NULL)",
                 (service.user_id, json.dumps(session_ids)))]
             if retrospective else service.history_as_of(cutoff_time=cutoff_time, include_incomplete=True, _events=events))
-    legacy = service.legacy_records()
+            if include_training else [])
+    legacy = service.legacy_records() if include_training else []
     if not retrospective:
         sets.extend({**r, "source_available_at": r.get("available_at"), "available_at": None,
                      "temporal_provenance": "legacy_current_inventory_not_asof"} for r in legacy)
@@ -161,10 +162,12 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
         row["event_start"] = row.get("started_at")
         row["is_reference"] = bool(row.get("reference_set"))
         records.append(row)
-    sessions = ([dict(r) for r in repo.rows("SELECT * FROM strength_session WHERE user_id=? AND deleted_at IS NULL "
+    sessions = (([dict(r) for r in repo.rows("SELECT * FROM strength_session WHERE user_id=? AND deleted_at IS NULL "
                     "AND (id IN (SELECT value FROM json_each(?)) OR session_uuid IS NULL)",
                     (service.user_id, json.dumps(session_ids)))]
-                if retrospective else service.sessions_as_of(cutoff_time=cutoff_time, _events=events))
+                if retrospective else service.sessions_as_of(cutoff_time=cutoff_time, _events=events)) if include_training else [])
+    # The original replay events are shared read-only within a report.
+    sessions = [dict(session) for session in sessions]
     for session in sessions:
         session["session_id"] = session["id"]
         session["event_end"] = session.get("ended_at")
@@ -222,6 +225,7 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
                      "reference_inventory": [flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
                      "query_plan": {"window_start": window_start, "window_end": window_end,
                                     "canonical_types": canonical_types, "source_rows_returned": source_counts,
+                                    "training_included": include_training,
                                     "training_events_returned": len(events),
                                     "training_sets_returned": len(sets),
                                     "training_sessions_returned": len(sessions),
@@ -235,7 +239,8 @@ def snapshot(repo, cutoff_time: str, *, retrospective=False, window_start=None, 
 
 
 def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
-            context=None, retrospective=False, period=None, use_cache=True, window_start=None, window_end=None):
+            context=None, retrospective=False, period=None, use_cache=True, window_start=None, window_end=None,
+            ordinary_task_metrics=None):
     from healthzip.analytics.cache import WORKSPACE_CACHE_SECONDS, cached
 
     # Cold migration/seed markers are inputs to the revision identity. Finish
@@ -248,21 +253,22 @@ def analyze(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shang
     arguments = {"window_days": window_days, "cutoff": cutoff_time or now.astimezone(ZoneInfo(timezone_name)).date().isoformat(),
                  "mode": "explicit" if cutoff_time else "auto", "timezone": timezone_name,
                  "context": context, "retrospective": retrospective, "period": period,
-                 "window_start": window_start, "window_end": window_end}
+                 "window_start": window_start, "window_end": window_end, "ordinary_task_metrics": ordinary_task_metrics}
     def compute():
         value = _analyze_uncached(repo, window_days, cutoff_time=cutoff_time or now.isoformat(),
                                   timezone_name=timezone_name, context=context, retrospective=retrospective, period=period,
-                                  window_start=window_start, window_end=window_end)
+                                  window_start=window_start, window_end=window_end, ordinary_task_metrics=ordinary_task_metrics)
         value["cutoff_mode"] = "explicit" if cutoff_time else "auto"
         value["cache_policy"] = {"automatic_refresh_seconds": WORKSPACE_CACHE_SECONDS if not cutoff_time else None, "parameter_kind": "product_parameter",
                                  "revision_invalidated": True}
         return value
-    return cached(repo, "canonical-current-training-1.7.1", arguments, compute,
+    return cached(repo, "canonical-current-training-1.8.0", arguments, compute,
                   max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS) if use_cache else compute()
 
 
 def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="Asia/Shanghai",
-            context=None, retrospective=False, period=None, window_start=None, window_end=None):
+            context=None, retrospective=False, period=None, window_start=None, window_end=None,
+            ordinary_task_metrics=None):
     from healthzip.science import evaluate_all
 
     cutoff = datetime.fromisoformat(cutoff_time.replace("Z", "+00:00")) if cutoff_time else datetime.now(timezone.utc)
@@ -287,9 +293,26 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             end = start+timedelta(days=7)
         else:
             raise ValueError("unknown_calendar_period")
-    # Sleep24h declares a 24-hour lookback; all other observed metrics use the
-    # requested window. Calendar-day membership remains in the science layer.
-    query_start = min(start, cutoff - timedelta(hours=24))
+    # Calendar reports share the detail page's previous-period elapsed-time
+    # comparison, while preserving an explicitly selected comparison interval.
+    context = dict(context or {})
+    if period and not context.get("comparison_window"):
+        local_start = start.astimezone(ZoneInfo(timezone_name))
+        local_end = min(cutoff, end).astimezone(ZoneInfo(timezone_name))
+        if period == "week":
+            prior_start, prior_end = local_start-timedelta(days=7), local_end-timedelta(days=7)
+        else:
+            prior_start = (local_start-timedelta(days=1)).replace(day=1)
+            prior_end = min(prior_start + (local_end-local_start), local_start)
+        context["comparison_window"] = {"start": prior_start.isoformat(), "end": prior_end.isoformat()}
+    # Sleep24h declares its separate elapsed-time lookback. The query also reads
+    # completed personal-reference days before the requested evaluation window.
+    from healthzip.science.contracts import Window
+    from healthzip.science.state import comparison_windows
+    comparison_bounds = comparison_windows(Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name),
+        previous=(context or {}).get("comparison_window"), baseline_days=(context or {}).get("baseline_days", 28))
+    query_start = min(start, cutoff - timedelta(hours=24),
+                      *(datetime.fromisoformat(bound["start"]) for bound in comparison_bounds.values())) - timedelta(days=1)
     if context and context.get("baseline_window"):
         query_start = min(query_start, datetime.fromisoformat(context["baseline_window"]["start"].replace("Z", "+00:00")))
     required_types = {"resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage", "body_mass_kg", "basal_energy_kcal", "active_energy_kcal"}
@@ -329,7 +352,10 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     # and inference metrics still require genuinely designated references.
     from healthzip.science import evaluate
     from healthzip.science.contracts import canonical_hash
-    from healthzip.science.engine import TASK_METRICS
+    from healthzip.science.engine import TASK_METRICS, _bounded_context
+    requested_task_metrics = TASK_METRICS if ordinary_task_metrics is None else set(ordinary_task_metrics)
+    if not requested_task_metrics <= TASK_METRICS:
+        raise ValueError("unknown_ordinary_task_metric")
     from healthzip.science.semantics import analysis_task, flatten_record
     visible, _ = select_as_of([flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
                               window, retrospective=retrospective)
@@ -339,6 +365,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             continue
         task = analysis_task(row)
         observed_tasks.setdefault(task["task_id"], {"task": task, "rows": []})["rows"].append(row)
+    ordinary_bound = None
     for identity, item in observed_tasks.items():
         if identity in strength_tasks:
             continue
@@ -346,10 +373,20 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         task_context = {**merged, "timezone": timezone_name, "task_id": identity}
         task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(),
             "cutoff_time": cutoff.isoformat(), "data_version": str(inherited["data_version"])})
+        if ordinary_bound is None:
+            ordinary_bound = _bounded_context({**merged, "timezone": timezone_name}, window)
+        task_bound = ({**ordinary_bound[0], "task_id": identity,
+                       "data_snapshot_hash": task_context["data_snapshot_hash"]}, ordinary_bound[1])
+        normalized_task = [flatten_record(row) for row in rows]
+        selections = {}
         strength_tasks[identity] = {**item["task"], "inventory_identity": "actual_records_no_reference_inferred",
-            "data_snapshot_hash": task_context["data_snapshot_hash"], "input_data_hash": canonical_hash(rows), "metrics": {
-                mid: evaluate(mid, records=rows, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
-                              window_end=end.isoformat(), context=task_context) for mid in TASK_METRICS}}
+            "data_snapshot_hash": task_context["data_snapshot_hash"], "input_data_hash": canonical_hash(rows),
+            "source_record_ids": [row["_source_id"] for row in rows],
+            "task_metrics_scope": "complete" if ordinary_task_metrics is None else "requested_only",
+            "metrics": {
+                mid: evaluate(mid, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+                              window_end=end.isoformat(), context=task_context, _normalized=normalized_task,
+                              _context_bound=task_bound, _selection_cache=selections) for mid in requested_task_metrics}}
     if selection_audit and selection_audit.get("reference"):
         selected_task = strength_tasks.get(selection_audit["reference"]["task_id"])
         if selected_task:
@@ -360,13 +397,16 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         window_end=end.isoformat(), timezone_name=timezone_name, retrospective=retrospective)
     data_hash = hashlib.sha256(json.dumps({"records": records, "context": merged,
         "observation_input_hash": observations['input_hash']}, sort_keys=True, default=str).encode()).hexdigest()
-    return {"metrics": metrics, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
+    from healthzip.analytics.health_context import joint_health_context
+    joint = joint_health_context(metrics, inherited.get("sessions", []),
+        {"start": start.isoformat(), "end": end.isoformat(), "cutoff_time": cutoff.isoformat(), "timezone": timezone_name}, records=records)
+    return {"metrics": metrics, "joint_health_context": joint, "strength_tasks": list(strength_tasks.values()), "cutoff_time": cutoff.isoformat(), "window_start": start.isoformat(),
             "window_days": window_days, "reference_options": options, "reference_selection": selection_audit,
             "sleep_options": sleep_choices, "sleep_selection": sleep_audit,
             "selection_context": {key: context[key] for key in ("reference_selection", "sleep_selection", "workflow_context_id") if context and key in context},
             "cutoff_mode": "explicit" if cutoff_time is not None else "auto",
             "window_end": end.isoformat(), "period": period, "timezone": timezone_name, "data_hash": data_hash,
-            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.7.0",
+            "data_version": inherited["data_version"], "algorithm_version": "healthzip-v1.8.0",
             "observations": observations['metrics'], "observation_registry": observations['registry_version'],
             "observation_query_plan": observations['query_plan'],
             "query_plan": inherited["query_plan"],

@@ -5,15 +5,55 @@ from __future__ import annotations
 import json
 import math
 from collections import Counter, defaultdict
-from datetime import timedelta
-from statistics import median, stdev
+from datetime import datetime, timedelta
+from statistics import median, quantiles, stdev
 from zoneinfo import ZoneInfo
 
-from healthzip.normalize import quantity_value
+from healthzip.normalize import parse_apple_datetime, quantity_value
 
-from .contracts import Window, finite, instant, result
+from .contracts import Window, canonical_hash, finite, instant, result, select_as_of
 
 ASLEEP = {"asleep", "asleepunspecified", "asleepcore", "asleepdeep", "asleeprem", "core", "deep", "rem"}
+
+
+PHYSIOLOGY_VERSION = "daily-physiology-2.0.0"
+SLEEP_VERSION = "sleep-connected-observations-2.0.0"
+
+
+def record_conditions(row):
+    """Only explicit recorded conditions; missing metadata remains unknown."""
+    try:
+        metadata = json.loads(row.get("metadata_json") or "{}")
+    except (ValueError, TypeError):
+        metadata = {}
+    if not isinstance(metadata, dict):
+        metadata = {}
+    entries = defaultdict(list)
+    for entry in metadata.get("MetadataEntry", []):
+        if isinstance(entry, dict) and entry.get("key"):
+            entries[entry["key"]].append(entry.get("value"))
+    for name, values in entries.items():
+        if name not in metadata and all(value == values[0] for value in values):
+            metadata[name] = values[0]
+    if "HKMetadataKeyHeartRateMotionContext" in metadata and "activity_context" not in metadata:
+        metadata["activity_context"] = metadata["HKMetadataKeyHeartRateMotionContext"]
+    fields = ("sampling_mode", "measurement_context", "breathing_context", "posture",
+              "respiration", "activity_context", "recording_duration_seconds", "os_version",
+              "algorithm_version", "metric_identity")
+    return {name: {"value": row.get(name, metadata.get(name)),
+                   "source": "record" if name in row else "metadata" if name in metadata else "unknown"}
+            for name in fields}
+
+
+def physiology_stream_key(row):
+    key = list(stream_key(row))
+    conditions = record_conditions(row)
+    known = {name: conditions[name]["value"] for name in
+             ("sampling_mode", "measurement_context", "breathing_context", "posture", "respiration", "activity_context")
+             if conditions[name]["value"] is not None}
+    if known:
+        key[2] = (str(key[2]) + ";" if key[2] else "context:") + json.dumps(known, sort_keys=True, ensure_ascii=False)
+    return tuple(key)
 
 
 def stream_key(row: dict) -> tuple:
@@ -27,6 +67,11 @@ def stream_key(row: dict) -> tuple:
         try:
             metadata = json.loads(row.get("metadata_json") or "{}")
             declared = metadata.get("protocol_id") if isinstance(metadata, dict) else None
+            if declared is None and isinstance(metadata, dict):
+                entries = [e.get("value") for e in metadata.get("MetadataEntry", [])
+                           if isinstance(e, dict) and e.get("key") == "protocol_id"]
+                if entries and all(v == entries[0] for v in entries):
+                    declared = entries[0]
             protocol = declared if isinstance(declared, str) and declared.strip() and declared != "unknown" else None
         except (ValueError, TypeError):
             protocol = None
@@ -82,6 +127,94 @@ def sleep_intervals(rows: list[dict], start, end, context: dict, *, include_awak
     return out, reasons
 
 
+def subtract_intervals(intervals, excluded):
+    result = []
+    for first, last in union(intervals):
+        fragments = [(first, last)]
+        for a, b in union(excluded):
+            fragments = [(x, y) for c, d in fragments for x, y in
+                         ((c, min(d, a)), (max(c, b), d)) if x < y]
+        result.extend(fragments)
+    return result
+
+
+def observed_sleep_episodes(rows, window):
+    """Connected observed intervals stay intact across midnight and DST.
+
+    Contiguous asleep/awake annotations identify only an observed event, never a
+    proven complete night, actual wake-up, main sleep or nap. Separate sources
+    are returned separately; no cross-source interval mosaic is constructed.
+    """
+    streams = defaultdict(list)
+    for row in rows:
+        if row.get("canonical_type") != "sleep_stage" or stage(row) not in ASLEEP | {"awake"}:
+            continue
+        try:
+            a = instant(row.get("event_start") or row.get("start_utc"))
+            b = instant(row.get("_event_end") or row.get("event_end") or row.get("end_utc"))
+        except ValueError:
+            continue
+        if a < b <= instant(window.cutoff_time):
+            streams[stream_key(row)].append((a, b, row))
+    episodes = []
+    for key, items in streams.items():
+        clusters = []
+        for a, b, row in sorted(items, key=lambda item: (item[0], item[1])):
+            if clusters and a <= clusters[-1][1]:
+                clusters[-1][1] = max(clusters[-1][1], b)
+                clusters[-1][2].append((a, b, row))
+            else:
+                clusters.append([a, b, [(a, b, row)]])
+        for first, last, entries in clusters:
+            asleep = [(a, b) for a, b, row in entries if stage(row) in ASLEEP]
+            awake = [(a, b) for a, b, row in entries if stage(row) == "awake"]
+            if not asleep:
+                continue
+            day = last.astimezone(ZoneInfo(window.timezone)).date().isoformat()
+            if not instant(window.start) <= last < min(instant(window.end), instant(window.cutoff_time)) or day not in local_date_domain(window.start, min(instant(window.end), instant(window.cutoff_time)), window.timezone):
+                continue
+            selected = subtract_intervals(asleep, awake)
+            conflicts = [{"kind": "awake_asleep_overlap", "start": max(a, c).isoformat(), "end": min(b, d).isoformat()}
+                         for a, b in union(asleep) for c, d in union(awake) if max(a, c) < min(b, d)]
+            by_stage = defaultdict(list)
+            for a, b, row in entries:
+                name = stage(row).replace("asleep", "")
+                if name in {"core", "deep", "rem"}:
+                    by_stage[name].append((a, b))
+            stage_conflicts = []
+            names = sorted(by_stage)
+            for i, name in enumerate(names):
+                for other in names[i+1:]:
+                    stage_conflicts.extend((max(a, c), min(b, d)) for a, b in union(by_stage[name])
+                                          for c, d in union(by_stage[other]) if max(a, c) < min(b, d))
+            if stage_conflicts:
+                conflicts.extend({"kind": "stage_overlap", "start": a.isoformat(), "end": b.isoformat()}
+                                 for a, b in union(stage_conflicts))
+            stages = {name: subtract_intervals(values, awake + stage_conflicts) for name, values in by_stage.items()}
+            staged = seconds([interval for values in stages.values() for interval in values])
+            total = seconds(selected)
+            ids = [row.get("_source_id", row.get("id")) for _, _, row in entries]
+            episodes.append({"episode_id": "observed-sleep:" + canonical_hash([key, first, last, ids]),
+                "statistics_version": SLEEP_VERSION, "date": day, "protocol": list(key), "source_id": str(key),
+                "event_start": first.isoformat(), "event_end": last.isoformat(), "observed_start": first.isoformat(),
+                "observed_end": last.isoformat(), "actual_wake_time": None, "end_uncertainty": "recording_may_have_stopped",
+                "classification": "unclassified", "episode_complete": False, "value": total / 60, "unit": "min",
+                "stage_minutes": {name: seconds(values) / 60 for name, values in stages.items()},
+                "stage_coverage": staged / total if total else None, "stage_denominator_minutes": total / 60,
+                "unknown_stage_minutes": (total-staged) / 60, "conflicts": conflicts,
+                "arbitration": "single_stream_union_asleep_minus_explicit_awake;ambiguous_stages_unassigned",
+                "intervals": [{"start": a.isoformat(), "end": b.isoformat()} for a, b in selected],
+                "source_record_ids": ids, "n": len(entries),
+                "available_at": max((row.get("available_at") or row.get("ingested_at") for _, _, row in entries
+                                     if row.get("available_at") or row.get("ingested_at")), default=None)})
+    for episode in episodes:
+        episode["source_conflicts"] = [{"source_id": other["source_id"], "episode_id": other["episode_id"]}
+            for other in episodes if episode["source_id"] != other["source_id"]
+            and instant(episode["event_start"]) < instant(other["event_end"])
+            and instant(other["event_start"]) < instant(episode["event_end"])]
+    return episodes
+
+
 def elapsed_dates(window: Window) -> int:
     return len(local_date_domain(instant(window.start), min(instant(window.end), instant(window.cutoff_time)), window.timezone))
 
@@ -99,6 +232,7 @@ def local_date_domain(start, end, zone_name: str) -> set[str]:
 
 def daily_values(rows: list[dict], canonical: str, zone_name: str) -> dict:
     streams = defaultdict(lambda: defaultdict(list))
+    zone = ZoneInfo(zone_name)
     for row in rows:
         if row.get("canonical_type", row.get("metric_type")) != canonical:
             continue
@@ -106,14 +240,142 @@ def daily_values(rows: list[dict], canonical: str, zone_name: str) -> dict:
         value = numeric["value"]
         if value is None:
             continue
-        if canonical == "hrv_sdnn_ms" and row.get("metric_identity") == "RMSSD":
+        conditions = record_conditions(row)
+        if canonical == "hrv_sdnn_ms" and str(conditions["metric_identity"]["value"] or "SDNN").upper() != "SDNN":
             continue
-        day = instant(row["_event_end"]).astimezone(ZoneInfo(zone_name)).date().isoformat()
-        streams[stream_key(row)][day].append((value, {**row, "_numeric_provenance": numeric}))
-    return {str(key): [{"date": day, "value": next((v for v, r in items if r.get("is_primary") is True), median(v for v, _ in items)), "n": len(items),
-                        "source_ids": [r.get("_source_id") for _, r in items], "protocol": list(key),
-                        "numeric_provenance": [r["_numeric_provenance"] for _, r in items]}
-                       for day, items in sorted(days.items())] for key, days in streams.items()}
+        end = row.get("_event_end") or row.get("event_end") or row.get("end_utc")
+        day = instant(end).astimezone(zone).date().isoformat()
+        key = physiology_stream_key(row) if canonical in {"hrv_sdnn_ms", "resting_heart_rate_bpm"} else stream_key(row)
+        streams[key][day].append((value, {**row, "_numeric_provenance": numeric, "_conditions": conditions}))
+    output = {}
+    for key, days in streams.items():
+        points = []
+        for day, items in sorted(days.items()):
+            primary = [(v, r) for v, r in items if r.get("is_primary") is True]
+            # SDNN always describes a typical recorded sample that day. A primary
+            # flag cannot give one opportunistic sample extra statistical weight.
+            value = median(v for v, _ in items) if canonical == "hrv_sdnn_ms" or len(primary) != 1 else primary[0][0]
+            observations = []
+            for numeric, row in items:
+                end = row.get("_event_end") or row.get("event_end") or row.get("end_utc")
+                start = row.get("event_start") or row.get("start_utc") or end
+                try:
+                    metadata = json.loads(row.get("metadata_json") or "{}")
+                    raw_times = metadata.get("original_timestamps", {}) if isinstance(metadata, dict) else {}
+                except (ValueError, TypeError):
+                    raw_times = {}
+                original_start = raw_times.get("start") or row.get("start_original") or row.get("local_datetime")
+                original_end = raw_times.get("end") or row.get("end_original")
+                observations.append({"source_record_id": row.get("_source_id", row.get("id")),
+                    "value": numeric, "unit": row["_numeric_provenance"]["unit"],
+                    "start": start, "end": end, "local_time": instant(end).astimezone(zone).isoformat(),
+                    "original_start": original_start, "original_end": original_end,
+                    "start_offset_minutes": parse_apple_datetime(original_start)[2] if original_start else row.get("utc_offset_minutes"),
+                    "end_offset_minutes": parse_apple_datetime(original_end)[2] if original_end else None,
+                    "analysis_timezone": zone_name,
+                    "available_at": row.get("available_at"), "conditions": row["_conditions"]})
+            points.append({"date": day, "value": value, "n": len(items),
+                "source_ids": [r.get("_source_id", r.get("id")) for _, r in items], "protocol": list(key),
+                "statistic_kind": "median" if canonical == "hrv_sdnn_ms" or len(primary) != 1 else "explicit_primary_record",
+                "aggregation_unit": "local_day", "statistics_version": PHYSIOLOGY_VERSION,
+                "observations": observations, "conditions": observations[0]["conditions"],
+                "numeric_provenance": [r["_numeric_provenance"] for _, r in items]})
+        output[str(key)] = points
+    return output
+
+
+def comparison_windows(window, *, previous=None, baseline_days=28):
+    """Viewing intervals, never medical minimum observation requirements."""
+    zone = ZoneInfo(window.timezone)
+    start, end = instant(window.start).astimezone(zone), min(instant(window.end), instant(window.cutoff_time)).astimezone(zone)
+    reference_end = start.replace(hour=0, minute=0, second=0, microsecond=0)
+    reference_start = reference_end - timedelta(days=max(1, int(baseline_days)))
+    prior = previous or {"start": (start - (end-start)).isoformat(), "end": start.isoformat()}
+    if instant(prior["end"]) > instant(window.start):
+        raise ValueError("comparison_windows_must_not_overlap")
+    return {"current": window.as_dict(),
+            "previous": {**prior, "timezone": window.timezone, "closure": "[start,end)"},
+            "reference": {"start": reference_start.isoformat(), "end": reference_end.isoformat(),
+                          "timezone": window.timezone, "closure": "[start,end)"}}
+
+
+def period_statistics(points, bounds, cutoff_time, unit):
+    first, last = instant(bounds["start"]), min(instant(bounds["end"]), instant(cutoff_time))
+    zone = ZoneInfo(bounds["timezone"])
+    observed_domain = local_date_domain(first, last, bounds["timezone"])
+    # Complete local calendar days, including 23/25-hour DST days. Existing
+    # metric.value still exposes today's observations; they are not the default
+    # completed-day comparison or reference population.
+    domain = set()
+    for day in observed_domain:
+        midnight = datetime.fromisoformat(day).replace(tzinfo=zone)
+        if first <= instant(midnight) and instant(midnight + timedelta(days=1)) <= last:
+            domain.add(day)
+    selected = [point for point in points if point["date"] in domain and finite(point.get("value")) is not None]
+    partial_points = [point for point in points if point["date"] in observed_domain-domain and finite(point.get("value")) is not None]
+    dates = sorted({point["date"] for point in selected})
+    numbers = [point["value"] for point in selected]
+    weekdays = Counter(instant(point["date"] + "T12:00:00+00:00").weekday() for point in selected)
+    complete_window = ({"start": datetime.fromisoformat(min(domain)).replace(tzinfo=zone).isoformat(),
+                        "end": (datetime.fromisoformat(max(domain)).replace(tzinfo=zone)+timedelta(days=1)).isoformat(),
+                        "timezone": bounds["timezone"], "closure": "[start,end)"} if domain else None)
+    return {"window": bounds, "complete_window": complete_window,
+        "observed_window": {**bounds, "end": last.isoformat()},
+        "value": median(numbers) if numbers else None, "unit": unit,
+        "statistic_kind": "median", "quartiles": quantiles(numbers, n=4, method="inclusive") if len(numbers) > 1 else None,
+        "recorded_days": len(dates), "window_days": len(domain), "dates": dates,
+        "missing_dates": sorted(domain - set(dates)), "weekday_counts": {str(k): v for k, v in sorted(weekdays.items())},
+        "daily_points": selected, "partial_daily_points": partial_points, "partial_dates": sorted(observed_domain-domain),
+        "observed_window_days": len(observed_domain), "raw_record_count": sum(point.get("n", len(point.get("source_ids", []))) for point in selected),
+        "source_record_ids": sorted({str(i) for point in selected for i in point.get("source_ids", point.get("source_record_ids", [])) if i is not None}),
+        "current_date_complete": not partial_points}
+
+
+def comparison_from_daily(groups, bounds, cutoff_time, unit):
+    streams = []
+    for key, periods in groups.items():
+        summaries = {name: period_statistics(periods.get(name, []), interval, cutoff_time, unit) for name, interval in bounds.items()}
+        current = summaries["current"]
+        changes = {}
+        limitations = ["个人历史观察范围不是健康正常范围；记录覆盖不代表完整采集。"]
+        for name in ("previous", "reference"):
+            other = summaries[name]
+            difference = current["value"] - other["value"] if current["value"] is not None and other["value"] is not None else None
+            changes[name + "_change"] = {"absolute": difference,
+                "relative_percent": difference / other["value"] * 100 if difference is not None and other["value"] not in {None, 0} else None}
+            if current["recorded_days"] != other["recorded_days"] or current["window_days"] != other["window_days"]:
+                limitations.append(f"{name}与本期的记录天数或区间长度不同，代表性可能不同。")
+            left = {k for k, v in current["weekday_counts"].items() if v}
+            right = {k for k, v in other["weekday_counts"].items() if v}
+            if left and right and left != right:
+                limitations.append(f"{name}与本期的星期组成不同，不能直接推广到整周。")
+        if current["partial_dates"]:
+            limitations.append("当前或起始日期尚非完整观测日，已保留在趋势，未混入完整日比较。")
+        first_point = next((p for points in periods.values() for p in points), {})
+        protocol = first_point.get("protocol")
+        if not protocol or protocol[2] is None or str(protocol[2]).startswith("context:"):
+            limitations.append("测量协议未完整记录；同设备不证明相同体位、呼吸或采样情境。")
+        entry = {"stream_id": key, "protocol": protocol, "metric_id": first_point.get("metric_id"),
+                 **summaries, **changes, "limitations": limitations}
+        entry["fact_id"] = "comparison:" + canonical_hash(entry)
+        streams.append(entry)
+    return {"version": PHYSIOLOGY_VERSION, "statistic_kind": "median_of_daily_medians", "streams": streams,
+            "reference_policy": "complete_local_days_strictly_before_evaluation_window", "windows": bounds}
+
+
+def physiology_comparison(rows, canonical, window, *, previous=None, baseline_days=28, retrospective=False):
+    bounds = comparison_windows(window, previous=previous, baseline_days=baseline_days)
+    groups = defaultdict(dict)
+    exclusions = {}
+    for name, interval in bounds.items():
+        if instant(interval["start"]) >= instant(interval["end"]):
+            continue
+        selected, exclusions[name] = select_as_of(rows, Window(interval["start"], interval["end"], window.cutoff_time, window.timezone), retrospective=retrospective)
+        for key, points in daily_values(selected, canonical, window.timezone).items():
+            groups[key][name] = points
+    output = comparison_from_daily(groups, bounds, window.cutoff_time, "ms" if canonical == "hrv_sdnn_ms" else "bpm")
+    output["exclusions"] = exclusions
+    return output
 
 
 def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
@@ -132,19 +394,25 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
             if not main.get("start") or not main.get("end") or not instant(main["start"]) < instant(main["end"]) <= instant(window.cutoff_time):
                 return emit(None, "insufficient", reasons=["main_sleep_episode_boundary_invalid_or_future"], valid_n=0)
             start, end = max(start, instant(main["start"])), min(end, instant(main["end"]))
-        intervals, reasons = sleep_intervals(rows, start, end, context, include_awake=metric_id == "STATE-SLEEP-STAGE")
+        intervals, reasons = sleep_intervals(rows, start, end, context, include_awake=True)
         if reasons and not intervals:
             return emit(None, "incompatible", reasons=reasons, valid_n=0, total_n=len(rows))
-        asleep = union([(v["start"], v["end"]) for v in intervals if v["stage"] in ASLEEP])
+        raw_asleep = [(v["start"], v["end"]) for v in intervals if v["stage"] in ASLEEP]
+        awake = [(v["start"], v["end"]) for v in intervals if v["stage"] == "awake"]
+        asleep = subtract_intervals(raw_asleep, awake)
+        sleep_conflicts = [{"start": max(a, c).isoformat(), "end": min(b, d).isoformat()}
+                           for a, b in union(raw_asleep) for c, d in union(awake) if max(a, c) < min(b, d)]
         if metric_id in {"STATE-SLEEP-MAIN", "STATE-SLEEP-24H"}:
             if not asleep:
                 return emit(None, "insufficient", reasons=["no_observed_asleep_intervals"])
             complete = metric_id == "STATE-SLEEP-MAIN" and bool(main and main.get("complete"))
             return emit({"observed_minutes": seconds(asleep) / 60, "complete_episode": complete,
+                         "conflicts": sleep_conflicts, "arbitration": "single_stream_union_asleep_minus_explicit_awake",
                          "attribution_date": (main.get("attribution_date") or instant(main["end"]).astimezone(ZoneInfo(window.timezone)).date().isoformat()) if main else None,
                          "intervals": [{"start": a.isoformat(), "end": b.isoformat()} for a, b in asleep]},
                         "valid" if complete else "partial", evidence_status="observed",
-                        reasons=[] if complete else ["observed_sleep_not_proven_complete_episode"])
+                        reasons=([] if complete else ["observed_sleep_not_proven_complete_episode"]) + (["awake_asleep_conflict_excluded"] if sleep_conflicts else []),
+                        algorithm_version=SLEEP_VERSION)
         if metric_id == "STATE-SLEEP-COVERAGE":
             domain = local_date_domain(start, end, window.timezone)
             dates = set().union(*(local_date_domain(a, b, window.timezone) for a, b in asleep)) & domain
@@ -219,6 +487,8 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
                         evidence_status="observed", reasons=["SDNN_is_not_RMSSD"])
         return emit(values or None, "valid" if values else "insufficient", evidence_status="observed",
                     valid_n=sum(item["n"] for stream in values.values() for item in stream),
+                    statistics_version=PHYSIOLOGY_VERSION, algorithm_version=PHYSIOLOGY_VERSION, statistic_kind="daily_median", aggregation_unit="local_day",
+                    measurement_identity=canonical, measurement_origin="source_reported",
                     reasons=["protocol_streams_not_pooled", "SDNN_is_not_RMSSD"] if metric_id == "STATE-SDNN" else ["protocol_streams_not_pooled"])
     if metric_id in {"STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION"}:
         if "baseline_daily" not in context:
@@ -238,7 +508,7 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
                     protocol = daily[-1]["protocol"]
                     center = median(v["value"] for v in past) if past else None
                     mad = median(abs(v["value"] - center) for v in past) if len(past) > 1 else None
-                    protocol_known = all(protocol) if completed_days else protocol[2] is not None
+                    protocol_known = (all(protocol) if completed_days else protocol[2] is not None) and not str(protocol[2]).startswith("context:")
                     deviation = current["value"] - center if current is not None and center is not None else None
                     z = deviation / (1.4826 * mad) if deviation is not None and protocol_known and mad is not None and mad > 0 else None
                     streams.append({"canonical_type": canonical, "stream": key, "protocol": protocol,
@@ -302,7 +572,8 @@ def state_metric(metric_id: str, rows: list[dict], window: Window, context: dict
         values = [{"id": r.get("id"), "value": r[field], "scale_version": r.get("scale_version"),
                    "anchors": r.get("anchors"), "muscle": r.get("muscle"), "side": r.get("side"),
                    "location": r.get("location"), "quality": r.get("quality"),
-                   "movement_impact": r.get("movement_impact")} for r in rows if r.get(field) is not None]
+                   "movement_impact": r.get("movement_impact"),
+                   "observed_at": r.get("_event_end"), "available_at": r.get("available_at")} for r in rows if r.get(field) is not None]
         out = {"observations": values, "frequency_by_scale": {}}
         for value in values:
             key = str((value["scale_version"], value["muscle"], value["side"]))

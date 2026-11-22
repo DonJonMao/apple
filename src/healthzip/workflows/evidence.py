@@ -1,4 +1,6 @@
 """Repository-derived applicability and bounded, fixed public knowledge tasks."""
+from contextlib import closing, contextmanager, nullcontext
+from contextvars import ContextVar
 from pathlib import Path
 
 from healthzip.science.contracts import instant
@@ -6,6 +8,32 @@ from healthzip.science.contracts import instant
 from .contracts import WORKFLOWS
 
 QUERY_FORM = "en"  # Owned source prose is predominantly English; UI stays Chinese.
+
+
+_REPORT_EVIDENCE = ContextVar("healthzip_report_evidence", default=None)
+
+
+@contextmanager
+def report_evidence(root):
+    """Share a local public connection and a release identity for this report."""
+    root = Path(root).resolve()
+    state = {"root": root}
+    token = _REPORT_EVIDENCE.set(state)
+    try:
+        yield
+    finally:
+        _REPORT_EVIDENCE.reset(token)
+        if "library" in state:
+            state["library"].close()
+
+
+def _release_id(workbench):
+    row = workbench.lib.sources.execute(
+        "SELECT release_id FROM index_release WHERE "
+        "json_extract(manifest_json,'$.candidate_scope_version') IS NOT NULL "
+        "AND json_extract(manifest_json,'$.candidate_scope_version') != '' "
+        "ORDER BY created_at DESC LIMIT 1").fetchone()
+    return row[0] if row else None
 
 
 def identity(knowledge):
@@ -17,6 +45,14 @@ def identity(knowledge):
 def background_inputs(contexts):
     return {mid: next((ctx["metrics"][mid] for ctx in reversed(contexts) if ctx["metrics"].get(mid, {}).get("value") is not None), contexts[-1]["metrics"].get(mid))
             for mid in contexts[-1]["metrics"]} if contexts else None
+
+
+def _observed_protocol(value):
+    """Grouping by known context does not establish an acquisition protocol."""
+    if not isinstance(value, str):
+        return None
+    value = value.split(";context:", 1)[0].strip()
+    return value if value not in ("", "unknown") and not value.startswith("context:") else None
 
 
 def local_context(metric_id, metric, sessions, declaration):
@@ -44,14 +80,15 @@ def local_context(metric_id, metric, sessions, declaration):
         value = metric.get("value")
         if isinstance(value, dict):
             for stream in value.get("streams", []):
-                if isinstance(stream, dict) and stream.get("protocol_id"):
-                    protocols.add(stream["protocol_id"])
+                if isinstance(stream, dict) and (known := _observed_protocol(stream.get("protocol_id"))):
+                    protocols.add(known)
             for stream in value.values():
                 if isinstance(stream, list):
                     for point in stream:
                         protocol = point.get("protocol") if isinstance(point, dict) else None
-                        if isinstance(protocol, list) and len(protocol) > 2 and protocol[2]:
-                            protocols.add(protocol[2])
+                        if isinstance(protocol, (list, tuple)) and len(protocol) > 2:
+                            if known := _observed_protocol(protocol[2]):
+                                protocols.add(known)
         if metric_id == "STR-10" and isinstance(value, list) and value:
             # The retrieval layer separately derives and validates direct RIR
             # from these repository-computed values; this only names the measure.
@@ -59,6 +96,28 @@ def local_context(metric_id, metric, sessions, declaration):
                    and item.get("rir_interval") is None for item in value):
                 protocols.add("direct_RIR")
         context["measurement_protocol"] = next(iter(protocols)) if len(protocols) == 1 else None
+    comparison = metric.get("comparison") or {}
+    if comparison:
+        # Retain the measured dates/conditions locally. The public retriever
+        # derives generic method needs and never serializes this fact packet.
+        streams = comparison.get("streams", [])
+        context["comparison_windows"] = comparison.get("windows", {})
+        context["observed_dates"] = sorted({date for stream in streams
+            for period in ("current", "previous", "reference")
+            for date in (stream.get(period) or {}).get("dates", [])})
+        context["fact_ids"] = [stream["fact_id"] for stream in streams if stream.get("fact_id")]
+        context["known_measurement_conditions"] = [
+            {"date": point.get("date"), "conditions": observation.get("conditions", {})}
+            for stream in streams for period in ("current", "previous")
+            for point in (stream.get(period) or {}).get("daily_points", [])
+            for observation in point.get("observations", [])]
+        protocol_names = [_observed_protocol(stream["protocol"][2])
+                          if isinstance(stream.get("protocol"), (list, tuple)) and len(stream["protocol"]) > 2
+                          else None for stream in streams]
+        explicit = set(protocol_names)
+        context["measurement_protocol"] = next(iter(explicit)) if len(explicit) == 1 and None not in explicit else None
+    if values.get("age") is not None:
+        context["age"] = values["age"]
     return context
 
 
@@ -71,12 +130,22 @@ def retrieve(workflow_id, metrics, sessions, declaration, *, root, release_id, b
     if not all((Path(root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
         return {"status": "source_unavailable", "queries": [], "release_id": release_id,
                 "reason_codes": ["local_knowledge_store_missing"]}
-    workbench = KnowledgeWorkbench(root)
-    try:
+    state = _REPORT_EVIDENCE.get()
+    if state is not None and state["root"] == Path(root).resolve():
+        if "library" not in state:
+            state["library"] = KnowledgeWorkbench(root)
+        library = nullcontext(state["library"])
+    else:
+        library = closing(KnowledgeWorkbench(root))
+        state = None
+    with library as workbench:
         if release_id is None:
-            rows = workbench.lib.sources.execute("SELECT release_id,manifest_json FROM index_release ORDER BY created_at DESC")
-            import json
-            release_id = next((row[0] for row in rows if json.loads(row[1]).get("candidate_scope_version")), None)
+            if state is None:
+                release_id = _release_id(workbench)
+            else:
+                if "release_id" not in state:
+                    state["release_id"] = _release_id(workbench)
+                release_id = state["release_id"]
         if release_id is None:
             return {"status": "source_unavailable", "queries": [], "release_id": None,
                     "reason_codes": ["compatible_frozen_metric_release_required"]}
@@ -121,5 +190,3 @@ def retrieve(workflow_id, metrics, sessions, declaration, *, root, release_id, b
                                  "scope_version": metric_retrieval.CANDIDATE_SCOPE_VERSION,
                                  "context_version": metric_retrieval.METRIC_EVIDENCE_CONTEXT_VERSION,
                                  "nodes": list(dict.fromkeys(node for node, _, _ in tasks)), "max_queries_per_node": 2}}
-    finally:
-        workbench.close()

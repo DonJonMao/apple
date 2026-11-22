@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from healthzip.training.current import current_advice, objective_comparison, save_equipment_loads
+from tests.app_navigation import go
 
 UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.py")))
@@ -107,7 +108,7 @@ def test_real_app_training_automatically_shows_options_and_free_actual(tmp_path,
     UI["install"](monkeypatch)
     # Real root app, not a wrapper rendering just the new fragment.
     app = HELP["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert not app.exception, [e.message for e in app.exception]
     UI["send"](app, "session", {"session_id": instance["session_id"]})
     assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
@@ -141,7 +142,7 @@ def test_real_page_saves_actuals_during_evidence_failure_and_recovers(tmp_path, 
 
     with monkeypatch.context() as patch:
         patch.setattr(evidence, "retrieve", unavailable)
-        app.radio(key="main_workspace").set_value("力量").run()
+        go(app, "力量")
         assert not app.exception
         assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "error"
         UI["legacy"](app, "recommendations", instance_id=instance["id"])

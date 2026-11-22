@@ -179,7 +179,7 @@ def owned_subtree(node):
     for child in list(clone.iterdescendants()):
         if child.getparent() is None:
             continue
-        if etree.QName(child).localname in OWNERS | {"permissions", "license"}:
+        if not isinstance(child.tag, str) or etree.QName(child).localname in OWNERS | {"permissions", "license"}:
             parent, previous, tail = child.getparent(), child.getprevious(), child.tail or ""
             if previous is not None:
                 previous.tail = (previous.tail or "") + tail

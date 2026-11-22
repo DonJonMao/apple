@@ -23,6 +23,7 @@ from streamlit.testing.v1 import AppTest
 from healthzip.db.repository import Repository
 from healthzip.importers.apple_xml import import_apple_zip
 from healthzip.training.service import TrainingService
+from tests.app_navigation import go
 
 ROOT = Path(__file__).resolve().parents[2]
 APP = ROOT / "app.py"
@@ -98,8 +99,8 @@ def assert_app_ok(app):
 def assert_shared_navigation(app, workspace):
     assert_app_ok(app)
     main = [radio for radio in app.main.radio if radio.key == "main_workspace"]
-    assert len(main) == 1 and main[0].value == workspace
-    assert len(main[0].options) == 9 and main[0].horizontal
+    assert len(main) == 1 and main[0].value == ("身体" if workspace in {"心率", "睡眠", "体重", "有氧"} else "训练" if workspace == "力量" else workspace)
+    assert len(main[0].options) == 5 and main[0].horizontal
     assert not any(radio.key == "main_workspace" for radio in app.sidebar.radio)
     assert not app.sidebar.radio and not app.sidebar.text_input
     assert "数据质量" not in main[0].options and "周期" not in main[0].options
@@ -117,7 +118,7 @@ def event_count(database):
 def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_workspaces(summary_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     assert_shared_navigation(app, "总览")
-    app.main.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert_shared_navigation(app, "力量")
     assert UI["send"](app, "start_session")["status"] == "saved"
     session = UI["snapshot"](app)["session"]
@@ -133,7 +134,7 @@ def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_wor
     })["status"] == "saved"
     before = event_count(summary_workspace)
     for workspace in ("睡眠", "心率", "力量"):
-        app.main.radio(key="main_workspace").set_value(workspace).run()
+        go(app, workspace)
         assert_shared_navigation(app, workspace)
         assert not any(radio.key == "workspace_summary_period" for radio in app.radio)
         if workspace != "力量":
@@ -152,14 +153,19 @@ def test_shared_navigation_retains_an_active_saved_draft_when_switching_body_wor
 def test_week_month_cards_trends_and_details_use_the_same_snapshot(summary_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     before = event_count(summary_workspace)
-    expected = {"睡眠": {"本周": ["7.5 小时"], "本月": ["6.8 小时"]},
-                "心率": {"本周": ["60.0 次/分", "50.0 毫秒"], "本月": ["65.0 次/分", "40.0 毫秒"]}}
+    # Recent observations belong to the unfinished cutoff date. They remain
+    # visible, but only the earlier complete day enters the new period statistic.
+    partial = {"睡眠": ["7.5 小时"], "心率": ["60.0 bpm", "50.0 ms"]}
+    complete = {"睡眠": ["6.0 小时"], "心率": ["70.0 bpm", "30.0 ms"]}
     for workspace in ("睡眠", "心率"):
-        app.main.radio(key="main_workspace").set_value(workspace).run()
+        go(app, workspace)
         for label in ("本周", "本月"):
             app.main.radio(key="body_period").set_value(label).run()
             assert_shared_navigation(app, workspace)
-            assert all(value in [metric.value for metric in app.metric] for value in expected[workspace][label])
+            assert all(value in main_text(app) for value in partial[workspace])
+            assert "未完整" in main_text(app) or "未结束" in main_text(app)
+            if label == "本月":
+                assert all(value in [metric.value for metric in app.metric] for value in complete[workspace])
             assert any("所选范围" in caption.value for caption in app.caption)
             assert "合成摘要手表" in main_text(app)
             assert all(not expander.proto.expanded for expander in app.expander)
@@ -182,7 +188,7 @@ def test_optional_summary_failure_preserves_navigation_and_real_training_recordi
     monkeypatch.setattr("healthzip.analytics.workspace_summary.workspace_summary", unavailable)
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     for workspace in ("睡眠", "心率", "力量"):
-        app.main.radio(key="main_workspace").set_value(workspace).run()
+        go(app, workspace)
         assert_shared_navigation(app, workspace)
         assert "本次解释未完成" not in main_text(app)
         # Optional overview summaries are no longer a dependency of body pages or training.

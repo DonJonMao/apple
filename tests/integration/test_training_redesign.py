@@ -137,3 +137,54 @@ def test_catalog_metadata_aliases_and_external_preference_invalidation(tmp_path,
         refreshed = send(repo, state, "catalog", query="External Alias")["data"]
         assert refreshed["items"][0]["exercise_id"] == identity
         assert refreshed["items"][0]["favorite"] is False
+
+
+def test_discard_requires_reviewed_drafts_and_atomic_success(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+        state, session = setup_session(repo)
+        svc = TrainingService(repo)
+        first, second = [item["sets"][0] for item in session["exercises"]]
+        revisions = {row["set_uuid"]: row["revision"] for row in (first, second)}
+        core = {"session_id": session["id"], "base_revision": session["revision"]}
+        svc.edit_set(first["set_uuid"], {"reps": 8}, base_revision=first["revision"])
+        conflict = send(repo, state, "end_session", **core, discard_drafts=revisions)
+        assert conflict["status"] == "conflicted"
+        assert svc._session(session["id"])["session_status"] == session["session_status"]
+        assert svc.get_set(second["set_uuid"])["deleted_at"] is None
+        revisions[first["set_uuid"]] = svc.get_set(first["set_uuid"])["revision"]
+        # Validation inside end_session happens after the draft tombstones. The
+        # same transaction must roll back the child events and cache versions.
+        version = svc.data_version()
+        refused = send(repo, state, "end_session", **core, discard_drafts=revisions, session_rpe=80)
+        assert refused["status"] == "error"
+        assert svc.data_version() == version
+        assert all(not svc.get_set(row)["deleted_at"] for row in revisions)
+        command = {"id": str(uuid4()), "action": "end_session",
+                   "payload": {**core, "discard_drafts": revisions}}
+        receipt = handle_command(repo, command, state)
+        assert receipt["status"] == "saved" and receipt["data"]["discarded_draft_count"] == 2
+        assert all(svc.get_set(row)["deleted_at"] for row in revisions)
+        assert svc.get_session(session["id"])["completed_sets"] == 0
+        after = svc.data_version()
+        assert after > version
+        assert handle_command(repo, command, state)["replayed"]
+        assert svc.data_version() == after
+
+
+def test_classification_conflict_and_retry_do_not_replace_completed_fact(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+        state, session = setup_session(repo)
+        row = session["exercises"][0]["sets"][0]
+        kwargs = {"set_id": row["set_uuid"], "base_revision": row["revision"], "complete": True}
+        values = {"reps": 8, "rir": 0, "set_type": "assessment", "stop_reason": "technical_limit"}
+        assert send(repo, state, "save_set", **kwargs, changes=values)["status"] == "saved"
+        assert send(repo, state, "save_set", **kwargs, changes=values)["data"]["already_completed"]
+        result = send(repo, state, "save_set", **kwargs, changes={**values, "stop_reason": "pain"})
+        assert result["status"] == "conflicted"
+        svc = TrainingService(repo)
+        actual = svc.get_set(row["set_uuid"])
+        assert actual["stop_reason"] == "technical_limit"
+        svc.delete_set(actual["set_uuid"], base_revision=actual["revision"])
+        assert send(repo, state, "save_set", **kwargs, changes=values)["status"] == "error"

@@ -175,7 +175,8 @@ def _safe_cards(cards: list[dict[str, Any]], allow_sensitive: bool = False,
                 {
                     k: fact.get(k)
                     for k in ("metric", "value", "unit", "n_days", "n", "sample_count",
-                              "window", "direction", "algorithm_version")
+                              "window", "direction", "algorithm_version", "fact_id", "statistic_kind",
+                              "recorded_days", "window_days", "dates")
                     if k in fact
                 }
             )
@@ -271,6 +272,8 @@ def build_evidence_payload(analysis: dict[str, Any], question: str = "") -> dict
 
 
 def validate_ai_result(value: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    if not _known_answer_fields(value):
+        raise ValueError("AI response failed evidence validation")
     normalized = {
         "summary": value.get("summary"),
         "evidence_ids": value.get("evidence_ids"),
@@ -306,6 +309,7 @@ def explain_analysis(
         return {
             "summary": fallback.text,
             "source": "local_fallback",
+            "reason_code": fallback.error,
             "evidence_ids": fallback.evidence_ids,
             "limitations": ["AI 解释不可用：当前未允许网络请求。"] + fallback.limitations,
             "actions": fallback.allowed_actions,
@@ -316,6 +320,7 @@ def explain_analysis(
         return {
             "summary": fallback.text,
             "source": "local_fallback",
+            "reason_code": fallback.error,
             "evidence_ids": fallback.evidence_ids,
             "limitations": ["AI 解释不可用：未配置 endpoint 或 API key。"] + fallback.limitations,
             "actions": fallback.allowed_actions,
@@ -324,6 +329,7 @@ def explain_analysis(
     return {
         "summary": result.text,
         "source": "ai" if result.source == "ai" else "local_fallback",
+        "reason_code": result.error,
         "evidence_ids": result.evidence_ids,
         "limitations": result.limitations
         if result.source == "ai"
@@ -376,9 +382,16 @@ def _grounded_summary(summary: str, cards: list[dict]) -> bool:
     return bool(summary.strip()) and all(line.strip() in allowed for line in summary.splitlines())
 
 
+def _known_answer_fields(payload):
+    allowed = {"summary", "evidence_ids", "facts", "limitations", "actions", "allowed_actions"}
+    return (isinstance(payload, dict) and set(payload) <= allowed and
+            ("actions" not in payload or "allowed_actions" not in payload or
+             payload["actions"] == payload["allowed_actions"]))
+
+
 def _validate(payload: Any, cards: list[dict[str, Any]]) -> Optional[AIResult]:
     if (
-        not isinstance(payload, dict)
+        not _known_answer_fields(payload)
         or not isinstance(payload.get("summary"), str)
         or not payload["summary"].strip()
     ):
@@ -422,9 +435,15 @@ def _validate(payload: Any, cards: list[dict[str, Any]]) -> Optional[AIResult]:
         # A value and its context must match the same source fact. Separate
         # membership checks would allow mixing two windows of one metric.
         if eid not in ids or not any(
-            f.get("metric") == metric
+            set(fact) <= set(f) | {"evidence_id", "window", "algorithm_version", "direction"}
+            and f.get("metric") == metric
             and _same_fact_value(value, f.get("value"))
             and f.get("unit") == fact.get("unit")
+            and (not f.get("fact_id") or f.get("fact_id") == fact.get("fact_id"))
+            and all(key not in fact or fact[key] == f.get(key)
+                    for key in ("statistic_kind", "recorded_days", "window_days", "dates", "sample_count", "n", "n_days"))
+            and (not f.get("fact_id") or fact.get("window") == f.get("window"))
+            and (not f.get("fact_id") or fact.get("direction") == f.get("direction"))
             and ("window" not in fact or
                  f.get("window", known[eid].get("window")) == fact["window"])
             and ("direction" not in fact or f.get("direction") == fact["direction"])
@@ -501,6 +520,18 @@ class AIClient:
                 parsed = dict(parsed)
                 parsed["allowed_actions"] = parsed["actions"]
             checked = _validate(parsed, safe)
+            if checked is None and _known_answer_fields(parsed) and isinstance(parsed.get("summary"), str):
+                # Recover only complete grounded paragraphs, without another external call.
+                # Facts, citations, actions and limitations must still pass untouched.
+                lines = parsed["summary"].splitlines()
+                ids = parsed.get("evidence_ids")
+                if len(lines) > 1 and isinstance(ids, list):
+                    cited = [card for card in safe if card["id"] in ids]
+                    grounded = [line for line in lines if _grounded_summary(line.strip(), cited)]
+                    if grounded and len(grounded) < len(lines):
+                        checked = _validate({**parsed, "summary": "\n".join(grounded)}, safe)
+                        if checked:
+                            checked.error = "partial_validation"
             if checked is not None:
                 checked.limitations = list(dict.fromkeys([
                     *checked.limitations,

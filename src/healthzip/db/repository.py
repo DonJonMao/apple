@@ -16,7 +16,7 @@ SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 CURRENT_SCHEMA_VERSION = 5
 # Bump for any additive migration, including changes below schema version 5.
 # This marker is committed only after the complete migration succeeds.
-REPOSITORY_MIGRATION_REVISION = 3
+REPOSITORY_MIGRATION_REVISION = 5
 
 
 def _json(value: Any) -> str:
@@ -85,6 +85,7 @@ class Repository:
 
     def _migrate_schema(self) -> None:
         from healthzip.advice import migrate_advice
+        from healthzip.db.observation_ledger import migrate_observation_ledger
         from healthzip.db.temporal_schema import migrate_temporal
         from healthzip.training.catalog_import import migrate_catalog
         from healthzip.training.schema import migrate_training
@@ -98,6 +99,7 @@ class Repository:
         migrate_catalog(self.conn)
         migrate_advice(self.conn)
         migrate_temporal(self.conn)
+        migrate_observation_ledger(self.conn)
         migrate_workflows(self.conn)
         self.conn.execute("UPDATE schema_meta SET value=? WHERE key='schema_version'", (str(CURRENT_SCHEMA_VERSION),))
 
@@ -642,7 +644,7 @@ class Repository:
 
     def insert_activity_summary(self, batch_id: int, data: dict[str, Any]) -> None:
         self.conn.execute(
-            "INSERT OR IGNORE INTO activity_summary(import_batch_id,summary_date,active_energy,active_energy_goal,exercise_minutes,exercise_minutes_goal,stand_hours,stand_hours_goal) VALUES(?,?,?,?,?,?,?,?)",
+            "INSERT OR IGNORE INTO activity_summary(import_batch_id,summary_date,active_energy,active_energy_goal,exercise_minutes,exercise_minutes_goal,stand_hours,stand_hours_goal,metadata_json) VALUES(?,?,?,?,?,?,?,?,?)",
             (
                 batch_id,
                 data.get("date"),
@@ -652,6 +654,7 @@ class Repository:
                 data.get("exercise_minutes_goal"),
                 data.get("stand_hours"),
                 data.get("stand_hours_goal"),
+                data.get("metadata_json", "{}"),
             ),
         )
 

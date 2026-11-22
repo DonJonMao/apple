@@ -1,0 +1,155 @@
+{
+  "data": "synthetic_only",
+  "generated_at": "2026-11-22T10:12:27.219451+00:00",
+  "first_fact_budget_ms": 3000,
+  "warm_fact_trend_p95_budget_ms": 800,
+  "cold_samples_per_scenario": 1,
+  "warm_samples_per_scale": 30,
+  "clock": "Facts/trend wait for a distinct completed review snapshot; conservative upper bounds. First open starts at page.goto after service readiness; click samples use actual DOM click.",
+  "warm_navigation_method": "Actual review radio clicks week then month; independently select overview month once. Every trial verifies departure review, newly completed overview, newly completed returned review, exactly one selected period radio, preserved month on both pages and actual card values.",
+  "historical_method_boundary": "preview-*-before-range-fix.json retain earlier measurements with a programmatically initialized month. Those receipts are not evidence that a user-selected range survived navigation and are not reused for final scores.",
+  "100k": {
+    "artifact": "preview-100k.json",
+    "historical_artifact": "preview-100k-before-range-fix.json",
+    "health_sample_count": 100001,
+    "training_set_count": 10000,
+    "new_process_service_ready_ms": 2341.57831966877,
+    "new_process": {
+      "first_fact_ms": 6853.0639335513115,
+      "facts_and_trend_ms": 8221.647553145885,
+      "full_interaction_ms": 8236.357547342777
+    },
+    "running_cold": {
+      "week": {
+        "first_fact_ms": 6084.900001525879,
+        "facts_and_trend_ms": 7493.5,
+        "full_interaction_ms": 7518.900001525879
+      },
+      "month": {
+        "first_fact_ms": 7188.899993896484,
+        "facts_and_trend_ms": 8584.699996948242,
+        "full_interaction_ms": 8607
+      }
+    },
+    "warm_return": {
+      "n": 30,
+      "first_fact_ms": {
+        "p50": 242.1999969482422,
+        "p95": 260.5
+      },
+      "facts_and_trend_ms": {
+        "p50": 249.3000030517578,
+        "p95": 266.5999984741211
+      },
+      "full_interaction_ms": {
+        "p50": 256.4000015258789,
+        "p95": 280.0999984741211
+      },
+      "server_page_ms": {
+        "p50": 86.981,
+        "p95": 92.498
+      },
+      "automation_request_to_settled_ms": {
+        "p50": 293.221615254879,
+        "p95": 310.36869436502457
+      }
+    },
+    "budgets": {
+      "running_cold_first_fact_3s": false,
+      "new_process_first_fact_3s": false,
+      "warm_fact_trend_p95_800ms": true,
+      "warm_fact_trend_p95_1000ms": true
+    },
+    "navigation_verification": {
+      "trial_count": 30,
+      "distinct_overview_snapshots": 30,
+      "distinct_returned_review_snapshots": 30,
+      "three_distinct_markers_per_navigation": true,
+      "continuous_navigation_chain": true,
+      "both_actual_month_facts_match_normal_summary": true,
+      "checked_period_radio_exclusivity_asserted": true
+    },
+    "all_three_process_values_verified": true,
+    "full_reports_generated": 0,
+    "source_hashes_match_current": {
+      "app.py": true,
+      "src/healthzip/ui/review_page.py": true,
+      "src/healthzip/ui/overview.py": true,
+      "src/healthzip/ui/navigation.py": true,
+      "src/healthzip/analytics/workspace_summary.py": true,
+      "tools/master_preview_benchmark.py": true
+    }
+  },
+  "1m": {
+    "artifact": "preview-1m.json",
+    "historical_artifact": "preview-1m-before-range-fix.json",
+    "health_sample_count": 1000001,
+    "training_set_count": 10000,
+    "new_process_service_ready_ms": 2349.29122030735,
+    "new_process": {
+      "first_fact_ms": 10318.49379092455,
+      "facts_and_trend_ms": 11718.474753201008,
+      "full_interaction_ms": 11732.143439352512
+    },
+    "running_cold": {
+      "week": {
+        "first_fact_ms": 9402.199996948242,
+        "facts_and_trend_ms": 10845.5,
+        "full_interaction_ms": 10855.099998474121
+      },
+      "month": {
+        "first_fact_ms": 9385.5,
+        "facts_and_trend_ms": 10804.700004577637,
+        "full_interaction_ms": 10828
+      }
+    },
+    "warm_return": {
+      "n": 30,
+      "first_fact_ms": {
+        "p50": 581.4000015258789,
+        "p95": 616
+      },
+      "facts_and_trend_ms": {
+        "p50": 586.9000015258789,
+        "p95": 622.7000045776367
+      },
+      "full_interaction_ms": {
+        "p50": 593.4000015258789,
+        "p95": 630.1000061035156
+      },
+      "server_page_ms": {
+        "p50": 397.267,
+        "p95": 408.358
+      },
+      "automation_request_to_settled_ms": {
+        "p50": 631.9776102900505,
+        "p95": 667.2130450606346
+      }
+    },
+    "budgets": {
+      "running_cold_first_fact_3s": false,
+      "new_process_first_fact_3s": false,
+      "warm_fact_trend_p95_800ms": true,
+      "warm_fact_trend_p95_1000ms": true
+    },
+    "navigation_verification": {
+      "trial_count": 30,
+      "distinct_overview_snapshots": 30,
+      "distinct_returned_review_snapshots": 30,
+      "three_distinct_markers_per_navigation": true,
+      "continuous_navigation_chain": true,
+      "both_actual_month_facts_match_normal_summary": true,
+      "checked_period_radio_exclusivity_asserted": true
+    },
+    "all_three_process_values_verified": true,
+    "full_reports_generated": 0,
+    "source_hashes_match_current": {
+      "app.py": true,
+      "src/healthzip/ui/review_page.py": true,
+      "src/healthzip/ui/overview.py": true,
+      "src/healthzip/ui/navigation.py": true,
+      "src/healthzip/analytics/workspace_summary.py": true,
+      "tools/master_preview_benchmark.py": true
+    }
+  }
+}

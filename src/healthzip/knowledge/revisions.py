@@ -118,13 +118,29 @@ def knowledge_authority_clock(root):
         try:
             conn = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=0.25)
             try:
-                _, fingerprint = _schema(conn, kind)
+                schema, fingerprint = _schema(conn, kind)
                 exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (_META,)).fetchone()
                 row = conn.execute(f"SELECT database_id,revision,tracking_version,schema_fingerprint FROM {_META} WHERE singleton=1").fetchone() if exists else None
                 trigger_names = tuple(r[0] for r in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE ? ORDER BY name", (_PREFIX + "%",)))
                 triggers = hashlib.sha256(json.dumps(trigger_names).encode()).hexdigest()
-                result.append((kind, file_id, tuple(row) if row else "uninitialized", fingerprint, triggers))
+                expected = {_trigger_sql(table, operation)[0] for table, _ in schema
+                            for operation in ("INSERT", "UPDATE", "DELETE")}
+                tracked = bool(row and row[2] == VERSION and row[3] == fingerprint
+                               and expected <= set(trigger_names))
+                if tracked:
+                    result.append((kind, file_id, tuple(row), fingerprint, triggers))
+                else:
+                    # Until complete triggers exist, file/WAL changes are the
+                    # conservative invalidation fallback for all consumers.
+                    files = []
+                    for candidate in (path, Path(str(path) + "-wal")):
+                        try:
+                            observed = candidate.stat()
+                            files.append((candidate.name, observed.st_size, observed.st_mtime_ns))
+                        except FileNotFoundError:
+                            pass
+                    result.append((kind, file_id, "uninitialized", fingerprint, triggers, tuple(files)))
             finally:
                 conn.close()
         except sqlite3.Error:

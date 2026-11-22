@@ -20,10 +20,10 @@ from .contracts import (
 from .energy import energy_metric
 from .evaluation import quality_metric
 from .prediction import prediction_metric
-from .reports import derive_report_context, report_metric
+from .reports import derive_report_context, report_comparison, report_metric, visible_sleep_history
 from .semantics import analysis_task, flatten_record, outcome_series
-from .state import state_metric
-from .strength import reference_rows, strength_metric
+from .state import physiology_comparison, record_conditions, state_metric
+from .strength import prepare_strength, reference_rows, strength_metric
 
 TASK_METRICS = {f"STR-{number:02d}" for number in (7, 8, 11, 12, 13, 14, *range(16, 27))} | {"PRED-B0", "PRED-B1"}
 SERIES_METRICS = {"STR-19", "STR-20", "STR-22", "STR-24"}
@@ -156,13 +156,8 @@ def _series_metric(metric_id, rows, window, context):
                   reasons=["independent_fixed_load_outcome_series"], series_results=results, series_exclusions=excluded)
 
 
-def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_time: str,
-             window_start: str, window_end: str, context: Optional[dict] = None,
-             _normalized: Optional[list[dict]] = None) -> dict:
-    if metric_id not in metric_ids():
-        raise ValueError("unregistered_metric_id")
-    context = dict(context or {})
-    window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
+def _bounded_context(context, window):
+    context = dict(context)
     context_exclusions = []
     # Optional derived context must obey the same decision-time contract as SQL
     # samples. It cannot become a back door for future revisions or outcomes.
@@ -175,7 +170,7 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         for record in context[key]:
             row = record
             if key == "recommendation_outcomes" and record.get("recommendation_id"):
-                row = {**_bounded_followup_outcome(record, cutoff_time), "source_record_id": record["recommendation_id"]}
+                row = {**_bounded_followup_outcome(record, window.cutoff_time), "source_record_id": record["recommendation_id"]}
             elif key == "sleep_episodes":
                 # A declared sleep episode is one event, attributed by its end;
                 # its original endpoints remain intact for midpoint arithmetic.
@@ -184,7 +179,7 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         query_window = window
         if key == "baseline_daily" and context.get("baseline_window"):
             bounds = context["baseline_window"]
-            query_window = Window(bounds["start"], bounds["end"], cutoff_time, window.timezone)
+            query_window = Window(bounds["start"], bounds["end"], window.cutoff_time, window.timezone)
         if key == "recommendation_outcomes":
             dates = [instant(window.start)]
             for row in source:
@@ -196,7 +191,7 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
             # in this report. Preserve its actual timestamps and state exactly;
             # membership by planned overlap is explicit, never a synthetic event.
             query_window = Window(min(dates).isoformat(),
-                max(instant(window.end), instant(cutoff_time) + timedelta(microseconds=1)).isoformat(), cutoff_time, window.timezone)
+                max(instant(window.end), instant(window.cutoff_time) + timedelta(microseconds=1)).isoformat(), window.cutoff_time, window.timezone)
         context[key], rejected = select_as_of(source, query_window, retrospective=context.get("retrospective", False),
                                               overlap=key in {"energy_days", "daily_metric_facts"})
         if key == "recommendation_outcomes":
@@ -222,14 +217,29 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
             continue
         event = observation.get("event_end", observation.get("end_utc"))
         available = observation.get("available_at")
-        if not event or not available or instant(event) > instant(cutoff_time) or instant(available) > instant(cutoff_time):
+        if not event or not available or instant(event) > instant(window.cutoff_time) or instant(available) > instant(window.cutoff_time):
             context[key] = None
             context_exclusions.append({"context": key, "reason": "observation_availability_unverified_or_future"})
+    return context, context_exclusions
+
+
+def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_time: str,
+             window_start: str, window_end: str, context: Optional[dict] = None,
+             _normalized: Optional[list[dict]] = None, _selection_cache=None, _context_bound=None) -> dict:
+    if metric_id not in metric_ids():
+        raise ValueError("unregistered_metric_id")
+    context = dict(context or {})
+    window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
+    if _context_bound is None:
+        context, context_exclusions = _bounded_context(context, window)
+    else:
+        context, context_exclusions = dict(_context_bound[0]), _context_bound[1]
     normalized = _normalized if _normalized is not None else [flatten_record(r) for r in records or []]
     if metric_id.startswith("REPORT-") or metric_id == "ENERGY-RECORD-COVERAGE":
         if "daily_metric_facts" not in context or "energy_days" not in context:
             report_rows, _ = select_as_of(normalized, window, retrospective=context.get("retrospective", False), overlap=True)
-            derived = derive_report_context(report_rows, window)
+            derived = derive_report_context(report_rows, window, sleep_rows=visible_sleep_history(
+                normalized, window, retrospective=context.get("retrospective", False)))
             context = {**derived, **context}
     if metric_id.startswith("STR-") or metric_id.startswith("PRED-"):
         relevant = [r for r in normalized if r.get("record_kind", "strength_set") == "strength_set"]
@@ -270,25 +280,48 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
     if metric_id.startswith("STR-") and "reference_inventory" not in context:
         context["reference_inventory"] = [row for row in relevant if row.get("available_at")
             and instant(row["available_at"]) <= instant(cutoff_time)]
-    selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False),
-                                     overlap=metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-")))
+    overlap = metric_id.startswith(("STATE-SLEEP-", "ENERGY-", "REPORT-"))
+    # Only evaluate_all supplies this request-local cache for its one immutable
+    # normalized snapshot. Equal record selections keep the same exclusions,
+    # event boundaries, retrospective identity and source IDs.
+    selection_key = (tuple(id(row) for row in relevant), selection_window.start, selection_window.end,
+                     selection_window.cutoff_time, bool(context.get("retrospective", False)), overlap)
+    if _selection_cache is not None and selection_key in _selection_cache:
+        selected, excluded = _selection_cache[selection_key]
+    else:
+        selected, excluded = select_as_of(relevant, selection_window, retrospective=context.get("retrospective", False), overlap=overlap)
+        if _selection_cache is not None:
+            _selection_cache[selection_key] = selected, excluded
     plan_status_provenance = []
     if metric_id == "STR-09":
         states, plan_status_provenance = _undated_plan_states(relevant, window, context)
+        selected = list(selected)
         selected.extend(states)
         retained_ids = {row["_source_id"] for row in states}
         excluded = [entry for entry in excluded if not (entry["id"] in retained_ids and entry["reason"] == "timestamp_required")]
     numeric_audit = [{"id": r.get("_source_id"), **quantity_value(r)} for r in selected
                      if r.get("canonical_type", r.get("metric_type")) in NUMERIC_TYPES]
     if metric_id in {"STR-19", "STR-20", "STR-22", "STR-24"}:
-        context["observed_snapshot_hash"] = canonical_hash({"records": selected, "window": window.as_dict(), "cutoff_time": cutoff_time,
-                                                          "data_version": str(context.get("data_version"))})
-        task_ids = {analysis_task(row)["task_id"] for row in selected}
-        context["observed_task_id"] = next(iter(task_ids)) if len(task_ids) == 1 else None
+        derived_key = ("strength_snapshot", id(selected), window.start, window.end, str(context.get("data_version")))
+        derived = _selection_cache.get(derived_key) if _selection_cache is not None else None
+        if derived is None:
+            digest = canonical_hash({"records": selected, "window": window.as_dict(), "cutoff_time": cutoff_time,
+                                     "data_version": str(context.get("data_version"))})
+            task_ids = {analysis_task(row)["task_id"] for row in selected}
+            derived = digest, next(iter(task_ids)) if len(task_ids) == 1 else None
+            if _selection_cache is not None:
+                _selection_cache[derived_key] = derived
+        context["observed_snapshot_hash"], context["observed_task_id"] = derived
     if metric_id in SERIES_METRICS and not context.get("_series_evaluation"):
         value = _series_metric(metric_id, selected, window, context)
     elif metric_id.startswith("STR-"):
-        value = strength_metric(metric_id, selected, window, context)
+        prepared = None
+        if _selection_cache is not None:
+            prepared_key = ("strength_inputs", id(selected))
+            if prepared_key not in _selection_cache:
+                _selection_cache[prepared_key] = prepare_strength(selected, context)
+            prepared = _selection_cache[prepared_key]
+        value = strength_metric(metric_id, selected, window, context, _prepared=prepared)
     elif metric_id.startswith("STATE-") or metric_id.startswith("LOAD-"):
         value = state_metric(metric_id, selected, window, context)
     elif metric_id.startswith("BODY-") or metric_id.startswith("ENERGY-"):
@@ -303,10 +336,22 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         raise ValueError("registered_metric_has_no_executor")
     value["exclusions"] = excluded + context_exclusions + value.get("series_exclusions", []) + [
         {"id": item["id"], "reason": "numeric_value_or_unit_unverified"} for item in numeric_audit if item["value"] is None]
+    if metric_id == "STATE-SDNN":
+        value["exclusions"].extend({"id": row.get("_source_id"),
+            "reason": "SDNN_identifier_conflicts_with_recorded_metric_identity",
+            "recorded_metric_identity": record_conditions(row)["metric_identity"]["value"]}
+            for row in selected if str(record_conditions(row)["metric_identity"]["value"] or "SDNN").upper() != "SDNN")
     if numeric_audit:
         value["numeric_provenance"] = numeric_audit
         if any(item["value"] is None for item in numeric_audit):
             value["reason_codes"] = list(dict.fromkeys(value["reason_codes"] + ["numeric_value_or_unit_unverified"]))
+    if metric_id in {"STATE-RHR", "STATE-SDNN", "REPORT-STATE-SUMMARY"}:
+        options = {"previous": context.get("comparison_window"),
+                   "baseline_days": context.get("baseline_days", 28),
+                   "retrospective": context.get("retrospective", False)}
+        value["comparison"] = (report_comparison(normalized, window, **options)
+            if metric_id == "REPORT-STATE-SUMMARY" else physiology_comparison(
+                relevant, "resting_heart_rate_bpm" if metric_id == "STATE-RHR" else "hrv_sdnn_ms", window, **options))
     value["input_snapshot_n"] = len(relevant)
     value["input_available_n"] = len(selected)
     if metric_id == "STR-09":
@@ -318,21 +363,40 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
     return value
 
 
+def evaluate_subset(metric_ids_to_compute, records, *, cutoff_time, window_start, window_end, context=None):
+    """The same public metric executors with shared immutable input preparation."""
+    context = dict(context or {})
+    window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
+    normalized = [flatten_record(row) for row in records]
+    bounded = _bounded_context(context, window)
+    selections = {}
+    return {mid: evaluate(mid, cutoff_time=cutoff_time, window_start=window_start, window_end=window_end,
+        context=context, _normalized=normalized, _context_bound=bounded, _selection_cache=selections)
+        for mid in metric_ids_to_compute}
+
+
 def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, window_start: str,
                  window_end: str, context: Optional[dict] = None) -> dict[str, dict]:
     normalized = [flatten_record(r) for r in records or []]
     context = dict(context or {})
     window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
     report_rows, _ = select_as_of(normalized, window, retrospective=context.get("retrospective", False), overlap=True)
-    context = {**derive_report_context(report_rows, window), **context}
+    context = {**derive_report_context(report_rows, window, sleep_rows=visible_sleep_history(
+        normalized, window, retrospective=context.get("retrospective", False))), **context}
     def safe_evaluate(metric_id, **kwargs):
         try:
             return evaluate(metric_id, **kwargs)
         except (ValueError, TypeError, ArithmeticError) as exc:
             return result(metric_id, window, None, data_status="not_applicable", valid_n=0, total_n=0,
                           reasons=["metric_execution_failed"], error={"kind": type(exc).__name__, "message": str(exc)})
+    selection_cache = {}
+    try:
+        bounded = _bounded_context(context, window)
+    except (ValueError, TypeError, ArithmeticError):
+        # Retain per-metric failure results for malformed optional context.
+        bounded = None
     output = {metric_id: safe_evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
-                                  window_end=window_end, context=context, _normalized=normalized)
+                                  window_end=window_end, context=context, _normalized=normalized, _selection_cache=selection_cache, _context_bound=bounded)
               for metric_id in definitions()}
     available, _ = select_as_of([r for r in normalized if r.get("record_kind", "strength_set") == "strength_set"],
                                 window, retrospective=context.get("retrospective", False))
@@ -343,18 +407,29 @@ def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, wind
         task = analysis_task(row)
         identities[task["task_id"]] = task
         groups.setdefault(task["task_id"], []).append(row)
+    prepared_tasks = {}
+    if groups:
+        cutoff = instant(cutoff_time)
+        inventory = [row for row in normalized if row.get("available_at") and instant(row["available_at"]) <= cutoff]
+        for task_id, rows in groups.items():
+            task_context = {**context, **context.get("task_contexts", {}).get(task_id, {}),
+                "task_id": task_id, "reference_inventory": inventory}
+            task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(),
+                "cutoff_time": cutoff_time, "data_version": str(context.get("data_version"))})
+            try:
+                task_bound = _bounded_context(task_context, window)
+            except (ValueError, TypeError, ArithmeticError):
+                task_bound = None  # safe_evaluate retains each metric's prior failure contract.
+            prepared_tasks[task_id] = (task_context, task_bound, {}, canonical_hash(rows))
     for metric_id in TASK_METRICS:
         task_results = []
         for task_id, rows in groups.items():
-            task_context = {**context, **context.get("task_contexts", {}).get(task_id, {}), "task_id": task_id,
-                "reference_inventory": [row for row in normalized if row.get("available_at")
-                    and instant(row["available_at"]) <= instant(cutoff_time)]}
-            task_context["data_snapshot_hash"] = canonical_hash({"records": rows, "window": window.as_dict(), "cutoff_time": cutoff_time,
-                                                                 "data_version": str(context.get("data_version"))})
+            task_context, task_bound, selections, input_hash = prepared_tasks[task_id]
             calculated = safe_evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
-                                  window_end=window_end, context=task_context, _normalized=rows)
+                                  window_end=window_end, context=task_context, _normalized=rows,
+                                  _context_bound=task_bound, _selection_cache=selections)
             task_results.append({**identities[task_id], "data_snapshot_hash": task_context["data_snapshot_hash"],
-                                 "input_data_hash": canonical_hash(rows), "metric": calculated})
+                                 "input_data_hash": input_hash, "metric": calculated})
         if task_results:
             if metric_id == "STR-08":
                 # The window-wide recorded-session frequency must retain

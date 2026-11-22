@@ -76,6 +76,9 @@ render_metric_request(metric, task="cardiorespiratory", context={{"population":"
     key="synthetic_consent_job", root={str(kb.root)!r}, workspace=st.session_state["database_path"])
 ''').run(timeout=30)
     assert not app.exception
+    # Model consent now lives in its dedicated settings section.
+    app.radio(key="settings_section").set_value("模型与资料库").run(timeout=30)
+    assert not app.exception
     app.button(key="metric_evidence_run").click().run(timeout=30)
     assert not app.exception and entered.wait(2)
     request = app.session_state["synthetic_consent_job"]

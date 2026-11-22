@@ -39,6 +39,9 @@ def metric_ids() -> tuple[str, ...]:
 
 
 def metric_definition(metric_id: str) -> dict[str, Any]:
+    if metric_id.startswith("BODY-OBS-"):
+        from .body_catalog import definition
+        return definition(metric_id)
     if metric_id in _metric_definitions():
         return deepcopy(_metric_definitions()[metric_id])
     from .observations import definitions as observation_definitions

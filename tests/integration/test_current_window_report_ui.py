@@ -8,6 +8,7 @@ from streamlit.testing.v1 import AppTest
 
 from healthzip.db.repository import Repository
 from healthzip.workflows.storage import save_context, withdraw_context
+from tests.app_navigation import legacy_analysis
 
 
 def _sample(repo, age, value):
@@ -42,6 +43,7 @@ finally:
     repo.close()
 '''
     app = AppTest.from_string(script, default_timeout=60).run()
+    legacy_analysis(app, "报告")
     app.number_input(key="review_window_days").set_value(7)
     app.button(key="review_compute").click().run()
     assert not app.exception and not app.error
@@ -56,7 +58,7 @@ finally:
     app.session_state["analysis_contexts"] = {workspace: selected}
     if withdrawn:
         withdraw_context(repo, selected)
-    app.radio(key="review_section").set_value("报告").run()
+    legacy_analysis(app, "报告")
     app.selectbox(key="review_report_period").select("当前分析窗口").run()
     output = tmp_path / "current-window.md"
     next(widget for widget in app.text_input if widget.label == "报告输出路径").set_value(str(output))
@@ -81,7 +83,7 @@ finally:
     app.run()
     assert repo.one("SELECT count(*) FROM workflow_run")[0] == count
     app.radio(key="review_section").set_value("周月复盘").run()
-    assert app.selectbox(key="review_report_period").value == "本周"
+    assert app.radio(key="review_period").value == "本周"
     assert not app.exception and not app.error
     repo.close()
 
@@ -110,8 +112,9 @@ finally:
     app.session_state["review_snapshot:" + workspace + ":UTC"] = {
         "value": value, "revision": [], "days": 7,
     }
+    legacy_analysis(app, "报告")
     app.number_input(key="review_window_days").set_value(7)
-    app.radio(key="review_section").set_value("报告").run()
+    legacy_analysis(app, "报告")
     app.selectbox(key="review_report_period").select("当前分析窗口").run()
     output = tmp_path / "historical-window.md"
     next(widget for widget in app.text_input if widget.label == "报告输出路径").set_value(str(output))

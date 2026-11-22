@@ -10,6 +10,7 @@ from healthzip.analytics.v13 import analyze
 from healthzip.workflows import load_run, save_context
 from healthzip.workflows.reports import markdown, review_analysis
 from healthzip.workflows.storage import withdraw_context
+from tests.app_navigation import go, legacy_analysis
 
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.py")))
 
@@ -159,8 +160,8 @@ def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, reti
         withdraw_context(repo, selected)
     else:
         save_context(repo, {"population": "trained_adults"}, replaces_context_id=selected)
-    app.radio(key="main_workspace").set_value("复盘").run()
-    app.radio(key="review_section").set_value("问题分析" if entry == "分析" else "报告").run()
+    go(app, "复盘")
+    legacy_analysis(app, "问题分析" if entry == "分析" else "报告")
     label = "生成当前周期复盘" if entry == "分析" else "生成 Markdown 报告"
     next(b for b in app.button if b.label == label).click().run()
     assert not app.exception, [e.message for e in app.exception]

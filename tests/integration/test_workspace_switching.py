@@ -18,6 +18,7 @@ from healthzip.importers.apple_xml import import_apple_zip
 from healthzip.training.service import TrainingService
 from healthzip.workflows import save_context
 from healthzip.workflows.storage import withdraw_context
+from tests.app_navigation import go
 
 APP = Path(__file__).resolve().parents[2] / "app.py"
 UI = runpy.run_path(str(Path(__file__).parents[1] / "strength_ui_harness.py"))
@@ -57,13 +58,13 @@ def assert_page_ok(app):
 
 def test_all_visible_workspaces_switch_and_optional_sections_stay_hidden(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    expected = ["总览", "力量", "心率", "睡眠", "体重", "有氧", "运动", "复盘", "设置"]
+    expected = ["总览", "训练", "身体", "复盘", "设置"]
     assert list(app.radio(key="main_workspace").options) == expected
     for page in expected:
-        app.radio(key="main_workspace").set_value(page).run()
+        go(app, page)
         assert_page_ok(app)
         assert not app.sidebar.text_input and not app.sidebar.radio
-        if page == "力量":
+        if page == "训练":
             assert UI["snapshot"](app)["today"]
         else:
             assert page in {element.value for element in app.subheader}
@@ -81,7 +82,7 @@ def test_overview_and_health_reruns_are_readonly_while_writer_holds_lock(isolate
         writer.execute("BEGIN IMMEDIATE")
         writer.execute("INSERT INTO schema_meta VALUES('synthetic_pending_edit','not_committed')")
         for page in ("总览", "心率", "睡眠", "体重", "有氧", "运动", "复盘"):
-            app.radio(key="main_workspace").set_value(page).run(timeout=3)
+            go(app, page, timeout=3)
             assert_page_ok(app)
             assert writer.in_transaction
         assert writer.execute("SELECT count(*) FROM insight").fetchone()[0] == 0
@@ -97,7 +98,7 @@ def test_factual_workspaces_do_not_freeze_analysis_and_keep_context_warning(isol
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     app.session_state["analysis_contexts"] = {str(isolated_workspace): context_id}
     for page in ("心率", "睡眠", "体重", "有氧"):
-        app.radio(key="main_workspace").set_value(page).run()
+        go(app, page)
         assert_page_ok(app)
         assert any("当前选择的适用声明已撤回或被替换" in warning.value for warning in app.warning)
     with sqlite3.connect(isolated_workspace) as conn:
@@ -133,7 +134,7 @@ def test_body_workspaces_show_separate_sources_and_weight_cardio_without_writes(
                                    ("睡眠", "睡眠时长（小时）", [3, 5]),
                                    ("体重", "体重（kg）", [70, 80]),
                                    ("有氧", "VO₂ max（mL/kg/min）", [42])):
-        app.radio(key="main_workspace").set_value(page).run()
+        go(app, page)
         assert_page_ok(app)
         tables = [table.value for table in app.dataframe if field in table.value.columns]
         assert sorted(value for table in tables for value in table[field].tolist()) == expected
@@ -153,7 +154,7 @@ def test_overview_direct_training_counts_only_completed_facts(isolated_workspace
     assert not app.metric  # Missing health data is not a wall of zero-filled cards.
     assert not app.dataframe and not app.json
     app.button(key="overview_open_training").click().run()
-    assert app.radio(key="main_workspace").value == "力量"
+    assert app.radio(key="main_workspace").value == "训练"
     UI["send"](app, "start_session")
     session = UI["snapshot"](app)["session"]
     assert UI["send"](app, "add_exercises", {"session_id": session["session_uuid"],
@@ -161,12 +162,12 @@ def test_overview_direct_training_counts_only_completed_facts(isolated_workspace
     row = UI["snapshot"](app)["session"]["sets"][0]
     assert UI["send"](app, "save_set", {"set_id": row["set_uuid"], "base_revision": row["revision"],
         "complete": True, "changes": {"load_value": "32.5", "load_unit": "kg", "reps": "8", "rir": 0}})["status"] == "saved"
-    app.radio(key="main_workspace").set_value("总览").run()
+    go(app, "总览")
     assert next(item.value for item in app.metric if item.label == "完成训练") == "0 次"
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert UI["send"](app, "end_session", {"session_id": session["session_uuid"],
         "base_revision": UI["snapshot"](app)["session"]["revision"]})["status"] == "saved"
-    app.radio(key="main_workspace").set_value("总览").run()
+    go(app, "总览")
     assert_page_ok(app)
     assert next(item.value for item in app.metric if item.label == "完成训练") == "1 次"
     with closing(Repository(isolated_workspace)) as repo:
@@ -177,11 +178,13 @@ def test_overview_direct_training_counts_only_completed_facts(isolated_workspace
 
 def test_settings_network_consent_survives_page_changes(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    app.radio(key="main_workspace").set_value("设置").run()
+    go(app, "设置")
+    app.radio(key="settings_section").set_value("模型与资料库").run()
     app.checkbox(key="_setting_network_consent").check().run()
-    app.radio(key="main_workspace").set_value("心率").run()
+    go(app, "心率")
     assert app.session_state["health_explanation_network_consent"] is True
-    app.radio(key="main_workspace").set_value("设置").run()
+    go(app, "设置")
+    app.radio(key="settings_section").set_value("模型与资料库").run()
     assert app.checkbox(key="_setting_network_consent").value is True
     app.checkbox(key="_setting_network_consent").uncheck().run()
     assert app.session_state["health_explanation_network_consent"] is False
@@ -189,13 +192,14 @@ def test_settings_network_consent_survives_page_changes(isolated_workspace):
 
 def test_short_custom_window_remains_valid_in_review(isolated_workspace):
     app = AppTest.from_file(str(APP), default_timeout=30).run()
-    app.radio(key="main_workspace").set_value("心率").run()
+    go(app, "心率")
     app.radio(key="body_period").set_value("自定义").run()
     app.number_input(key="analysis_window_days").set_value(1).run()
-    app.radio(key="main_workspace").set_value("复盘").run()
+    go(app, "复盘")
     assert_page_ok(app)
-    assert app.number_input(key="review_window_days").value == 1
-    app.radio(key="main_workspace").set_value("心率").run()
+    app.radio(key="review_section").set_value("问题分析").run()
+    assert app.number_input(key="analysis_window_days").value == 1
+    go(app, "心率")
     assert app.radio(key="body_period").value == "自定义"
     assert app.number_input(key="analysis_window_days").value == 1
 
@@ -204,7 +208,8 @@ def test_import_receipts_are_workspace_scoped_and_failure_replaces_old_success(i
     app = AppTest.from_file(str(APP), default_timeout=30).run()
     app.session_state["workspace_import_results"] = {str(isolated_workspace): {
         "import": {"status": "completed", "records_inserted": 5}}}
-    app.radio(key="main_workspace").set_value("设置").run()
+    go(app, "设置")
+    app.radio(key="settings_section").set_value("导入与同步").run()
     assert any("新增 5 条" in row.value for row in app.success)
     next(item for item in app.text_input if item.label == "Apple Health ZIP 路径").set_value("missing-synthetic.zip")
     next(item for item in app.button if item.label == "流式导入").click().run()

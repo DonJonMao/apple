@@ -8,15 +8,16 @@ contracts, retrieved afresh; frozen retrieval receipts confer no current rights.
 from __future__ import annotations
 
 import ast
+from collections import Counter
 from datetime import timedelta
 from pathlib import Path
 
 from healthzip.science.contracts import instant
 
 from .daily_history import daily_comparability
-from .semantics import TrainingError, timestamp
+from .semantics import TrainingError, load_change, timestamp
 
-VERSION = "exercise-sequence-review-1.0.0"
+VERSION = "exercise-sequence-review-1.1.0"
 
 
 def _instance(session, catalog_id):
@@ -35,33 +36,94 @@ def _work_sets(instance):
 def _observations(rows):
     keys = ("set_uuid", "set_number", "load_value", "load_unit", "reps", "rir",
             "duration_s", "distance_m", "started_at", "ended_at", "rest_recorded_s",
+            "rest_recorded_method", "rest_actual_s", "stop_reason", "rir_qualifier",
             "quality_status", "pain_flag", "completion_state", "revision")
     return [{**{key: row.get(key) for key in keys},
              "load_basis": (row.get("condition") or {}).get("load_basis", "unknown")}
             for row in rows]
 
 
-def _pairs(previous, current):
-    pairs = []
-    for old, new in zip(previous, current):
-        comparable = daily_comparability(old, new)
-        same_load = (old.get("load_value") is not None and new.get("load_value") is not None
-                     and old["load_value"] == new["load_value"]
-                     and old.get("load_unit") is not None
-                     and old["load_unit"] == new["load_unit"])
+def _paired_rest(old, new):
+    """A stopwatch, recollection and derived wall-clock interval have distinct identities."""
+    method = old.get("rest_recorded_method")
+    if (method and method == new.get("rest_recorded_method")
+            and all(row.get("rest_recorded_s") is not None for row in (old, new))):
+        return old["rest_recorded_s"], new["rest_recorded_s"], "同方法主动记录"
+    if all(row.get("rest_actual_s") is not None and row.get("rest_derivation") for row in (old, new)):
+        return old["rest_actual_s"], new["rest_actual_s"], "相邻实际时间推算"
+    return None, None, None
+
+
+def compare_work_sets(previous_rows, current_rows):
+    """Two actual sequences. Match original ordinal, variant and load, without choosing a best set."""
+    periods = [[row for row in rows if row.get("completion_state") == "completed"
+                and row.get("set_type") == "work" and not row.get("deleted_at")]
+               for rows in (previous_rows, current_rows)]
+    indexed = []
+    for period in periods:
+        counts = Counter(row.get("set_number") for row in period)
+        indexed.append({row["set_number"]: row for row in period
+                        if row.get("set_number") is not None and counts[row["set_number"]] == 1})
+    matched = sorted(indexed[0].keys() & indexed[1].keys())
+    pairs, observations, next_steps = [], [], []
+    for number in matched:
+        old, new = indexed[0][number], indexed[1][number]
+        condition = daily_comparability(old, new)
+        delta = {"recorded_change": None, "recorded_unit": None}
+        if condition["comparable"]:
+            try:
+                delta = load_change(old, new, old.get("condition") or {})
+            except TrainingError:
+                pass  # Keep an unsupported legacy unit as a visible original observation.
+        same_external = delta["recorded_change"] == 0
         bodyweight = ((old.get("condition") or {}).get("load_basis") == "bodyweight_no_external"
                       and old.get("load_value") is None and new.get("load_value") is None)
-        comparable_load = comparable["comparable"] and (same_load or bodyweight)
-        pairs.append({"previous_set_id": old["set_uuid"], "current_set_id": new["set_uuid"],
-            "comparable": comparable_load, "condition_check": comparable,
-            "load_value": new.get("load_value"), "load_unit": new.get("load_unit"),
-            "previous_reps": old.get("reps"), "current_reps": new.get("reps"),
-            "previous_rir": old.get("rir"), "current_rir": new.get("rir"),
-            "reps_change": new["reps"] - old["reps"] if comparable_load
-                and old.get("reps") is not None and new.get("reps") is not None else None,
-            "rir_change": new["rir"] - old["rir"] if comparable_load
-                and old.get("rir") is not None and new.get("rir") is not None else None})
-    return pairs
+        comparable = condition["comparable"] and (same_external or bodyweight)
+        rest_old, rest_new, rest_method = _paired_rest(old, new)
+        comparable_reps = comparable and all(row.get("reps") is not None for row in (old, new))
+        same_reps = old.get("reps") is not None and old["reps"] == new.get("reps")
+        exact_rir = all(row.get("rir") is not None and row.get("rir_qualifier") != "at_least"
+                        for row in (old, new))
+        pairs.append({"set_number": number, "previous_set_id": old["set_uuid"],
+            "current_set_id": new["set_uuid"], "comparable": comparable, "condition_check": condition,
+            "previous_load_value": old.get("load_value"), "previous_load_unit": old.get("load_unit"),
+            "load_value": new.get("load_value"),
+            "load_unit": new.get("load_unit"), "previous_reps": old.get("reps"),
+            "current_reps": new.get("reps"), "previous_rir": old.get("rir"), "current_rir": new.get("rir"),
+            "previous_rir_qualifier": old.get("rir_qualifier"), "current_rir_qualifier": new.get("rir_qualifier"),
+            "reps_change": new["reps"] - old["reps"] if comparable_reps else None,
+            "same_reps_load_change": delta["recorded_change"] if same_reps else None,
+            "change_unit": delta["recorded_unit"],
+            "rir_change": new["rir"] - old["rir"] if comparable and exact_rir else None,
+            "previous_rest_s": rest_old, "current_rest_s": rest_new, "rest_basis": rest_method,
+            "target_limited": all(row.get("stop_reason") in {"plan_target", "planned_stop"}
+                                  for row in (old, new))})
+    unmatched = [[row["set_uuid"] for row in period if row.get("set_number") not in matched]
+                 for period in periods]
+    # A missing earlier set must not turn a later surviving pair into the "first" set.
+    first = pairs[0] if pairs and all(period and period[0]["set_uuid"] == pairs[0][key]
+                        for period, key in zip(periods, ("previous_set_id", "current_set_id"))) else None
+    if first and first["reps_change"] == 0:
+        for later in pairs[1:]:
+            if (later["reps_change"] is not None and later["reps_change"] < 0
+                    and later["current_rest_s"] is not None
+                    and later["current_rest_s"] < later["previous_rest_s"]):
+                observations.append(f"首个工作组均完成 {first['current_reps']} 次。"
+                    f"第 {later['set_number']} 组同口径次数 {later['previous_reps']} → {later['current_reps']}，"
+                    f"该组前休息 {later['previous_rest_s']:g} → {later['current_rest_s']:g} 秒"
+                    f"（{later['rest_basis']}）。")
+                next_steps.append("下次沿用相同动作顺序和负荷，并按上次比较场次的休息方式计时，复查后续组次数与实际 RIR。")
+                break
+    limited = [pair for pair in pairs if pair["target_limited"] and pair["reps_change"] == 0]
+    if limited:
+        pair = limited[0]
+        load = (f"{pair['load_value']} {pair['load_unit']} × "
+                if pair["load_value"] is not None else "自重 × ")
+        observations.append(f"第 {pair['set_number']} 组两次均为 {load}{pair['current_reps']} 次，"
+                            "且均记录达到目标后停止。实际完成相同，超过该目标的表现仍未知。")
+        next_steps.append("下次继续记录停止原因，可选记录当组实际 RIR，再核对相同目标下的表现。")
+    return {"comparisons": pairs, "observations": observations, "next_steps": next_steps,
+            "unmatched_previous": unmatched[0], "unmatched_current": unmatched[1]}
 
 
 def _background(svc, session, cutoff, timezone_name):
@@ -213,18 +275,23 @@ def review_sequence(svc, session_id, prior_session_id, preceding_catalog_id, tar
         starts = [instant(row["started_at"]) for row in trailing if row.get("started_at")]
         if ends and starts and max(ends) > min(starts):
             missing.append("组时间显示动作可能交错执行，不能视为完整前置后再做后续")
-    comparisons = _pairs(after_rows[0], after_rows[1])
-    preceding_comparisons = _pairs(before_rows[0], before_rows[1])
+    review = compare_work_sets(*after_rows)
+    comparisons = review["comparisons"]
+    observations.extend(review["observations"])
+    preceding_comparisons = compare_work_sets(*before_rows)["comparisons"]
     if len(after_rows[0]) != len(after_rows[1]):
         missing.append("两场后续动作的完成工作组数不同，仅按已记录顺序并列对应组")
     if not comparisons or any(not pair["comparable"] for pair in comparisons):
         missing.append("后续动作部分器械、负荷口径、ROM、侧别或重量不完整／不同，相关组不计算次数变化")
-    for index, pair in enumerate(comparisons, 1):
+    for pair in comparisons:
         if pair["reps_change"] is not None:
-            observations.append(f"{target_name}第 {index} 个已完成工作组：{pair['load_value']} {pair['load_unit'] or ''}，"
+            load = (f"{pair['load_value']} {pair['load_unit']}" if pair['load_value'] is not None else "自重")
+            efforts = [("至少 " if pair.get(period + "_rir_qualifier") == "at_least" else "") +
+                       str(pair[period + "_rir"]) if pair[period + "_rir"] is not None else "未记录"
+                       for period in ("previous", "current")]
+            observations.append(f"{target_name}第 {pair['set_number']} 组：{load}，"
                 f"{pair['previous_reps']} → {pair['current_reps']} 次；RIR "
-                f"{pair['previous_rir'] if pair['previous_rir'] is not None else '未记录'} → "
-                f"{pair['current_rir'] if pair['current_rir'] is not None else '未记录'}。")
+                f"{efforts[0]} → {efforts[1]}。")
     evidence = {"status": "not_requested", "current_checked": False, "claims": [], "spans": []}
     if include_evidence:
         try:
@@ -270,7 +337,7 @@ def review_sequence(svc, session_id, prior_session_id, preceding_catalog_id, tar
     return {"version": VERSION, "cutoff_time": cutoff, "revisions": revisions,
         "session_ids": [previous["session_uuid"], current["session_uuid"]],
         "observations": observations, "possible_explanations": explanations,
-        "next_steps": ["下次在相同器械与负荷口径下，按相同动作和组顺序记录表现，补记实际 RIR 与组间休息。",
+        "next_steps": [*review["next_steps"], "下次在相同器械与负荷口径下，按相同动作和组顺序记录表现，补记实际 RIR 与组间休息。",
                        "同时查看前置动作的工作组、各组次数及 RIR；一次只核对一个条件变化，不把总吨位当作同等刺激。"],
         "missing": list(dict.fromkeys(missing)), "evidence": evidence,
         "comparisons": comparisons, "preceding_comparisons": preceding_comparisons,

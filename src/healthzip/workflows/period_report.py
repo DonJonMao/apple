@@ -1,14 +1,25 @@
 """Frozen calendar reports composed from the existing metric/workflow services."""
+import hashlib
 import json
+import math
 from datetime import datetime, timezone
 
-from healthzip.analytics.v13 import analyze, persist
+try:
+    import orjson
+except ImportError:  # The command-line core still works without UI extras.
+    orjson = None
+
+from healthzip.analytics.cache import cached
+from healthzip.analytics.v13 import persist
+from healthzip.knowledge.revisions import knowledge_authority_clock
 from healthzip.science.contracts import canonical_hash
 from healthzip.training.current import knowledge_signature, objective_comparison
 from healthzip.training.service import TrainingService
 
 from .dependencies import input_version
+from .evidence import report_evidence
 from .presentation import display, metric_lines
+from .report_inputs import period_facts, shared_report_inputs
 from .reports import markdown, review_analysis
 from .storage import load_run, report_context
 
@@ -20,23 +31,128 @@ BODY = ("STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SL
         "ENERGY-RECORD-COVERAGE", "ENERGY-IDENTIFIABILITY")
 
 
-def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge"):
-    """One report cutoff; each metric retains its own definition window."""
+REPORT_VERSION = "joint-period-report-1.3.1"
+
+
+def _fast_json_compatible(value):
+    """Reject parser edge cases once per content build, preserving stdlib types."""
+    pending = [value]
+    while pending:
+        item = pending.pop()
+        if isinstance(item, dict):
+            pending.extend(item.values())
+        elif isinstance(item, (list, tuple)):
+            pending.extend(item)
+        elif isinstance(item, int) and not -(2**63) <= item <= 2**64-1:
+            return False
+        elif isinstance(item, float) and not math.isfinite(item):
+            return False
+    return True
+
+
+def _decode_content(payload_json, fast_compatible):
+    if fast_compatible and orjson is not None:
+        try:
+            return orjson.loads(payload_json)
+        except orjson.JSONDecodeError:
+            pass
+    return json.loads(payload_json)
+
+
+def _knowledge_identity(root):
+    clock = knowledge_authority_clock(root)
+    # The repository's trigger-backed revision covers source bytes, rules,
+    # reviews, scope, notices and index releases. Historical payloads keep
+    # their old content digests. Unmigrated stores still receive the full scan.
+    if all((len(item) == 2 and item[1] == "missing") or
+           (len(item) >= 3 and isinstance(item[2], tuple)) for item in clock[2:]):
+        return canonical_hash([clock[0], clock[2:]]), "knowledge-authority-revision-1"
+    return knowledge_signature(root), "legacy-content-digest"
+
+
+class _UncachedReport(Exception):
+    """A temporarily unavailable evidence stage cannot populate a hot cache."""
+
+    def __init__(self, content):
+        self.content = content
+
+
+def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", progress=None):
+    """Freeze a fresh version per explicit request; share its verified content."""
     if period not in {"week", "month"}:
         raise ValueError("calendar_week_or_month_required")
     TrainingService(repo)
     context_id = analysis.get("selection_context", {}).get("workflow_context_id")
     before = input_version(repo, context_id)
-    knowledge_before = knowledge_signature(knowledge_root)
-    current = analyze(repo, cutoff_time=analysis["cutoff_time"], timezone_name=analysis["timezone"],
+    knowledge_before = _knowledge_identity(knowledge_root)
+    notify = progress or (lambda stage: None)
+    fields = {field: analysis.get(field) for field in ("cutoff_time", "timezone", "selection_context",
+              "retrospective", "algorithm_version")}
+    key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
+           "knowledge": knowledge_before}
+    built = False
+
+    def assemble():
+        nonlocal built
+        built = True
+        with shared_report_inputs(repo), report_evidence(knowledge_root):
+            payload, text, temporarily_unavailable = _assemble(
+                repo, analysis, period, knowledge_root, before, knowledge_before, notify)
+        payload_json = json.dumps(payload, ensure_ascii=False)
+        digest = hashlib.sha256(payload_json.encode())
+        digest.update(b"\x00")
+        digest.update(text.encode())
+        result = payload_json, text, digest.hexdigest(), _fast_json_compatible(payload)
+        if temporarily_unavailable:
+            raise _UncachedReport(result)
+        return result
+
+    try:
+        payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+                                    knowledge_root=knowledge_root)
+    except _UncachedReport as unavailable:
+        payload_json, text, content_signature, fast_compatible = unavailable.content
+    if not built:
+        notify("复用已核对的报告内容")
+    # Only decode this application's validated, newly serialized report content.
+    # Historical/imported JSON retains the standard parser in load_report.
+    payload = _decode_content(payload_json, fast_compatible)
+    metadata = {"created_at": datetime.now(timezone.utc).isoformat(), "content_signature": content_signature,
+                "report_id_signature_algorithm": "json-markdown-sha256-plus-created-at-1"}
+    metadata["report_id"] = canonical_hash({"version": REPORT_VERSION, **metadata})
+    # The verified content JSON is immutable. Appending only new freeze metadata
+    # preserves every content field without serializing tens of MB a second time.
+    saved_json = payload_json[:-1] + ", " + json.dumps(metadata, ensure_ascii=False)[1:]
+    payload.update(metadata)
+    notify("保存冻结版本")
+    repo.conn.execute("BEGIN IMMEDIATE")
+    try:
+        if input_version(repo, context_id) != before or _knowledge_identity(knowledge_root) != knowledge_before:
+            raise ValueError("concurrent_joint_report_inputs_changed_retry_required")
+        repo.conn.execute("INSERT INTO joint_period_report VALUES(?,?,?,?,?)", (payload["report_id"], "local",
+            payload["created_at"], saved_json, text))
+        repo.conn.commit()
+    except BaseException:
+        repo.conn.rollback()
+        raise
+    return {**payload, "markdown": text}
+
+
+def _assemble(repo, analysis, period, knowledge_root, before, knowledge_before, notify):
+    context_id = analysis.get("selection_context", {}).get("workflow_context_id")
+    notify("读取本期事实")
+    current = period_facts(repo, cutoff_time=analysis["cutoff_time"], timezone_name=analysis["timezone"],
         period=period, context=analysis.get("selection_context"), retrospective=analysis.get("retrospective", False))
     declaration = report_context(repo, context_id, current["cutoff_time"], "retrospective" if current["retrospective"] else "prospective")
     # Explicit current bounds: W4's two earlier complete periods are a separate
     # comparison below and cannot replace current training or body facts.
+    notify("核对本期训练与知识依据")
     runs = review_analysis(repo, current, include_background=True, knowledge_root=knowledge_root, include_session_background=True)
+    notify("比较前两个完整周期")
     historical = review_analysis(repo, current, period=period, knowledge_root=knowledge_root)
     # Keep the canonical period snapshot addressable by existing analysis
     # consumers even when no extra selection context required a persisted run.
+    notify("整理可追溯报告")
     current_analysis_id = persist(repo, current)
     instances = {}
     for run in runs:
@@ -50,25 +166,14 @@ def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge"):
         comparison = objective_comparison(repo, identity, cutoff_time=current["cutoff_time"])
         comparisons.append({**comparison, "rows": [r for r in comparison["rows"] if r["set_uuid"] in set_ids],
             "scope": "only_actual_set_ids_visible_in_current_report_period"})
-    payload = {"version": "joint-period-report-1.0.0", "period": period,
-        "created_at": datetime.now(timezone.utc).isoformat(), "cutoff_time": current["cutoff_time"],
+    payload = {"version": REPORT_VERSION, "period": period, "cutoff_time": current["cutoff_time"],
         "current": current, "analysis_run_id": current_analysis_id, "declaration": declaration, "workflow_run_ids": [r["run_id"] for r in runs],
         "historical_run_ids": [r["run_id"] for r in historical], "objective_comparisons": comparisons,
         "period_identity": "current_partial_local_calendar_period", "input_revision": before,
-        "knowledge_signature": knowledge_before}
-    payload["report_id"] = canonical_hash(payload)
-    text = render_report(repo, payload)
-    repo.conn.execute("BEGIN IMMEDIATE")
-    try:
-        if input_version(repo, context_id) != before or knowledge_signature(knowledge_root) != knowledge_before:
-            raise ValueError("concurrent_joint_report_inputs_changed_retry_required")
-        repo.conn.execute("INSERT INTO joint_period_report VALUES(?,?,?,?,?)", (payload["report_id"], "local",
-            payload["created_at"], json.dumps(payload, ensure_ascii=False), text))
-        repo.conn.commit()
-    except BaseException:
-        repo.conn.rollback()
-        raise
-    return {**payload, "markdown": text}
+        "knowledge_signature": knowledge_before[0], "knowledge_signature_algorithm": knowledge_before[1]}
+    temporary_failures = any(run.get("knowledge", {}).get("status") == "service_failure"
+                             for run in (*runs, *historical))
+    return payload, render_report(repo, payload), temporary_failures
 
 
 def load_report(repo, report_id):
@@ -86,6 +191,20 @@ def render_report(repo, report):
     declaration = report["declaration"]
     if declaration.get("status"):
         lines += [declaration["limitation"], f"原声明 `{declaration['context_id']}`；受限原因 `{declaration['reason']}`。", ""]
+    from healthzip.analytics.health_context import joint_observations, sleep_comparison_metric
+    if current.get("joint_health_context"):
+        joint = joint_observations(current)
+        lines += ["## 同一时间窗的具体变化", "", *joint["statements"], "",
+                  "睡眠按观测事件结束的本地日期与当日心率对齐；日值不能证明采样一定在醒来后。未记录不是没有发生。", ""]
+        for mid in ("STATE-RHR", "STATE-SDNN", "REPORT-STATE-SUMMARY"):
+            metric = current["metrics"].get(mid, {})
+            if mid == "REPORT-STATE-SUMMARY":
+                metric = sleep_comparison_metric(metric)
+            for stream in metric.get("comparison", {}).get("streams", []):
+                from healthzip.analytics.health_context import coverage_label, period_label
+                lines += ["；".join(f"{label} {period_label(stream[period])}，{coverage_label(stream[period])}"
+                    for period, label in (("current", "本期"), ("previous", "前期"), ("reference", "个人参考"))), ""]
+        lines += ["下一步：", *["- " + text for text in joint["next_steps"]], ""]
     lines += ["## 本阶段训练发生了什么", ""]
     for mid in TRAINING:
         lines += metric_lines(current["metrics"][mid])
@@ -103,6 +222,11 @@ def render_report(repo, report):
         if not task:
             continue
         lines += [f"### {task.get('exercise_name') or '本次动作'}", ""]
+        if task.get("inventory_tasks"):
+            lines += [f"本期保留 {len(task['inventory_tasks'])} 个独立实际任务；缺少预指定参考的任务不作专项趋势或停滞判定。",
+                "专项指标按需计算；此处完整保留实际组、各自条件及来源身份，未请求的专项预测不标为已完成。", "",
+                "<details><summary>独立任务与原始记录对应</summary>", "", "```json",
+                json.dumps(task["inventory_tasks"], ensure_ascii=False), "```", "", "</details>", ""]
         long_review = run["supplements"].get("long_term_review", {})
         for item in long_review.get("tasks", []):
             lines += [f"比较状态：{item['status']}；比较次数 {item['n']}；实际使用 RIR 差值 {item['rir_used_n']} 次。"]

@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import OrderedDict
 from contextlib import contextmanager
-from datetime import datetime
+from contextvars import ContextVar
+from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 from uuid import NAMESPACE_URL, uuid4, uuid5
@@ -53,6 +56,17 @@ SESSION_SCALES = {**SCALES, "Foster_modified_CR10": (0, 10)}
 # migration, including additions that retain the public training schema version.
 TRAINING_INITIALIZATION_VERSION = "training-service-init-v2"
 TRAINING_INITIALIZATION_KEY = "training_service_initialization"
+_REPORT_EVENT_READS = ContextVar("healthzip_report_training_events", default=None)
+
+
+@contextmanager
+def report_event_reads(repo):
+    """Bounded, read-only replay input sharing for one explicit report."""
+    token = _REPORT_EVENT_READS.set((repo, OrderedDict()))
+    try:
+        yield
+    finally:
+        _REPORT_EVENT_READS.reset(token)
 
 
 def _decode(row) -> Optional[dict]:
@@ -160,9 +174,10 @@ class TrainingService:
             )
 
     def data_version(self) -> str:
-        return self.conn.execute(
+        row = self.conn.execute(
             "SELECT value FROM schema_meta WHERE key='training_data_version'"
-        ).fetchone()[0]
+        ).fetchone()
+        return row[0] if row is not None else "0"
 
     def _invalidate(
         self,
@@ -2321,7 +2336,7 @@ class TrainingService:
         return start, end
 
     def events_as_of(self, *, cutoff_time, window_start=None, window_end=None,
-                     support_windows=(), required_set_ids=(), _session_ids=None):
+                     support_windows=(), required_set_ids=(), _session_ids=None, _share_report_readonly=False):
         """Read one availability-safe event stream for sets, sessions and plans.
 
         Any visible revision can nominate a session, but *all* its visible events are
@@ -2376,6 +2391,12 @@ class TrainingService:
             args.append(json_text(sorted(session_ids)))
         else:
             clauses.append("entity_type IN ('session','session_exercise','set','conflict')")
+        scope = _REPORT_EVENT_READS.get()
+        cache = scope[1] if scope and scope[0] is self.repo else None
+        key = (self.data_version(), tuple(clauses), tuple([args[0], cutoff.astimezone(timezone.utc).isoformat(), *args[2:]]))
+        if cache is not None and key in cache:
+            cache.move_to_end(key)
+            return cache[key] if _share_report_readonly else deepcopy(cache[key])
         selected = "SELECT rowid AS event_order,* FROM training_event WHERE " + " AND ".join(clauses)
         # Keep-current conflict decisions have no session payload. Join their
         # explicit conflict identity to the already selected original event.
@@ -2389,7 +2410,12 @@ class TrainingService:
         rows = [row for row in self.conn.execute(sql, (*args, self.user_id, cutoff_time))
                 if datetime.fromisoformat(row["recorded_at"]) <= cutoff]
         rows.sort(key=lambda row: (datetime.fromisoformat(row["recorded_at"]), row["event_order"]))
-        return [_decode(row) for row in rows]
+        decoded = [_decode(row) for row in rows]
+        if cache is not None:
+            cache[key] = decoded
+            while len(cache) > 4:
+                cache.popitem(last=False)
+        return deepcopy(decoded) if cache is not None and not _share_report_readonly else decoded
 
     def history_as_of(
         self,
@@ -2764,7 +2790,17 @@ class TrainingService:
         """Availability-safe session metadata, including independently recorded sRPE."""
         cutoff = datetime.fromisoformat(timestamp(cutoff_time))
         sessions = {}
-        events = self.events_as_of(cutoff_time=cutoff_time) if _events is None else _events
+        if _events is None:
+            # Session replay only consumes applied parent revisions. Read their
+            # snapshots directly without deserializing every historical set.
+            rows = self.conn.execute("SELECT rowid,recorded_at,after_json FROM training_event "
+                "WHERE user_id=? AND entity_type='session' AND status='applied' AND "
+                "julianday(recorded_at)<=julianday(?)+0.001/86400", (self.user_id, cutoff.isoformat()))
+            ordered = sorted(rows, key=lambda row: (datetime.fromisoformat(row["recorded_at"]), row["rowid"]))
+            events = ({"entity_type": "session", "status": "applied", "recorded_at": row["recorded_at"],
+                       "after": json.loads(row["after_json"]) if row["after_json"] else None} for row in ordered)
+        else:
+            events = _events
         for event in events:
             if event["entity_type"] != "session" or event["status"] != "applied":
                 continue
@@ -2788,7 +2824,9 @@ class TrainingService:
         Session events may contain full nested snapshots (start, reorder, undo);
         later visible exercise/set events supersede those snapshots in order.
         """
-        events = self.events_as_of(cutoff_time=cutoff_time)
+        key = self.conn.execute("SELECT id FROM strength_session WHERE user_id=? AND "
+            "(id=? OR session_uuid=?)", (self.user_id, session_id, str(session_id))).fetchone()
+        events = self.events_as_of(cutoff_time=cutoff_time, _session_ids=[key[0]] if key else None)
         visible = self.sessions_as_of(cutoff_time=cutoff_time, include_deleted=include_deleted, _events=events)
         session = next((row for row in visible if str(session_id) in
                         {str(row["id"]), str(row.get("session_uuid"))}), None)

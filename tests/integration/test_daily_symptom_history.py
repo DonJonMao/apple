@@ -13,6 +13,7 @@ import pytest
 from healthzip.science import evaluate
 from healthzip.state_log import save_state
 from healthzip.training.current import current_advice, save_equipment_loads
+from tests.app_navigation import go
 
 PAGE = runpy.run_path(str(Path(__file__).with_name("test_daily_training_page.py")))
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
@@ -142,7 +143,7 @@ def test_real_app_shows_dated_pain_beyond_body_window_without_expiry_or_numeric_
     observed = (datetime.now(timezone.utc) - timedelta(days=29)).isoformat()
     save_state(repo, observed_at=observed, pain="reported", muscle="chest")
     app = PAGE["HELP"]["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert not app.exception and not app.error
     assert send(app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
     legacy(app, "recommendations", instance_id=instance["id"])

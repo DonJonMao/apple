@@ -9,13 +9,38 @@ import re
 from datetime import datetime, timezone
 from typing import Any, Optional, Tuple
 
-UNIT_CONVERSION_VERSION = "healthzip-units-1.4.1"
+UNIT_CONVERSION_VERSION = "healthzip-units-1.5.0"
 
 TYPE_MAP = {
     "HKQuantityTypeIdentifierHeartRate": ("heart_rate_bpm", "count/min"),
     "HKQuantityTypeIdentifierRestingHeartRate": ("resting_heart_rate_bpm", "count/min"),
     "HKQuantityTypeIdentifierHeartRateVariabilitySDNN": ("hrv_sdnn_ms", "ms"),
-    "HKQuantityTypeIdentifierHeartRateRecoveryOneMinute": ("heart_rate_recovery_1m", None),
+    "HKQuantityTypeIdentifierHeartRateRecoveryOneMinute": ("heart_rate_recovery_1m", "count"),
+    "HKQuantityTypeIdentifierWalkingHeartRateAverage": ("walking_heart_rate_bpm", "count/min"),
+    "HKQuantityTypeIdentifierAppleStandTime": ("stand_minutes", "min"),
+    "HKCategoryTypeIdentifierAppleStandHour": ("stand_hour", "category"),
+    "HKQuantityTypeIdentifierFlightsClimbed": ("flights_climbed", "count"),
+    "HKQuantityTypeIdentifierNumberOfTimesFallen": ("number_of_times_fallen", "count"),
+    "HKQuantityTypeIdentifierPhysicalEffort": ("physical_effort_met", "MET"),
+    "HKQuantityTypeIdentifierSixMinuteWalkTestDistance": ("six_minute_walk_m", "m"),
+    "HKQuantityTypeIdentifierStairAscentSpeed": ("stair_ascent_m_s", "m/s"),
+    "HKQuantityTypeIdentifierStairDescentSpeed": ("stair_descent_m_s", "m/s"),
+    "HKQuantityTypeIdentifierWalkingSpeed": ("walking_speed_m_s", "m/s"),
+    "HKQuantityTypeIdentifierWalkingStepLength": ("walking_step_length_m", "m"),
+    "HKQuantityTypeIdentifierWalkingDoubleSupportPercentage": ("walking_double_support_fraction", "fraction"),
+    "HKQuantityTypeIdentifierWalkingAsymmetryPercentage": ("walking_asymmetry_fraction", "fraction"),
+    "HKQuantityTypeIdentifierAppleWalkingSteadiness": ("walking_steadiness_fraction", "fraction"),
+    "HKQuantityTypeIdentifierTimeInDaylight": ("daylight_minutes", "min"),
+    "HKQuantityTypeIdentifierEnvironmentalAudioExposure": ("environmental_audio_dba", "dBASPL"),
+    "HKQuantityTypeIdentifierHeadphoneAudioExposure": ("headphone_audio_dba", "dBASPL"),
+    "HKQuantityTypeIdentifierAppleSleepingBreathingDisturbances": ("sleep_breathing_disturbances", "count/hr"),
+    "HKCategoryTypeIdentifierSleepApneaEvent": ("sleep_apnea_event", "category"),
+    "HKCategoryTypeIdentifierHighHeartRateEvent": ("high_hr_event", "category"),
+    "HKCategoryTypeIdentifierLowHeartRateEvent": ("low_hr_event", "category"),
+    "HKCategoryTypeIdentifierIrregularHeartRhythmEvent": ("irregular_rhythm_event", "category"),
+    "HKCategoryTypeIdentifierAppleWalkingSteadinessEvent": ("walking_steadiness_event", "category"),
+    "HKCategoryTypeIdentifierEnvironmentalAudioExposureEvent": ("environmental_audio_event", "category"),
+    "HKCategoryTypeIdentifierHeadphoneAudioExposureEvent": ("headphone_audio_event", "category"),
     "HKQuantityTypeIdentifierVO2Max": ("vo2_max_ml_kg_min", "mL/(kg·min)"),
     "HKQuantityTypeIdentifierRespiratoryRate": ("respiratory_rate_bpm", "count/min"),
     "HKQuantityTypeIdentifierOxygenSaturation": ("oxygen_saturation_fraction", "fraction"),
@@ -44,6 +69,7 @@ TYPE_MAP = {
     "HKCategoryTypeIdentifierIntermenstrualBleeding": ("intermenstrual_bleeding", "category"),
     "HKCategoryTypeIdentifierCervicalMucusQuality": ("cervical_mucus_quality", "category"),
     "HKCategoryTypeIdentifierOvulationTestResult": ("ovulation_test_result", "category"),
+    "HKCategoryTypeIdentifierAbdominalCramps": ("abdominal_cramps", "category"),
     "HKCategoryTypeIdentifierMenstrualCramps": ("menstrual_cramps", "category"),
 }
 SLEEP_VALUES = {
@@ -109,23 +135,32 @@ def normalize_value(
         return number * 0.45359237, "kg", "converted"
     if canonical == "height_cm" and u in {"m", "meter", "metre"}:
         return number * 100, "cm", "converted"
-    if canonical.startswith("distance_") and u in {"km", "kilometer", "kilometre"}:
+    if target == "m" and u in {"km", "kilometer", "kilometre"}:
         return number * 1000, "m", "converted"
     if canonical.endswith("energy_kcal") and u in {"kj", "kilojoule", "kilojoules"}:
         return number / 4.184, "kcal", "converted"
     if canonical == "hrv_sdnn_ms" and u in {"s", "sec", "second", "seconds"}:
         return number * 1000, "ms", "converted"
-    if canonical in {"oxygen_saturation_fraction", "body_fat_fraction"} and (
+    if target == "fraction" and (
         u in {"%", "percent", "percentage"}
     ):
         return number / 100, "fraction", "converted"
     if canonical == "sleeping_wrist_temperature_c" and u in {"f", "degf", "°f"}:
         return (number - 32) * 5 / 9, "degC", "converted"
-    if canonical == "exercise_minutes" and u in {"s", "sec", "seconds"}:
+    if target == "min" and u in {"s", "sec", "seconds"}:
         return number / 60, "min", "converted"
     if canonical == "vo2_max_ml_kg_min" and u in {"ml/min·kg", "ml/(kg·min)", "ml/(kg*min)", "ml/kg/min"}:
         return number, "mL/(kg·min)", "known"
-    aliases = {"count/min": {"count/min", "bpm", "beats/min", "breaths/min"},
+    if target == "m" and u == "cm":
+        return number / 100, "m", "converted"
+    if target == "m/s" and u in {"km/hr", "km/h"}:
+        return number / 3.6, "m/s", "converted"
+    if canonical == "physical_effort_met" and u in {"kcal/hr·kg", "kcal/(kg*hr)", "kcal/kg/hr"}:
+        # Apple defines one metabolic equivalent as 1 kcal/(kg*h) for this field.
+        return number, "MET", "converted"
+    if target == "min" and u in {"hr", "h"}:
+        return number * 60, "min", "converted"
+    aliases = {"dBASPL": {"dbaspl", "dba", "db(a) spl"}, "count/hr": {"count/hr", "count/h"},"count/min": {"count/min", "bpm", "beats/min", "breaths/min"},
                "degC": {"degc", "°c", "c"}, "fraction": {"fraction", "1"}}
     if target and u in aliases.get(target, {target.lower()}):
         return number, target, "known"

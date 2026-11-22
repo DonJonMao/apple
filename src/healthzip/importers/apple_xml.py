@@ -94,6 +94,7 @@ def _record_data(
             "cervical_mucus_quality",
             "ovulation_test_result",
             "menstrual_cramps",
+            "abdominal_cramps",
         }
     )
     if is_cycle and not include_cycle:
@@ -159,7 +160,9 @@ def _record_data(
         "source_name": attrs.get("sourceName"),
         "source_version": attrs.get("sourceVersion"),
         "device": attrs.get("device"),
-        "metadata_json": json.dumps({**metadata, "unit_normalization": {
+        "metadata_json": json.dumps({**metadata, "original_timestamps": {
+            "start": attrs.get("startDate"), "end": attrs.get("endDate"),
+            "creation": attrs.get("creationDate"), "preservation_version": "raw-source-times-1.0.0"}, "unit_normalization": {
             "version": UNIT_CONVERSION_VERSION, "status": unit_status,
             "conversion_id": f"{canonical_tuple[0]}:{attrs.get('unit')}->{normalized_unit}" if normalized is not None else None,
             "raw_unit": attrs.get("unit"), "normalized_unit": normalized_unit}}, ensure_ascii=False, sort_keys=True),
@@ -226,13 +229,15 @@ def _workout_data(attrs: dict[str, str]) -> dict[str, Any]:
         "source_name": attrs.get("sourceName"),
         "source_version": attrs.get("sourceVersion"),
         "device": attrs.get("device"),
-        "metadata_json": json.dumps(_metadata(attrs), ensure_ascii=False, sort_keys=True),
+        "metadata_json": json.dumps({**_metadata(attrs), "original_timestamps": {
+            "start": attrs.get("startDate"), "end": attrs.get("endDate"),
+            "preservation_version": "raw-source-times-1.0.0"}}, ensure_ascii=False, sort_keys=True),
         "suspected_duplicate": 0,
     }
 
 
 def _iter_export(
-    stream, result: ImportResult, include_cycle: bool
+    stream, result: ImportResult, include_cycle: bool, only_types=None, backfill_tags=()
 ) -> Iterator[tuple[str, dict[str, Any]]]:
     """Yield one normalized item at a time; no all-records list is kept."""
     try:
@@ -256,6 +261,9 @@ def _iter_export(
         for _, elem in context:
             tag = elem.tag.rsplit("}", 1)[-1] if isinstance(elem.tag, str) else ""
             attrs = {str(k): str(v) for k, v in elem.attrib.items()}
+            if only_types is not None and tag != "ExportDate" and tag not in backfill_tags and (tag != "Record" or attrs.get("type") not in only_types):
+                _clear_element(elem)
+                continue
             if tag == "ExportDate":
                 result.exported_at = attrs.get("value")
             elif tag == "Record":
@@ -296,6 +304,7 @@ def _iter_export(
                     result.date_max = data["local_date"]
                 stats = []
                 events = []
+                metadata_entries = []
                 for child in elem:
                     child_tag = child.tag.rsplit("}", 1)[-1] if isinstance(child.tag, str) else ""
                     c = {str(k): str(v) for k, v in child.attrib.items()}
@@ -321,6 +330,12 @@ def _iter_export(
                                 "metadata": c,
                             }
                         )
+                    elif child_tag == "MetadataEntry":
+                        metadata_entries.append(c)
+                if metadata_entries:
+                    metadata = json.loads(data["metadata_json"])
+                    metadata["MetadataEntry"] = metadata_entries
+                    data["metadata_json"] = json.dumps(metadata, ensure_ascii=False, sort_keys=True)
                 data["statistics"] = stats
                 data["events"] = events
                 yield "workout", data
@@ -336,6 +351,7 @@ def _iter_export(
                         "exercise_minutes_goal": parse_number(attrs.get("appleExerciseTimeGoal")),
                         "stand_hours": parse_number(attrs.get("appleStandHours")),
                         "stand_hours_goal": parse_number(attrs.get("appleStandHoursGoal")),
+                        "metadata_json": json.dumps(attrs, ensure_ascii=False, sort_keys=True),
                     },
                 )
             _clear_element(elem)
@@ -356,7 +372,20 @@ def import_apple_zip(
     limits = limits or ImportLimits()
     inspection = inspect_zip(path, limits)
     existing = repo.existing_completed_batch(inspection.sha256) if skip_duplicate_file else None
+    only_types = None
+    backfill_tags = []
     if existing:
+        previously_unknown = json.loads(existing["unknown_type_counts_json"] or "{}")
+        newly_supported = set(previously_unknown) & TYPE_MAP.keys()
+        if newly_supported:
+            only_types = newly_supported
+        if repo.one("SELECT 1 FROM activity_summary WHERE import_batch_id=? AND metadata_json='{}' LIMIT 1", (existing["id"],)):
+            backfill_tags.append("ActivitySummary")
+        if repo.one("SELECT 1 FROM workout WHERE import_batch_id=? AND json_extract(metadata_json,'$.original_timestamps') IS NULL LIMIT 1", (existing["id"],)):
+            backfill_tags.append("Workout")
+        if backfill_tags and only_types is None:
+            only_types = set()
+    if existing and not only_types and not backfill_tags:
         return ImportResult(
             int(existing["id"]),
             "already_imported",
@@ -376,11 +405,16 @@ def import_apple_zip(
         file_name=Path(path).name,
         file_size=inspection.file_size_bytes,
         xml_member_path=inspection.xml_member_path or "",
+        source_ref=("typed_backfill_of_batch:" + str(existing["id"])) if existing and (only_types or backfill_tags) else None,
     )
     result = ImportResult(batch_id, "completed")
+    if only_types is not None:
+        # Keep the still-unknown type inventory so a future parser upgrade can
+        # reprocess just those types from the same explicitly supplied ZIP.
+        result.unknown_type_counts = {k: v for k, v in previously_unknown.items() if k not in only_types}
     try:
         with ZipFile(path) as zf, zf.open(inspection.xml_member_path) as stream:
-            for kind, data in _iter_export(stream, result, include_cycle):
+            for kind, data in _iter_export(stream, result, include_cycle, only_types, backfill_tags):
                 try:
                     if kind == "sample":
                         if repo.insert_sample(batch_id, data):
@@ -393,6 +427,7 @@ def import_apple_zip(
                             "cervical_mucus_quality",
                             "ovulation_test_result",
                             "menstrual_cramps",
+                            "abdominal_cramps",
                         }:
                             repo.insert_cycle_event(batch_id, data)
                     elif kind == "workout":
@@ -401,6 +436,9 @@ def import_apple_zip(
                             result.records_inserted += 1
                         else:
                             result.records_deduplicated += 1
+                            old = repo.one("SELECT metadata_json,record_status FROM workout WHERE id=?", (workout_id,))
+                            if old and old["record_status"] == "active" and old["metadata_json"] != data["metadata_json"]:
+                                repo.conn.execute("UPDATE workout SET metadata_json=? WHERE id=?", (data["metadata_json"], workout_id))
                         if workout_id:
                             for stat in data.get("statistics", []):
                                 repo.insert_workout_stat(workout_id, stat)

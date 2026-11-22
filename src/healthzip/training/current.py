@@ -8,8 +8,10 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from threading import RLock
 from zoneinfo import ZoneInfo
 
 from healthzip.advice import build_advice_context
@@ -23,6 +25,8 @@ from healthzip.workflows.dependencies import input_version
 
 VERSION = "current-training-2.0.0"
 STRATEGIES = ("double_progression", "heavier_lower_reps", "repetition_progression")
+_KNOWLEDGE_SIGNATURES = OrderedDict()
+_KNOWLEDGE_SIGNATURE_LOCK = RLock()
 
 
 def _link_report(repo, advice_id, source_report_id):
@@ -33,6 +37,35 @@ def _link_report(repo, advice_id, source_report_id):
 
 
 def knowledge_signature(root):
+    """Reuse the exact legacy content digest while tracked inputs are unchanged.
+
+    Reports/candidates retain the same signature bytes as before. Audit writes
+    cannot expire this cache; review/revocation changes do. Untracked legacy or
+    incomplete trigger installations always use the full read-only calculation.
+    """
+    from healthzip.knowledge.revisions import knowledge_authority_clock
+
+    before = knowledge_authority_clock(root)
+    tracked = all(len(entry) >= 3 and isinstance(entry[2], tuple) for entry in before[2:])
+    if not tracked:
+        return _knowledge_signature_uncached(root)
+    key = json.dumps(before, sort_keys=True)
+    with _KNOWLEDGE_SIGNATURE_LOCK:
+        if key in _KNOWLEDGE_SIGNATURES:
+            value = _KNOWLEDGE_SIGNATURES[key]
+            _KNOWLEDGE_SIGNATURES.move_to_end(key)
+            if knowledge_authority_clock(root) == before:
+                return value
+        value = _knowledge_signature_uncached(root)
+        if knowledge_authority_clock(root) == before:
+            _KNOWLEDGE_SIGNATURES[key] = value
+            while len(_KNOWLEDGE_SIGNATURES) > 8:
+                _KNOWLEDGE_SIGNATURES.popitem(last=False)
+            return value
+        raise RuntimeError("knowledge_inputs_changed_retry_required")
+
+
+def _knowledge_signature_uncached(root):
     """Fingerprint authority inputs, excluding retrieval/audit output writes.
 
     No corpus expansion, retrieval or review is performed. Only digests leave
@@ -372,7 +405,8 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
         "identity": "objective_records_not_adoption_execution_failure_or_causal_effect"}
     cut = cutoff_time or result["created_at"]
     start = session["started_at"]
-    source, inherited = snapshot(repo, cut, window_start=start, window_end=cut, include_sources=False)
+    source, inherited = snapshot(repo, cut, window_start=start, window_end=cut, include_sources=False,
+                                 training_session_ids=(instance["session_id"],))
     actuals = [r for r in source if r.get("session_exercise_id") == instance_id]
     for row in result["rows"]:
         chosen = next((v for v in versions if v["advice_id"] == row["advice_id"]), {})

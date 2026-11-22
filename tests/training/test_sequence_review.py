@@ -126,3 +126,30 @@ def test_current_reviewed_source_is_used_and_revocation_is_rechecked(sequence, t
         assert second["comparisons"][0]["reps_change"] == -2
     finally:
         kb.close()
+
+
+def test_target_stop_missing_rir_and_shorter_rest_are_descriptive(sequence):
+    from healthzip.training.sequence_review import compare_work_sets
+
+    _, svc, sessions, _, target = sequence
+    observations = []
+    for i, session_id in enumerate(sessions):
+        inst = next(e for e in svc.get_session(session_id)["exercises"] if e["catalog_id"] == target)
+        for index, row in enumerate(inst["sets"]):
+            values = {"load_value": "30.0" if i else "30", "rir": None,
+                      "rest_recorded_s": 90 if i and index else 180,
+                      "reps": 10 if index == 0 or i == 0 else 8,
+                      "stop_reason": "plan_target" if index == 0 else "unknown"}
+            svc.edit_set(row["set_uuid"], values, base_revision=row["revision"])
+        observations.append(svc.get_session_exercise(inst["id"])["sets"])
+    result = compare_work_sets(*observations)
+    assert [p["reps_change"] for p in result["comparisons"]] == [0, -2]
+    assert result["comparisons"][0]["rir_change"] is None
+    assert any("达到目标后停止" in s for s in result["observations"])
+    assert any("180 → 90 秒" in s for s in result["observations"])
+    assert len(result["next_steps"]) == 2
+    # Missing or duplicate ordinals never promote an unmatched later survivor to the first set.
+    sparse = compare_work_sets(observations[0], observations[1][1:])
+    assert sparse["unmatched_previous"] and not sparse["observations"]
+    different = [{**r, "condition": {**r["condition"], "side": "left"}} for r in observations[1]]
+    assert not compare_work_sets(observations[0], different)["observations"]

@@ -33,7 +33,9 @@ def main():
         raise ValueError("This acceptance tool only accepts explicitly synthetic fixtures")
     report = {"data": "synthetic_only", "transport": "same-host HTTP and Streamlit WebSocket",
               "remote_phone_network": "not_tested", "platform": platform.platform(),
-              "cpu_count": os.cpu_count(), "database_bytes": database.stat().st_size}
+              "cpu_count": os.cpu_count(), "python": platform.python_version(),
+              "sqlite": sqlite3.sqlite_version, "os_cache_cleared": False,
+              "concurrent_load": "other acceptance processes may run; not an exclusive host", "database_bytes": database.stat().st_size}
     with tempfile.TemporaryDirectory(prefix="healthzip-page-benchmark-") as temporary:
         folder = Path(temporary)
         target = folder / ".local/healthzip.sqlite3"
@@ -64,7 +66,7 @@ def main():
                     page.wait_for_function("old => {const e=document.querySelector('[data-hz-render]');return e && e.dataset.workspace==='heart' && e.dataset.hzRender!==old}", arg=marker, timeout=30000)
                 page.get_by_test_id("stMetricLabel").filter(has_text="静息心率").first.wait_for(timeout=30000)
                 fact = since_click((time.perf_counter() - started) * 1000)
-                page.locator('[data-testid="stPlotlyChart"] .ytitle').filter(has_text="静息心率").first.wait_for(timeout=30000)
+                page.get_by_test_id("stPlotlyChart").first.wait_for(timeout=30000)
                 trend = since_click((time.perf_counter() - started) * 1000)
                 page.wait_for_function("old => {const e=document.querySelector('[data-hz-render]');return e && e.dataset.workspace==='heart' && e.dataset.hzRender!==old}", arg=marker, timeout=30000)
                 page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
@@ -89,14 +91,14 @@ def main():
             report["running_process_new_range_cold"] = cold
             rows = []
             for _ in range(30):
-                page.get_by_role('radio', name='体重', exact=True).locator('xpath=ancestor::label[1]').click()
-                page.wait_for_function("() => document.querySelector('[data-hz-render]')?.dataset.workspace==='weight'")
+                page.get_by_role('radio', name='总览', exact=True).locator('xpath=ancestor::label[1]').click()
+                page.wait_for_function("() => document.querySelector('[data-hz-render]')?.dataset.workspace==='overview'")
                 page.get_by_test_id('stStatusWidget').wait_for(state='hidden')
                 old = page.locator('[data-hz-render]').get_attribute('data-hz-render')
                 arm()
                 started = time.perf_counter()
-                page.get_by_role('radio', name='心率', exact=True).locator('xpath=ancestor::label[1]').click()
-                rows.append(finish(started, old))
+                page.get_by_role('radio', name='身体', exact=True).locator('xpath=ancestor::label[1]').click()
+                rows.append(finish(started, old, require_new_snapshot=True))
             report["warm_return"] = {"n": len(rows), "samples": rows,
                 **{key: {"p50": percentile(rows, key, .5), "p95": percentile(rows, key, .95)} for key in rows[0]}}
             report["initial_navigation_network_ms"] = page.evaluate("""() => {
@@ -104,8 +106,9 @@ def main():
                     response:n.responseEnd-n.requestStart,document:n.domContentLoadedEventEnd-n.startTime};
             }""")
             report["network_limit"] = "Warm navigation uses multiplexed WebSocket; network, Streamlit queue, serialization and paint residual is included end-to-end and not attributed to pure network."
-            report["measurement_clock"] = "Navigation samples start at the actual captured DOM click event. Automation command-to-settled is separate and includes Playwright actionability waiting. First open starts before page.goto."
+            report["measurement_clock"] = "Fact/trend timings wait for the new completed page snapshot (conservative upper bound, excludes stale prior DOM). Navigation samples start at the actual captured DOM click event. Automation command-to-settled is separate and includes Playwright actionability waiting. First open starts before page.goto."
             report["budget_met"] = {"warm_p95_800ms": report['warm_return']['facts_and_trend_ms']['p95'] <= 800,
+                "warm_p95_1000ms": report['warm_return']['facts_and_trend_ms']['p95'] <= 1000,
                 "running_cold_3s": max(row['full_interaction_ms'] for row in cold) <= 3000}
             context.close()
             browser.close()

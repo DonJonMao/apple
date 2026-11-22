@@ -19,6 +19,7 @@ from healthzip.workflows import (
 )
 from healthzip.workflows.calendar import completed_periods
 from healthzip.workflows.reports import markdown
+from tests.app_navigation import go, legacy_analysis
 
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_six_repairs.py")))
 APP = Path(__file__).resolve().parents[2] / "app.py"
@@ -26,11 +27,12 @@ APP = Path(__file__).resolve().parents[2] / "app.py"
 
 def open_app(path):
     app = AppTest.from_file(str(APP), default_timeout=60).run()
-    app.radio(key="main_workspace").set_value("设置").run()
+    go(app, "设置")
+    app.radio(key="settings_section").set_value("导入与同步").run()
     next(item for item in app.text_input if item.label == "SQLite 路径").set_value(str(path))
     next(item for item in app.button if item.label == "保存工作区设置").click().run()
-    app.radio(key="main_workspace").set_value("复盘").run()
-    app.radio(key="review_section").set_value("问题分析").run()
+    go(app, "复盘")
+    legacy_analysis(app, "问题分析")
     app.button(key="review_compute").click().run()
     assert not app.exception
     return app

@@ -46,6 +46,7 @@ class WorkflowRequest:
     window_start: str | None = None
     window_end: str | None = None
     period: str | None = None
+    fact_period: str | None = None
     session_id: int | str | None = None
     session_exercise_id: str | None = None
     selected_set_uuid: str | None = None
@@ -59,18 +60,24 @@ class WorkflowRequest:
     source_run_id: str | None = None
     context_policy: str = "require_valid"
     include_session_background: bool = False
+    ordinary_inventory: bool = False
 
     def normalized(self):
         if self.workflow_id not in WORKFLOWS or self.mode not in {"prospective", "retrospective"}:
             raise ValueError("unknown_workflow_or_mode")
         if self.context_policy not in {"require_valid", "preserve_facts"}:
             raise ValueError("unknown_context_policy")
+        if self.ordinary_inventory and (self.workflow_id != "W4" or self.task_id or self.session_exercise_id
+                                        or self.result_metric_id != "STR-11"):
+            raise ValueError("ordinary_inventory_requires_unselected_strength_review")
         if type(self.window_days) is not int or self.window_days < 1:
             raise ValueError("positive_display_window_required")
         if type(self.baseline_days) is not int or self.baseline_days < 1:
             raise ValueError("positive_descriptive_baseline_window_required")
         if self.period not in {None, "week", "month"}:
             raise ValueError("unknown_calendar_period")
+        if self.fact_period not in {None, "week", "month"} or (self.fact_period and self.period):
+            raise ValueError("unknown_or_conflicting_fact_period")
         if self.window_start is not None or self.window_end is not None:
             if self.window_start is None or self.window_end is None or self.period:
                 raise ValueError("explicit_window_requires_both_bounds_without_period")

@@ -1,9 +1,11 @@
 """Relevant current-use dependencies; historical runs themselves never change."""
+from copy import deepcopy
 from datetime import datetime, timezone
 
-from healthzip.analytics.v13 import snapshot
 from healthzip.science.contracts import canonical_hash, instant
 from healthzip.training.service import TrainingService
+
+from .report_inputs import report_value, source_snapshot
 
 SOURCE_TYPES = {
     "W1": {"body_mass_kg", "resting_heart_rate_bpm", "hrv_sdnn_ms", "sleep_stage"},
@@ -27,6 +29,16 @@ def input_version(repo, context_id):
 
 
 def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
+    task = selected_task or analysis.get("task_selection") or {}
+    key = {"request": request, "visible_at": visible_at,
+        "windows": {"start": analysis.get("dependency_window_start", analysis["window_start"]),
+                    "end": analysis.get("dependency_window_end", analysis["window_end"])},
+        "task": {field: task.get(field) for field in ("task_id", "exercise_id")}}
+    return deepcopy(report_value(repo, "workflow_dependencies", key,
+        lambda: _inputs(repo, request, analysis, visible_at=visible_at, selected_task=selected_task)))
+
+
+def _inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
     """Recheck a fixed event window with original or current visibility.
 
     New late records and revisions in the relevant window are dependencies too.
@@ -42,7 +54,7 @@ def inputs(repo, request, analysis, *, visible_at=None, selected_task=None):
     selected_type = {"STATE-RHR": "resting_heart_rate_bpm", "STATE-SDNN": "hrv_sdnn_ms", "BODY-MASS-DAILY": "body_mass_kg"}.get(
         request.get("result_metric_id") or ("STR-11" if request.get("task_id") else "BODY-MASS-DAILY")) if wid == "W4" else None
     source_types = {selected_type} if selected_type else SOURCE_TYPES[wid]
-    records, inherited = snapshot(repo, cutoff, window_start=start, window_end=end,
+    records, inherited = source_snapshot(repo, cutoff, window_start=start, window_end=end,
         canonical_types=sorted(source_types))
     task = selected_task or analysis.get("task_selection") or {}
     exercise_id = task.get("exercise_id")

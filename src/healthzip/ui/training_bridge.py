@@ -40,7 +40,8 @@ LOAD_LABELS = {
     "band_configuration": "弹力带设置",
 }
 COPY_FIELDS = ("load_value", "load_unit", "reps", "duration_s", "distance_m")
-MAIN_FIELDS = {*COPY_FIELDS, "body_mass_kg", "added_load_kg", "assistance_value", "rir"}
+TEXT_FIELDS = {"load_unit", "stop_reason", "set_type"}
+MAIN_FIELDS = {*COPY_FIELDS, *TEXT_FIELDS, "body_mass_kg", "added_load_kg", "assistance_value", "rir"}
 
 
 def _event(command_id, purpose):
@@ -266,6 +267,7 @@ def _catalog(svc, payload):
 
 def _catalog_version(svc):
     row = svc.conn.execute("SELECT value FROM schema_meta WHERE key='catalog_data_version'").fetchone()
+    initialization = svc.conn.execute("SELECT value FROM schema_meta WHERE key='training_service_initialization'").fetchone()
     # Aliases/favorites are user preferences, without training-event revisions.
     # Include their actual committed values so another process cannot leave the
     # component's metadata snapshot valid after editing them.
@@ -275,13 +277,13 @@ def _catalog_version(svc):
     preferences = [tuple(value) for value in svc.conn.execute(
         "SELECT exercise_id,favorite,last_used_at FROM exercise_preference WHERE user_id=? ORDER BY exercise_id",
         (svc.user_id,))]
-    return hashlib.sha256(json.dumps([row[0] if row else "0", aliases, preferences],
+    return hashlib.sha256(json.dumps([row[0] if row else "0", initialization[0] if initialization else None, aliases, preferences],
         ensure_ascii=False).encode()).hexdigest()
 
 
 def build_snapshot(repo, state, timezone_name="Asia/Shanghai"):
     """Build only the current requested inventory; advice/history are explicit."""
-    svc = TrainingService(repo)
+    svc = TrainingService(repo, initialize=False)
     zone = ZoneInfo(timezone_name)
     now = datetime.now(timezone.utc)
     today = now.astimezone(zone).date().isoformat()
@@ -298,13 +300,14 @@ def build_snapshot(repo, state, timezone_name="Asia/Shanghai"):
         state["calendar"], state["calendar_version"] = _calendar_snapshot(svc, month, timezone_name)
         state["calendar_month"] = month
         state["calendar_dirty"] = False
-    if "regions" not in state:
+    if "regions" not in state or state.get("regions_catalog_version") != _catalog_version(svc):
         # Metadata only, without generating hundreds of media thumbnails/widgets.
         definitions = svc.search_exercises()
         region_ids = {region for item in definitions for region in item.get("display_regions", [])}
         state["regions"] = [{"id": key, "name": label} for key, label in REGIONS.items() if key in region_ids]
         state["equipment_types"] = [{"id": key, "name": EQUIPMENT_LABELS.get(key, "其他／待确认")}
             for key in sorted({item["equipment_type"] for item in definitions})]
+        state["regions_catalog_version"] = _catalog_version(svc)
     identity = state.get("session_id")
     session = None
     if identity:
@@ -409,17 +412,19 @@ def _copy_values(source):
 
 def _save_set(svc, payload, event_id):
     current = svc.get_set(payload["set_id"])
+    if current.get("deleted_at"):
+        raise TrainingError("此组已删除，请先撤销删除")
     if svc._session(current["session_id"]).get("deleted_at"):
         raise TrainingError("所属训练已删除，请先撤销删除再更正记录")
     changes = deepcopy(payload.get("changes") or {})
     if set(changes) - MAIN_FIELDS:
-        raise TrainingError("主行仅保存重量、次数/时长/距离和 RIR；高级字段请打开组详情")
+        raise TrainingError("该字段请在组详情中保存")
     if current.get("completion_state") == "completed":
         if not payload.get("correction"):
             # A second completion is read-only, including after a lost receipt.
             if payload.get("complete"):
                 equivalent = all(
-                    (current.get(key) or None) == (value or None) if key == "load_unit"
+                    (current.get(key) or None) == (value or None) if key in TEXT_FIELDS
                     else numeric(current.get(key), key, integer=key == "reps") == numeric(value, key, integer=key == "reps")
                     for key, value in changes.items()
                 )
@@ -505,6 +510,8 @@ def _dispatch(svc, action, p, state, event_id):
     if action == "end_session":
         current = svc._session(p["session_id"])
         if current.get("session_status") == "completed" and not current.get("deleted_at"):
+            if "discard_drafts" in p:
+                raise TrainingError("这场训练已在另一处结束，请重新查看实际记录")
             return {**svc.get_session(p["session_id"]), "status": "saved", "already_completed": True}
         _require_active(svc, p["session_id"])
         minutes = numeric(p.get("duration_minutes"), "训练时长分钟")
@@ -519,11 +526,32 @@ def _dispatch(svc, action, p, state, event_id):
             duration_protocol = current.get("duration_protocol")
         scale = p.get("rpe_scale", current.get("session_rpe_scale")) or "cr10"
         collected_at = (timestamp() if "session_rpe" in p else current.get("session_rpe_collected_at")) if score is not None else None
-        return svc.end_session(p["session_id"], base_revision=_revision(p), event_id=event_id,
+        discard = p.get("discard_drafts")
+        if "discard_drafts" in p:
+            # The workbench command holds a single write transaction. A new draft
+            # or a remotely completed set invalidates the reviewed selection.
+            live = {row["set_uuid"]: row["revision"] for row in svc.conn.execute(
+                "SELECT set_uuid,revision FROM strength_set WHERE user_id=? AND session_id=? "
+                "AND completion_state IN ('draft','in_progress') AND deleted_at IS NULL",
+                (svc.user_id, current["id"]))}
+            if (not isinstance(discard, dict) or any(type(v) is not int for v in discard.values())
+                    or live != discard or current["revision"] != _revision(p)):
+                return {"status": "conflicted", "message": "未完成组已变化，请重新核对结束摘要"}
+            for identity, revision in live.items():
+                result = svc.delete_set(identity, base_revision=revision,
+                    event_id=_event(event_id, "discard:" + identity))
+                if result["status"] != "saved":
+                    raise TrainingError("草稿在结束前已变更，请重新核对")
+        result = svc.end_session(p["session_id"], base_revision=_revision(p), event_id=event_id,
             feedback=feedback, notes=p.get("notes"),
             session_rpe=score, rpe_scale=scale if score is not None else None,
             rpe_collected_at=collected_at, duration_seconds=duration_seconds,
             duration_protocol=duration_protocol)
+        if discard is not None:
+            if result["status"] != "saved":
+                raise TrainingError("训练在结束前已变更，请重新核对")
+            result["discarded_draft_count"] = len(discard)
+        return result
     if action == "delete_set":
         return svc.delete_set(p["set_id"], base_revision=_revision(p), event_id=event_id)
     if action == "delete_session":

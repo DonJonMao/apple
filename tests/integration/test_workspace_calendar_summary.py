@@ -88,7 +88,7 @@ def test_daily_values_not_raw_average_and_sources_stay_separate(repo):
     assert f"health_sample:{other}" in {identifier for item in resting for identifier in item["source_record_ids"]}
     assert all(f"health_sample:{at_cutoff}" not in item["source_record_ids"] for item in resting)
     assert fact(result, "HRV（SDNN）")["value"] == 30
-    assert "平均 75 bpm" in "".join(result["conclusions"])
+    assert "中位数 75 bpm" in "".join(result["conclusions"])
     assert "private-device" not in "".join(result["conclusions"])
     assert "internal-method-key" not in "".join(result["conclusions"])
     assert result["coverage"]["record_count"] == 5
@@ -112,16 +112,18 @@ def test_sleep_union_positive_days_sources_and_partial_window(repo):
     assert by_source["合成手表"]["sample_count"] == 3
     assert by_source["其他来源"]["value"] == 2
     assert result["coverage"]["observed_days"] == 2
-    assert "平均 6 小时" in "".join(result["conclusions"])
+    assert "中位数 6 小时" in "".join(result["conclusions"])
     assert "有效结束日期" in "".join(result["conclusions"])
 
 
-def test_sleep_boundary_uses_canonical_interval_clipping_and_wake_date(repo):
+def test_sleep_boundary_keeps_full_observed_event_and_end_date(repo):
     add(repo, "cross-week", "sleep_stage", unit="category", start="2026-11-15T12:00:00+00:00",
         end="2026-11-15T20:00:00+00:00", category="HKCategoryValueSleepAnalysisAsleep")
     weekly = view(repo, "睡眠")
     monthly = view(repo, "睡眠", period="month")
-    assert fact(weekly, "已观察睡眠")["value"] == 4
+    # v3 summary preserves the event prefix before the calendar boundary.
+    assert fact(weekly, "已观察睡眠")["value"] == 8
+    assert fact(weekly, "已观察睡眠")["metric_algorithm_version"] == "health-period-summary-2.0.0"
     assert fact(monthly, "已观察睡眠")["value"] == 8
     assert fact(weekly, "已观察睡眠")["dates"] == ["2026-11-16"]
 

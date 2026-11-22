@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from healthzip.advice import build_advice_context
-from healthzip.analytics.v13 import analyze
 from healthzip.science.contracts import canonical_hash, instant, task_metric_results
 from healthzip.training.service import TrainingService
 
@@ -22,6 +21,7 @@ from .facts import (
     pretraining_factors,
     vo2_segments,
 )
+from .report_inputs import period_facts, visible_sessions
 from .selection import scoped_metrics
 from .storage import context_as_of, load_analysis, load_run
 
@@ -29,6 +29,15 @@ from .storage import context_as_of, load_analysis, load_run
 def _select_metrics(analysis, request, partial_period=None):
     metrics = {**analysis["metrics"], **analysis["observations"]}
     selected_task = None
+    if request.get("ordinary_inventory"):
+        inventory = {t["task_id"]: t for source in (analysis, partial_period or {})
+                     for t in source.get("strength_tasks", [])
+                     if t.get("inventory_identity") == "actual_records_no_reference_inferred"}
+        selected_task = {"task_id": None, "exercise_name": "普通训练实际记录", "condition_key": None,
+            "inventory_task_ids": sorted(inventory), "inventory_tasks": [
+                {key: task.get(key) for key in ("task_id", "exercise_id", "exercise_name", "condition_key",
+                    "protocol", "source_record_ids", "input_data_hash")} for task in inventory.values()],
+            "identity": "independent_actual_tasks_no_comparability_inferred"}
     if request["task_id"]:
         selected_task = next((task for task in analysis["strength_tasks"] if task["task_id"] == request["task_id"]), None)
         if selected_task is None and partial_period is not None:
@@ -151,17 +160,20 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
             "end": declared_request["cutoff_time"], "timezone": request.timezone},
             baseline_completed_days=request.baseline_days)
     # Existing selection services re-resolve record IDs and protocol/visibility.
-    analysis = analyze(repo, request.window_days, cutoff_time=declared_request["cutoff_time"],
+    analysis = period_facts(repo, request.window_days, cutoff_time=declared_request["cutoff_time"],
         timezone_name=request.timezone, retrospective=request.mode == "retrospective",
-        context=selected_context, period=request.period, use_cache=False,
-        window_start=request.window_start, window_end=request.window_end)
+        context=selected_context, period=request.fact_period or request.period, use_cache=True,
+        window_start=None if request.fact_period else request.window_start,
+        window_end=None if request.fact_period else request.window_end)
+    if request.fact_period and (analysis["window_start"] != request.window_start or analysis["window_end"] != request.window_end):
+        raise ValueError("calendar_fact_period_bounds_mismatch")
     partial_period = None
     if request.workflow_id == "W4" and request.period:
         from .calendar import completed_periods
         partial_period = analysis
         periods = completed_periods(declared_request["cutoff_time"], request.timezone, request.period)
-        analysis = analyze(repo, cutoff_time=declared_request["cutoff_time"], timezone_name=request.timezone,
-            context=selected_context, retrospective=request.mode == "retrospective", use_cache=False,
+        analysis = period_facts(repo, cutoff_time=declared_request["cutoff_time"], timezone_name=request.timezone,
+            context=selected_context, retrospective=request.mode == "retrospective", use_cache=True,
             window_start=periods[0][0], window_end=periods[-1][1])
     advice = None
     if request.session_exercise_id:
@@ -207,7 +219,7 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     session_contexts = session_backgrounds(repo, declared_request, analysis, selected_task, selected_context) if request.include_session_background else []
     background_contexts = before_training + session_contexts + ([current_body] if current_body else [])
     background_metrics = evidence.background_inputs(background_contexts)
-    sessions = TrainingService(repo).sessions_as_of(cutoff_time=declared_request["cutoff_time"])
+    sessions = visible_sessions(repo, declared_request["cutoff_time"])
     # Capture dependencies before evidence retrieval, over every input window.
     # A version change during the preceding reads refuses the freeze outright.
     dependency_analysis = dict(analysis)
@@ -302,10 +314,12 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
                 status="completed" if executed in {"executed", "not_executed"} else "bounded",
                 outcome_reference={"metric_id": "STR-27", "recommendation_id": candidate["candidate_id"]},
                 adoption=outcome["adoption"], execution_state=executed, task_met=outcome["short_term_success"])
-    if request.workflow_id in {"W1", "W4"} and declared_request["task_id"]:
+    if request.workflow_id in {"W1", "W4"} and (declared_request["task_id"] or request.ordinary_inventory):
         from healthzip.advice import candidate_basis
+        candidate_task_ids = (set(selected_task["inventory_task_ids"]) if request.ordinary_inventory
+                              else {declared_request["task_id"]})
         linked_candidate_bases = [candidate_basis(row) for row in TrainingService(repo).list_recommendations(cutoff_time=declared_request["cutoff_time"])
-            if row["input_snapshot"].get("advice_context", {}).get("task_id") == declared_request["task_id"]]
+            if row["input_snapshot"].get("advice_context", {}).get("task_id") in candidate_task_ids]
         nodes[5].update(candidate_ids=[b["candidate_id"] for b in linked_candidate_bases],
             action_identity="existing_frozen_candidates_require_current_use_check")
     if request.workflow_id == "W4":
@@ -314,6 +328,8 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
             "adoption": row["adoption"], "execution_state": row["execution_state"], "task_met": row["short_term_success"]} for row in outcomes])
     supplements["followup"] = {mid: metrics[mid] for mid in ("STR-27", "STR-28", "REPORT-RECOMMENDATION-FOLLOWUP") if mid in metrics}
     task_selection = {key: selected_task.get(key) for key in ("task_id", "exercise_id", "exercise_name", "condition_key", "protocol")} if selected_task else None
+    if request.ordinary_inventory:
+        task_selection.update(identity=selected_task["identity"], inventory_tasks=selected_task["inventory_tasks"])
     target = {"instance_id": advice["instance"]["id"], "condition": advice["instance"]["condition"],
               "effective_targets": advice["effective_targets"], "selected_target": advice["selected_target"]} if advice else None
     snapshot = {key: analysis[key] for key in ("cutoff_time", "window_start", "window_end", "timezone", "algorithm_version",

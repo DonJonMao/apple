@@ -2,8 +2,9 @@
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 
-from healthzip.analytics.v13 import analyze
 from healthzip.science.contracts import instant
+
+from .report_inputs import period_facts
 
 
 def completed_periods(cutoff_time, timezone, period):
@@ -25,12 +26,13 @@ def comparison(repo, request, context):
     metric_id = request.get("result_metric_id") or ("STR-11" if request.get("task_id") else "BODY-MASS-DAILY")
     windows = []
     for start, end in completed_periods(request["cutoff_time"], request["timezone"], request["period"]):
-        analysis = analyze(repo, cutoff_time=request["cutoff_time"], timezone_name=request["timezone"],
-            window_start=start, window_end=end, context=context, retrospective=request["mode"] == "retrospective", use_cache=False)
+        analysis = period_facts(repo, cutoff_time=request["cutoff_time"], timezone_name=request["timezone"],
+            window_start=start, window_end=end, context=context, retrospective=request["mode"] == "retrospective", use_cache=True)
         task = next((item for item in analysis["strength_tasks"] if item["task_id"] == request.get("task_id")), None)
         metric = (task["metrics"].get(metric_id) if task else None) if metric_id == "STR-11" else analysis["metrics"][metric_id]
         windows.append({"start": start, "end": end, "complete_calendar_period": True,
-                        "metric": metric, "missing_reason": "selected_task_not_recorded_in_period" if metric is None else None})
+                        "metric": metric, "missing_reason": ("ordinary_inventory_has_no_designated_reference" if request.get("ordinary_inventory")
+                            else "selected_task_not_recorded_in_period") if metric is None else None})
     return {"metric_id": metric_id, "period": request["period"], "periods": windows,
         "identity": "two_preceding_complete_local_calendar_periods",
         "limitations": ["本期未结束部分另列；完整日历范围不代表每天都有记录。",

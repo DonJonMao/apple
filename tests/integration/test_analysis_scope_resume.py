@@ -48,7 +48,10 @@ def test_reopen_supplement_and_resume_preserves_saved_task(tmp_path, monkeypatch
     app.button(key="workflow_open_run").click().run(timeout=30)
     if wid == "W4":
         charts = [json.loads(chart.proto.spec) for chart in app.get("plotly_chart")]
-        assert any(chart["layout"]["title"]["text"] == "静息心率每日代表值" for chart in charts)
+        # The shared comparison panel adds charts before the saved task chart.
+        # Retain the exact saved outcome assertion without requiring every
+        # additional chart to carry the legacy title field.
+        assert any(chart["layout"].get("title", {}).get("text") == "静息心率每日代表值" for chart in charts)
     repo = Repository(path)
     OBS["sample"](repo, bid, "new", canonical, 64, (now-timedelta(days=1)).isoformat())
     repo.conn.commit()

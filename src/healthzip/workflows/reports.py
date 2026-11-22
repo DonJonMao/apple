@@ -1,7 +1,7 @@
 """Analysis refresh, calendar reports and pages share the workflow service."""
-from healthzip.analytics.v13 import analyze
 
 from .contracts import WorkflowRequest
+from .report_inputs import period_facts
 from .service import run_workflow
 
 
@@ -12,20 +12,30 @@ def review_analysis(repo, analysis, *, period=None, include_background=False, kn
     if analysis.get("selection_context"):
         from healthzip.analytics.v13 import persist
         selection_id = persist(repo, analysis)
-    bounds_args = {} if period else {"window_start": analysis["window_start"], "window_end": analysis["window_end"]}
+    bounds_args = {} if period else {"window_start": analysis["window_start"], "window_end": analysis["window_end"],
+                                    "fact_period": analysis.get("period")}
     selection = analysis
     tasks = {task["task_id"]: task for task in analysis["strength_tasks"]}
     if period:
         from .calendar import completed_periods
         bounds = completed_periods(cutoff, zone, period)
-        selection = analyze(repo, cutoff_time=cutoff, timezone_name=zone,
+        selection = period_facts(repo, cutoff_time=cutoff, timezone_name=zone,
             window_start=bounds[0][0], window_end=bounds[-1][1], context=analysis.get("selection_context"),
             retrospective=analysis.get("retrospective", False))
-        current = analyze(repo, cutoff_time=cutoff, timezone_name=zone, period=period,
+        current = period_facts(repo, cutoff_time=cutoff, timezone_name=zone, period=period,
             context=analysis.get("selection_context"), retrospective=analysis.get("retrospective", False))
         tasks = {task["task_id"]: task for task in selection["strength_tasks"] + current["strength_tasks"]}
     runs = []
+    ordinary = [task for task in tasks.values() if task.get("task_metrics_scope") == "requested_only"]
+    if ordinary:
+        runs.append(run_workflow(repo, WorkflowRequest("W4", cutoff_time=cutoff, timezone=zone,
+            window_days=analysis.get("window_days", 30), period=period, result_metric_id="STR-11",
+            mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
+            selection_analysis_id=selection_id, context_policy="preserve_facts", ordinary_inventory=True,
+            include_session_background=include_session_background, **bounds_args), knowledge_root=knowledge_root))
     for task in tasks.values():
+        if task.get("task_metrics_scope") == "requested_only":
+            continue
         runs.append(run_workflow(repo, WorkflowRequest("W4", cutoff_time=cutoff, timezone=zone,
             window_days=analysis.get("window_days", 30), period=period, task_id=task["task_id"], result_metric_id="STR-11",
             mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,

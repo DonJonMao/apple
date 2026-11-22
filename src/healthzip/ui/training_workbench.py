@@ -87,6 +87,17 @@ def _scope(repo):
     return hashlib.sha256(str(repo.path.resolve()).encode()).hexdigest()[:24]
 
 
+def open_recorded_session(repo, session_uuid):
+    """Open an existing session through the ordinary editable/history workbench."""
+    from uuid import uuid4
+
+    state = st.session_state.setdefault("strength_workbench:" + _scope(repo), {})
+    state["session_id"] = session_uuid
+    state["open_record"] = str(uuid4())
+    state.pop("legacy", None)
+    st.session_state["strength_workspace_next"] = "训练"
+
+
 def render_workbench(repo):
     from healthzip.ui.training_bridge import build_snapshot, handle_command
 
@@ -111,7 +122,7 @@ def render_workbench(repo):
             st.rerun()
         return
     command = _component(
-        snapshot=snapshot, receipt=state.get("receipt"), key="strength_component_" + scope,
+        snapshot=snapshot, open_record=state.get("open_record"), receipt=state.get("receipt"), key="strength_component_" + scope,
         default=None,
     )
     if not isinstance(command, dict) or not command.get("id"):
@@ -154,7 +165,11 @@ def _secondary(repo, state):
     st.caption("力量训练 · 更多功能")
     if notice := st.session_state.pop("training_notice", None):
         st.warning(notice)
-    if view == "set_details":
+    if view == "progress":
+        from healthzip.ui.sequence_review import render_exercise_progress
+
+        render_exercise_progress(repo, catalog_id=target.get("catalog_id"))
+    elif view == "set_details":
         row = svc.get_set(target.get("set_id") or target.get("id"))
         instance = svc.get_session_exercise(row["session_exercise_id"])
         st.subheader(instance["exercise"]["name"] + " · 组详情")

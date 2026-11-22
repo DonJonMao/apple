@@ -1,0 +1,82 @@
+{
+  "data": "synthetic_only",
+  "cold_budget_s": 15,
+  "hot_p95_budget_s": 3,
+  "measurement_note": "Final cold runs follow dependency-manifest memoization; 30 hot runs use identical period_report code and hot branch. Cold excludes fixture copy, Python startup and Repository opening.",
+  "100k": {
+    "cold_artifact": "report-100k-final-cold.json",
+    "hot_artifact": "report-100k-delivery.json",
+    "cold_s": 113.19377383589745,
+    "hot_n": 30,
+    "hot_p50_s": 2.449045330286026,
+    "hot_p95_s": 2.6502059772610664,
+    "cold_budget_passed": false,
+    "hot_budget_passed": true,
+    "same_report_code_hash": true,
+    "phases": [
+      {
+        "stage": "读取本期事实",
+        "seconds": 31.79891950637102
+      },
+      {
+        "stage": "核对本期训练与知识依据",
+        "seconds": 30.489802449941635
+      },
+      {
+        "stage": "比较前两个完整周期",
+        "seconds": 11.551964968442917
+      },
+      {
+        "stage": "整理可追溯报告",
+        "seconds": 37.841804914176464
+      },
+      {
+        "stage": "保存冻结版本",
+        "seconds": 1.505095086991787
+      }
+    ],
+    "max_rss_mib": 1941.60546875,
+    "global_metrics": 77,
+    "tasks": 10000,
+    "source_set_ids": 10000,
+    "explicit_task_metric_results": 10000
+  },
+  "1m": {
+    "cold_artifact": "report-1m-final-cold.json",
+    "hot_artifact": "report-1m-delivery.json",
+    "cold_s": 167.6844227463007,
+    "hot_n": 30,
+    "hot_p50_s": 3.2596768848598003,
+    "hot_p95_s": 3.3937746211886406,
+    "cold_budget_passed": false,
+    "hot_budget_passed": false,
+    "same_report_code_hash": true,
+    "phases": [
+      {
+        "stage": "读取本期事实",
+        "seconds": 42.1340399608016
+      },
+      {
+        "stage": "核对本期训练与知识依据",
+        "seconds": 33.90057332068682
+      },
+      {
+        "stage": "比较前两个完整周期",
+        "seconds": 49.15929512679577
+      },
+      {
+        "stage": "整理可追溯报告",
+        "seconds": 40.843909330666065
+      },
+      {
+        "stage": "保存冻结版本",
+        "seconds": 1.6406279951334
+      }
+    ],
+    "max_rss_mib": 2341.1328125,
+    "global_metrics": 77,
+    "tasks": 10000,
+    "source_set_ids": 10000,
+    "explicit_task_metric_results": 10000
+  }
+}

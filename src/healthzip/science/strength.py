@@ -259,11 +259,14 @@ def _plan_target_attainment(planned, actual):
     return output
 
 
-def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
+def prepare_strength(rows, context):
+    return _parents([row for row in rows if _completed(row)]), reference_rows(rows, context)
+
+
+def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict, *, _prepared=None) -> dict:
     code = int(metric_id.split("-")[1])
     total = len(rows)
-    work = _parents([row for row in rows if _completed(row)])
-    refs = reference_rows(rows, context)
+    work, refs = _prepared if _prepared is not None else prepare_strength(rows, context)
     kw = {"records": rows, "total_n": total,
           "reference_selection_version": "specialist-first-position-1.1.0"}
     if code in {25, 26}:

@@ -1,6 +1,5 @@
 """Readable rendering of frozen MetricResults; no repository queries or formulas."""
-from healthzip.science import definitions
-from healthzip.science.contracts import task_metric_results
+from healthzip.science.contracts import metric_definition, task_metric_results
 
 LABELS = {
     "completed_work_parent_sets": "完成工作组", "segments": "工作组片段", "unknown_work_sets": "资料不足的完成组",
@@ -52,7 +51,7 @@ def _fields(value, path=""):
 
 
 def metric_lines(metric, *, title=None):
-    name = title or definitions(include_observations=True)[metric["metric_id"]]["title"]
+    name = title or metric_definition(metric["metric_id"])["title"]
     if metric.get("task_results"):
         lines = []
         for task in task_metric_results(metric):

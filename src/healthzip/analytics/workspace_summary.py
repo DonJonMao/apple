@@ -8,20 +8,20 @@ from __future__ import annotations
 
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from statistics import mean
+from statistics import mean, median, quantiles
 from zoneinfo import ZoneInfo
 
 from healthzip.db.temporal_schema import samples_as_of
 from healthzip.science import evaluate
 from healthzip.science.contracts import finite, instant
 from healthzip.science.observations import evaluate as evaluate_observation
-from healthzip.science.state import local_date_domain, stream_key
+from healthzip.science.state import local_date_domain, physiology_stream_key, stream_key
 from healthzip.training.service import TrainingService
 
 from .cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
 from .workouts import _nonnegative, _recorded_energy, _totals
 
-SUMMARY_VERSION = "workspace-calendar-summary-2.0.0"
+SUMMARY_VERSION = "workspace-calendar-summary-3.0.0"
 _DOMAINS = {
     "总览": ("heart", "sleep", "workout", "body", "strength"),
     "心率": ("heart",), "体重": ("weight",), "有氧": ("cardio",),
@@ -49,7 +49,7 @@ def _source(key, output):
 def _source_labels(rows):
     groups = defaultdict(set)
     for row in rows:
-        key = stream_key(row)
+        key = physiology_stream_key(row) if row.get("canonical_type") in {"resting_heart_rate_bpm", "hrv_sdnn_ms"} else stream_key(row)
         name = key[0] or "来源未注明"
         if str(name).startswith("unknown_source:"):
             name = "来源未注明"
@@ -89,7 +89,10 @@ def _numeric_fact(label, items, unit, key, metric, *, value_key="value", id_key=
                   "first": numbers[0], "last": numbers[-1],
                   "first_to_last_change": numbers[-1] - numbers[0] if len(numbers) > 1 else None,
                   "point_count": len(points)}
-    return {"label": label, "value": statistics["mean"], "unit": unit,
+    typical_day = metric["metric_id"] in {"STATE-RHR", "STATE-SDNN", "REPORT-STATE-SUMMARY"}
+    statistics.update(median=median(numbers), quartiles=quantiles(numbers, n=4, method="inclusive") if len(numbers) > 1 else None)
+    return {"label": label, "value": statistics["median"] if typical_day else statistics["mean"], "unit": unit,
+            "statistic_kind": "median" if typical_day else "mean",
             "source": source_label, "source_identity": list(key),
             "sample_count": sum(point.get("n", len(point.get(id_key, []))) for point in points),
             "observed_days": len(dates), "dates": dates, "source_record_ids": ids,
@@ -116,7 +119,7 @@ def _daily_summary(records, output, identity, label, unit, *, positive=False):
         output["facts"].append(fact)
         stats = fact["statistics"]
         text = (f"{fact['source']}：{fact['observed_days']} 个有效日期的{label}日值，"
-                f"平均 {_number(stats['mean'])} {unit}，范围 {_number(stats['minimum'])}–{_number(stats['maximum'])} {unit}。")
+                f"{'中位数' if fact['statistic_kind'] == 'median' else '平均'} {_number(fact['value'])} {unit}，范围 {_number(stats['minimum'])}–{_number(stats['maximum'])} {unit}。")
         if identity == "BODY-MASS-DAILY" and len(points) > 1:
             text += f"本期末次与首次日值相差 {stats['first_to_last_change']:+.1f} kg。"
         output["conclusions"].append(text)
@@ -132,7 +135,8 @@ def _sleep_summary(records, output):
                 positive.append(row)
         except ValueError:
             continue
-    records = positive
+    # Keep connected event prefixes before the display boundary; canonical
+    # sleep attribution decides membership using the complete observed event.
     metric = evaluate("REPORT-STATE-SUMMARY", records, **output["_evaluation"])
     output["metrics"][metric["metric_id"]] = metric
     identities = {row["id"]: stream_key(row) for row in records}
@@ -146,13 +150,13 @@ def _sleep_summary(records, output):
     for key, points in grouped.items():
         fact = _numeric_fact("已观察睡眠", points, "小时", key, metric, id_key="source_record_ids",
                              source_label=_source(key, output))
-        fact["limitations"] = ["按睡眠片段结束日期归属；窗口边界裁剪且同来源重叠时段只计一次。",
+        fact["limitations"] = ["连续睡眠观测事件按结束本地日期归属；同来源重叠只计一次，明确awake冲突不计睡眠。",
                                "已观察时长不证明完整主睡眠；零时长与缺失日期不纳入均值。"]
         output["facts"].append(fact)
         stats = fact["statistics"]
         output["conclusions"].append(
             f"{fact['source']}：{fact['observed_days']} 个有效结束日期的已观察睡眠，"
-            f"平均 {_number(stats['mean'])} 小时，范围 {_number(stats['minimum'])}–{_number(stats['maximum'])} 小时；仅统计正时长记录。")
+            f"中位数 {_number(stats['median'])} 小时，范围 {_number(stats['minimum'])}–{_number(stats['maximum'])} 小时；仅统计正时长记录。")
     output["limitations"].append("睡眠缺失与零时长不填为 0，不据此推断佩戴情况或没有睡眠。")
 
 
@@ -289,7 +293,7 @@ def _compute(repo, service, domains, cutoff, zone):
             if "heart" in domains:
                 _daily_summary(records, item, "STATE-RHR", "静息心率", "bpm")
                 _daily_summary(records, item, "STATE-SDNN", "HRV（SDNN）", "ms")
-                item["limitations"].append("来源、设备、协议与版本分别统计；SDNN 不等于 RMSSD。日内优先原主记录，否则取日中位数，再对有效日等权汇总。")
+                item["limitations"].append("来源、设备、协议与版本分别统计；SDNN 不等于 RMSSD。SDNN日中位数、RHR明确主记录或日中位数，再对有效日取期间中位数；体重沿用自身口径。")
             if "sleep" in domains:
                 _sleep_summary([row for row in records if row.get("canonical_type") == "sleep_stage"], item)
             if {"body", "weight"}.intersection(domains):

@@ -1,10 +1,10 @@
 """Descriptive component comparisons, independent of statistical plateau inference."""
 from datetime import timedelta
 
-from healthzip.analytics.v13 import snapshot
-from healthzip.science import evaluate
 from healthzip.science.contracts import Window, instant, select_as_of
 from healthzip.science.state import sleep_intervals, stream_key
+
+from .report_inputs import report_value, source_snapshot
 
 
 def _rir_difference(first, later):
@@ -88,19 +88,25 @@ def body_context(repo, cutoff_time, request, selection=None):
     This creates no training/reference record. The caller labels the actual
     time being described; product lookback is not a recovery threshold.
     """
+    return report_value(repo, "body_context", [cutoff_time, request["mode"], request["timezone"],
+        request.get("baseline_days", 28), selection], lambda: _body_context(repo, cutoff_time, request, selection))
+
+
+def _body_context(repo, cutoff_time, request, selection=None):
     cutoff = instant(cutoff_time)
     start = cutoff - timedelta(days=request.get("baseline_days", 28))
-    records, inherited = snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
+    records, inherited = source_snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
         retrospective=request["mode"] == "retrospective",
-        canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"])
+        canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"], include_training=False)
     context = {**inherited, "timezone": request["timezone"], "retrospective": request["mode"] == "retrospective"}
     if (selection or {}).get("primary_sleep_stream"):
         context["primary_sleep_stream"] = selection["primary_sleep_stream"]
-    metrics = {mid: evaluate(mid, records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
-                window_end=cutoff.isoformat(), context=context) for mid in (
+    from healthzip.science.engine import evaluate_subset
+    metrics = evaluate_subset((
         "STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SLEEP-STAGE", "STATE-SLEEP-TIMING",
         "STATE-RHR", "STATE-SDNN", "STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION",
-        "STATE-FATIGUE", "STATE-SORENESS", "STATE-PAIN", "BODY-MASS-DAILY", "BODY-MASS-TREND")}
+        "STATE-FATIGUE", "STATE-SORENESS", "STATE-PAIN", "BODY-MASS-DAILY", "BODY-MASS-TREND"), records,
+        cutoff_time=cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(), context=context)
     window = Window(start.isoformat(), cutoff.isoformat(), cutoff.isoformat(), request["timezone"])
     if (selection or {}).get("sleep_selection"):
         from healthzip.analytics.sleep_selection import selected_sleep_metrics

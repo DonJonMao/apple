@@ -45,6 +45,34 @@ def import_summary(result, *, sync=False):
 def render_settings():
     st.subheader("设置")
     st.caption("管理当前数据工作区、导入来源和可选解释服务。")
+    section = st.radio("设置内容", ["基础资料", "导入与同步", "模型与资料库", "数据诊断"], horizontal=True, key="settings_section")
+    if section == "基础资料":
+        from healthzip.ui.basic_profile import render_basic_profile
+        repo = Repository(st.session_state["database_path"])
+        try:
+            render_basic_profile(repo, st.session_state.get("analysis_timezone", "Asia/Shanghai"))
+        finally:
+            repo.close()
+        from healthzip.ui.preferences import load_preferences, persist_widget
+        workspace = st.session_state["database_path"]
+        key = "cycle_enabled:" + str(Path(workspace).resolve())
+        st.checkbox("在身体中显示周期与症状", value=bool(load_preferences(workspace).get("cycle_enabled")), key=key,
+                    on_change=persist_widget, args=(workspace, key, "cycle_enabled"))
+        return
+    if section == "数据诊断":
+        from healthzip.quality.coverage import inventory
+        repo = Repository(st.session_state["database_path"])
+        try:
+            st.json(inventory(repo))
+        finally:
+            repo.close()
+        return
+    if section == "模型与资料库":
+        _render_model_settings()
+        if st.toggle("打开本地资料库管理", key="settings_library"):
+            from healthzip.ui.knowledge_page import render_knowledge
+            render_knowledge()
+        return
     with st.form("workspace_settings"):
         database = st.text_input("SQLite 路径", st.session_state.get("database_path", str(DEFAULT_DB_PATH)))
         zone = st.text_input("分析时区", st.session_state.get("analysis_timezone", "Asia/Shanghai"))
@@ -98,6 +126,9 @@ def render_settings():
                 repo.close()
     if results.get("sync"):
         import_summary(results["sync"], sync=True)
+
+
+def _render_model_settings():
     st.write("模型解释")
     config = AIConfig.from_env()
     st.caption("已配置模型服务。" if config else "尚未配置模型服务；事实、图表与训练记录均可正常使用。")

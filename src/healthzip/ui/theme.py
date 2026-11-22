@@ -31,8 +31,8 @@ def apply_theme():
 
 
 def open_workspace(page):
-    st.session_state["main_workspace"] = page
-    st.session_state["mobile_menu_open"] = False
+    from healthzip.ui.navigation import select_destination
+    select_destination(page)
 
 
 def render_header(pages):

@@ -110,7 +110,8 @@ def test_explanation_failure_is_retryable_and_does_not_expose_transport_details(
     future = submit_job(key, fail)
     with pytest.raises(RuntimeError):
         future.result(timeout=2)
-    assert job_result(key) == {"status": "failed"}
+    assert job_result(key) == {"status": "failed", "reason_code": "service_failed"}
+    assert "synthetic-secret-endpoint" not in str(job_result(key))
 
 
 def test_same_day_vo2_first_last_respects_observation_order_not_value_sort():

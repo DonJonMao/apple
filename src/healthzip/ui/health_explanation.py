@@ -15,7 +15,7 @@ import streamlit as st
 
 from healthzip.ai.consent import NetworkConsent
 
-PROMPT_VERSION = "health-change-explanation-2"
+PROMPT_VERSION = "health-change-explanation-4"
 _EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix="healthzip-explanation")
 _JOBS: OrderedDict[str, tuple[float, Future]] = OrderedDict()
 _LOCK = threading.Lock()
@@ -97,10 +97,12 @@ def job_result(key):
         return {"status": "pending", "elapsed_seconds": time.monotonic() - entry[0]}
     try:
         return {"status": "ready", "result": future.result()}
+    except TimeoutError:
+        return {"status": "failed", "reason_code": "retrieval_timeout"}
     except Exception:
         # Errors can contain an endpoint or private source text. The local UI
         # exposes a retry, never the raw transport exception.
-        return {"status": "failed"}
+        return {"status": "failed", "reason_code": "service_failed"}
 
 
 def _context_still_current(context):
@@ -125,6 +127,7 @@ def _reviewed_explanation(metrics, context, allow_network, root, *, mode="lexica
 
     if not all((Path(root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
         return {"status": "no_library", "knowledge_clock": knowledge_clock(root), "items": []}
+    started = time.perf_counter()
     workbench = KnowledgeWorkbench(root)
     try:
         from healthzip.knowledge.revisions import prepare_retrieval_revisions
@@ -141,15 +144,19 @@ def _reviewed_explanation(metrics, context, allow_network, root, *, mode="lexica
             for identity, metric in metrics.items():
                 if (metric.get("value") is None and not include_empty) or identity == "REPORT-STATE-SUMMARY":
                     continue
-                items.append(workbench.explain_metric(
+                item_started = time.perf_counter()
+                item = workbench.explain_metric(
                     identity, task, metric, context.get("_metric_contexts", {}).get(identity, context),
                     mode=mode, candidate_scope=candidate_scope,
                     allow_explanation_network=allow_network,
-                ))
+                )
+                item["elapsed_ms"] = (time.perf_counter() - item_started) * 1000
+                items.append(item)
             if not _context_still_current(context):
                 return {"status": "context_changed", "items": [], "knowledge_clock": knowledge_clock(root)}
             if knowledge_clock(root) == before:
-                return {"status": "ready", "items": items, "knowledge_clock": before}
+                return {"status": "ready", "items": items, "knowledge_clock": before,
+                        "timings_ms": {"retrieval_and_explanation": (time.perf_counter() - started) * 1000}}
         return {"status": "changed", "items": [], "knowledge_clock": knowledge_clock(root)}
     finally:
         workbench.close()
@@ -233,6 +240,26 @@ def _show_reviewed_result(result, extra_windows=None):
         evidence = item["evidence_context"]
         allowed = evidence["capability_permissions"].get("source_explanation")
         st.write(names.get(item.get("metric_id"), {}).get("title", "本期指标"))
+        explanation = item.get("explanation", {})
+        reason = explanation.get("reason_code") or explanation.get("error")
+        failure_labels = {
+            "network_disabled": "未开启解释联网授权，当前使用本地事实与可用依据。",
+            "not_configured": "尚未配置解释模型，当前使用本地事实与可用依据。",
+            "validation_failed": "模型返回的事实或引用未通过核验，已保留本地观察；本次模型解释暂不可用。",
+            "TimeoutError": "解释服务超时，记录与图表保持可用，可稍后重试。",
+            "timeout": "解释服务超时，记录与图表保持可用，可稍后重试。",
+            "HTTPError": "解释服务返回错误，可稍后重试。",
+            "URLError": "未能连接解释服务，可稍后重试。",
+            "OSError": "解释服务连接中断，可稍后重试。",
+            "partial_validation": "有一部分模型说明未通过核验，这里展示已核验的段落。",
+        }
+        if reason in failure_labels:
+            st.caption(failure_labels[reason])
+        for observation in item.get("deterministic_observations", []):
+            text = (observation.get("text") or observation.get("summary")) if isinstance(observation, dict) else observation
+            if text:
+                st.write(text)
+        _show_measurement_explanations(item)
         if not allowed:
             notes = _missing_evidence_notes(evidence)
             st.caption("；".join(notes) if notes else "现有依据尚不足以支持本期变化的解释。")
@@ -246,10 +273,30 @@ def _show_reviewed_result(result, extra_windows=None):
                                          for statement in claim.get("statements", [])))
         for statement in statements[:2]:
             st.write(statement)
-        explanation = item.get("explanation", {})
         if explanation.get("source") == "ai":
             st.write(explanation["summary"])
         _show_sources(evidence, supported=True)
+
+
+def _show_measurement_explanations(item):
+    """Narrow reviewed measurement uses never grant a personal causal claim."""
+    explanations = item.get("measurement_explanations", [])
+    if explanations:
+        st.markdown("**这类记录怎样理解**")
+    seen_sources = set()
+    for explanation in explanations[:2]:
+        st.write(explanation.get("statement") or explanation.get("text", ""))
+        for limitation in explanation.get("limitations", [])[:2]:
+            st.caption(limitation)
+        for source in explanation.get("sources", []):
+            url = source.get("canonical_url")
+            if url and url not in seen_sources and str(url).startswith(("https://", "http://")):
+                st.markdown(f"[{source.get('title') or source.get('source_id') or '查看原文'}]({url})")
+                seen_sources.add(url)
+    for step in item.get("local_next_steps", [])[:3]:
+        text = step.get("text") if isinstance(step, dict) else step
+        if text:
+            st.write("下一步：" + text)
 
 
 def render_health_explanation(view, *, workspace, context=None, allow_network=False,
@@ -261,9 +308,10 @@ def render_health_explanation(view, *, workspace, context=None, allow_network=Fa
     context = dict(context or {})
     scope = {key: value for key, value in view.get("workspace_scope", {}).items()
              if key not in {"timings_ms", "query_plan", "cache_policy"}}
-    identity = _digest([PROMPT_VERSION, workspace, _fact_identity(scope),
+    namespace = str(Path(context.get("_workspace_path", workspace)).resolve())
+    identity = _digest([PROMPT_VERSION, namespace, str(Path(root).resolve()), _fact_identity(scope),
                         context, allow_network, grant.identity, _model_identity()])
-    ui_key = "health_explanation_job_" + _digest([workspace, scope.get("workspace")])
+    ui_key = "health_explanation_job_" + _digest([namespace, str(Path(root).resolve()), scope.get("workspace")])
     request_key = ui_key + ":requested"
     submission_error = False
     # A fragment can outlive the page's factual cache. Its click records intent;
@@ -302,7 +350,9 @@ def render_health_explanation(view, *, workspace, context=None, allow_network=Fa
                 text = "解释仍在处理，事实与趋势已可用。你可以切换页面，稍后回来查看。"
             st.caption(text)
         elif status and status["status"] in {"failed", "expired"}:
-            st.caption("本次解释未完成。记录和图表不受影响，可以重试。")
+            st.caption("依据检索超时。记录和图表不受影响，可以重试。" if
+                       status.get("reason_code") == "retrieval_timeout" else
+                       "本次解释未完成。记录和图表不受影响，可以重试。")
         elif selected and selected["identity"] != identity:
             st.caption("范围或记录已更新，旧解释不再用于本期数据。")
         if st.button("查阅依据并解释变化", key="health_explanation_run",

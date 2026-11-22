@@ -1,9 +1,12 @@
 """Fixed metric/task routing and permission-first hybrid public evidence retrieval."""
 from __future__ import annotations
 
+import copy
 import json
 import math
-from collections import Counter
+import threading
+import time
+from collections import Counter, OrderedDict
 
 from . import domains, query_forms, table_projection, vector_index
 from . import rights as source_rights
@@ -106,10 +109,26 @@ def _release(w, release_id):
             except ValueError:
                 continue
         return span_ids, refs, {"release_id": release_id, "sha256": row[1], "membership": "frozen_core_claim_spans_current_validity"}, None
-    row = w.lib.sources.execute("SELECT manifest_json,sha256 FROM index_release WHERE release_id=?", (release_id,)).fetchone()
+    from .revisions import knowledge_authority_clock
+    # Cache only immutable membership, scoped to this open workbench. Eligibility,
+    # conflicts and current rights are still resolved on every retrieval.
+    token = knowledge_authority_clock(w.root)[2]
+    row = w.lib.sources.execute("SELECT sha256 FROM index_release WHERE release_id=?", (release_id,)).fetchone()
     if not row:
         raise ValueError("unknown_retrieval_release")
-    manifest = json.loads(row[0])
+    cache_key = (release_id, row[0], token)
+    cached = getattr(w, '_index_membership', None)
+    if not w.lib.sources.in_transaction and cached and cached[0] == cache_key:
+        manifest, span_ids, refs = cached[1:]
+    else:
+        record = w.lib.sources.execute("SELECT manifest_json FROM index_release WHERE release_id=?", (release_id,)).fetchone()
+        if not record:
+            raise ValueError("unknown_retrieval_release")
+        manifest = json.loads(record[0])
+        refs = {(c['claim_id'], c['version']) for c in manifest.get('claim_refs', [])}
+        span_ids = frozenset(manifest.get('span_ids', []))
+        if not w.lib.sources.in_transaction:
+            w._index_membership = (cache_key, manifest, span_ids, refs)
     if manifest.get("schema") != "metric-index-release-1.5.0":
         raise ValueError("incompatible_index_release")
     if manifest.get("profile_sha256") != digest(dumps(domains.configuration()).encode()):
@@ -126,9 +145,8 @@ def _release(w, release_id):
     if (manifest.get('metric_evidence_context_version') is not None
             and manifest['metric_evidence_context_version'] != METRIC_EVIDENCE_CONTEXT_VERSION):
         raise ValueError('frozen_metric_evidence_context_changed')
-    refs = {(c['claim_id'], c['version']) for c in manifest['claim_refs']}
-    return set(manifest["span_ids"]), refs, {"release_id": release_id, "sha256": row[1],
-        "membership": "frozen_index_and_bindings_current_validity", "edge_ids": manifest['edge_ids'],
+    return span_ids, refs, {"release_id": release_id, "sha256": row[0],
+        "membership": "frozen_index_and_bindings_current_validity", "edge_ids": list(manifest['edge_ids']),
         "query_forms_sha256": manifest.get('query_forms_sha256'),
         "candidate_scope_version": manifest.get('candidate_scope_version'),
         "projection_set_ids": manifest.get('projection_set_ids', {})}, manifest['unit_assignments']
@@ -371,7 +389,14 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
     from .core import _claim
     matches, conflicts = [], []
     all_ids = {("claim", key[0], key[1]) for key in claims}
-    for row in w.lib.theories.execute("SELECT * FROM knowledge_evidence_edge ORDER BY edge_id"):
+    related = w.lib.theories.execute(
+        "SELECT * FROM knowledge_evidence_edge WHERE to_type='metric' AND to_id=? ORDER BY edge_id", (metric_id,)
+    ).fetchall()
+    related_claims = {('claim', row['from_id'], row['from_version']) for row in related}
+    conflict_rows = w.lib.theories.execute(
+        "SELECT * FROM knowledge_evidence_edge WHERE relation='conflicts_with' ORDER BY edge_id"
+    ).fetchall()
+    for row in [*related, *conflict_rows]:
         if allowed_edges is not None and row['edge_id'] not in allowed_edges and row['relation'] != 'conflicts_with':
             continue
         payload = json.loads(row["payload_json"])
@@ -381,11 +406,7 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
             continue
         if row["relation"] == "conflicts_with":
             endpoints = [(row["from_type"], row["from_id"], row["from_version"]), (row["to_type"], row["to_id"], row["to_version"])]
-            related = w.lib.theories.execute(
-                "SELECT from_id,from_version FROM knowledge_evidence_edge WHERE to_type='metric' AND to_id=?",
-                (metric_id,)).fetchall()
-            relevant = {("claim", r[0], r[1]) for r in related}
-            if all(endpoint in all_ids for endpoint in endpoints) and any(e in relevant for e in endpoints):
+            if all(endpoint in all_ids for endpoint in endpoints) and any(e in related_claims for e in endpoints):
                 conflicts.append(payload)
         if (row["relation"] in {"applies_to", "limits", "defines", "required_by"} and row["from_type"] == "claim"
                 and row["to_type"] == "metric" and row["to_id"] == metric_id
@@ -486,15 +507,22 @@ def _still_current(w, candidate, context):
     return False
 
 
-def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
+def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                         mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all"):
     from healthzip.science.contracts import validate_result
+
+    from .topics import TOPICS
+    from .topics import profile as topic_profile
+    question_only = metric_result is None and metric_id in TOPICS
     config = domains.configuration(include_observations=True)
+    if question_only:
+        config["profiles"][metric_id] = topic_profile(metric_id)
     if metric_id not in config["profiles"] or analysis_task not in {"explain_metric", *config["functions"]}:
         raise ValueError("unknown_fixed_metric_or_analysis_task")
-    if not isinstance(metric_result, dict) or metric_result.get("metric_id") != metric_id:
-        raise ValueError("matching_computed_metric_result_required")
-    validate_result(metric_result)
+    if not question_only:
+        if not isinstance(metric_result, dict) or metric_result.get("metric_id") != metric_id:
+            raise ValueError("matching_computed_metric_result_required")
+        validate_result(metric_result)
     if mode not in MODES or type(k) is not int or not 1 <= k <= 20:
         raise ValueError("invalid_retrieval_mode_or_budget")
     if not isinstance(candidate_scope, str) or candidate_scope not in CANDIDATE_SCOPES:
@@ -505,10 +533,16 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
         raise ValueError("metric_not_declared_for_analysis_function")
     context = dict(context or {})  # Kept local, never interpolated into a model query.
     context['metric_evidence'] = {'version': METRIC_EVIDENCE_CONTEXT_VERSION,
-        'direct_rir_only': _direct_rir_only(metric_id, metric_result['value'])}
+        'direct_rir_only': _direct_rir_only(metric_id, (metric_result or {}).get('value'))}
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
     query, query_identity = query_forms.select(metric_id, analysis_task, config, form=query_form)
+    from .health_facts import public_method_needs
+    needs = public_method_needs(metric_result) if metric_result and release_id is None else []
+    if needs:
+        query += " Method scope: " + "; ".join(needs) + "."
     query_key = [metric_id, analysis_task, profile_version, release_id]
+    if needs:
+        query_key.append({"health_method_needs_version": "1", "needs": needs})
     if query_form is not None:
         query_key.append(query_identity)
     if candidate_scope != 'all':
@@ -566,6 +600,14 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
             result['limitations'].append('explicit_conflicting_claims_require_resolution')
         return _record_audit(w, result)
     lexical = _lexical(query, candidates)
+    if question_only and len(lexical) < min(k, len(candidates)):
+        # Eligible candidates were already limited to reviewed topic uses.
+        # Only supplement gaps with higher-level comparison vocabulary.
+        background = _lexical('measurement method comparison change score error important missing observation', candidates)
+        initial = set(lexical)
+        extra = [identity for identity in background if identity not in initial]
+        lexical.extend(extra)
+        audit['upper_level_method_fallback'] = {'direct_matches': len(initial), 'added_candidates': len(extra)}
     dense, reasons = [], []
     embedding = reranker = None
     if mode != 'lexical':
@@ -658,6 +700,95 @@ def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None
     # An audit contains hashes and ranks only, never raw health context or source prose.
     audit["ranking_sha256"] = digest(dumps([{key: c.get(key) for key in ("span_id", "lexical_rank", "dense_rank", "fusion_rank", "reranker_rank")} for c in chosen]).encode())
     return _record_audit(w, result)
+
+
+
+_RETRIEVAL_CACHE = OrderedDict()
+_RETRIEVAL_CACHE_LOCK = threading.Lock()
+_APPLICABILITY_FIELDS = OrderedDict()
+_RETRIEVAL_CACHE_LIMIT = 64
+_RETRIEVAL_CACHE_TTL = 300
+
+
+def _applicability_identity(w, context, metric_id, metric_result, authority):
+    """Only fields actually consulted by rights/claim/edge gates affect retrieval.
+
+    Values are hashed into an opaque key, never persisted in public audit. This
+    allows a new date window to reuse public evidence when its method is unchanged.
+    """
+    from .applicability import lookup
+    field_key = digest(dumps([authority, metric_id]).encode())
+    with _RETRIEVAL_CACHE_LOCK:
+        fields = _APPLICABILITY_FIELDS.get(field_key)
+    if fields is None:
+        fields = set(domains.configuration(include_observations=True)['profiles'][metric_id]['applicability_context'])
+        fields.update(('usage_scope', 'corpus_roles', 'requested_other_user', 'user_id'))
+        for row in w.lib.theories.execute('SELECT payload_json FROM source_claim'):
+            conditions = json.loads(row[0]).get('conditions', [])
+            fields.update(c['field'] for c in conditions if isinstance(c, dict) and c.get('field'))
+            if isinstance(conditions, dict):
+                fields.update(conditions)
+        for row in w.lib.theories.execute('SELECT payload_json FROM knowledge_evidence_edge'):
+            fields.update(json.loads(row[0]).get('applicability', {}))
+        with _RETRIEVAL_CACHE_LOCK:
+            _APPLICABILITY_FIELDS[field_key] = fields
+            while len(_APPLICABILITY_FIELDS) > _RETRIEVAL_CACHE_LIMIT:
+                _APPLICABILITY_FIELDS.popitem(last=False)
+    projected = {field: lookup(context, field) for field in fields}
+    projected['direct_rir_only'] = _direct_rir_only(metric_id, metric_result['value'])
+    return digest(dumps(projected).encode())
+
+
+def retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
+                        mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all"):
+    from healthzip.science.contracts import validate_result
+
+    from .health_facts import public_method_needs
+    from .revisions import knowledge_authority_clock, prepare_retrieval_revisions
+
+    # Invalid input must never hit an earlier valid answer, even if the private
+    # value itself is intentionally absent from a public-method cache key.
+    validate_result(metric_result)
+    if metric_result.get('metric_id') != metric_id:
+        raise ValueError('matching_computed_metric_result_required')
+    config = domains.configuration(include_observations=True)
+    if metric_id not in config['profiles']:
+        raise ValueError('unknown_fixed_metric_or_analysis_task')
+    prepare_retrieval_revisions(w)
+    before = knowledge_authority_clock(w.root)
+    # UI/workflow local retrieval uses lexical mode. Remote hybrid paths retain
+    # their existing versioned vector cache and permission-first call ordering.
+    if mode != 'lexical':
+        return _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context, release_id,
+            mode=mode, k=k, services=services, query_form=query_form, candidate_scope=candidate_scope)
+    key = digest(dumps([before, w.environment_kind, metric_id, analysis_task, release_id,
+        mode, k, query_form, candidate_scope, RETRIEVAL_VERSION,
+        _applicability_identity(w, context or {}, metric_id, metric_result, before),
+        public_method_needs(metric_result) if release_id is None else [],
+        digest(dumps(config).encode()), query_forms.identity()]).encode())
+    # A transaction may have uncommitted revocations not visible to a read-only
+    # connection. Those calls use their own current connection and skip caching.
+    cacheable = not (w.lib.sources.in_transaction or w.lib.theories.in_transaction)
+    with _RETRIEVAL_CACHE_LOCK:
+        entry = _RETRIEVAL_CACHE.get(key) if cacheable else None
+        if entry and time.monotonic() - entry[0] < _RETRIEVAL_CACHE_TTL:
+            result = copy.deepcopy(entry[1])
+            _RETRIEVAL_CACHE.move_to_end(key)
+        else:
+            result = None
+    if result is not None and knowledge_authority_clock(w.root) == before:
+        result['retrieval_audit'].update(cache_hit=True, cache_version='public-method-retrieval-1')
+        return _record_audit(w, result)
+    result = _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context, release_id,
+        mode=mode, k=k, services=services, query_form=query_form, candidate_scope=candidate_scope)
+    result['retrieval_audit'].update(cache_hit=False, cache_version='public-method-retrieval-1')
+    # Recheck after ranking/remote calls. Old work cannot populate a current key.
+    if cacheable and knowledge_authority_clock(w.root) == before:
+        with _RETRIEVAL_CACHE_LOCK:
+            _RETRIEVAL_CACHE[key] = (time.monotonic(), copy.deepcopy(result))
+            while len(_RETRIEVAL_CACHE) > _RETRIEVAL_CACHE_LIMIT:
+                _RETRIEVAL_CACHE.popitem(last=False)
+    return result
 
 
 def _record_audit(w, result):

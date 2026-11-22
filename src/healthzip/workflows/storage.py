@@ -27,6 +27,15 @@ def migrate_workflows(conn):
         """CREATE TABLE IF NOT EXISTS joint_period_report (
             report_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at TEXT NOT NULL,
             payload_json TEXT NOT NULL, markdown TEXT NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS review_action (
+            action_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, question_id TEXT NOT NULL,
+            selected_at TEXT NOT NULL, review_due TEXT NOT NULL, action_text TEXT NOT NULL,
+            baseline_json TEXT NOT NULL, source_filter_json TEXT NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS review_action_event (
+            event_id TEXT PRIMARY KEY, action_id TEXT NOT NULL REFERENCES review_action(action_id),
+            recorded_at TEXT NOT NULL, status TEXT NOT NULL, notes TEXT NOT NULL,
+            result_json TEXT, UNIQUE(action_id,event_id))""",
+        "CREATE INDEX IF NOT EXISTS review_action_due ON review_action(user_id,review_due)",
     ):
         conn.execute(sql)
     conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('workflow_context_version','0')")

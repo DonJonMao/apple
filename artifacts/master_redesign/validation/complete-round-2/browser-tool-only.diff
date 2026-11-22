@@ -1,0 +1,20 @@
+--- frozen/tools/master_workflow_browser.py
++++ current/tools/master_workflow_browser.py
+@@ -217,6 +217,8 @@
+                     assert dims[str(width)]["main"] <= dims[str(width)]["main_client"]
+                     page.screenshot(path=str(output / f"{name}-{width}.png"))
+                 page.set_viewport_size({"width": 1440, "height": 1000})
++                page.wait_for_timeout(250)
++                settle(page)
+                 return dims
+ 
+             try:
+@@ -256,6 +258,8 @@
+                 page.get_by_text("执行情况和本次观察已保存", exact=False).wait_for(timeout=30000)
+                 radio("问题分析")
+                 page.get_by_text("合成浏览器更新：复查中一部分未执行", exact=False).wait_for(timeout=60000)
++                page.get_by_text("执行反馈：部分执行", exact=False).wait_for(timeout=60000)
++                settle(page)
+                 assert "执行反馈：部分执行" in text(), text()
+                 with closing(Repository(db)) as repo:
+                     updated = json.loads(repo.one("SELECT baseline_json FROM review_action WHERE action_id=?",

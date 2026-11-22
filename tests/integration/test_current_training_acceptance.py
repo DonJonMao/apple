@@ -13,6 +13,7 @@ from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, load_analysis, load_run, run_workflow
 from healthzip.workflows.period_report import create_report, load_report
 from healthzip.workflows.reports import markdown
+from tests.app_navigation import go, legacy_analysis
 
 UI = runpy.run_path(str(Path(__file__).resolve().parents[1] / "strength_ui_harness.py"))
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
@@ -71,7 +72,7 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     monkeypatch.setattr(st, "download_button", capture)
     UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     UI["send"](app, "catalog", {"regions": ["chest"]})
     assert not app.exception
     assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 0
@@ -132,8 +133,8 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
     # with test_current_training_three_repairs.
     rir = load_analysis(repo, next_run["run_id"])["metrics"]["STR-10"]
     assert "strength_set:"+actual["set_uuid"] in rir["source_record_ids"]
-    app.radio(key="main_workspace").set_value("复盘").run()
-    app.radio(key="review_section").set_value("问题分析").run()
+    go(app, "复盘")
+    legacy_analysis(app, "问题分析")
     app.button(key="review_compute").click().run()
     for period, label in (("week", "本周"), ("month", "本月")):
         next(s for s in app.selectbox if s.label == "复盘周期").select(label)
@@ -157,8 +158,8 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
         assert any(c["rows"][0]["advice_id"] == frozen["advice_id"] for c in report["objective_comparisons"])
         assert load_report(repo, report["report_id"])["markdown"] == report["markdown"]
-    app.radio(key="main_workspace").set_value("复盘").run()
-    app.radio(key="review_section").set_value("报告").run()
+    go(app, "复盘")
+    legacy_analysis(app, "报告")
     app.button(key="review_compute").click().run()
     for label in ("本周", "本月"):
         next(s for s in app.selectbox if s.label == "报告范围").select(label)

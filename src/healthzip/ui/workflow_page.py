@@ -105,6 +105,9 @@ def render_run(repo, result):
                    f"当前行动核对 {source['current_action_cutoff_time']}，原报告保持不变。")
     tabs = st.tabs(["发生了什么", "是否可比", "可能因素", "下一步", "为什么", "后来怎样"])
     with tabs[0]:
+        if result["workflow_id"] in {"W2", "W3", "W4"}:
+            from healthzip.ui.joint_health import render_joint_health
+            render_joint_health(snapshot, key="workflow_joint", charts=True)
         _plot(result["supplements"].get("strength_points", []), "同负荷参考组记录", "次", "workflow_strength_points")
         review = result["supplements"].get("long_term_review")
         if review and review["start_long_term_review"]:

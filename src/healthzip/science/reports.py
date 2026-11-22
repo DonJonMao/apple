@@ -6,22 +6,21 @@ from collections import Counter, defaultdict
 from statistics import median, quantiles
 from zoneinfo import ZoneInfo
 
-from .contracts import Window, finite, instant, result
+from .contracts import Window, finite, instant, result, select_as_of
 from .energy import device_energy_days, energy_metric
 from .state import (
-    ASLEEP,
+    comparison_from_daily,
+    comparison_windows,
     daily_values,
     elapsed_dates,
     local_date_domain,
-    seconds,
-    stage,
+    observed_sleep_episodes,
     state_metric,
-    stream_key,
 )
 from .strength import strength_metric
 
 
-def derive_report_context(rows: list[dict], window: Window) -> dict:
+def derive_report_context(rows: list[dict], window: Window, *, sleep_rows=None) -> dict:
     """Derive report inputs from exactly the available snapshot, never weekly means.
 
     A recorded energy day need not be a complete day or actual wear coverage.
@@ -44,25 +43,21 @@ def derive_report_context(rows: list[dict], window: Window) -> dict:
                               "available_at": max(r.get("available_at", r["_event_end"]) or r["_event_end"] for r in inputs),
                               "source_record_ids": item["source_ids"]})
     sleep = defaultdict(list)
-    for row in rows:
-        if row.get("canonical_type") == "sleep_stage" and stage(row) in ASLEEP:
-            end = instant(row["_event_end"])
-            sleep[(stream_key(row), end.astimezone(zone).date().isoformat())].append(row)
-    for (key, day), inputs in sleep.items():
-        intervals = []
-        for row in inputs:
-            raw = row.get("event_start") or row.get("start_utc")
-            if raw:
-                intervals.append((max(instant(raw), instant(window.start)),
-                                  min(instant(row["_event_end"]), instant(window.end), instant(window.cutoff_time))))
+    for episode in observed_sleep_episodes(sleep_rows if sleep_rows is not None else rows, window):
+        sleep[(episode["source_id"], episode["date"])].append(episode)
+    for (key, day), episodes in sleep.items():
+        inputs = [identifier for episode in episodes for identifier in episode["source_record_ids"]]
+        intervals = [span for episode in episodes for span in episode["intervals"]]
         daily.append({"metric_id": "sleep_observed_minutes_by_wake_date", "series_id": "observed_sleep_by_wake_date",
-                      "series_label": "按结束日期汇总的已观察睡眠（未认定主睡眠）", "date": day, "value": seconds(intervals) / 60,
-                      "unit": "min", "source_id": str(key), "protocol_id": str(key), "measurement_scale": "continuous",
-                      "event_start": min(a.isoformat() for a, _ in intervals) if intervals else None,
-                      "support_local_dates": sorted(set().union(*(local_date_domain(a, b, window.timezone) for a, b in intervals))),
-                      "event_end": max(r["_event_end"] for r in inputs),
-                      "available_at": max(r.get("available_at", r["_event_end"]) or r["_event_end"] for r in inputs),
-                      "source_record_ids": [r.get("_source_id") for r in inputs], "episode_complete": False})
+            "series_label": "按观测事件结束日期汇总的睡眠（主睡眠／午睡未分类）", "date": day,
+            "value": sum(episode["value"] for episode in episodes), "unit": "min", "source_id": key,
+            "protocol_id": key, "protocol": episodes[0]["protocol"], "measurement_scale": "continuous",
+            "event_start": min(episode["event_start"] for episode in episodes),
+            "event_end": max(episode["event_end"] for episode in episodes),
+            "available_at": max((episode["available_at"] for episode in episodes if episode["available_at"]), default=None),
+            "support_local_dates": sorted(set().union(*(local_date_domain(span["start"], span["end"], window.timezone) for span in intervals))),
+            "source_record_ids": inputs, "source_ids": inputs, "n": sum(episode["n"] for episode in episodes),
+            "statistic_kind": "union_observed_sleep_minutes_by_event_end_date", "episodes": episodes, "episode_complete": False})
     for row in rows:
         for field in ("fatigue", "soreness", "pain"):
             if row.get(field) is None:
@@ -73,6 +68,38 @@ def derive_report_context(rows: list[dict], window: Window) -> dict:
                           "measurement_scale": "ordinal", "event_end": row["_event_end"],
                           "available_at": row.get("available_at"), "source_record_ids": [row.get("_source_id")]})
     return {"daily_metric_facts": daily, "energy_days": device_energy_days(rows, window)}
+
+
+def visible_sleep_history(rows, window, *, retrospective=False):
+    sleep = [row for row in rows if row.get("canonical_type") == "sleep_stage"]
+    starts = [instant(row.get("event_start") or row.get("start_utc") or window.start) for row in sleep]
+    start = min([instant(window.start), *starts])
+    selected, _ = select_as_of(sleep, Window(start.isoformat(), window.end, window.cutoff_time, window.timezone),
+                               retrospective=retrospective, overlap=True)
+    return selected
+
+
+def report_comparison(rows, window, *, previous=None, baseline_days=28, retrospective=False):
+    bounds = comparison_windows(window, previous=previous, baseline_days=baseline_days)
+    groups, units = defaultdict(dict), {}
+    sleep = visible_sleep_history(rows, window, retrospective=retrospective)
+    for name, interval in bounds.items():
+        if instant(interval["start"]) >= instant(interval["end"]):
+            continue
+        period = Window(interval["start"], interval["end"], window.cutoff_time, window.timezone)
+        selected, _ = select_as_of(rows, period, retrospective=retrospective, overlap=True)
+        facts = derive_report_context(selected, period, sleep_rows=sleep)["daily_metric_facts"]
+        for fact in facts:
+            if fact.get("metric_id") not in {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}:
+                continue
+            identity = fact["metric_id"] + ":" + str(fact.get("source_id"))
+            groups[identity].setdefault(name, []).append(fact)
+            units[identity] = fact.get("unit") or {"STATE-RHR": "bpm", "STATE-SDNN": "ms", "BODY-MASS-DAILY": "kg"}.get(fact["metric_id"])
+    output = comparison_from_daily({}, bounds, window.cutoff_time, None)
+    output["statistic_kind"] = "median_of_daily_representatives"
+    for identity, periods in groups.items():
+        output["streams"].extend(comparison_from_daily({identity: periods}, bounds, window.cutoff_time, units[identity])["streams"])
+    return output
 
 
 def report_metric(metric_id: str, rows: list[dict], window: Window, context: dict) -> dict:
@@ -107,7 +134,8 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                      "complete_previous_period_comparable": not partial}, coverage=values)
     if metric_id == "REPORT-STATE-SUMMARY":
         chart_fields = {"metric_id", "series_id", "series_label", "date", "value", "unit", "source_id", "protocol_id", "measurement_scale",
-                        "event_end", "available_at", "source_record_ids", "episode_complete", "n"}
+                        "event_start", "event_end", "available_at", "source_record_ids", "episode_complete", "n",
+                        "statistic_kind", "protocol", "episodes", "observations", "conditions", "statistics_version"}
         daily_facts = [{k: v for k, v in fact.items() if k in chart_fields}
                        for fact in context.get("daily_metric_facts", [])]
         groups = defaultdict(list)
@@ -119,12 +147,20 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                 summary = {"frequencies": dict(Counter(str(r["value"]) for r in group if r.get("value") is not None))}
             else:
                 numbers = [finite(r.get("value")) for r in group if finite(r.get("value")) is not None]
-                summary = {"median": median(numbers) if numbers else None,
-                           "quartiles": quantiles(numbers, n=4, method="inclusive") if len(numbers) > 1 else None}
+                if key[0] in {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}:
+                    summary = {"median": median(numbers) if numbers else None,
+                               "statistic_kind": "median",
+                               "quartiles": quantiles(numbers, n=4, method="inclusive") if len(numbers) > 1 else None}
+                else:
+                    # Other domains retain their established period statistic.
+                    # The SDNN typical-day choice is not a global statistic rule.
+                    summary = {"mean": sum(numbers) / len(numbers) if numbers else None,
+                               "statistic_kind": "mean"}
             values.append({"metric_id": key[0], "series_id": group[0].get("series_id"), "series_label": group[0].get("series_label"),
                            "protocol_id": key[1], "source_id": key[2], "n": len(group), **summary})
         return emit(values or None, "insufficient" if not values else None, evidence_status="descriptive",
-                    daily_facts=daily_facts)
+                    daily_facts=daily_facts, algorithm_version="health-period-summary-2.0.0", statistics_version="health-period-summary-2.0.0",
+                    statistic_kind="metric_specific_daily_summary")
     if metric_id == "REPORT-ENERGY-SUMMARY":
         days = [d for d in context.get("energy_days", []) if d.get("complete")]
         streams = defaultdict(list)

@@ -117,7 +117,7 @@ def _spans(w, links, *, numeric=False):
         if not link.get("span_ids"):
             raise ValueError("exact spans required")
         for sid in link["span_ids"]:
-            span = w.lib.span(sid)
+            span = w.lib.span(sid, include_metadata=False)
             if not span or span["version_id"] != link["source_version_id"] or span["source_id"] != link["source_id"]:
                 raise ValueError("evidence version/source mismatch")
             eligible, reason = w.lib.eligible(span, "fulltext")

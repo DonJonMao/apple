@@ -143,7 +143,10 @@ def _sample_from_metric(
     if start_text and start_utc is None:
         return None, "invalid_timestamp"
     normalized, normalized_unit, unit_status = normalize_value(raw_type, value, units)
-    if normalized is None and item.get("categoryValue") is None:
+    category = item.get("categoryValue")
+    if raw_type.startswith("HKCategory") and category is None:
+        category = value
+    if normalized is None and category is None:
         return None, "invalid_value"
     source_name = item.get("source") or item.get("sourceName") or source_kind
     source_version = item.get("sourceVersion")
@@ -174,7 +177,7 @@ def _sample_from_metric(
         }
     }
     metadata["source_format"] = "health_auto_export" if metric_name in HAE_TYPE_MAP else "canonical"
-    metadata["aggregation"] = aggregation
+    metadata["aggregation"] = item.get("aggregation", aggregation)
     logical_key = stable_fingerprint(
         [raw_type, start_utc, end_utc, source_name, source_version, device]
     )
@@ -194,7 +197,7 @@ def _sample_from_metric(
         "normalized_value": normalized,
         "normalized_unit": normalized_unit,
         "unit_status": unit_status,
-        "category_value": item.get("categoryValue"),
+        "category_value": category,
         "start_utc": start_utc,
         "end_utc": end_utc,
         "creation_utc": None,

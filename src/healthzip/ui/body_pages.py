@@ -354,6 +354,37 @@ def render_heart(view, *, repo=None, show_title=True):
         st.subheader("心率")
     _window(view)
     rows = heart_rows(view)
+    metrics = view.get("workspace_scope", {}).get("metrics", {})
+    if any(metric.get("comparison", {}).get("streams") for metric in metrics.values()):
+        from healthzip.ui.health_comparison import comparison_next_steps, render_comparison
+        for mid, title, unit in (("STATE-RHR", "日静息心率", "bpm"), ("STATE-SDNN", "HRV（SDNN）", "ms")):
+            metric = metrics.get(mid, {})
+            if render_comparison(metric, title, unit, key="body_" + mid):
+                st.caption("同条件日代表值，每个日期权重相同。" +
+                           ("SDNN 与 RMSSD 分开；SDNN 上升本身不表示恢复改善。" if mid == "STATE-SDNN" else
+                            "读取来源的日静息心率字段；普通心率采样另列。"))
+            elif not metric.get("value"):
+                st.caption(f"本期没有{title}字段记录。")
+            _partial_day(metric, view, title, unit)
+        _ordinary_heart(view)
+        fatigue = (metrics.get("STATE-FATIGUE", {}).get("value") or {}).get("observations", [])
+        if fatigue:
+            st.markdown("**已有主观记录**")
+            st.write(f"本期已记录 {len(fatigue)} 条主观疲劳。SDNN 的变化应与这些实际感受一起核对；上升本身不能证明恢复改善。")
+            with st.expander("核对已填写的主观疲劳"):
+                st.dataframe([{"记录时间": item.get("observed_at") or item.get("event_end") or "未记录",
+                               "原始值": item.get("value"), "量表": item.get("scale_version") or "未注明"}
+                              for item in fatigue], hide_index=True)
+        st.markdown("**下一步**")
+        steps = list(dict.fromkeys(step for mid in ("STATE-RHR", "STATE-SDNN")
+                     for step in comparison_next_steps(metrics.get(mid, {}), "heart")))
+        for step in steps[:3]:
+            st.write(step)
+        _explanation(view, repo)
+        _heart_daily_details(metrics)
+        _details(view, rows, notes=("日静息心率与 SDNN 按来源、设备、协议及版本分别计算；同设备不等于同协议。",
+                                   "图上显示本期与前期真实日值，缺测留空；参考范围不叫健康正常范围。"))
+        return
     cards, sections, findings, primary_stats = [], [], [], []
     for name, unit in (("静息心率", "次/分"), ("HRV（SDNN）", "毫秒")):
         selected = [row for row in rows if row["指标"] == name]
@@ -376,28 +407,100 @@ def render_heart(view, *, repo=None, show_title=True):
         _findings(findings, next_step=next_step_for(primary_stats, "heart"),
                   caveat="这里的 HRV 为 SDNN；它与 RMSSD 不可互换，不同设备或协议不会合成一个改善结论。")
         _explanation(view, repo)
+    _ordinary_heart(view)
     _details(view, rows, notes=("静息心率与 SDNN 按来源、设备、协议和版本分开计算。",
                                "日内优先既有主记录，否则使用日中位数；均值仅包含有记录的日值。"))
+
+
+def _partial_day(metric, view, title, unit):
+    """Show a known partial-day observation without presenting it as a complete day."""
+    scope = view.get("workspace_scope", {})
+    local_cutoff = _local_time(scope.get("cutoff_time"), scope.get("timezone", "Asia/Shanghai"))
+    for source, points in (metric.get("value") or {}).items():
+        for point in points:
+            if point.get("date") == local_cutoff[:10] and _number(point.get("value")) is not None:
+                st.caption(f"今日截至 {local_cutoff[11:]}：{source_name(source)} 的{title}已观察日代表值 "
+                           f"{point['value']:.1f} {unit}；该日尚未结束，单列展示。")
+
+
+def _heart_daily_details(metrics):
+    from healthzip.ui.health_comparison import sampling_description
+    output = []
+    for mid, label in (("STATE-RHR", "日静息心率"), ("STATE-SDNN", "SDNN")):
+        for source, points in (metrics.get(mid, {}).get("value") or {}).items():
+            for point in points:
+                output.append({"日期": point["date"], "指标": label, "日代表值": point["value"],
+                    "原始记录数": point.get("n", len(point.get("source_ids", []))),
+                    "来源": source_name(source), "采样时段与已知情境": sampling_description(point)})
+    if output:
+        with st.expander("每日记录数与采样条件"):
+            st.dataframe(output, hide_index=True, use_container_width=True)
+
+
+def _ordinary_heart(view):
+    observations = view.get("heart", {}).get("observations", [])
+    if not observations:
+        return
+    rows = []
+    for point in observations:
+        numeric = _number(point.get("value", point.get("normalized_value")))
+        when = point.get("observed_at") or point.get("event_end") or point.get("end_utc")
+        day = point.get("date") or point.get("local_date") or _day(when)
+        if numeric is not None and day:
+            rows.append({"日期": day, "时间": when or "未记录", "普通心率（bpm）": numeric,
+                         "来源": source_name(point.get("source_name") or point.get("source")),
+                         "测量情境": str(point.get("conditions") or point.get("context") or point.get("measurement_context") or "未知")})
+    st.markdown("**普通心率记录**")
+    count = view.get("heart", {}).get("ordinary_sample_count", len(rows))
+    st.write(f"本期有 {count} 条普通心率观测；这些机会性采样不代表全天时间加权平均，也不替代日静息心率。")
+    if rows:
+        _chart(rows, "普通心率（bpm）", "普通心率（bpm）", observations=True)
+        if count > len(rows):
+            st.caption(f"图表显示 {len(rows)}/{count} 个真实观测点；日记录分布使用全部有效观测。")
+        with st.expander("普通心率观测明细"):
+            st.dataframe(rows[:500], hide_index=True, use_container_width=True)
+            if len(rows) > 500:
+                st.caption("显示前 500 条观测；比较与统计不按显示上限截断。")
+            if view.get("heart", {}).get("ordinary_daily"):
+                st.dataframe([{"日期": item["date"], "来源": source_name(item.get("source")),
+                    "当天采样数": item["sample_count"], "采样中位数（bpm）": item["sample_median"],
+                    "采样最低（bpm）": item["minimum"], "采样最高（bpm）": item["maximum"]}
+                    for item in view["heart"]["ordinary_daily"]], hide_index=True, use_container_width=True)
 
 
 def render_sleep(view, *, repo=None, show_title=True):
     if show_title:
         st.subheader("睡眠")
+    if _sleep_scope_selection(view, repo):
+        return
     _window(view)
     rows = sleep_rows(view)
     stats = daily_statistics(rows, "睡眠时长（小时）")
+    metric = view.get("workspace_scope", {}).get("metrics", {}).get("REPORT-STATE-SUMMARY", {})
+    from healthzip.analytics.health_context import sleep_comparison_metric
+    from healthzip.ui.health_comparison import comparison_next_steps, render_comparison
+    metric = sleep_comparison_metric(metric)
+    compared = render_comparison(metric, "已记录睡眠", "小时", scale=60, key="body_sleep")
     cards = [{"label": "平均已观察睡眠", "value": f"{item['mean']:.1f} 小时",
               "caption": f"{item['source']} · {item['days']} 个日期"} for item in stats[:2]]
     if len(stats) == 1:
         cards.append({"label": "有记录日期", "value": f"{stats[0]['days']} 天",
                       "caption": f"最近观测 {stats[0]['last_date']}"})
-    _cards(cards)
+    if not compared:
+        _cards(cards)
     if rows:
-        _chart(rows, "睡眠时长（小时）", "已观察睡眠（小时）")
-        _findings(_facts(stats, "已观察睡眠", "小时"),
-                  next_step=next_step_for(stats, "sleep"),
-                  caveat="按睡眠结束日期展示已观察时长；这些记录尚不能证明整夜完整，也不能仅凭时长判断睡眠质量。")
+        if not compared:
+            _chart(rows, "睡眠时长（小时）", "已观察睡眠（小时）")
+            _findings(_facts(stats, "已观察睡眠", "小时"),
+                      next_step=next_step_for(stats, "sleep"),
+                      caveat="按睡眠结束日期展示已观察时长；这些记录尚不能证明整夜完整，也不能仅凭时长判断睡眠质量。")
+        else:
+            st.caption("完整事件按观测结束的本地日期归属。主睡眠、午睡未声明时保持未分类；记录终点不直接称为起床时间。")
+            st.markdown("**下一步**")
+            for step in comparison_next_steps(metric, "sleep"):
+                st.write(step)
         _explanation(view, repo)
+        _sleep_event_details(view)
     else:
         _empty("所选范围内没有有效睡眠时长。缺少记录不代表没有睡眠或未佩戴设备。", "sleep", view)
     omitted = len(view.get("sleep", {}).get("nights", [])) - len(sleep_rows(view))
@@ -405,6 +508,124 @@ def render_sleep(view, *, repo=None, show_title=True):
     if omitted:
         notes.append(f"另有 {omitted} 条零时长或无效记录，未计入本页有效统计；原始记录保留。")
     _details(view, rows, notes=notes, summaries=sleep_summary(view))
+
+
+def _go_sleep_declaration():
+    st.session_state["main_workspace"] = "复盘"
+    st.session_state["review_section"] = "问题分析"
+
+
+def _sleep_scope_selection(view, repo):
+    """Each selected sleep scope renders its own facts, window and explanation."""
+    metrics = view.get("workspace_scope", {}).get("metrics", {})
+    if "STATE-SLEEP-24H" not in metrics:
+        return False
+    workspace = str(repo.path.resolve()) if repo else "standalone"
+    from healthzip.ui.preferences import load_preferences, persist_widget
+    scope_key = "body_sleep_scope_" + workspace
+    if repo and scope_key not in st.session_state:
+        saved_scope = load_preferences(repo.path).get("sleep_scope")
+        if saved_scope in {"所选时期逐日总量", "截止前24小时", "已声明主睡眠（冻结）"}:
+            st.session_state[scope_key] = saved_scope
+    mode = st.radio("睡眠口径", ["所选时期逐日总量", "截止前24小时", "已声明主睡眠（冻结）"],
+                    horizontal=True, key=scope_key,
+                    on_change=persist_widget if repo else None, args=(workspace, scope_key, "sleep_scope"))
+    if mode == "所选时期逐日总量":
+        return False
+    scope = view["workspace_scope"]
+    base_scope = {key: scope.get(key) for key in ("scope_version", "timezone", "source_filter", "cutoff_time", "cutoff_mode", "data_version")}
+    if mode == "截止前24小时":
+        metric = metrics["STATE-SLEEP-24H"]
+        metric_window = metric.get("window", {})
+        selected_scope = {**base_scope, "workspace": "睡眠24小时", "metrics": {"STATE-SLEEP-24H": metric},
+            "window_start": metric_window.get("start"), "window_end": metric_window.get("end"),
+            "extra_metric_windows": {}}
+    else:
+        frozen = st.session_state.get("analysis_sleep_results", {}).get(workspace)
+        if not frozen and repo:
+            import json
+            run_id = load_preferences(repo.path).get("sleep_analysis_id")
+            row = repo.one("SELECT result_json FROM analysis_run WHERE run_id=?", (run_id,)) if run_id else None
+            if row:
+                frozen = json.loads(row[0])
+        selection = (frozen or {}).get("sleep_selection") or {}
+        main = next((item for item in selection.get("episodes", [])
+                     if item["id"] == selection.get("main_episode_id")), None)
+        metric = (frozen or {}).get("metrics", {}).get("STATE-SLEEP-MAIN")
+        if not main or not metric or metric.get("value") is None:
+            st.info("尚无此工作区已保存的主睡眠声明。逐日总量和24小时记录仍可查看；短片段不会自动被认作午睡。")
+            st.caption("在复盘 → 问题分析，生成分析后打开“声明睡眠片段与主睡眠”，选择来源与明确区间并保存。")
+            st.button("前往复盘声明主睡眠", key="sleep_declaration_open", on_click=_go_sleep_declaration)
+            return True
+        selected_source = ((selection.get("source") or {}).get("stream_key") or [None])[0]
+        if scope.get("source_filter") and selected_source not in scope["source_filter"]:
+            st.info("已保存主睡眠的来源不在当前来源筛选中；切回对应来源或全部来源后可查看这份冻结记录。")
+            return True
+        st.caption("当前显示已保存的主睡眠声明；使用下方原冻结范围与截止，不与上方新选择的时期混合。")
+        selected_scope = {**base_scope, "workspace": "已声明主睡眠", "metrics": {"STATE-SLEEP-MAIN": metric},
+            "window_start": main["start"], "window_end": main["end"],
+            "cutoff_time": frozen["cutoff_time"], "cutoff_mode": "explicit", "data_version": frozen.get("data_version"),
+            "source_filter": [selected_source] if selected_source else [],
+            "extra_metric_windows": {}, "selection_identity": main["id"]}
+    selected_view = {"workspace_scope": selected_scope}
+    _window(selected_view)
+    value = metric.get("value")
+    if value is None:
+        if metric.get("data_status") == "incompatible":
+            st.info("这段范围内有多个来源，尚不能将它们拼成一段睡眠。请先选择上方记录来源。")
+        else:
+            st.info("这段范围内没有可用的睡眠时长记录；缺测不表示没有睡眠。")
+    else:
+        hours = value["observed_minutes"] / 60
+        st.write(f"{mode}已记录睡眠 {hours:.1f} 小时；只累计选定来源去重后的有效睡眠区间。")
+        st.metric("已记录睡眠时长", f"{hours:.1f} 小时")
+        intervals = value.get("intervals", [])
+        if intervals and px is not None:
+            import plotly.graph_objects as go
+            figure = go.Figure()
+            for number, interval in enumerate(intervals):
+                figure.add_trace(go.Scatter(x=[interval["start"], interval["end"]], y=[number + 1, number + 1],
+                    mode="lines+markers", line={"width": 10, "color": "#38BFA3"}, showlegend=False,
+                    hovertemplate="%{x}<br>已观察睡眠区间<extra></extra>"))
+            figure.update_layout(height=240, margin={"t": 12, "b": 24, "l": 12, "r": 12},
+                xaxis={"type": "date", "title": "实际观测时间"}, yaxis={"visible": False})
+            st.plotly_chart(figure, use_container_width=True, key="sleep_selected_intervals")
+        st.caption("观测起止不直接等于实际入睡或起床；没有分期仍保留总时长，整夜完整性保持未确认。")
+        _explanation(selected_view, repo)
+        st.markdown("**下一步**")
+        st.write("核对区间是否覆盖实际睡眠；若跟踪提前停止，核对电量和跟踪设置，再补充你明确知道的起止信息。")
+        with st.expander("本次睡眠区间与分析依据"):
+            st.dataframe([{"观测起点": item["start"], "观测终点": item["end"]} for item in intervals], hide_index=True)
+            st.caption(f"冻结计算截止 {_local_time(selected_scope.get('cutoff_time'), selected_scope.get('timezone', 'Asia/Shanghai'))}；"
+                       f"计算版本 {metric.get('algorithm_version', '未注明')}。来源修订不会改写这份已保存声明。"
+                       if mode == "已声明主睡眠（冻结）" else f"计算版本 {metric.get('algorithm_version', '未注明')}。")
+    return True
+
+
+def _sleep_event_details(view):
+    nights = view.get("sleep", {}).get("nights", [])
+    if not nights:
+        return
+    with st.expander("每晚区间、来源与分期覆盖"):
+        display = []
+        stages = []
+        for night in nights:
+            for event in night.get("episodes") or [night]:
+                display.append({"归属日期": night.get("date"), "来源": source_name(night.get("source")),
+                "观测起点": event.get("observed_start") or event.get("start") or "未记录",
+                "观测终点": event.get("observed_end") or event.get("end") or "未记录",
+                "分类": {"unclassified": "未分类", "main": "已声明主睡眠", "nap": "已声明午睡"}.get(event.get("classification"), "未分类"),
+                "整夜完整性": "已明确" if event.get("episode_complete") is True else "尚未确认",
+                "分期覆盖": str(event.get("stage_coverage") if event.get("stage_coverage") is not None else "未记录"),
+                "来源与区间冲突": str(event.get("source_conflicts") or event.get("conflicts") or event.get("selection_audit") or "未记录")})
+                if event.get("stage_minutes"):
+                    stages.append({"归属日期": night.get("date"), "来源": source_name(night.get("source")),
+                        "阶段分钟": str(event["stage_minutes"]), "分母（分钟）": event.get("stage_denominator_minutes"),
+                        "无分期睡眠（分钟）": event.get("unknown_stage_minutes")})
+        st.dataframe(display, hide_index=True, use_container_width=True)
+        if stages:
+            st.dataframe(stages, hide_index=True, use_container_width=True)
+        st.caption("无分期时仍保留已记录总睡眠。分期未知部分不计入任何阶段；卧床与清醒不计为睡眠。")
 
 
 def _expand_weight_window(days):

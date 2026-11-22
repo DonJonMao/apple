@@ -112,9 +112,14 @@ def render_sleep_selection(repo, analysis):
             if not result["sleep_selection"]["accepted"]:
                 st.warning("本次声明尚不能生成新结果，原分析保留：" + "；".join(result["sleep_selection"]["reason_codes"]))
             else:
-                persist(repo, result)
+                run_id = persist(repo, result)
+                from healthzip.ui.preferences import save_preferences
+                save_preferences(repo.path, sleep_analysis_id=run_id)
                 st.session_state["analysis_sleep_result"] = result
                 st.session_state["analysis_sleep_signature"] = signature
+                saved = dict(st.session_state.get("analysis_sleep_results", {}))
+                saved[str(repo.path.resolve())] = result
+                st.session_state["analysis_sleep_results"] = saved
         selected = st.session_state.get("analysis_sleep_result")
         if not selected or st.session_state.get("analysis_sleep_signature") != signature:
             return analysis

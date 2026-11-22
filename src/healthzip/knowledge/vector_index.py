@@ -98,15 +98,28 @@ def current_units(w, requested_domains=None, *, span_ids=None):
 
 
 def prefiltered_version_groups(w):
-    return [dict(r) for r in w.lib.sources.execute("""SELECT s.version_id AS source_version,
+    # This public audit aggregates *all* excluded units (including superseded
+    # books). Reuse the aggregate while its complete source revision is current;
+    # live eligibility still checks each selected source before it is returned.
+    from .revisions import knowledge_authority_clock
+    conn = w.lib.sources
+    clock = knowledge_authority_clock(w.root)[2]
+    cached = getattr(w, '_excluded_version_tally', None)
+    if not conn.in_transaction and cached and cached[0] == clock:
+        return [dict(r) for r in cached[1]]
+    result = [dict(r) for r in conn.execute("""SELECT s.version_id AS source_version,
         COUNT(*) AS excluded_unit_count,
         CASE WHEN v.material_type!='fulltext' THEN 'insufficient_material_depth'
              ELSE 'parser_superseded_requires_explicit_claim_review' END AS reason
-        FROM retrieval_unit u JOIN span s ON s.span_id=u.span_id
-        JOIN version v ON v.version_id=s.version_id
+        FROM version v
+        CROSS JOIN span s ON s.version_id=v.version_id
+        CROSS JOIN retrieval_unit u ON u.span_id=s.span_id
         WHERE v.material_type!='fulltext' OR EXISTS(
           SELECT 1 FROM parse_supersession p WHERE p.old_version_id=v.version_id)
         GROUP BY s.version_id ORDER BY s.version_id""")]
+    if not conn.in_transaction and knowledge_authority_clock(w.root)[2] == clock:
+        w._excluded_version_tally = (clock, result)
+    return [dict(r) for r in result]
 
 
 def review_unit_domains(w, span_ids, domains, review):
@@ -212,7 +225,7 @@ def save_vectors(w, provider, texts, vectors, purpose):
                 (provider.config.model_key, digest(text.encode()), purpose, dimension, blob, dumps(provider.config.identity), now()))
 
 
-def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=None, progress=None, workers=1):
+def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=None, span_ids=None, progress=None, workers=1):
     """Only explicit indexing embeds documents; ordinary queries never rebuild the corpus."""
     if not 1 <= batch_size <= 16:
         raise ValueError("invalid_embedding_batch")
@@ -223,7 +236,7 @@ def build_vectors(w, provider, *, batch_size=8, max_documents=None, version_ids=
     ensure_schema(w)
     from . import table_projection
     pending, excluded, reused, failures, token_admissions, projections = {}, [], 0, [], [], []
-    for row in current_units(w):
+    for row in current_units(w, span_ids=span_ids):
         span = w.lib.span(row['span_id'], include_metadata=False)
         if span and version_ids is not None and span['version_id'] not in version_ids:
             continue

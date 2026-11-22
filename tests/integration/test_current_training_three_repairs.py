@@ -13,6 +13,7 @@ import pytest
 from healthzip.db.repository import Repository
 from healthzip.training.current import current_advice, objective_comparison
 from healthzip.training.service import TrainingService
+from tests.app_navigation import go
 
 UI = runpy.run_path(str(Path(__file__).resolve().parents[1] / "strength_ui_harness.py"))
 FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
@@ -238,7 +239,7 @@ def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch
     svc.end_session(instance["session_id"])
     UI["install"](monkeypatch)
     app = FLOW["HELP"]["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     started = UI["send"](app, "start_session", {"template_id": template["id"]})
     assert started["status"] == "saved"
     assert not app.exception and not app.error

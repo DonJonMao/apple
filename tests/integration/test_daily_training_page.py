@@ -14,6 +14,7 @@ from healthzip.db.repository import Repository
 from healthzip.training.current import current_advice, save_equipment_loads
 from healthzip.training.service import TrainingService
 from healthzip.workflows.period_report import load_report
+from tests.app_navigation import go, legacy_analysis
 
 HELP = runpy.run_path(str(Path(__file__).with_name("test_workflow_four_repairs.py")))
 REVIEW = runpy.run_path(str(Path(__file__).with_name("test_review_candidate_flow.py")))
@@ -92,7 +93,7 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
     monkeypatch.setattr(st, "download_button", capture)
     UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert not app.exception and not app.error
     assert UI["send"](app, "session", {"session_id": instance["session_id"]})["status"] == "saved"
     assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
@@ -129,8 +130,8 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
     assert trial["basis"]["source_set_id"] == actual["set_uuid"]
     assert trial["basis"]["repetitions_origin"] == "沿用用户计划次数下限"
     assert trial["basis"]["rules"]
-    app.radio(key="main_workspace").set_value("复盘").run()
-    app.radio(key="review_section").set_value("报告").run()
+    go(app, "复盘")
+    legacy_analysis(app, "报告")
     app.button(key="review_compute").click().run()
     for label in ("本周", "本月"):
         next(selector for selector in app.selectbox if selector.label == "报告范围").select(label)
@@ -150,7 +151,7 @@ def test_real_app_old_history_and_new_action_need_no_reference_or_plan(tmp_path,
     repo, svc, instance, rows, previous, _ = ordinary_setup(tmp_path, monkeypatch, age=age, history=history, planned=False)
     UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert not app.exception and not app.error
     assert UI["send"](app, "session", {"session_id": instance["session_id"]})["status"] == "saved"
     assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
@@ -189,7 +190,7 @@ def test_real_app_equipment_unit_is_explicit_unknown_and_mismatch_do_not_license
     save_equipment_loads(repo, instance["id"], [50, 55, 60, 65], load_unit=None)
     UI["install"](monkeypatch)
     app = HELP["open_app"](repo.path)
-    app.radio(key="main_workspace").set_value("力量").run()
+    go(app, "力量")
     assert not app.exception and not app.error
     UI["legacy"](app, "recommendations", instance_id=instance["id"])
     assert app.selectbox(key="current_load_unit_" + instance["id"]).value is None

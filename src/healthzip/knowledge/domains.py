@@ -25,7 +25,17 @@ def configuration(*, include_observations=False):
     return config
 
 
+def metric_profile(metric_id):
+    from .topics import TOPICS, profile
+    if metric_id in TOPICS:
+        return profile(metric_id)
+    return configuration(include_observations=True)['profiles'].get(metric_id)
+
+
 def profile_version(metric_id):
+    from .topics import TOPICS, profile_identity
+    if metric_id in TOPICS:
+        return profile_identity(metric_id)
     if metric_id in configuration()['profiles']:
         return configuration()['schema_version']
     if metric_id in observation_configuration()['profiles']:
@@ -69,7 +79,7 @@ def _object(w, kind, identity, version):
     if kind == "span":
         return w.lib.sources.execute("SELECT 1 FROM span WHERE span_id=? AND version_id=?", (identity, version)).fetchone()
     if kind == "metric":
-        return identity in configuration(include_observations=True)["profiles"] and version == profile_version(identity)
+        return metric_profile(identity) is not None and version == profile_version(identity)
     return False
 
 
@@ -122,7 +132,7 @@ def link(w, *, origin, relation, target, span_ids, applicability, actor, rationa
         _review(review or {}, application=True)
         if review["reviewer_kind"] == "synthetic_fixture" and w.environment_kind != "synthetic_test":
             raise ValueError("synthetic_metric_binding_not_production_authority")
-        allowed = configuration(include_observations=True)["profiles"][target["id"]]["required_evidence_types"]
+        allowed = metric_profile(target["id"])["required_evidence_types"]
         if not evidence_types or not set(evidence_types) <= set(allowed):
             raise ValueError("explicit_profile_evidence_types_required")
     evidence = []

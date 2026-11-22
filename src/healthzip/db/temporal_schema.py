@@ -139,7 +139,8 @@ def _migrate_scoped_queries(conn):
 
 
 def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
-                  window_start=None, window_end=None, canonical_types=None, timings=None) -> list[dict]:
+                  window_start=None, window_end=None, canonical_types=None, timings=None,
+                  include_deleted=False) -> list[dict]:
     """Read latest visible revisions of window candidates, then filter support.
 
     Candidate IDs may be found by any revision's support, but all their visible
@@ -158,7 +159,8 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
             raise ValueError("query_time_requires_timezone")
         return parsed
 
-    if table not in {"health_sample", "workout", "subjective_log", "body_measurement"}:
+    if table not in {"health_sample", "workout", "subjective_log", "body_measurement",
+                     "workout_statistic", "workout_event", "activity_summary", "nutrition_day", "cycle_event"}:
         raise ValueError("unsupported_source_table")
     cutoff = when(cutoff_time)
     if bool(window_start) != bool(window_end):
@@ -194,7 +196,7 @@ def samples_as_of(repo, cutoff_time: str, table: str = "health_sample", *,
             continue
         seen.add(row["record_id"])
         payload = json.loads(row["payload_json"])
-        if payload.get("record_status", "active") != "active":
+        if not include_deleted and payload.get("record_status", "active") != "active":
             continue
         if canonical_types and payload.get("canonical_type") not in canonical_types:
             continue

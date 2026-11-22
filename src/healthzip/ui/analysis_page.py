@@ -67,6 +67,8 @@ def render_analysis(repo, value):
     result = render_reference_selection(repo, result)
     from healthzip.ui.sleep_selection import render_sleep_selection
     result = render_sleep_selection(repo, result)
+    from healthzip.ui.joint_health import render_joint_health
+    render_joint_health(result, key="analysis_joint")
     reviews = value.get("workflow_reviews")
     if result.get("selection_context") != value.get("v13", {}).get("selection_context"):
         reviews = None
@@ -222,9 +224,16 @@ def render_analysis(repo, value):
                         st.json(review["hypotheses"])
             period_result = frozen_report["current"]
             st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
+            render_joint_health(period_result, key="period_joint")
             _render_period_training(period_result["metrics"])
             period_layers = []
             for task in period_result.get("strength_tasks", []):
+                if task.get("task_metrics_scope") == "requested_only":
+                    # This frozen report retains ordinary actual facts and
+                    # their missing-reference result. Specialist models were
+                    # not requested; the full analysis entry still computes
+                    # all task metrics and all genuinely eligible series.
+                    continue
                 classifications = {s["outcome_series_id"]: (s["metric"].get("value") or {}).get("classification")
                                    for s in task["metrics"]["STR-22"].get("series_results", [])}
                 for series in task["metrics"]["STR-19"].get("series_results", []):

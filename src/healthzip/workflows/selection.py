@@ -1,22 +1,23 @@
 """Task-scoped calls to existing calculators, using repository-owned records."""
-from healthzip.analytics.v13 import snapshot
-from healthzip.science import evaluate
 from healthzip.science.contracts import Window, select_as_of, task_metric_results
 from healthzip.science.semantics import analysis_task, flatten_record, outcome_series
 
+from .report_inputs import source_snapshot
+
 
 def strength_inputs(repo, request, analysis, task):
-    records, context = snapshot(repo, request["cutoff_time"], retrospective=request["mode"] == "retrospective",
+    records, context = source_snapshot(repo, request["cutoff_time"], retrospective=request["mode"] == "retrospective",
         window_start=analysis["window_start"], window_end=analysis["window_end"], include_sources=False)
     rows = [r for r in records if r.get("record_kind") == "strength_set"]
     if task:
-        rows = [r for r in rows if analysis_task(r)["task_id"] == task["task_id"]]
+        task_ids = set(task["inventory_task_ids"]) if "inventory_task_ids" in task else {task["task_id"]}
+        rows = [r for r in rows if analysis_task(r)["task_id"] in task_ids]
     ids = {r.get("set_uuid") for r in rows}
     window = Window(analysis["window_start"], analysis["window_end"], request["cutoff_time"], request["timezone"])
     plans, _ = select_as_of(context["session_plans"], window)
     context["plan_snapshot"] = {"sets": [s for p in plans for s in p["sets"] if s["id"] in ids]} if plans else None
     if task:
-        context["recommendation_outcomes"] = [r for r in context["recommendation_outcomes"] if r.get("task_id") == task["task_id"]]
+        context["recommendation_outcomes"] = [r for r in context["recommendation_outcomes"] if r.get("task_id") in task_ids]
     context.update(timezone=request["timezone"], retrospective=request["mode"] == "retrospective")
     return rows, context
 
@@ -24,11 +25,12 @@ def strength_inputs(repo, request, analysis, task):
 def scoped_metrics(repo, request, analysis, task, metrics):
     rows, context = strength_inputs(repo, request, analysis, task)
     if task:
-        for mid in ("STR-01", "STR-02", "STR-03", "STR-04", "STR-05", "STR-06", "STR-09", "STR-10",
-                    "STR-15", "STR-27", "STR-28", "STR-29", "REPORT-RECOMMENDATION-FOLLOWUP"):
-            if mid in metrics:
-                metrics[mid] = evaluate(mid, rows, cutoff_time=request["cutoff_time"],
-                    window_start=analysis["window_start"], window_end=analysis["window_end"], context=context)
+        scoped = (tuple(mid for mid in metrics if mid.startswith("STR-")) + ("REPORT-RECOMMENDATION-FOLLOWUP",)
+                  if "inventory_task_ids" in task else ("STR-01", "STR-02", "STR-03", "STR-04", "STR-05", "STR-06", "STR-09", "STR-10",
+                    "STR-15", "STR-27", "STR-28", "STR-29", "REPORT-RECOMMENDATION-FOLLOWUP"))
+        from healthzip.science.engine import evaluate_subset
+        metrics.update(evaluate_subset([mid for mid in scoped if mid in metrics], rows, cutoff_time=request["cutoff_time"],
+            window_start=analysis["window_start"], window_end=analysis["window_end"], context=context))
     references = task_metric_results(metrics["STR-11"]) if "STR-11" in metrics else []
     ids = {str(r["id"]) for child in references for r in child["metric"]["value"] or []}
     points = []
