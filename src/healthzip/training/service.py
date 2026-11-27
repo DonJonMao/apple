@@ -12,11 +12,12 @@ import json
 from collections import OrderedDict
 from contextlib import contextmanager
 from contextvars import ContextVar
-from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 from uuid import NAMESPACE_URL, uuid4, uuid5
+
+from healthzip.copying import isolated_copy
 
 from .history_candidates import latest_values_as_of, register_history_functions
 from .schema import (
@@ -2397,7 +2398,7 @@ class TrainingService:
         key = (self.data_version(), _summary_projection, _replay_only, tuple(clauses), tuple([args[0], cutoff.astimezone(timezone.utc).isoformat(), *args[2:]]))
         if cache is not None and key in cache:
             cache.move_to_end(key)
-            return cache[key] if _share_report_readonly else deepcopy(cache[key])
+            return cache[key] if _share_report_readonly else isolated_copy(cache[key])
         selected = "SELECT rowid AS event_order,* FROM training_event WHERE " + " AND ".join(clauses)
         # Keep-current conflict decisions have no session payload. Join their
         # explicit conflict identity to the already selected original event.
@@ -2433,7 +2434,7 @@ class TrainingService:
             cache[key] = decoded
             while len(cache) > 4:
                 cache.popitem(last=False)
-        return deepcopy(decoded) if cache is not None and not _share_report_readonly else decoded
+        return isolated_copy(decoded) if cache is not None and not _share_report_readonly else decoded
 
     def history_summary_as_of(self, *, cutoff_time, window_start, window_end):
         """Minimal calendar facts with the exact normal event replay semantics."""
@@ -2888,7 +2889,7 @@ class TrainingService:
                   "snapshot_cutoff": timestamp(cutoff_time)}
         scope = _REPORT_EVENT_READS.get()
         # Only the returned session is mutable; cached replay inputs never are.
-        return deepcopy(result) if scope and scope[0] is self.repo else result
+        return isolated_copy(result) if scope and scope[0] is self.repo else result
 
     def update_set_target(
         self, set_id, planned: dict, *, base_revision: int, event_id=None

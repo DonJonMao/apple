@@ -1,0 +1,50 @@
+FFF.                                                                     [100%]
+=================================== FAILURES ===================================
+________ test_custom_key_observes_the_same_value_copy_order_as_deepcopy ________
+
+    def test_custom_key_observes_the_same_value_copy_order_as_deepcopy():
+        shared = ["record"]
+        value = {MemoAwareKey(shared): shared}
+        expected = deepcopy(value)
+        assert expected == {"value-copied": ["record"]}
+>       assert isolated_copy(value) == expected
+E       AssertionError: assert {'value-not-c...': ['record']} == {'value-copied': ['record']}
+E         
+E         Left contains 1 more item:
+E         {'value-not-copied': ['record']}
+E         Right contains 1 more item:
+E         {'value-copied': ['record']}
+E         Use -v to get more diff
+
+tests/integration/test_cache_copy_isolation.py:42: AssertionError
+______ test_extension_memo_aliases_apply_to_later_scalar_values_and_keys _______
+
+    def test_extension_memo_aliases_apply_to_later_scalar_values_and_keys():
+        label = "record-identity"
+        value = [MemoAlias(label, "copied-identity"), label, {label: label}]
+        expected = deepcopy(value)
+        assert expected == ["extension-copied", "copied-identity", {"copied-identity": "copied-identity"}]
+>       assert isolated_copy(value) == expected
+E       AssertionError: assert ['extension-c...rd-identity'}] == ['extension-c...ed-identity'}]
+E         
+E         At index 1 diff: 'record-identity' != 'copied-identity'
+E         Use -v to get more diff
+
+tests/integration/test_cache_copy_isolation.py:50: AssertionError
+________ test_shared_memo_keeps_original_containers_alive_across_calls _________
+
+    def test_shared_memo_keeps_original_containers_alive_across_calls():
+        original = {"rows": []}
+        memo = {}
+        copied = isolated_copy(original, memo)
+        assert copied == original and copied is not original
+>       assert any(value is original for value in memo[id(memo)])
+                                                  ^^^^^^^^^^^^^^
+E       KeyError: 281473136176064
+
+tests/integration/test_cache_copy_isolation.py:59: KeyError
+=========================== short test summary info ============================
+FAILED tests/integration/test_cache_copy_isolation.py::test_custom_key_observes_the_same_value_copy_order_as_deepcopy
+FAILED tests/integration/test_cache_copy_isolation.py::test_extension_memo_aliases_apply_to_later_scalar_values_and_keys
+FAILED tests/integration/test_cache_copy_isolation.py::test_shared_memo_keeps_original_containers_alive_across_calls
+3 failed, 1 passed in 0.54s

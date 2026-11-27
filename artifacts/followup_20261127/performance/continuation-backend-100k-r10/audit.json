@@ -1,0 +1,120 @@
+{
+  "phase": "audit",
+  "synthetic_fixture": "synthetic-100000",
+  "source_manifest": "audit-source.json",
+  "samples": [
+    {
+      "label": "export",
+      "seconds": 12.835953399538994,
+      "process_peak_rss_kib": 1806180,
+      "stages": [
+        {
+          "stage": "assemble_frozen_objects",
+          "elapsed_s": 1.8924474716186523e-06
+        },
+        {
+          "stage": "serialize_and_write",
+          "elapsed_s": 7.6435912773013115
+        }
+      ],
+      "export_bytes": 267888960,
+      "object_counts": {
+        "content_objects": 20077,
+        "workflow_runs": 5,
+        "analysis_objects": 6
+      }
+    },
+    {
+      "label": "offline_reconstruction",
+      "seconds": 8.320526488125324,
+      "process_peak_rss_kib": 1806180
+    },
+    {
+      "label": "offline_workflow_verification",
+      "seconds": 14.39145789295435,
+      "process_peak_rss_kib": 2226260
+    }
+  ],
+  "cutoff": "2026-11-21T16:00:00+00:00",
+  "period": "week",
+  "timezone": "Asia/Shanghai",
+  "interface": "backend complete service call; browser timings are separate",
+  "initial_host_load": [
+    24.041015625,
+    24.228515625,
+    22.76611328125
+  ],
+  "concurrent_load": "Sequential task-owned validation; user Streamlit PID 431790 retained; external shared-host load uncontrolled; OS caches retained",
+  "instrumentation": "perf_counter only; no cProfile",
+  "os_cache": "retained",
+  "report_id": "daa1c91fcbec80306759dc6ab34e70168c3c919eac46485d1c588d5407db6d53",
+  "referenced_unique_bytes": {
+    "content": 114526742,
+    "workflow": 44822383,
+    "analysis": 107104951,
+    "total": 266454076
+  },
+  "offline_reconstruction_exact": true,
+  "offline_workflow_reconstruction_exact": true,
+  "offline_workflow_verification": {
+    "count": 5,
+    "run_ids": [
+      "81234dc047a74a16f86d248412b9c9764d589d7531605b1ed251438ada99d9af",
+      "89b7e44bc3aafcdf00a52277ae54ed57357ae92c35cf2d87112390b6cbf12381",
+      "b760248a3b138d95fe57bb4a50e6d5cfda00492863230d228abb50fe80f3f948",
+      "c16f25551f8b084ca41bbcf8f96ca9d54d03f61e2f3227d148b88c08cfb82f65",
+      "f30b4ba66158c897f4bf93b6c7aa39ee9babdf64410ba125d6977d526d17c57f"
+    ],
+    "scope": "actual audit file reread, offline reconstruction of every current/historical workflow, and comparison with its frozen public load_run result",
+    "timing": "separate from the original report-only offline_reconstruction sample"
+  },
+  "integrity": {
+    "global_metrics": 77,
+    "task_count": 10000,
+    "all_period_source_groups_preserved": 10000,
+    "unknown_condition_records_kept_separate": 10000,
+    "source_group_ids_sha256": "b41afa1a2e6ed7c18ac81e997aeb2fd01e46997c09908b55e786af17bbe88956",
+    "all_raw_tables_after": {
+      "health_sample": {
+        "rows": 100001,
+        "sha256": "93a1014acf734ba627334897867e5a89c312f0b0f749cf129d7e5d207d6be095"
+      },
+      "source_revision": {
+        "rows": 100001,
+        "sha256": "67d3ae15eb82a0d95805d419f4fc8c6e0adb9ab44d0351345123915976d3c72e"
+      },
+      "strength_session": {
+        "rows": 100,
+        "sha256": "e17e150a3ee9bb5d78b29e942c685a5e1469475531a7fdfd9b3cc6857c649ef6"
+      },
+      "strength_set": {
+        "rows": 10000,
+        "sha256": "71be01ed0a781d7ba5b39c772ec925e9fb294736490f5a05d887a6f0a4b52f80"
+      },
+      "training_event": {
+        "rows": 10300,
+        "sha256": "de3a27351381a63f1ab438272044de8e280d2dae4fa3724672fe93d11f1e97ed"
+      },
+      "training_session_exercise": {
+        "rows": 100,
+        "sha256": "d4320c90ff207711d692a5adbb4facad7fdcf4a94ae9e64ce4834b6c63d8f8a2"
+      },
+      "subjective_log": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "body_measurement": {
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "audit_path": "/home/sn_maozhifang/healthzip-followup-validation-tmp/healthzip-followup-report-ontrf7cc/audit.json",
+  "complete": true,
+  "final_host_load": [
+    22.423828125,
+    23.671875,
+    22.6494140625
+  ],
+  "source_changed": false
+}

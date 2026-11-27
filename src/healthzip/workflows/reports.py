@@ -161,7 +161,8 @@ def period_questions(repo, current, *, period, knowledge_root, source_filter=(),
                     "items": [], "reason": opening_failure or "local_knowledge_store_missing"}
                 continue
             try:
-                question["evidence"] = question_sources(w, question["id"], include_evidence=True)
+                question["evidence"] = question_sources(w, question["id"], include_evidence=True,
+                                                        computed_question=question)
             except (OSError, sqlite3.Error, ValueError) as exc:
                 question["evidence"] = {"status": "service_failure", "items": [], "reason": type(exc).__name__}
     finally:

@@ -1,0 +1,15 @@
+.............F...............F.......                                    [100%]
+=================================== FAILURES ===================================
+______ test_unknown_population_does_not_gain_a_separate_adult_only_claim _______
+/home/sn_maozhifang/apple/tests/knowledge/test_w1_computed_rir_scope.py:153: in test_unknown_population_does_not_gain_a_separate_adult_only_claim
+    assert "adult-only-rir-use" in adult
+E   AssertionError: assert 'adult-only-rir-use' in {'direct-rir-definition', 'independent-training-method'}
+_______ test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic _______
+/home/sn_maozhifang/apple/tests/knowledge/test_w1_computed_rir_scope.py:216: in test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic
+    assert result["applicability_context"]["metric_evidence"]["direct_rir_only"] is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'applicability_context'
+=========================== short test summary info ============================
+FAILED tests/knowledge/test_w1_computed_rir_scope.py::test_unknown_population_does_not_gain_a_separate_adult_only_claim
+FAILED tests/knowledge/test_w1_computed_rir_scope.py::test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic
+2 failed, 35 passed in 7.75s

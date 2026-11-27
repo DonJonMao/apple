@@ -159,3 +159,56 @@ def test_all_77_metric_values_match_prior_comparison(monkeypatch):
 
     assert len(actual) == 77
     assert without_clock(actual) == without_clock(expected)
+
+
+def test_comparison_prepares_only_required_facts_and_preserves_other_report_domains():
+    rows = [sample("rhr-previous-a", 3, 56), sample("rhr-previous-b", 4, 60),
+            sample("rhr-current-a", 10, 64), sample("rhr-current-b", 11, 70),
+            sample("rhr-current-c", 12, 66),
+            sample("sdnn-previous", 3, 50, canonical_type="hrv_sdnn_ms", unit="ms"),
+            sample("sdnn-current-a", 10, 20, canonical_type="hrv_sdnn_ms", unit="ms"),
+            sample("sdnn-current-b", 11, 40, canonical_type="hrv_sdnn_ms", unit="ms"),
+            sample("mass", 10, 71, canonical_type="body_mass_kg", unit="kg"),
+            sample("symptom", 10, None, canonical_type=None, fatigue=3)]
+    for identity, start, end in (
+            ("sleep-previous", "2026-11-02T22:00:00+08:00", "2026-11-03T06:00:00+08:00"),
+            ("sleep-current", "2026-11-09T23:00:00+08:00", "2026-11-10T06:00:00+08:00")):
+        rows.append({"id": identity, "canonical_type": "sleep_stage", "stage": "asleep",
+                     "source_name": "Synthetic comparison sleep", "event_start": start,
+                     "event_end": end, "available_at": end})
+    for identity, canonical, value in (("basal", "basal_energy_kcal", 1800),
+                                       ("active", "active_energy_kcal", 300)):
+        rows.append(sample(identity, 10, value, canonical_type=canonical, unit="kcal",
+                           event_start="2026-11-10T00:00:00+08:00",
+                           event_end="2026-11-11T00:00:00+08:00",
+                           available_at="2026-11-11T01:00:00+08:00"))
+    frozen = deepcopy(rows)
+    expected = prior_comparison(rows, WINDOW)
+    with patch.object(reports, "device_energy_days", wraps=reports.device_energy_days) as energy, \
+            patch.object(reports, "daily_values", wraps=reports.daily_values) as daily:
+        actual = reports.report_comparison(rows, WINDOW)
+    assert actual == expected
+    streams = {stream["metric_id"]: stream for stream in actual["streams"]}
+    assert set(streams) == {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}
+    rhr, sdnn, sleep = (streams[key] for key in ("STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"))
+    assert (rhr["current"]["value"], rhr["previous"]["value"], rhr["previous_change"]["absolute"]) == (66, 58, 8)
+    assert set(rhr["current"]["source_record_ids"]) == {"rhr-current-a", "rhr-current-b", "rhr-current-c"}
+    assert (sdnn["current"]["value"], sdnn["previous"]["value"], sdnn["previous_change"]["absolute"]) == (30, 50, -20)
+    assert (sleep["current"]["value"], sleep["previous"]["value"]) == (420, 480)
+    assert sleep["current"]["source_record_ids"] == ["sleep-current"]
+    assert energy.call_count == 0
+    assert {call.args[1] for call in daily.call_args_list} == {"resting_heart_rate_bpm", "hrv_sdnn_ms"}
+
+    selected, _ = select_as_of(rows, WINDOW, overlap=True)
+    full = reports.derive_report_context(selected, WINDOW)
+    other = {fact["metric_id"]: fact for fact in full["daily_metric_facts"]
+             if fact["metric_id"] in {"BODY-MASS-DAILY", "STATE-FATIGUE"}}
+    assert other["BODY-MASS-DAILY"]["value"] == 71
+    assert other["BODY-MASS-DAILY"]["source_record_ids"] == ["mass"]
+    assert other["STATE-FATIGUE"]["value"] == 3
+    assert other["STATE-FATIGUE"]["source_record_ids"] == ["symptom"]
+    assert len(full["energy_days"]) == 1
+    assert full["energy_days"][0]["complete"] is True
+    assert full["energy_days"][0]["device_total_kcal"] == 2100
+    assert set(full["energy_days"][0]["source_record_ids"]) == {"basal", "active"}
+    assert rows == frozen

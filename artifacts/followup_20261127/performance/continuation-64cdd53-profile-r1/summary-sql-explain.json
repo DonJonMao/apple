@@ -1,0 +1,215 @@
+{
+  "scope": "read_only_EXPLAIN_only_no_business_query_execution",
+  "sqlite_version": "3.41.2",
+  "database": "synthetic-100000.sqlite3",
+  "connection_mode": "ro",
+  "sql": "SELECT event_order,event_id,user_id,entity_type,entity_id,action,status,recorded_at,CASE WHEN after_json IS NOT NULL THEN json_object('id',json_extract(after_json,'$.id'),'set_uuid',json_extract(after_json,'$.set_uuid'),'session_id',json_extract(after_json,'$.session_id'),'ended_at',json_extract(after_json,'$.ended_at'),'started_at',json_extract(after_json,'$.started_at'),'completion_state',json_extract(after_json,'$.completion_state'),'set_type',json_extract(after_json,'$.set_type'),'session_exercise_id',json_extract(after_json,'$.session_exercise_id'),'deleted_at',json_extract(after_json,'$.deleted_at'),'session_status',json_extract(after_json,'$.session_status'),'sets',coalesce(json_extract(after_json,'$.sets'),json('[]'))) END AS after_json,result_json FROM (WITH selected AS (SELECT rowid AS event_order,* FROM training_event WHERE user_id=? AND julianday(recorded_at)<=julianday(?)+0.001/86400 AND (CASE WHEN entity_type='session' THEN json_extract(after_json,'$.id') ELSE json_extract(after_json,'$.session_id') END) IN (SELECT value FROM json_each(?))) SELECT * FROM selected UNION ALL SELECT e.rowid AS event_order,e.* FROM training_event e JOIN training_conflict c ON c.id=e.entity_id AND c.user_id=e.user_id WHERE e.user_id=? AND e.entity_type='conflict' AND c.event_id IN (SELECT event_id FROM selected) AND e.event_id NOT IN (SELECT event_id FROM selected) AND julianday(e.recorded_at)<=julianday(?)+0.001/86400)",
+  "parameters": [
+    "local",
+    "2026-11-21T16:00:00+00:00",
+    "[]",
+    "local",
+    "2026-11-21T16:00:00+00:00"
+  ],
+  "query_plan": [
+    [
+      1,
+      0,
+      0,
+      "COMPOUND QUERY"
+    ],
+    [
+      2,
+      1,
+      0,
+      "LEFT-MOST SUBQUERY"
+    ],
+    [
+      5,
+      2,
+      0,
+      "SEARCH training_event USING INDEX training_event_session_versions (user_id=? AND <expr>=?)"
+    ],
+    [
+      10,
+      2,
+      0,
+      "LIST SUBQUERY 1"
+    ],
+    [
+      12,
+      10,
+      0,
+      "SCAN json_each VIRTUAL TABLE INDEX 1:"
+    ],
+    [
+      88,
+      1,
+      0,
+      "UNION ALL"
+    ],
+    [
+      93,
+      88,
+      0,
+      "SEARCH e USING INDEX idx_training_event_entity (user_id=? AND entity_type=?)"
+    ],
+    [
+      104,
+      88,
+      0,
+      "LIST SUBQUERY 5"
+    ],
+    [
+      107,
+      104,
+      0,
+      "SEARCH training_event USING INDEX training_event_session_versions (user_id=? AND <expr>=?)"
+    ],
+    [
+      112,
+      104,
+      0,
+      "LIST SUBQUERY 1"
+    ],
+    [
+      114,
+      112,
+      0,
+      "SCAN json_each VIRTUAL TABLE INDEX 1:"
+    ],
+    [
+      176,
+      88,
+      0,
+      "SEARCH c USING INDEX sqlite_autoindex_training_conflict_1 (id=?)"
+    ],
+    [
+      184,
+      88,
+      0,
+      "LIST SUBQUERY 4"
+    ],
+    [
+      187,
+      184,
+      0,
+      "SEARCH training_event USING INDEX training_event_session_versions (user_id=? AND <expr>=?)"
+    ],
+    [
+      192,
+      184,
+      0,
+      "LIST SUBQUERY 1"
+    ],
+    [
+      194,
+      192,
+      0,
+      "SCAN json_each VIRTUAL TABLE INDEX 1:"
+    ]
+  ],
+  "temporary_record_opcodes": [
+    [
+      6,
+      "OpenEphemeral",
+      13,
+      1,
+      0,
+      "k(1,B)",
+      0,
+      null
+    ],
+    [
+      13,
+      "MakeRecord",
+      7,
+      1,
+      8,
+      "A",
+      0,
+      null
+    ],
+    [
+      96,
+      "OpenEphemeral",
+      16,
+      1,
+      0,
+      "k(1,B)",
+      0,
+      null
+    ],
+    [
+      102,
+      "OpenEphemeral",
+      18,
+      1,
+      0,
+      "k(1,B)",
+      0,
+      null
+    ],
+    [
+      109,
+      "MakeRecord",
+      82,
+      1,
+      9,
+      "A",
+      0,
+      null
+    ],
+    [
+      135,
+      "MakeRecord",
+      90,
+      1,
+      83,
+      "A",
+      0,
+      null
+    ],
+    [
+      171,
+      "OpenEphemeral",
+      19,
+      1,
+      0,
+      "k(1,B)",
+      0,
+      null
+    ],
+    [
+      177,
+      "OpenEphemeral",
+      21,
+      1,
+      0,
+      "k(1,B)",
+      0,
+      null
+    ],
+    [
+      184,
+      "MakeRecord",
+      107,
+      1,
+      92,
+      "A",
+      0,
+      null
+    ],
+    [
+      210,
+      "MakeRecord",
+      115,
+      1,
+      108,
+      "A",
+      0,
+      null
+    ]
+  ],
+  "interpretation": "CTE inlined; no full-row selected materialization. Ephemeral tables contain one-column session/event ID lists. Does not measure execution time or prove all SQL work necessary."
+}

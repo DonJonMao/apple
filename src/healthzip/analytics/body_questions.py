@@ -21,10 +21,12 @@ from .alternate_observations import alternate_dependencies, alternate_rows
 from .body_metrics import _daily_summary, _metadata, _points, _rows
 from .cache import cached
 from .question_context import (
+    EVIDENCE_CONTEXT_VERSION,
     action_metric_dependencies,
     action_observations,
     describe_subjective,
     event_training_context,
+    evidence_observations,
     subjective_rows,
     visible_goal_actions,
 )
@@ -1119,6 +1121,11 @@ def question_views(
             for q in ids
         ]
         for v in views:
+            if v["id"] == "W1":
+                v["evidence_observations"] = evidence_observations(sets, window.as_dict(),
+                    cutoff_time=cutoff.isoformat(), source_filter=sources)
+                v["cutoff_time"] = cutoff.isoformat()
+                v["evidence_context_version"] = EVIDENCE_CONTEXT_VERSION
             v["analysis_version"] = VERSION
             v["guidance_version"] = GUIDANCE_VERSION
             v["source_filter"] = list(sources)
@@ -1135,6 +1142,7 @@ def question_views(
         VERSION,
         {"ids": ids, "window": window.as_dict(), "sources": sources, "cutoff": cutoff.isoformat(),
          "guidance_version": GUIDANCE_VERSION,
+         "question_evidence_context_version": EVIDENCE_CONTEXT_VERSION,
          "visible_goal_actions": action_signature, "comparison_bounds": bounds, "period": period,
          "cycle_enabled": bool(cycle_enabled)},
         compute,

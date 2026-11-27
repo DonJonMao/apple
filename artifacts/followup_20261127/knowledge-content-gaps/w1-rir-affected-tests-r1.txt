@@ -1,0 +1,115 @@
+........................................................................ [ 19%]
+........................................................................ [ 38%]
+........................................................................ [ 57%]
+........................................................................ [ 76%]
+..............................................F.................FFF..... [ 95%]
+................                                                         [100%]
+=================================== FAILURES ===================================
+__________ test_w4_empty_repo_and_profile_action_feedback_cache_asof ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1112/test_w4_empty_repo_and_profile0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdc9966690>
+
+    def test_w4_empty_repo_and_profile_action_feedback_cache_asof(tmp_path, monkeypatch):
+        repo = Repository(tmp_path / "actions.sqlite")
+        empty = ask(repo, "W4")
+        assert empty["goal_context"]["title"] == "尚未选择目标" and not empty["action_reviews"]
+        add_training(repo)
+        save_profile(repo, {"training_goal": "strength"})
+        repo.conn.execute("UPDATE advice_profile_revision SET recorded_at=?", (START,))
+        repo.conn.commit()
+        baseline = ask(repo, "W4", window_end=SELECTED, cutoff_time=SELECTED)
+        # An already saved action can predate the independent guidance identity.
+        baseline.pop("guidance_version")
+        identity = select_action(repo, baseline, baseline["steps"][0], "2026-11-30T00:00:00+08:00", selected_at=SELECTED)
+        monkeypatch.setattr("healthzip.workflows.actions.followup", lambda *_a, **_k: pytest.fail("recursive followup"))
+        frozen_json = repo.one("SELECT baseline_json FROM review_action WHERE action_id=?", (identity,))[0]
+        first = ask(repo, "W4", timezone_name="UTC")
+        review = first["action_reviews"][0]
+        assert first["goal_context"]["goal"] == "strength"
+>       assert first["analysis_version"] == baseline["analysis_version"] == "body-questions-1.5"
+E       AssertionError: assert 'body-questions-1.6' == 'body-questions-1.5'
+E         
+E         - body-questions-1.5
+E         ?                  ^
+E         + body-questions-1.6
+E         ?                  ^
+
+tests/science/test_question_context.py:145: AssertionError
+_ test_current_conflict_scope_uses_frozen_context_not_assumed_population[context0-conflicted] _
+
+library = <healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffdc9c43ad0>
+context = {'device': 'A'}, expected = 'conflicted'
+
+    @pytest.mark.parametrize("context, expected", [({"device": "A"}, "conflicted"),
+        ({"device": "B"}, "verified"), ({}, "scope_unverified")])
+    def test_current_conflict_scope_uses_frozen_context_not_assumed_population(library, context, expected):
+        a = claim(library, "method", ["measurement", "comparison"])
+        b = claim(library, "rival", [], bind=False)
+        report = historical(question(library, context=context))
+        edge(library, "method", "rival", "conflicts_with", [a, b], scope={"device": "A"})
+        _, items = statuses(library, report)
+        assert items["method"]["status"] == expected
+>       assert items["method"]["applicability_context"] == context
+E       AssertionError: assert {'device': 'A...only': False}} == {'device': 'A'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'metric_evidence': {'direct_rir_only': False,
+E                              'version': 'computed-evidence-context-1.5.0'}}
+E         Use -v to get more diff
+
+tests/integration/test_followup_report_evidence.py:174: AssertionError
+_ test_current_conflict_scope_uses_frozen_context_not_assumed_population[context1-verified] _
+
+library = <healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffdc9e3d290>
+context = {'device': 'B'}, expected = 'verified'
+
+    @pytest.mark.parametrize("context, expected", [({"device": "A"}, "conflicted"),
+        ({"device": "B"}, "verified"), ({}, "scope_unverified")])
+    def test_current_conflict_scope_uses_frozen_context_not_assumed_population(library, context, expected):
+        a = claim(library, "method", ["measurement", "comparison"])
+        b = claim(library, "rival", [], bind=False)
+        report = historical(question(library, context=context))
+        edge(library, "method", "rival", "conflicts_with", [a, b], scope={"device": "A"})
+        _, items = statuses(library, report)
+        assert items["method"]["status"] == expected
+>       assert items["method"]["applicability_context"] == context
+E       AssertionError: assert {'device': 'B...only': False}} == {'device': 'B'}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Left contains 1 more item:
+E         {'metric_evidence': {'direct_rir_only': False,
+E                              'version': 'computed-evidence-context-1.5.0'}}
+E         Use -v to get more diff
+
+tests/integration/test_followup_report_evidence.py:174: AssertionError
+_ test_current_conflict_scope_uses_frozen_context_not_assumed_population[context2-scope_unverified] _
+
+library = <healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xfffdc9fa3c50>
+context = {}, expected = 'scope_unverified'
+
+    @pytest.mark.parametrize("context, expected", [({"device": "A"}, "conflicted"),
+        ({"device": "B"}, "verified"), ({}, "scope_unverified")])
+    def test_current_conflict_scope_uses_frozen_context_not_assumed_population(library, context, expected):
+        a = claim(library, "method", ["measurement", "comparison"])
+        b = claim(library, "rival", [], bind=False)
+        report = historical(question(library, context=context))
+        edge(library, "method", "rival", "conflicts_with", [a, b], scope={"device": "A"})
+        _, items = statuses(library, report)
+        assert items["method"]["status"] == expected
+>       assert items["method"]["applicability_context"] == context
+E       AssertionError: assert {'metric_evid...only': False}} == {}
+E         
+E         Left contains 1 more item:
+E         {'metric_evidence': {'direct_rir_only': False,
+E                              'version': 'computed-evidence-context-1.5.0'}}
+E         Use -v to get more diff
+
+tests/integration/test_followup_report_evidence.py:174: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_question_context.py::test_w4_empty_repo_and_profile_action_feedback_cache_asof
+FAILED tests/integration/test_followup_report_evidence.py::test_current_conflict_scope_uses_frozen_context_not_assumed_population[context0-conflicted]
+FAILED tests/integration/test_followup_report_evidence.py::test_current_conflict_scope_uses_frozen_context_not_assumed_population[context1-verified]
+FAILED tests/integration/test_followup_report_evidence.py::test_current_conflict_scope_uses_frozen_context_not_assumed_population[context2-scope_unverified]
+4 failed, 372 passed in 79.38s (0:01:19)

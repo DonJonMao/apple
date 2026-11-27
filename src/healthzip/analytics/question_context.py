@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from collections import defaultdict
 from zoneinfo import ZoneInfo
 
@@ -18,6 +19,83 @@ SUBJECTIVE_FIELDS = ("fatigue", "soreness", "pain", "pain_level", "pain_location
 SUBJECTIVE_LABELS = {"fatigue": "疲劳", "soreness": "酸痛", "pain": "疼痛记录", "pain_level": "疼痛",
                      "pain_location": "疼痛部位", "location": "部位", "movement_impact": "动作影响",
                      "illness_or_travel": "疾病或旅行背景", "symptoms": "症状", "notes": "本人备注"}
+
+EVIDENCE_OBSERVATIONS_VERSION = "question-evidence-observations-1"
+EVIDENCE_CONTEXT_VERSION = "computed-question-evidence-context-1"
+
+
+def evidence_observations(sets, window, *, cutoff_time, source_filter):
+    """Local provenance for all displayed ordinary sets; no effort conversion.
+
+    The caller supplies the same as-of records used by ordinary_review. Only
+    identity and effort fields are retained; neither this packet nor its values
+    belong in a public retrieval query or audit.
+    """
+    return {"version": EVIDENCE_OBSERVATIONS_VERSION, "window": dict(window),
+        "cutoff_time": cutoff_time, "source_filter": list(source_filter),
+        "training_sets": [{"record_id": row.get("set_uuid") or row.get("id"),
+            "source_record_id": row.get("id", row.get("set_uuid")),
+            **{key: row.get(key) for key in ("revision", "session_id", "session_exercise_id",
+                "ended_at", "status", "deleted_at", "rir", "rir_interval", "rir_qualifier",
+                "rpe", "scale_type", "converted")}} for row in sets]}
+
+
+def derived_evidence_context(question):
+    """Recheck actual W1 provenance and full trajectory membership, fail closed.
+
+    This does not establish a user's population, accuracy, failure endpoint or
+    cross-session effort comparability. The only grant is a method explanation
+    about directly recorded, exact RIR in this computed question.
+    """
+    result = {"version": EVIDENCE_CONTEXT_VERSION, "direct_rir_only": False}
+    if not isinstance(question, dict) or question.get("id") != "W1":
+        return result
+    packet, ordinary = question.get("evidence_observations"), question.get("ordinary_training")
+    window = question.get("window")
+    if (not isinstance(packet, dict) or not isinstance(ordinary, dict) or not isinstance(window, dict)
+            or not str(question.get("fact_id", "")).startswith("question:")
+            or packet.get("version") != EVIDENCE_OBSERVATIONS_VERSION
+            or ordinary.get("version") != "ordinary-training-description-1.0"
+            or ordinary.get("identity") != "all_completed_sets_no_reference_or_best_set_selection"
+            or not window or packet.get("window") != window or ordinary.get("window") != window
+            or not question.get("cutoff_time") or packet.get("cutoff_time") != question['cutoff_time']
+            or packet.get("source_filter") != question.get("source_filter")):
+        return result
+    records = packet.get("training_sets")
+    groups = ordinary.get("series")
+    if not isinstance(records, list) or not records or not isinstance(groups, list):
+        return result
+    if any(not isinstance(group, dict) or not isinstance(group.get("points"), list) for group in groups):
+        return result
+    points = [point for group in groups for point in group["points"]]
+    if len(points) != len(records) or ordinary.get("record_count") != len(records):
+        return result
+    if any(not isinstance(row, dict) or not row.get("record_id") for row in [*records, *points]):
+        return result
+    try:
+        by_id = {row["record_id"]: row for row in records}
+        if len(by_id) != len(records) or len({p["record_id"] for p in points}) != len(points):
+            return result
+        start, end, cutoff = instant(window['start']), instant(window['end']), instant(question['cutoff_time'])
+        for point in points:
+            row = by_id[point["record_id"]]
+            if (row.get("status") != "completed" or row.get("deleted_at")
+                    or not start <= instant(row.get("ended_at")) < end
+                    or instant(row["ended_at"]) > cutoff
+                    or row.get("ended_at") != point.get("date")
+                    or any(row.get(key) != point.get(key) for key in (
+                        "source_record_id", "revision", "session_id", "session_exercise_id", "rir", "rir_interval"))):
+                return result
+            rir = row.get("rir")
+            if (not isinstance(rir, (int, float)) or isinstance(rir, bool) or not math.isfinite(rir) or rir < 0
+                    or row.get("rir_interval") is not None or row.get("rir_qualifier") not in (None, "exact")
+                    or row.get("converted") is not None and row.get("converted") is not False):
+                return result
+        observations_hash = canonical_hash(packet)
+    except (KeyError, TypeError, ValueError):
+        return result
+    return {**result, "direct_rir_only": True, "fact_id": question["fact_id"],
+            "observations_sha256": observations_hash, "record_count": len(records)}
 
 
 def subjective_rows(records):

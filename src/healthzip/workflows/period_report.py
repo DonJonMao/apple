@@ -40,19 +40,31 @@ REPORT_VERSION = "joint-period-report-3.0.2"
 
 def _fast_json_compatible(value):
     """Reject parser edge cases once per content build, preserving stdlib types."""
-    pending = [value]
+    # Visit containers once and inspect their scalars in place. Keeping every
+    # string/number on the work stack repeated millions of Python operations
+    # for large frozen reports without adding any compatibility checks.
+    pending = [(value,)]
     seen = set()
     while pending:
-        item = pending.pop()
-        if isinstance(item, (dict, list, tuple)):
-            if id(item) in seen:
+        for item in pending.pop():
+            kind = type(item)
+            if kind is str or item is None or kind is bool:
                 continue
-            seen.add(id(item))
-            pending.extend(item.values() if isinstance(item, dict) else item)
-        elif isinstance(item, int) and not -(2**63) <= item <= 2**64-1:
-            return False
-        elif isinstance(item, float) and not math.isfinite(item):
-            return False
+            if kind is int:
+                if not -(2**63) <= item <= 2**64-1:
+                    return False
+            elif kind is float:
+                if not math.isfinite(item):
+                    return False
+            elif isinstance(item, (dict, list, tuple)):
+                if id(item) in seen:
+                    continue
+                seen.add(id(item))
+                pending.append(item.values() if isinstance(item, dict) else item)
+            elif isinstance(item, int) and not -(2**63) <= item <= 2**64-1:
+                return False
+            elif isinstance(item, float) and not math.isfinite(item):
+                return False
     return True
 
 

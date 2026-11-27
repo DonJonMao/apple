@@ -17,7 +17,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.9"
+RETRIEVAL_VERSION = "metric-hybrid-1.6.0"
 CANDIDATE_SCOPE_VERSION = "reviewed-metric-candidates-1.5.0"
 CANDIDATE_SCOPES = {"all", "reviewed_metric"}
 METRIC_EVIDENCE_CONTEXT_VERSION = "computed-evidence-context-1.5.0"
@@ -48,6 +48,24 @@ def _direct_rir_only(metric_id, value):
             comparisons.append(item['value'])
         return all(observed(row.get('rir_before')) and observed(row.get('rir_after')) for row in comparisons)
     return False
+
+
+def evidence_context(metric_id, metric_result, context=None, computed_question=None):
+    """Overwrite caller effort assertions using locally computed observations."""
+    from healthzip.analytics.question_context import derived_evidence_context
+
+    context = dict(context or {})
+    context.pop('question_evidence', None)
+    direct = _direct_rir_only(metric_id, (metric_result or {}).get('value'))
+    if computed_question is not None:
+        matched = isinstance(computed_question, dict) and computed_question.get('id') == metric_id
+        derived = derived_evidence_context(computed_question if matched else None)
+        context['question_evidence'] = derived
+        direct = derived['direct_rir_only']
+        if metric_id == 'W1':
+            context['measurement_protocol'] = 'direct_RIR' if direct else None
+    context['metric_evidence'] = {'version': METRIC_EVIDENCE_CONTEXT_VERSION, 'direct_rir_only': direct}
+    return context
 
 
 def _version_source_metadata(w, source, version_id, cache):
@@ -593,7 +611,7 @@ def _still_current(w, candidate, context):
 
 def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                         mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all",
-                        purpose_needs=None, answer_needs=None, answer_priorities=None):
+                        purpose_needs=None, answer_needs=None, answer_priorities=None, computed_question=None):
     from healthzip.science.contracts import validate_result
 
     from .topics import TOPICS
@@ -639,9 +657,13 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
     profile_version = domains.profile_version(metric_id)
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
         raise ValueError("metric_not_declared_for_analysis_function")
-    context = dict(context or {})  # Kept local, never interpolated into a model query.
-    context['metric_evidence'] = {'version': METRIC_EVIDENCE_CONTEXT_VERSION,
-        'direct_rir_only': _direct_rir_only(metric_id, (metric_result or {}).get('value'))}
+    context = evidence_context(metric_id, metric_result, context, computed_question)
+    if computed_question is not None and release_id is not None:
+        from healthzip.analytics.question_context import EVIDENCE_CONTEXT_VERSION
+        row = w.lib.sources.execute('SELECT manifest_json FROM index_release WHERE release_id=?',
+                                    (release_id,)).fetchone()
+        if not row or json.loads(row[0]).get('question_evidence_context_version') != EVIDENCE_CONTEXT_VERSION:
+            raise ValueError('frozen_question_evidence_context_changed')
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
     query, query_identity = query_forms.select(metric_id, analysis_task, config, form=query_form)
     if answer_needs:
@@ -672,6 +694,7 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         "retrieval_audit": {"version": RETRIEVAL_VERSION, "profile_version": profile_version,
             "rights_usage_policy_version": source_rights.USAGE_POLICY_VERSION,
             "metric_evidence_context_version": METRIC_EVIDENCE_CONTEXT_VERSION,
+            "question_evidence_context_version": context.get('question_evidence', {}).get('version'),
             "query_form": query_identity,
             "candidate_scope": candidate_scope,
             "candidate_scope_version": CANDIDATE_SCOPE_VERSION if candidate_scope != 'all' else None,
@@ -953,6 +976,8 @@ def _record_audit(w, result):
 
 
 def freeze_index(w, release_id):
+    from healthzip.analytics.question_context import EVIDENCE_CONTEXT_VERSION
+
     domains.ensure_schema(w)
     vector_index.ensure_schema(w)
     units = [r for r in vector_index.current_units(w)
@@ -964,6 +989,7 @@ def freeze_index(w, release_id):
         "query_forms_sha256": query_forms.identity(),
         "candidate_scope_version": CANDIDATE_SCOPE_VERSION,
         "metric_evidence_context_version": METRIC_EVIDENCE_CONTEXT_VERSION,
+        "question_evidence_context_version": EVIDENCE_CONTEXT_VERSION,
         "claim_refs": [dict(r) for r in w.lib.theories.execute("SELECT claim_id,version FROM source_claim WHERE status='verified' ORDER BY claim_id,version")],
         "edge_ids": [r[0] for r in w.lib.theories.execute("SELECT edge_id FROM knowledge_evidence_edge ORDER BY edge_id")],
         "unit_assignments": {r['span_id']: vector_index.unit_assignment(w, r) for r in units}}

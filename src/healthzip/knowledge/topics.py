@@ -51,8 +51,24 @@ VERSION = 'review-question-use-2026-11-22.1'
 
 # Substantive public answer targets, separate from the immutable metric-use
 # profile. A purpose tag alone does not establish that this question is answered.
-ANSWER_NEEDS_VERSION = 'public-topic-answer-needs-2'
+ANSWER_NEEDS_VERSION = 'public-topic-answer-needs-3'
 ANSWER_NEEDS = {
+    'direct_rir_definition': {
+        'topics': ['W1'], 'purposes': ['measurement'],
+        'required_context': {'metric_evidence.direct_rir_only': True},
+        'question': '实际填写的RIR描述什么，预计下次无法完成与已经尝试失败是否相同？',
+        'query': 'reported repetitions in reserve repetition maximum momentary muscular failure definition',
+        'target_claim': {'proposition': '直接填写RIR是尚可完成次数的主观估计；预计无法再完成与实际尝试失败是不同终点。',
+                         'scope': {'use': 'direct_recorded_rir_definition', 'individual_accuracy': 'not_established'}},
+    },
+    'direct_rir_prediction_limits': {
+        'topics': ['W1'], 'purposes': ['comparison', 'mechanism_or_exception'],
+        'required_context': {'metric_evidence.direct_rir_only': True},
+        'question': '已填写RIR是否已经验证个人准确度，比较时还需保留哪些测量区别？',
+        'query': 'repetitions in reserve prediction timing task failure criterion anchoring limitations',
+        'target_claim': {'proposition': 'RIR预测研究的时点和任务失败比较标准限制其解释，不能据此验证个人准确度或等努力变化。',
+                         'scope': {'use': 'direct_recorded_rir_prediction_limits', 'personal_correction': 'not_established'}},
+    },
     'hrv_metric_and_recording_identity': {
         'topics': ['BODY-OBS-hrv_sdnn_ms'],
         'purposes': ['measurement', 'comparison'],
@@ -193,8 +209,9 @@ def _definition_links(w, topic):
 
 
 def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=None, services=None,
-                     required_purposes=None, include_evidence=False):
-    from .metric_retrieval import _retrieve_for_metric, claim_conflicts
+                     required_purposes=None, include_evidence=False, computed_question=None):
+    from .applicability import context_match
+    from .metric_retrieval import _retrieve_for_metric, claim_conflicts, evidence_context
     from .revisions import prepare_retrieval_revisions
 
     if topic not in TOPICS:
@@ -202,13 +219,16 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
     needs = list(PURPOSES if required_purposes is None else required_purposes)
     if not set(needs) <= set(PURPOSES):
         raise ValueError('unknown_public_question_purpose')
+    context = evidence_context(topic, None, context, computed_question)
     from .support import target_key
     requested_answers = {key: target_key(spec['target_claim']) for key, spec in ANSWER_NEEDS.items()
-                         if topic in spec['topics'] and set(needs) & set(spec['purposes'])}
+                         if topic in spec['topics'] and set(needs) & set(spec['purposes'])
+                         and context_match(spec.get('required_context', {}), context)[0]}
     prepare_retrieval_revisions(w)
     evidence = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
                                     mode=mode, k=k, candidate_scope='reviewed_metric', services=services,
-                                    answer_priorities=list(requested_answers) or None)
+                                    answer_priorities=list(requested_answers) or None,
+                                    computed_question=computed_question)
     covered = {p for c in evidence['matched_claims'] if not claim_conflicts(c, evidence['conflicts'])
                for p in c['evidence_types']}
     missing = sorted(set(needs) - covered)
@@ -228,7 +248,7 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
         # split complete groups or spend additional remote model calls.
         supplement = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
             mode='lexical', k=min(k, 6), candidate_scope='reviewed_metric', purpose_needs=supplemental_needs or None,
-            answer_needs=supplemental_answers or None)
+            answer_needs=supplemental_answers or None, computed_question=computed_question)
         supplemental_audit = supplement['retrieval_audit']
         spans = {s['span_id']: s for s in evidence['evidence_spans']}
         claims = {(c['claim_id'], c['claim_version'], c['metric_relation']): c
@@ -298,7 +318,9 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
             'retrieval': audit, 'scientific_authority': 'general_source_context'}
     if include_evidence:
         # Local frozen applicability only; never added to public retrieval queries.
-        result['applicability_context'] = json.loads(json.dumps(context or {}))
+        frozen_context = context if computed_question is not None else {
+            key: value for key, value in context.items() if key not in {'metric_evidence', 'question_evidence'}}
+        result['applicability_context'] = json.loads(json.dumps(frozen_context))
         result['evidence_spans'] = list(spans.values())
         result['claim_reviews'] = list(reviews.values())
     return result

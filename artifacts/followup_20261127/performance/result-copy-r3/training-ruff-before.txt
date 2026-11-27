@@ -1,0 +1,54 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/healthzip/training/service.py:8:1
+   |
+ 6 |   """
+ 7 |
+ 8 | / from __future__ import annotations
+ 9 | |
+10 | | import hashlib
+11 | | import json
+12 | | from collections import OrderedDict
+13 | | from contextlib import contextmanager
+14 | | from contextvars import ContextVar
+15 | | from datetime import datetime, timezone
+16 | | from pathlib import Path
+17 | | from typing import Callable, Optional
+18 | |
+19 | | from healthzip.copying import isolated_copy
+20 | | from uuid import NAMESPACE_URL, uuid4, uuid5
+21 | |
+22 | | from .history_candidates import latest_values_as_of, register_history_functions
+23 | | from .schema import (
+24 | |     EVENT_END_SQL,
+25 | |     EVENT_QUERY_PROJECTION,
+26 | |     EVENT_SESSION_SQL,
+27 | |     EVENT_START_SQL,
+28 | |     TRAINING_SCHEMA_VERSION,
+29 | |     migrate_training,
+30 | | )
+31 | | from .semantics import (
+32 | |     LOAD_BASES,
+33 | |     MEASUREMENT_MODES,
+34 | |     TrainingError,
+35 | |     condition_snapshot,
+36 | |     json_text,
+37 | |     load_semantics,
+38 | |     numeric,
+39 | |     timestamp,
+40 | | )
+   | |_^
+41 |
+42 |   SET_STATES = {"draft", "in_progress", "completed", "aborted", "skipped"}
+   |
+help: Organize imports
+   |
+17 | from typing import Callable, Optional
+18 + from uuid import NAMESPACE_URL, uuid4, uuid5
+19 |
+20 | from healthzip.copying import isolated_copy
+   - from uuid import NAMESPACE_URL, uuid4, uuid5
+21 |
+   |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.

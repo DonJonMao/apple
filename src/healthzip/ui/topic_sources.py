@@ -1,4 +1,4 @@
-"""Read current public methods independently of a personal fact snapshot."""
+"""Read current methods with optional local computed-question eligibility."""
 import sqlite3
 from pathlib import Path
 
@@ -9,20 +9,22 @@ from healthzip.knowledge.revisions import knowledge_authority_clock
 from healthzip.knowledge.topics import TOPICS, question_sources
 
 
-def render_topic_sources(topic, *, root='.local/knowledge'):
+def render_topic_sources(topic, *, root='.local/knowledge', computed_question=None):
     if topic not in TOPICS:
         return
     with st.expander('依据与原文'):
         if not all((Path(root) / name).is_file() for name in ('sources.sqlite3', 'theories.sqlite3')):
             st.caption('当前工作区尚未配置资料库。')
             return
-        key = ('topic_sources', str(Path(root).resolve()), topic)
+        from healthzip.knowledge.topics import ANSWER_NEEDS_VERSION
+        key = ('topic_sources', str(Path(root).resolve()), topic,
+               (computed_question or {}).get('fact_id'), ANSWER_NEEDS_VERSION)
         clock = knowledge_authority_clock(root)
         if st.button('查阅本题依据', key=str(key)):
             w = None
             try:
                 w = KnowledgeWorkbench(root)
-                answer = question_sources(w, topic)
+                answer = question_sources(w, topic, computed_question=computed_question)
                 if knowledge_authority_clock(root) == clock:
                     st.session_state['_current_topic_sources'] = (key, clock, answer)
                 else:

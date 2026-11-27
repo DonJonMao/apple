@@ -28,10 +28,19 @@ def derive_report_context(rows: list[dict], window: Window, *, sleep_rows=None) 
     observed intervals spanning the full local day, or explicit platform daily
     statistic metadata. The current partial day cannot become complete.
     """
+    return {"daily_metric_facts": _daily_metric_facts(rows, window, sleep_rows=sleep_rows),
+            "energy_days": device_energy_days(rows, window)}
+
+
+def _daily_metric_facts(rows, window, *, sleep_rows=None, comparison_only=False):
+    """Share the same daily definitions without deriving unused comparison domains."""
     zone = ZoneInfo(window.timezone)
     lookup = {str(r.get("_source_id", r.get("id"))): r for r in rows}
     daily = []
-    for canonical, metric_id in (("resting_heart_rate_bpm", "STATE-RHR"), ("hrv_sdnn_ms", "STATE-SDNN"), ("body_mass_kg", "BODY-MASS-DAILY")):
+    measures = [("resting_heart_rate_bpm", "STATE-RHR"), ("hrv_sdnn_ms", "STATE-SDNN")]
+    if not comparison_only:
+        measures.append(("body_mass_kg", "BODY-MASS-DAILY"))
+    for canonical, metric_id in measures:
         for key, items in daily_values(rows, canonical, window.timezone).items():
             for item in items:
                 inputs = [lookup[str(i)] for i in item["source_ids"] if str(i) in lookup]
@@ -58,6 +67,8 @@ def derive_report_context(rows: list[dict], window: Window, *, sleep_rows=None) 
             "support_local_dates": sorted(set().union(*(local_date_domain(span["start"], span["end"], window.timezone) for span in intervals))),
             "source_record_ids": inputs, "source_ids": inputs, "n": sum(episode["n"] for episode in episodes),
             "statistic_kind": "union_observed_sleep_minutes_by_event_end_date", "episodes": episodes, "episode_complete": False})
+    if comparison_only:
+        return daily
     for row in rows:
         for field in ("fatigue", "soreness", "pain"):
             if row.get(field) is None:
@@ -67,7 +78,7 @@ def derive_report_context(rows: list[dict], window: Window, *, sleep_rows=None) 
                           "protocol_id": str((row.get("scale_version"), row.get("muscle"), row.get("side"))),
                           "measurement_scale": "ordinal", "event_end": row["_event_end"],
                           "available_at": row.get("available_at"), "source_record_ids": [row.get("_source_id")]})
-    return {"daily_metric_facts": daily, "energy_days": device_energy_days(rows, window)}
+    return daily
 
 
 def visible_sleep_history(rows, window, *, retrospective=False):
@@ -103,7 +114,10 @@ def report_comparison(rows, window, *, previous=None, baseline_days=28, retrospe
                   or row.get("start_utc") or row["_event_end"])) for row in visible]
     for name, period, start, end in periods:
         selected = [row for row, event_end, event_start in timed if event_end > start and event_start < end]
-        facts = derive_report_context(selected, period, sleep_rows=sleep)["daily_metric_facts"]
+        # Comparison consumes only physiology and sleep. Body mass, symptoms
+        # and energy still use the full report context, but need not be derived
+        # again for each comparison window and then discarded here.
+        facts = _daily_metric_facts(selected, period, sleep_rows=sleep, comparison_only=True)
         for fact in facts:
             if fact.get("metric_id") not in {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}:
                 continue

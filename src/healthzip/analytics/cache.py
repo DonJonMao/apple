@@ -1,13 +1,14 @@
 """Bounded local computed-result cache with explicit input revision identities."""
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 from collections import OrderedDict
 from pathlib import Path
 from threading import Event, RLock
 from time import monotonic
+
+from healthzip.copying import isolated_copy
 
 _RESULTS = OrderedDict()
 _LOCK = RLock()
@@ -64,7 +65,7 @@ def cached(repo, namespace, arguments, compute, *, max_age_seconds=None, depende
                 created, result = _RESULTS[key]
                 if max_age_seconds is None or monotonic() - created < max_age_seconds:
                     _RESULTS.move_to_end(key)
-                    return copy.deepcopy(result)
+                    return isolated_copy(result)
                 del _RESULTS[key]
             pending = _INFLIGHT.get(key)
             if pending is None:
@@ -80,7 +81,7 @@ def cached(repo, namespace, arguments, compute, *, max_age_seconds=None, depende
         if not repo.conn.in_transaction and revision_identity(repo, knowledge_root, dependencies=dependencies) == revision:
             with _LOCK:
                 if generation == _GENERATION:
-                    _RESULTS[key] = (monotonic(), copy.deepcopy(value))
+                    _RESULTS[key] = (monotonic(), isolated_copy(value))
                     _RESULTS.move_to_end(key)
                     while len(_RESULTS) > CACHE_LIMIT:
                         _RESULTS.popitem(last=False)

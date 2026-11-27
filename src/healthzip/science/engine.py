@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Optional
 
+from healthzip.copying import isolated_copy as _clone_ordinary_reference_result
 from healthzip.normalize import TYPE_MAP, quantity_value
 
 from .contracts import (
@@ -377,43 +378,6 @@ def evaluate_subset(metric_ids_to_compute, records, *, cutoff_time, window_start
     return {mid: evaluate(mid, cutoff_time=cutoff_time, window_start=window_start, window_end=window_end,
         context=context, _normalized=normalized, _context_bound=bounded, _selection_cache=selections)
         for mid in metric_ids_to_compute}
-
-
-_REFERENCE_ATOMIC_TYPES = frozenset({type(None), bool, int, float, str})
-
-
-def _clone_ordinary_reference_result(value, memo=None):
-    """Clone this validated prototype without dispatching every JSON scalar.
-
-    A per-copy memo preserves aliases while isolating nested mutable values.
-    Only exact built-in dict/list/scalars take the fast path; tuples and any
-    subclasses keep standard deepcopy semantics, including their own metadata.
-    This is private to ordinary STR-11 absence results, not a MetricResult copier.
-    """
-    value_type = type(value)
-    if value_type in _REFERENCE_ATOMIC_TYPES:
-        return value
-    if memo is None:
-        memo = {}
-    identity = id(value)
-    if identity in memo:
-        return memo[identity]
-    if value_type is dict:
-        cloned = {}
-        memo[identity] = cloned
-        for key, item in value.items():
-            copied_key = key if type(key) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(key, memo)
-            cloned[copied_key] = item if type(item) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(item, memo)
-        return cloned
-    if value_type is list:
-        cloned = []
-        memo[identity] = cloned
-        cloned.extend(item if type(item) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(item, memo)
-                      for item in value)
-        return cloned
-    from copy import deepcopy
-
-    return deepcopy(value, memo)
 
 
 def _ordinary_reference_result(rows, window, context, bounded, templates):

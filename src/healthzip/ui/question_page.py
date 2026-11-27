@@ -57,7 +57,7 @@ def render_questions(repo, *, timezone_name):
     render_question(question, repo=repo)
     _select_action(repo, question, [source] if source else [])
     from healthzip.ui.topic_sources import render_topic_sources
-    render_topic_sources(question_id)
+    render_topic_sources(question_id, computed_question=question)
 
 
 def _visible_cycle_records(repo, scope, timezone_name):

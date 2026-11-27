@@ -1,0 +1,44 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_comparison_prepares_only_required_facts_and_preserves_other_report_domains _
+
+    def test_comparison_prepares_only_required_facts_and_preserves_other_report_domains():
+        rows = [sample("rhr-previous-a", 2, 56), sample("rhr-previous-b", 3, 60),
+                sample("rhr-current-a", 10, 64), sample("rhr-current-b", 11, 70),
+                sample("rhr-current-c", 12, 66),
+                sample("sdnn-previous", 3, 50, canonical_type="hrv_sdnn_ms", unit="ms"),
+                sample("sdnn-current-a", 10, 20, canonical_type="hrv_sdnn_ms", unit="ms"),
+                sample("sdnn-current-b", 11, 40, canonical_type="hrv_sdnn_ms", unit="ms"),
+                sample("mass", 10, 71, canonical_type="body_mass_kg", unit="kg"),
+                sample("symptom", 10, None, canonical_type=None, fatigue=3)]
+        for identity, start, end in (
+                ("sleep-previous", "2026-11-02T22:00:00+08:00", "2026-11-03T06:00:00+08:00"),
+                ("sleep-current", "2026-11-09T23:00:00+08:00", "2026-11-10T06:00:00+08:00")):
+            rows.append({"id": identity, "canonical_type": "sleep_stage", "stage": "asleep",
+                         "source_name": "Synthetic comparison sleep", "event_start": start,
+                         "event_end": end, "available_at": end})
+        for identity, canonical, value in (("basal", "basal_energy_kcal", 1800),
+                                           ("active", "active_energy_kcal", 300)):
+            rows.append(sample(identity, 10, value, canonical_type=canonical, unit="kcal",
+                               event_start="2026-11-10T00:00:00+08:00",
+                               event_end="2026-11-11T00:00:00+08:00",
+                               available_at="2026-11-11T01:00:00+08:00"))
+        frozen = deepcopy(rows)
+        expected = prior_comparison(rows, WINDOW)
+        with patch.object(reports, "device_energy_days", wraps=reports.device_energy_days) as energy, \
+                patch.object(reports, "daily_values", wraps=reports.daily_values) as daily:
+            actual = reports.report_comparison(rows, WINDOW)
+        assert actual == expected
+        streams = {stream["metric_id"]: stream for stream in actual["streams"]}
+        assert set(streams) == {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}
+        rhr, sdnn, sleep = (streams[key] for key in ("STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"))
+>       assert (rhr["current"]["value"], rhr["previous"]["value"], rhr["previous_change"]["absolute"]) == (66, 58, 8)
+E       assert (66.0, 60.0, 6.0) == (66, 58, 8)
+E         
+E         At index 1 diff: 60.0 != 58
+E         Use -v to get more diff
+
+tests/science/test_followup_report_comparison_preparation.py:194: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_followup_report_comparison_preparation.py::test_comparison_prepares_only_required_facts_and_preserves_other_report_domains
+1 failed in 0.23s

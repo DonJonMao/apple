@@ -1,0 +1,156 @@
+{
+  "diagnostic_only": true,
+  "instrumentation": "cProfile enabled; no P95 claim",
+  "source_root": "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-64cdd53-profile-r1",
+  "source_manifest": "generation-source-manifest.json",
+  "profiler_sha256": "50759ee3f96f3dff8784ce7c386c0b104f08d34d34d3cbac96622a65d42796cb",
+  "archive_identity": {
+    "commit": "64cdd53ea83ce31730aaa00fee6b1571a2fc8979",
+    "selection": "Git tracked src/tests/tools/app/config/dependencies",
+    "files": 543
+  },
+  "synthetic_fixture": "synthetic-100000",
+  "cutoff": "2026-11-21T16:00:00+00:00",
+  "phase": "generation",
+  "concurrent_load": "One isolated diagnostic; agents read code and run no heavy jobs; user 8501 preserved; shared-host activity uncontrolled",
+  "audit_serialization": "string",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "logical_cpu": 192,
+  "memory": "MemTotal:       2109313276 kB",
+  "python": "3.11.7",
+  "initial_host_load": [
+    11.59521484375,
+    14.80517578125,
+    16.3134765625
+  ],
+  "os_file_cache": "retained",
+  "remote_model": "not used",
+  "runs": [
+    {
+      "label": "cold-generation",
+      "seconds": 172.49027682095766,
+      "stages": [
+        {
+          "stage": "读取本期事实",
+          "elapsed_s": 0.1466536521911621
+        },
+        {
+          "stage": "分析本期实际问题与行动",
+          "elapsed_s": 32.33036199212074
+        },
+        {
+          "stage": "核对本期训练与知识依据",
+          "elapsed_s": 60.53025386482477
+        },
+        {
+          "stage": "比较前两个完整周期",
+          "elapsed_s": 122.40668856352568
+        },
+        {
+          "stage": "整理可追溯报告",
+          "elapsed_s": 136.86314375698566
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 172.4854598045349
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 1,
+        "json_bytes": 372942,
+        "tables": {
+          "report_content_object": 372942
+        }
+      },
+      "process_peak_rss_kib": 2113336,
+      "report_id": "90fea7201c3869f6312f27553b0a6aae979ac41897755d982bccd127da2bc773",
+      "markdown_utf8_bytes": 26026,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "current_claim_refs",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "period",
+        "period_identity",
+        "questions",
+        "reading_view",
+        "version",
+        "workflow_run_ids",
+        "created_at",
+        "content_signature",
+        "freeze_request_id",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ]
+    },
+    {
+      "label": "hot-generation",
+      "seconds": 0.023062095046043396,
+      "stages": [
+        {
+          "stage": "复用已核对的报告内容",
+          "elapsed_s": 0.013326108455657959
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 0.018427863717079163
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 1,
+        "json_bytes": 372942,
+        "tables": {
+          "report_content_object": 372942
+        }
+      },
+      "process_peak_rss_kib": 2113336,
+      "report_id": "6c12138a0464b3a7d9891de3949d05bb1c3cdb88af3ecc5c520aa88608ba08ec",
+      "markdown_utf8_bytes": 26026,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "current_claim_refs",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "period",
+        "period_identity",
+        "questions",
+        "reading_view",
+        "version",
+        "workflow_run_ids",
+        "created_at",
+        "content_signature",
+        "freeze_request_id",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ]
+    }
+  ],
+  "sizes": {
+    "health_sample": 100001,
+    "source_revision": 100001,
+    "strength_session": 100,
+    "strength_set": 10000,
+    "training_event": 10300
+  },
+  "distinct_explicit_report_ids": [
+    "90fea7201c3869f6312f27553b0a6aae979ac41897755d982bccd127da2bc773",
+    "6c12138a0464b3a7d9891de3949d05bb1c3cdb88af3ecc5c520aa88608ba08ec"
+  ],
+  "complete": true,
+  "final_host_load": [
+    11.70849609375,
+    13.5,
+    15.54736328125
+  ],
+  "source_changes_during_run": []
+}

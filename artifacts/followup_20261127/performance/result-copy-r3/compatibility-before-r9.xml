@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.318" timestamp="2026-11-27T16:21:28.066584+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_cache_copy_isolation" name="test_custom_key_observes_the_same_value_copy_order_as_deepcopy" time="0.001"><failure message="AssertionError: assert {'value-not-c...': ['record']} == {'value-copied': ['record']}&#10;  &#10;  Left contains 1 more item:&#10;  {'value-not-copied': ['record']}&#10;  Right contains 1 more item:&#10;  {'value-copied': ['record']}&#10;  Use -v to get more diff">def test_custom_key_observes_the_same_value_copy_order_as_deepcopy():
+        shared = ["record"]
+        value = {MemoAwareKey(shared): shared}
+        expected = deepcopy(value)
+        assert expected == {"value-copied": ["record"]}
+&gt;       assert isolated_copy(value) == expected
+E       AssertionError: assert {'value-not-c...': ['record']} == {'value-copied': ['record']}
+E         
+E         Left contains 1 more item:
+E         {'value-not-copied': ['record']}
+E         Right contains 1 more item:
+E         {'value-copied': ['record']}
+E         Use -v to get more diff
+
+tests/integration/test_cache_copy_isolation.py:42: AssertionError</failure></testcase><testcase classname="tests.integration.test_cache_copy_isolation" name="test_extension_memo_aliases_apply_to_later_scalar_values_and_keys" time="0.001"><failure message="AssertionError: assert ['extension-c...rd-identity'}] == ['extension-c...ed-identity'}]&#10;  &#10;  At index 1 diff: 'record-identity' != 'copied-identity'&#10;  Use -v to get more diff">def test_extension_memo_aliases_apply_to_later_scalar_values_and_keys():
+        label = "record-identity"
+        value = [MemoAlias(label, "copied-identity"), label, {label: label}]
+        expected = deepcopy(value)
+        assert expected == ["extension-copied", "copied-identity", {"copied-identity": "copied-identity"}]
+&gt;       assert isolated_copy(value) == expected
+E       AssertionError: assert ['extension-c...rd-identity'}] == ['extension-c...ed-identity'}]
+E         
+E         At index 1 diff: 'record-identity' != 'copied-identity'
+E         Use -v to get more diff
+
+tests/integration/test_cache_copy_isolation.py:50: AssertionError</failure></testcase><testcase classname="tests.integration.test_cache_copy_isolation" name="test_shared_memo_keeps_original_containers_alive_across_calls" time="0.000"><failure message="KeyError: 281473136176064">def test_shared_memo_keeps_original_containers_alive_across_calls():
+        original = {"rows": []}
+        memo = {}
+        copied = isolated_copy(original, memo)
+        assert copied == original and copied is not original
+&gt;       assert any(value is original for value in memo[id(memo)])
+                                                  ^^^^^^^^^^^^^^
+E       KeyError: 281473136176064
+
+tests/integration/test_cache_copy_isolation.py:59: KeyError</failure></testcase><testcase classname="tests.integration.test_cache_copy_isolation" name="test_cold_and_hot_cache_preserve_aliases_without_sharing_mutations" time="0.158" /></testsuite></testsuites>

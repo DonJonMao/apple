@@ -1,0 +1,49 @@
+{
+  "schema": "w1-computed-rir-regression-1",
+  "created_at": "2026-11-27T08:03:02.353162+00:00",
+  "command": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/knowledge/test_w1_computed_rir_scope.py",
+    "-q",
+    "--tb=short"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 8.385957688093185,
+  "source_commit": "64cdd53ea83ce31730aaa00fee6b1571a2fc8979",
+  "source_files_sha256": {
+    "tests/knowledge/test_w1_computed_rir_scope.py": "5d1705874d6faf9261312a602fc3b026207e1a693e3afce735c9c4c7a860236b",
+    "src/healthzip/analytics/body_questions.py": "b3f6742689d12ec691127f743389314cfb4a02f6d60b847565228b34c7480c1e",
+    "src/healthzip/analytics/question_context.py": "5dc507b0b8a9b8a2f45f0c01d32bd197df64f8564bfd1b87c5495781de28b0b7",
+    "src/healthzip/knowledge/topics.py": "11a190db015d9c2be3266c7e62096cb760043ab686f9ec44681280ca64a3b8d5",
+    "src/healthzip/knowledge/metric_retrieval.py": "94f5ba333e5fedb617d7218402d164379c000b40dd1975a0be6aa92603755aa8"
+  },
+  "source_changed_during_test": false,
+  "source_files_sha256_after": {
+    "tests/knowledge/test_w1_computed_rir_scope.py": "5d1705874d6faf9261312a602fc3b026207e1a693e3afce735c9c4c7a860236b",
+    "src/healthzip/analytics/body_questions.py": "b3f6742689d12ec691127f743389314cfb4a02f6d60b847565228b34c7480c1e",
+    "src/healthzip/analytics/question_context.py": "5dc507b0b8a9b8a2f45f0c01d32bd197df64f8564bfd1b87c5495781de28b0b7",
+    "src/healthzip/knowledge/topics.py": "11a190db015d9c2be3266c7e62096cb760043ab686f9ec44681280ca64a3b8d5",
+    "src/healthzip/knowledge/metric_retrieval.py": "94f5ba333e5fedb617d7218402d164379c000b40dd1975a0be6aa92603755aa8"
+  },
+  "data_scope": "synthetic Repository and KnowledgeWorkbench only",
+  "output_sha256": "aa1989261adeb04bbd9d7c52f6e358ffe54f41bf32678ec57b8bb0e0c26e9f96",
+  "result_tail": [
+    ".............F...............F.......                                    [100%]",
+    "=================================== FAILURES ===================================",
+    "______ test_unknown_population_does_not_gain_a_separate_adult_only_claim _______",
+    "/home/sn_maozhifang/apple/tests/knowledge/test_w1_computed_rir_scope.py:153: in test_unknown_population_does_not_gain_a_separate_adult_only_claim",
+    "    assert \"adult-only-rir-use\" in adult",
+    "E   AssertionError: assert 'adult-only-rir-use' in {'direct-rir-definition', 'independent-training-method'}",
+    "_______ test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic _______",
+    "/home/sn_maozhifang/apple/tests/knowledge/test_w1_computed_rir_scope.py:216: in test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic",
+    "    assert result[\"applicability_context\"][\"metric_evidence\"][\"direct_rir_only\"] is False",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "E   KeyError: 'applicability_context'",
+    "=========================== short test summary info ============================",
+    "FAILED tests/knowledge/test_w1_computed_rir_scope.py::test_unknown_population_does_not_gain_a_separate_adult_only_claim",
+    "FAILED tests/knowledge/test_w1_computed_rir_scope.py::test_w1_facts_do_not_grant_direct_rir_scope_to_a_different_topic",
+    "2 failed, 35 passed in 7.75s"
+  ]
+}
