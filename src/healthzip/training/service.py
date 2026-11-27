@@ -2420,7 +2420,9 @@ class TrainingService:
                 else f"json_extract(after_json,'$.{name}')") for name in fields)
             sql = ("SELECT event_order,event_id,user_id,entity_type,entity_id,action,status,recorded_at,"
                    f"CASE WHEN after_json IS NOT NULL THEN json_object({projection}) END AS after_json,"
-                   "result_json FROM (" + sql + ")")
+                   # Only conflicts consume result; skip exact duplicate snapshots.
+                   "CASE WHEN status<>'conflicted' AND result_json=after_json "
+                   "THEN NULL ELSE result_json END AS result_json FROM (" + sql + ")")
         elif _replay_only:
             # History/analysis replay consumes final snapshots and conflict
             # results, never the duplicate request and before payloads.

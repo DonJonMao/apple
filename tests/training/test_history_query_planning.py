@@ -70,34 +70,67 @@ def test_default_snapshot_does_not_decode_window_external_training_history(servi
     assert context["session_plans"][0]["sets"][0]["targets"]["reps_min"] == 5
 
 
-def test_window_lookup_resolves_all_visible_revisions_before_membership(service):
+@pytest.mark.parametrize("summary", [False, True])
+def test_window_lookup_resolves_all_visible_revisions_before_membership(service, summary):
+    history = service.history_summary_as_of if summary else service.history_as_of
     old = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
     recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
     _, _, row = add_session(service, old)
     before_move = row["available_at"]
     moved = service.edit_set(row["id"], {"started_at": recent, "ended_at": recent}, base_revision=row["revision"])
     during = moved["available_at"]
-    assert service.history_as_of(cutoff_time=before_move, **bounds()) == []
-    assert [x["set_uuid"] for x in service.history_as_of(cutoff_time=during, **bounds())] == [row["set_uuid"]]
+    assert history(cutoff_time=before_move, **bounds()) == []
+    assert [x["set_uuid"] for x in history(cutoff_time=during, **bounds())] == [row["set_uuid"]]
     outside = service.edit_set(row["id"], {"started_at": old, "ended_at": old}, base_revision=moved["revision"])
-    assert service.history_as_of(cutoff_time=outside["available_at"], **bounds()) == []
-    assert service.history_as_of(cutoff_time=during, **bounds())[0]["ended_at"] == recent
+    assert history(cutoff_time=outside["available_at"], **bounds()) == []
+    assert history(cutoff_time=during, **bounds())[0]["ended_at"] == recent
 
 
-def test_scoped_replay_preserves_conflicts_session_tombstone_and_undo(service):
+@pytest.mark.parametrize("summary", [False, True])
+@pytest.mark.parametrize("choice", ["keep_current", "apply_proposed"])
+def test_scoped_replay_preserves_conflicts_session_tombstone_and_undo(service, summary, choice):
+    history = service.history_summary_as_of if summary else service.history_as_of
     recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
     session, _, row = add_session(service, recent)
     conflict = service.edit_set(row["id"], {"reps": 8}, base_revision=0)
     conflicting_cutoff = datetime.now(timezone.utc).isoformat()
-    assert service.history_as_of(cutoff_time=conflicting_cutoff, **bounds())[0]["conflicted"]
-    service.resolve_conflict(conflict["conflict_id"], choice="keep_current")
+    assert history(cutoff_time=conflicting_cutoff, **bounds())[0]["conflicted"]
+    service.resolve_conflict(conflict["conflict_id"], choice=choice)
     resolved_cutoff = datetime.now(timezone.utc).isoformat()
-    assert not service.history_as_of(cutoff_time=resolved_cutoff, **bounds())[0]["conflicted"]
+    assert not history(cutoff_time=resolved_cutoff, **bounds())[0]["conflicted"]
     deleted = service.delete_session(session["id"], base_revision=service.get_session(session["id"])["revision"])
-    assert service.history_as_of(cutoff_time=datetime.now(timezone.utc).isoformat(), **bounds()) == []
-    assert service.history_as_of(cutoff_time=conflicting_cutoff, **bounds())[0]["conflicted"]
+    assert history(cutoff_time=datetime.now(timezone.utc).isoformat(), **bounds()) == []
+    assert history(cutoff_time=conflicting_cutoff, **bounds())[0]["conflicted"]
     service.undo_event(deleted["event_id"], base_revision=service.get_session(session["id"])["revision"])
-    assert service.history_as_of(cutoff_time=datetime.now(timezone.utc).isoformat(), **bounds())[0]["set_uuid"] == row["set_uuid"]
+    assert history(cutoff_time=datetime.now(timezone.utc).isoformat(), **bounds())[0]["set_uuid"] == row["set_uuid"]
+
+
+def test_summary_does_not_decode_duplicate_results_or_change_stored_events(service, monkeypatch):
+    recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    _, _, row = add_session(service, recent, template=True)
+    conflict = service.edit_set(row["id"], {"reps": 8}, base_revision=0)
+    # Preserve a historical nonduplicate result as well as normal snapshots.
+    service.conn.execute("UPDATE training_event SET result_json=? WHERE event_id=?",
+                         ('{"historical_result":true}', row["event_id"]))
+    stored = [dict(r) for r in service.conn.execute("SELECT * FROM training_event ORDER BY rowid")]
+    cutoff = datetime.now(timezone.utc).isoformat()
+    full = service.events_as_of(cutoff_time=cutoff, **bounds())
+    decoded_results = {}
+    original = service_module._decode
+
+    def counted(value):
+        decoded_results[value["event_id"]] = value["result_json"]
+        return original(value)
+
+    monkeypatch.setattr(service_module, "_decode", counted)
+    projected = service.events_as_of(cutoff_time=cutoff, **bounds(), _summary_projection=True)
+    duplicates = [e for e in full if e["status"] == "applied" and e["result_json"] == e["after_json"]]
+    assert duplicates
+    assert all(decoded_results[e["event_id"]] is None for e in duplicates)
+    assert next(e for e in projected if e["event_id"] == row["event_id"])["result"] == {"historical_result": True}
+    assert next(e for e in projected if e["status"] == "conflicted")["result"]["conflict_id"] == conflict["conflict_id"]
+    assert [e["event_id"] for e in projected] == [e["event_id"] for e in full]
+    assert [dict(r) for r in service.conn.execute("SELECT * FROM training_event ORDER BY rowid")] == stored
 
 
 def test_session_start_outside_window_cannot_hide_cross_window_completion(service):

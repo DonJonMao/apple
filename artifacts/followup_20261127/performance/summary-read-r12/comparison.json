@@ -1,0 +1,97 @@
+{
+  "base_commit": "84721cc159b589608ffce2866c891b6dfb73d843",
+  "source_sha256": {
+    "src/healthzip/training/service.py": "78bb8582191c6793b0d10e85f20806e9ea810c1a37dfb7c170587f27a83900c8",
+    "tests/training/test_history_query_planning.py": "8efd049ce9609e37e228ec78aceb329aeb107c993d1b7c1a43adef4ab98e0ed6"
+  },
+  "same_expected_service_facts_sources_windows_and_trends": true,
+  "same_browser_values_and_plot_points": true,
+  "source_changed_during_runs": false,
+  "health_sample_count": 100001,
+  "training_set_count": 10000,
+  "cold_single_samples": [
+    {
+      "mode": "new-process",
+      "period": "week",
+      "before_ms": {
+        "first_fact_ms": 5429.403245449066,
+        "facts_and_trend_ms": 6862.749360501766,
+        "interactive_ms": 6867.617093026638
+      },
+      "after_ms": {
+        "first_fact_ms": 3239.1112372279167,
+        "facts_and_trend_ms": 4603.00625115633,
+        "interactive_ms": 4628.2739117741585
+      }
+    },
+    {
+      "mode": "running-process",
+      "period": "week",
+      "before_ms": {
+        "first_fact_ms": 4559,
+        "facts_and_trend_ms": 6015.400001525879,
+        "interactive_ms": 6022.400001525879
+      },
+      "after_ms": {
+        "first_fact_ms": 2697.699996948242,
+        "facts_and_trend_ms": 4173,
+        "interactive_ms": 4207.199996948242
+      }
+    },
+    {
+      "mode": "running-process",
+      "period": "month",
+      "before_ms": {
+        "first_fact_ms": 4690.199996948242,
+        "facts_and_trend_ms": 6116.5,
+        "interactive_ms": 6146.599998474121
+      },
+      "after_ms": {
+        "first_fact_ms": 2530.7999954223633,
+        "facts_and_trend_ms": 3878.699996948242,
+        "interactive_ms": 3902.7999954223633
+      }
+    }
+  ],
+  "warm_30_fact_trend_p95_ms": {
+    "before": 222.6999969482422,
+    "after": 226.70000457763672
+  },
+  "process_tree_peak_rss_mib": {
+    "before": 1749.4140625,
+    "after": 1143.9140625
+  },
+  "resource_wrapper_exit_codes": {
+    "before": 0,
+    "after": 0
+  },
+  "test_command": ".venv/bin/pytest -q tests/training/test_history_query_planning.py tests/integration/test_workspace_calendar_summary.py tests/integration/test_report_repair_contract.py",
+  "tests": "36 passed; pre-change duplicate-result regression failed as expected",
+  "boundary": "Synthetic read-only original backups; no external model; fixed cutoff and 10000 original unknown-condition sets; shared host and retained OS cache; this is preview only, not full report performance",
+  "unmeasured": "Personal and million fixtures, full reports, physical devices not rerun in this increment",
+  "visual_review": {
+    "reviewer": "AI assistant, direct image inspection",
+    "paths": [
+      "artifacts/followup_20261127/performance/summary-read-r12/before/running-process-week-cold.png",
+      "artifacts/followup_20261127/performance/summary-read-r12/before/running-process-month-cold.png",
+      "artifacts/followup_20261127/performance/summary-read-r12/after/running-process-week-cold.png",
+      "artifacts/followup_20261127/performance/summary-read-r12/after/running-process-month-cold.png"
+    ],
+    "observations": "Same 100 completed sessions, 10000 work sets, week/month values and actual training plot; no visible regression at 1440px",
+    "human_or_physical_device_acceptance": false
+  },
+  "source_manifest_difference": {
+    "tracked_product_files": [
+      "src/healthzip/training/service.py"
+    ],
+    "generated_package_metadata_only_in_worktree": [
+      "src/health_zip_workbench.egg-info/PKG-INFO",
+      "src/health_zip_workbench.egg-info/SOURCES.txt",
+      "src/health_zip_workbench.egg-info/dependency_links.txt",
+      "src/health_zip_workbench.egg-info/entry_points.txt",
+      "src/health_zip_workbench.egg-info/requires.txt",
+      "src/health_zip_workbench.egg-info/top_level.txt"
+    ],
+    "python_environment": "same repository .venv for before and after; baseline uses immutable r11 source snapshot"
+  }
+}

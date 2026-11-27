@@ -1,0 +1,36 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_summary_does_not_decode_duplicate_results_or_change_stored_events ____
+
+service = <healthzip.training.service.TrainingService object at 0xffff9d2a0c90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff9d404b50>
+
+    def test_summary_does_not_decode_duplicate_results_or_change_stored_events(service, monkeypatch):
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        _, _, row = add_session(service, recent, template=True)
+        conflict = service.edit_set(row["id"], {"reps": 8}, base_revision=0)
+        # Preserve a historical nonduplicate result as well as normal snapshots.
+        service.conn.execute("UPDATE training_event SET result_json=? WHERE event_id=?",
+                             ('{"historical_result":true}', row["event_id"]))
+        stored = [dict(r) for r in service.conn.execute("SELECT * FROM training_event ORDER BY rowid")]
+        cutoff = datetime.now(timezone.utc).isoformat()
+        full = service.events_as_of(cutoff_time=cutoff, **bounds())
+        decoded_results = {}
+        original = service_module._decode
+    
+        def counted(value):
+            decoded_results[value["event_id"]] = value["result_json"]
+            return original(value)
+    
+        monkeypatch.setattr(service_module, "_decode", counted)
+        projected = service.events_as_of(cutoff_time=cutoff, **bounds(), _summary_projection=True)
+        duplicates = [e for e in full if e["status"] == "applied" and e["result_json"] == e["after_json"]]
+        assert duplicates
+>       assert all(decoded_results[e["event_id"]] is None for e in duplicates)
+E       assert False
+E        +  where False = all(<generator object test_summary_does_not_decode_duplicate_results_or_change_stored_events.<locals>.<genexpr> at 0xffff9ce952a0>)
+
+tests/training/test_history_query_planning.py:126: AssertionError
+=========================== short test summary info ============================
+FAILED tests/training/test_history_query_planning.py::test_summary_does_not_decode_duplicate_results_or_change_stored_events
+1 failed in 0.32s
