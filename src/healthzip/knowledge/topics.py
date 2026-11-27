@@ -84,29 +84,91 @@ def _definition_links(w, topic):
     return [dict(original)] if row else []
 
 
-def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=None, services=None):
-    from .metric_retrieval import _retrieve_for_metric
+def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=None, services=None,
+                     required_purposes=None, include_evidence=False):
+    from .metric_retrieval import _retrieve_for_metric, claim_conflicts
     from .revisions import prepare_retrieval_revisions
 
     if topic not in TOPICS:
         raise ValueError('unknown_public_method_topic')
+    needs = list(PURPOSES if required_purposes is None else required_purposes)
+    if not set(needs) <= set(PURPOSES):
+        raise ValueError('unknown_public_question_purpose')
     prepare_retrieval_revisions(w)
     evidence = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
                                     mode=mode, k=k, candidate_scope='reviewed_metric', services=services)
+    covered = {p for c in evidence['matched_claims'] if not claim_conflicts(c, evidence['conflicts'])
+               for p in c['evidence_types']}
+    missing = sorted(set(needs) - covered)
+    initial_audit = evidence['retrieval_audit']
+    available = {p for g in initial_audit.get('metric_candidate_scope', {}).get('complete_group_refs', [])
+                 for p in g.get('evidence_types', [])}
+    supplemental_needs = sorted(set(missing) & available)
+    supplemental_audit = None
+    if supplemental_needs:
+        # One bounded local pass for missing uses; never raise the global top-k,
+        # split complete groups or spend additional remote model calls.
+        supplement = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
+            mode='lexical', k=min(k, 6), candidate_scope='reviewed_metric', purpose_needs=supplemental_needs)
+        supplemental_audit = supplement['retrieval_audit']
+        spans = {s['span_id']: s for s in evidence['evidence_spans']}
+        claims = {(c['claim_id'], c['claim_version'], c['metric_relation']): c
+                  for c in evidence['matched_claims']}
+        for claim in supplement['matched_claims']:
+            if set(claim['evidence_types']) & set(missing):
+                claims[(claim['claim_id'], claim['claim_version'], claim['metric_relation'])] = claim
+                spans.update({s['span_id']: s for s in supplement['evidence_spans']
+                              if s['span_id'] in claim['evidence_span_ids']})
+        evidence['matched_claims'] = list(claims.values())
+        evidence['evidence_spans'] = list(spans.values())
+        evidence['conflicts'] = list({dumps(c): c for c in
+            [*evidence['conflicts'], *supplement['conflicts']]}.values())
     spans = {s['span_id']: s for s in evidence['evidence_spans']}
-    items = []
-    if not evidence['conflicts']:
-        for claim in evidence['matched_claims']:
-            citations = []
-            for sid in claim['evidence_span_ids']:
-                span = spans[sid]
-                citations.append({'source_id': span['source_id'], 'version': span['source_version'],
-                                  'title': span['source_metadata']['title'], 'url': span['source_metadata']['canonical_url'],
-                                  'section': span['section_path'], 'locator': span['locator'], 'span_id': sid})
-            items.append({'claim_id': claim['claim_id'], 'version': claim['claim_version'],
-                          'statement': ' '.join(claim['statements']), 'limitations': claim['limitations'],
-                          'purposes': claim['evidence_types'], 'citations': citations})
-    return {'topic': topic, 'catalog': GROUPS[TOPICS[topic]][0], 'items': items,
-            'status': 'conflicting' if evidence['conflicts'] else 'available' if items else 'no_applicable_sources',
+    items, restricted, reviews = [], [], {}
+    for claim in evidence['matched_claims']:
+        from .core import _claim
+        try:
+            for ref in [{'claim_id': claim['claim_id'], 'claim_version': claim['claim_version']},
+                        *claim.get('required_claim_refs', [])]:
+                _, review, _ = _claim(w, {'claim_id': ref['claim_id'], 'version': ref['claim_version']})
+                reviews[(ref['claim_id'], ref['claim_version'])] = {
+                    'claim_id': ref['claim_id'], 'claim_version': ref['claim_version'], 'review': review}
+        except ValueError:
+            continue  # Current revocation wins over an earlier pass in this request.
+        citations = []
+        for sid in claim['evidence_span_ids']:
+            span = spans[sid]
+            citations.append({'source_id': span['source_id'], 'version': span['source_version'],
+                              'title': span['source_metadata']['title'], 'url': span['source_metadata']['canonical_url'],
+                              'section': span['section_path'], 'locator': span['locator'], 'span_id': sid})
+        conflicts = claim_conflicts(claim, evidence['conflicts'])
+        item = {'claim_id': claim['claim_id'], 'version': claim['claim_version'],
+                'statement': ' '.join(claim['statements']), 'limitations': claim['limitations'],
+                'scope': claim['scope'], 'reviewer_kind': claim.get('reviewer_kind'),
+                'required_claim_refs': claim.get('required_claim_refs', []),
+                'purposes': claim['evidence_types'], 'citations': citations}
+        if conflicts:
+            item.update(reason='conflicting_claim_or_required_premise', conflicts=conflicts,
+                        recommendation_allowed=False)
+            restricted.append(item)
+        else:
+            items.append(item)
+    covered = {p for c in items for p in c['purposes']}
+    audit = {**initial_audit, 'question_selection_version': 'bounded-topic-use-1',
+             'required_purposes': needs, 'initial_missing_purposes': missing,
+             'supplemental_pass': supplemental_audit, 'supplemental_remote_calls': 0,
+             'maximum_unique_spans': k + min(k, 6), 'selected_unique_spans': len(spans),
+             'purpose_status': {p: ('available' if p in covered else
+                 'locally_conflicted' if any(p in c['purposes'] for c in restricted) else
+                 'complete_group_budget_or_rank' if p in available else
+                 'no_current_applicable_reviewed_group') for p in needs}}
+    result = {'topic': topic, 'catalog': GROUPS[TOPICS[topic]][0], 'items': items,
+            'restricted_items': restricted, 'conflicts': evidence['conflicts'],
+            'status': ('partial_conflict' if items else 'conflicting') if evidence['conflicts']
+                      else 'available' if items else 'no_applicable_sources',
             'field_definitions': _definition_links(w, topic) if release_id is None else [],
-            'retrieval': evidence['retrieval_audit'], 'scientific_authority': 'general_source_context'}
+            'retrieval': audit, 'scientific_authority': 'general_source_context'}
+    if include_evidence:
+        result['evidence_spans'] = list(spans.values())
+        result['claim_reviews'] = list(reviews.values())
+    return result

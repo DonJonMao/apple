@@ -4,7 +4,7 @@ from healthzip.science.contracts import canonical_hash
 from healthzip.science.observations import REGISTRY_VERSION, definitions, evaluate_all
 
 
-def for_repository(repo, *, cutoff_time, window_start, window_end, timezone_name='UTC', retrospective=False):
+def for_repository(repo, *, cutoff_time, window_start, window_end, timezone_name='UTC', retrospective=False, source_filter=()):
     types = sorted(d['canonical_type'] for d in definitions().values())
     options = {'window_start': window_start, 'window_end': window_end, 'canonical_types': types}
     rows = (current_source_rows(repo, 'health_sample', **options) if retrospective else
@@ -15,6 +15,8 @@ def for_repository(repo, *, cutoff_time, window_start, window_end, timezone_name
         row.update(record_kind='health_sample', raw_id=row['id'], id=f"health_sample:{row['id']}",
             event_start=row.get('start_utc'), event_end=row.get('end_utc'))
         row['source_name'] = row.get('source_name') or row.get('source_bundle_id') or row.get('source')
+        if source_filter and row['source_name'] not in source_filter:
+            continue
         records.append(row)
     metrics = evaluate_all(records, cutoff_time=cutoff_time, window_start=window_start, window_end=window_end,
         context={'timezone': timezone_name, 'retrospective': retrospective})

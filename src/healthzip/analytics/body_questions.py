@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import timedelta
 from statistics import median
 from zoneinfo import ZoneInfo
@@ -12,15 +12,16 @@ from healthzip.science.body_catalog import METRIC_CATALOG
 from healthzip.science.calendar_trend import fit_daily
 from healthzip.science.contracts import Window, canonical_hash, instant
 from healthzip.science.semantics import flatten_record, load_components
-from healthzip.science.state import observed_sleep_episodes
+from healthzip.science.state import comparison_windows, observed_sleep_episodes
 from healthzip.training.daily_history import daily_identity
 from healthzip.training.sequence_review import compare_work_sets
 from healthzip.training.service import TrainingService
 
 from .alternate_observations import alternate_dependencies, alternate_rows
-from .body_metrics import _metadata, _points, _rows
+from .body_metrics import _daily_summary, _metadata, _points, _rows
 from .cache import cached
 from .question_context import (
+    action_metric_dependencies,
     action_observations,
     describe_subjective,
     event_training_context,
@@ -28,7 +29,7 @@ from .question_context import (
     visible_goal_actions,
 )
 
-VERSION = "body-questions-1.3"
+VERSION = "body-questions-1.4"
 
 QUESTIONS = {
     "W1": ("同动作的完成表现怎样变化？", ("body_mass_kg", "sleep_stage")),
@@ -193,7 +194,11 @@ def sleep_sdnn_associations(episodes, points, *, timezone_name):
         by_day[e["date"]].append(e)
     for stream, days in points.items():
         if not stream[1] or not stream[2]:
-            unmatched.extend({"date": p["date"], "reason": "设备或测量条件未知"} for p in days)
+            unmatched.extend({"date": p["date"], "reason": "设备或测量条件未知",
+                              "source": stream[0], "device": stream[1], "protocol": stream[2],
+                              "value": p["value"], "unit": "ms",
+                              "source_record_ids": p.get("source_record_ids", p.get("source_ids", []))}
+                             for p in days)
             continue
         for day in days:
             candidates = by_day.get(day["date"], [])
@@ -236,9 +241,11 @@ def sleep_sdnn_associations(episodes, points, *, timezone_name):
                 # periods of waking activity should not silently enter a morning fit.
                 slots = defaultdict(list)
                 for _, o in items:
-                    slots[instant(o["start"]).astimezone(zone).hour // 6].append(o)
-                for slot, obs in slots.items():
-                    pairs[(stream, sleep_source, slot)].append(
+                    condition_signature = canonical_hash({name: definition.get("value")
+                        for name, definition in o.get("conditions", {}).items()})
+                    slots[(instant(o["start"]).astimezone(zone).hour // 6, condition_signature)].append(o)
+                for (slot, condition_signature), obs in slots.items():
+                    pairs[(stream, sleep_source, slot, condition_signature)].append(
                         {
                             "date": day["date"],
                             "value": median(o["value"] for o in obs),
@@ -248,12 +255,53 @@ def sleep_sdnn_associations(episodes, points, *, timezone_name):
                             "sdnn_last": max(o["end"] for o in obs),
                             "episode_id": eid,
                             "source_record_ids": [o["source_record_id"] for o in obs],
+                            "sampling_times": [
+                                {"start": o["start"], "end": o["end"],
+                                 "conditions": o.get("conditions", {})} for o in obs
+                            ],
                         }
                     )
     fits = []
     for key, series in sorted(pairs.items(), key=lambda item: str(item[0])):
         model = fit_daily(series, "ms", factor="sleep_hours")
-        fits.append({**model, "stream": str(key), "pairs": series})
+        stream, sleep_source, slot, condition_signature = key
+        local_times = [instant(t[edge]).astimezone(zone)
+                       for p in series for t in p["sampling_times"] for edge in ("start", "end")]
+        conditions = defaultdict(list)
+        for pair in series:
+            for observation in pair["sampling_times"]:
+                for name, definition in observation["conditions"].items():
+                    value = definition.get("value")
+                    if value is not None and value not in conditions[name]:
+                        conditions[name].append(value)
+        identity = {
+            "source": stream[0], "device": stream[1], "protocol": stream[2],
+            "source_version": stream[3],
+            "measurement_signature": condition_signature,
+            "sleep_source": {"source": sleep_source[0], "device": sleep_source[1],
+                             "protocol": sleep_source[2], "source_version": sleep_source[3]},
+            "known_conditions": dict(conditions), "timezone": timezone_name,
+            "time_band": {"start_hour": slot * 6, "end_hour": (slot + 1) * 6,
+                          "basis": "product_six_hour_start_time_bucket_not_equivalent_physiology"},
+            "actual_local_time_range": [min(t.strftime("%H:%M:%S") for t in local_times),
+                                        max(t.strftime("%H:%M:%S") for t in local_times)],
+            "date_range": [min(p["date"] for p in series), max(p["date"] for p in series)],
+            "paired_dates": len({p["date"] for p in series}), "paired_observations": len(series),
+            "sdnn_sample_count": sum(len(p["source_record_ids"]) for p in series),
+        }
+        adjacent = []
+        for left, right in zip(sorted(series, key=lambda p: p["date"]),
+                               sorted(series, key=lambda p: p["date"])[1:]):
+            adjacent.append({"from_date": left["date"], "to_date": right["date"],
+                             "sleep_hours_change": right["sleep_hours"] - left["sleep_hours"],
+                             "sdnn_ms_change": right["value"] - left["value"],
+                             "identity": "adjacent_description_not_independent_hypothesis_evidence"})
+        interval = model.get("interval")
+        direction = ("positive" if interval[0] > 0 else "negative" if interval[1] < 0 else "uncertain") if interval else "not_estimable"
+        fits.append({**model, "stream": str(key), "group_id": canonical_hash(identity),
+                     "identity": identity, "pairs": series, "direction": direction,
+                     "neutral_observations": adjacent,
+                     "hypothesis": {"status": "exploratory_no_prespecified_direction"}})
     if len(fits) == 1:
         main = {**fits[0]}
     elif len(fits) > 1:
@@ -276,7 +324,8 @@ def _training(repo, start, end, cutoff):
         return [], []
     service = TrainingService(repo, initialize=False)
     events = service.events_as_of(
-        cutoff_time=cutoff, window_start=start.isoformat(), window_end=end.isoformat()
+        cutoff_time=cutoff, window_start=start.isoformat(), window_end=end.isoformat(),
+        _share_report_readonly=True, _replay_only=True,
     )
     sessions = service.sessions_as_of(cutoff_time=cutoff, _events=events)
     sets = [
@@ -317,13 +366,18 @@ def _strength_rows(sets):
         ordered = sorted(items, key=lambda i: instant(i["ended_at"]))
         first, last = ordered[0], ordered[-1]
         identity = daily_identity(last)
+        limitations = list(identity["reason_codes"])
+        if key[2] is None or not key[6]:
+            limitations.append("set_position_or_type_unknown")
+        if any(n > 1 for n in Counter(item["session_id"] for item in items).values()):
+            limitations.append("duplicate_same_condition_position_in_session_no_unique_pair")
         rows.append(
             {
                 "type": "strength",
                 "exercise_id": last.get("exercise_id"),
                 "condition_key": identity["condition_key"],
                 "condition_known": not identity["reason_codes"],
-                "condition_limitations": identity["reason_codes"],
+                "condition_limitations": limitations,
                 "load_basis": last.get("load_basis"),
                 "set_type": last.get("set_type"),
                 "exercise": last.get("exercise_name") or last.get("raw_exercise_name") or key[0],
@@ -339,8 +393,11 @@ def _strength_rows(sets):
                 "first_session_id": first["session_id"],
                 "first_reps": float(first["reps"]),
                 "difference": float(last["reps"]) - float(first["reps"])
-                if first["session_id"] != last["session_id"]
+                if first["session_id"] != last["session_id"] and not limitations
                 else None,
+                "comparison_identity": "explicit_first_last_recorded_repetitions_not_period_summary",
+                "period_reps_median": median(float(item["reps"]) for item in items),
+                "source_record_ids": [item.get("set_uuid") or item.get("id") for item in ordered],
                 "rest_seconds": last.get("rest_seconds"),
                 "first_rest_seconds": first.get("rest_seconds"),
                 "stop_reason": last.get("stop_reason"),
@@ -349,7 +406,7 @@ def _strength_rows(sets):
     return sorted(rows, key=lambda x: (str(x["exercise"]), x["position"] or 0, x["date"]))
 
 
-def _metric_rows(series, fields):
+def _metric_rows(series, fields, *, window=None, comparison_series=None, bounds=None):
     rows = []
     for field in fields:
         for key, values in series.get(field, {}).items():
@@ -357,8 +414,7 @@ def _metric_rows(series, fields):
                 continue
             ordered = sorted(values, key=lambda p: instant(p["observed_at"]))
             a, b = ordered[0], ordered[-1]
-            rows.append(
-                {
+            item = {
                     "type": "metric",
                     "metric": field,
                     "title": METRIC_CATALOG[field]["title"],
@@ -382,11 +438,44 @@ def _metric_rows(series, fields):
                         "support_limitation": "这是来源发布的估计点；支持窗口重叠或重复发布不能视为独立测试，达到版本报告上限不能据此判定能力停滞。",
                     } if any(p.get("estimate_support") for p in ordered) else {}),
                 }
-            )
+            if window is not None:
+                unit = METRIC_CATALOG[field]["unit"]
+                all_points = (comparison_series or series).get(field, {}).get(key, values)
+                periods = {name: _daily_summary(all_points, limits, window.cutoff_time,
+                                               unit, METRIC_CATALOG[field]["kind"])
+                           for name, limits in bounds.items() if name in {"current", "previous"}}
+                current, previous = periods["current"], periods["previous"]
+                item.update(trajectory_first_value=a["value"], trajectory_last_value=b["value"],
+                            trajectory_difference=b["value"] - a["value"] if a["date"] != b["date"] else None,
+                            trajectory_first_date=a["date"], trajectory_last_date=b["date"],
+                            date=current["dates"][-1] if current["dates"] else None,
+                            first_date=previous["dates"][0] if previous["dates"] else None,
+                            current_period={"start": current["window"]["start"], "end": current["window"]["end"]},
+                            previous_period={"start": previous["window"]["start"], "end": previous["window"]["end"]},
+                            value=current["value"], first_value=previous["value"],
+                            difference=current["value"] - previous["value"] if current["value"] is not None and previous["value"] is not None else None,
+                            statistic_kind="median_of_daily_representatives", comparison=periods,
+                            days=current["recorded_days"],
+                            source_record_ids=current["source_record_ids"],
+                            previous_source_record_ids=previous["source_record_ids"],
+                            comparison_identity="body-comparison:" + canonical_hash([field, list(key), unit]))
+                item["fact_id"] = "period-observation:" + canonical_hash(item)
+            rows.append(item)
     return rows
 
 
 def _describe_metric(row):
+    if row.get("comparison"):
+        from .display_format import format_measurement
+        def display_number(value, *, signed=False):
+            return format_measurement(value, row["unit"], kind=row["metric"], signed=signed)
+        value = row["value"]
+        text = f"{row['title']}本期完整记录日中位数 " + (display_number(value) if value is not None else "尚无")
+        if row["difference"] is not None:
+            text += "，较前期 " + display_number(row["difference"], signed=True)
+        elif row.get("trajectory_difference") is not None:
+            text += f"；实际记录轨迹 {row['trajectory_first_date']} {display_number(row['trajectory_first_value'])} → {row['trajectory_last_date']} {display_number(row['trajectory_last_value'])}"
+        return text
     return (
         f"{row['title']}，{row['first_date']} 至 {row['date']}从 {row['first_value']:g} 到 {row['value']:g} {row['unit']}"
         if row["difference"] is not None
@@ -466,19 +555,24 @@ def workout_performance(workouts, hr_series):
 
 
 def _render_question(qid, series, sessions, sets, subjective, episodes, workouts, window,
-                     *, event_sessions=None, event_sets=None, goal_context=None, action_reviews=None):
+                     *, event_sessions=None, event_sets=None, goal_context=None, action_reviews=None,
+                     ordinary_training=None, comparison_series=None, comparison_bounds=None, strength_rows=None):
     def local_day(at):
         return instant(at).astimezone(ZoneInfo(window.timezone)).date().isoformat()
 
     title, fields = QUESTIONS[qid]
-    rows = _metric_rows(series, fields)
+    rows = _metric_rows(series, fields, window=window if comparison_bounds else None,
+                        comparison_series=comparison_series, bounds=comparison_bounds)
     facts = []
     next_step = []
     caveats = []
     association = None
     support, counter = [], []
     pair_rows = None
-    strength = _strength_rows(sets)
+    strength = strength_rows if strength_rows is not None else _strength_rows(sets) if qid in {"W1", "W2", "W4", "W5"} else []
+    if ordinary_training is None and qid in {"W1", "W2", "W4", "W5"}:
+        from healthzip.workflows.longitudinal import ordinary_review
+        ordinary_training = ordinary_review(sets, window.as_dict())
     contexts = subjective_rows(subjective)
     if qid in {"W1", "W2"}:
         instances = defaultdict(lambda: defaultdict(list))
@@ -516,11 +610,7 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
     if qid in {"W1", "W4", "W5", "W2"}:
         if qid == "W5":
             facts.extend(_describe_metric(r) for r in rows if r["metric"] == "body_mass_kg")
-        for s in strength[:3]:
-            text = f"{s['exercise']}第 {s['position'] or '未知'} 组，{s['load']:g} {s['unit'] or ''} × {s['reps']:g} 次"
-            if s["difference"] is not None:
-                text += f"，同重量同组位上次对照 {s['first_reps']:g} 次"
-            facts.append(text)
+        facts.extend((ordinary_training or {}).get("summary", [])[:3])
         rows.extend(strength)
     if qid in {"W1", "W2", "W6"}:
         pair_rows = sleep_training_pairs(
@@ -549,17 +639,11 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
             )
         else:
             facts.extend(_describe_metric(r) for r in rows if r["metric"] == "sleep_stage")
-        for model in association["groups"]:
-            values = sorted(model["pairs"], key=lambda x: x["date"])
-            for left, right in zip(values, values[1:]):
-                delta_x = right["sleep_hours"] - left["sleep_hours"]
-                if not delta_x:
-                    continue
-                delta_y = right["value"] - left["value"]
-                msg = f"{left['date']} 至 {right['date']}，睡眠变化 {delta_x:+.2f} 小时，随后 SDNN 变化 {delta_y:+.2f} ms"
-                (support if delta_x * delta_y > 0 else counter).append(msg)
+        if len(association["groups"]) > 1:
+            facts.insert(0, f"共有 {len(association['groups'])} 组不同来源、测量条件或采样时段的配对观察，分别查看各组结果")
         next_step.append("下次保持测量时段和姿势，复查看睡眠结束后相同条件下的 SDNN。")
         caveats.append("作息、呼吸和训练可共同影响两项记录；这里估计条件关联。")
+        caveats.append("相邻变化只描述实际记录，不是独立支持票数；SDNN 升降不自动代表恢复好坏，睡眠更长不自动代表质量更好。")
     if qid == "W7":
         facts.extend(
             _describe_metric(r) for r in rows if r["metric"] in {"steps", "walking_speed_m_s"}
@@ -702,13 +786,7 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
             facts.insert(0, f"本次截止时可见目标：{goal_context['title']}；未设独立数值目标时只能复查同口径轨迹")
         if action_reviews:
             last = max(action_reviews, key=lambda r: instant(r["selected_at"]))
-            actual = [o for o in last["observations"] if o.get("difference") is not None]
-            text = f"已选行动“{last['action_text']}”：{last['execution_label']}"
-            if actual:
-                o = actual[0]
-                text += f"；其后同口径{o['title']}由 {o['first_value']:g} 到 {o['value']:g} {o['unit']}"
-            else:
-                text += "；后续尚无可对齐的同口径观察"
+            text = last.get("summary") or f"已选行动“{last['action_text']}”：{last['execution_label']}；结果定义未预先记录，保留原观察"
             facts.insert(1, text)
             caveats.append("执行状态来自本人反馈；冻结行动基线与后续记录的差值不能归因为该行动。")
         next_step.append("用先前选择的动作和目标尺度复评，按相同来源、器械与组位核对下一次记录。")
@@ -756,13 +834,15 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
         "limitations": caveats,
         "training_pairs": pair_rows,
         "source_workflow": qid,
+        **({"ordinary_training": ordinary_training} if qid in {"W1", "W2", "W4", "W5"} else {}),
         **({"goal_context": goal_context, "action_reviews": action_reviews or []} if qid == "W4" else {}),
         "window": window.as_dict(),
     }
 
 
 def question_views(
-    repo, *, window_start, window_end, cutoff_time, timezone_name, source_filter, question_ids
+    repo, *, window_start, window_end, cutoff_time, timezone_name, source_filter, question_ids,
+    period=None, previous=None,
 ):
     ids = tuple(QUESTIONS if question_ids is None else question_ids)
     fields = sorted({f for q in ids for f in QUESTIONS[q][1]})
@@ -772,10 +852,17 @@ def question_views(
         instant(cutoff_time),
     )
     window = Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name)
+    if previous is None and period in {"week", "month"}:
+        local_start, local_end = start.astimezone(ZoneInfo(timezone_name)), end.astimezone(ZoneInfo(timezone_name))
+        prior_start = local_start - timedelta(days=7) if period == "week" else (local_start - timedelta(days=1)).replace(day=1)
+        prior_end = local_end - timedelta(days=7) if period == "week" else min(local_start, prior_start + (local_end - local_start))
+        previous = {"start": prior_start.isoformat(), "end": prior_end.isoformat()}
+    bounds = comparison_windows(window, previous=previous)
+    lower = min(start, instant(bounds["previous"]["start"]))
+    comparison_window = Window(lower.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name)
     sources = tuple(sorted(source_filter or ()))
     goal, actions, action_signature = visible_goal_actions(repo, start, end, cutoff) if "W4" in ids else (None, [], None)
-    dependency_fields = set(fields) | {r["metric"] for a in actions for r in a["baseline"].get("rows", [])
-        if r.get("type") == "metric" and r.get("metric") in METRIC_CATALOG}
+    dependency_fields = set(fields) | action_metric_dependencies(actions)
     # Frozen actions can consume a field outside W4's usual body-mass/RHR view.
     # Include supporting sleep observations and all alternate representations.
     if actions:
@@ -805,7 +892,7 @@ def question_views(
             else []
         )
         health = (
-            _rows(repo, "health_sample", scientific_fields, start, end, cutoff.isoformat(), sources)
+            _rows(repo, "health_sample", scientific_fields, lower, end, cutoff.isoformat(), sources)
             if scientific_fields
             else []
         )
@@ -828,18 +915,18 @@ def question_views(
             "lean_body_mass_kg",
         }:
             health += _rows(
-                repo, "body_measurement", [field], start, end, cutoff.isoformat(), sources
+                repo, "body_measurement", [field], lower, end, cutoff.isoformat(), sources
             )
         for field in fields:
             health += alternate_rows(
-                repo, field, start, end, cutoff.isoformat(), timezone_name, sources, health
+                repo, field, lower, end, cutoff.isoformat(), timezone_name, sources, health
             )
         grouped = defaultdict(list)
         for r in health:
             grouped[r.get("canonical_type")].append(r)
         grouped["workout_heart_rate_bpm"] = list(workout_hrs.values())
         support_window = Window(
-            (start - timedelta(hours=24)).isoformat(),
+            (lower - timedelta(hours=24)).isoformat(),
             min(cutoff, end + timedelta(hours=48)).isoformat(),
             cutoff.isoformat(),
             timezone_name,
@@ -872,8 +959,13 @@ def question_views(
                 row["sleep_episode_ids"] = [
                     eid for a, b, eid in intervals if a <= instant(row["event_end"]) < b
                 ]
-        series = {k: _points(k, grouped[k], window, [], episodes) for k in fields}
+        comparison_series = {k: _points(k, grouped[k], comparison_window, [], episodes) for k in fields}
+        series = {k: {stream: [p for p in values if start <= instant(p.get("allocation_at", p["observed_at"])) < end]
+                      for stream, values in streams.items()} for k, streams in comparison_series.items()}
         sessions, sets = _training(repo, start, end, cutoff.isoformat())
+        from healthzip.workflows.longitudinal import ordinary_review
+        ordinary_training = ordinary_review(sets, window.as_dict()) if any(q in {"W1", "W2", "W4", "W5"} for q in ids) else None
+        strength_rows = _strength_rows(sets) if ordinary_training is not None else []
         event_sessions, event_sets = (None, None)
         if any(i in {"E", "W8"} for i in ids):
             event_sessions, event_sets = _training(repo, start - timedelta(hours=24), min(end + timedelta(hours=24), cutoff), cutoff.isoformat())
@@ -883,12 +975,16 @@ def question_views(
         views = [
             _render_question(q, series, sessions, sets, subjective, episodes, workouts, window,
                 event_sessions=event_sessions, event_sets=event_sets, goal_context=goal_context,
-                action_reviews=action_reviews)
+                action_reviews=action_reviews, ordinary_training=ordinary_training,
+                comparison_series=comparison_series, comparison_bounds=bounds, strength_rows=strength_rows)
             for q in ids
         ]
         for v in views:
             v["analysis_version"] = VERSION
             v["source_filter"] = list(sources)
+            v["comparison_bounds"] = bounds
+            v["period"] = period
+            v["sleep_definition"] = "observed_episode_duration_allocated_by_end_local_date"
             v["fact_id"] = "question:" + canonical_hash(
                 [str(repo.path.resolve()), cutoff.isoformat(), v]
             )
@@ -898,7 +994,7 @@ def question_views(
         repo,
         VERSION,
         {"ids": ids, "window": window.as_dict(), "sources": sources, "cutoff": cutoff.isoformat(),
-         "visible_goal_actions": action_signature},
+         "visible_goal_actions": action_signature, "comparison_bounds": bounds, "period": period},
         compute,
         dependencies=deps,
     )

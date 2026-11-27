@@ -126,7 +126,11 @@ def test_hot_report_is_new_freeze_and_source_correction_invalidates_content(tmp_
         assert first["markdown"] == second["markdown"]
         assert first["content_signature"] == second["content_signature"]
         stored = json.loads(repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (second["report_id"],))[0])
-        assert stored == {key: value for key, value in second.items() if key != "markdown"}
+        assert stored["storage_format"] == "frozen-report-references-1"
+        assert "current" not in stored  # Permanent reference, not another full copy.
+        assert load_report(repo, second["report_id"]) == second
+        first_manifest = json.loads(repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (first["report_id"],))[0])
+        assert stored["content_ref"] == first_manifest["content_ref"]
         assert "复用已核对的报告内容" in progress
         row = repo.one("SELECT payload_json FROM source_revision WHERE table_name='health_sample' AND record_id=1")
         corrected = json.loads(row[0])

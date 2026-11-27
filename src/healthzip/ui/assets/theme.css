@@ -33,6 +33,15 @@ button:focus-visible,input:focus-visible,summary:focus-visible {outline:2px soli
 [data-testid="stMetricValue"] {font-variant-numeric:tabular-nums;letter-spacing:-.8px;font-size:32px;}
 [data-testid="stMetricLabel"] {color:var(--hz-muted);}
 [data-testid="stMetricDelta"] {color:var(--hz-muted);}
+[data-testid="stMetricValue"],
+[data-testid="stMetricDelta"],
+[data-testid="stMetricValue"] > *,
+[data-testid="stMetricDelta"] > *,
+[data-testid="stMetricValue"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stMetricDelta"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stMetricLabel"] p {min-width:0;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:normal;}
+[data-testid="stMetricDelta"] {height:auto;max-height:none;align-items:flex-start;}
+[data-testid="stMetricDelta"] svg {flex-shrink:0;}
 [data-testid="stExpander"] {border:1px solid var(--hz-border);border-radius:12px;background:transparent;}
 [data-testid="stExpander"] summary {min-height:48px;}
 [data-testid="stAlert"] {border-radius:10px;}

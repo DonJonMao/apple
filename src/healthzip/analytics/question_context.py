@@ -157,9 +157,22 @@ def visible_goal_actions(repo, start, end, cutoff):
     return goal, actions, canonical_hash({"goal": goal, "actions": actions})
 
 
+def action_metric_dependencies(actions):
+    """A primary result can be selected before its first observation exists."""
+    fields = {r["metric"] for a in actions for r in a["baseline"].get("rows", [])
+              if r.get("metric") in METRIC_CATALOG}
+    for action in actions:
+        definition = json.loads(action["definition_json"]) if action.get("definition_json") else {}
+        metric = definition.get("primary", {}).get("metric")
+        if metric in METRIC_CATALOG:
+            fields.add(metric)
+        fields.update(r["metric"] for r in definition.get("baseline_secondary", [])
+                      if r.get("metric") in METRIC_CATALOG)
+    return fields
+
+
 def action_observations(repo, goal, actions, *, end, cutoff, timezone_name, version):
-    from .body_metrics import analyze_body_metric
-    from .body_questions import _metric_rows, _strength_rows, _training
+    from healthzip.workflows.actions import evaluate_action
 
     kind = goal["fields"].get("training_goal")
     goal_context = {"goal": kind, "title": GOALS.get(kind, kind) if kind else "尚未选择目标",
@@ -167,67 +180,5 @@ def action_observations(repo, goal, actions, *, end, cutoff, timezone_name, vers
                     "provenance": goal.get("provenance", {}).get("training_goal"),
                     "quantitative_target_status": "未记录独立数值目标，不能判断达标",
                     "limitation": "目标方向不等于已设定个人重要变化阈值；肌肉增长目标不能由体重直接推算肌肉增量。"}
-    output, metric_cache, training_cache = [], {}, {}
-    for action in actions:
-        baseline = action["baseline"]
-        frozen_timezone = baseline["window"].get("timezone", timezone_name)
-        start = instant(action["selected_at"])
-        duration = instant(baseline["window"]["end"]) - instant(baseline["window"]["start"])
-        stop = min(start + duration, end, cutoff)
-        feedback = action["feedback"] or {}
-        item = {"action_id": action["action_id"], "question_id": action["question_id"],
-                "action_text": action["action_text"], "selected_at": action["selected_at"], "review_due": action["review_due"],
-                "execution_status": feedback.get("status", "unreported"),
-                "execution_label": EXECUTION.get(feedback.get("status"), EXECUTION["unreported"]),
-                "feedback_at": feedback.get("recorded_at"), "notes": feedback.get("notes"),
-                "baseline_window": baseline["window"],
-                "followup_window": {"start": start.isoformat(), "end": stop.isoformat(), "cutoff_time": cutoff.isoformat(), "timezone": frozen_timezone},
-                "status": "awaiting_observations" if stop <= start else "partial_window" if stop < start+duration else "complete_window",
-                "method_matches": baseline.get("analysis_version") == version,
-                "view_timezone_matches": frozen_timezone == timezone_name,
-                "observations": [], "prespecified_question": baseline.get("title", action["question_id"]),
-                "limitation": "沿用行动选择时冻结的问题、来源和记录口径；执行是本人反馈，前后差值不是行动因果效果。"}
-        for old in baseline.get("rows", []):
-            if old.get("type") not in {"metric", "strength"}:
-                continue
-            observed = {"type": old["type"], "title": old.get("title") or old.get("exercise"),
-                        "first_date": old.get("date"), "first_value": old.get("value") if old["type"] == "metric" else old.get("reps"),
-                        "value": None, "date": None, "difference": None, "unit": old.get("unit") if old["type"] == "metric" else "次",
-                        "reason": "行动后的固定观察范围内未见相同记录身份。"}
-            if stop > start and old["type"] == "metric" and old.get("metric") in METRIC_CATALOG:
-                key = (old["metric"], start.isoformat(), stop.isoformat(), tuple(action["sources"]), frozen_timezone)
-                if key not in metric_cache:
-                    m = analyze_body_metric(repo, old["metric"], window_start=key[1], window_end=key[2],
-                        cutoff_time=cutoff.isoformat(), timezone_name=frozen_timezone, source_filter=action["sources"])
-                    series = {(s["source"],s["device"],s["protocol"],s["source_version"]):s["points"] for s in m["value"]["streams"]}
-                    metric_cache[key] = _metric_rows({old["metric"]:series}, [old["metric"]])
-                candidates = [r for r in metric_cache[key] if all(r.get(k)==old.get(k) for k in ("source","device","protocol","source_version","unit"))]
-                observed.update(metric=old["metric"], source=old["source"], estimate_support=old.get("estimate_support"))
-                if not all(k in old for k in ("device", "protocol", "source_version")):
-                    candidates = []
-                    observed["reason"] = "冻结基线未保留完整来源、设备与版本身份，不能自动匹配后续记录。"
-            elif stop > start and old["type"] == "strength":
-                key = (start.isoformat(),stop.isoformat())
-                if key not in training_cache:
-                    training_cache[key] = _strength_rows(_training(repo,start,stop,cutoff.isoformat())[1])
-                candidates = [r for r in training_cache[key] if r.get("condition_known") and all(r.get(k)==old.get(k) for k in ("exercise_id","condition_key","position","load","unit","load_basis","set_type"))]
-                observed.update(exercise=old["exercise"],load=old["load"],load_unit=old["unit"],position=old["position"])
-                if not old.get("condition_known"):
-                    candidates = []
-                    observed["reason"] = "行动基线的动作条件未知；保留原表现，不把后续同名动作当成可比记录。"
-            else:
-                candidates = []
-            if candidates:
-                current = max(candidates,key=lambda r:r["date"])
-                value = current["value"] if old["type"] == "metric" else current["reps"]
-                difference = value-observed["first_value"] if isinstance(value, (int, float)) and isinstance(observed["first_value"], (int, float)) else None
-                observed.update(value=value,date=current["date"],difference=difference,reason=None,
-                                source_record_ids=current.get("source_record_ids"),session_id=current.get("session_id"),
-                                current_estimate_support=current.get("estimate_support"),
-                                support_limitation=current.get("support_limitation"))
-            item["observations"].append(observed)
-        saved = json.loads(feedback["result_json"]) if feedback.get("result_json") else None
-        if saved:
-            item["saved_feedback_observation"] = (saved.get("current") or {}).get("observation")
-        output.append(item)
-    return goal_context, output
+    return goal_context, [evaluate_action(repo, action, end=end, cutoff=cutoff,
+        timezone_name=timezone_name, version=version) for action in actions]

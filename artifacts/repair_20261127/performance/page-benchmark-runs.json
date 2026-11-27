@@ -1,0 +1,42 @@
+[
+  {
+    "name": "preview-100k",
+    "command": [
+      ".venv/bin/python",
+      "tools/repair_measure_run.py",
+      "--output",
+      "artifacts/repair_20261127/performance/preview-100k-resources.json",
+      "--",
+      ".venv/bin/python",
+      "tools/repair_preview_benchmark.py",
+      "--database",
+      "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+      "--cutoff",
+      "2026-11-22T10:07:49.556032+00:00",
+      "--output",
+      "artifacts/repair_20261127/performance/preview-100k.json"
+    ],
+    "exit_code": 0,
+    "seconds": 74.5279018804431
+  },
+  {
+    "name": "preview-1m",
+    "command": [
+      ".venv/bin/python",
+      "tools/repair_measure_run.py",
+      "--output",
+      "artifacts/repair_20261127/performance/preview-1m-resources.json",
+      "--",
+      ".venv/bin/python",
+      "tools/repair_preview_benchmark.py",
+      "--database",
+      "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+      "--cutoff",
+      "2026-11-22T10:09:40.013597+00:00",
+      "--output",
+      "artifacts/repair_20261127/performance/preview-1m.json"
+    ],
+    "exit_code": 0,
+    "seconds": 103.17642427235842
+  }
+]

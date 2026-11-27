@@ -26,7 +26,7 @@ def _select_cards(facts):
     groups = [
         ("完成训练", ("已完成训练次数", "已完成训练", "完成训练场次")),
         ("有效工作组", ("已完成工作组", "有效工作组")),
-        ("平均睡眠", ("已观察睡眠",)),
+        ("睡眠中位数", ("已观察睡眠",)),
         ("静息心率", ("静息心率",)),
         ("体重", ("体重",)),
     ]
@@ -84,8 +84,8 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
     st.subheader("总览")
     with st.container(key="overview_period"):
         label = st.radio("总结范围", ["本周", "本月"], horizontal=True, key="overview_period_choice", label_visibility="collapsed")
-    result = workspace_summary(repo, "总览", timezone_name=timezone_name)
     period = "week" if label == "本周" else "month"
+    result = workspace_summary(repo, "总览", timezone_name=timezone_name, period=period)
     item = next(row for row in result["periods"] if row["period"] == period)
     zone = ZoneInfo(timezone_name)
     first = datetime.fromisoformat(item["window"]["start"]).astimezone(zone)
@@ -115,7 +115,7 @@ def render_overview(repo, *, timezone_name="Asia/Shanghai", **_unused):
             column.metric(title, f"{number} {fact.get('unit', '')}", delta=delta, delta_color="off")
             if fact.get("source") and title not in {"完成训练", "有效工作组"}:
                 column.caption(fact["source"])
-            destination = {"平均睡眠": "睡眠", "静息心率": "心率", "体重": "体重"}.get(title, "训练")
+            destination = {"睡眠中位数": "睡眠", "静息心率": "心率", "体重": "体重"}.get(title, "训练")
             column.button("查看" + title, key="overview_fact:" + title, on_click=_open_fact, args=(destination, label))
         _trend(item)
         st.write("本期发现")

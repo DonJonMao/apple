@@ -18,8 +18,11 @@ SOURCE_TYPES = {
 
 def input_version(repo, context_id):
     """Monotone input clocks; output/audit writes do not change these clocks."""
+    clocks = ("training_data_version", "source_data_version", "advice_profile_version",
+              "catalog_data_version", "review_action_version")
     versions = dict(repo.conn.execute("SELECT key,value FROM schema_meta WHERE key IN "
-        "('training_data_version','source_data_version','advice_profile_version','catalog_data_version')"))
+        "('training_data_version','source_data_version','advice_profile_version','catalog_data_version','review_action_version')"))
+    versions = {key: versions.get(key, "0") for key in clocks}
     if context_id:
         versions["context"] = canonical_hash([tuple(row) for row in repo.conn.execute(
             "SELECT * FROM workflow_context_revision WHERE context_id=?", (context_id,))])

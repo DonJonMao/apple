@@ -779,6 +779,8 @@ def analyze_questions(
     timezone_name="Asia/Shanghai",
     source_filter=(),
     question_ids=None,
+    period=None,
+    previous=None,
 ):
     from .body_questions import question_views
 
@@ -790,4 +792,6 @@ def analyze_questions(
         timezone_name=timezone_name,
         source_filter=source_filter,
         question_ids=question_ids,
+        period=period,
+        previous=previous,
     )

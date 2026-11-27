@@ -21,7 +21,7 @@ from healthzip.training.service import TrainingService
 from .cache import WORKSPACE_CACHE_SECONDS, cached, revision_identity
 from .workouts import _nonnegative, _recorded_energy, _totals
 
-SUMMARY_VERSION = "workspace-calendar-summary-3.0.0"
+SUMMARY_VERSION = "workspace-calendar-summary-3.1.0"
 _DOMAINS = {
     "总览": ("heart", "sleep", "workout", "body", "strength"),
     "心率": ("heart",), "体重": ("weight",), "有氧": ("cardio",),
@@ -224,13 +224,16 @@ def _strength_summary(rows, output, start, cutoff, zone):
              and row.get("ended_at") and start <= instant(row["ended_at"]) < cutoff]
     if not valid:
         return
-    dates = sorted({instant(row["ended_at"]).astimezone(zone).date().isoformat() for row in valid})
+    by_date = defaultdict(lambda: [0, 0])
+    for row in valid:
+        day = instant(row["ended_at"]).astimezone(zone).date().isoformat()
+        by_date[day][0] += 1
+        by_date[day][1] += row.get("set_type") == "work"
+    dates = sorted(by_date)
     sessions = {row["session_id"] for row in valid}
     completed_sessions = {row["session_id"] for row in valid if row.get("session_status") == "completed"}
     work_sets = [row for row in valid if row.get("set_type") == "work"]
-    daily = [{"date": day,
-              "completed_sets": sum(instant(row["ended_at"]).astimezone(zone).date().isoformat() == day for row in valid),
-              "work_sets": sum(instant(row["ended_at"]).astimezone(zone).date().isoformat() == day for row in work_sets)}
+    daily = [{"date": day, "completed_sets": by_date[day][0], "work_sets": by_date[day][1]}
              for day in dates]
     output["strength_daily"] = daily
     exercises = {row.get("session_exercise_id") for row in valid} - {None}
@@ -248,8 +251,10 @@ def _strength_summary(rows, output, start, cutoff, zone):
     output["conclusions"].append(f"力量训练：{len(dates)} 个日期记录了 {len(valid)} 个完成组，涉及 {len(sessions)} 场训练、{len(exercises)} 个动作实例；草稿、跳过与删除记录未计入。")
 
 
-def _compute(repo, service, domains, cutoff, zone):
+def _compute(repo, service, domains, cutoff, zone, selected_period=None):
     current = _calendar(cutoff, zone)
+    if selected_period:
+        current = [item for item in current if item[0] == selected_period]
     periods = [(period, label, start, cutoff) for period, label, start in current]
     local = cutoff.astimezone(zone)
     for period, label, start in current:
@@ -275,7 +280,7 @@ def _compute(repo, service, domains, cutoff, zone):
             source_counts[table] = len(selected)
     workouts = (_adapt(samples_as_of(repo, cutoff.isoformat(), "workout", window_start=earliest.isoformat(),
                 window_end=cutoff.isoformat()), "workout") if "workout" in domains and earliest < cutoff else [])
-    strength = service.history_as_of(cutoff_time=cutoff.isoformat(), window_start=earliest.isoformat(),
+    strength = service.history_summary_as_of(cutoff_time=cutoff.isoformat(), window_start=earliest.isoformat(),
                window_end=cutoff.isoformat()) if "strength" in domains and earliest < cutoff else []
     labels = _source_labels(records + workouts)
     output = []
@@ -327,7 +332,7 @@ def _compute(repo, service, domains, cutoff, zone):
                     "full_analysis": False, "bounded_by_current_calendar_windows": True}
 
 
-def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_time=None):
+def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_time=None, *, period=None):
     """Return cached local week/month conclusions; never persist or freeze a run.
 
     Read the dependency baseline before business records and verify after both
@@ -336,6 +341,8 @@ def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_tim
     """
     if workspace not in _DOMAINS and workspace not in _COMPOSITE:
         raise ValueError("unsupported_summary_workspace")
+    if period not in {None, "week", "month"}:
+        raise ValueError("unsupported_summary_period")
     zone = ZoneInfo(timezone_name)
     cutoff = instant(cutoff_time) if cutoff_time else datetime.now(timezone.utc)
     domains = _DOMAINS.get(workspace, _ALL)
@@ -347,14 +354,14 @@ def workspace_summary(repo, workspace, timezone_name="Asia/Shanghai", cutoff_tim
         dependencies.append(("workout", None))
     if "strength" in domains:
         dependencies.append(("training", None))
-    arguments = {"workspace": workspace, "timezone": timezone_name,
+    arguments = {"workspace": workspace, "timezone": timezone_name, "period": period,
                  "cutoff": cutoff.isoformat() if cutoff_time else cutoff.astimezone(zone).date().isoformat(),
                  "cutoff_mode": "explicit" if cutoff_time else "auto"}
     for _ in range(2):
         baseline = revision_identity(repo, dependencies=dependencies)
 
         def compute():
-            periods, plan = _compute(repo, service, domains, cutoff, zone)
+            periods, plan = _compute(repo, service, domains, cutoff, zone, period)
             if revision_identity(repo, dependencies=dependencies) != baseline:
                 raise _RevisionChanged("summary_inputs_changed")
             return {"workspace": workspace, "algorithm_version": SUMMARY_VERSION,

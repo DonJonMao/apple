@@ -10,6 +10,7 @@ from healthzip.analytics.v13 import analyze
 from healthzip.db.repository import Repository
 from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, load_run, run_workflow
+from healthzip.workflows.calendar import completed_periods
 from healthzip.workflows.reports import markdown, review_analysis
 
 HELPERS = runpy.run_path(str(Path(__file__).with_name("test_analysis_w1_flow.py")))
@@ -92,7 +93,16 @@ def test_all_training_backgrounds_include_middle_changes_and_missing_branch(tmp_
 
 
 def test_w4_normal_page_produces_candidate_feedback_and_shared_reports(tmp_path, monkeypatch):
-    repo, svc, instance, target, ids = HELPERS["history"](tmp_path, monkeypatch)
+    # Put one actual reference inside each preceding complete month, plus
+    # recent references for 30-day and complete-week positive comparisons.
+    clock = datetime.now(timezone.utc)
+    monthly_bounds = completed_periods(clock.isoformat(), "Asia/Shanghai", "month")
+    monthly_dates = tuple(datetime.fromisoformat(start) +
+                          (datetime.fromisoformat(end) - datetime.fromisoformat(start)) / 2
+                          for start, end in monthly_bounds)
+    history_times = monthly_dates + tuple(clock - timedelta(days=days) for days in (26, 18, 10, 6))
+    repo, svc, instance, target, ids = HELPERS["history"](
+        tmp_path, monkeypatch, history_times=history_times)
     # This positive report fixture has unchanged performance in every calendar
     # slice. The shared helper's middle dip can otherwise become a weekly
     # anchor and correctly turn later equal records into an improvement.
@@ -125,7 +135,16 @@ def test_w4_normal_page_produces_candidate_feedback_and_shared_reports(tmp_path,
     snapshot = analyze(repo)
     for period in (None, "week", "month"):
         runs = review_analysis(repo, snapshot, period=period, knowledge_root=tmp_path / "missing")
-        assert runs and any(r["supplements"]["long_term_review"]["start_long_term_review"] for r in runs)
+        # A run without reference points cannot invent STR-11 eligibility;
+        # all three scopes here retain genuine reference-based long review.
+        reference_runs = [r for r in runs if r["supplements"].get("strength_points")]
+        assert reference_runs and any(r["supplements"]["long_term_review"]["start_long_term_review"]
+                                      for r in reference_runs)
+        assert any(r["supplements"]["ordinary_training"]["record_count"] for r in runs)
+        for run in runs:
+            if run["request"].get("ordinary_inventory"):
+                assert "long_term_review" not in run["supplements"]
+                assert run["nodes"][3]["branch"] == "ordinary_review"
         basis = next(b for r in runs for b in r["linked_candidate_bases"] if b["candidate_id"] == cid)
         assert basis["numeric_origins"][0]["value"] == 34
         assert basis["numeric_origins"][1]["origin"] == "沿用用户已确认计划的次数下限"

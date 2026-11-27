@@ -1,0 +1,124 @@
+{
+  "stage": "search_30_then_edges_input_40",
+  "started_at": "2026-11-26T16:52:12.261917+00:00",
+  "data": "synthetic_only",
+  "concurrent_load": "Parent report timings paused; science agent confirmed no browser run until these measurements complete. Shared host background load still present and sampled by process monitor.",
+  "os_cache_cleared": false,
+  "source_sha256": {
+    "tests/training/product_redesign_training_search.py": "a5102dd6fbaabe66c3e3b6dc636fffce4bc519d9f35f297b226a74a3f7b5900b",
+    "tests/training/product_redesign_training_edges.py": "8e355dbe2cf388c646e3e4fd5dbeefa3069360cdf304774fd8f0674def7b13e9",
+    "tests/training/product_redesign_training_browser.py": "9fbfbe5f1fc558cb57ecdcf8496dee5269218fea82c16133a9c3c151c54db9b6",
+    "tests/training/strength_browser_fixture.py": "48b4458e6d9776de49eca61519a5ec7c2279ba820a288888af97a8c0b9e6a0e9",
+    "src/healthzip/training/service.py": "561fddbd2d1350e78fd6aabc0075ace1a8f3c1a687209028bc72e9a03966d28a",
+    "src/healthzip/ui/strength_component/workbench.js": "3cb66e607cd90db8c4db83e941b94c40e7cd0697aeb3e6ddea47ac3b13cac536",
+    "src/healthzip/ui/assets/theme.css": "7bdc9eda196c340fd13a05fd5037faf13c33c13def98761bbbf2442c706d5640"
+  },
+  "input_measurement": "Existing Chromium input handler to next animation frame; not physical key delay",
+  "search_measurement": "Existing input event to painted current query result, including debounce",
+  "search": {
+    "n": 30,
+    "p50_ms": 184.5999984741211,
+    "p95_ms": 187.5,
+    "checks": {
+      "exact_same_search_results_as_service": true,
+      "user_alias": true,
+      "no_search_network_commands": true,
+      "favorite_updates_visible_results": true,
+      "initial_two_card_skeleton_with_18px_icon": true
+    }
+  },
+  "local_input": {
+    "status": "passed",
+    "n": 40,
+    "p50_ms": 16.699996948242188,
+    "p95_ms": 16.70000457763672,
+    "samples_ms": [
+      6.400001525878906,
+      15.700004577636719,
+      16.599998474121094,
+      16.699996948242188,
+      16.600006103515625,
+      16.599998474121094,
+      16.699996948242188,
+      16.70000457763672,
+      16.699996948242188,
+      16.599998474121094,
+      16.599998474121094,
+      16.70000457763672,
+      16.699996948242188,
+      16.599998474121094,
+      16.800003051757812,
+      16.599998474121094,
+      16.70000457763672,
+      16.599998474121094,
+      16.699996948242188,
+      16.70000457763672,
+      16.699996948242188,
+      16.599998474121094,
+      16.70000457763672,
+      16.599998474121094,
+      16.699996948242188,
+      16.70000457763672,
+      16.599998474121094,
+      16.599998474121094,
+      16.599998474121094,
+      16.70000457763672,
+      16.599998474121094,
+      16.5,
+      16.70000457763672,
+      16.699996948242188,
+      16.70000457763672,
+      16.699996948242188,
+      16.599998474121094,
+      16.599998474121094,
+      16.70000457763672,
+      16.699996948242188
+    ],
+    "no_component_commands": true,
+    "method": "real Chromium input handlers until next animation frame, no network; does not claim physical key latency"
+  },
+  "original_edges_run": {
+    "exit_code": 1,
+    "passed_check_count": 7,
+    "failed_step": "workspace_drafts_isolated",
+    "failure": "Old script entered default profile settings and attempted SQLite path field before selecting import and sync section.",
+    "evidence": "validation/training-edges.log",
+    "product_change": false
+  },
+  "finished_at": "2026-11-26T16:57:14.397771+00:00",
+  "final_script_sha256": "6a3ec6ba3cb37c88ddd32dbe67ebd7f1348e28ba13b11709794ca4846ab1080a",
+  "workspace_only_rechecks": [
+    {
+      "artifact": "training/edges-workspace-retry/training-edge-results.json",
+      "log": "validation/training-edges-workspace.log",
+      "exit_code": 1,
+      "reason": "Streamlit radio input was covered by its visible decoration; no product mutation."
+    },
+    {
+      "artifact": "training/edges-workspace-r2/training-edge-results.json",
+      "log": "validation/training-edges-workspace-r2.log",
+      "exit_code": 1,
+      "reason": "Legacy navigation label 力量 no longer matches the current top-level 训练 label."
+    },
+    {
+      "artifact": "training/edges-workspace-r3/training-edge-results.json",
+      "log": "validation/training-edges-workspace-r3.log",
+      "exit_code": 0,
+      "completed": true,
+      "result": {
+        "data": "synthetic_only",
+        "completed": true,
+        "scope": "workspace_only",
+        "results": {
+          "workspace_drafts_isolated": {
+            "status": "passed",
+            "separate_database_has_no_old_input": true,
+            "original_draft_restored": true
+          }
+        }
+      }
+    }
+  ],
+  "ruff": "passed",
+  "product_code_modified_by_rechecks": false
+}

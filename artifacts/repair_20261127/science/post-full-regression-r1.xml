@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="10" time="22.970" timestamp="2026-11-27T01:16:18.052872+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_analysis_long_term_review" name="test_joint_components_do_not_mislabel_load_or_rir_progress[change0-False]" time="1.341" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_joint_components_do_not_mislabel_load_or_rir_progress[change1-False]" time="0.615" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_joint_components_do_not_mislabel_load_or_rir_progress[change2-False]" time="0.616" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_joint_components_do_not_mislabel_load_or_rir_progress[change3-True]" time="0.618" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_joint_components_do_not_mislabel_load_or_rir_progress[change4-False]" time="0.688" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_all_training_backgrounds_include_middle_changes_and_missing_branch" time="0.789" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_w4_normal_page_produces_candidate_feedback_and_shared_reports" time="8.969"><failure message="assert ([])">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1000/test_w4_normal_page_produces_c0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdaba98a10&gt;
+
+    def test_w4_normal_page_produces_candidate_feedback_and_shared_reports(tmp_path, monkeypatch):
+        repo, svc, instance, target, ids = HELPERS["history"](tmp_path, monkeypatch)
+        # This positive report fixture has unchanged performance in every calendar
+        # slice. The shared helper's middle dip can otherwise become a weekly
+        # anchor and correctly turn later equal records into an improvement.
+        middle = svc.get_set(ids[2])
+        svc.edit_set(middle["id"], {"reps": 10}, base_revision=middle["revision"])
+        path = repo.path
+        repo.close()
+        app = HELPERS["PAGE"]["open_workflow"](path)
+        app.selectbox(key="workflow_kind").select("W4").run()
+        app.selectbox(key="workflow_outcome").select("STR-11").run()
+        app.button(key="workflow_run").click().run(timeout=30)
+        assert not app.exception and not app.error
+        key = "workflow_long_" + instance["id"]
+        app.selectbox(key="strategy_" + key).set_value("heavier_lower_reps")
+        app.text_input(key="loads_" + key).set_value("30,34,38")
+        app.button(key="candidate_" + key).click().run(timeout=30)
+        assert not app.exception and not app.error
+        repo = Repository(path)
+        record = TrainingService(repo).list_recommendations()[0]
+        cid = record["candidate_id"]
+        assert record["candidate"]["proposed_change"]["load"] == 34
+        base = load_run(repo, record["input_snapshot"]["analysis_review"]["run_id"])
+        assert base["nodes"][3]["branch"] == "long_term_review"
+        repo.close()
+        app.selectbox(key="workflow_long_choice_" + cid).set_value("declined")
+        app.selectbox(key="workflow_long_execution_" + cid).set_value("not_executed")
+        app.button(key="workflow_long_feedback_" + cid).click().run(timeout=30)
+        assert not app.exception and not app.error
+        repo = Repository(path)
+        snapshot = analyze(repo)
+        for period in (None, "week", "month"):
+            runs = review_analysis(repo, snapshot, period=period, knowledge_root=tmp_path / "missing")
+            # Ordinary inventory is now a separate run; it must not invent STR-11
+            # reference eligibility. Existing reference-based long review remains.
+            reference_runs = [r for r in runs if r["supplements"].get("strength_points")]
+&gt;           assert reference_runs and any(r["supplements"]["long_term_review"]["start_long_term_review"]
+                                          for r in reference_runs)
+E           assert ([])
+
+/home/sn_maozhifang/apple/tests/integration/test_analysis_long_term_review.py:131: AssertionError</failure></testcase><testcase classname="tests.integration.test_analysis_long_term_review" name="test_selected_new_exercise_does_not_borrow_other_task_stagnation" time="0.587" /><testcase classname="tests.integration.test_analysis_long_term_review" name="test_report_keeps_saved_selection_explicit_window_and_visibility" time="0.779" /><testcase classname="tests.integration.test_daily_training_page" name="test_real_app_ordinary_all_groups_free_record_next_training_and_reports" time="6.893"><failure message="AssertionError: assert ('55', 'kg', 12.0) == (55, 'kg', 12)&#10;  &#10;  At index 0 diff: '55' != 55&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1000/test_real_app_ordinary_all_gro0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffd902f99d0&gt;
+
+    def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_path, monkeypatch):
+        import streamlit as st
+    
+        repo, svc, instance, rows, previous, template = ordinary_setup(tmp_path, monkeypatch)
+        ACCEPTANCE["body"](repo)
+        downloads = {}
+        original_download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            downloads[label] = data
+            return original_download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        UI["install"](monkeypatch)
+        app = HELP["open_app"](repo.path)
+        go(app, "力量")
+        assert not app.exception and not app.error
+        assert UI["send"](app, "session", {"session_id": instance["session_id"]})["status"] == "saved"
+        assert UI["send"](app, "advice", {"instance_id": instance["id"]})["status"] == "saved"
+        before = latest(repo, instance)
+        assert before["daily_history"]["latest_session"]["id"] == previous["id"]
+        assert {r["set_uuid"] for r in before["daily_history"]["records"]} == {r["set_uuid"] for r in rows}
+        assert set(before["daily_decisions"]["input_record_ids"]) == {r["set_uuid"] for r in rows}
+        shown = UI["snapshot"](app)["advice"]
+        assert [(float(row["load_value"]), row["reps"]) for row in shown["daily_history"]["records"]] == [(55, 10), (55, 9), (50, 11)]
+        assert shown["body"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        assert "Synthetic watch" in json.dumps(shown)
+        assert before["reference_record"] is None
+        assert all(option["basis"]["scope"] == "one_optional_set_trial_not_all_sets"
+                   for group in before["groups"] for option in group["options"] if option["load"] is not None)
+        # Use normal actual controls, with no reference or feedback interaction.
+        UI["legacy"](app, "set_details", set_id=instance["sets"][0]["set_uuid"])
+        REVIEW["finish_reference"](app, repo.path, instance, 55, 12, reference=False)
+        assert not app.exception and not app.error
+        actual = svc.get_set(instance["sets"][0]["set_uuid"])
+        assert not actual["reference_set"] and not actual["reference_declared_at"]
+        current_session = svc.get_session(instance["session_id"])
+        assert UI["send"](app, "end_session", {"session_id": current_session["id"], "base_revision": current_session["revision"]})["status"] == "saved"
+        started = UI["send"](app, "start_session", {"template_id": template["id"]})
+        assert started["status"] == "saved"
+        assert not app.exception and not app.error
+        next_instance = svc.get_session(started["data"]["id"])["exercises"][0]
+        assert UI["send"](app, "advice", {"instance_id": next_instance["id"]})["status"] == "saved"
+        after = latest(repo, next_instance)
+        assert after["daily_history"]["latest_session"]["id"] == instance["session_id"]
+        assert [r["set_uuid"] for r in after["daily_history"]["records"]] == [actual["set_uuid"]]
+        trial = next(option for group in after["groups"] for option in group["options"]
+                     if option["strategy"] == "heavier_lower_reps" and option["load"] is not None)
+        assert (trial["load"], trial["reps"], trial["rir"]) == (60, 8, 2)
+        assert trial["basis"]["source_set_id"] == actual["set_uuid"]
+        assert trial["basis"]["repetitions_origin"] == "沿用用户计划次数下限"
+        assert trial["basis"]["rules"]
+        go(app, "复盘")
+        legacy_analysis(app, "报告")
+        app.button(key="review_compute").click().run()
+        for label in ("本周", "本月"):
+            next(selector for selector in app.selectbox if selector.label == "报告范围").select(label)
+            next(button for button in app.button if button.label == "生成 Markdown 报告").click().run()
+            assert not app.exception and not app.error
+            exported = downloads["下载身体与力量联合报告"]
+            assert "Synthetic watch" in exported and "7.0 小时睡眠" in exported
+            assert "## 下一步" in exported
+            saved = json.loads(repo.one("SELECT payload_json FROM joint_period_report ORDER BY created_at DESC LIMIT 1")[0])
+            frozen = load_report(repo, saved["report_id"])
+            assert frozen["markdown"] == exported
+            # Readable hours do not replace the frozen original minutes or source.
+            assert frozen["current"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+            sleep_question = next(q for q in frozen["questions"] if q["id"] == "W6")
+            sleep_row = next(row for row in sleep_question["rows"] if row.get("metric") == "sleep_stage")
+            assert sleep_row["source"] == "Synthetic watch" and sleep_row["trajectory_last_value"] == 420
+            performance = next(q for q in frozen["questions"] if q["id"] == "W1")
+            points = [point for series in performance["ordinary_training"]["series"] for point in series["points"]]
+            recorded = next(point for point in points if point["record_id"] == actual["set_uuid"])
+&gt;           assert (recorded["recorded_load"], recorded["recorded_unit"], recorded["reps"]) == (55, "kg", 12)
+E           AssertionError: assert ('55', 'kg', 12.0) == (55, 'kg', 12)
+E             
+E             At index 0 diff: '55' != 55
+E             Use -v to get more diff
+
+/home/sn_maozhifang/apple/tests/integration/test_daily_training_page.py:154: AssertionError</failure></testcase></testsuite></testsuites>

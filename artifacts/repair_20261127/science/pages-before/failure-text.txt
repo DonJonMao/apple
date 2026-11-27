@@ -1,0 +1,30 @@
+▥ HealthZIP
+
+总览
+
+训练
+
+身体
+
+复盘
+
+设置
+
+ValueError: database_schema_newer_than_application
+Traceback:
+File "/tmp/hz-repair-science-f6gocgie/wrapper/app.py", line 18, in <module>
+    runpy.run_path('/tmp/hz-repair-20261127-baseline/app.py', run_name="__main__")
+File "<frozen runpy>", line 291, in run_path
+File "<frozen runpy>", line 98, in _run_module_code
+File "<frozen runpy>", line 88, in _run_code
+File "/tmp/hz-repair-20261127-baseline/app.py", line 39, in <module>
+    repo = Repository(st.session_state["database_path"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/tmp/hz-repair-science-f6gocgie/wrapper/src/healthzip/db/repository.py", line 39, in __init__
+    current = self._schema_is_current()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/tmp/hz-repair-science-f6gocgie/wrapper/src/healthzip/db/repository.py", line 72, in _schema_is_current
+    raise ValueError("database_schema_newer_than_application")
+Copy
+Ask Google
+Ask ChatGPT

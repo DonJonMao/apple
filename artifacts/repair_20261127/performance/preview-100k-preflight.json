@@ -1,0 +1,3105 @@
+{
+  "data": "synthetic_only",
+  "database": "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+  "database_bytes": 381632512,
+  "generated_at": "2026-11-26T16:32:37.491984+00:00",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "cpu_count": 192,
+  "python": "3.11.7",
+  "sqlite": "3.41.2",
+  "analysis_cutoff": "2026-11-22T10:07:49.556032+00:00",
+  "host_memory_kib": "2109313276",
+  "load_average_start": [
+    23.21044921875,
+    23.26708984375,
+    22.18603515625
+  ],
+  "transport": "same-host HTTP and Streamlit WebSocket",
+  "remote_phone_network": "not_tested",
+  "os_cache_cleared": false,
+  "concurrent_load": "Other acceptance processes may run; not an exclusive host",
+  "measurement_clock": "All fact/trend stages first wait for a new completed data-hz-render with workspace=review; conservative upper bounds exclude stale prior DOM. Click samples start at captured DOM click; first open starts before page.goto. Full report generation is never invoked.",
+  "cold_design": "Three separate processes/backups: direct preview in a new process; running app initialized on settings then first selected week/month preview. Only selected period is requested. Analysis clock equals original acceptance cutoff; source dates and conditions unchanged. Hot return has 30 independent real navigation clicks, new render identities and checked facts/plot arrays.",
+  "source_sha256": {
+    "app.py": "4f0b539c79fe81711f88f01f3472bde624e219102625a91ef0ee43a1d29dd2a8",
+    "src/healthzip/ui/review_page.py": "7d837398c09e39a313d1a5e0b6a12222c8c718a61d769ee0184c3e0f622338d2",
+    "src/healthzip/ui/overview.py": "32889c174281926ed216b7aaad561bbb1b7598e810e73079c53949bc273bb2d8",
+    "src/healthzip/ui/navigation.py": "628a03a324814e3351e692e0aab39c0b7d271fe41151c87698e147ba4cc0038d",
+    "src/healthzip/analytics/workspace_summary.py": "629002603b9f9f52a69c73276d609d3b67d8e47554f01ac12ffd45e2856b4060",
+    "src/healthzip/training/service.py": "25d78c0db94a3b657ffe0d0dbb7c213f15652178838634244f2c29d2ad9bf896",
+    "tools/repair_preview_benchmark.py": "6fe6ad728c0e2185f58cde3a7e5e14aa47595843878dd4cacccebd8c3d14a222"
+  },
+  "health_sample_count": 100001,
+  "training_set_count": 10000,
+  "browser": "158.0.8127.18",
+  "first_open_new_process": {
+    "health_sample_count": 100001,
+    "training_set_count": 10000,
+    "full_report_count_before": 0,
+    "mode": "new_process",
+    "requested_initial_period": "week",
+    "monthly_bootstrap": "import runpy\nimport importlib\nimport streamlit as st\nfrom datetime import datetime\nclass FixedRequestClock(datetime):\n    @classmethod\n    def now(cls, tz=None):\n        value = datetime.fromisoformat('2026-11-22T10:07:49.556032+00:00')\n        return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor name in ('healthzip.analytics.workspace_summary','healthzip.analytics.workspaces'):\n    importlib.import_module(name).datetime = FixedRequestClock\nif not st.session_state.get('_preview_benchmark_initialized'):\n    st.session_state['review_period'] = '本周'\n    st.session_state['_preview_benchmark_initialized'] = True\nrunpy.run_path('/home/sn_maozhifang/apple/app.py', run_name='__main__')\n",
+    "cold_summary_cache": true,
+    "service_ready_ms": 2345.7291647791862,
+    "browser": "158.0.8127.18",
+    "cold": {
+      "first_fact_ms": 5731.683649122715,
+      "facts_and_trend_ms": 7213.551305234432,
+      "full_interaction_ms": 7227.9640436172485,
+      "server_page_ms": 4886.271,
+      "automation_request_to_settled_ms": 7227.965317666531,
+      "selected_period": "week",
+      "completed_snapshot": {
+        "hzRender": "4e6f3f31-9276-44be-94ed-4f02b421c394",
+        "workspace": "review",
+        "serverMs": "4886.271"
+      },
+      "actual_facts": [
+        {
+          "label": "完成训练",
+          "value": "100 次"
+        },
+        {
+          "label": "有效工作组",
+          "value": "10,000 组"
+        },
+        {
+          "label": "睡眠中位数",
+          "value": "1.5 小时"
+        },
+        {
+          "label": "静息心率",
+          "value": "62.5 bpm"
+        },
+        {
+          "label": "体重",
+          "value": "72.0 kg"
+        }
+      ],
+      "actual_trend": [
+        {
+          "type": "bar",
+          "x": [
+            "2026-11-20"
+          ],
+          "y": [
+            10000
+          ]
+        }
+      ]
+    },
+    "warm_samples": [],
+    "rendered_values_verified": true,
+    "expected_normal_summary": {
+      "week": {
+        "window": {
+          "start": "2026-11-15T16:00:00+00:00",
+          "end": "2026-11-22T10:07:49.556032+00:00",
+          "closure": "[start,end)",
+          "partial": true
+        },
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.5 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.5 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.0 kg"
+          }
+        ],
+        "strength_trend": [
+          [
+            "2026-11-20",
+            10000
+          ]
+        ]
+      },
+      "month": {
+        "window": {
+          "start": "2026-10-31T16:00:00+00:00",
+          "end": "2026-11-22T10:07:49.556032+00:00",
+          "closure": "[start,end)",
+          "partial": true
+        },
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "strength_trend": [
+          [
+            "2026-11-20",
+            10000
+          ]
+        ]
+      }
+    },
+    "full_report_count_after": 0,
+    "full_reports_generated": 0
+  },
+  "running_process_cold": {
+    "week": {
+      "health_sample_count": 100001,
+      "training_set_count": 10000,
+      "full_report_count_before": 0,
+      "mode": "running_process",
+      "requested_initial_period": "week",
+      "monthly_bootstrap": "import runpy\nimport importlib\nimport streamlit as st\nfrom datetime import datetime\nclass FixedRequestClock(datetime):\n    @classmethod\n    def now(cls, tz=None):\n        value = datetime.fromisoformat('2026-11-22T10:07:49.556032+00:00')\n        return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor name in ('healthzip.analytics.workspace_summary','healthzip.analytics.workspaces'):\n    importlib.import_module(name).datetime = FixedRequestClock\nif not st.session_state.get('_preview_benchmark_initialized'):\n    st.session_state['review_period'] = '本周'\n    st.session_state['_preview_benchmark_initialized'] = True\nrunpy.run_path('/home/sn_maozhifang/apple/app.py', run_name='__main__')\n",
+      "cold_summary_cache": true,
+      "service_ready_ms": 2343.065209686756,
+      "browser": "158.0.8127.18",
+      "cold": {
+        "first_fact_ms": 4614.700004577637,
+        "facts_and_trend_ms": 6040.700004577637,
+        "full_interaction_ms": 6050.900001525879,
+        "server_page_ms": 4462.944,
+        "automation_request_to_settled_ms": 6106.207676231861,
+        "selected_period": "week",
+        "completed_snapshot": {
+          "hzRender": "6b1f8cd4-bd6d-433b-a5b5-7455ad4196b1",
+          "workspace": "review",
+          "serverMs": "4462.944"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.5 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.5 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.0 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ]
+      },
+      "warm_samples": [],
+      "rendered_values_verified": true,
+      "expected_normal_summary": {
+        "week": {
+          "window": {
+            "start": "2026-11-15T16:00:00+00:00",
+            "end": "2026-11-22T10:07:49.556032+00:00",
+            "closure": "[start,end)",
+            "partial": true
+          },
+          "facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.5 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "62.5 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.0 kg"
+            }
+          ],
+          "strength_trend": [
+            [
+              "2026-11-20",
+              10000
+            ]
+          ]
+        },
+        "month": {
+          "window": {
+            "start": "2026-10-31T16:00:00+00:00",
+            "end": "2026-11-22T10:07:49.556032+00:00",
+            "closure": "[start,end)",
+            "partial": true
+          },
+          "facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "strength_trend": [
+            [
+              "2026-11-20",
+              10000
+            ]
+          ]
+        }
+      },
+      "full_report_count_after": 0,
+      "full_reports_generated": 0
+    },
+    "month": {
+      "health_sample_count": 100001,
+      "training_set_count": 10000,
+      "full_report_count_before": 0,
+      "mode": "running_process",
+      "requested_initial_period": "month",
+      "monthly_bootstrap": "import runpy\nimport importlib\nimport streamlit as st\nfrom datetime import datetime\nclass FixedRequestClock(datetime):\n    @classmethod\n    def now(cls, tz=None):\n        value = datetime.fromisoformat('2026-11-22T10:07:49.556032+00:00')\n        return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor name in ('healthzip.analytics.workspace_summary','healthzip.analytics.workspaces'):\n    importlib.import_module(name).datetime = FixedRequestClock\nif not st.session_state.get('_preview_benchmark_initialized'):\n    st.session_state['review_period'] = '本月'\n    st.session_state['_preview_benchmark_initialized'] = True\nrunpy.run_path('/home/sn_maozhifang/apple/app.py', run_name='__main__')\n",
+      "cold_summary_cache": true,
+      "service_ready_ms": 2303.5489544272423,
+      "browser": "158.0.8127.18",
+      "cold": {
+        "first_fact_ms": 4636,
+        "facts_and_trend_ms": 6028.599998474121,
+        "full_interaction_ms": 6052.599998474121,
+        "server_page_ms": 4495.649,
+        "automation_request_to_settled_ms": 6182.117588818073,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "b1921847-c1b6-4f04-aaa5-24546c6736e7",
+          "workspace": "review",
+          "serverMs": "4495.649"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ]
+      },
+      "warm_user_period_selection": {
+        "actions": [
+          "本周",
+          "本月"
+        ],
+        "completed_snapshots": [
+          {
+            "hzRender": "c7cee74c-622c-481d-a52f-bb587540b00b",
+            "workspace": "review",
+            "serverMs": "4266.388"
+          },
+          {
+            "hzRender": "81240688-bd08-4377-b58b-f44c53ebda5a",
+            "workspace": "review",
+            "serverMs": "55.214"
+          }
+        ]
+      },
+      "rendered_values_verified": true,
+      "expected_normal_summary": {
+        "week": {
+          "window": {
+            "start": "2026-11-15T16:00:00+00:00",
+            "end": "2026-11-22T10:07:49.556032+00:00",
+            "closure": "[start,end)",
+            "partial": true
+          },
+          "facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.5 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "62.5 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.0 kg"
+            }
+          ],
+          "strength_trend": [
+            [
+              "2026-11-20",
+              10000
+            ]
+          ]
+        },
+        "month": {
+          "window": {
+            "start": "2026-10-31T16:00:00+00:00",
+            "end": "2026-11-22T10:07:49.556032+00:00",
+            "closure": "[start,end)",
+            "partial": true
+          },
+          "facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "strength_trend": [
+            [
+              "2026-11-20",
+              10000
+            ]
+          ]
+        }
+      },
+      "full_report_count_after": 0,
+      "full_reports_generated": 0
+    }
+  },
+  "warm_return": {
+    "n": 30,
+    "samples": [
+      {
+        "first_fact_ms": 189.8000030517578,
+        "facts_and_trend_ms": 195.60000610351562,
+        "full_interaction_ms": 202.70000457763672,
+        "server_page_ms": 54.784,
+        "automation_request_to_settled_ms": 244.95498090982437,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "4fb1bb89-56eb-4fe0-a63a-c80c6e6dbd6f",
+          "workspace": "review",
+          "serverMs": "54.784"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "81240688-bd08-4377-b58b-f44c53ebda5a",
+            "workspace": "review",
+            "serverMs": "55.214"
+          },
+          "visited_overview": {
+            "hzRender": "e867f46f-57c0-443a-abe9-ccbb4d181b91",
+            "workspace": "overview",
+            "serverMs": "68.361"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "4fb1bb89-56eb-4fe0-a63a-c80c6e6dbd6f",
+            "workspace": "review",
+            "serverMs": "54.784"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 186.9000015258789,
+        "facts_and_trend_ms": 193.0999984741211,
+        "full_interaction_ms": 200.0999984741211,
+        "server_page_ms": 55.125,
+        "automation_request_to_settled_ms": 243.160218000412,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "56292587-ed97-4951-a6f8-e3598cd46d39",
+          "workspace": "review",
+          "serverMs": "55.125"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "4fb1bb89-56eb-4fe0-a63a-c80c6e6dbd6f",
+            "workspace": "review",
+            "serverMs": "54.784"
+          },
+          "visited_overview": {
+            "hzRender": "ff4266c3-0d60-4442-a4b0-28ef429a9a89",
+            "workspace": "overview",
+            "serverMs": "72.187"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "56292587-ed97-4951-a6f8-e3598cd46d39",
+            "workspace": "review",
+            "serverMs": "55.125"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 193,
+        "facts_and_trend_ms": 198.8000030517578,
+        "full_interaction_ms": 205.6999969482422,
+        "server_page_ms": 54.944,
+        "automation_request_to_settled_ms": 242.1952560544014,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "1bc2f069-0b24-46fb-9ec5-d3f46af643eb",
+          "workspace": "review",
+          "serverMs": "54.944"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "56292587-ed97-4951-a6f8-e3598cd46d39",
+            "workspace": "review",
+            "serverMs": "55.125"
+          },
+          "visited_overview": {
+            "hzRender": "3fc4a7ef-53f1-4d0f-a6b1-362d426473e1",
+            "workspace": "overview",
+            "serverMs": "69.860"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "1bc2f069-0b24-46fb-9ec5-d3f46af643eb",
+            "workspace": "review",
+            "serverMs": "54.944"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 183.6999969482422,
+        "facts_and_trend_ms": 189.5,
+        "full_interaction_ms": 196.29999542236328,
+        "server_page_ms": 54.877,
+        "automation_request_to_settled_ms": 233.79241675138474,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "4feb8eb4-f151-4471-a7c3-e7f88757eb22",
+          "workspace": "review",
+          "serverMs": "54.877"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "1bc2f069-0b24-46fb-9ec5-d3f46af643eb",
+            "workspace": "review",
+            "serverMs": "54.944"
+          },
+          "visited_overview": {
+            "hzRender": "757cb98f-f780-4d3c-ba69-51174f71a5d4",
+            "workspace": "overview",
+            "serverMs": "70.070"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "4feb8eb4-f151-4471-a7c3-e7f88757eb22",
+            "workspace": "review",
+            "serverMs": "54.877"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 183.6999969482422,
+        "facts_and_trend_ms": 189.1999969482422,
+        "full_interaction_ms": 195.79999542236328,
+        "server_page_ms": 54.974,
+        "automation_request_to_settled_ms": 233.68803411722183,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "9b39e152-e76d-450e-999a-0a8499b13b1e",
+          "workspace": "review",
+          "serverMs": "54.974"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "4feb8eb4-f151-4471-a7c3-e7f88757eb22",
+            "workspace": "review",
+            "serverMs": "54.877"
+          },
+          "visited_overview": {
+            "hzRender": "64c0cdc9-7430-4b9e-bbd9-35646f5f5b27",
+            "workspace": "overview",
+            "serverMs": "69.170"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "9b39e152-e76d-450e-999a-0a8499b13b1e",
+            "workspace": "review",
+            "serverMs": "54.974"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 181.4000015258789,
+        "facts_and_trend_ms": 186.70000457763672,
+        "full_interaction_ms": 193,
+        "server_page_ms": 54.653,
+        "automation_request_to_settled_ms": 235.69786548614502,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "508ad569-8b06-4a88-a377-dfd10451e764",
+          "workspace": "review",
+          "serverMs": "54.653"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "9b39e152-e76d-450e-999a-0a8499b13b1e",
+            "workspace": "review",
+            "serverMs": "54.974"
+          },
+          "visited_overview": {
+            "hzRender": "3b3fd230-a72a-4ba2-abea-5e91c3d597a7",
+            "workspace": "overview",
+            "serverMs": "67.457"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "508ad569-8b06-4a88-a377-dfd10451e764",
+            "workspace": "review",
+            "serverMs": "54.653"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 181.4000015258789,
+        "facts_and_trend_ms": 186.8000030517578,
+        "full_interaction_ms": 193.10000610351562,
+        "server_page_ms": 60.418,
+        "automation_request_to_settled_ms": 207.15002715587616,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "7797013c-1f25-4f7d-84e8-85ba4555d382",
+          "workspace": "review",
+          "serverMs": "60.418"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "508ad569-8b06-4a88-a377-dfd10451e764",
+            "workspace": "review",
+            "serverMs": "54.653"
+          },
+          "visited_overview": {
+            "hzRender": "85718a9e-33fc-4778-acc3-885fe6f83189",
+            "workspace": "overview",
+            "serverMs": "71.713"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "7797013c-1f25-4f7d-84e8-85ba4555d382",
+            "workspace": "review",
+            "serverMs": "60.418"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 178.9000015258789,
+        "facts_and_trend_ms": 183.8000030517578,
+        "full_interaction_ms": 190.4000015258789,
+        "server_page_ms": 55.231,
+        "automation_request_to_settled_ms": 224.87983852624893,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "02c36b1e-9399-4ab5-bb0a-9d63ffe52a36",
+          "workspace": "review",
+          "serverMs": "55.231"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "7797013c-1f25-4f7d-84e8-85ba4555d382",
+            "workspace": "review",
+            "serverMs": "60.418"
+          },
+          "visited_overview": {
+            "hzRender": "90784da2-9be4-4570-84de-99119b94e721",
+            "workspace": "overview",
+            "serverMs": "67.936"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "02c36b1e-9399-4ab5-bb0a-9d63ffe52a36",
+            "workspace": "review",
+            "serverMs": "55.231"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 177.20000457763672,
+        "facts_and_trend_ms": 182.5,
+        "full_interaction_ms": 188.70000457763672,
+        "server_page_ms": 54.274,
+        "automation_request_to_settled_ms": 206.74755424261093,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "98ac9447-3663-42ce-81d4-7642c1193ee9",
+          "workspace": "review",
+          "serverMs": "54.274"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "02c36b1e-9399-4ab5-bb0a-9d63ffe52a36",
+            "workspace": "review",
+            "serverMs": "55.231"
+          },
+          "visited_overview": {
+            "hzRender": "b7ead7bd-f791-421b-a827-64d81a62808d",
+            "workspace": "overview",
+            "serverMs": "67.789"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "98ac9447-3663-42ce-81d4-7642c1193ee9",
+            "workspace": "review",
+            "serverMs": "54.274"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 174.39999389648438,
+        "facts_and_trend_ms": 179.5999984741211,
+        "full_interaction_ms": 185.79999542236328,
+        "server_page_ms": 54.225,
+        "automation_request_to_settled_ms": 222.12859243154526,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "6dd8b99a-7c9f-42b0-a9f0-075682578355",
+          "workspace": "review",
+          "serverMs": "54.225"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "98ac9447-3663-42ce-81d4-7642c1193ee9",
+            "workspace": "review",
+            "serverMs": "54.274"
+          },
+          "visited_overview": {
+            "hzRender": "bd787adf-8562-432c-b41a-187a0d16c8f8",
+            "workspace": "overview",
+            "serverMs": "68.179"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "6dd8b99a-7c9f-42b0-a9f0-075682578355",
+            "workspace": "review",
+            "serverMs": "54.225"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 174,
+        "facts_and_trend_ms": 179.1999969482422,
+        "full_interaction_ms": 185.5,
+        "server_page_ms": 53.753,
+        "automation_request_to_settled_ms": 229.3471395969391,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "b3600f28-ced5-41e2-893d-af28eaffa41d",
+          "workspace": "review",
+          "serverMs": "53.753"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "6dd8b99a-7c9f-42b0-a9f0-075682578355",
+            "workspace": "review",
+            "serverMs": "54.225"
+          },
+          "visited_overview": {
+            "hzRender": "3211a87d-73d0-4f73-b6c4-ec5e59bbc800",
+            "workspace": "overview",
+            "serverMs": "75.358"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "b3600f28-ced5-41e2-893d-af28eaffa41d",
+            "workspace": "review",
+            "serverMs": "53.753"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 176.5999984741211,
+        "facts_and_trend_ms": 182.39999389648438,
+        "full_interaction_ms": 188.6999969482422,
+        "server_page_ms": 55.61,
+        "automation_request_to_settled_ms": 201.2990266084671,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "edc65af0-13c4-45e7-968c-d0e768f8846c",
+          "workspace": "review",
+          "serverMs": "55.610"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "b3600f28-ced5-41e2-893d-af28eaffa41d",
+            "workspace": "review",
+            "serverMs": "53.753"
+          },
+          "visited_overview": {
+            "hzRender": "bb9d18e3-844f-48eb-9d17-120f3f1a3e2b",
+            "workspace": "overview",
+            "serverMs": "67.152"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "edc65af0-13c4-45e7-968c-d0e768f8846c",
+            "workspace": "review",
+            "serverMs": "55.610"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 180.0999984741211,
+        "facts_and_trend_ms": 185.5999984741211,
+        "full_interaction_ms": 191.9000015258789,
+        "server_page_ms": 55.905,
+        "automation_request_to_settled_ms": 206.65140450000763,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "ea86c21c-34e4-4b2e-b7b0-193fbdf1c82b",
+          "workspace": "review",
+          "serverMs": "55.905"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "edc65af0-13c4-45e7-968c-d0e768f8846c",
+            "workspace": "review",
+            "serverMs": "55.610"
+          },
+          "visited_overview": {
+            "hzRender": "fa7e75ec-626a-4c66-98e9-29891ca7724e",
+            "workspace": "overview",
+            "serverMs": "67.602"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "ea86c21c-34e4-4b2e-b7b0-193fbdf1c82b",
+            "workspace": "review",
+            "serverMs": "55.905"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 183.5999984741211,
+        "facts_and_trend_ms": 188.89999389648438,
+        "full_interaction_ms": 195.39999389648438,
+        "server_page_ms": 54.022,
+        "automation_request_to_settled_ms": 232.81210660934448,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "f6360f26-ba7a-44fe-96f0-2eedf00544f9",
+          "workspace": "review",
+          "serverMs": "54.022"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "ea86c21c-34e4-4b2e-b7b0-193fbdf1c82b",
+            "workspace": "review",
+            "serverMs": "55.905"
+          },
+          "visited_overview": {
+            "hzRender": "0bfbd438-f276-4b21-bbd2-a53199360bc1",
+            "workspace": "overview",
+            "serverMs": "70.439"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "f6360f26-ba7a-44fe-96f0-2eedf00544f9",
+            "workspace": "review",
+            "serverMs": "54.022"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 182.4000015258789,
+        "facts_and_trend_ms": 187.8000030517578,
+        "full_interaction_ms": 194.5,
+        "server_page_ms": 55.209,
+        "automation_request_to_settled_ms": 212.4633491039276,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "0898e07b-8d01-4d19-8150-ffadb109296f",
+          "workspace": "review",
+          "serverMs": "55.209"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "f6360f26-ba7a-44fe-96f0-2eedf00544f9",
+            "workspace": "review",
+            "serverMs": "54.022"
+          },
+          "visited_overview": {
+            "hzRender": "0bceb9b5-dd4e-495c-a926-8dcad2413aa3",
+            "workspace": "overview",
+            "serverMs": "69.104"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "0898e07b-8d01-4d19-8150-ffadb109296f",
+            "workspace": "review",
+            "serverMs": "55.209"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 184.5999984741211,
+        "facts_and_trend_ms": 189.9000015258789,
+        "full_interaction_ms": 196.29999542236328,
+        "server_page_ms": 53.927,
+        "automation_request_to_settled_ms": 239.09913003444672,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "4ab91b47-a84e-4161-a03d-c729d4e44557",
+          "workspace": "review",
+          "serverMs": "53.927"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "0898e07b-8d01-4d19-8150-ffadb109296f",
+            "workspace": "review",
+            "serverMs": "55.209"
+          },
+          "visited_overview": {
+            "hzRender": "f9d573ce-a4e6-4472-8d34-342f9728d142",
+            "workspace": "overview",
+            "serverMs": "68.049"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "4ab91b47-a84e-4161-a03d-c729d4e44557",
+            "workspace": "review",
+            "serverMs": "53.927"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 178.9000015258789,
+        "facts_and_trend_ms": 184.1999969482422,
+        "full_interaction_ms": 190.5999984741211,
+        "server_page_ms": 55.371,
+        "automation_request_to_settled_ms": 233.48263651132584,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "367aee90-7f6a-4fc0-9e6b-e215b4616e4e",
+          "workspace": "review",
+          "serverMs": "55.371"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "4ab91b47-a84e-4161-a03d-c729d4e44557",
+            "workspace": "review",
+            "serverMs": "53.927"
+          },
+          "visited_overview": {
+            "hzRender": "0f57c5a6-4156-4b07-9f8b-81502fa6e13e",
+            "workspace": "overview",
+            "serverMs": "68.811"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "367aee90-7f6a-4fc0-9e6b-e215b4616e4e",
+            "workspace": "review",
+            "serverMs": "55.371"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 232.8000030517578,
+        "facts_and_trend_ms": 262.5999984741211,
+        "full_interaction_ms": 279.9000015258789,
+        "server_page_ms": 54.301,
+        "automation_request_to_settled_ms": 293.20406913757324,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "9f58057e-8a7f-4958-a636-e5292fc434f0",
+          "workspace": "review",
+          "serverMs": "54.301"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "367aee90-7f6a-4fc0-9e6b-e215b4616e4e",
+            "workspace": "review",
+            "serverMs": "55.371"
+          },
+          "visited_overview": {
+            "hzRender": "f0120ed8-e386-4f3b-804a-af4104c39deb",
+            "workspace": "overview",
+            "serverMs": "66.557"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "9f58057e-8a7f-4958-a636-e5292fc434f0",
+            "workspace": "review",
+            "serverMs": "54.301"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 182.3000030517578,
+        "facts_and_trend_ms": 187.9000015258789,
+        "full_interaction_ms": 194.0999984741211,
+        "server_page_ms": 54.797,
+        "automation_request_to_settled_ms": 207.28092640638351,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "a8066982-c97b-4fdd-a33e-39c3546cca64",
+          "workspace": "review",
+          "serverMs": "54.797"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "9f58057e-8a7f-4958-a636-e5292fc434f0",
+            "workspace": "review",
+            "serverMs": "54.301"
+          },
+          "visited_overview": {
+            "hzRender": "f39e70b1-df50-4a87-b053-630ce8fce4db",
+            "workspace": "overview",
+            "serverMs": "65.853"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "a8066982-c97b-4fdd-a33e-39c3546cca64",
+            "workspace": "review",
+            "serverMs": "54.797"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 183.4000015258789,
+        "facts_and_trend_ms": 188.9000015258789,
+        "full_interaction_ms": 195.5,
+        "server_page_ms": 58.524,
+        "automation_request_to_settled_ms": 212.927408516407,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "f70b0c55-f5f8-4dd1-9c2c-a87f34b51b6b",
+          "workspace": "review",
+          "serverMs": "58.524"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "a8066982-c97b-4fdd-a33e-39c3546cca64",
+            "workspace": "review",
+            "serverMs": "54.797"
+          },
+          "visited_overview": {
+            "hzRender": "9951b915-f493-4ab5-a596-e65fd9869349",
+            "workspace": "overview",
+            "serverMs": "66.856"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "f70b0c55-f5f8-4dd1-9c2c-a87f34b51b6b",
+            "workspace": "review",
+            "serverMs": "58.524"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 180.6999969482422,
+        "facts_and_trend_ms": 185.9000015258789,
+        "full_interaction_ms": 192.0999984741211,
+        "server_page_ms": 54.585,
+        "automation_request_to_settled_ms": 231.4894050359726,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "04560e09-8057-4b99-b474-59cdf4131624",
+          "workspace": "review",
+          "serverMs": "54.585"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "f70b0c55-f5f8-4dd1-9c2c-a87f34b51b6b",
+            "workspace": "review",
+            "serverMs": "58.524"
+          },
+          "visited_overview": {
+            "hzRender": "91e88285-fc42-44e7-b1d5-46cc304af192",
+            "workspace": "overview",
+            "serverMs": "67.464"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "04560e09-8057-4b99-b474-59cdf4131624",
+            "workspace": "review",
+            "serverMs": "54.585"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 189.5,
+        "facts_and_trend_ms": 195.3000030517578,
+        "full_interaction_ms": 201.9000015258789,
+        "server_page_ms": 54.56,
+        "automation_request_to_settled_ms": 244.7509765625,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "d809e915-e571-4451-8ebe-f604d2853e93",
+          "workspace": "review",
+          "serverMs": "54.560"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "04560e09-8057-4b99-b474-59cdf4131624",
+            "workspace": "review",
+            "serverMs": "54.585"
+          },
+          "visited_overview": {
+            "hzRender": "2e60d13b-cb90-4259-90f4-b35b3f50241d",
+            "workspace": "overview",
+            "serverMs": "76.152"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "d809e915-e571-4451-8ebe-f604d2853e93",
+            "workspace": "review",
+            "serverMs": "54.560"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 208.29999542236328,
+        "facts_and_trend_ms": 214,
+        "full_interaction_ms": 220.6999969482422,
+        "server_page_ms": 61.305,
+        "automation_request_to_settled_ms": 234.16204750537872,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "d24b63e6-9312-4353-9a42-25ee1e2aad16",
+          "workspace": "review",
+          "serverMs": "61.305"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "d809e915-e571-4451-8ebe-f604d2853e93",
+            "workspace": "review",
+            "serverMs": "54.560"
+          },
+          "visited_overview": {
+            "hzRender": "bb03d43f-8066-4224-9c97-290e248af847",
+            "workspace": "overview",
+            "serverMs": "65.455"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "d24b63e6-9312-4353-9a42-25ee1e2aad16",
+            "workspace": "review",
+            "serverMs": "61.305"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 173.8000030517578,
+        "facts_and_trend_ms": 178.9000015258789,
+        "full_interaction_ms": 185.0999984741211,
+        "server_page_ms": 53.935,
+        "automation_request_to_settled_ms": 200.3716602921486,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "9d08e35c-0fe2-4f03-af7f-cfaded8f3cf7",
+          "workspace": "review",
+          "serverMs": "53.935"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "d24b63e6-9312-4353-9a42-25ee1e2aad16",
+            "workspace": "review",
+            "serverMs": "61.305"
+          },
+          "visited_overview": {
+            "hzRender": "0ec0c07a-1961-400f-a787-c893f33fbb31",
+            "workspace": "overview",
+            "serverMs": "74.684"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "9d08e35c-0fe2-4f03-af7f-cfaded8f3cf7",
+            "workspace": "review",
+            "serverMs": "53.935"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 173.70000457763672,
+        "facts_and_trend_ms": 179.4000015258789,
+        "full_interaction_ms": 186,
+        "server_page_ms": 54.985,
+        "automation_request_to_settled_ms": 220.70173174142838,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "5ec251c7-cbd2-4236-963a-cdeb5933b8ec",
+          "workspace": "review",
+          "serverMs": "54.985"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "9d08e35c-0fe2-4f03-af7f-cfaded8f3cf7",
+            "workspace": "review",
+            "serverMs": "53.935"
+          },
+          "visited_overview": {
+            "hzRender": "4085fa5a-94bf-4d30-bddf-d1eb6dee8488",
+            "workspace": "overview",
+            "serverMs": "67.689"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "5ec251c7-cbd2-4236-963a-cdeb5933b8ec",
+            "workspace": "review",
+            "serverMs": "54.985"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 181.5999984741211,
+        "facts_and_trend_ms": 187.3000030517578,
+        "full_interaction_ms": 193.4000015258789,
+        "server_page_ms": 53.837,
+        "automation_request_to_settled_ms": 228.5723090171814,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "04183756-3365-4750-9b04-24cfa0cac514",
+          "workspace": "review",
+          "serverMs": "53.837"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "5ec251c7-cbd2-4236-963a-cdeb5933b8ec",
+            "workspace": "review",
+            "serverMs": "54.985"
+          },
+          "visited_overview": {
+            "hzRender": "3146617b-610a-4df9-bebb-444a782a11b0",
+            "workspace": "overview",
+            "serverMs": "74.517"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "04183756-3365-4750-9b04-24cfa0cac514",
+            "workspace": "review",
+            "serverMs": "53.837"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 179.6999969482422,
+        "facts_and_trend_ms": 184.6999969482422,
+        "full_interaction_ms": 191.0999984741211,
+        "server_page_ms": 54.538,
+        "automation_request_to_settled_ms": 233.3514839410782,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "e2a259f3-c242-4b9f-8222-2c5aedeff078",
+          "workspace": "review",
+          "serverMs": "54.538"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "04183756-3365-4750-9b04-24cfa0cac514",
+            "workspace": "review",
+            "serverMs": "53.837"
+          },
+          "visited_overview": {
+            "hzRender": "9db15a91-e86f-41b0-9221-d3e5c6dae3b7",
+            "workspace": "overview",
+            "serverMs": "67.895"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "e2a259f3-c242-4b9f-8222-2c5aedeff078",
+            "workspace": "review",
+            "serverMs": "54.538"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 178,
+        "facts_and_trend_ms": 183.0999984741211,
+        "full_interaction_ms": 189.20000457763672,
+        "server_page_ms": 53.974,
+        "automation_request_to_settled_ms": 205.03219962120056,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "454b310a-f89a-4cbf-b5fb-ec92e2aeed43",
+          "workspace": "review",
+          "serverMs": "53.974"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "e2a259f3-c242-4b9f-8222-2c5aedeff078",
+            "workspace": "review",
+            "serverMs": "54.538"
+          },
+          "visited_overview": {
+            "hzRender": "649d0a44-fd8e-4903-8717-26cb8eb40ac2",
+            "workspace": "overview",
+            "serverMs": "66.356"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "454b310a-f89a-4cbf-b5fb-ec92e2aeed43",
+            "workspace": "review",
+            "serverMs": "53.974"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 177.1999969482422,
+        "facts_and_trend_ms": 182.29999542236328,
+        "full_interaction_ms": 188.39999389648438,
+        "server_page_ms": 53.836,
+        "automation_request_to_settled_ms": 203.43748480081558,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "5dad0e42-d33c-4afc-9f53-707440e23175",
+          "workspace": "review",
+          "serverMs": "53.836"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "454b310a-f89a-4cbf-b5fb-ec92e2aeed43",
+            "workspace": "review",
+            "serverMs": "53.974"
+          },
+          "visited_overview": {
+            "hzRender": "f92c67df-095a-40f2-acf4-289ad35411f0",
+            "workspace": "overview",
+            "serverMs": "67.716"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "5dad0e42-d33c-4afc-9f53-707440e23175",
+            "workspace": "review",
+            "serverMs": "53.836"
+          },
+          "selected_period_preserved": true
+        }
+      },
+      {
+        "first_fact_ms": 174,
+        "facts_and_trend_ms": 179.0999984741211,
+        "full_interaction_ms": 185.0999984741211,
+        "server_page_ms": 53.665,
+        "automation_request_to_settled_ms": 225.80914199352264,
+        "selected_period": "month",
+        "completed_snapshot": {
+          "hzRender": "fcc9b195-5c3b-45fa-a1a8-5454b393b125",
+          "workspace": "review",
+          "serverMs": "53.665"
+        },
+        "actual_facts": [
+          {
+            "label": "完成训练",
+            "value": "100 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "10,000 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "1.2 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "65.0 bpm"
+          },
+          {
+            "label": "体重",
+            "value": "72.6 kg"
+          }
+        ],
+        "actual_trend": [
+          {
+            "type": "bar",
+            "x": [
+              "2026-11-20"
+            ],
+            "y": [
+              10000
+            ]
+          }
+        ],
+        "actual_navigation": {
+          "departure_review": {
+            "hzRender": "5dad0e42-d33c-4afc-9f53-707440e23175",
+            "workspace": "review",
+            "serverMs": "53.836"
+          },
+          "visited_overview": {
+            "hzRender": "0a34170e-7e12-4500-9b80-ac23748e2c38",
+            "workspace": "overview",
+            "serverMs": "68.391"
+          },
+          "overview_period": "month",
+          "overview_facts": [
+            {
+              "label": "完成训练",
+              "value": "100 次"
+            },
+            {
+              "label": "有效工作组",
+              "value": "10,000 组"
+            },
+            {
+              "label": "睡眠中位数",
+              "value": "1.2 小时"
+            },
+            {
+              "label": "静息心率",
+              "value": "65.0 bpm"
+            },
+            {
+              "label": "体重",
+              "value": "72.6 kg"
+            }
+          ],
+          "returned_review": {
+            "hzRender": "fcc9b195-5c3b-45fa-a1a8-5454b393b125",
+            "workspace": "review",
+            "serverMs": "53.665"
+          },
+          "selected_period_preserved": true
+        }
+      }
+    ],
+    "first_fact_ms": {
+      "p50": 181.4000015258789,
+      "p95": 208.29999542236328
+    },
+    "facts_and_trend_ms": {
+      "p50": 186.70000457763672,
+      "p95": 214
+    },
+    "full_interaction_ms": {
+      "p50": 193,
+      "p95": 220.6999969482422
+    },
+    "server_page_ms": {
+      "p50": 54.653,
+      "p95": 60.418
+    },
+    "automation_request_to_settled_ms": {
+      "p50": 228.5723090171814,
+      "p95": 244.95498090982437
+    }
+  },
+  "budget_met": {
+    "running_cold_first_fact_3s": false,
+    "new_process_first_fact_3s": false,
+    "warm_fact_trend_p95_800ms": true,
+    "warm_fact_trend_p95_1000ms": true
+  },
+  "load_average_end": [
+    19.3994140625,
+    22.4365234375,
+    21.9951171875
+  ]
+}

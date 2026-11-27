@@ -138,9 +138,22 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
         next(button for button in app.button if button.label == "生成 Markdown 报告").click().run()
         assert not app.exception and not app.error
         exported = downloads["下载身体与力量联合报告"]
-        assert "Synthetic watch" in exported and "420" in exported
+        assert "Synthetic watch" in exported and "7.0 小时睡眠" in exported
+        assert "## 下一步" in exported
         saved = json.loads(repo.one("SELECT payload_json FROM joint_period_report ORDER BY created_at DESC LIMIT 1")[0])
-        assert load_report(repo, saved["report_id"])["markdown"] == exported
+        frozen = load_report(repo, saved["report_id"])
+        assert frozen["markdown"] == exported
+        # Readable hours do not replace the frozen original minutes or source.
+        assert frozen["current"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        sleep_question = next(q for q in frozen["questions"] if q["id"] == "W6")
+        sleep_row = next(row for row in sleep_question["rows"] if row.get("metric") == "sleep_stage")
+        assert sleep_row["source"] == "Synthetic watch" and sleep_row["trajectory_last_value"] == 420
+        performance = next(q for q in frozen["questions"] if q["id"] == "W1")
+        points = [point for series in performance["ordinary_training"]["series"] for point in series["points"]]
+        recorded = next(point for point in points if point["record_id"] == actual["set_uuid"])
+        assert recorded["recorded_load"] == actual["load_value"]
+        assert (float(recorded["recorded_load"]), recorded["recorded_unit"], recorded["reps"]) == (55, "kg", 12)
+        assert not any(point["reference_set"] for point in points)
     assert repo.one("SELECT count(*) FROM training_recommendation_feedback")[0] == 0
     assert repo.one("SELECT count(*) FROM training_recommendation")[0] == 0
     repo.close()

@@ -352,7 +352,6 @@ def _explanation(view, repo):
 def render_heart(view, *, repo=None, show_title=True):
     if show_title:
         st.subheader("心率")
-    _window(view)
     rows = heart_rows(view)
     metrics = view.get("workspace_scope", {}).get("metrics", {})
     if any(metric.get("comparison", {}).get("streams") for metric in metrics.values()):
@@ -385,6 +384,7 @@ def render_heart(view, *, repo=None, show_title=True):
         _details(view, rows, notes=("日静息心率与 SDNN 按来源、设备、协议及版本分别计算；同设备不等于同协议。",
                                    "图上显示本期与前期真实日值，缺测留空；参考范围不叫健康正常范围。"))
         return
+    _window(view)
     cards, sections, findings, primary_stats = [], [], [], []
     for name, unit in (("静息心率", "次/分"), ("HRV（SDNN）", "毫秒")):
         selected = [row for row in rows if row["指标"] == name]
@@ -473,7 +473,6 @@ def render_sleep(view, *, repo=None, show_title=True):
         st.subheader("睡眠")
     if _sleep_scope_selection(view, repo):
         return
-    _window(view)
     rows = sleep_rows(view)
     stats = daily_statistics(rows, "睡眠时长（小时）")
     metric = view.get("workspace_scope", {}).get("metrics", {}).get("REPORT-STATE-SUMMARY", {})
@@ -487,6 +486,7 @@ def render_sleep(view, *, repo=None, show_title=True):
         cards.append({"label": "有记录日期", "value": f"{stats[0]['days']} 天",
                       "caption": f"最近观测 {stats[0]['last_date']}"})
     if not compared:
+        _window(view)
         _cards(cards)
     if rows:
         if not compared:
@@ -527,9 +527,10 @@ def _sleep_scope_selection(view, repo):
         saved_scope = load_preferences(repo.path).get("sleep_scope")
         if saved_scope in {"所选时期逐日总量", "截止前24小时", "已声明主睡眠（冻结）"}:
             st.session_state[scope_key] = saved_scope
-    mode = st.radio("睡眠口径", ["所选时期逐日总量", "截止前24小时", "已声明主睡眠（冻结）"],
-                    horizontal=True, key=scope_key,
-                    on_change=persist_widget if repo else None, args=(workspace, scope_key, "sleep_scope"))
+    with st.popover("睡眠口径 · " + st.session_state.get(scope_key, "所选时期逐日总量"), use_container_width=True):
+        mode = st.radio("睡眠口径", ["所选时期逐日总量", "截止前24小时", "已声明主睡眠（冻结）"],
+                        key=scope_key,
+                        on_change=persist_widget if repo else None, args=(workspace, scope_key, "sleep_scope"))
     if mode == "所选时期逐日总量":
         return False
     scope = view["workspace_scope"]

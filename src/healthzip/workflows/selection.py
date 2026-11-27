@@ -2,7 +2,7 @@
 from healthzip.science.contracts import Window, select_as_of, task_metric_results
 from healthzip.science.semantics import analysis_task, flatten_record, outcome_series
 
-from .report_inputs import source_snapshot
+from .report_inputs import report_value, source_snapshot
 
 
 def strength_inputs(repo, request, analysis, task):
@@ -52,6 +52,18 @@ def scoped_metrics(repo, request, analysis, task, metrics):
             "source": raw.get("source_method", "manual"), "condition_key": row.get("condition_key"),
             "comparable": series["eligible"]})
     return points
+
+
+def ordinary_strength_review(repo, request, analysis, task):
+    """Reuse the visible training snapshot without granting reference eligibility."""
+    from .longitudinal import ordinary_review
+    def compute():
+        rows, _ = strength_inputs(repo, request, analysis, task)
+        return ordinary_review(rows, {"start": analysis["window_start"], "end": analysis["window_end"],
+                                      "cutoff_time": request["cutoff_time"], "timezone": request["timezone"]})
+    task_selection = {key: task.get(key) for key in ("task_id", "inventory_task_ids")} if task else None
+    return report_value(repo, "ordinary_training", [request["cutoff_time"], request["mode"], request["timezone"],
+        analysis["window_start"], analysis["window_end"], task_selection], compute)
 
 
 def session_backgrounds(repo, request, analysis, task, selection):

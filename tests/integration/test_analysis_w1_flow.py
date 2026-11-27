@@ -20,7 +20,8 @@ TRAINING = runpy.run_path(str(Path(__file__).with_name("test_review_candidate_fl
 
 
 def history(tmp_path, monkeypatch, *, exercise="psa.ex.smith_incline_press",
-            basis="plates_per_side_kg", load=30, equipment="smith", approved=True):
+            basis="plates_per_side_kg", load=30, equipment="smith", approved=True,
+            history_times=None):
     import healthzip.training.service as training_module
     monkeypatch.chdir(tmp_path)
     if approved:
@@ -37,8 +38,9 @@ def history(tmp_path, monkeypatch, *, exercise="psa.ex.smith_incline_press",
             "tempo": "controlled", "rest_protocol": "180-sec"}}
     original_timestamp = training_module.timestamp
     ids = []
-    for days, reps in zip((26, 22, 18, 14, 10, 6), (10, 10, 9, 10, 10, 10), strict=True):
-        clock = datetime.now(timezone.utc) - timedelta(days=days)
+    for days, reps, observed_at in zip((26, 22, 18, 14, 10, 6), (10, 10, 9, 10, 10, 10),
+                                       history_times or [None] * 6, strict=True):
+        clock = observed_at if observed_at is not None else datetime.now(timezone.utc) - timedelta(days=days)
         with monkeypatch.context() as patch:
             patch.setattr(training_module, "timestamp", lambda value=None: original_timestamp(value) if value else clock.isoformat())
             session = svc.start_session("Synthetic prior")

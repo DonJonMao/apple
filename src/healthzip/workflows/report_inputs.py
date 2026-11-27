@@ -67,7 +67,8 @@ def _baseline_variant(repo, args, kwargs, context):
     base = period_facts(repo, *args, **{**kwargs, "context": base_context})
     start = min(base["query_plan"]["window_start"], context["baseline_window"]["start"], key=instant)
     records, inherited = source_snapshot(repo, base["cutoff_time"], window_start=start, window_end=base["window_end"],
-        canonical_types=["hrv_sdnn_ms", "resting_heart_rate_bpm"], retrospective=base["retrospective"], include_training=False)
+        canonical_types=["hrv_sdnn_ms", "resting_heart_rate_bpm"], retrospective=base["retrospective"], include_training=False,
+        source_filter=context.get("source_filter", ()))
     mids = ("STATE-REFERENCE-MEDIAN", "STATE-REFERENCE-MAD", "STATE-DEVIATION")
     metrics = evaluate_subset(mids, records, cutoff_time=base["cutoff_time"], window_start=base["window_start"],
         window_end=base["window_end"], context={**context, "timezone": base["timezone"], "retrospective": base["retrospective"]})

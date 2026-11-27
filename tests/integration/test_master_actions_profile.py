@@ -67,12 +67,13 @@ def test_followup_uses_saved_duration_sources_and_time_order(tmp_path, monkeypat
     assert not calls
     partial = followup(repo, identity, cutoff_time="2026-10-11T00:00:00Z")
     assert partial["status"] == "partial" and not partial["method_matches"]
-    assert calls[-1]["source_filter"] == ["watch A"]
-    assert calls[-1]["timezone_name"] == "Asia/Shanghai"
+    assert not calls  # Reassessment uses only the frozen outcome, not the whole question.
+    assert partial["review"]["definition"]["source_filter"] == ["watch A"]
+    assert partial["review"]["followup_window"]["timezone"] == "Asia/Shanghai"
     final = followup(repo, identity, cutoff_time="2026-10-20T00:00:00Z")
     assert final["comparison_duration_days"] == 7
-    assert calls[-1]["window_start"] == "2026-10-09T04:00:00+00:00"
-    assert calls[-1]["window_end"] == "2026-10-16T04:00:00+00:00"
+    assert final["review"]["followup_window"]["start"] == "2026-10-09T04:00:00+00:00"
+    assert final["review"]["followup_window"]["end"] == "2026-10-16T04:00:00+00:00"
     assert final["baseline"] == original
     repo.close()
 

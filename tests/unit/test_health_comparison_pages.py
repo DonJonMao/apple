@@ -1,5 +1,6 @@
 """Independent product scenarios render actual MetricResult computations."""
 
+from copy import deepcopy
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -48,21 +49,53 @@ def page_text(app):
 
 def test_rhr_first_screen_uses_computed_median_history_range_coverage_and_difference():
     rows = [record("resting_heart_rate_bpm", day, 59 if day < 0 else 64) for day in range(-28, 7)]
-    app = render(view_with(rows))
+    view = view_with(rows)
+    before_render = deepcopy(view)
+    app = render(view)
     text = page_text(app)
-    assert "高 5.0 bpm" in text
+    # The change now lives on the first value card rather than a repeated prose paragraph.
+    first = app.metric[0]
+    assert (first.label, first.value, first.delta) == (
+        "日静息心率", "64.0 bpm", "较前期 +5.0 bpm")
+    assert {item.label: item.value for item in app.metric} == {
+        "日静息心率": "64.0 bpm", "本期日静息心率": "64.0 bpm",
+        "前期日静息心率": "59.0 bpm", "个人历史参考日静息心率": "59.0 bpm"}
+    assert "日代表值中位数" in text
     assert "2026-11-09 至 2026-11-15" in text
+    assert "2026-11-02 至 2026-11-08" in text
     assert "2026-10-12 至 2026-11-08" in text
     assert "记录 7/7 天" in text and "记录 28/28 天" in text
-    assert {item.value for item in app.metric} >= {"64.0 bpm", "59.0 bpm"}
+    stream = view["workspace_scope"]["metrics"]["STATE-RHR"]["comparison"]["streams"][0]
+    assert stream["protocol"] == ["合成手表", "synthetic-watch", "synthetic-protocol", "test-v1"]
+    assert [(point["date"], point["value"], point["source_ids"])
+            for point in stream["current"]["daily_points"]] == [
+        (f"2026-11-{9 + day:02d}", 64.0, [f"synthetic-resting_heart_rate_bpm-{day}-0"])
+        for day in range(7)]
+    table = next(item.value for item in app.dataframe if "日代表值" in item.value.columns)
+    assert table["日代表值"].tolist() == [64.0] * 7
+    assert set(table["来源"]) == {"合成手表"}
+    assert "设备：synthetic-watch · 协议：synthetic-protocol · 来源版本：test-v1" in text
+    assert view == before_render  # Display does not recompute or mutate the source snapshot.
     assert "异常" not in text and "疲劳导致" not in text
 
 
 def test_nearby_distributions_remain_a_specific_observation_with_no_invented_problem():
     rows = [record("resting_heart_rate_bpm", day, 62 + day % 3) for day in range(-28, 7)]
-    app = render(view_with(rows))
+    view = view_with(rows)
+    app = render(view)
     text = page_text(app)
-    assert "中间一半日值" in text and "中位数为" in text
+    first = app.metric[0]
+    assert (first.label, first.value, first.delta) == (
+        "日静息心率", "63.0 bpm", "较前期 +0.0 bpm")
+    assert "日代表值中位数" in text
+    # Seven independent daily values have the same median but different middle halves.
+    stream = view["workspace_scope"]["metrics"]["STATE-RHR"]["comparison"]["streams"][0]
+    assert stream["current"]["quartiles"] == [62.0, 63.0, 63.5]
+    assert stream["previous"]["quartiles"] == [62.5, 63.0, 64.0]
+    assert "本期中间一半日值 62.0–63.5 bpm" in text
+    assert "前期中间一半日值 62.5–64.0 bpm" in text
+    table = next(item.value for item in app.dataframe if "日代表值" in item.value.columns)
+    assert table["日代表值"].tolist() == [62.0, 63.0, 64.0, 62.0, 63.0, 64.0, 62.0]
     assert "过度训练" not in text and "感染" not in text and "证据不足" not in text
 
 

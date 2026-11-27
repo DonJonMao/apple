@@ -1,0 +1,105 @@
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 42%]
+........................................................................ [ 56%]
+............................FF.......................................... [ 71%]
+........................................................................ [ 85%]
+........................................................................ [ 99%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_rhr_first_screen_uses_computed_median_history_range_coverage_and_difference _
+
+    def test_rhr_first_screen_uses_computed_median_history_range_coverage_and_difference():
+        rows = [record("resting_heart_rate_bpm", day, 59 if day < 0 else 64) for day in range(-28, 7)]
+        app = render(view_with(rows))
+        text = page_text(app)
+>       assert "高 5.0 bpm" in text
+E       AssertionError: assert '高 5.0 bpm' in '本期：2026-11-09 至 2026-11-15 · 记录 7/7 天\n前期：2026-11-02 至 2026-11-08 · 记录 7/7 天\n个人参考：2026-10-12 至 2026-11-08 · 记录 28/28...；参考范围不叫健康正常范围。\n计算版本：daily-physiology-2.0.0、health-period-summary-2.0.0\n缺少记录保持未知；有记录日期不证明完整采集覆盖。首末差描述本期记录，不代表因果或同期变化。'
+
+tests/unit/test_health_comparison_pages.py:53: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 01:14:12.851 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 01:14:12.851 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 01:14:13.928 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 01:14:13.960 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 01:14:13.964 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+_ test_nearby_distributions_remain_a_specific_observation_with_no_invented_problem _
+
+    def test_nearby_distributions_remain_a_specific_observation_with_no_invented_problem():
+        rows = [record("resting_heart_rate_bpm", day, 62 + day % 3) for day in range(-28, 7)]
+        app = render(view_with(rows))
+        text = page_text(app)
+>       assert "中间一半日值" in text and "中位数为" in text
+E       AssertionError: assert ('中间一半日值' in '本期：2026-11-09 至 2026-11-15 · 记录 7/7 天\n前期：2026-11-02 至 2026-11-08 · 记录 7/7 天\n个人参考：2026-10-12 至 2026-11-08 · 记录 28/28...；参考范围不叫健康正常范围。\n计算版本：daily-physiology-2.0.0、health-period-summary-2.0.0\n缺少记录保持未知；有记录日期不证明完整采集覆盖。首末差描述本期记录，不代表因果或同期变化。' and '中位数为' in '本期：2026-11-09 至 2026-11-15 · 记录 7/7 天\n前期：2026-11-02 至 2026-11-08 · 记录 7/7 天\n个人参考：2026-10-12 至 2026-11-08 · 记录 28/28...；参考范围不叫健康正常范围。\n计算版本：daily-physiology-2.0.0、health-period-summary-2.0.0\n缺少记录保持未知；有记录日期不证明完整采集覆盖。首末差描述本期记录，不代表因果或同期变化。')
+
+tests/unit/test_health_comparison_pages.py:65: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 01:14:14.014 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 01:14:14.014 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 01:14:15.052 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 01:14:15.085 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 01:14:15.089 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+=========================== short test summary info ============================
+FAILED tests/unit/test_health_comparison_pages.py::test_rhr_first_screen_uses_computed_median_history_range_coverage_and_difference
+FAILED tests/unit/test_health_comparison_pages.py::test_nearby_distributions_remain_a_specific_observation_with_no_invented_problem
+2 failed, 505 passed in 226.97s (0:03:46)

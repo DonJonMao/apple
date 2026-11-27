@@ -392,7 +392,16 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
     related = w.lib.theories.execute(
         "SELECT * FROM knowledge_evidence_edge WHERE to_type='metric' AND to_id=? ORDER BY edge_id", (metric_id,)
     ).fetchall()
-    related_claims = {('claim', row['from_id'], row['from_version']) for row in related}
+    related_claims = {('claim', row['from_id'], row['from_version']) for row in related
+                      if row['from_type'] == 'claim'
+                      and row['to_version'] == domains.profile_version(metric_id)
+                      and (allowed_edges is None or row['edge_id'] in allowed_edges)}
+    # A conflict in an explicit prerequisite also affects the dependent claim,
+    # even when that prerequisite has no direct edge to this metric.
+    for _, identity, version in tuple(related_claims):
+        required = _claim_requirements(w, (identity, version), claims, context, allowed_edges)
+        if required:
+            related_claims.update(('claim', *ref) for ref in required[1])
     conflict_rows = w.lib.theories.execute(
         "SELECT * FROM knowledge_evidence_edge WHERE relation='conflicts_with' ORDER BY edge_id"
     ).fetchall()
@@ -441,6 +450,17 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
                     "domains": sorted({d for sid in required_ids for d in selected[sid]["domains"]}),
                     "application_edge": payload})
     return matches, conflicts
+
+
+def claim_conflicts(claim, conflicts):
+    """Return only conflicts touching this exact claim version or prerequisites."""
+    references = {(claim['claim_id'], claim['claim_version'])}
+    references.update((ref['claim_id'], ref['claim_version'])
+                      for ref in claim.get('required_claim_refs', []))
+    return [conflict for conflict in conflicts if any(
+        endpoint.get('type') == 'claim'
+        and (endpoint.get('id'), endpoint.get('version')) in references
+        for endpoint in (conflict['origin'], conflict['target']))]
 
 
 def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, allowed_edges):
@@ -508,7 +528,8 @@ def _still_current(w, candidate, context):
 
 
 def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
-                        mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all"):
+                        mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all",
+                        purpose_needs=None):
     from healthzip.science.contracts import validate_result
 
     from .topics import TOPICS
@@ -528,6 +549,12 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
     if not isinstance(candidate_scope, str) or candidate_scope not in CANDIDATE_SCOPES:
         raise ValueError("unknown_metric_candidate_scope")
     profile = config["profiles"][metric_id]
+    if purpose_needs is not None:
+        if (not question_only or not purpose_needs
+                or not set(purpose_needs) <= set(profile['required_evidence_types'])):
+            raise ValueError('invalid_public_question_purpose_needs')
+        # This is a display need, not a change to the frozen reviewed-use profile.
+        profile = {**profile, 'required_evidence_types': list(purpose_needs)}
     profile_version = domains.profile_version(metric_id)
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
         raise ValueError("metric_not_declared_for_analysis_function")
@@ -547,6 +574,8 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         query_key.append(query_identity)
     if candidate_scope != 'all':
         query_key.append({'candidate_scope': candidate_scope, 'version': CANDIDATE_SCOPE_VERSION})
+    if purpose_needs is not None:
+        query_key.append({'purpose_needs': sorted(purpose_needs), 'version': 'bounded-topic-use-1'})
     result = {"query_id": digest(dumps(query_key).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
@@ -588,7 +617,7 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
             'eligible_domain_candidates': len(candidates),
             'background_candidates_excluded': sum(c['span_id'] not in scoped_ids for c in candidates),
             'complete_group_refs': [{key: group[key] for key in
-                ('claim_id', 'claim_version', 'evidence_span_ids', 'required_claim_refs')} for group in groups]}
+                ('claim_id', 'claim_version', 'evidence_span_ids', 'required_claim_refs', 'evidence_types')} for group in groups]}
         candidates = [c for c in candidates if c['span_id'] in scoped_ids]
         result['conflicts'] = scope_conflicts
     audit.update(excluded=excluded, release=release, eligible_candidate_count=len(candidates))
@@ -634,6 +663,23 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
     by_id = {c["candidate_id"]: c for c in candidates}
     budget = config["fusion"]["candidate_budget"]
     final = fused[:budget]
+    if question_only and purpose_needs:
+        # Explicit reviewed topic bindings are a separate bounded recall path.
+        # Do not let missing query words hide an already reviewed action group.
+        groups, _ = _metric_claims(w, metric_id, claims, by_id, context, release.get('edge_ids'))
+        relevant = [g for g in groups if set(g['evidence_types']) & set(purpose_needs)]
+        added = []
+        for group in sorted(relevant, key=lambda g: (g['claim_id'], g['claim_version'])):
+            if set(group['direct_evidence_span_ids']) & set(final):
+                continue
+            anchor = sorted(group['direct_evidence_span_ids'])[0]
+            if len(added) >= k:
+                break
+            final.append(anchor)
+            added.append(anchor)
+        audit['purpose_recall'] = {'reason': 'missing_requested_public_question_use',
+            'requested_purposes': sorted(purpose_needs), 'extra_anchor_budget': k,
+            'added_anchor_ids': added, 'authority': 'exact_current_reviewed_topic_binding'}
     reranked_ids = []
     if mode == "hybrid_rerank" and final:
         try:

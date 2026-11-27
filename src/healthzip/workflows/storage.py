@@ -27,6 +27,9 @@ def migrate_workflows(conn):
         """CREATE TABLE IF NOT EXISTS joint_period_report (
             report_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at TEXT NOT NULL,
             payload_json TEXT NOT NULL, markdown TEXT NOT NULL)""",
+        """CREATE TABLE IF NOT EXISTS report_content_object (
+            object_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, kind TEXT NOT NULL,
+            payload_json TEXT NOT NULL, created_at TEXT NOT NULL)""",
         """CREATE TABLE IF NOT EXISTS review_action (
             action_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, question_id TEXT NOT NULL,
             selected_at TEXT NOT NULL, review_due TEXT NOT NULL, action_text TEXT NOT NULL,
@@ -38,7 +41,19 @@ def migrate_workflows(conn):
         "CREATE INDEX IF NOT EXISTS review_action_due ON review_action(user_id,review_due)",
     ):
         conn.execute(sql)
+    # NULL is intentional: old actions never had a prespecified outcome.
+    for table, column in (("review_action", "definition_json"),
+                          ("review_action_event", "execution_json")):
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in columns:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} TEXT")
     conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('workflow_context_version','0')")
+    conn.execute("INSERT OR IGNORE INTO schema_meta(key,value) VALUES('review_action_version','0')")
+    for table in ("review_action", "review_action_event"):
+        for operation in ("INSERT", "UPDATE", "DELETE"):
+            conn.execute(f"""CREATE TRIGGER IF NOT EXISTS {table}_revision_{operation.lower()}
+                AFTER {operation} ON {table} BEGIN
+                UPDATE schema_meta SET value=CAST(value AS INTEGER)+1 WHERE key='review_action_version'; END""")
     for table in ("workflow_context_revision", "workflow_context_event"):
         conn.execute(f"""CREATE TRIGGER IF NOT EXISTS {table}_version AFTER INSERT ON {table} BEGIN
             UPDATE schema_meta SET value=CAST(value AS INTEGER)+1 WHERE key='workflow_context_version'; END""")

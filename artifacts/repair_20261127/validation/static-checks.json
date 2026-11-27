@@ -1,0 +1,60 @@
+{
+  "scope": "Current workspace; all checks will be rechecked against final source manifest",
+  "checks": [
+    {
+      "command": ".venv/bin/ruff check app.py src tests tools",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "583f65",
+        "wall_time_seconds": 0.153288151,
+        "exit_code": 0,
+        "original_token_count": 29,
+        "output": "/etc/profile: line 29: ulimit: max user processes: cannot modify limit: Operation not permitted\nAll checks passed!\n"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "491182",
+        "wall_time_seconds": 0.113001383,
+        "exit_code": 0,
+        "original_token_count": 24,
+        "output": "/etc/profile: line 29: ulimit: max user processes: cannot modify limit: Operation not permitted\n"
+      }
+    },
+    {
+      "command": "node --test tests/training/strength_picker_events_check.cjs",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "063aea",
+        "wall_time_seconds": 0.274865403,
+        "exit_code": 0,
+        "original_token_count": 221,
+        "output": "/etc/profile: line 29: ulimit: max user processes: cannot modify limit: Operation not permitted\nTAP version 13\n# Subtest: one selection returns to training, expands the acknowledged action and preserves inputs\nok 1 - one selection returns to training, expands the acknowledged action and preserves inputs\n  ---\n  duration_ms: 18.997182\n  ...\n# Subtest: closing without selecting cancels queued search and preserves all existing fields\nok 2 - closing without selecting cancels queued search and preserves all existing fields\n  ---\n  duration_ms: 4.918688\n  ...\n# Subtest: failed addition stays in picker, accepts retry and makes repeated action explicit\nok 3 - failed addition stays in picker, accepts retry and makes repeated action explicit\n  ---\n  duration_ms: 4.27761\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 122.994252\n"
+      }
+    },
+    {
+      "command": "node --check src/healthzip/ui/strength_component/workbench.js",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "3b7a16",
+        "wall_time_seconds": 0.133664359,
+        "exit_code": 0,
+        "original_token_count": 24,
+        "output": "/etc/profile: line 29: ulimit: max user processes: cannot modify limit: Operation not permitted\n"
+      }
+    },
+    {
+      "command": ".venv/bin/uv lock --check --offline",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "cdb90a",
+        "wall_time_seconds": 0.112411056,
+        "exit_code": 0,
+        "original_token_count": 31,
+        "output": "/etc/profile: line 29: ulimit: max user processes: cannot modify limit: Operation not permitted\nResolved 53 packages in 2ms\n"
+      }
+    }
+  ]
+}

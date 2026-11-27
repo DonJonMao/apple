@@ -113,7 +113,9 @@ def _history(repo):
         if st.session_state.get(state_key):
             from healthzip.workflows.period_report import load_report
             report = load_report(repo, st.session_state[state_key])
+            current_sources = _render_report_source_status(report, repo=repo)
             _render_full_text(report["markdown"], "history:" + report["report_id"])
+            _render_frozen_details(repo, report, "history:" + report["report_id"], current_sources=current_sources)
             st.download_button("下载这份复盘", report["markdown"], file_name="healthzip-review.md")
 
 
@@ -143,7 +145,7 @@ def _render_period_preview(repo, timezone_name, section):
     from healthzip.workflows.dependencies import input_version
     label = st.radio("复盘范围", ["本周", "本月"], horizontal=True, key="review_period")
     period = "week" if label == "本周" else "month"
-    summary = workspace_summary(repo, "总览", timezone_name=timezone_name)
+    summary = workspace_summary(repo, "总览", timezone_name=timezone_name, period=period)
     item = next(row for row in summary["periods"] if row["period"] == period)
     first = datetime.fromisoformat(item["window"]["start"]).astimezone(ZoneInfo(timezone_name))
     end = datetime.fromisoformat(item["window"]["end"]).astimezone(ZoneInfo(timezone_name))
@@ -206,22 +208,92 @@ def _render_report_progress(slot, database, context_id):
     if job.get("knowledge") != knowledge_clock(".local/knowledge"):
         st.caption("资料或用途审核已有更新。以下内容保留为历史复盘，新解释请重新生成并核对当前依据。")
     st.success(f"完整本地复盘已保存，用时 {report['job_elapsed_seconds']:.2f} 秒。")
+    current_sources = _render_report_source_status(report)
     from healthzip.ui.joint_health import render_joint_health
     render_joint_health(report["current"], key="review_completed_joint", charts=True)
-    with st.expander("查看完整复盘与原始依据", expanded=False):
-        _render_full_text(report["markdown"], "completed:" + report["report_id"])
+    _render_full_text(report["markdown"], "completed:" + report["report_id"])
+    from contextlib import closing
+    with closing(Repository(database)) as details_repo:
+        _render_frozen_details(details_repo, report, "completed:" + report["report_id"], current_sources=current_sources)
     st.download_button("下载身体与力量联合报告", report["markdown"], file_name=f"healthzip-{report['period']}.md", mime="text/markdown")
 
 
+def report_sections(markdown):
+    """Split at Markdown chapter boundaries, never inside tables or code fences."""
+    sections, lines, title, fenced = [], [], "报告开头", False
+    for line in markdown.splitlines():
+        if line.startswith("```"):
+            fenced = not fenced
+        if not fenced and line.startswith("## "):
+            if lines:
+                sections.append((title, "\n".join(lines)))
+            title, lines = line[3:], []
+        lines.append(line)
+    if lines:
+        sections.append((title, "\n".join(lines)))
+    return sections
+
+
 def _render_full_text(markdown, key):
-    """Keep the full frozen download while bounding browser text transfers."""
-    limit = 100_000
-    if len(markdown) <= limit:
+    if len(markdown) <= 50_000:
         st.markdown(markdown)
         return
-    st.caption(f"完整复盘含较多逐组记录与原始依据，共 {len(markdown):,} 字符。可下载全文，或按页查看。")
-    if st.toggle("按页查看完整复盘文本", key="report_text_open:" + key):
-        total = (len(markdown) + limit - 1) // limit
-        page = st.number_input("正文页", min_value=1, max_value=total, value=1, key="report_text_page:" + key)
-        st.caption(f"第 {page}/{total} 页；分页只限制传给浏览器的文本，计算、保存和下载均保留全文。")
-        st.code(markdown[(page-1)*limit:page*limit], language="markdown", wrap_lines=True)
+    sections = report_sections(markdown)
+    st.caption("按章节查看；下载保留完整正文，表格与句子不拆分。")
+    selected = st.selectbox("报告章节", range(len(sections)), format_func=lambda i: sections[i][0],
+                            key="report_chapter:" + key)
+    st.markdown(sections[selected][1])
+
+
+def _render_report_source_status(report, *, repo=None):
+    from healthzip.workflows.reports import current_report_source_status
+    current = current_report_source_status(report, repo=repo)
+    restricted = [i for i in current["items"] if i["status"] != "verified"]
+    if current["status"] == "unavailable":
+        st.caption(current["label"])
+    elif restricted:
+        st.warning(f"这份历史报告有 {len(restricted)} 个主张或依赖来源当前不可直接用于新建议；冻结正文未改写。")
+        for item in restricted:
+            st.caption(item["label"])
+    return {(i["claim_id"], i["version"]): i for i in current["items"]}
+
+
+def _render_frozen_details(repo, report, key, *, current_sources=None):
+    if current_sources is None:
+        current_sources = _render_report_source_status(report, repo=repo)
+    questions = report.get("questions", [])
+    if questions:
+        with st.expander("按问题查看冻结记录与依据"):
+            selected = st.selectbox("冻结问题", range(len(questions)),
+                format_func=lambda i: questions[i]["title"], key="frozen_question:" + key)
+            question = questions[selected]
+            st.caption("以下保留生成时的记录与来源版本。当前建议需重新核对，不以历史解释替代。")
+            rows = question.get("rows", [])
+            if rows:
+                page = st.number_input("记录页", min_value=1, max_value=max(1, (len(rows)+49)//50),
+                                       key="frozen_records:" + key)
+                labels = {"date": "日期", "first_date": "比较日期", "title": "项目", "source": "来源",
+                          "value": "本期值", "first_value": "前期值", "unit": "单位", "difference": "差值",
+                          "exercise": "动作", "reps": "次数", "load": "负荷", "position": "组位"}
+                st.dataframe([{labels[k]: v for k, v in row.items() if k in labels}
+                              for row in rows[(page-1)*50:page*50]], hide_index=True, use_container_width=True)
+            ordinary = question.get("ordinary_training", {}).get("series", [])
+            if ordinary:
+                index = st.selectbox("动作与条件轨迹", range(len(ordinary)),
+                    format_func=lambda i: ordinary[i]["summary"], key="frozen_training:" + key)
+                st.dataframe(ordinary[index]["points"], hide_index=True, use_container_width=True)
+            for item in question.get("evidence", {}).get("items", []):
+                status = current_sources.get((item["claim_id"], item["version"]))
+                if status and status["status"] != "verified":
+                    st.warning(status["label"])
+                st.write(item["statement"])
+                st.caption("；".join(item.get("limitations", [])))
+                for source in item.get("citations", []):
+                    st.markdown(f"[{source['title']}]({source['url']})")
+            st.caption("事实身份：" + question.get("fact_id", "旧版本未单列"))
+    if st.button("准备完整审计包", key="prepare_audit:" + key):
+        from healthzip.workflows.report_objects import audit_bundle
+        st.session_state["audit:" + key] = json.dumps(audit_bundle(repo, report["report_id"]), ensure_ascii=False)
+    if "audit:" + key in st.session_state:
+        st.download_button("下载完整审计包", st.session_state["audit:" + key],
+                           file_name="healthzip-frozen-audit.json", mime="application/json", key="download_audit:" + key)

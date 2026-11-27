@@ -1,0 +1,33 @@
+{
+  "original_failure_artifacts": [
+    "shard-0.log",
+    "shard-0.json",
+    "shard-0.xml"
+  ],
+  "original_failures": [
+    "test_rhr_first_screen_uses_computed_median_history_range_coverage_and_difference",
+    "test_nearby_distributions_remain_a_specific_observation_with_no_invented_problem"
+  ],
+  "cause": "Legacy tests required repeated prose phrases. The intended compact first screen carries exact value/change in st.metric and keeps distribution/ranges/sources in captions and detail. No product defect or product code change was required.",
+  "changed_file": "tests/unit/test_health_comparison_pages.py",
+  "added_checks": [
+    "Exact first-card label/value/delta and all prior/reference values",
+    "Full period dates, coverage, and median label",
+    "Exact source/device/protocol/version and every current daily point source ID",
+    "Rendered daily table values and source",
+    "Input snapshot remains unchanged after render",
+    "Exact current/previous quartiles and actual seven daily values for nearby distributions"
+  ],
+  "command": ".venv/bin/python -m pytest tests/unit/test_health_comparison_pages.py -q --junitxml=artifacts/repair_20261127/validation/final/health-comparison-followup.xml",
+  "result": {
+    "passed": 7,
+    "failed": 0,
+    "seconds": 9.9
+  },
+  "ruff": "passed",
+  "source_sha256": {
+    "tests/unit/test_health_comparison_pages.py": "b2e75404d67d92bb3c695f918ffd5190faf23505b05c0f4cef60814fe551827b",
+    "src/healthzip/ui/health_comparison.py": "45834da5135053d63a088d68d6e600c5b54b8b5d27f64c3ece2b4ea432c7b08b",
+    "src/healthzip/ui/body_pages.py": "e997fa8c1a67c86dad8a102937c0f51cc3fbac17104eac309705dc27ce16e130"
+  }
+}

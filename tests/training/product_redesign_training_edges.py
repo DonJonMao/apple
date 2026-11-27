@@ -112,6 +112,7 @@ def run(check, modes, base):
         n=40,
         p50_ms=ordered[19],
         p95_ms=ordered[37],
+        samples_ms=latency,
         no_component_commands=True,
         method="real Chromium input handlers until next animation frame, no network; does not claim physical key latency",
     )
@@ -185,24 +186,32 @@ def run(check, modes, base):
         server_value_is_null=True,
         local_value_restored="synthetic invalid text",
     )
+    workspace_roundtrip(check, localrow, session_id)
+
+
+def workspace_roundtrip(check, localrow, session_id):
     # Switch the actual app setting, then back. No path is saved into public evidence.
     check.page.set_viewport_size({"width": 1440, "height": 900})
     navigate(check.page, "设置")
+    check.page.get_by_text("导入与同步", exact=True).first.click()
     other = check.database.parent / "other-synthetic.sqlite3"
     check.page.get_by_label("SQLite 路径", exact=True).fill(str(other))
     check.page.get_by_role("button", name="保存工作区设置", exact=True).click()
     settle(check.page)
-    navigate(check.page, "力量")
+    check.page.get_by_role("radio", name="训练", exact=True).locator("xpath=ancestor::label[1]").click()
+    settle(check.page)
     check.wait(lambda: check.testid("strength-home").is_visible())
     assert not check.frame.locator('[data-set="' + localrow + '"]').count()
     check.click("open-start")
     assert check.testid("training-workbench").is_visible()
     assert not check.frame.locator('[data-set="' + localrow + '"]').count()
     navigate(check.page, "设置")
+    check.page.get_by_text("导入与同步", exact=True).first.click()
     check.page.get_by_label("SQLite 路径", exact=True).fill(str(check.database))
     check.page.get_by_role("button", name="保存工作区设置", exact=True).click()
     settle(check.page)
-    navigate(check.page, "力量")
+    check.page.get_by_role("radio", name="训练", exact=True).locator("xpath=ancestor::label[1]").click()
+    settle(check.page)
     check.wait(lambda: check.testid("training-detail").is_visible())
     assert check.row(localrow).locator('[data-field="reps"]').input_value() == "7x"
     assert (
@@ -215,9 +224,31 @@ def run(check, modes, base):
     )
 
 
+def run_workspace_only(check):
+    """Prepare the original unsynced-draft boundary without rerunning timing cases."""
+    check.wait(lambda: check.testid("strength-home").is_visible(), timeout=60000)
+    check.click("open-start")
+    check.choose("合成自重", "custom.edge.repetitions.bodyweight_no_external")
+    item = check.active()["exercises"][0]
+    first = item["sets"][0]["set_uuid"]
+    check.fill_row(first, load="", quantity="8", rir="0")
+    check.complete_row(first)
+    check.click("add-set", item["id"])
+    localrow = check.active()["exercises"][0]["sets"][-1]["set_uuid"]
+    session_id = check.active()["id"]
+    check.row(localrow).locator('[data-field="reps"]').fill("7x")
+    check.click("open-finish")
+    check.frame.get_by_label("未完成草稿处理").select_option("local")
+    check.click("confirm-end")
+    check.wait(lambda: check.testid("training-detail").is_visible())
+    assert check.service_read(lambda svc: svc.get_set(localrow)["reps"]) is None
+    workspace_roundtrip(check, localrow, session_id)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=Path("artifacts/product_redesign/training"))
+    parser.add_argument("--workspace-only", action="store_true")
     args = parser.parse_args()
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -236,12 +267,19 @@ def main():
             )
             page.goto(base + "/?workspace=strength")
             check = RedesignCheck(page, db, out)
+            completed = False
             try:
-                run(check, modes, base)
+                if args.workspace_only:
+                    run_workspace_only(check)
+                else:
+                    run(check, modes, base)
+                completed = True
             finally:
                 (out / "training-edge-results.json").write_text(
                     json.dumps(
-                        {"data": "synthetic_only", "results": check.results},
+                        {"data": "synthetic_only", "completed": completed,
+                         "scope": "workspace_only" if args.workspace_only else "all_edges",
+                         "results": check.results},
                         ensure_ascii=False,
                         indent=2,
                     )

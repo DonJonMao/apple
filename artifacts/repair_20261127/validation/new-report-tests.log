@@ -1,0 +1,39 @@
+FF...                                                                    [100%]
+=================================== FAILURES ===================================
+____ test_t05_t19_same_period_values_across_overview_detail_question_report ____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-978/test_t05_t19_same_period_value0')
+
+    def test_t05_t19_same_period_values_across_overview_detail_question_report(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            summary = workspace_summary(repo, "总览", cutoff_time=CUTOFF, period="week")["periods"][0]
+            sleep = next(f for f in summary["facts"] if f["label"] == "已观察睡眠")
+            assert sleep["value"] == 6 and sleep["statistics"]["mean"] == 7
+            assert "睡眠中位数" in dict(_select_cards(summary["facts"]))
+>           heart = next(f for f in summary["facts"] if f["label"] == "静息心率" and f["source"] == "独立合成甲")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           StopIteration
+
+tests/integration/test_report_repair_contract.py:55: StopIteration
+____________ test_t05_source_selection_changes_all_report_consumers ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-978/test_t05_source_selection_chan0')
+
+    def test_t05_source_selection_changes_all_report_consumers(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            selected = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai", "source_filter": ["独立合成乙"]},
+                                     period="week", knowledge_root=tmp_path / "missing")
+            points = [p for group in selected["current"]["metrics"]["STATE-RHR"]["value"].values() for p in group]
+>           assert [p["value"] for p in points] == [80]
+E           assert [61.2222] == [80]
+E             
+E             At index 0 diff: 61.2222 != 80
+E             Use -v to get more diff
+
+tests/integration/test_report_repair_contract.py:86: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_report_repair_contract.py::test_t05_t19_same_period_values_across_overview_detail_question_report
+FAILED tests/integration/test_report_repair_contract.py::test_t05_source_selection_changes_all_report_consumers
+2 failed, 3 passed in 3.30s

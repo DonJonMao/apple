@@ -1,0 +1,1384 @@
+.....F.F......FFFF
+=================================== FAILURES ===================================
+___ test_hot_report_is_new_freeze_and_source_correction_invalidates_content ____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_hot_report_is_new_freeze_0')
+
+    def test_hot_report_is_new_freeze_and_source_correction_invalidates_content(tmp_path):
+        path = tmp_path / "synthetic.sqlite3"
+        create_health_change_fixture(path)
+        clear()
+        with closing(Repository(path)) as repo:
+            fields = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            kwargs = {"period": "week", "knowledge_root": tmp_path / "empty-knowledge"}
+            first = create_report(repo, fields, **kwargs)
+            progress = []
+            second = create_report(repo, fields, progress=progress.append, **kwargs)
+            assert first["report_id"] != second["report_id"]
+            assert first["markdown"] == second["markdown"]
+            assert first["content_signature"] == second["content_signature"]
+            stored = json.loads(repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (second["report_id"],))[0])
+>           assert stored == {key: value for key, value in second.items() if key != "markdown"}
+E           AssertionError: assert {'storage_for...: 'week', ...} == {'analysis_ru...83f883'], ...}
+E             
+E             Omitting 6 identical items, use -vv to show
+E             Left contains 2 more items:
+E             {'content_ref': 'a9adf6968966e025fb778d69fae10109c4a8c83ed77472366a949253bbbc2968',
+E              'storage_format': 'frozen-report-references-1'}
+E             Right contains 12 more items:
+E             {'analysis_run_id': '76a3d0876643338c6db17e20c4344c729ac9cb74f8fd19011f2b204231727f9e'}...
+E             
+E             ...Full output truncated, use '-vv' to show
+
+tests/integration/test_master_report_performance_contract.py:129: AssertionError
+_ test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-month] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_frozen_joint_report_has_c1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffb2f8c250>
+period = 'month', training = True
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+        assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+        current_runs = [load_run(repo, identity) for identity in report["workflow_run_ids"]]
+        joins = [ctx for run in current_runs for ctx in run["supplements"].get("training_session_contexts", [])]
+        if training:
+            relevant = next(ctx for ctx in joins if ctx["session_id"] == session["id"])
+            assert relevant["actual_records"][0]["reps"] == 9
+            assert relevant["actual_records"][0]["rir"] == 2
+            before = relevant["metrics"]["BODY-MASS-DAILY"]
+            assert {p["value"] for values in before["value"].values() for p in values} == {81}
+>           assert relevant["training_started_at"] in report["markdown"]
+E           AssertionError: assert '2026-11-26T16:22:43.036306+00:00' in '# 身体与力量联合月报\n\n本期 2026-11-01T00:00:00+08:00 至 2026-12-01T00:00:00+08:00（不含终点，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。'
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:50: AssertionError
+______ test_real_report_buttons_after_retirement[withdrawn-\u5206\u6790] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_real_report_buttons_after0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffb2aa2a90>
+entry = '分析', retirement = 'withdrawn'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])])
+E        +  where ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={workspace_im...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:156: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:127 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m124 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m125 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m126 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m127 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m129 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m130 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:87 in            [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 84 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mhypotheses[0m[33m"[0m])                         [31m [0m
+[31m [0m   [2m 85 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mknowledge[0m[33m"[0m])                          [31m [0m
+[31m [0m   [2m 86 [0m[2m│   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mworkflow_page[0m [94mimport[0m render_workflows            [31m [0m
+[31m [0m [31m❱ [0m 87 [2m│   [0m[1;4mrender_workflows(repo, result)[0m                                     [31m [0m
+[31m [0m   [2m 88 [0m[2m│   [0mmetrics = result[[33m"[0m[33mmetrics[0m[33m"[0m]                                        [31m [0m
+[31m [0m   [2m 89 [0m[2m│   [0m[94mif[0m [96misinstance[0m(metrics, [96mlist[0m):                                      [31m [0m
+[31m [0m   [2m 90 [0m[2m│   │   [0mmetrics = {x[[33m"[0m[33mmetric_id[0m[33m"[0m]: x [94mfor[0m x [95min[0m metrics}                 [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:379 in           [31m [0m
+[31m [0m render_workflows                                                             [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m376 [0m[2m│   │   [0mst.caption([33m"[0m[33m选择问题后运行。记录不足时仍会显示可核对的事实和具[0m [31m [0m
+[31m [0m   [2m377 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m378 [0m[2m│   [0mresult = load_run(repo, st.session_state[key])                     [31m [0m
+[31m [0m [31m❱ [0m379 [2m│   [0m[1;4mrender_run(repo, result)[0m                                           [31m [0m
+[31m [0m   [2m380 [0m[2m│   [0m[94mif[0m st.button([33m"[0m[33m核对本次结果的当前适用性[0m[33m"[0m, key=[33m"[0m[33mworkflow_check_curre[0m [31m [0m
+[31m [0m   [2m381 [0m[2m│   │   [0m[94mtry[0m:                                                           [31m [0m
+[31m [0m   [2m382 [0m[2m│   │   │   [0mdecision = check_current_use(repo, result[[33m"[0m[33mrun_id[0m[33m"[0m])       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:110 in           [31m [0m
+[31m [0m render_run                                                                   [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m107 [0m[2m│   [0m[94mwith[0m tabs[[94m0[0m]:                                                      [31m [0m
+[31m [0m   [2m108 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33msupplements[0m[33m"[0m].get([33m"[0m[33mordinary_training[0m[33m"[0m):             [31m [0m
+[31m [0m   [2m109 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_ordinary_tra [31m [0m
+[31m [0m [31m❱ [0m110 [2m│   │   │   [0m[1;4mrender_ordinary_training(result[[0m[1;4;33m"[0m[1;4;33msupplements[0m[1;4;33m"[0m[1;4m][[0m[1;4;33m"[0m[1;4;33mordinary_t[0m [31m [0m
+[31m [0m   [2m111 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33mworkflow_id[0m[33m"[0m] [95min[0m {[33m"[0m[33mW2[0m[33m"[0m, [33m"[0m[33mW3[0m[33m"[0m, [33m"[0m[33mW4[0m[33m"[0m}:                [31m [0m
+[31m [0m   [2m112 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mjoint_health[0m [94mimport[0m render_joint_health  [31m [0m
+[31m [0m   [2m113 [0m[2m│   │   │   [0mrender_joint_health(snapshot, key=[33m"[0m[33mworkflow_joint[0m[33m"[0m, charts [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mquestion_page.py[0m:230 in           [31m [0m
+[31m [0m render_ordinary_training                                                     [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m227 [0m[2m│   │   │   │   │   [0mname=[33mf[0m[33m"[0m[33m{[0mload[33m:[0m[33mg[0m[33m}[0m[33m [0m[33m{[0mgroup[[33m'[0m[33munit[0m[33m'[0m][33m}[0m[33m"[0m [94mif[0m load [95mis[0m [95mnot[0m [94mNo[0m [31m [0m
+[31m [0m   [2m228 [0m[2m│   │   [0m[94mif[0m fig.data:                                                   [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0mfig.update_layout(height=[94m260[0m, xaxis_title=[33m"[0m[33m实际记录日期[0m[33m"[0m,  [31m [0m
+[31m [0m [31m❱ [0m230 [2m│   │   │   [0m[1;4mst.plotly_chart(fig, use_container_width=[0m[1;4;94mTrue[0m[1;4m, config={[0m[1;4;33m"[0m[1;4;33mdi[0m [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   [0mst.dataframe([{[33m"[0m[33m日期[0m[33m"[0m: p[[33m"[0m[33mdate[0m[33m"[0m], [33m"[0m[33m原始重量[0m[33m"[0m: p[[33m"[0m[33mrecorded_load[0m [31m [0m
+[31m [0m   [2m232 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m次数[0m[33m"[0m: p[[33m"[0m[33mreps[0m[33m"[0m], [33m"[0m[33mRIR[0m[33m"[0m: p[[33m"[0m[33mrir[0m[33m"[0m], [33m"[0m[33m停止原因[0m[33m"[0m: [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m训练[0m[33m"[0m: p[[33m"[0m[33msession_id[0m[33m"[0m], [33m"[0m[33m动作实例[0m[33m"[0m: p[[33m"[0m[33msession[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/[0m[1mmetrics_util.py[0m:732 in wrapped_func                                       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/[0m[1mplotly_chart.py[0m:913 in plotly_chart                                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:318 in compute_and_register_element_id                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:203 in _register_element_id                                 [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mStreamlitDuplicateElementId: [0mThere are multiple `plotly_chart` elements with the
+same auto-generated ID. When this element is created, it is assigned an internal
+ID based on the element type and provided parameters. Multiple elements with the
+same type and parameters will cause this error.
+
+To fix this error, please pass a unique `key` argument to the `plotly_chart` 
+element.
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 00:22:52.439 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 00:22:54.857 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:54.871 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:54.933 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:54.944 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.082 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.092 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.889 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.924 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.927 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.941 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.959 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.968 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.978 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.988 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:55.997 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:56.102 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:56.112 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:56.143 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:56.585 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+______ test_real_report_buttons_after_retirement[withdrawn-\u62a5\u544a] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_real_report_buttons_after1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb493e410>
+entry = '报告', retirement = 'withdrawn'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])])
+E        +  where ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={workspace_im...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:156: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:127 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m124 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m125 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m126 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m127 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m129 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m130 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:87 in            [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 84 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mhypotheses[0m[33m"[0m])                         [31m [0m
+[31m [0m   [2m 85 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mknowledge[0m[33m"[0m])                          [31m [0m
+[31m [0m   [2m 86 [0m[2m│   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mworkflow_page[0m [94mimport[0m render_workflows            [31m [0m
+[31m [0m [31m❱ [0m 87 [2m│   [0m[1;4mrender_workflows(repo, result)[0m                                     [31m [0m
+[31m [0m   [2m 88 [0m[2m│   [0mmetrics = result[[33m"[0m[33mmetrics[0m[33m"[0m]                                        [31m [0m
+[31m [0m   [2m 89 [0m[2m│   [0m[94mif[0m [96misinstance[0m(metrics, [96mlist[0m):                                      [31m [0m
+[31m [0m   [2m 90 [0m[2m│   │   [0mmetrics = {x[[33m"[0m[33mmetric_id[0m[33m"[0m]: x [94mfor[0m x [95min[0m metrics}                 [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:379 in           [31m [0m
+[31m [0m render_workflows                                                             [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m376 [0m[2m│   │   [0mst.caption([33m"[0m[33m选择问题后运行。记录不足时仍会显示可核对的事实和具[0m [31m [0m
+[31m [0m   [2m377 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m378 [0m[2m│   [0mresult = load_run(repo, st.session_state[key])                     [31m [0m
+[31m [0m [31m❱ [0m379 [2m│   [0m[1;4mrender_run(repo, result)[0m                                           [31m [0m
+[31m [0m   [2m380 [0m[2m│   [0m[94mif[0m st.button([33m"[0m[33m核对本次结果的当前适用性[0m[33m"[0m, key=[33m"[0m[33mworkflow_check_curre[0m [31m [0m
+[31m [0m   [2m381 [0m[2m│   │   [0m[94mtry[0m:                                                           [31m [0m
+[31m [0m   [2m382 [0m[2m│   │   │   [0mdecision = check_current_use(repo, result[[33m"[0m[33mrun_id[0m[33m"[0m])       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:110 in           [31m [0m
+[31m [0m render_run                                                                   [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m107 [0m[2m│   [0m[94mwith[0m tabs[[94m0[0m]:                                                      [31m [0m
+[31m [0m   [2m108 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33msupplements[0m[33m"[0m].get([33m"[0m[33mordinary_training[0m[33m"[0m):             [31m [0m
+[31m [0m   [2m109 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_ordinary_tra [31m [0m
+[31m [0m [31m❱ [0m110 [2m│   │   │   [0m[1;4mrender_ordinary_training(result[[0m[1;4;33m"[0m[1;4;33msupplements[0m[1;4;33m"[0m[1;4m][[0m[1;4;33m"[0m[1;4;33mordinary_t[0m [31m [0m
+[31m [0m   [2m111 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33mworkflow_id[0m[33m"[0m] [95min[0m {[33m"[0m[33mW2[0m[33m"[0m, [33m"[0m[33mW3[0m[33m"[0m, [33m"[0m[33mW4[0m[33m"[0m}:                [31m [0m
+[31m [0m   [2m112 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mjoint_health[0m [94mimport[0m render_joint_health  [31m [0m
+[31m [0m   [2m113 [0m[2m│   │   │   [0mrender_joint_health(snapshot, key=[33m"[0m[33mworkflow_joint[0m[33m"[0m, charts [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mquestion_page.py[0m:230 in           [31m [0m
+[31m [0m render_ordinary_training                                                     [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m227 [0m[2m│   │   │   │   │   [0mname=[33mf[0m[33m"[0m[33m{[0mload[33m:[0m[33mg[0m[33m}[0m[33m [0m[33m{[0mgroup[[33m'[0m[33munit[0m[33m'[0m][33m}[0m[33m"[0m [94mif[0m load [95mis[0m [95mnot[0m [94mNo[0m [31m [0m
+[31m [0m   [2m228 [0m[2m│   │   [0m[94mif[0m fig.data:                                                   [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0mfig.update_layout(height=[94m260[0m, xaxis_title=[33m"[0m[33m实际记录日期[0m[33m"[0m,  [31m [0m
+[31m [0m [31m❱ [0m230 [2m│   │   │   [0m[1;4mst.plotly_chart(fig, use_container_width=[0m[1;4;94mTrue[0m[1;4m, config={[0m[1;4;33m"[0m[1;4;33mdi[0m [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   [0mst.dataframe([{[33m"[0m[33m日期[0m[33m"[0m: p[[33m"[0m[33mdate[0m[33m"[0m], [33m"[0m[33m原始重量[0m[33m"[0m: p[[33m"[0m[33mrecorded_load[0m [31m [0m
+[31m [0m   [2m232 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m次数[0m[33m"[0m: p[[33m"[0m[33mreps[0m[33m"[0m], [33m"[0m[33mRIR[0m[33m"[0m: p[[33m"[0m[33mrir[0m[33m"[0m], [33m"[0m[33m停止原因[0m[33m"[0m: [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m训练[0m[33m"[0m: p[[33m"[0m[33msession_id[0m[33m"[0m], [33m"[0m[33m动作实例[0m[33m"[0m: p[[33m"[0m[33msession[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/[0m[1mmetrics_util.py[0m:732 in wrapped_func                                       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/[0m[1mplotly_chart.py[0m:913 in plotly_chart                                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:318 in compute_and_register_element_id                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:203 in _register_element_id                                 [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mStreamlitDuplicateElementId: [0mThere are multiple `plotly_chart` elements with the
+same auto-generated ID. When this element is created, it is assigned an internal
+ID based on the element type and provided parameters. Multiple elements with the
+same type and parameters will cause this error.
+
+To fix this error, please pass a unique `key` argument to the `plotly_chart` 
+element.
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 00:22:57.353 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 00:22:58.741 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:58.751 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:58.810 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:58.820 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:58.886 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:58.896 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.580 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.602 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.605 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.618 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.635 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.644 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.653 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.662 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.671 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.774 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.784 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:22:59.814 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:00.403 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+______ test_real_report_buttons_after_retirement[superseded-\u5206\u6790] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_real_report_buttons_after2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffb2c7a490>
+entry = '分析', retirement = 'superseded'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])])
+E        +  where ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={workspace_im...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:156: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:127 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m124 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m125 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m126 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m127 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m129 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m130 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:87 in            [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 84 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mhypotheses[0m[33m"[0m])                         [31m [0m
+[31m [0m   [2m 85 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mknowledge[0m[33m"[0m])                          [31m [0m
+[31m [0m   [2m 86 [0m[2m│   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mworkflow_page[0m [94mimport[0m render_workflows            [31m [0m
+[31m [0m [31m❱ [0m 87 [2m│   [0m[1;4mrender_workflows(repo, result)[0m                                     [31m [0m
+[31m [0m   [2m 88 [0m[2m│   [0mmetrics = result[[33m"[0m[33mmetrics[0m[33m"[0m]                                        [31m [0m
+[31m [0m   [2m 89 [0m[2m│   [0m[94mif[0m [96misinstance[0m(metrics, [96mlist[0m):                                      [31m [0m
+[31m [0m   [2m 90 [0m[2m│   │   [0mmetrics = {x[[33m"[0m[33mmetric_id[0m[33m"[0m]: x [94mfor[0m x [95min[0m metrics}                 [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:379 in           [31m [0m
+[31m [0m render_workflows                                                             [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m376 [0m[2m│   │   [0mst.caption([33m"[0m[33m选择问题后运行。记录不足时仍会显示可核对的事实和具[0m [31m [0m
+[31m [0m   [2m377 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m378 [0m[2m│   [0mresult = load_run(repo, st.session_state[key])                     [31m [0m
+[31m [0m [31m❱ [0m379 [2m│   [0m[1;4mrender_run(repo, result)[0m                                           [31m [0m
+[31m [0m   [2m380 [0m[2m│   [0m[94mif[0m st.button([33m"[0m[33m核对本次结果的当前适用性[0m[33m"[0m, key=[33m"[0m[33mworkflow_check_curre[0m [31m [0m
+[31m [0m   [2m381 [0m[2m│   │   [0m[94mtry[0m:                                                           [31m [0m
+[31m [0m   [2m382 [0m[2m│   │   │   [0mdecision = check_current_use(repo, result[[33m"[0m[33mrun_id[0m[33m"[0m])       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:110 in           [31m [0m
+[31m [0m render_run                                                                   [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m107 [0m[2m│   [0m[94mwith[0m tabs[[94m0[0m]:                                                      [31m [0m
+[31m [0m   [2m108 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33msupplements[0m[33m"[0m].get([33m"[0m[33mordinary_training[0m[33m"[0m):             [31m [0m
+[31m [0m   [2m109 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_ordinary_tra [31m [0m
+[31m [0m [31m❱ [0m110 [2m│   │   │   [0m[1;4mrender_ordinary_training(result[[0m[1;4;33m"[0m[1;4;33msupplements[0m[1;4;33m"[0m[1;4m][[0m[1;4;33m"[0m[1;4;33mordinary_t[0m [31m [0m
+[31m [0m   [2m111 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33mworkflow_id[0m[33m"[0m] [95min[0m {[33m"[0m[33mW2[0m[33m"[0m, [33m"[0m[33mW3[0m[33m"[0m, [33m"[0m[33mW4[0m[33m"[0m}:                [31m [0m
+[31m [0m   [2m112 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mjoint_health[0m [94mimport[0m render_joint_health  [31m [0m
+[31m [0m   [2m113 [0m[2m│   │   │   [0mrender_joint_health(snapshot, key=[33m"[0m[33mworkflow_joint[0m[33m"[0m, charts [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mquestion_page.py[0m:230 in           [31m [0m
+[31m [0m render_ordinary_training                                                     [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m227 [0m[2m│   │   │   │   │   [0mname=[33mf[0m[33m"[0m[33m{[0mload[33m:[0m[33mg[0m[33m}[0m[33m [0m[33m{[0mgroup[[33m'[0m[33munit[0m[33m'[0m][33m}[0m[33m"[0m [94mif[0m load [95mis[0m [95mnot[0m [94mNo[0m [31m [0m
+[31m [0m   [2m228 [0m[2m│   │   [0m[94mif[0m fig.data:                                                   [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0mfig.update_layout(height=[94m260[0m, xaxis_title=[33m"[0m[33m实际记录日期[0m[33m"[0m,  [31m [0m
+[31m [0m [31m❱ [0m230 [2m│   │   │   [0m[1;4mst.plotly_chart(fig, use_container_width=[0m[1;4;94mTrue[0m[1;4m, config={[0m[1;4;33m"[0m[1;4;33mdi[0m [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   [0mst.dataframe([{[33m"[0m[33m日期[0m[33m"[0m: p[[33m"[0m[33mdate[0m[33m"[0m], [33m"[0m[33m原始重量[0m[33m"[0m: p[[33m"[0m[33mrecorded_load[0m [31m [0m
+[31m [0m   [2m232 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m次数[0m[33m"[0m: p[[33m"[0m[33mreps[0m[33m"[0m], [33m"[0m[33mRIR[0m[33m"[0m: p[[33m"[0m[33mrir[0m[33m"[0m], [33m"[0m[33m停止原因[0m[33m"[0m: [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m训练[0m[33m"[0m: p[[33m"[0m[33msession_id[0m[33m"[0m], [33m"[0m[33m动作实例[0m[33m"[0m: p[[33m"[0m[33msession[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/[0m[1mmetrics_util.py[0m:732 in wrapped_func                                       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/[0m[1mplotly_chart.py[0m:913 in plotly_chart                                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:318 in compute_and_register_element_id                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:203 in _register_element_id                                 [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mStreamlitDuplicateElementId: [0mThere are multiple `plotly_chart` elements with the
+same auto-generated ID. When this element is created, it is assigned an internal
+ID based on the element type and provided parameters. Multiple elements with the
+same type and parameters will cause this error.
+
+To fix this error, please pass a unique `key` argument to the `plotly_chart` 
+element.
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 00:23:01.025 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 00:23:02.423 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:02.437 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:02.496 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:02.506 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:02.573 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:02.583 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.277 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.300 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.303 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.316 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.333 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.342 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.351 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.361 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.371 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.475 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.487 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.518 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:03.961 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+______ test_real_report_buttons_after_retirement[superseded-\u62a5\u544a] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-969/test_real_report_buttons_after3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb4a82990>
+entry = '报告', retirement = 'superseded'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])])
+E        +  where ElementList(_list=[Exception(message='There are multiple `plotly_chart` elements with the same auto-generated ID. When... in render_ordinary_training\n    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={workspace_im...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:156: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:127 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m124 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m125 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m126 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m127 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m129 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m130 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:87 in            [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 84 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mhypotheses[0m[33m"[0m])                         [31m [0m
+[31m [0m   [2m 85 [0m[2m│   │   │   │   [0mst.write(review[[33m"[0m[33mknowledge[0m[33m"[0m])                          [31m [0m
+[31m [0m   [2m 86 [0m[2m│   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mworkflow_page[0m [94mimport[0m render_workflows            [31m [0m
+[31m [0m [31m❱ [0m 87 [2m│   [0m[1;4mrender_workflows(repo, result)[0m                                     [31m [0m
+[31m [0m   [2m 88 [0m[2m│   [0mmetrics = result[[33m"[0m[33mmetrics[0m[33m"[0m]                                        [31m [0m
+[31m [0m   [2m 89 [0m[2m│   [0m[94mif[0m [96misinstance[0m(metrics, [96mlist[0m):                                      [31m [0m
+[31m [0m   [2m 90 [0m[2m│   │   [0mmetrics = {x[[33m"[0m[33mmetric_id[0m[33m"[0m]: x [94mfor[0m x [95min[0m metrics}                 [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:379 in           [31m [0m
+[31m [0m render_workflows                                                             [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m376 [0m[2m│   │   [0mst.caption([33m"[0m[33m选择问题后运行。记录不足时仍会显示可核对的事实和具[0m [31m [0m
+[31m [0m   [2m377 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m378 [0m[2m│   [0mresult = load_run(repo, st.session_state[key])                     [31m [0m
+[31m [0m [31m❱ [0m379 [2m│   [0m[1;4mrender_run(repo, result)[0m                                           [31m [0m
+[31m [0m   [2m380 [0m[2m│   [0m[94mif[0m st.button([33m"[0m[33m核对本次结果的当前适用性[0m[33m"[0m, key=[33m"[0m[33mworkflow_check_curre[0m [31m [0m
+[31m [0m   [2m381 [0m[2m│   │   [0m[94mtry[0m:                                                           [31m [0m
+[31m [0m   [2m382 [0m[2m│   │   │   [0mdecision = check_current_use(repo, result[[33m"[0m[33mrun_id[0m[33m"[0m])       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mworkflow_page.py[0m:110 in           [31m [0m
+[31m [0m render_run                                                                   [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m107 [0m[2m│   [0m[94mwith[0m tabs[[94m0[0m]:                                                      [31m [0m
+[31m [0m   [2m108 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33msupplements[0m[33m"[0m].get([33m"[0m[33mordinary_training[0m[33m"[0m):             [31m [0m
+[31m [0m   [2m109 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_ordinary_tra [31m [0m
+[31m [0m [31m❱ [0m110 [2m│   │   │   [0m[1;4mrender_ordinary_training(result[[0m[1;4;33m"[0m[1;4;33msupplements[0m[1;4;33m"[0m[1;4m][[0m[1;4;33m"[0m[1;4;33mordinary_t[0m [31m [0m
+[31m [0m   [2m111 [0m[2m│   │   [0m[94mif[0m result[[33m"[0m[33mworkflow_id[0m[33m"[0m] [95min[0m {[33m"[0m[33mW2[0m[33m"[0m, [33m"[0m[33mW3[0m[33m"[0m, [33m"[0m[33mW4[0m[33m"[0m}:                [31m [0m
+[31m [0m   [2m112 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mjoint_health[0m [94mimport[0m render_joint_health  [31m [0m
+[31m [0m   [2m113 [0m[2m│   │   │   [0mrender_joint_health(snapshot, key=[33m"[0m[33mworkflow_joint[0m[33m"[0m, charts [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mquestion_page.py[0m:230 in           [31m [0m
+[31m [0m render_ordinary_training                                                     [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m227 [0m[2m│   │   │   │   │   [0mname=[33mf[0m[33m"[0m[33m{[0mload[33m:[0m[33mg[0m[33m}[0m[33m [0m[33m{[0mgroup[[33m'[0m[33munit[0m[33m'[0m][33m}[0m[33m"[0m [94mif[0m load [95mis[0m [95mnot[0m [94mNo[0m [31m [0m
+[31m [0m   [2m228 [0m[2m│   │   [0m[94mif[0m fig.data:                                                   [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0mfig.update_layout(height=[94m260[0m, xaxis_title=[33m"[0m[33m实际记录日期[0m[33m"[0m,  [31m [0m
+[31m [0m [31m❱ [0m230 [2m│   │   │   [0m[1;4mst.plotly_chart(fig, use_container_width=[0m[1;4;94mTrue[0m[1;4m, config={[0m[1;4;33m"[0m[1;4;33mdi[0m [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   [0mst.dataframe([{[33m"[0m[33m日期[0m[33m"[0m: p[[33m"[0m[33mdate[0m[33m"[0m], [33m"[0m[33m原始重量[0m[33m"[0m: p[[33m"[0m[33mrecorded_load[0m [31m [0m
+[31m [0m   [2m232 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m次数[0m[33m"[0m: p[[33m"[0m[33mreps[0m[33m"[0m], [33m"[0m[33mRIR[0m[33m"[0m: p[[33m"[0m[33mrir[0m[33m"[0m], [33m"[0m[33m停止原因[0m[33m"[0m: [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   │   │      [0m[33m"[0m[33m训练[0m[33m"[0m: p[[33m"[0m[33msession_id[0m[33m"[0m], [33m"[0m[33m动作实例[0m[33m"[0m: p[[33m"[0m[33msession[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/[0m[1mmetrics_util.py[0m:732 in wrapped_func                                       [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/[0m[1mplotly_chart.py[0m:913 in plotly_chart                                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:318 in compute_and_register_element_id                      [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/eleme[0m [31m [0m
+[31m [0m [2mnts/lib/[0m[1mutils.py[0m:203 in _register_element_id                                 [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mStreamlitDuplicateElementId: [0mThere are multiple `plotly_chart` elements with the
+same auto-generated ID. When this element is created, it is assigned an internal
+ID based on the element type and provided parameters. Multiple elements with the
+same type and parameters will cause this error.
+
+To fix this error, please pass a unique `key` argument to the `plotly_chart` 
+element.
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 00:23:04.588 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 00:23:06.016 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:06.027 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:06.092 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:06.102 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:06.171 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:06.182 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.208 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.232 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.236 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.249 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.268 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.277 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.287 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.297 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.307 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.421 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.432 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.463 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 00:23:07.930 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+=========================== short test summary info ============================
+FAILED tests/integration/test_master_report_performance_contract.py::test_hot_report_is_new_freeze_and_source_correction_invalidates_content
+FAILED tests/integration/test_current_training_reports.py::test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-month]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[withdrawn-\u5206\u6790]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[withdrawn-\u62a5\u544a]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[superseded-\u5206\u6790]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[superseded-\u62a5\u544a]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 6 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+6 failed, 12 passed in 34.66s

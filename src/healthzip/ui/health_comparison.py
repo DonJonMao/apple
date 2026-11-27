@@ -38,6 +38,14 @@ def _stream_name(stream):
     return source_name(stream.get("protocol") or stream.get("stream_id"))
 
 
+def compact_period_label(summary):
+    label = period_label(summary)
+    parts = label.split(" 至 ")
+    if len(parts) == 2 and parts[0][:4] == parts[1][:4]:
+        return parts[0][5:].replace("-", "/") + "–" + parts[1][5:].replace("-", "/")
+    return label
+
+
 def sampling_description(point):
     times = sorted(item.get("local_time", "")[11:16] for item in point.get("observations", [])
                    if item.get("local_time"))
@@ -110,7 +118,6 @@ def render_comparison(metric, title, unit, *, scale=1, key="health", chart=True)
     streams = comparison.get("streams", [])
     if not streams:
         return False
-    statements = iter(comparison_statements(metric, title, unit, scale=scale))
     for index, stream in enumerate(streams):
         current = stream.get("current", {})
         if len(streams) > 1:
@@ -123,17 +130,13 @@ def render_comparison(metric, title, unit, *, scale=1, key="health", chart=True)
                 st.write(f"{period_label(current)} 已有{title}观测，尚无完整日汇总；下方单列截至当前的记录。")
             else:
                 st.write(f"{period_label(current)} 尚无可用的完整日{title}记录；已知前期与参考记录单独保留。")
-        else:
-            st.write(next(statements))
-        columns = st.columns(3)
-        for column, period, label in zip(columns, ("current", "previous", "reference"),
-                                         ("本期", "前期", "个人历史参考")):
-            summary = stream.get(period, {})
-            value = summary.get("value")
-            with column:
-                st.metric(f"{label}{title}", "暂无完整日" if value is None and summary.get("partial_daily_points") else
-                          "暂无记录" if value is None else f"{value / scale:.1f} {unit}")
-                st.caption(f"{period_label(summary)} · {coverage_label(summary)}")
+        previous = stream.get("previous", {})
+        value, prior = current.get("value"), previous.get("value")
+        delta = f"较前期 {(value-prior)/scale:+.1f} {unit}" if value is not None and prior is not None else None
+        st.metric(title, "暂无完整日" if value is None and current.get("partial_daily_points") else
+                  "暂无记录" if value is None else f"{value / scale:.1f} {unit}", delta=delta,
+                  delta_color="off", delta_arrow="off")
+        st.caption(f"{compact_period_label(current)} · {coverage_label(current)} · 日代表值中位数")
         for point in current.get("partial_daily_points", []):
             st.caption(f"未完整日期 {point['date']}：已观察日代表值 {point['value'] / scale:.1f} {unit}，"
                        f"{sampling_description(point)}；单列展示，不进入完整日比较。")
@@ -154,6 +157,12 @@ def render_comparison(metric, title, unit, *, scale=1, key="health", chart=True)
             if current_fraction != previous_fraction:
                 st.caption("两期记录覆盖不同，数值各自描述实际有记录的日期，代表性不能直接视为相同。")
         with st.expander(f"比较依据 · {title} · {_stream_name(stream)} · {index + 1}"):
+            for column, period, label in zip(st.columns(3), ("current", "previous", "reference"),
+                                              ("本期", "前期", "个人历史参考")):
+                summary = stream.get(period, {})
+                value = summary.get("value")
+                column.metric(label + title, "暂无完整日" if value is None else f"{value / scale:.1f} {unit}")
+                column.caption(f"{period_label(summary)} · {coverage_label(summary)}")
             st.caption("各日先取同条件日代表值，再以日为单位取期间中位数。当前未结束日期单列，不进入完整日比较；个人参考仅使用本期之前的日期。")
             for period, label in (("current", "本期"), ("previous", "前期"), ("reference", "个人参考")):
                 summary = stream.get(period, {})

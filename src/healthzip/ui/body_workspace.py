@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 
 from healthzip.analytics.cache import WORKSPACE_CACHE_SECONDS, cached
+from healthzip.analytics.display_format import display_unit, display_value, format_measurement
 from healthzip.analytics.workspaces import workspace_window
 from healthzip.ui.body_pages import (
     render_cardio,
@@ -145,7 +146,7 @@ def render_body(repo, *, timezone_name):
 
 def render_body_overview(repo, timezone_name):
     from healthzip.analytics.workspace_summary import workspace_summary
-    result = workspace_summary(repo, "总览", timezone_name=timezone_name)
+    result = workspace_summary(repo, "总览", timezone_name=timezone_name, period="week")
     item = next(row for row in result["periods"] if row["period"] == "week")
     st.caption("本周已记录的身体变化。进入主题可选择指标、来源和时间范围。")
     facts = item["facts"]
@@ -200,36 +201,32 @@ def render_metric(repo, kind, scope, timezone_name, *, selected_source=None, mod
             st.write(source_name(stream.get("source")))
             value = current.get("value")
             if isinstance(value, (int, float)):
-                observation = f"{spec['title']}本期已记录日的中位数 {value:g} {unit}"
-                if isinstance(change, (int, float)):
-                    observation += f"，较前期{'高' if change > 0 else '低' if change < 0 else '相同'} {abs(change):g} {unit}"
-                st.write(observation + "。")
-                columns = st.columns(3)
-                columns[0].metric(spec["title"], f"{value:g} {unit}")
-                if previous.get("value") is not None:
-                    columns[1].metric("前期", f"{previous['value']:g} {unit}")
-                if change is not None:
-                    columns[2].metric("绝对变化", f"{change:+g} {unit}")
+                delta = ("较前期 " + format_measurement(change, unit, kind=kind, signed=True)
+                         if change is not None else None)
+                st.metric(spec["title"], format_measurement(value, unit, kind=kind), delta=delta,
+                          delta_color="off", delta_arrow="off")
             elif stream.get("points"):
                 latest = stream["points"][-1]
-                st.metric("最近实际观察", f"{latest['value']:g} {unit}")
+                st.metric("最近实际观察", format_measurement(latest["value"], unit, kind=kind))
                 st.caption(f"观察于 {latest.get('observed_at') or latest['date']}，当前日期尚未完整。")
-            st.caption(f"完整日记录 {current.get('recorded_days', 0)}/{current.get('window_days', 0)} 天 · 原始样本数 {current.get('raw_record_count', 0)}")
+            st.caption(f"完整日记录 {current.get('recorded_days', 0)}/{current.get('window_days', 0)} 天 · 日代表值中位数 · 原始样本数 {current.get('raw_record_count', 0)}")
             if current.get("recorded_total") is not None:
-                st.write(f"本期完整日期的已记录合计 {current['recorded_total']:g} {unit}。")
+                st.write("本期完整日期的已记录合计 " + format_measurement(current["recorded_total"], unit, kind=kind) + "。")
             if current.get("partial_daily_points"):
                 st.caption(f"另有 {len(current['partial_daily_points'])} 个部分日期的观察点，图表保留这些点。")
-            _metric_chart(stream, unit, kind + str(index), timezone_name=timezone_name)
+            _metric_chart(stream, unit, kind + str(index), timezone_name=timezone_name, kind=kind)
         elif scope["with_model"]:
-            _metric_chart(stream, unit, "long_" + kind + str(index), timezone_name=timezone_name)
+            _metric_chart(stream, unit, "long_" + kind + str(index), timezone_name=timezone_name, kind=kind)
         if scope["with_model"]:
-            _model_summary(stream.get("trend") or {}, unit)
+            _model_summary(stream.get("trend") or {}, unit, kind=kind)
         if not model_only:
             with st.expander("相关记录与比较条件", expanded=False):
+                st.caption(local_window_label(arguments["window_start"], arguments["window_end"], timezone_name))
+                st.write("前期中位数：" + format_measurement(previous.get("value"), unit, kind=kind))
                 points = stream.get("points", [])
                 page = st.number_input("明细页", min_value=1, max_value=max(1, (len(points)+49)//50), value=1, key=f"detail_page:{kind}:{index}")
                 shown = points[(page-1)*50:page*50]
-                st.dataframe([{ "日期": p.get("date"), "观测时间": _point_time(p), "数值": p.get("value"), "单位": unit,
+                st.dataframe([{ "日期": p.get("date"), "观测时间": _point_time(p), "数值": display_value(p.get("value"), unit, kind), "单位": display_unit(unit, kind),
                                "样本数": p.get("sample_count"), "情境": p.get("context", stream.get("protocol"))} for p in shown], hide_index=True)
                 st.caption(f"本页最多 50 条，共 {len(points)} 个观察点。计算使用全部适用记录。")
                 st.write(spec.get("note", ""))
@@ -306,7 +303,7 @@ def _observation_details(stream, unit):
                 st.caption("当前观察差值" + ("达到该幅度。" if layers.get(conclusion_key) else "未达到该幅度。"))
 
 
-def _metric_chart(stream, unit, key, *, timezone_name="Asia/Shanghai"):
+def _metric_chart(stream, unit, key, *, timezone_name="Asia/Shanghai", kind=None):
     import plotly.graph_objects as go
     points = [p for p in stream.get("points", []) if isinstance(p.get("value"), (float, int))]
     if not points:
@@ -318,27 +315,27 @@ def _metric_chart(stream, unit, key, *, timezone_name="Asia/Shanghai"):
         st.caption(f"图表显示 {len(shown)}/{len(points)} 个观察点，统计使用全部有效记录。")
     else:
         shown = points
-    figure = go.Figure(go.Scatter(x=[_plot_time(p, timezone_name) for p in shown], y=[p["value"] for p in shown], mode="markers", name="实际观测",
+    figure = go.Figure(go.Scatter(x=[_plot_time(p, timezone_name) for p in shown], y=[display_value(p["value"], unit, kind) for p in shown], mode="markers", name="实际观测",
         customdata=[[p.get("sample_count", 1)] for p in shown],
-        hovertemplate="%{x}<br>%{y:.2f} " + unit + "<br>样本数 %{customdata[0]}<extra></extra>"))
+        hovertemplate="%{x}<br>%{y:.2f} " + display_unit(unit, kind) + "<br>样本数 %{customdata[0]}<extra></extra>"))
     trend = stream.get("trend") or {}
     fitted = trend.get("fitted_points", [])
     if trend.get("status") == "estimated" and fitted:
-        figure.add_trace(go.Scatter(x=[p["date"] for p in fitted], y=[p["value"] for p in fitted], mode="lines", name="计算条件均值"))
+        figure.add_trace(go.Scatter(x=[p["date"] for p in fitted], y=[display_value(p["value"], unit, kind) for p in fitted], mode="lines", name="计算条件均值"))
     moments = list(dict.fromkeys(_plot_time(point, timezone_name) for point in shown))
     figure.update_xaxes(type="date", tickformat="%m-%d")
     if len(moments) <= 5:
         figure.update_xaxes(tickmode="array", tickvals=moments, ticktext=[value[:16].replace("T", " ") for value in moments])
-    figure.update_layout(height=270, yaxis_title=unit, margin={"l": 12, "r": 12, "t": 16, "b": 32})
+    figure.update_layout(height=270, yaxis_title=display_unit(unit, kind), margin={"l": 12, "r": 12, "t": 16, "b": 32})
     st.plotly_chart(figure, use_container_width=True, config={"displayModeBar": False}, key="body_metric:" + key)
 
 
-def _model_summary(trend, unit):
+def _model_summary(trend, unit, *, kind=None):
     if trend.get("status") == "estimated":
         interval = trend.get("interval") or []
-        st.write(f"计算趋势 {trend['slope_per_day']:+.4g} {unit}/天，期间估计变化 {trend.get('estimated_change', 0):+.4g} {unit}。")
+        st.write(f"计算趋势 {display_value(trend['slope_per_day'], unit, kind):+.3g} {display_unit(unit, kind)}/天，期间估计变化 " + format_measurement(trend.get('estimated_change', 0), unit, kind=kind, signed=True) + "。")
         if len(interval) == 2:
-            st.caption(f"斜率区间 [{interval[0]:.4g}, {interval[1]:.4g}] {unit}/天。模型估计条件均值，页面期间代表值另按所示统计口径计算。")
+            st.caption(f"斜率区间 [{display_value(interval[0], unit, kind):.3g}, {display_value(interval[1], unit, kind):.3g}] {display_unit(unit, kind)}/天。模型估计条件均值，页面期间代表值另按所示统计口径计算。")
         with st.expander("模型方法与诊断"):
             st.write(trend.get("method", "实际经过时间趋势与一阶相关误差"))
             render_diagnostics(trend.get("diagnostics", {}))

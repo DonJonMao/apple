@@ -2336,7 +2336,8 @@ class TrainingService:
         return start, end
 
     def events_as_of(self, *, cutoff_time, window_start=None, window_end=None,
-                     support_windows=(), required_set_ids=(), _session_ids=None, _share_report_readonly=False):
+                     support_windows=(), required_set_ids=(), _session_ids=None, _share_report_readonly=False,
+                     _summary_projection=False, _replay_only=False):
         """Read one availability-safe event stream for sets, sessions and plans.
 
         Any visible revision can nominate a session, but *all* its visible events are
@@ -2393,7 +2394,7 @@ class TrainingService:
             clauses.append("entity_type IN ('session','session_exercise','set','conflict')")
         scope = _REPORT_EVENT_READS.get()
         cache = scope[1] if scope and scope[0] is self.repo else None
-        key = (self.data_version(), tuple(clauses), tuple([args[0], cutoff.astimezone(timezone.utc).isoformat(), *args[2:]]))
+        key = (self.data_version(), _summary_projection, _replay_only, tuple(clauses), tuple([args[0], cutoff.astimezone(timezone.utc).isoformat(), *args[2:]]))
         if cache is not None and key in cache:
             cache.move_to_end(key)
             return cache[key] if _share_report_readonly else deepcopy(cache[key])
@@ -2407,6 +2408,23 @@ class TrainingService:
                "AND c.event_id IN (SELECT event_id FROM selected) "
                "AND e.event_id NOT IN (SELECT event_id FROM selected) "
                "AND julianday(e.recorded_at)<=julianday(?)+0.001/86400")
+        if _summary_projection:
+            # Project the same availability-safe stream, including tombstones,
+            # conflict decisions and nested child snapshots. Summary replay does
+            # not need request/before payloads or complete equipment metadata.
+            fields = ("id", "set_uuid", "session_id", "ended_at", "started_at", "completion_state",
+                      "set_type", "session_exercise_id", "deleted_at", "session_status", "sets")
+            projection = ",".join(f"'{name}'," + (
+                "coalesce(json_extract(after_json,'$.sets'),json('[]'))" if name == "sets"
+                else f"json_extract(after_json,'$.{name}')") for name in fields)
+            sql = ("SELECT event_order,event_id,user_id,entity_type,entity_id,action,status,recorded_at,"
+                   f"CASE WHEN after_json IS NOT NULL THEN json_object({projection}) END AS after_json,"
+                   "result_json FROM (" + sql + ")")
+        elif _replay_only:
+            # History/analysis replay consumes final snapshots and conflict
+            # results, never the duplicate request and before payloads.
+            sql = ("SELECT event_order,event_id,user_id,entity_type,entity_id,action,status,recorded_at,"
+                   "after_json,result_json FROM (" + sql + ")")
         rows = [row for row in self.conn.execute(sql, (*args, self.user_id, cutoff_time))
                 if datetime.fromisoformat(row["recorded_at"]) <= cutoff]
         rows.sort(key=lambda row: (datetime.fromisoformat(row["recorded_at"]), row["event_order"]))
@@ -2416,6 +2434,13 @@ class TrainingService:
             while len(cache) > 4:
                 cache.popitem(last=False)
         return deepcopy(decoded) if cache is not None and not _share_report_readonly else decoded
+
+    def history_summary_as_of(self, *, cutoff_time, window_start, window_end):
+        """Minimal calendar facts with the exact normal event replay semantics."""
+        events = self.events_as_of(cutoff_time=cutoff_time, window_start=window_start,
+                                   window_end=window_end, _summary_projection=True)
+        return self.history_as_of(cutoff_time=cutoff_time, window_start=window_start,
+                                  window_end=window_end, _events=events)
 
     def history_as_of(
         self,
@@ -2437,7 +2462,7 @@ class TrainingService:
         cutoff = datetime.fromisoformat(timestamp(cutoff_time))
         window = self._query_window(window_start, window_end)
         events = self.events_as_of(cutoff_time=cutoff_time, window_start=window_start,
-                                  window_end=window_end) if _events is None else _events
+                                  window_end=window_end, _replay_only=True) if _events is None else _events
         state, sessions, conflicts = {}, {}, {}
         resolutions = {}
         conflict_ids = [(event.get("result") or {}).get("conflict_id") for event in events
@@ -2826,7 +2851,8 @@ class TrainingService:
         """
         key = self.conn.execute("SELECT id FROM strength_session WHERE user_id=? AND "
             "(id=? OR session_uuid=?)", (self.user_id, session_id, str(session_id))).fetchone()
-        events = self.events_as_of(cutoff_time=cutoff_time, _session_ids=[key[0]] if key else None)
+        events = self.events_as_of(cutoff_time=cutoff_time, _session_ids=[key[0]] if key else None,
+                                   _share_report_readonly=True, _replay_only=True)
         visible = self.sessions_as_of(cutoff_time=cutoff_time, include_deleted=include_deleted, _events=events)
         session = next((row for row in visible if str(session_id) in
                         {str(row["id"]), str(row.get("session_uuid"))}), None)
@@ -2858,8 +2884,11 @@ class TrainingService:
             rows.sort(key=lambda row: (row["set_number"], row["id"]))
             exercises.append({**item, "sets": rows})
         exercises.sort(key=lambda item: (item["position"], item["id"]))
-        return {**session, "exercises": exercises, "sets": sets,
-                "snapshot_cutoff": timestamp(cutoff_time)}
+        result = {**session, "exercises": exercises, "sets": sets,
+                  "snapshot_cutoff": timestamp(cutoff_time)}
+        scope = _REPORT_EVENT_READS.get()
+        # Only the returned session is mutable; cached replay inputs never are.
+        return deepcopy(result) if scope and scope[0] is self.repo else result
 
     def update_set_target(
         self, set_id, planned: dict, *, base_revision: int, event_id=None

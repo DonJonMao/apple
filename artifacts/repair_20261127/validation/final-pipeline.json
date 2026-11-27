@@ -1,0 +1,57 @@
+{
+  "method": "Sequential processes; no report measurements overlap full regression",
+  "runs": [
+    {
+      "name": "report-final-1m",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "tools/repair_report_benchmark.py",
+        "--knowledge-root",
+        "/tmp/healthzip-repair-knowledge-20261127",
+        "--synthetic",
+        "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+        "--output",
+        "artifacts/repair_20261127/performance/report-final-1m.json",
+        "--warm",
+        "30",
+        "--max-seconds",
+        "600"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 410.8939684405923
+    },
+    {
+      "name": "report-final-personal",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "tools/repair_report_benchmark.py",
+        "--knowledge-root",
+        "/tmp/healthzip-repair-knowledge-20261127",
+        "--synthetic",
+        "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+        "--output",
+        "artifacts/repair_20261127/performance/report-final-personal.json",
+        "--warm",
+        "30",
+        "--max-seconds",
+        "600"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 13.01622761040926
+    },
+    {
+      "name": "final-regression",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "tools/master_regression.py",
+        "--output",
+        "artifacts/repair_20261127/validation/final",
+        "--shards",
+        "4"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 244.2492992579937
+    }
+  ],
+  "completed": false
+}

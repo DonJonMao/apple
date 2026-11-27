@@ -12,6 +12,7 @@ from healthzip.training.current import current_advice, objective_comparison, sav
 from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, load_analysis, load_run, run_workflow
 from healthzip.workflows.period_report import create_report, load_report
+from healthzip.workflows.report_objects import audit_bundle, reconstruct_report
 from healthzip.workflows.reports import markdown
 from tests.app_navigation import go, legacy_analysis
 
@@ -150,13 +151,18 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         assert report["period"] == period
         assert downloads["下载周期复核报告"] == report["markdown"]
         assert report["markdown"].strip() in [m.value.strip() for m in app.markdown]
-        assert "420" in report["markdown"] and "Synthetic watch" in report["markdown"]
+        assert "7.0 小时睡眠" in report["markdown"] and "Synthetic watch" in report["markdown"]
+        assert "本期主要变化" in report["markdown"] and "下一步" in report["markdown"]
         assert {p["value"] for rows in report["current"]["metrics"]["STATE-SDNN"]["value"].values() for p in rows} == {41}
         joins = [ctx for identity in report["workflow_run_ids"] for ctx in load_run(repo, identity)["supplements"].get("training_session_contexts", [])]
         join = next(c for c in joins if c["session_id"] == session["id"])
         assert join["actual_records"][0]["reps"] == 11
         assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
         assert any(c["rows"][0]["advice_id"] == frozen["advice_id"] for c in report["objective_comparisons"])
+        exported = audit_bundle(repo, report["report_id"])
+        assert reconstruct_report(exported) == report
+        for identity in report["workflow_run_ids"]:
+            assert exported["workflow_runs"][identity] == load_run(repo, identity)
         assert load_report(repo, report["report_id"])["markdown"] == report["markdown"]
     go(app, "复盘")
     legacy_analysis(app, "报告")
@@ -414,8 +420,24 @@ def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_pa
     assert join["actual_records"][0]["set_uuid"] == actual["set_uuid"]
     assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
     assert join["metrics"]["STATE-SLEEP-COVERAGE"]["value"] is not None
-    for text in ("Synthetic watch", "Synthetic source", "完整日平均 2000", "缺日不填零", "42", "下一阶段", "支持", "削弱", "待核对"):
+    for text in ("Synthetic watch", "Synthetic source", "完整日平均 2,000.0 kcal/日", "缺日不填零",
+                 "42.0 mL/(kg·min)", "下一步", "期间日代表值中位数", "完整能量日覆盖 4/" + str(coverage["window_days"])):
         assert text in report["markdown"]
+    energy_question = next(q for q in report["questions"] if q["id"] == "W5")
+    for kind, expected in (("active_energy_kcal", 500), ("basal_energy_kcal", 1500)):
+        row = next(row for row in energy_question["rows"] if row.get("metric") == kind)
+        assert row["value"] == row["comparison"]["current"]["value"] == expected
+        assert row["comparison"]["current"]["recorded_days"] == 4
+        assert len(row["source_record_ids"]) == 4
+        line = next(line for line in report["markdown"].splitlines() if line.startswith("- " + row["title"] + "："))
+        assert "期间日代表值中位数" in line and "4/" in line
+    # Scientific supplements and every actual source remain exact in the audit;
+    # the short reading body no longer repeats all support/counterexample JSON.
+    exported = audit_bundle(repo, report["report_id"])
+    assert reconstruct_report(exported) == report
+    assert exported["analysis_objects"][report["analysis_run_id"]] == report["current"]
+    for identity in report["workflow_run_ids"]:
+        assert exported["workflow_runs"][identity] == load_run(repo, identity)
     app = HELP["open_app"](repo.path)
     assert not app.exception
     assert any(current["exercise"]["name"] in option for s in app.selectbox if s.label == "测量任务" for option in s.options)

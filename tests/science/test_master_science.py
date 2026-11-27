@@ -105,7 +105,9 @@ def test_real_formal_estimators_and_local_fallback(observed):
     assert {q["id"] for q in questions} == {"W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "E"}
     assert all(q["steps"] and q["fact_id"] and q["analysis_version"] for q in questions)
     by_id = {q["id"]: q for q in questions}
-    assert "2000" in by_id["W7"]["observation"] and "1.2" in by_id["W7"]["observation"]
+    activity = {r["metric"]: r for r in by_id["W7"]["rows"] if r.get("metric") in {"steps", "walking_speed_m_s"}}
+    assert activity["steps"]["value"] == 2000 and activity["walking_speed_m_s"]["value"] == 1.2
+    assert "中位数" in by_id["W7"]["observation"]
     assert all(row["category"] or (row["unit"] == "count" and row["value"] >= 0)
                for row in by_id["E"]["rows"] if row["type"] == "event")
     assert "疲劳 7" in by_id["W2"]["observation"]

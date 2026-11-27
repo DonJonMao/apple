@@ -1,9 +1,7 @@
 """Question-specific local comparisons and user-selected follow-up actions."""
 from __future__ import annotations
 
-import json
-from datetime import datetime, timedelta
-from uuid import uuid4
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import streamlit as st
@@ -21,20 +19,22 @@ def render_questions(repo, *, timezone_name):
     ids = [qid for qid in QUESTIONS if qid != "W8" or include_cycle]
     if st.session_state.get("review_question") not in ids:
         st.session_state["review_question"] = ids[0]
-    question_id = st.selectbox("想了解的问题", ids, format_func=lambda key: QUESTIONS[key][0], key="review_question")
+    question_id = st.selectbox("想了解的问题", ids, format_func=lambda key: QUESTIONS[key][0], key="review_question",
+                               label_visibility="collapsed")
     from healthzip.analytics.alternate_observations import alternate_dependencies
     fields = set(QUESTIONS[question_id][1])
     action_revision = None
     if question_id == "W4":
-        from healthzip.analytics.question_context import visible_goal_actions
-        from healthzip.science.body_catalog import METRIC_CATALOG
+        from healthzip.analytics.question_context import (
+            action_metric_dependencies,
+            visible_goal_actions,
+        )
         from healthzip.science.contracts import instant
         # A newly saved goal or feedback must advance a relative view's cutoff
         # immediately; an explicit historical range keeps its original cutoff.
         _, actions, action_revision = visible_goal_actions(repo, instant(scope["actual_start"]),
                                                            instant(scope["actual_end"]), instant(scope["actual_end"]))
-        fields.update(row["metric"] for action in actions for row in action["baseline"].get("rows", [])
-                      if row.get("type") == "metric" and row.get("metric") in METRIC_CATALOG)
+        fields.update(action_metric_dependencies(actions))
         if actions:
             fields.add("sleep_stage")
     alternate = [dep for kind in fields for dep in alternate_dependencies(kind)]
@@ -45,10 +45,11 @@ def render_questions(repo, *, timezone_name):
         lambda: (scope["actual_start"], scope["actual_end"]), max_age_seconds=WORKSPACE_CACHE_SECONDS,
         dependencies=alternate + [("health_sample", kind) for kind in fields] + [("subjective_log", None), ("training", None), ("workout", None), ("body_measurement", None)])
     args = {"window_start": clock[0], "window_end": clock[1], "cutoff_time": clock[1],
-            "timezone_name": timezone_name, "question_ids": [question_id]}
+            "timezone_name": timezone_name, "question_ids": [question_id], "period": scope.get("period")}
     question = analyze_questions(repo, **args)[0]
     sources = {row["source"] for row in question["rows"] if row.get("source")}
-    source = _source_selection(repo, "question:" + question_id, sources)
+    with st.popover("记录来源", use_container_width=True):
+        source = _source_selection(repo, "question:" + question_id, sources)
     if source:
         question = analyze_questions(repo, source_filter=[source], **args)[0]
     render_question(question, repo=repo)
@@ -58,14 +59,25 @@ def render_questions(repo, *, timezone_name):
 
 
 def render_question(question, *, repo):
-    st.markdown("### " + question["title"])
+    if question.get("fact_id"):
+        st.markdown('<span data-hz-question="' + question["fact_id"] + '" style="display:none"></span>', unsafe_allow_html=True)
+    titles = {"W1": "同动作完成表现", "W2": "训练与随后状态", "W3": "心肺与实际运动", "W4": "长期目标与行动",
+              "W5": "体重与绝对表现", "W6": "睡眠与 SDNN", "W7": "活动量与行动能力", "W8": "周期与症状记录", "E": "设备事件"}
+    st.markdown("### " + titles.get(question["id"], question["title"]))
     window = question["window"]
-    st.caption(local_window_label(window["start"], window["end"], window["timezone"]))
-    st.write(question["observation"])
+    zone = ZoneInfo(window["timezone"])
+    st.caption(datetime.fromisoformat(window["start"]).astimezone(zone).date().isoformat() + " — "
+               + datetime.fromisoformat(window["end"]).astimezone(zone).date().isoformat())
+    if question["id"] != "W6":
+        st.write(question["observation"])
+    if question.get("ordinary_training"):
+        render_ordinary_training(question["ordinary_training"], show_summary=False, namespace="question:" + question["id"])
     _render_goal_actions(question)
     association = question.get("association")
     if association:
         _association(association)
+        with st.expander("本次观察与生活记录"):
+            st.write(question["observation"])
     for key, title in (("support", "支持这项解释的记录"), ("counterevidence", "削弱这项解释的记录")):
         if question.get(key):
             st.write(title)
@@ -74,6 +86,7 @@ def render_question(question, *, repo):
     rows = question.get("rows") or []
     if rows:
         with st.expander("相关记录与日期", expanded=False):
+            st.caption(local_window_label(window["start"], window["end"], window["timezone"]))
             labels = {"date": "观察日期", "first_date": "比较日期", "title": "项目", "value": "本次值", "first_value": "前次值",
                       "source": "来源", "unit": "单位", "difference": "差值", "fatigue": "疲劳", "soreness": "酸痛", "pain": "疼痛",
                       "category": "实际类别", "reps": "次数", "load": "负荷", "position": "组位", "exercise": "动作",
@@ -84,6 +97,12 @@ def render_question(question, *, repo):
                       "reason": "未匹配原因", "pain_location": "疼痛部位", "location": "部位", "notes": "本人备注"}
             from healthzip.analytics.question_context import subjective_display_value
             display = [{labels[k]: subjective_display_value(k, v) for k, v in row.items() if k in labels} for row in rows]
+            for source_row, shown in zip(rows, display):
+                if source_row.get("comparison"):
+                    shown["统计口径"] = "完整记录日代表值的期间中位数"
+                    for key, label in (("current", "本期范围"), ("previous", "前期范围")):
+                        period = source_row["comparison"][key]["window"]
+                        shown[label] = local_window_label(period["start"], period["end"], period["timezone"])
             st.dataframe([row for row in display if row], hide_index=True, use_container_width=True)
             _render_estimate_support(rows)
             _render_event_performance(rows)
@@ -128,22 +147,61 @@ def _association(association):
     groups = association.get("groups", [])
     if not groups:
         st.caption(association.get("reason", "当前记录仅支持描述性比较。"))
+    elif len(groups) > 1:
+        st.caption(f"共 {len(groups)} 组，来源、设备、已知测量条件和采样时段分别保留；各组状态独立。")
     for index, group in enumerate(groups):
+        identity = group.get("identity", {})
+        if identity:
+            st.write(f"{identity['source']} · {identity.get('device') or '设备未知'}")
+            labels = {"sampling_mode": "采样", "measurement_context": "情境", "breathing_context": "呼吸情境",
+                      "posture": "姿势", "respiration": "呼吸", "activity_context": "活动情境",
+                      "recording_duration_seconds": "采样秒数", "algorithm_version": "算法版本"}
+            conditions = [f"{label}：{'、'.join(map(str, identity['known_conditions'][key]))}"
+                          for key, label in labels.items() if key in identity["known_conditions"]]
+            readable = {"主动": "主动", "background": "后台", "active": "主动", "seated": "坐姿",
+                        "standing": "站姿", "supine": "仰卧", "rest": "静息"}
+            condition_text = " · ".join(conditions) or "已记录协议；具体姿势与活动情境未记录"
+            for raw, value in readable.items():
+                condition_text = condition_text.replace(raw, value)
+            st.caption(condition_text)
+            clock = identity["actual_local_time_range"]
+            dates = identity["date_range"]
+            st.caption(f"实际采样 {clock[0]}–{clock[1]} · {dates[0]}—{dates[1]} · "
+                       f"{identity['paired_dates']} 个配对日期、{identity['sdnn_sample_count']} 条 SDNN")
         if group.get("status") == "estimated":
             lo, hi = group["interval"]
-            st.write(f"同条件记录的估计关联 {group['coefficient']:+.3g} {group['effect_unit']}，区间 [{lo:.3g}, {hi:.3g}]。")
+            st.write(f"观察性条件关联 {group['coefficient']:+.3g} {group['effect_unit']}，区间 [{lo:.3g}, {hi:.3g}]。")
+            if group.get("direction") == "uncertain":
+                st.caption("区间包含零，当前记录没有明确的关联方向。")
             st.caption(f"实际日期 {group['range'][0]} — {group['range'][1]}，{group['n']} 个配对日期；同时调整实际经过时间及一阶相关误差。")
-            pairs = group["pairs"]
+        else:
+            st.write("本组暂不能估计条件关联")
+            st.caption(group.get("reason", "本组保留已配对记录。"))
+        pairs = group.get("pairs", [])
+        if pairs:
             fig = go.Figure(go.Scatter(x=[row["sleep_hours"] for row in pairs], y=[row["value"] for row in pairs],
                 text=[row["date"] for row in pairs], mode="markers", name="真实配对",
                 hovertemplate="%{text}<br>睡眠 %{x:.2f} 小时<br>SDNN %{y:.2f} ms<extra></extra>"))
             fig.update_layout(height=270, xaxis_title="测量前已观察睡眠（小时）", yaxis_title="同条件 SDNN 日代表值（ms）")
             st.plotly_chart(fig, use_container_width=True, key="question_association:" + str(index), config={"displayModeBar": False})
-        else:
-            st.caption(group.get("reason", "本组保留已配对记录。"))
+            st.caption("图为原始配对散点，未扣除时间等因素；不是调整后的拟合效果图。")
         with st.expander("本组配对日期与适用性 " + str(index + 1)):
+            if identity:
+                band = identity["time_band"]
+                st.caption(f"按测量开始时间 {band['start_hour']:02d}:00–{band['end_hour']:02d}:00 分组是产品展示方法；"
+                           "同一 6 小时时段不代表生理测量条件完全相同。")
+                st.write("睡眠来源：", identity["sleep_source"]["source"])
+                st.write("协议身份：", identity["protocol"])
+                st.write("来源版本：", identity.get("source_version") or "未记录")
+                st.caption("分组身份：" + group["group_id"])
             st.dataframe([{ "日期": row["date"], "睡眠结束": row["sleep_end"], "SDNN测量开始": row["sdnn_first"],
                            "睡眠小时": row["sleep_hours"], "SDNN毫秒": row["value"]} for row in group.get("pairs", [])], hide_index=True)
+            if group.get("neutral_observations"):
+                st.write("相邻记录的实际变化")
+                st.caption("相邻变化共享日期，不能当作独立样本投票，也不用于给本组拟合结果制造支持证据。")
+                st.dataframe([{"前次日期": row["from_date"], "本次日期": row["to_date"],
+                               "睡眠变化（小时）": row["sleep_hours_change"], "SDNN变化（ms）": row["sdnn_ms_change"]}
+                              for row in group["neutral_observations"]], hide_index=True)
             from healthzip.ui.body_workspace import render_diagnostics
             render_diagnostics(group.get("diagnostics", {}))
     if association.get("unmatched"):
@@ -158,66 +216,69 @@ def _open_training(repo, session_id):
     open_recorded_session(repo, session["session_uuid"])
 
 
-def _select_action(repo, question, sources):
-    steps = question.get("steps") or []
-    if not steps:
+def render_ordinary_training(review, *, show_summary=True, namespace="ordinary"):
+    """Read every ordinary point; selection is presentation, never best-set sampling."""
+    groups = review.get("series", [])
+    if not groups:
         return
-    with st.expander("选择行动并安排复评"):
-        action = st.selectbox("本次选择", steps, key="review_action_choice:" + question["id"])
-        zone = ZoneInfo(question["window"]["timezone"])
-        today = datetime.now(zone).date()
-        due = st.date_input("计划复评日期", value=today+timedelta(days=7),
-                            min_value=today+timedelta(days=1), key="review_action_due:" + question["id"])
-        st.caption("复评日期由你选择。保存本次观察和来源，之后按相同观察范围查看后续记录。")
-        if st.button("保存这项行动", key="review_action_save:" + question["id"]):
-            from healthzip.workflows.actions import select_action
-            select_action(repo, question, action, datetime.combine(due, datetime.min.time().replace(hour=12), zone).isoformat(), source_filter=sources)
-            st.success("已保存行动，可在“行动复评”记录执行情况和查看后续观察。")
+    if show_summary:
+        for text in review.get("summary", [])[:3]:
+            st.write(text)
+    with st.expander(f"普通训练的完整轨迹与阶段对照 · {review['record_count']} 条记录"):
+        choices = {g["series_id"]: g for g in groups}
+        selected = st.selectbox("动作、条件与组位", list(choices),
+            format_func=lambda key: f"{choices[key]['exercise']} · 第 {choices[key]['position'] or '未知'} 组 · "
+                f"{choices[key]['set_type'] or '组类型未知'} · {choices[key]['record_count']} 条 · "
+                f"{choices[key]['points'][0]['date'][:10]} 至 {choices[key]['points'][-1]['date'][:10]}",
+            key="ordinary_training:" + namespace + ":" + str(review["window"]))
+        group = choices[selected]
+        st.write(group["summary"])
+        points = group["points"]
+        import plotly.graph_objects as go
+        loads = list(dict.fromkeys(p["load"] for p in points))
+        fig = go.Figure()
+        for load in loads:
+            items = [p for p in points if p["load"] == load and p["reps"] is not None]
+            if items:
+                fig.add_trace(go.Scatter(x=[p["date"] for p in items], y=[p["reps"] for p in items],
+                    mode="markers+lines" if group["condition_known"] else "markers",
+                    name=f"{load:g} {group['unit']}" if load is not None else "负荷未填写／自重"))
+        if fig.data:
+            fig.update_layout(height=260, xaxis_title="实际记录日期", yaxis_title="已完成次数")
+            st.plotly_chart(fig, use_container_width=True, key="ordinary_chart:" + namespace + ":" + selected, config={"displayModeBar": False})
+        st.dataframe([{"日期": p["date"], "原始重量": p["recorded_load"], "原始单位": p["recorded_unit"],
+                       "次数": p["reps"], "RIR": p["rir"], "停止原因": p["stop_reason"],
+                       "训练": p["session_id"], "动作实例": p["session_exercise_id"]} for p in points], hide_index=True)
+        stage_rows = []
+        for period in group["periods"]:
+            for summary in period["same_load_summaries"]:
+                stage_rows.append({"阶段": "较早" if period["period"] == "earlier" else "近期",
+                    "范围": period["start"][:10] + " 至 " + period["end"][:10],
+                    "重量": summary["load"], "单位": summary["unit"], "记录数": summary["record_count"],
+                    "次数中位数": summary["reps"]["median"], "次数最少": summary["reps"]["min"], "次数最多": summary["reps"]["max"],
+                    "RIR中位数": summary["rir"]["median"], "RIR填写数": summary["rir"]["n"]})
+        if stage_rows:
+            st.dataframe(stage_rows, hide_index=True)
+        if not group["condition_known"]:
+            st.caption("动作、器械／设置、侧别、负荷口径或组位尚未完整记录，以上只展示实际值，不认定条件相同。")
+        if group["unpaired_record_ids"]:
+            st.caption(f"{len(group['unpaired_record_ids'])} 条记录因条件未知或同场组位不唯一未自动配对；原记录完整保留。")
+        if group["rir_missing_n"]:
+            st.caption(f"{group['rir_missing_n']} 条记录没有精确 RIR，不能宣称努力程度相同；RIR=0 保留为实际零值。")
+        if group["load_basis"] == "assistance_setting":
+            st.caption("此处重量是辅助重量；辅助减少不等于表现退步。")
+        for note in review["limitations"]:
+            st.caption(note)
+
+
+def _select_action(repo, question, sources):
+    from healthzip.ui.action_page import select_action_ui
+    select_action_ui(repo, question, sources)
 
 
 def render_actions(repo):
-    from healthzip.workflows.actions import followup, list_actions, save_feedback
-    actions = list_actions(repo)
-    if not actions:
-        st.info("还没有已选择的行动。可在问题分析中选择一项，并填写计划复评日期。")
-        return
-    labels = {row["action_id"]: _action_day(row, "selected_at") + " · " + row["action_text"] for row in actions}
-    if st.session_state.get("review_action_id") not in labels:
-        st.session_state["review_action_id"] = next(iter(labels))
-    identity = st.selectbox("已选择的行动", list(labels), format_func=labels.get, key="review_action_id")
-    action = next(row for row in actions if row["action_id"] == identity)
-    st.write(action["action_text"])
-    st.caption(f"选择于 {_action_day(action, 'selected_at')} · 计划复评 {_action_day(action, 'review_due')}")
-    baseline = json.loads(action["baseline_json"])
-    st.write("选择行动时的观察")
-    st.write(baseline["observation"])
-    state_key = "action_followup:" + str(repo.path.resolve()) + ":" + identity
-    if st.button("查看后续同口径观察"):
-        st.session_state[state_key] = followup(repo, identity)
-    result = st.session_state.get(state_key)
-    if result and result.get("current"):
-        if result["status"] == "partial":
-            st.caption("后续范围尚未达到原观察范围的长度，当前展示已到来的记录。")
-        if not result.get("method_matches"):
-            st.warning("计算方法已有更新，请展开原观察与当前方法后再判断可比性。")
-        render_question(result["current"], repo=repo)
-    elif result:
-        st.info("选择行动后的观察窗口尚未开始。")
-    options = {"executed": "已执行", "partial": "部分执行", "not_executed": "未执行", "stopped": "已停止"}
-    with st.form("action_feedback:" + identity):
-        status = st.selectbox("实际执行情况", list(options), format_func=options.get, index=None)
-        notes = st.text_area("实际感受或未执行原因（可选）", value=action.get("notes") or "")
-        if st.form_submit_button("保存执行与复评"):
-            if status is None:
-                st.info("请选择真实执行情况。")
-            else:
-                save_feedback(repo, identity, status, notes, result, event_id=uuid4().hex)
-                st.success("执行情况和本次观察已保存。")
-
-
-def _action_day(action, key):
-    zone = ZoneInfo(json.loads(action["baseline_json"])["window"]["timezone"])
-    return datetime.fromisoformat(action[key]).astimezone(zone).date().isoformat()
+    from healthzip.ui.action_page import render_actions as render
+    render(repo)
 
 
 def _render_estimate_support(rows):
@@ -288,7 +349,7 @@ def _render_goal_actions(question):
     statuses = {"executed": "已执行", "partial": "部分执行", "not_executed": "未执行", "stopped": "已停止"}
     with st.expander("已选行动、实际执行与预设观察", expanded=True):
         for review in reviews:
-            st.write(review["action_text"])
+            st.write(review.get("summary") or review["action_text"])
             if review.get("prespecified_question"):
                 st.caption("选择时的观察问题：" + review["prespecified_question"])
             if review.get("method_matches") is False:

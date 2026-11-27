@@ -67,11 +67,13 @@ def measurement_explanations(evidence):
     This does not change the stricter individual/source-explanation permission,
     accept unreviewed text, or let an old frozen release acquire new claims.
     """
-    if evidence.get("conflicts"):
-        return []
+    from .metric_retrieval import claim_conflicts
+
     spans = {s["span_id"]: s for s in evidence.get("evidence_spans", [])}
     output = []
     for claim in evidence.get("matched_claims", []):
+        if claim_conflicts(claim, evidence.get('conflicts', [])):
+            continue
         if claim.get("scope", {}).get("explanation_purpose") != "measurement_context":
             continue
         selected = [spans[sid] for sid in claim["evidence_span_ids"] if sid in spans]

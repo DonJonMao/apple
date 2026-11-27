@@ -78,13 +78,40 @@ def submit_job(key, compute):
             if future.done() and (now - created > _TTL or len(_JOBS) >= _MAX_JOBS):
                 del _JOBS[old_key]
         if key in _JOBS:
-            _JOBS.move_to_end(key)
-            return _JOBS[key][1]
+            existing = _JOBS[key][1]
+            retry = False
+            if existing.done():
+                try:
+                    retry = _retryable_response(existing.result())
+                except Exception:
+                    retry = True
+            if not retry:
+                _JOBS.move_to_end(key)
+                return existing
+            del _JOBS[key]
         if sum(not future.done() for _, future in _JOBS.values()) >= _MAX_PENDING:
             raise RuntimeError("explanation_queue_full")
         future = _EXECUTOR.submit(compute)
         _JOBS[key] = (now, future)
         return future
+
+
+def _retryable_response(result):
+    """A locally handled transport failure is not a reusable successful answer."""
+    if not isinstance(result, dict):
+        return False
+    if result.get('status') in {'failed', 'changed', 'context_changed'}:
+        return True
+    if (result.get('reason_code') or result.get('error')) in {
+            'TimeoutError', 'timeout', 'HTTPError', 'URLError', 'OSError',
+            'ValueError', 'KeyError', 'IndexError', 'TypeError',
+            'service_failed', 'retrieval_timeout', 'validation_failed', 'partial_validation'}:
+        return True
+    if result.get('retrieval_audit', {}).get('retrieval_degraded'):
+        return True
+    return any(_retryable_response(value) for key, value in result.items()
+               if key in {'explanation', 'evidence_context'}) or any(
+                   _retryable_response(item) for item in result.get('items', []))
 
 
 def job_result(key):
@@ -245,6 +272,7 @@ def _show_reviewed_result(result, extra_windows=None):
         failure_labels = {
             "network_disabled": "未开启解释联网授权，当前使用本地事实与可用依据。",
             "not_configured": "尚未配置解释模型，当前使用本地事实与可用依据。",
+            "no_evidence": "没有适用于本次解释的证据，已有记录与图表仍可查看。",
             "validation_failed": "模型返回的事实或引用未通过核验，已保留本地观察；本次模型解释暂不可用。",
             "TimeoutError": "解释服务超时，记录与图表保持可用，可稍后重试。",
             "timeout": "解释服务超时，记录与图表保持可用，可稍后重试。",

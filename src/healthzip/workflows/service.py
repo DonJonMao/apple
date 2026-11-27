@@ -251,6 +251,9 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
         hypotheses = [h for h in hypotheses if h["hypothesis_id"] not in {"sleep_state", "body_mass"}] + pretraining_factors(factor_contexts)
     hypotheses = attach_evidence(hypotheses, knowledge)
     supplements = {}
+    if request.workflow_id in {"W1", "W2", "W4", "W5"}:
+        from .selection import ordinary_strength_review
+        supplements["ordinary_training"] = ordinary_strength_review(repo, declared_request, analysis, selected_task)
     if declaration.get("status") == "restricted_requires_reconfirmation":
         supplements["context_restriction"] = declaration
     if current_body:

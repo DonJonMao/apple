@@ -30,14 +30,13 @@ def submit_report(database, *, cutoff_time, timezone_name, period, context_id, r
                 _PROGRESS.popitem(last=False)
 
     def compute():
-        from healthzip.analytics.v13 import analyze
         from healthzip.workflows.period_report import create_report
         started = perf_counter()
         repo = Repository(database)
         try:
             progress("读取本期事实")
             context = {"workflow_context_id": context_id} if context_id else None
-            analysis = analyze(repo, cutoff_time=cutoff_time, timezone_name=timezone_name, period=period, context=context)
+            analysis = {"cutoff_time": cutoff_time, "timezone": timezone_name, "selection_context": context or {}}
             result = create_report(repo, analysis, period=period, progress=progress)
             result["job_elapsed_seconds"] = perf_counter()-started
             progress("已保存，可以查看和下载")

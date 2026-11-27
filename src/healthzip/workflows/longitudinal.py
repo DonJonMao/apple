@@ -1,10 +1,142 @@
 """Descriptive component comparisons, independent of statistical plateau inference."""
+from collections import Counter, defaultdict
 from datetime import timedelta
+from statistics import median
 
-from healthzip.science.contracts import Window, instant, select_as_of
+from healthzip.science.contracts import Window, canonical_hash, finite, instant, select_as_of
+from healthzip.science.semantics import flatten_record, load_components
 from healthzip.science.state import sleep_intervals, stream_key
+from healthzip.training.daily_history import daily_identity
 
 from .report_inputs import report_value, source_snapshot
+
+
+def ordinary_review(records, window):
+    """All ordinary completed sets, never selected by reference or best result.
+
+    Physical identity, set type and original ordinal define a descriptive series.
+    Multiple matching instances in one session remain observations but have no
+    unique longitudinal pair. Equal-duration earlier/recent halves are an explicit
+    display choice; every observed point and its original identity is retained.
+    """
+    start, end = instant(window["start"]), instant(window["end"])
+    midpoint = start + (end - start) / 2
+    groups = defaultdict(list)
+    for raw in records:
+        row = flatten_record(raw)
+        if row.get("status") != "completed" or row.get("deleted_at") or not row.get("ended_at"):
+            continue
+        if not start <= instant(row["ended_at"]) < end:
+            continue
+        identity = daily_identity(row)
+        reasons = list(identity["reason_codes"])
+        if row.get("set_position") is None:
+            reasons.append("set_position_unknown")
+        if not row.get("set_type"):
+            reasons.append("set_type_unknown")
+        if not row.get("session_id") or not row.get("session_exercise_id"):
+            reasons.append("training_instance_unknown")
+        parts = load_components(row)
+        normalized = parts.get("normalized_kg")
+        unit = "kg" if normalized is not None else row.get("load_unit")
+        load = normalized if normalized is not None else finite(row.get("load_value"))
+        record_id = row.get("set_uuid") or row.get("id")
+        key = (row.get("exercise_id"), identity["condition_key"], row.get("set_position"),
+               row.get("set_type"), row.get("load_basis"), unit, record_id if reasons else None)
+        groups[key].append({
+            "record_id": record_id, "source_record_id": raw.get("id", record_id),
+            "session_id": row.get("session_id"), "session_exercise_id": row.get("session_exercise_id"),
+            "date": row["ended_at"], "revision": row.get("revision"),
+            "exercise": row.get("exercise_name") or row.get("raw_exercise_name") or row.get("exercise_id"),
+            "condition_key": identity["condition_key"], "condition_limitations": reasons,
+            "recorded_load": row.get("load_value"), "recorded_unit": row.get("load_unit"),
+            "load": load, "unit": unit, "reps": finite(row.get("reps")), "rir": finite(row.get("rir")),
+            "rir_interval": row.get("rir_interval"), "duration_s": row.get("duration_s"),
+            "distance_m": row.get("distance_m"), "stop_reason": row.get("stop_reason"),
+            "pain_flag": row.get("pain_flag"), "quality": row.get("quality"),
+            "rest_seconds": row.get("rest_recorded_s", row.get("rest_seconds")),
+            "reference_set": row.get("is_reference", False),
+            "physical_condition": {k: row.get(k) for k in (
+                "equipment_instance_id", "settings", "side", "rom_protocol", "load_basis",
+                "repetition_semantics", "definition_version", "measurement_mode")},
+        })
+    output = []
+    for key, points in sorted(groups.items(), key=lambda item: str(item[0])):
+        points.sort(key=lambda p: (instant(p["date"]), str(p["record_id"])))
+        counts = Counter(p["session_id"] for p in points)
+        duplicates = {sid for sid, count in counts.items() if count > 1}
+        reasons = list(dict.fromkeys(r for p in points for r in p["condition_limitations"]))
+        if duplicates:
+            reasons.append("duplicate_same_condition_position_in_session_no_unique_pair")
+        eligible = [p for p in points if not p["condition_limitations"] and p["session_id"] not in duplicates]
+        eligible_ids = {p["record_id"] for p in eligible}
+        comparisons = []
+        for left, right in zip(eligible, eligible[1:]):
+            if instant(left["date"]) == instant(right["date"]):
+                continue
+            change = (right["load"] - left["load"]
+                      if left["load"] is not None and right["load"] is not None else None)
+            same_load = change == 0 or (key[4] == "bodyweight_no_external"
+                                        and left["load"] is None and right["load"] is None)
+            reps_change = (right["reps"] - left["reps"]
+                           if left["reps"] is not None and right["reps"] is not None else None)
+            comparisons.append({"previous_record_id": left["record_id"], "record_id": right["record_id"],
+                "first_date": left["date"], "date": right["date"], "load_change": change,
+                "load_unit": key[5], "same_load": same_load,
+                "repetitions_change": reps_change, "same_load_repetitions_change": reps_change if same_load else None,
+                "rir_change": right["rir"] - left["rir"] if same_load and left["rir"] is not None and right["rir"] is not None else None,
+                "load_meaning": "assistance_reduced" if key[4] == "assistance_setting" and change is not None and change < 0
+                                else "assistance_increased" if key[4] == "assistance_setting" and change is not None and change > 0
+                                else "recorded_load_change",
+                "effort_comparability": "recorded_rir_available_not_calibrated_capacity" if left["rir"] is not None and right["rir"] is not None
+                                        else "rir_missing_effort_unknown"})
+        stages = []
+        for label, a, b in (("earlier", start, midpoint), ("recent", midpoint, end)):
+            selected = [p for p in points if a <= instant(p["date"]) < b]
+            by_load = defaultdict(list)
+            for point in selected:
+                by_load[point["load"]].append(point)
+            summaries = []
+            for load, items in sorted(by_load.items(), key=lambda item: str(item[0])):
+                def stats(field):
+                    values = [p[field] for p in items if p.get(field) is not None]
+                    return {"n": len(values), "median": median(values) if values else None,
+                            "min": min(values) if values else None, "max": max(values) if values else None}
+                summaries.append({"load": load, "unit": key[5], "record_count": len(items),
+                                  "reps": stats("reps"), "rir": stats("rir"),
+                                  "record_ids": [p["record_id"] for p in items]})
+            stages.append({"period": label, "start": a.isoformat(), "end": b.isoformat(),
+                           "record_count": len(selected), "session_count": len({p["session_id"] for p in selected}),
+                           "same_load_summaries": summaries})
+        missing_rir = sum(p["rir"] is None for p in points)
+        if missing_rir:
+            reasons.append("rir_missing_effort_unknown")
+        first, last = points[0], points[-1]
+        def actual(point):
+            load = f"{float(point['recorded_load']):g} {point['recorded_unit']}" if finite(point["recorded_load"]) is not None else "自重或未填写负荷"
+            return f"{load} × {point['reps']:g} 次" if point["reps"] is not None else load
+        summary = f"{last['exercise']}第 {key[2] or '未知'} 组，{len(points)} 条实际记录；{first['date'][:10]} {actual(first)}"
+        if len(points) > 1:
+            summary += f" 至 {last['date'][:10]} {actual(last)}，中间各次记录均保留"
+        if not eligible:
+            summary += "；条件尚不能唯一对齐，先查看实际轨迹"
+        output.append({"series_id": canonical_hash(key), "exercise_id": key[0], "exercise": last["exercise"],
+            "condition_key": key[1], "position": key[2], "set_type": key[3], "load_basis": key[4], "unit": key[5],
+            "condition_known": not any(p["condition_limitations"] for p in points),
+            "points": points, "record_count": len(points), "session_count": len(counts),
+            "comparisons": comparisons, "periods": stages, "limitations": reasons,
+            "unpaired_record_ids": [p["record_id"] for p in points if p["record_id"] not in eligible_ids],
+            "summary": summary, "rir_missing_n": missing_rir})
+    return {"version": "ordinary-training-description-1.0", "window": dict(window),
+            "identity": "all_completed_sets_no_reference_or_best_set_selection", "series": output,
+            "record_count": sum(g["record_count"] for g in output),
+            "summary": [group["summary"] for group in output],
+            "period_definition": "equal_elapsed_duration_halves_of_requested_window_product_display_choice",
+            "matching_rule": "physical_condition_set_type_original_position_unique_per_session_chronological_adjacent",
+            "limitations": ["实际重量、次数与已填写 RIR 分别展示，不合成为能力百分比或停滞判断。",
+                            "较早与近期是所选观察范围的等时长两段，阶段内按同负荷列示全部记录的中位数与范围。",
+                            "未知条件仍保留原始轨迹；同场同条件同组位出现多个实例时不挑最优记录配对。",
+                            "组位、器械、负荷口径或组类型改变会分开；缺 RIR 不妨碍查看完成量，但努力程度保持未知。"]}
 
 
 def _rir_difference(first, later):
@@ -97,7 +229,8 @@ def _body_context(repo, cutoff_time, request, selection=None):
     start = cutoff - timedelta(days=request.get("baseline_days", 28))
     records, inherited = source_snapshot(repo, cutoff.isoformat(), window_start=start.isoformat(), window_end=cutoff.isoformat(),
         retrospective=request["mode"] == "retrospective",
-        canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"], include_training=False)
+        canonical_types=["sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms", "body_mass_kg"], include_training=False,
+        source_filter=(selection or {}).get("source_filter", ()))
     context = {**inherited, "timezone": request["timezone"], "retrospective": request["mode"] == "retrospective"}
     if (selection or {}).get("primary_sleep_stream"):
         context["primary_sleep_stream"] = selection["primary_sleep_stream"]

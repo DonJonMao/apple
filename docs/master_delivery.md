@@ -1,3 +1,5 @@
+> 2026-11-27 后续附件修复与新验收见 [repair_delivery.md](repair_delivery.md)。以下原交付及工件保留为历史记录，测试数量、页面和性能结果不代表后续修复版本。
+
 # HealthZIP 全面改造交付与验收索引
 
 本轮以 `HealthZIP_Codex_Master_Redesign_Prompt_20261122.md` 为完整实施要求，在 `feat/healthzip-product-redesign`、`150e15d` 及既有未提交改动上继续实施。开始时核对远端，分支比 `origin/main` 多4个提交；没有回退代码、清库、合并或部署。开始时已有33个已修改跟踪文件及未跟踪PDF/代码/证据；原工作区差异另保存在 `/tmp/hz-master-before-1122/initial-tracked.patch`。本次结果与原交付的2194项测试、725ms及96秒声明分别记录。

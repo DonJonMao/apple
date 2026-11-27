@@ -1,0 +1,105 @@
+...........F.........                                                    [100%]
+=================================== FAILURES ===================================
+______________ test_strength_real_completed_draft_delete_and_undo ______________
+
+repo = <healthzip.db.repository.Repository object at 0xffff86a64990>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff86a64910>
+
+    def test_strength_real_completed_draft_delete_and_undo(repo, monkeypatch):
+        service_module = importlib.import_module("healthzip.training.service")
+        original = service_module.timestamp
+        clock = {"now": "2026-11-17T14:00:00+00:00"}
+        monkeypatch.setattr(service_module, "timestamp", lambda value=None: original(value or clock["now"]))
+        service = TrainingService(repo)
+        session = service.start_session("合成训练", started_at="2026-11-17T12:00:00+00:00")
+        exercise = service.add_exercise(session["id"], "psa.ex.barbell_bench_press", {})
+        completed = service.add_set(exercise["id"], actual={"load_value": 20, "load_unit": "kg", "reps": 8,
+            "completion_state": "completed", "ended_at": "2026-11-17T13:00:00+00:00"})
+        service.add_set(exercise["id"])
+        initial = view(repo, "力量")
+        assert fact(initial, "已完成实际组")["value"] == 1
+        assert initial["coverage"]["record_count"] == 1
+        assert initial["facts"][0]["source_record_ids"] == [f"strength_set:{completed['set_uuid']}"]
+        clock["now"] = "2026-11-18T14:00:00+00:00"
+        session = service.get_session(session["id"])
+        service.delete_session(session["id"], base_revision=session["revision"], event_id="synthetic-delete")
+>       assert view(repo, "力量")["facts"] == []
+               ^^^^^^^^^^^^^^^^
+
+/home/sn_maozhifang/apple/tests/integration/test_workspace_calendar_summary.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workspace_calendar_summary.py:47: in view
+    result = workspace_summary(repo, workspace, cutoff_time=cutoff, timezone_name=zone)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/sn_maozhifang/apple/src/healthzip/analytics/workspace_summary.py:374: in workspace_summary
+    value = cached(repo, SUMMARY_VERSION, arguments, compute, dependencies=dependencies,
+/home/sn_maozhifang/apple/src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+/home/sn_maozhifang/apple/src/healthzip/analytics/workspace_summary.py:364: in compute
+    periods, plan = _compute(repo, service, domains, cutoff, zone, period)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/sn_maozhifang/apple/src/healthzip/analytics/workspace_summary.py:283: in _compute
+    strength = service.history_summary_as_of(cutoff_time=cutoff.isoformat(), window_start=earliest.isoformat(),
+/home/sn_maozhifang/apple/src/healthzip/training/service.py:2435: in history_summary_as_of
+    return self.history_as_of(cutoff_time=cutoff_time, window_start=window_start,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <healthzip.training.service.TrainingService object at 0xffff868e60d0>
+cutoff_time = '2026-11-19T10:00:00+00:00', condition_key = None
+include_incomplete = False, include_deleted = False
+window_start = '2026-09-30T16:00:00+00:00'
+window_end = '2026-11-19T10:00:00+00:00'
+_events = [{'event_order': 1, 'event_id': '4607a820-f297-45e3-b011-a099991342e0', 'user_id': 'local', 'entity_type': 'session', ...e': 'set', ...}, {'event_order': 5, 'event_id': 'synthetic-delete', 'user_id': 'local', 'entity_type': 'session', ...}]
+
+    def history_as_of(
+        self,
+        *,
+        cutoff_time: str,
+        condition_key=None,
+        include_incomplete: bool = False,
+        include_deleted: bool = False,
+        window_start=None,
+        window_end=None,
+        _events=None,
+    ) -> list[dict]:
+        """Replay only facts and revisions available by the decision cutoff.
+    
+        Planned/draft/aborted records remain available when requested for metric
+        denominators. Session tombstones hide all child facts until an undo event;
+        future corrections, deletion, and conflicts never rewrite prior snapshots.
+        """
+        cutoff = datetime.fromisoformat(timestamp(cutoff_time))
+        window = self._query_window(window_start, window_end)
+        events = self.events_as_of(cutoff_time=cutoff_time, window_start=window_start,
+                                  window_end=window_end) if _events is None else _events
+        state, sessions, conflicts = {}, {}, {}
+        resolutions = {}
+        conflict_ids = [(event.get("result") or {}).get("conflict_id") for event in events
+                        if event["status"] == "conflicted"]
+        for conflict in self.conn.execute(
+            "SELECT id,resolved_by_event_id FROM training_conflict WHERE user_id=? "
+            "AND id IN (SELECT value FROM json_each(?))", (self.user_id, json_text(conflict_ids))
+        ):
+            conflict = dict(conflict)
+            if conflict.get("resolved_by_event_id"):
+                resolutions.setdefault(conflict["resolved_by_event_id"], []).append(conflict["id"])
+        for event in events:
+            if datetime.fromisoformat(event["recorded_at"]) > cutoff:
+                continue
+            row = event.get("after")
+            if event["status"] == "conflicted":
+                result = event.get("result") or {}
+                conflicts[result.get("conflict_id")] = event["entity_id"]
+                continue
+            if event["status"] != "applied" or not isinstance(row, dict):
+                continue
+            if event["entity_type"] == "session" and row.get("id"):
+                sessions[row["id"]] = row
+>               for child in row.get("sets", []):
+E               TypeError: 'NoneType' object is not iterable
+
+/home/sn_maozhifang/apple/src/healthzip/training/service.py:2482: TypeError
+=========================== short test summary info ============================
+FAILED tests/integration/test_workspace_calendar_summary.py::test_strength_real_completed_draft_delete_and_undo
+1 failed, 20 passed in 12.03s

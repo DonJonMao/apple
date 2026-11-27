@@ -36,16 +36,27 @@ def render_topic_sources(topic, *, root='.local/knowledge'):
         if not saved or saved[:2] != (key, clock):
             return
         result = saved[2]
-        if result['status'] == 'conflicting':
-            st.caption('本题来源存在尚待核对的分歧。')
+        if result['status'] in {'conflicting', 'partial_conflict'}:
+            st.caption('部分主张存在分歧；以下独立说明仍可使用，相关争议及依赖它的建议单独列出。')
         elif not result['items']:
             st.caption('本地资料尚无适用于这项问题的已审阅说明。')
         for source in result.get('field_definitions', []):
             st.markdown(f"[Apple 字段定义 · {source['symbol']}]({source['url']})")
         for item in result['items']:
             st.write(item['statement'])
-            for limit in item['limitations'][:2]:
+            for limit in item['limitations']:
                 st.caption(limit)
+            if item.get('scope'):
+                with st.expander('这条说明的适用范围'):
+                    labels = {'population': '研究人群', 'population_and_design': '研究人群与设计',
+                              'devices': '设备', 'measurement_conditions': '测量条件',
+                              'comparison_method': '比较方法', 'metric': '指标',
+                              'study_population': '研究人群', 'study_scope': '研究范围',
+                              'protocol': '测量协议', 'device_family': '设备范围'}
+                    for field, label in labels.items():
+                        if item['scope'].get(field):
+                            st.write(f"{label}：{item['scope'][field]}")
+                    st.caption('这是原资料的适用范围，不代表当前用户或设备已经符合这些条件。')
             seen = set()
             for source in item['citations']:
                 if source['url'] in seen:
@@ -56,3 +67,14 @@ def render_topic_sources(topic, *, root='.local/knowledge'):
                     st.markdown(f"[{source['title']}]({source['url']})")
                 if section:
                     st.caption(section)
+        restricted = result.get('restricted_items', [])
+        if restricted:
+            with st.expander('有分歧的说明与受限建议'):
+                for item in restricted:
+                    st.write(item['statement'])
+                    st.caption('该主张或其必要前提存在未解决分歧，不能作为确定建议。')
+                    for limitation in item['limitations']:
+                        st.caption(limitation)
+                    for source in item['citations']:
+                        if source['url'] and source['url'].startswith(('https://', 'http://')):
+                            st.markdown(f"[{source['title']}]({source['url']})")
