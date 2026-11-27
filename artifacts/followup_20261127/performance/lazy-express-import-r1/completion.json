@@ -1,0 +1,41 @@
+{
+  "base_commit": "c71358de1daaf4f32f3eddcd67f51670be2586bc",
+  "owned_changes": [
+    "src/healthzip/ui/body_pages.py",
+    "tests/unit/test_body_pages.py"
+  ],
+  "source_hashes": {
+    "baseline_body_pages": "e997fa8c1a67c86dad8a102937c0f51cc3fbac17104eac309705dc27ce16e130",
+    "candidate_body_pages": "35bca27bac9be918addbd673fef55c2293a52e05fb7aae91bf7f46f713a664b8",
+    "candidate_unit_test": "9f577e686adc75b022b685d2b915367cdc2e8bfff8fcdec818e7678921e4ff91"
+  },
+  "candidate_hash_matches_both_measured_processes": true,
+  "hash_capture_note": "Candidate production hash is independently recorded in both paired diagnostic processes and matches delivery. Unit-test file hash recorded after the final test run.",
+  "semantic_checks": {
+    "existing_express_figure_body_ast_identical_after_dependency_gate": true,
+    "sleep_interval_figure_body_ast_identical": true,
+    "synthetic_comparison_figures_and_table_bytes_identical": true,
+    "clock_marker_preload_theme_preview_changed": false
+  },
+  "validation": {
+    "before": "2 failed in 4.79s, original source with new no-eager-import and actual ImportError checks",
+    "intermediate": "10 passed in 8.37s; Ruff then found remaining px gate in sleep interval chart, preserved in ruff.txt",
+    "final": "19 passed in 17.46s; body_pages and health_comparison_pages",
+    "final_command": ".venv/bin/pytest tests/unit/test_body_pages.py tests/unit/test_health_comparison_pages.py -q",
+    "ruff": "passed",
+    "diff_check": "passed"
+  },
+  "diagnostic": {
+    "median_seconds": {
+      "baseline": 0.8775732330977917,
+      "candidate": 0.5902908444404602
+    },
+    "samples_per_variant": 2,
+    "real_page_acceptance": "not_run_by_this_agent; root will coordinate",
+    "source_or_fixture_changes_in_experiment": false,
+    "shared_host_load_uncontrolled": true
+  },
+  "private_health_opened": false,
+  "browser_or_app_started": false,
+  "external_calls": 0
+}

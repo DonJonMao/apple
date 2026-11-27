@@ -1,0 +1,38 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/healthzip/ui/body_pages.py:3:1
+   |
+ 1 |   """Readable daily body records, separate from canonical scientific results."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import ast
+ 6 | | import math
+ 7 | | from collections import Counter, defaultdict
+ 8 | | from datetime import date, datetime
+ 9 | | from zoneinfo import ZoneInfo
+10 | |
+11 | | import streamlit as st
+   | |______________________^
+12 |
+13 |   def _number(value):
+   |
+help: Organize imports
+   |
+12 |
+13 +
+14 | def _number(value):
+   |
+
+F821 Undefined name `px`
+   --> src/healthzip/ui/body_pages.py:580:26
+    |
+578 |         st.metric("已记录睡眠时长", f"{hours:.1f} 小时")
+579 |         intervals = value.get("intervals", [])
+580 |         if intervals and px is not None:
+    |                          ^^
+581 |             import plotly.graph_objects as go
+582 |             figure = go.Figure()
+    |
+
+Found 2 errors.
+[*] 1 fixable with `--fix`.

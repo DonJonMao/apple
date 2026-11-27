@@ -1,0 +1,127 @@
+{
+  "kind": "light_import_and_synthetic_chart_serialization_diagnostic",
+  "samples": [
+    {
+      "variant": "baseline",
+      "source": "artifacts/followup_20261127/performance/lazy-express-import-r1/body-pages-before.py",
+      "source_sha256": "e997fa8c1a67c86dad8a102937c0f51cc3fbac17104eac309705dc27ce16e130",
+      "route_import_seconds": 0.8315092176198959,
+      "two_charts_serialization_seconds": 0.05487361550331116,
+      "import_and_two_charts_seconds": 0.8863828331232071,
+      "new_modules_at_import": 724,
+      "express_loaded_at_import": true,
+      "pandas_loaded_at_import": true,
+      "numpy_loaded_at_import": true,
+      "express_loaded_after_charts": true,
+      "pandas_loaded_after_charts": true,
+      "numpy_loaded_after_charts": true,
+      "figure_json_sha256": [
+        "d227d80cb7569903ac21f5ed3a434a28e9bd632ab00c77199459d09c73a597b9",
+        "dfb4ffa7f6d9832eb863ba332fb69e5775a1692cbfcd80ddc1c18535f8381c9f"
+      ],
+      "process_peak_rss_kib": 159744,
+      "host_load": [
+        22.99609375,
+        24.40576171875,
+        24.009765625
+      ]
+    },
+    {
+      "variant": "candidate",
+      "source": "src/healthzip/ui/body_pages.py",
+      "source_sha256": "2861751fe6c7cd394230b03ffe03692a88121c2823488de9d471586452641ae5",
+      "route_import_seconds": 0.017003856599330902,
+      "two_charts_serialization_seconds": 0.049040786921978,
+      "import_and_two_charts_seconds": 0.0660446435213089,
+      "new_modules_at_import": 5,
+      "express_loaded_at_import": false,
+      "pandas_loaded_at_import": false,
+      "numpy_loaded_at_import": false,
+      "express_loaded_after_charts": false,
+      "pandas_loaded_after_charts": false,
+      "numpy_loaded_after_charts": false,
+      "figure_json_sha256": [
+        "d227d80cb7569903ac21f5ed3a434a28e9bd632ab00c77199459d09c73a597b9",
+        "dfb4ffa7f6d9832eb863ba332fb69e5775a1692cbfcd80ddc1c18535f8381c9f"
+      ],
+      "process_peak_rss_kib": 71108,
+      "host_load": [
+        22.99609375,
+        24.40576171875,
+        24.009765625
+      ]
+    },
+    {
+      "variant": "candidate",
+      "source": "src/healthzip/ui/body_pages.py",
+      "source_sha256": "2861751fe6c7cd394230b03ffe03692a88121c2823488de9d471586452641ae5",
+      "route_import_seconds": 0.017097458243370056,
+      "two_charts_serialization_seconds": 0.050241827964782715,
+      "import_and_two_charts_seconds": 0.06733928620815277,
+      "new_modules_at_import": 5,
+      "express_loaded_at_import": false,
+      "pandas_loaded_at_import": false,
+      "numpy_loaded_at_import": false,
+      "express_loaded_after_charts": false,
+      "pandas_loaded_after_charts": false,
+      "numpy_loaded_after_charts": false,
+      "figure_json_sha256": [
+        "d227d80cb7569903ac21f5ed3a434a28e9bd632ab00c77199459d09c73a597b9",
+        "dfb4ffa7f6d9832eb863ba332fb69e5775a1692cbfcd80ddc1c18535f8381c9f"
+      ],
+      "process_peak_rss_kib": 71092,
+      "host_load": [
+        22.99609375,
+        24.40576171875,
+        24.009765625
+      ]
+    },
+    {
+      "variant": "baseline",
+      "source": "artifacts/followup_20261127/performance/lazy-express-import-r1/body-pages-before.py",
+      "source_sha256": "e997fa8c1a67c86dad8a102937c0f51cc3fbac17104eac309705dc27ce16e130",
+      "route_import_seconds": 0.8418193534016609,
+      "two_charts_serialization_seconds": 0.051261432468891144,
+      "import_and_two_charts_seconds": 0.8930807858705521,
+      "new_modules_at_import": 724,
+      "express_loaded_at_import": true,
+      "pandas_loaded_at_import": true,
+      "numpy_loaded_at_import": true,
+      "express_loaded_after_charts": true,
+      "pandas_loaded_after_charts": true,
+      "numpy_loaded_after_charts": true,
+      "figure_json_sha256": [
+        "d227d80cb7569903ac21f5ed3a434a28e9bd632ab00c77199459d09c73a597b9",
+        "dfb4ffa7f6d9832eb863ba332fb69e5775a1692cbfcd80ddc1c18535f8381c9f"
+      ],
+      "process_peak_rss_kib": 159740,
+      "host_load": [
+        22.99609375,
+        24.40576171875,
+        24.009765625
+      ]
+    }
+  ],
+  "same_figure_json_before_after": true,
+  "median_seconds": {
+    "baseline": {
+      "route_import_seconds": 0.8366642855107784,
+      "two_charts_serialization_seconds": 0.05306752398610115,
+      "import_and_two_charts_seconds": 0.8897318094968796
+    },
+    "candidate": {
+      "route_import_seconds": 0.01705065742135048,
+      "two_charts_serialization_seconds": 0.049641307443380356,
+      "import_and_two_charts_seconds": 0.06669196486473083
+    }
+  },
+  "limitations": [
+    "Two samples per variant; descriptive diagnostic, not P95 or browser acceptance.",
+    "Shared host load uncontrolled; root was running a separate 100k cProfile task.",
+    "Common app imports and theme setup precede both measurements, matching route import ordering.",
+    "No database/scientific analysis, Streamlit rendering or frontend/network time is included.",
+    "No product timing boundary, completion marker, trend, caching layer or preload was changed."
+  ],
+  "private_health_opened": false,
+  "external_calls": 0
+}

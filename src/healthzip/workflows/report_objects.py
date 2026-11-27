@@ -74,20 +74,51 @@ def reading_view(payload):
 
 
 def _save_training(repo, ordinary, *, include_preview=True, allow_nan=True):
+    # Isolate the batch without committing or discarding the caller's earlier
+    # writes. An outer BEGIN keeps RELEASE from committing a standalone save.
+    started = not repo.conn.in_transaction
+    if started:
+        repo.conn.execute("BEGIN")
+    repo.conn.execute("SAVEPOINT frozen_training_batch")
+    try:
+        result = _save_training_batch(repo, ordinary, include_preview=include_preview, allow_nan=allow_nan)
+    except BaseException:
+        if repo.conn.in_transaction:
+            repo.conn.execute("ROLLBACK TO frozen_training_batch")
+            repo.conn.execute("RELEASE frozen_training_batch")
+        if started:
+            repo.conn.rollback()
+        raise
+    repo.conn.execute("RELEASE frozen_training_batch")
+    return result
+
+
+def _save_training_batch(repo, ordinary, *, include_preview, allow_nan):
     # Each scientific group retains its own identity. This is storage sharing,
     # not pooling unknown conditions or choosing a best set.
-    groups = [save_object(repo, "ordinary-training-series", group, allow_nan=allow_nan)
-              for group in ordinary.get("series", [])]
+    series = ordinary.get("series", [])
+    kind = "ordinary-training-series"
+    scope = _object_scope(repo, kind) if series else None
+    groups = []
+    for group in series:
+        encoded = json.dumps(group, ensure_ascii=False, sort_keys=True, allow_nan=allow_nan)
+        groups.append(_save_encoded_object(repo, kind, encoded, scope))
     header = {k: v for k, v in ordinary.items() if k != "series"}
     reference = save_object(repo, "ordinary-training", {**header, **({"series": groups} if "series" in ordinary else {})},
                             allow_nan=allow_nan)
-    if not include_preview:
-        return reference, None
-    index = [{"series_id": group["series_id"], "summary": group["summary"],
-              "record_count": group["record_count"], "reference": reference}
-             for group, reference in zip(ordinary.get("series", []), groups)]
-    preview = {k: v for k, v in header.items() if k in {"version", "window", "record_count", "limitations", "identity"}}
-    return reference, {**preview, "index_ref": save_object(repo, "ordinary-training-index", index)}
+    preview = None
+    if include_preview:
+        index = [{"series_id": group["series_id"], "summary": group["summary"],
+                  "record_count": group["record_count"], "reference": reference}
+                 for group, reference in zip(series, groups)]
+        preview = {k: v for k, v in header.items() if k in {"version", "window", "record_count", "limitations", "identity"}}
+        preview["index_ref"] = save_object(repo, "ordinary-training-index", index)
+    # Scope is local to this write batch, never cached on the repository. A
+    # retargeted path/replaced file must abort this batch instead
+    # of committing objects with mixed workspace identities on its connection.
+    if scope is not None and _object_scope(repo, kind) != scope:
+        raise ValueError("frozen_report_workspace_changed_during_batch")
+    return reference, preview
 
 
 def save_workflow(repo, result):
@@ -122,14 +153,21 @@ def read_workflow(repo, stored):
             "supplements": {**stored["supplements"], "ordinary_training": ordinary}}
 
 
-def save_object(repo, kind, payload, *, allow_nan=True):
-    """Append-only immutable content. The caller owns the commit boundary."""
-    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, allow_nan=allow_nan)
-    scope = json.dumps([str(repo.path.resolve()), repo.path.stat().st_ino, "local", kind])
+def _object_scope(repo, kind):
+    return json.dumps([str(repo.path.resolve()), repo.path.stat().st_ino, "local", kind])
+
+
+def _save_encoded_object(repo, kind, encoded, scope):
     identity = hashlib.sha256((scope + "\0" + encoded).encode()).hexdigest()
     repo.conn.execute("INSERT OR IGNORE INTO report_content_object VALUES(?,?,?,?,?)",
                       (identity, "local", kind, encoded, datetime.now(timezone.utc).isoformat()))
     return {"$frozen_object": identity}
+
+
+def save_object(repo, kind, payload, *, allow_nan=True):
+    """Append-only immutable content. The caller owns the commit boundary."""
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, allow_nan=allow_nan)
+    return _save_encoded_object(repo, kind, encoded, _object_scope(repo, kind))
 
 
 def read_object(repo, reference, *, fast_compatible=False):

@@ -1,10 +1,12 @@
 """Workflow storage sharing preserves actual records and offline historical reads."""
+import hashlib
 import json
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from copy import deepcopy
 from datetime import datetime, timedelta
+from pathlib import Path
 from threading import Barrier
 from unittest.mock import patch
 
@@ -285,3 +287,210 @@ def test_workflow_storage_keeps_strict_finite_json_boundary(tmp_path, value):
             save_workflow(repo, result)
         repo.conn.rollback()
         assert repo.one("SELECT count(*) FROM report_content_object")[0] == 0
+
+
+def scope_fixture():
+    first = {"series_id": "unknown-condition-1", "condition_key": None, "record_count": 1,
+             "summary": "合成🧪", "points": [{"record_id": "first", "revision": 2**80 + 1,
+                                             "load": -0.0, "rir": None}]}
+    second = {**first, "series_id": "unknown-condition-2",
+              "points": [{"record_id": "second", "load": 30.125, "rir": 0}]}
+    return {"version": "synthetic-scope-1", "window": {"start": START, "end": CUTOFF},
+            "record_count": 3, "series": [first, second, first], "empty": [], "unknown": None}
+
+
+@pytest.mark.parametrize("include_preview", [False, True])
+def test_training_scope_batch_keeps_legacy_ids_bytes_order_and_offline_reconstruction(tmp_path, include_preview):
+    from healthzip.workflows.report_objects import (
+        _save_training,
+        read_workflow,
+        reconstruct_workflow,
+    )
+
+    ordinary = scope_fixture()
+    original = deepcopy(ordinary)
+    with closing(Repository(tmp_path / "scope-contract.sqlite3")) as repo:
+        expected = {}
+
+        def legacy_reference(kind, payload):
+            # The shipped content-addressing contract is the compatibility oracle.
+            encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, allow_nan=False)
+            scope = json.dumps([str(repo.path.resolve()), repo.path.stat().st_ino, "local", kind])
+            identity = hashlib.sha256((scope + "\0" + encoded).encode()).hexdigest()
+            expected[identity] = ("local", kind, encoded)
+            return {"$frozen_object": identity}
+
+        groups = [legacy_reference("ordinary-training-series", group) for group in ordinary["series"]]
+        header = {key: value for key, value in ordinary.items() if key != "series"}
+        root = legacy_reference("ordinary-training", {**header, "series": groups})
+        preview = None
+        if include_preview:
+            index = [{"series_id": group["series_id"], "summary": group["summary"],
+                      "record_count": group["record_count"], "reference": reference}
+                     for group, reference in zip(ordinary["series"], groups)]
+            preview = {key: value for key, value in header.items() if key in {
+                "version", "window", "record_count", "limitations", "identity"}}
+            preview["index_ref"] = legacy_reference("ordinary-training-index", index)
+        with repo.transaction():
+            assert _save_training(repo, ordinary, include_preview=include_preview, allow_nan=False) == (root, preview)
+        stored_rows = {row["object_id"]: (row["user_id"], row["kind"], row["payload_json"])
+                       for row in repo.rows("SELECT * FROM report_content_object")}
+        assert stored_rows == expected
+        old_rows = [tuple(row) for row in repo.rows("SELECT * FROM report_content_object ORDER BY object_id")]
+        with repo.transaction():
+            assert _save_training(repo, ordinary, include_preview=include_preview, allow_nan=False) == (root, preview)
+        assert [tuple(row) for row in repo.rows("SELECT * FROM report_content_object ORDER BY object_id")] == old_rows
+        manifest = {"run_id": "synthetic-scope", "storage_format": "workflow-training-references-1",
+                    "supplements": {"ordinary_training": root}}
+        public = {"run_id": "synthetic-scope", "supplements": {"ordinary_training": ordinary}}
+        assert read_workflow(repo, manifest) == public
+        bundle = {"format": "healthzip-frozen-audit-3", "workflow_runs": {"synthetic-scope": manifest},
+                  "content_objects": {key: json.loads(value[2]) for key, value in expected.items()}}
+        restored = reconstruct_workflow(json.loads(json.dumps(bundle)), "synthetic-scope")
+        assert json.dumps(restored, sort_keys=True) == json.dumps(public, sort_keys=True)
+        series = restored["supplements"]["ordinary_training"]["series"]
+        assert [group["series_id"] for group in series] == ["unknown-condition-1", "unknown-condition-2", "unknown-condition-1"]
+        assert groups[0] == groups[2] and groups[0] != groups[1]
+        series[0]["points"].clear()
+        assert series[2]["points"] == ordinary["series"][2]["points"]
+        assert ordinary == original
+
+
+@pytest.mark.parametrize("group_count", [1, 17])
+def test_training_scope_preparation_is_per_batch_not_per_group(tmp_path, group_count):
+    from healthzip.workflows.report_objects import _save_training
+
+    ordinary = {"series": [{"series_id": f"independent-unknown-{index}", "condition_key": None,
+                             "points": [{"record_id": f"record-{index}"}]} for index in range(group_count)]}
+    with closing(Repository(tmp_path / "scope-count.sqlite3")) as repo:
+        resolve = Path.resolve
+        with patch.object(Path, "resolve", autospec=True, side_effect=resolve) as observed:
+            with repo.transaction():
+                _save_training(repo, ordinary, include_preview=False, allow_nan=False)
+        # Prepare the series scope, verify it at the batch boundary, then save
+        # its separately typed parent. This count must not grow with groups.
+        assert observed.call_count == 3
+        assert repo.one("SELECT count(*) FROM report_content_object WHERE kind='ordinary-training-series'")[0] == group_count
+
+
+@pytest.mark.parametrize(("via_report", "pending_caller_write"), [(False, False), (True, False), (True, True)])
+def test_training_scope_change_during_batch_refuses_freeze_and_rolls_back(tmp_path, via_report, pending_caller_write):
+    from healthzip.workflows.report_objects import save_content, save_object, save_workflow
+
+    original_path = tmp_path / "scope-original.sqlite3"
+    other_path = tmp_path / "scope-other.sqlite3"
+    with closing(Repository(original_path)) as original, closing(Repository(other_path)) as other:
+        with original.transaction():
+            old = save_object(original, "existing-frozen", {"preserve": "original"})
+        with other.transaction():
+            save_object(other, "existing-frozen", {"preserve": "other"})
+        old_original_rows = [tuple(row) for row in original.rows("SELECT * FROM report_content_object")]
+        old_other_rows = [tuple(row) for row in other.rows("SELECT * FROM report_content_object")]
+    alias = tmp_path / "scope-alias.sqlite3"
+    alias.symlink_to(original_path)
+    with closing(Repository(alias)) as repo:
+        if pending_caller_write:
+            save_object(repo, "pending-caller", {"preserve": "not part of this failed freeze"})
+            assert repo.conn.in_transaction
+            old_original_rows = [tuple(row) for row in repo.rows("SELECT * FROM report_content_object")]
+        changed = False
+
+        def retarget_after_first_insert(statement):
+            nonlocal changed
+            if not changed and statement.startswith("INSERT OR IGNORE INTO report_content_object"):
+                alias.unlink()
+                alias.symlink_to(other_path)
+                changed = True
+
+        repo.conn.set_trace_callback(retarget_after_first_insert)
+        with pytest.raises(ValueError, match="frozen_report_workspace_changed_during_batch"):
+            if via_report:
+                # save_content owns its production commit/rollback boundary;
+                # wrapping it in a test transaction would hide a leaked write.
+                save_content(repo, {"current": {}, "analysis_run_id": "synthetic-analysis",
+                    "questions": [{"id": "W1", "ordinary_training": scope_fixture()}]})
+            else:
+                with repo.transaction():
+                    save_workflow(repo, {"supplements": {"ordinary_training": scope_fixture()}})
+        repo.conn.set_trace_callback(None)
+        assert changed and repo.conn.in_transaction is pending_caller_write
+        assert [tuple(row) for row in repo.rows("SELECT * FROM report_content_object")] == old_original_rows
+        # A later caller commit preserves its earlier write, never any failed
+        # batch objects. The no-transaction report path also remains clean.
+        repo.conn.commit()
+    with closing(Repository(original_path)) as original, closing(Repository(other_path)) as other:
+        assert [tuple(row) for row in original.rows("SELECT * FROM report_content_object")] == old_original_rows
+        assert [tuple(row) for row in other.rows("SELECT * FROM report_content_object")] == old_other_rows
+        assert original.one("SELECT object_id FROM report_content_object")[0] == old["$frozen_object"]
+
+
+def test_training_scope_is_fresh_across_workspaces_and_same_path_recreation(tmp_path):
+    from healthzip.workflows.report_objects import read_workflow, save_workflow
+
+    path = tmp_path / "recreated.sqlite3"
+    public = {"supplements": {"ordinary_training": scope_fixture()}}
+    with closing(Repository(path)) as repo:
+        original_inode = path.stat().st_ino
+        with repo.transaction():
+            original = save_workflow(repo, public)
+        original_rows = [tuple(row) for row in repo.rows("SELECT * FROM report_content_object ORDER BY object_id")]
+    retained = tmp_path / "retained-original.sqlite3"
+    path.rename(retained)
+    manifests = [original]
+    for destination in (path, tmp_path / "different-workspace.sqlite3"):
+        with closing(Repository(destination)) as repo:
+            if destination == path:
+                assert destination.stat().st_ino != original_inode
+            with repo.transaction():
+                manifest = save_workflow(repo, public)
+            assert read_workflow(repo, manifest) == public
+            for prior in manifests:
+                assert manifest != prior
+                with pytest.raises(ValueError, match="frozen_report_content_missing"):
+                    read_workflow(repo, prior)
+            manifests.append(manifest)
+    with closing(Repository(retained)) as repo:
+        assert read_workflow(repo, original) == public
+        assert [tuple(row) for row in repo.rows("SELECT * FROM report_content_object ORDER BY object_id")] == original_rows
+
+
+def test_training_scope_batch_leaves_successful_commit_to_caller(tmp_path):
+    from healthzip.workflows.report_objects import save_workflow
+
+    path = tmp_path / "caller-commit.sqlite3"
+    with closing(Repository(path)) as repo, closing(Repository(path)) as observer:
+        frozen = save_workflow(repo, {"supplements": {"ordinary_training": scope_fixture()}})
+        assert frozen["storage_format"] == "workflow-training-references-1"
+        assert repo.conn.in_transaction
+        assert repo.one("SELECT count(*) FROM report_content_object")[0] == 3
+        assert observer.one("SELECT count(*) FROM report_content_object")[0] == 0
+        repo.conn.rollback()
+        assert repo.one("SELECT count(*) FROM report_content_object")[0] == 0
+
+
+@pytest.mark.parametrize("ordinary", [{"version": "synthetic-empty"}, {"version": "synthetic-empty", "series": []}])
+def test_training_scope_keeps_absent_and_empty_series_distinct(tmp_path, ordinary):
+    from healthzip.workflows.report_objects import read_workflow, save_workflow
+
+    public = {"supplements": {"ordinary_training": ordinary}}
+    with closing(Repository(tmp_path / "empty-scope.sqlite3")) as repo:
+        with repo.transaction():
+            frozen = save_workflow(repo, public)
+        assert read_workflow(repo, frozen) == public
+        assert repo.one("SELECT count(*) FROM report_content_object")[0] == 1
+        assert repo.one("SELECT kind FROM report_content_object")[0] == "ordinary-training"
+
+
+def test_training_scope_preserves_existing_permissive_json_boundary(tmp_path):
+    from healthzip.workflows.report_objects import _save_training
+
+    group = {"series_id": "legacy-nonfinite", "points": [{"value": float("nan")}],
+             "record_count": 1, "summary": "legacy value retained"}
+    with closing(Repository(tmp_path / "permissive-scope.sqlite3")) as repo:
+        encoded = json.dumps(group, ensure_ascii=False, sort_keys=True, allow_nan=True)
+        scope = json.dumps([str(repo.path.resolve()), repo.path.stat().st_ino, "local", "ordinary-training-series"])
+        expected = hashlib.sha256((scope + "\0" + encoded).encode()).hexdigest()
+        with repo.transaction():
+            _save_training(repo, {"series": [group]}, include_preview=True, allow_nan=True)
+        row = repo.one("SELECT object_id,payload_json FROM report_content_object WHERE kind='ordinary-training-series'")
+        assert tuple(row) == (expected, encoded)

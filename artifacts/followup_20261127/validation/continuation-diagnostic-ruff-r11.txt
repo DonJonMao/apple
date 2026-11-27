@@ -1,0 +1,62 @@
+I001 [*] Import block is un-sorted or un-formatted
+ --> artifacts/followup_20261127/performance/monitor-continuation-r11.py:2:1
+  |
+1 |   """Read-only RSS sampling of the existing sequential browser/page jobs."""
+2 | / import hashlib
+3 | | import json
+4 | | import os
+5 | | from pathlib import Path
+6 | | import sys
+7 | | import time
+  | |___________^
+8 |
+9 |   ROOT = Path('/home/sn_maozhifang/apple')
+  |
+help: Organize imports
+  |
+4 | import os
+  - from pathlib import Path
+5 | import sys
+6 | import time
+7 + from pathlib import Path
+8 |
+  |
+
+E402 Module level import not at top of file
+  --> artifacts/followup_20261127/performance/monitor-continuation-r11.py:11:1
+   |
+ 9 | ROOT = Path('/home/sn_maozhifang/apple')
+10 | sys.path.insert(0, str(ROOT / 'tools'))
+11 | from repair_measure_run import processes
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 |
+13 | BASE = ROOT / 'artifacts/followup_20261127/performance'
+   |
+help: Move module level imports to top of file
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> artifacts/followup_20261127/performance/run-continuation-r11.py:2:1
+  |
+1 |   """Sequential acceptance of frozen source against unchanged synthetic fixtures."""
+2 | / import hashlib
+3 | | import json
+4 | | import os
+5 | | from pathlib import Path
+6 | | import subprocess
+7 | | import time
+  | |___________^
+8 |
+9 |   ROOT = Path('/home/sn_maozhifang/apple')
+  |
+help: Organize imports
+  |
+4 | import os
+  - from pathlib import Path
+5 | import subprocess
+6 | import time
+7 + from pathlib import Path
+8 |
+  |
+
+Found 3 errors.
+[*] 2 fixable with `--fix`.

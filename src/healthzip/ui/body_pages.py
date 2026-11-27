@@ -10,11 +10,6 @@ from zoneinfo import ZoneInfo
 
 import streamlit as st
 
-try:
-    import plotly.express as px
-except ImportError:  # pragma: no cover - optional UI dependency
-    px = None
-
 
 def _number(value):
     if isinstance(value, bool):
@@ -200,7 +195,9 @@ def display_points(rows, field, *, limit=400):
 def _chart(rows, value, title, *, observations=False):
     if not rows:
         return
-    if px is None:
+    try:
+        import plotly.express as px
+    except ImportError:  # optional UI dependency
         st.caption("图表组件暂不可用，仍可展开原始明细查看数值。")
         return
     # Sparse observations remain actual points. No zero-filled days or lines
@@ -581,16 +578,20 @@ def _sleep_scope_selection(view, repo):
         st.write(f"{mode}已记录睡眠 {hours:.1f} 小时；只累计选定来源去重后的有效睡眠区间。")
         st.metric("已记录睡眠时长", f"{hours:.1f} 小时")
         intervals = value.get("intervals", [])
-        if intervals and px is not None:
-            import plotly.graph_objects as go
-            figure = go.Figure()
-            for number, interval in enumerate(intervals):
-                figure.add_trace(go.Scatter(x=[interval["start"], interval["end"]], y=[number + 1, number + 1],
-                    mode="lines+markers", line={"width": 10, "color": "#38BFA3"}, showlegend=False,
-                    hovertemplate="%{x}<br>已观察睡眠区间<extra></extra>"))
-            figure.update_layout(height=240, margin={"t": 12, "b": 24, "l": 12, "r": 12},
-                xaxis={"type": "date", "title": "实际观测时间"}, yaxis={"visible": False})
-            st.plotly_chart(figure, use_container_width=True, key="sleep_selected_intervals")
+        if intervals:
+            try:
+                import plotly.graph_objects as go
+            except ImportError:
+                st.caption("图表组件暂不可用，仍可展开原始明细查看数值。")
+            else:
+                figure = go.Figure()
+                for number, interval in enumerate(intervals):
+                    figure.add_trace(go.Scatter(x=[interval["start"], interval["end"]], y=[number + 1, number + 1],
+                        mode="lines+markers", line={"width": 10, "color": "#38BFA3"}, showlegend=False,
+                        hovertemplate="%{x}<br>已观察睡眠区间<extra></extra>"))
+                figure.update_layout(height=240, margin={"t": 12, "b": 24, "l": 12, "r": 12},
+                    xaxis={"type": "date", "title": "实际观测时间"}, yaxis={"visible": False})
+                st.plotly_chart(figure, use_container_width=True, key="sleep_selected_intervals")
         st.caption("观测起止不直接等于实际入睡或起床；没有分期仍保留总时长，整夜完整性保持未确认。")
         _explanation(selected_view, repo)
         st.markdown("**下一步**")
