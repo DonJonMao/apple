@@ -1,0 +1,36 @@
+{
+  "data": "synthetic only; no actual health data opened",
+  "before": {
+    "failed": 3,
+    "deselected": 6,
+    "seconds": 0.67,
+    "evidence": [
+      "before.log",
+      "before.xml"
+    ]
+  },
+  "after_guidance_identity": {
+    "passed": 67,
+    "seconds": 17.5,
+    "evidence": [
+      "final.log",
+      "final.xml"
+    ]
+  },
+  "ruff": "passed",
+  "scientific_version": "body-questions-1.5 unchanged",
+  "guidance_version": "question-guidance-1.1; separate question cache dependency and frozen metadata",
+  "scope": [
+    "W4 training-only next step points to actual training history",
+    "Old actions without result definitions or with historical observation units retain local restrictions",
+    "Prespecified actions retain their own valid review step",
+    "Old baseline, definition and feedback rows remain byte-identical",
+    "A guidance change separates cached fact identity without changing scientific methods or numeric results"
+  ],
+  "source_sha256": {
+    "src/healthzip/analytics/body_questions.py": "a64bc505f826d1ca93da69a6aba541cf37718385a8500f2c32e1041abe6f9436",
+    "src/healthzip/workflows/period_report.py": "e39748fe69fc35a7c247ca974c0ca4440f98979c2825fc34e0c0627929fa07c9",
+    "tests/science/test_question_context.py": "0c89cfcb8d2341beaf23e6bfd35a95b224ad41858ef2ac6e0fa24206a2bc53ee"
+  },
+  "performance_scope": "Final backend measurements precede this guidance-only change and report format patch. Their recorded source identities remain original; do not relabel those runs as this final guidance source."
+}

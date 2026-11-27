@@ -129,7 +129,10 @@ def _analysis_task(row: dict) -> dict:
 
 def outcome_series(record: dict) -> dict:
     """Fixed-load repetition endpoint identity within an unchanged physical task."""
-    row = flatten_record(record)
+    return _outcome_series(flatten_record(record))
+
+
+def _outcome_series(row: dict) -> dict:
     task = _analysis_task(row)
     components = _load_components(row)
     reasons = []
@@ -162,8 +165,13 @@ def _load_components(row: dict) -> dict:
            "normalized_kg": None, "plate_total_kg": None, "total_load_kg": None,
            "per_hand_kg": None, "implements_mass_sum_kg": None, "assistance_kg": None, "marked_load": None, "reason_codes": []}
     try:
+        # These are the only recorded conditions consumed by load_semantics.
+        # Passing the whole normalized row repeatedly copies unrelated raw
+        # JSON, timestamps and provenance without contributing to the result.
         parsed = load_semantics(row["load_value"], row["load_unit"], basis,
-                                **{k: v for k, v in row.items() if k not in {"load_basis", "value", "unit", "basis"}})
+                                symmetric_loading=row.get("symmetric_loading"),
+                                effective_bar_mass_kg=row.get("effective_bar_mass_kg"),
+                                implement_count=row.get("implement_count"))
     except TrainingError as exc:
         out["reason_codes"] = [str(exc)]
         return out

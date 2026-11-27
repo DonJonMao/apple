@@ -10,11 +10,11 @@ START = "2024-09-09T00:00:00+08:00"
 END = "2024-09-12T00:00:00+08:00"
 
 
-def record(repo, kind, value, *, table="health_sample", identity=1):
+def record(repo, kind, value, *, table="health_sample", identity=1, unit="count"):
     at = "2024-09-10T08:00:00+08:00"
     row = {"id": identity, "canonical_type": kind, "raw_type": kind,
            "normalized_value": value, "raw_value": str(value),
-           "normalized_unit": "count", "raw_unit": "count",
+           "normalized_unit": unit, "raw_unit": unit,
            "source_name": "合成来源", "device": "合成设备", "source_version": "fixture-1",
            "start_utc": at, "end_utc": at, "event_time": at,
            "metadata_json": "{}", "record_status": "active"}
@@ -93,3 +93,22 @@ def test_cycle_disabled_enabled_empty_and_actual_record(tmp_path):
         assert actual["topic_status"]["state"] == "descriptive"
         assert actual["topic_status"]["has_primary_records"]
         assert "相位" not in actual["observation"]
+
+
+def test_existing_body_facts_do_not_invent_a_previously_selected_goal(tmp_path):
+    with closing(Repository(tmp_path / 'synthetic.sqlite3')) as repo:
+        record(repo, 'body_mass_kg', 72, unit='kg')
+        record(repo, 'high_hr_event', 1, identity=2)
+        view = questions(repo)['W4']
+        assert view['topic_status']['has_primary_records']
+        assert not view['topic_status']['has_goal']
+        assert not view['action_reviews']
+        assert '先前选择' not in ' '.join(view['steps'])
+        assert any('体重' in step and '来源' in step for step in view['steps'])
+        report = create_report(repo, {'cutoff_time': END, 'timezone': 'Asia/Shanghai'},
+            period='week', knowledge_root=tmp_path / 'missing')
+        assert '先前选择的动作和目标尺度' not in report['markdown']
+        final_steps = report['markdown'].split('## 下一步\n', 1)[1].split('## 冻结依据', 1)[0]
+        assert final_steps.strip().splitlines()[0].startswith('- 核对 2024-09-10 合成来源')
+        assert 'health_sample:2' in final_steps
+        assert load_report(repo, report['report_id'])['markdown'] == report['markdown']

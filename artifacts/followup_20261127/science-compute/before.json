@@ -1,0 +1,1259 @@
+{
+  "scope": "Synthetic evaluate_all microdiagnostic, 77 metrics; not full report performance",
+  "source": {
+    "src/healthzip/science/contracts.py": "409b655eb359891bb7870ce70a27c1b3d7c9ad81f840b1b65f80b09bdbdcb20a",
+    "src/healthzip/science/semantics.py": "49cab0a185e35f4d164987810d4965b98ecd3e9f119a55e1ed9bdc53e91479b9",
+    "src/healthzip/science/formulas.py": "749751e4069cb4dd33bd5b90f17654d7080a1a6a3e24e2e630156ef5e91988a9",
+    "src/healthzip/science/registry.py": "c2ce32c6538cbae98a7c392e60bec3f98e7b538e4af8c38bc4eee4e65b847955",
+    "src/healthzip/science/statistics.py": "03fd7e132034a9030beb0938ee18eadc6fdf387dc706a80ea4c982b166145b53",
+    "src/healthzip/science/strength.py": "11d67aba6d563b406aee7ac1c9c43dbc07a49a417db61f8afc68c7cbdf075c09",
+    "src/healthzip/science/state.py": "ddf8182f6c67bb11bfc9ea5d36eec26875a8ed2c589c67532ad71f1d876d0665",
+    "src/healthzip/science/energy.py": "4d81068c072eaca148a79b900380e752f4bbe346889f92fc20abfaa37f415549",
+    "src/healthzip/science/prediction.py": "3adfb82f0d85da23273aa3d1d86347f46566492baa08c74d9a20fef82a39f857",
+    "src/healthzip/science/evaluation.py": "76ef57dce8ffde6307bfd449f975c08734337826cbdf238ea7473574c0d4fec8",
+    "src/healthzip/science/reports.py": "2a94405044fb92f56082dc651d61e7223bb2104b50acf27ca008fb4cc37ec045",
+    "src/healthzip/science/engine.py": "64e69ac01b5baedae416e615d5b388aba4c2354780f28f343ed14e3f5c66d3b7",
+    "src/healthzip/science/__init__.py": "8e580702da0cb0714c40591d91aa34542be0b1f0a58f0df6bdf5895ed4f82eb4",
+    "src/healthzip/science/research.py": "23bd36b95c66f7ccf9351f5e16a376713a6d9e6dbe09e72caf7a87f6e83abc42",
+    "src/healthzip/science/__main__.py": "b47279855bc5e34747ef8c164304ba2b2947318b243371a5bca59e064d04846b",
+    "src/healthzip/science/rag_fixtures.py": "e61eb84f91a9def33fe105cb2f66332d4c893cdee6572bed8345ed660c63f5c2",
+    "src/healthzip/science/applicability.py": "f42852ff2dfb116173f3a3d2a85ed8325858f25bc52bf8ee733b8850c483467e",
+    "src/healthzip/science/observations.py": "7bdebef0221a84580cc79e8c6fc314fdf732460ba62eccc13457188533ee402c",
+    "src/healthzip/science/body_catalog.py": "7449e3e9ebe4a068936278f61a8074a362ffbb842ec3f40d45a78f809ddaf1f9",
+    "src/healthzip/science/calendar_trend.py": "99c860b459749b3e93612baae3c9722e5f4dc64e1339c1944b8d1f2c033558f7",
+    "src/healthzip/science/sleep_regularity.py": "34d9949cd9a3615f403ff650b4140e750b46b37569d0b7c0bca708a2824bea33",
+    "src/healthzip/analytics/v13.py": "2c9ab01b08311510dcce97867a34cc8a785239adc418404dd8b9348febd24e57"
+  },
+  "fixtures": [
+    {
+      "name": "empty",
+      "records": 0,
+      "metrics": 77,
+      "profiled_seconds": 0.05039464682340622,
+      "scientific_sha256": "6c21429f2332f60e0096532d6041ca5a8531d6959a83aa40d815e63a3e63cbce",
+      "serialized_bytes": 96673,
+      "hotspots": [
+        {
+          "file": "science/engine.py",
+          "line": 424,
+          "function": "evaluate_all",
+          "calls": 1,
+          "self_seconds": 0.00010966200000000001,
+          "cumulative_seconds": 0.050331896
+        },
+        {
+          "file": "science/engine.py",
+          "line": 444,
+          "function": "<dictcomp>",
+          "calls": 1,
+          "self_seconds": 0.00021320100000000002,
+          "cumulative_seconds": 0.038711185
+        },
+        {
+          "file": "science/engine.py",
+          "line": 432,
+          "function": "safe_evaluate",
+          "calls": 77,
+          "self_seconds": 0.000272435,
+          "cumulative_seconds": 0.038497984
+        },
+        {
+          "file": "science/engine.py",
+          "line": 226,
+          "function": "evaluate",
+          "calls": 77,
+          "self_seconds": 0.002502203,
+          "cumulative_seconds": 0.038225549000000004
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 128,
+          "function": "deepcopy",
+          "calls": 7232,
+          "self_seconds": 0.012710952000000001,
+          "cumulative_seconds": 0.02391594
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 227,
+          "function": "_deepcopy_dict",
+          "calls": 166,
+          "self_seconds": 0.003249675,
+          "cumulative_seconds": 0.023436425
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 182,
+          "function": "result",
+          "calls": 88,
+          "self_seconds": 0.0013918090000000001,
+          "cumulative_seconds": 0.023015567
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 41,
+          "function": "metric_definition",
+          "calls": 88,
+          "self_seconds": 0.00023530800000000002,
+          "cumulative_seconds": 0.013290878
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 219,
+          "function": "validate_result",
+          "calls": 165,
+          "self_seconds": 0.0017598800000000001,
+          "cumulative_seconds": 0.011695606
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 51,
+          "function": "definitions",
+          "calls": 1,
+          "self_seconds": 2.0002000000000003e-05,
+          "cumulative_seconds": 0.010925042000000001
+        },
+        {
+          "file": "science/strength.py",
+          "line": 266,
+          "function": "strength_metric",
+          "calls": 30,
+          "self_seconds": 0.000535977,
+          "cumulative_seconds": 0.008328664000000001
+        },
+        {
+          "file": "science/strength.py",
+          "line": 282,
+          "function": "emit",
+          "calls": 30,
+          "self_seconds": 0.00014366200000000002,
+          "cumulative_seconds": 0.007455663
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/__init__.py",
+          "line": 183,
+          "function": "dumps",
+          "calls": 166,
+          "self_seconds": 0.0006366880000000001,
+          "cumulative_seconds": 0.007398648000000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 201,
+          "function": "_deepcopy_list",
+          "calls": 660,
+          "self_seconds": 0.0019350740000000002,
+          "cumulative_seconds": 0.006664059000000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py",
+          "line": 183,
+          "function": "encode",
+          "calls": 166,
+          "self_seconds": 0.0005305350000000001,
+          "cumulative_seconds": 0.006615029000000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py",
+          "line": 205,
+          "function": "iterencode",
+          "calls": 166,
+          "self_seconds": 0.005973821000000001,
+          "cumulative_seconds": 0.005973821000000001
+        },
+        {
+          "file": "science/energy.py",
+          "line": 190,
+          "function": "energy_metric",
+          "calls": 15,
+          "self_seconds": 0.000141631,
+          "cumulative_seconds": 0.005961501
+        },
+        {
+          "file": "science/state.py",
+          "line": 381,
+          "function": "state_metric",
+          "calls": 19,
+          "self_seconds": 0.000283603,
+          "cumulative_seconds": 0.0052003200000000005
+        },
+        {
+          "file": "science/energy.py",
+          "line": 191,
+          "function": "emit",
+          "calls": 15,
+          "self_seconds": 5.0780000000000005e-05,
+          "cumulative_seconds": 0.005135851
+        },
+        {
+          "file": "science/state.py",
+          "line": 382,
+          "function": "emit",
+          "calls": 19,
+          "self_seconds": 8.445100000000001e-05,
+          "cumulative_seconds": 0.0043271590000000006
+        },
+        {
+          "file": "science/evaluation.py",
+          "line": 35,
+          "function": "quality_metric",
+          "calls": 12,
+          "self_seconds": 0.000285994,
+          "cumulative_seconds": 0.004195769
+        },
+        {
+          "file": "science/reports.py",
+          "line": 105,
+          "function": "report_metric",
+          "calls": 4,
+          "self_seconds": 9.3551e-05,
+          "cumulative_seconds": 0.004136108
+        },
+        {
+          "file": "science/evaluation.py",
+          "line": 37,
+          "function": "emit",
+          "calls": 12,
+          "self_seconds": 2.964e-05,
+          "cumulative_seconds": 0.003579399
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 59,
+          "function": "instant",
+          "calls": 956,
+          "self_seconds": 0.0020801540000000003,
+          "cumulative_seconds": 0.0034193310000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'get' of 'dict' objects>",
+          "calls": 15256,
+          "self_seconds": 0.0022796870000000003,
+          "cumulative_seconds": 0.0022796870000000003
+        },
+        {
+          "file": "science/state.py",
+          "line": 222,
+          "function": "local_date_domain",
+          "calls": 6,
+          "self_seconds": 7.624e-05,
+          "cumulative_seconds": 0.001740924
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.id>",
+          "calls": 9003,
+          "self_seconds": 0.00169457,
+          "cumulative_seconds": 0.00169457
+        },
+        {
+          "file": "science/state.py",
+          "line": 230,
+          "function": "<setcomp>",
+          "calls": 6,
+          "self_seconds": 0.001101807,
+          "cumulative_seconds": 0.0016143630000000002
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 243,
+          "function": "_keep_alive",
+          "calls": 826,
+          "self_seconds": 0.000862401,
+          "cumulative_seconds": 0.001133764
+        },
+        {
+          "file": "science/strength.py",
+          "line": 43,
+          "function": "reference_rows",
+          "calls": 12,
+          "self_seconds": 0.000139182,
+          "cumulative_seconds": 0.001094855
+        },
+        {
+          "file": "<string>",
+          "line": 2,
+          "function": "__init__",
+          "calls": 90,
+          "self_seconds": 0.000269776,
+          "cumulative_seconds": 0.001073209
+        },
+        {
+          "file": "science/strength.py",
+          "line": 262,
+          "function": "prepare_strength",
+          "calls": 6,
+          "self_seconds": 3.26e-05,
+          "cumulative_seconds": 0.001072203
+        },
+        {
+          "file": "science/engine.py",
+          "line": 114,
+          "function": "_series_metric",
+          "calls": 4,
+          "self_seconds": 2.275e-05,
+          "cumulative_seconds": 0.001045294
+        },
+        {
+          "file": "science/prediction.py",
+          "line": 167,
+          "function": "prediction_metric",
+          "calls": 4,
+          "self_seconds": 3.3431e-05,
+          "cumulative_seconds": 0.001005466
+        },
+        {
+          "file": "science/reports.py",
+          "line": 107,
+          "function": "emit",
+          "calls": 4,
+          "self_seconds": 1.6202000000000002e-05,
+          "cumulative_seconds": 0.000980465
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1165,
+          "function": "_find_and_load",
+          "calls": 1,
+          "self_seconds": 2.5240000000000002e-05,
+          "cumulative_seconds": 0.000947213
+        },
+        {
+          "file": "science/state.py",
+          "line": 218,
+          "function": "elapsed_dates",
+          "calls": 3,
+          "self_seconds": 2.201e-05,
+          "cumulative_seconds": 0.0009079720000000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 182,
+          "function": "_deepcopy_atomic",
+          "calls": 6406,
+          "self_seconds": 0.000905938,
+          "cumulative_seconds": 0.000905938
+        },
+        {
+          "file": "science/prediction.py",
+          "line": 168,
+          "function": "emit",
+          "calls": 4,
+          "self_seconds": 1.291e-05,
+          "cumulative_seconds": 0.0008961930000000001
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 93,
+          "function": "__post_init__",
+          "calls": 90,
+          "self_seconds": 0.000148832,
+          "cumulative_seconds": 0.0008034330000000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1120,
+          "function": "_find_and_load_unlocked",
+          "calls": 1,
+          "self_seconds": 2.686e-05,
+          "cumulative_seconds": 0.0007090400000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.isinstance>",
+          "calls": 2579,
+          "self_seconds": 0.00052917,
+          "cumulative_seconds": 0.0006380810000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'isoformat' of 'datetime.datetime' objects>",
+          "calls": 104,
+          "self_seconds": 0.000580182,
+          "cumulative_seconds": 0.000580182
+        },
+        {
+          "file": "science/strength.py",
+          "line": 671,
+          "function": "progression_candidate",
+          "calls": 2,
+          "self_seconds": 9.49e-06,
+          "cumulative_seconds": 0.0005318570000000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'isoformat' of 'datetime.date' objects>",
+          "calls": 618,
+          "self_seconds": 0.0005125560000000001,
+          "cumulative_seconds": 0.0005125560000000001
+        },
+        {
+          "file": "science/reports.py",
+          "line": 23,
+          "function": "derive_report_context",
+          "calls": 4,
+          "self_seconds": 0.00018752300000000001,
+          "cumulative_seconds": 0.0004898060000000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 666,
+          "function": "_load_unlocked",
+          "calls": 1,
+          "self_seconds": 1.374e-05,
+          "cumulative_seconds": 0.000458647
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'astimezone' of 'datetime.datetime' objects>",
+          "calls": 977,
+          "self_seconds": 0.000432308,
+          "cumulative_seconds": 0.000432308
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'append' of 'list' objects>",
+          "calls": 2645,
+          "self_seconds": 0.000412714,
+          "cumulative_seconds": 0.000412714
+        },
+        {
+          "file": "science/state.py",
+          "line": 366,
+          "function": "physiology_comparison",
+          "calls": 2,
+          "self_seconds": 6.686000000000001e-05,
+          "cumulative_seconds": 0.000358536
+        }
+      ]
+    },
+    {
+      "name": "ordinary-1000",
+      "records": 1000,
+      "metrics": 77,
+      "profiled_seconds": 1.7813316136598587,
+      "scientific_sha256": "ce784536a11371767ecf205ceab26c4c69cb3dab23c367430bdb4aa1aee57e6c",
+      "serialized_bytes": 2131709,
+      "hotspots": [
+        {
+          "file": "science/engine.py",
+          "line": 424,
+          "function": "evaluate_all",
+          "calls": 1,
+          "self_seconds": 0.00052821,
+          "cumulative_seconds": 1.745171575
+        },
+        {
+          "file": "science/engine.py",
+          "line": 444,
+          "function": "<dictcomp>",
+          "calls": 1,
+          "self_seconds": 0.000418664,
+          "cumulative_seconds": 1.612063183
+        },
+        {
+          "file": "science/engine.py",
+          "line": 432,
+          "function": "safe_evaluate",
+          "calls": 77,
+          "self_seconds": 0.001451727,
+          "cumulative_seconds": 1.6116445190000002
+        },
+        {
+          "file": "science/engine.py",
+          "line": 226,
+          "function": "evaluate",
+          "calls": 77,
+          "self_seconds": 0.013658948,
+          "cumulative_seconds": 1.610192792
+        },
+        {
+          "file": "science/strength.py",
+          "line": 266,
+          "function": "strength_metric",
+          "calls": 30,
+          "self_seconds": 0.031742308000000004,
+          "cumulative_seconds": 0.8621946970000001
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 26,
+          "function": "flatten_record",
+          "calls": 13000,
+          "self_seconds": 0.276980106,
+          "cumulative_seconds": 0.38076797700000004
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 102,
+          "function": "select_as_of",
+          "calls": 21,
+          "self_seconds": 0.09752788400000001,
+          "cumulative_seconds": 0.29290059900000004
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 155,
+          "function": "load_components",
+          "calls": 4000,
+          "self_seconds": 0.0059533680000000005,
+          "cumulative_seconds": 0.273919155
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'get' of 'dict' objects>",
+          "calls": 1739255,
+          "self_seconds": 0.247119142,
+          "cumulative_seconds": 0.247119142
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 182,
+          "function": "result",
+          "calls": 88,
+          "self_seconds": 0.002861904,
+          "cumulative_seconds": 0.24165166100000002
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 159,
+          "function": "_load_components",
+          "calls": 4000,
+          "self_seconds": 0.05056737,
+          "cumulative_seconds": 0.150811958
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 59,
+          "function": "instant",
+          "calls": 43208,
+          "self_seconds": 0.09499180900000001,
+          "cumulative_seconds": 0.146174618
+        },
+        {
+          "file": "science/strength.py",
+          "line": 26,
+          "function": "_completed",
+          "calls": 23000,
+          "self_seconds": 0.069759202,
+          "cumulative_seconds": 0.14289886100000002
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 76,
+          "function": "condition_key",
+          "calls": 2000,
+          "self_seconds": 0.0035894530000000003,
+          "cumulative_seconds": 0.142164927
+        },
+        {
+          "file": "science/strength.py",
+          "line": 282,
+          "function": "emit",
+          "calls": 30,
+          "self_seconds": 0.000266472,
+          "cumulative_seconds": 0.142024384
+        },
+        {
+          "file": "science/reports.py",
+          "line": 82,
+          "function": "report_comparison",
+          "calls": 1,
+          "self_seconds": 0.001717294,
+          "cumulative_seconds": 0.138002759
+        },
+        {
+          "file": "science/strength.py",
+          "line": 43,
+          "function": "reference_rows",
+          "calls": 12,
+          "self_seconds": 0.038941979,
+          "cumulative_seconds": 0.127492704
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/__init__.py",
+          "line": 183,
+          "function": "dumps",
+          "calls": 1166,
+          "self_seconds": 0.004264711,
+          "cumulative_seconds": 0.12298623800000001
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 80,
+          "function": "_condition_key",
+          "calls": 3000,
+          "self_seconds": 0.009108447,
+          "cumulative_seconds": 0.12175517500000001
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 72,
+          "function": "load_basis",
+          "calls": 4000,
+          "self_seconds": 0.003926593,
+          "cumulative_seconds": 0.11784599400000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py",
+          "line": 183,
+          "function": "encode",
+          "calls": 1166,
+          "self_seconds": 0.003384952,
+          "cumulative_seconds": 0.11766327100000001
+        },
+        {
+          "file": "science/strength.py",
+          "line": 262,
+          "function": "prepare_strength",
+          "calls": 6,
+          "self_seconds": 0.00033625500000000004,
+          "cumulative_seconds": 0.11569127200000001
+        },
+        {
+          "file": "science/engine.py",
+          "line": 310,
+          "function": "<setcomp>",
+          "calls": 1,
+          "self_seconds": 0.001090064,
+          "cumulative_seconds": 0.114568815
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 114,
+          "function": "analysis_task",
+          "calls": 1000,
+          "self_seconds": 0.001856732,
+          "cumulative_seconds": 0.113478751
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py",
+          "line": 205,
+          "function": "iterencode",
+          "calls": 1166,
+          "self_seconds": 0.112752842,
+          "cumulative_seconds": 0.112752842
+        },
+        {
+          "file": "training/semantics.py",
+          "line": 166,
+          "function": "condition_snapshot",
+          "calls": 3000,
+          "self_seconds": 0.031268622,
+          "cumulative_seconds": 0.11122090500000001
+        },
+        {
+          "file": "science/reports.py",
+          "line": 105,
+          "function": "report_metric",
+          "calls": 4,
+          "self_seconds": 0.00014407300000000001,
+          "cumulative_seconds": 0.104986112
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 205,
+          "function": "<setcomp>",
+          "calls": 88,
+          "self_seconds": 0.06945907,
+          "cumulative_seconds": 0.099632339
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 118,
+          "function": "_analysis_task",
+          "calls": 1000,
+          "self_seconds": 0.007885516,
+          "cumulative_seconds": 0.081382881
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 219,
+          "function": "validate_result",
+          "calls": 165,
+          "self_seconds": 0.00256851,
+          "cumulative_seconds": 0.076833971
+        },
+        {
+          "file": "science/strength.py",
+          "line": 299,
+          "function": "<listcomp>",
+          "calls": 1,
+          "self_seconds": 0.0017851310000000001,
+          "cumulative_seconds": 0.070013239
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 71,
+          "function": "finite",
+          "calls": 53001,
+          "self_seconds": 0.048400162000000004,
+          "cumulative_seconds": 0.06699838000000001
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 81,
+          "function": "canonical_hash",
+          "calls": 1001,
+          "self_seconds": 0.0030504470000000004,
+          "cumulative_seconds": 0.059203791000000006
+        },
+        {
+          "file": "science/engine.py",
+          "line": 114,
+          "function": "_series_metric",
+          "calls": 4,
+          "self_seconds": 4.7061e-05,
+          "cumulative_seconds": 0.058355466
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.any>",
+          "calls": 3168,
+          "self_seconds": 0.014719888,
+          "cumulative_seconds": 0.05607792700000001
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 166,
+          "function": "<dictcomp>",
+          "calls": 4000,
+          "self_seconds": 0.055400641,
+          "cumulative_seconds": 0.055400641
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.isinstance>",
+          "calls": 263075,
+          "self_seconds": 0.050430588000000005,
+          "cumulative_seconds": 0.050458948
+        },
+        {
+          "file": "science/engine.py",
+          "line": 302,
+          "function": "<listcomp>",
+          "calls": 77,
+          "self_seconds": 0.027116183000000002,
+          "cumulative_seconds": 0.04242659
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'isoformat' of 'datetime.datetime' objects>",
+          "calls": 15104,
+          "self_seconds": 0.042214605,
+          "cumulative_seconds": 0.042214605
+        },
+        {
+          "file": "science/strength.py",
+          "line": 263,
+          "function": "<listcomp>",
+          "calls": 6,
+          "self_seconds": 0.002751054,
+          "cumulative_seconds": 0.039818122000000004
+        },
+        {
+          "file": "training/semantics.py",
+          "line": 66,
+          "function": "load_semantics",
+          "calls": 4000,
+          "self_seconds": 0.021698214,
+          "cumulative_seconds": 0.039626301
+        },
+        {
+          "file": "science/energy.py",
+          "line": 190,
+          "function": "energy_metric",
+          "calls": 15,
+          "self_seconds": 0.00015693100000000002,
+          "cumulative_seconds": 0.036978231
+        },
+        {
+          "file": "science/prediction.py",
+          "line": 167,
+          "function": "prediction_metric",
+          "calls": 4,
+          "self_seconds": 4.3351000000000006e-05,
+          "cumulative_seconds": 0.036836461
+        },
+        {
+          "file": "science/energy.py",
+          "line": 191,
+          "function": "emit",
+          "calls": 15,
+          "self_seconds": 8.199200000000001e-05,
+          "cumulative_seconds": 0.035196447
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 200,
+          "function": "<setcomp>",
+          "calls": 88,
+          "self_seconds": 0.021895664000000002,
+          "cumulative_seconds": 0.032417749
+        },
+        {
+          "file": "/home/sn_maozhifang/apple/artifacts/followup_20261127/science-compute/diagnose.py",
+          "line": 52,
+          "function": "<listcomp>",
+          "calls": 1,
+          "self_seconds": 0.000653004,
+          "cumulative_seconds": 0.032151905
+        },
+        {
+          "file": "science/engine.py",
+          "line": 426,
+          "function": "<listcomp>",
+          "calls": 1,
+          "self_seconds": 0.000618968,
+          "cumulative_seconds": 0.03111521
+        },
+        {
+          "file": "science/contracts.py",
+          "line": 213,
+          "function": "<genexpr>",
+          "calls": 54088,
+          "self_seconds": 0.022064138,
+          "cumulative_seconds": 0.029469545000000003
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.sum>",
+          "calls": 83,
+          "self_seconds": 0.002114631,
+          "cumulative_seconds": 0.028097359000000002
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py",
+          "line": 128,
+          "function": "deepcopy",
+          "calls": 7232,
+          "self_seconds": 0.013234407,
+          "cumulative_seconds": 0.025507843000000002
+        }
+      ]
+    },
+    {
+      "name": "mixed-references-and-visibility",
+      "records": 23,
+      "metrics": 77,
+      "profiled_seconds": 1.4037196189165115,
+      "scientific_sha256": "8319df22ec00200995d18d81f54f665b6506412c9563004cd68cb0dc326b4c76",
+      "serialized_bytes": 532879,
+      "hotspots": [
+        {
+          "file": "science/engine.py",
+          "line": 424,
+          "function": "evaluate_all",
+          "calls": 1,
+          "self_seconds": 0.000817261,
+          "cumulative_seconds": 1.400795591
+        },
+        {
+          "file": "science/engine.py",
+          "line": 432,
+          "function": "safe_evaluate",
+          "calls": 172,
+          "self_seconds": 0.0006885340000000001,
+          "cumulative_seconds": 1.3808667650000002
+        },
+        {
+          "file": "science/engine.py",
+          "line": 226,
+          "function": "evaluate",
+          "calls": 204,
+          "self_seconds": 0.006863864000000001,
+          "cumulative_seconds": 1.3801782310000001
+        },
+        {
+          "file": "science/strength.py",
+          "line": 266,
+          "function": "strength_metric",
+          "calls": 131,
+          "self_seconds": 0.00424098,
+          "cumulative_seconds": 1.1976625440000002
+        },
+        {
+          "file": "science/engine.py",
+          "line": 444,
+          "function": "<dictcomp>",
+          "calls": 1,
+          "self_seconds": 0.00034718300000000004,
+          "cumulative_seconds": 1.189236294
+        },
+        {
+          "file": "science/engine.py",
+          "line": 114,
+          "function": "_series_metric",
+          "calls": 24,
+          "self_seconds": 0.001367148,
+          "cumulative_seconds": 1.138830051
+        },
+        {
+          "file": "science/statistics.py",
+          "line": 12,
+          "function": "linear_trend",
+          "calls": 24,
+          "self_seconds": 0.000562345,
+          "cumulative_seconds": 0.9465273040000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1165,
+          "function": "_find_and_load",
+          "calls": 601,
+          "self_seconds": 0.006337943,
+          "cumulative_seconds": 0.9436140260000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1120,
+          "function": "_find_and_load_unlocked",
+          "calls": 581,
+          "self_seconds": 0.004714184000000001,
+          "cumulative_seconds": 0.9434964840000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 666,
+          "function": "_load_unlocked",
+          "calls": 560,
+          "self_seconds": 0.00396554,
+          "cumulative_seconds": 0.9422023860000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 934,
+          "function": "exec_module",
+          "calls": 456,
+          "self_seconds": 0.001984252,
+          "cumulative_seconds": 0.9419787020000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 233,
+          "function": "_call_with_frames_removed",
+          "calls": 1454,
+          "self_seconds": 0.0017209150000000002,
+          "cumulative_seconds": 0.94031255
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.exec>",
+          "calls": 736,
+          "self_seconds": 0.05697026,
+          "cumulative_seconds": 0.939574199
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.00033928500000000004,
+          "cumulative_seconds": 0.76897983
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/_stats_py.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.000509587,
+          "cumulative_seconds": 0.709133611
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method builtins.__import__>",
+          "calls": 541,
+          "self_seconds": 0.00169599,
+          "cumulative_seconds": 0.686104389
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1207,
+          "function": "_handle_fromlist",
+          "calls": 753,
+          "self_seconds": 0.002568831,
+          "cumulative_seconds": 0.631839979
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/distributions.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.000167311,
+          "cumulative_seconds": 0.333668726
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/_continuous_distns.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.0008607640000000001,
+          "cumulative_seconds": 0.195006918
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/_distn_infrastructure.py",
+          "line": 1797,
+          "function": "__init__",
+          "calls": 107,
+          "self_seconds": 0.003565191,
+          "cumulative_seconds": 0.180228239
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/spatial/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 9.497100000000001e-05,
+          "cumulative_seconds": 0.164195942
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/numpy/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.00035663400000000004,
+          "cumulative_seconds": 0.14629451400000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 1239,
+          "function": "exec_module",
+          "calls": 104,
+          "self_seconds": 0.000432887,
+          "cumulative_seconds": 0.144832064
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<built-in method _imp.exec_dynamic>",
+          "calls": 104,
+          "self_seconds": 0.018823014000000002,
+          "cumulative_seconds": 0.144401637
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 118,
+          "function": "_analysis_task",
+          "calls": 1191,
+          "self_seconds": 0.009590267000000001,
+          "cumulative_seconds": 0.141789357
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/_lib/doccer.py",
+          "line": 13,
+          "function": "docformat",
+          "calls": 406,
+          "self_seconds": 0.051666791000000004,
+          "cumulative_seconds": 0.124313479
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 80,
+          "function": "_condition_key",
+          "calls": 1602,
+          "self_seconds": 0.005649912,
+          "cumulative_seconds": 0.122993129
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 130,
+          "function": "outcome_series",
+          "calls": 525,
+          "self_seconds": 0.00514982,
+          "cumulative_seconds": 0.12147890200000001
+        },
+        {
+          "file": "<frozen importlib._bootstrap_external>",
+          "line": 1007,
+          "function": "get_code",
+          "calls": 456,
+          "self_seconds": 0.006504728,
+          "cumulative_seconds": 0.11818790400000001
+        },
+        {
+          "file": "training/semantics.py",
+          "line": 166,
+          "function": "condition_snapshot",
+          "calls": 1602,
+          "self_seconds": 0.02358613,
+          "cumulative_seconds": 0.11656595400000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/spatial/_kdtree.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 2.2760000000000002e-05,
+          "cumulative_seconds": 0.11462773600000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/stats/_distn_infrastructure.py",
+          "line": 779,
+          "function": "_construct_doc",
+          "calls": 126,
+          "self_seconds": 0.002079187,
+          "cumulative_seconds": 0.11365201400000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/numpy/testing/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 8.812e-05,
+          "cumulative_seconds": 0.11132904
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/sparse/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.000167732,
+          "cumulative_seconds": 0.110491029
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/__init__.py",
+          "line": 183,
+          "function": "dumps",
+          "calls": 3783,
+          "self_seconds": 0.012695013000000002,
+          "cumulative_seconds": 0.109654473
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 566,
+          "function": "module_from_spec",
+          "calls": 560,
+          "self_seconds": 0.002087287,
+          "cumulative_seconds": 0.102412629
+        },
+        {
+          "file": "science/semantics.py",
+          "line": 114,
+          "function": "analysis_task",
+          "calls": 666,
+          "self_seconds": 0.001406017,
+          "cumulative_seconds": 0.101326784
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/numpy/testing/_private/utils.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 0.000161941,
+          "cumulative_seconds": 0.100009334
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/numpy/testing/_private/utils.py",
+          "line": 1239,
+          "function": "check_support_sve",
+          "calls": 1,
+          "self_seconds": 3.55e-05,
+          "cumulative_seconds": 0.09938456500000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/subprocess.py",
+          "line": 506,
+          "function": "run",
+          "calls": 1,
+          "self_seconds": 7.930200000000001e-05,
+          "cumulative_seconds": 0.099346005
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/subprocess.py",
+          "line": 1165,
+          "function": "communicate",
+          "calls": 1,
+          "self_seconds": 2.8700000000000003e-05,
+          "cumulative_seconds": 0.09778083300000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/subprocess.py",
+          "line": 2055,
+          "function": "_communicate",
+          "calls": 1,
+          "self_seconds": 0.000114203,
+          "cumulative_seconds": 0.097749203
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py",
+          "line": 402,
+          "function": "select",
+          "calls": 2,
+          "self_seconds": 6.8791e-05,
+          "cumulative_seconds": 0.09728072600000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "function": "<method 'poll' of 'select.poll' objects>",
+          "calls": 2,
+          "self_seconds": 0.09720416500000001,
+          "cumulative_seconds": 0.09720416500000001
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py",
+          "line": 183,
+          "function": "encode",
+          "calls": 3783,
+          "self_seconds": 0.010691664,
+          "cumulative_seconds": 0.09260372
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/sparse/csgraph/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 8.350000000000001e-05,
+          "cumulative_seconds": 0.088873279
+        },
+        {
+          "file": "science/strength.py",
+          "line": 43,
+          "function": "reference_rows",
+          "calls": 83,
+          "self_seconds": 0.004574173,
+          "cumulative_seconds": 0.084116062
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/sparse/csgraph/_laplacian.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 2.5371e-05,
+          "cumulative_seconds": 0.083240782
+        },
+        {
+          "file": "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/scipy/sparse/linalg/__init__.py",
+          "line": 1,
+          "function": "<module>",
+          "calls": 1,
+          "self_seconds": 7.325e-05,
+          "cumulative_seconds": 0.082801806
+        },
+        {
+          "file": "<frozen importlib._bootstrap>",
+          "line": 1054,
+          "function": "_find_spec",
+          "calls": 574,
+          "self_seconds": 0.009703939,
+          "cumulative_seconds": 0.079231491
+        }
+      ]
+    }
+  ]
+}

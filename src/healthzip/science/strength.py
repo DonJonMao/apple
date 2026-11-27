@@ -12,6 +12,11 @@ from .contracts import Window, canonical_hash, finite, instant, result
 from .formulas import e1rm
 from .registry import calibration_scope_check, task_calibration_scope, verified_look
 from .semantics import (
+    _analysis_task,
+    _comparable,
+    _condition_key,
+    _load_components,
+    _outcome_series,
     analysis_task,
     comparable,
     condition_key,
@@ -263,7 +268,24 @@ def prepare_strength(rows, context):
     return _parents([row for row in rows if _completed(row)]), reference_rows(rows, context)
 
 
-def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict, *, _prepared=None) -> dict:
+def strength_metric(metric_id: str, rows: list[dict], window: Window, context: dict, *,
+                    _prepared=None, _normalized=False, _load_cache=None) -> dict:
+    # The engine has already normalized and selected these rows. Direct callers
+    # retain the public semantic adapters; no marker is added to saved records.
+    components_for = _load_components if _normalized else load_components
+    basis_for = (lambda row: row["load_basis"]) if _normalized else load_basis
+    condition_for = _condition_key if _normalized else condition_key
+    task_for = _analysis_task if _normalized else analysis_task
+    series_for = _outcome_series if _normalized else outcome_series
+    compare = _comparable if _normalized else comparable
+    if _normalized and _load_cache is not None:
+        def components_for(row):
+            # Selected rows are owned by this request's selection cache. Reuse
+            # arithmetic across the load display, bookkeeping and formulas.
+            key = id(row)
+            if key not in _load_cache:
+                _load_cache[key] = _load_components(row)
+            return _load_cache[key]
     code = int(metric_id.split("-")[1])
     total = len(rows)
     work, refs = _prepared if _prepared is not None else prepare_strength(rows, context)
@@ -296,7 +318,12 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                    "distance_m": r.get("distance_m"), "side": r.get("side"), "status": r.get("status")} for r in rows]
         return emit(values, "valid" if values else "insufficient", valid_n=sum(_completed(r) for r in rows))
     if code == 3:
-        values = [{"id": r.get("id"), **load_components(r)} for r in rows]
+        values = []
+        for row in rows:
+            components = components_for(row)
+            # Public results must not expose the request's cached list.
+            values.append({"id": row.get("id"), **components,
+                           "reason_codes": list(components["reason_codes"])})
         valid = sum(not v["reason_codes"] for v in values)
         return emit(values or None, "valid" if valid == len(values) and values else "partial" if values else "insufficient", valid_n=valid)
     if code == 4:
@@ -306,8 +333,8 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                 if row.get("role") == "work" and row.get("status") == "completed":
                     missing.append(row.get("id"))
                 continue
-            load = load_components(row)
-            if row.get("measurement_mode") != "repetitions" or load_basis(row) in {"assistance_setting", "bodyweight_no_external", "added_load_kg", "unknown", "machine_setting"}:
+            load = components_for(row)
+            if row.get("measurement_mode") != "repetitions" or basis_for(row) in {"assistance_setting", "bodyweight_no_external", "added_load_kg", "unknown", "machine_setting"}:
                 missing.append(row.get("id"))
                 continue
             basis = "total" if load["total_load_kg"] is not None else "plates_only"
@@ -315,7 +342,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
             if weight is None:
                 missing.append(row.get("id"))
                 continue
-            key = str((condition_key(row), row.get("exercise_id"), row.get("equipment_instance_id"), load_basis(row), basis))
+            key = str((condition_for(row), row.get("exercise_id"), row.get("equipment_instance_id"), basis_for(row), basis))
             item = groups.setdefault(key, {"sum_kg_reps": 0.0, "basis": basis, "set_ids": [],
                                            "exercise_id": row.get("exercise_id")})
             item["sum_kg_reps"] += weight * row["reps"]
@@ -355,21 +382,21 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         return emit({"groups": values, "unknown_set_ids": unknown, "mapping_bindings": bindings},
                     "partial" if unknown else "valid", valid_n=len(bindings), reasons=sorted(set(reasons)))
     if code in {7, 8}:
-        known = [r for r in refs if condition_key(r) is not None]
+        known = [r for r in refs if condition_for(r) is not None]
         times = sorted({(r["session_id"], r["_event_end"]) for r in known}, key=lambda p: p[1])
         dates = [instant(t) for _, t in times]
         elapsed = (min(instant(window.end), instant(window.cutoff_time)) - instant(window.start)).total_seconds() / 86400
         recorded = {r["session_id"]: r for r in work if r.get("session_id")}
-        eligible = {r["session_id"] for r in known if outcome_series(r)["eligible"]}
+        eligible = {r["session_id"] for r in known if series_for(r)["eligible"]}
         series_groups = defaultdict(list)
         for record in known:
-            identity = outcome_series(record)
+            identity = series_for(record)
             if identity["eligible"]:
                 series_groups[identity["outcome_series_id"]].append(record)
         exposures = []
         for group in series_groups.values():
             endpoints = sorted(instant(r["_event_end"]) for r in group)
-            exposures.append({**outcome_series(group[0]), "sessions": len({r["session_id"] for r in group}),
+            exposures.append({**series_for(group[0]), "sessions": len({r["session_id"] for r in group}),
                               "span_days": (endpoints[-1] - endpoints[0]).total_seconds() / 86400,
                               "first_observed_at": endpoints[0].isoformat(), "last_observed_at": endpoints[-1].isoformat(),
                               "source_record_ids": [r.get("_source_id") for r in group]})
@@ -431,8 +458,8 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         fields = ("id", "session_id", "load_value", "load_unit", "load_basis", "reps", "rir",
                   "rir_interval", "quality", "stop_reason", "set_position", "reference_policy_id",
                   "reference_declared_at", "measurement_mode", "duration_s", "distance_m")
-        return emit([{**{key: r.get(key) for key in fields}, "condition_key": condition_key(r)} for r in refs] or None,
-                    "valid" if refs and all(condition_key(r) for r in refs) else "insufficient",
+        return emit([{**{key: r.get(key) for key in fields}, "condition_key": condition_for(r)} for r in refs] or None,
+                    "valid" if refs and all(condition_for(r) for r in refs) else "insufficient",
                     valid_n=len(refs), reasons=[] if refs else ["predesignated_reference_missing"])
     if code in {12, 13, 14}:
         pair = context.get("comparison_pair") or refs[-2:]
@@ -440,12 +467,13 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if code in {12, 14} and not context.get("comparison_pair"):
             layers = defaultdict(list)
             for record in refs:
-                identity = outcome_series(record)
+                identity = series_for(record)
                 key = (identity["outcome_series_id"], record.get("reps") if code == 14 else None)
                 layers[key].append(record)
             for (identity, _), group in layers.items():
                 if len(group) >= 2:
-                    calculated = strength_metric(metric_id, group, window, {**context, "comparison_pair": group[-2:]})
+                    calculated = strength_metric(metric_id, group, window, {**context, "comparison_pair": group[-2:]},
+                                                 _normalized=_normalized)
                     comparison_series.append({"outcome_series_id": identity, "value": calculated["value"],
                                               "data_status": calculated["data_status"], "reason_codes": calculated["reason_codes"]})
             if comparison_series:
@@ -457,12 +485,12 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         if len(pair) != 2:
             return emit(None, "insufficient", reasons=["two_reference_observations_required"])
         old, new = pair
-        ok, reasons = comparable(old, new)
+        ok, reasons = compare(old, new)
         if not ok:
             return emit(None, "incompatible", reasons=reasons)
-        same_load = outcome_series(old)["outcome_series_id"] == outcome_series(new)["outcome_series_id"]
+        same_load = series_for(old)["outcome_series_id"] == series_for(new)["outcome_series_id"]
         same_reps = finite(old.get("reps")) is not None and old.get("reps") == new.get("reps")
-        protocol_ok, protocol_reasons = comparable(old, new, protocol=True)
+        protocol_ok, protocol_reasons = compare(old, new, protocol=True)
         base = {"reference_id": old.get("id"), "current_id": new.get("id"),
                 "reference_observed_at": old.get("_event_end"), "current_observed_at": new.get("_event_end"),
                 "rir_before": old.get("rir"), "rir_after": new.get("rir"),
@@ -488,7 +516,7 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
         groups = defaultdict(list)
         for row in rows:
             if _completed(row):
-                groups[(row.get("session_id"), condition_key(row))].append(row)
+                groups[(row.get("session_id"), condition_for(row))].append(row)
         series, comparison_exclusions = [], []
         for (session, key), group in groups.items():
             group.sort(key=lambda r: r.get("set_position", r.get("set_number", 0)))
@@ -511,10 +539,10 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
     if code in {16, 17}:
         estimates = []
         for row in refs or work:
-            components = load_components(row)
+            components = components_for(row)
             estimates.append({"set_id": row.get("id"), **e1rm(components["total_load_kg"], row.get("reps"),
                               rir=row.get("rir"), formula_id=context.get("formula_id", "epley_rir_over_30" if code == 17 else "epley_n3_0.0333"),
-                              domain=context.get("formula_domain"), load_basis=load_basis(row),
+                              domain=context.get("formula_domain"), load_basis=basis_for(row),
                               measured_maximum=row.get("measured_1rm", False))})
         valid = sum(e["value"] is not None for e in estimates)
         return emit(estimates or None, "valid" if valid and valid == len(estimates) else "partial" if valid else "not_applicable",
@@ -526,8 +554,8 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
     if code in {19, 20, 22}:
         delta = context.get("practical_equivalence")
         delta_reasons = equivalence_reasons(delta, "repetitions", refs) if code == 22 else []
-        if refs and (not comparable(refs[0], refs[0], protocol=True)[0] or any(not comparable(refs[0], r, protocol=True)[0]
-                                                     or outcome_series(r)["outcome_series_id"] != outcome_series(refs[0])["outcome_series_id"] for r in refs[1:])):
+        if refs and (not compare(refs[0], refs[0], protocol=True)[0] or any(not compare(refs[0], r, protocol=True)[0]
+                                                     or series_for(r)["outcome_series_id"] != series_for(refs[0])["outcome_series_id"] for r in refs[1:])):
             return emit(None, "incompatible", reasons=["trend_reference_conditions_incompatible"])
         allocation, allocation_reasons = verified_look(context, metric_id,
             snapshot_hash=context.get("observed_snapshot_hash"), task_id=context.get("observed_task_id"), cutoff_time=window.cutoff_time)
@@ -615,7 +643,8 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
                                "report_membership": row.get("report_membership")})
             return emit(values or None, "valid" if values else "insufficient", count_domain="recommendations",
                         valid_n=len(values), total_n=len(outcomes))
-        values = strength_metric("STR-27", rows, window, context)["value"] or []
+        values = strength_metric("STR-27", rows, window, context,
+                                 _prepared=(work, refs), _normalized=_normalized)["value"] or []
         responding = [r for r in values if r["adoption"] in {"adopted", "partially_adopted", "not_adopted"}]
         complete = [r for r in values if r["short_term_success"] is not None]
         def observation_counts(group):
@@ -648,10 +677,10 @@ def strength_metric(metric_id: str, rows: list[dict], window: Window, context: d
     if code == 29:
         return emit({"fields": {k: {"numerator": sum(r.get(k) is not None for r in rows), "denominator": total}
                                 for k in ("entered_load", "reps", "rir", "stop_reason")},
-                     "comparable_references": sum(condition_key(r) is not None for r in refs), "candidate_references": len(refs),
-                     "protocol_complete_references": sum(analysis_task(r)["protocol_complete"] for r in refs),
-                     "outcome_series_eligible_references": sum(outcome_series(r)["eligible"] for r in refs),
-                     "outcome_series_ids": sorted({outcome_series(r)["outcome_series_id"] for r in refs if outcome_series(r)["eligible"]})},
+                     "comparable_references": sum(condition_for(r) is not None for r in refs), "candidate_references": len(refs),
+                     "protocol_complete_references": sum(task_for(r)["protocol_complete"] for r in refs),
+                     "outcome_series_eligible_references": sum(series_for(r)["eligible"] for r in refs),
+                     "outcome_series_ids": sorted({series_for(r)["outcome_series_id"] for r in refs if series_for(r)["eligible"]})},
                     "valid" if rows else "insufficient", reasons=["no_aggregate_quality_score"])
     if code == 30:
         numerator = finite(context.get("strength_numerator"))

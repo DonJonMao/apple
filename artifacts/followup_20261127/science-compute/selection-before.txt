@@ -1,0 +1,212 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_window_parsing_is_constant_without_changing_selected_record_identities[False-False] _
+
+overlap = False, retrospective = False
+
+    @pytest.mark.parametrize("overlap", [False, True])
+    @pytest.mark.parametrize("retrospective", [False, True])
+    def test_window_parsing_is_constant_without_changing_selected_record_identities(overlap, retrospective):
+        window = contracts.Window("2026-11-01T00:00:00-04:00", "2026-11-02T00:00:00-05:00",
+                                  "2026-11-03T00:00:00Z", "America/New_York")
+        rows = [{"id": f"ordinary-{i}", "event_start": "2026-11-01T05:10:00Z",
+                 "event_end": "2026-11-01T05:20:00Z", "available_at": "2026-11-01T06:00:00Z"}
+                for i in range(1000)]
+        rows += [
+            {"id": "start", "event_end": window.start, "available_at": "2026-11-01T06:00:00Z"},
+            {"id": "end", "event_end": window.end, "available_at": "2026-11-02T06:00:00Z"},
+            {"id": "unknown", "event_end": "2026-11-01T07:00:00Z", "available_at": None},
+            {"id": "old", "source_record_id": "correction", "event_end": "2026-11-01T07:00:00Z",
+             "available_at": "2026-11-01T08:00:00Z"},
+            {"id": "corrected-future", "source_record_id": "correction", "event_end": "2026-12-01T07:00:00Z",
+             "available_at": "2026-11-02T08:00:00Z"},
+            {"id": "deleted", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "record_status": "deleted"},
+            {"id": "conflict", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "conflicted": True},
+        ]
+        frozen = deepcopy(rows)
+        with patch.object(contracts, "instant", wraps=contracts.instant) as parse:
+            selected, excluded = contracts.select_as_of(rows, window, overlap=overlap, retrospective=retrospective)
+        expected = {f"ordinary-{i}" for i in range(1000)}
+        if not overlap:
+            expected.add("start")
+        if retrospective:
+            expected.add("unknown")
+        assert {r["_source_id"] for r in selected} == expected
+        reasons = {row["id"]: row["reason"] for row in excluded}
+        assert reasons["old"] == "superseded_as_of"
+        assert reasons["corrected-future"] == "event_after_cutoff"
+        assert reasons["end"] == "outside_window"
+        assert reasons["deleted"] == "deleted_as_of"
+        assert reasons["conflict"] == "unresolved_record_conflict"
+        if not retrospective:
+            assert reasons["unknown"] == "available_at_unknown"
+        else:
+            assert next(r for r in selected if r["id"] == "unknown")["_retrospective_snapshot"] is True
+        assert rows == frozen
+        calls = Counter(call.args[0] for call in parse.call_args_list)
+        # One boundary preparation plus that boundary's deliberately placed event.
+>       assert calls[window.start] <= 3
+E       assert 1003 <= 3
+
+tests/science/test_followup_selection_preparation.py:54: AssertionError
+_ test_window_parsing_is_constant_without_changing_selected_record_identities[False-True] _
+
+overlap = True, retrospective = False
+
+    @pytest.mark.parametrize("overlap", [False, True])
+    @pytest.mark.parametrize("retrospective", [False, True])
+    def test_window_parsing_is_constant_without_changing_selected_record_identities(overlap, retrospective):
+        window = contracts.Window("2026-11-01T00:00:00-04:00", "2026-11-02T00:00:00-05:00",
+                                  "2026-11-03T00:00:00Z", "America/New_York")
+        rows = [{"id": f"ordinary-{i}", "event_start": "2026-11-01T05:10:00Z",
+                 "event_end": "2026-11-01T05:20:00Z", "available_at": "2026-11-01T06:00:00Z"}
+                for i in range(1000)]
+        rows += [
+            {"id": "start", "event_end": window.start, "available_at": "2026-11-01T06:00:00Z"},
+            {"id": "end", "event_end": window.end, "available_at": "2026-11-02T06:00:00Z"},
+            {"id": "unknown", "event_end": "2026-11-01T07:00:00Z", "available_at": None},
+            {"id": "old", "source_record_id": "correction", "event_end": "2026-11-01T07:00:00Z",
+             "available_at": "2026-11-01T08:00:00Z"},
+            {"id": "corrected-future", "source_record_id": "correction", "event_end": "2026-12-01T07:00:00Z",
+             "available_at": "2026-11-02T08:00:00Z"},
+            {"id": "deleted", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "record_status": "deleted"},
+            {"id": "conflict", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "conflicted": True},
+        ]
+        frozen = deepcopy(rows)
+        with patch.object(contracts, "instant", wraps=contracts.instant) as parse:
+            selected, excluded = contracts.select_as_of(rows, window, overlap=overlap, retrospective=retrospective)
+        expected = {f"ordinary-{i}" for i in range(1000)}
+        if not overlap:
+            expected.add("start")
+        if retrospective:
+            expected.add("unknown")
+        assert {r["_source_id"] for r in selected} == expected
+        reasons = {row["id"]: row["reason"] for row in excluded}
+        assert reasons["old"] == "superseded_as_of"
+        assert reasons["corrected-future"] == "event_after_cutoff"
+        assert reasons["end"] == "outside_window"
+        assert reasons["deleted"] == "deleted_as_of"
+        assert reasons["conflict"] == "unresolved_record_conflict"
+        if not retrospective:
+            assert reasons["unknown"] == "available_at_unknown"
+        else:
+            assert next(r for r in selected if r["id"] == "unknown")["_retrospective_snapshot"] is True
+        assert rows == frozen
+        calls = Counter(call.args[0] for call in parse.call_args_list)
+        # One boundary preparation plus that boundary's deliberately placed event.
+>       assert calls[window.start] <= 3
+E       assert 1003 <= 3
+
+tests/science/test_followup_selection_preparation.py:54: AssertionError
+_ test_window_parsing_is_constant_without_changing_selected_record_identities[True-False] _
+
+overlap = False, retrospective = True
+
+    @pytest.mark.parametrize("overlap", [False, True])
+    @pytest.mark.parametrize("retrospective", [False, True])
+    def test_window_parsing_is_constant_without_changing_selected_record_identities(overlap, retrospective):
+        window = contracts.Window("2026-11-01T00:00:00-04:00", "2026-11-02T00:00:00-05:00",
+                                  "2026-11-03T00:00:00Z", "America/New_York")
+        rows = [{"id": f"ordinary-{i}", "event_start": "2026-11-01T05:10:00Z",
+                 "event_end": "2026-11-01T05:20:00Z", "available_at": "2026-11-01T06:00:00Z"}
+                for i in range(1000)]
+        rows += [
+            {"id": "start", "event_end": window.start, "available_at": "2026-11-01T06:00:00Z"},
+            {"id": "end", "event_end": window.end, "available_at": "2026-11-02T06:00:00Z"},
+            {"id": "unknown", "event_end": "2026-11-01T07:00:00Z", "available_at": None},
+            {"id": "old", "source_record_id": "correction", "event_end": "2026-11-01T07:00:00Z",
+             "available_at": "2026-11-01T08:00:00Z"},
+            {"id": "corrected-future", "source_record_id": "correction", "event_end": "2026-12-01T07:00:00Z",
+             "available_at": "2026-11-02T08:00:00Z"},
+            {"id": "deleted", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "record_status": "deleted"},
+            {"id": "conflict", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "conflicted": True},
+        ]
+        frozen = deepcopy(rows)
+        with patch.object(contracts, "instant", wraps=contracts.instant) as parse:
+            selected, excluded = contracts.select_as_of(rows, window, overlap=overlap, retrospective=retrospective)
+        expected = {f"ordinary-{i}" for i in range(1000)}
+        if not overlap:
+            expected.add("start")
+        if retrospective:
+            expected.add("unknown")
+        assert {r["_source_id"] for r in selected} == expected
+        reasons = {row["id"]: row["reason"] for row in excluded}
+        assert reasons["old"] == "superseded_as_of"
+        assert reasons["corrected-future"] == "event_after_cutoff"
+        assert reasons["end"] == "outside_window"
+        assert reasons["deleted"] == "deleted_as_of"
+        assert reasons["conflict"] == "unresolved_record_conflict"
+        if not retrospective:
+            assert reasons["unknown"] == "available_at_unknown"
+        else:
+            assert next(r for r in selected if r["id"] == "unknown")["_retrospective_snapshot"] is True
+        assert rows == frozen
+        calls = Counter(call.args[0] for call in parse.call_args_list)
+        # One boundary preparation plus that boundary's deliberately placed event.
+>       assert calls[window.start] <= 3
+E       assert 1004 <= 3
+
+tests/science/test_followup_selection_preparation.py:54: AssertionError
+_ test_window_parsing_is_constant_without_changing_selected_record_identities[True-True] _
+
+overlap = True, retrospective = True
+
+    @pytest.mark.parametrize("overlap", [False, True])
+    @pytest.mark.parametrize("retrospective", [False, True])
+    def test_window_parsing_is_constant_without_changing_selected_record_identities(overlap, retrospective):
+        window = contracts.Window("2026-11-01T00:00:00-04:00", "2026-11-02T00:00:00-05:00",
+                                  "2026-11-03T00:00:00Z", "America/New_York")
+        rows = [{"id": f"ordinary-{i}", "event_start": "2026-11-01T05:10:00Z",
+                 "event_end": "2026-11-01T05:20:00Z", "available_at": "2026-11-01T06:00:00Z"}
+                for i in range(1000)]
+        rows += [
+            {"id": "start", "event_end": window.start, "available_at": "2026-11-01T06:00:00Z"},
+            {"id": "end", "event_end": window.end, "available_at": "2026-11-02T06:00:00Z"},
+            {"id": "unknown", "event_end": "2026-11-01T07:00:00Z", "available_at": None},
+            {"id": "old", "source_record_id": "correction", "event_end": "2026-11-01T07:00:00Z",
+             "available_at": "2026-11-01T08:00:00Z"},
+            {"id": "corrected-future", "source_record_id": "correction", "event_end": "2026-12-01T07:00:00Z",
+             "available_at": "2026-11-02T08:00:00Z"},
+            {"id": "deleted", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "record_status": "deleted"},
+            {"id": "conflict", "event_end": "2026-11-01T07:00:00Z", "available_at": "2026-11-01T08:00:00Z",
+             "conflicted": True},
+        ]
+        frozen = deepcopy(rows)
+        with patch.object(contracts, "instant", wraps=contracts.instant) as parse:
+            selected, excluded = contracts.select_as_of(rows, window, overlap=overlap, retrospective=retrospective)
+        expected = {f"ordinary-{i}" for i in range(1000)}
+        if not overlap:
+            expected.add("start")
+        if retrospective:
+            expected.add("unknown")
+        assert {r["_source_id"] for r in selected} == expected
+        reasons = {row["id"]: row["reason"] for row in excluded}
+        assert reasons["old"] == "superseded_as_of"
+        assert reasons["corrected-future"] == "event_after_cutoff"
+        assert reasons["end"] == "outside_window"
+        assert reasons["deleted"] == "deleted_as_of"
+        assert reasons["conflict"] == "unresolved_record_conflict"
+        if not retrospective:
+            assert reasons["unknown"] == "available_at_unknown"
+        else:
+            assert next(r for r in selected if r["id"] == "unknown")["_retrospective_snapshot"] is True
+        assert rows == frozen
+        calls = Counter(call.args[0] for call in parse.call_args_list)
+        # One boundary preparation plus that boundary's deliberately placed event.
+>       assert calls[window.start] <= 3
+E       assert 1004 <= 3
+
+tests/science/test_followup_selection_preparation.py:54: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_followup_selection_preparation.py::test_window_parsing_is_constant_without_changing_selected_record_identities[False-False]
+FAILED tests/science/test_followup_selection_preparation.py::test_window_parsing_is_constant_without_changing_selected_record_identities[False-True]
+FAILED tests/science/test_followup_selection_preparation.py::test_window_parsing_is_constant_without_changing_selected_record_identities[True-False]
+FAILED tests/science/test_followup_selection_preparation.py::test_window_parsing_is_constant_without_changing_selected_record_identities[True-True]
+4 failed in 0.62s

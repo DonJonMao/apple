@@ -1,0 +1,14 @@
+{
+  "health_sample_count": 1000001,
+  "training_set_count": 10000,
+  "full_report_count_before": 0,
+  "mode": "running-process",
+  "period": "week",
+  "bootstrap": "import runpy,importlib\nimport streamlit as st\nfrom datetime import datetime\nclass RequestClock(datetime):\n @classmethod\n def now(cls,tz=None):\n  value=datetime.fromisoformat('2026-11-22T00:00:00+08:00')\n  return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor module in ('healthzip.analytics.workspaces','healthzip.analytics.workspace_summary'):\n importlib.import_module(module).datetime=RequestClock\nif not st.session_state.get('_followup_clock_initialized'):\n st.session_state['body_period']='本周'\n st.session_state['review_period']='本周'\n st.session_state['body_section']='心率'\n st.session_state['_followup_clock_initialized']=True\nrunpy.run_path('/tmp/healthzip-followup-final-browser-source-r3-driver3/app.py',run_name='__main__')\n",
+  "warm_samples": [],
+  "original_database_bytes": 1889054720,
+  "backup_database_bytes_before": 1889054720,
+  "service_ready_ms": 2374.2634430527687,
+  "browser": "158.0.8127.18",
+  "failure": "previous facts must be removed before the next timed click"
+}

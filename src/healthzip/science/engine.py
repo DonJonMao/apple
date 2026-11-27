@@ -21,7 +21,7 @@ from .energy import energy_metric
 from .evaluation import quality_metric
 from .prediction import prediction_metric
 from .reports import derive_report_context, report_comparison, report_metric, visible_sleep_history
-from .semantics import analysis_task, flatten_record, outcome_series
+from .semantics import _analysis_task, flatten_record, outcome_series
 from .state import physiology_comparison, record_conditions, state_metric
 from .strength import prepare_strength, reference_rows, strength_metric
 
@@ -307,7 +307,7 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         if derived is None:
             digest = canonical_hash({"records": selected, "window": window.as_dict(), "cutoff_time": cutoff_time,
                                      "data_version": str(context.get("data_version"))})
-            task_ids = {analysis_task(row)["task_id"] for row in selected}
+            task_ids = {_analysis_task(row)["task_id"] for row in selected}
             derived = digest, next(iter(task_ids)) if len(task_ids) == 1 else None
             if _selection_cache is not None:
                 _selection_cache[derived_key] = derived
@@ -316,12 +316,16 @@ def evaluate(metric_id: str, records: Optional[list[dict]] = None, *, cutoff_tim
         value = _series_metric(metric_id, selected, window, context)
     elif metric_id.startswith("STR-"):
         prepared = None
+        loads = None
         if _selection_cache is not None:
             prepared_key = ("strength_inputs", id(selected))
             if prepared_key not in _selection_cache:
                 _selection_cache[prepared_key] = prepare_strength(selected, context)
             prepared = _selection_cache[prepared_key]
-        value = strength_metric(metric_id, selected, window, context, _prepared=prepared)
+            if metric_id in {"STR-03", "STR-04", "STR-16", "STR-17"}:
+                loads = _selection_cache.setdefault(("strength_loads", id(selected)), {})
+        value = strength_metric(metric_id, selected, window, context, _prepared=prepared,
+                                _normalized=True, _load_cache=loads)
     elif metric_id.startswith("STATE-") or metric_id.startswith("LOAD-"):
         value = state_metric(metric_id, selected, window, context)
     elif metric_id.startswith("BODY-") or metric_id.startswith("ENERGY-"):
@@ -422,8 +426,10 @@ def _ordinary_reference_result(rows, window, context, bounded, templates):
 
 
 def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, window_start: str,
-                 window_end: str, context: Optional[dict] = None) -> dict[str, dict]:
-    normalized = [flatten_record(r) for r in records or []]
+                 window_end: str, context: Optional[dict] = None, _normalized=None) -> dict[str, dict]:
+    # Repository analysis may reuse the normalization prepared for its own
+    # reference inventory. Public callers still prepare their raw inputs here.
+    normalized = _normalized if _normalized is not None else [flatten_record(r) for r in records or []]
     context = dict(context or {})
     window = Window(window_start, window_end, cutoff_time, context.get("timezone", "UTC"))
     report_rows, _ = select_as_of(normalized, window, retrospective=context.get("retrospective", False), overlap=True)
@@ -450,7 +456,7 @@ def evaluate_all(records: Optional[list[dict]] = None, *, cutoff_time: str, wind
     for row in available:
         if not row.get("is_reference"):
             continue
-        task = analysis_task(row)
+        task = _analysis_task(row)
         identities[task["task_id"]] = task
         groups.setdefault(task["task_id"], []).append(row)
     prepared_tasks = {}

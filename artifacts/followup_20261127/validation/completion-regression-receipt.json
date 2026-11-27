@@ -1,0 +1,55 @@
+{
+  "strategy": "complete isolated snapshot regression, then affected paths after three final product file corrections; overlapping suite totals are not added",
+  "full_result": "completion-full/results.json",
+  "full_execution_integrity": "completion-full/execution-integrity.json",
+  "full_counts": {
+    "passed": 2441,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "full_status_note": "needs_review retained because browser benchmark driver changed while snapshot tests ran; product source and tests were stable",
+  "changes_after_full": {
+    "src/healthzip/analytics/body_questions.py": {
+      "full_snapshot": "5ce37b6f0a2fb2d8db67c380ff24e2480b52e9970904f64b33acc18d600b68ce",
+      "final": "5a8620dbf392a1de31cd05b8b84c89eed5e3489508232e6ee1c79dd828c49bb7"
+    },
+    "src/healthzip/ui/review_page.py": {
+      "full_snapshot": "c3d652a85d60727f623def2d82fe5c75af7fe37dd0f9d856d4a53e0abc91660e",
+      "final": "069777b9b31d9ead551e106fe5f9ef25040b4020de8a16cc38029e005b69952a"
+    },
+    "src/healthzip/workflows/period_report.py": {
+      "full_snapshot": "f3360129cabd588070fe88676fba4681f868588b4e6e4e0f9796173323857a68",
+      "final": "a998a8e5a423fedea05e209811b731f35b9f28c2bf9cb887267e24646b7bed81"
+    },
+    "tests/integration/test_followup_report_reading.py": {
+      "full_snapshot": "8b0f814f302c27e938ba4374e805154ce81251295b443f46efd0b62783881d48",
+      "final": "f9b88dd955e5d224a1613e280cdcf1bfb450a7dc25d6095aa7fe73f522b985ef"
+    },
+    "tests/integration/test_followup_topic_applicability.py": {
+      "full_snapshot": "b3f693cd472d2f193fdbbd6439845744460be0903f9e08b9aa47c560537df6d4",
+      "final": "7f3f61679ed8db762df0cab243942377ecfe1ad1c7a47aab3c62e9e267d71f4e"
+    }
+  },
+  "affected_retests": [
+    {
+      "artifact": "artifacts/followup_20261127/workflow-compute/goal-step-after-r2.xml",
+      "tests": 71,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "f640437bc09e36b1822024b8543c0c6f523836562f9dcf167447e80b277dfdc5"
+    },
+    {
+      "artifact": "artifacts/followup_20261127/workflow-compute/history-versions-r2.xml",
+      "tests": 58,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e86698b4828de1ad43c641fd7f6d658e6e6821d6be2b7f22e9bb523131d9bc1a"
+    }
+  ],
+  "final_source": "completion-source.json",
+  "source_current_matches_frozen_product": true,
+  "not_claimed": "No second full suite run on all final files; browser and performance are independently reported."
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.362" timestamp="2026-11-27T11:25:18.536247+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_topic_applicability" name="test_existing_body_facts_do_not_invent_a_previously_selected_goal" time="0.135"><failure message="AssertionError: assert '先前选择' not in '用先前选择的动作和目标...械与组位核对下一次记录。'&#10;  &#10;  '先前选择' is contained here:&#10;    用先前选择的动作和目标尺度复评，按相同来源、器械与组位核对下一次记录。&#10;  ?  ++++">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1061/test_existing_body_facts_do_no0')
+
+    def test_existing_body_facts_do_not_invent_a_previously_selected_goal(tmp_path):
+        with closing(Repository(tmp_path / 'synthetic.sqlite3')) as repo:
+            record(repo, 'body_mass_kg', 72, unit='kg')
+            record(repo, 'high_hr_event', 1, identity=2)
+            view = questions(repo)['W4']
+            assert view['topic_status']['has_primary_records']
+            assert not view['topic_status']['has_goal']
+            assert not view['action_reviews']
+&gt;           assert '先前选择' not in ' '.join(view['steps'])
+E           AssertionError: assert '先前选择' not in '用先前选择的动作和目标...械与组位核对下一次记录。'
+E             
+E             '先前选择' is contained here:
+E               用先前选择的动作和目标尺度复评，按相同来源、器械与组位核对下一次记录。
+E             ?  ++++
+
+tests/integration/test_followup_topic_applicability.py:106: AssertionError</failure></testcase></testsuite></testsuites>

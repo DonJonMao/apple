@@ -108,32 +108,35 @@ def select_as_of(records: list[dict], window: Window, *, retrospective: bool = F
     Tombstones invalidate only revisions known at the requested cutoff.
     """
     cutoff = instant(window.cutoff_time)
+    window_start, window_end = instant(window.start), instant(window.end)
     eligible, exclusions = [], []
     for position, original in enumerate(records):
         row = dict(original)
         key = str(row.get("record_id", row.get("id", position)))
         row["_source_id"] = key
         available = row.get("available_at") or row.get("ingested_at")
+        known_at = None
         try:
             if available is None:
                 if not retrospective:
                     exclusions.append({"id": key, "reason": "available_at_unknown"})
                     continue
                 row["_retrospective_snapshot"] = True
-            elif instant(available) > cutoff:
-                exclusions.append({"id": key, "reason": "available_after_cutoff"})
-                continue
+            else:
+                known_at = instant(available)
+                if known_at > cutoff:
+                    exclusions.append({"id": key, "reason": "available_after_cutoff"})
+                    continue
         except ValueError as exc:
             exclusions.append({"id": key, "reason": str(exc)})
             continue
-        eligible.append(row)
+        eligible.append((row, known_at))
     # A source's stable UUID identifies revisions. Distinct real sets keep IDs.
     latest: dict[tuple, dict] = {}
-    for row in eligible:
+    for row, known_at in eligible:
         logical = (row.get("source_kind"), row.get("source_name"),
                    row.get("source_record_id") or row.get("original_uuid") or row["_source_id"])
-        available = row.get("available_at") or row.get("ingested_at")
-        rank = (instant(available).isoformat() if available else "",
+        rank = (known_at.isoformat() if known_at is not None else "",
                 str(row.get("revision_id", "")), row["_source_id"])
         previous = latest.get(logical)
         if previous is None or rank > previous["_revision_rank"]:
@@ -169,9 +172,9 @@ def select_as_of(records: list[dict], window: Window, *, retrospective: bool = F
         if overlap:
             start = instant(row.get("event_start") or row.get("start_at_utc")
                             or row.get("start_utc") or row["_event_end"])
-            inside = end > instant(window.start) and start < instant(window.end)
+            inside = end > window_start and start < window_end
         else:
-            inside = instant(window.start) <= end < instant(window.end)
+            inside = window_start <= end < window_end
         if inside:
             selected.append(row)
         else:

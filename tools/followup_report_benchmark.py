@@ -33,7 +33,11 @@ def write(path, value):
 
 
 def manifest():
-    paths = [ROOT / "app.py", ROOT / "pyproject.toml", ROOT / "uv.lock", Path(__file__)]
+    paths = [ROOT / "app.py", ROOT / "pyproject.toml", ROOT / "uv.lock", ROOT / ".streamlit/config.toml"]
+    paths += [ROOT / path for path in ("tools/followup_report_benchmark.py",
+        "tools/followup_page_benchmark.py", "tools/followup_report_browser_benchmark.py",
+        "tools/repair_preview_benchmark.py", "tools/repair_measure_run.py",
+        "tests/training/strength_workbench_browser_check.py", "tests/training/strength_browser_fixture.py")]
     paths += [p for p in (ROOT / "src").rglob("*") if p.is_file() and "__pycache__" not in p.parts]
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
@@ -58,6 +62,24 @@ def validate_synthetic(path):
         batches = connection.execute("SELECT file_sha256 FROM import_batch").fetchall()
         assert len(batches) == 1 and batches[0][0] in SYNTHETIC
         return batches[0][0]
+
+
+def shared_knowledge(path, *, prepare=False):
+    """Explicitly reuse only a temporary public copy, never the user's library."""
+    path = path.resolve()
+    temporary = Path(tempfile.gettempdir()).resolve()
+    assert path != temporary and path.is_relative_to(temporary), "shared public knowledge must be a dedicated temporary directory"
+    for name in ("sources.sqlite3", "theories.sqlite3"):
+        source = path / name
+        assert source.is_file() and source.resolve().is_relative_to(temporary), "both shared databases must be temporary copies"
+    from healthzip.knowledge.revisions import knowledge_authority_clock, prepare_retrieval_revisions
+    if prepare:
+        from healthzip.knowledge.workbench import KnowledgeWorkbench
+        with closing(KnowledgeWorkbench(path)) as workbench:
+            prepare_retrieval_revisions(workbench)
+    identity = json.loads(json.dumps(knowledge_authority_clock(path)))
+    assert not any("uninitialized" in row or "unavailable" in row for row in identity[2:]), "shared authority tracking must be initialized"
+    return identity
 
 
 def percentiles(samples):
@@ -218,18 +240,28 @@ def worker(args):
             actual = {source for task in current["strength_tasks"] for source in task.get("source_record_ids", [])}
             # All these immutable fixtures use latest current rows; temporal
             # semantics are separately tested with actual revisions by the suite.
-            expected = {"strength_set:" + row[0] for row in repo.rows(
-                "SELECT set_uuid FROM strength_set WHERE completion_state IN ('completed','aborted','in_progress') "
+            source_rows = repo.rows(
+                "SELECT set_uuid,condition_key FROM strength_set WHERE completion_state IN ('completed','aborted','in_progress') "
                 "AND deleted_at IS NULL AND julianday(COALESCE(ended_at,started_at))>=julianday(?) "
                 "AND julianday(COALESCE(ended_at,started_at))<julianday(?) "
+                "AND julianday(COALESCE(ended_at,started_at))<=julianday(?) "
                 "AND julianday(available_at)<=julianday(?)",
-                (current["window_start"], current["window_end"], current["cutoff_time"]))}
+                (current["window_start"], current["window_end"], current["cutoff_time"], current["cutoff_time"]))
+            expected = {"strength_set:" + row[0] for row in source_rows}
             assert actual == expected, (len(actual), len(expected))
+            unknown = {"strength_set:" + row[0] for row in source_rows if row[1] is None}
+            unknown_tasks = [task for task in current["strength_tasks"]
+                             if unknown.intersection(task.get("source_record_ids", []))]
+            for task in unknown_tasks:
+                assert task.get("condition_key") is None and not task.get("protocol_complete")
+                assert task.get("source_record_ids") == ["strength_set:" + task["unknown_condition_record_id"]]
+            assert len(unknown_tasks) == len(unknown), "unknown conditions must retain separate record identities"
             if result["synthetic_fixture"] in {"synthetic-100000", "synthetic-1000000"}:
                 assert len(actual) == 10000
             result["integrity"] = {"global_metrics": len(current["metrics"]),
                                    "task_count": len(current["strength_tasks"]),
                                    "all_period_source_groups_preserved": len(actual),
+                                   "unknown_condition_records_kept_separate": len(unknown),
                                    "source_group_ids_sha256": hashlib.sha256("\n".join(sorted(actual)).encode()).hexdigest(),
                                    "all_raw_tables_after": raw_identity(repo.conn)}
             result["audit_path"] = str(export_path)
@@ -250,10 +282,11 @@ def controller(args):
     write(args.output / "source-manifest.json", source_before)
     workspace = Path(tempfile.mkdtemp(prefix="healthzip-followup-report-"))
     database = workspace / "synthetic.sqlite3"
-    knowledge = workspace / "knowledge"
-    knowledge.mkdir()
-    copies = [(args.synthetic, database)] + [(args.knowledge_root / name, knowledge / name)
-              for name in ("sources.sqlite3", "theories.sqlite3")]
+    knowledge = args.shared_knowledge_root.resolve() if args.shared_knowledge_root else workspace / "knowledge"
+    copies = [(args.synthetic, database)]
+    if not args.shared_knowledge_root:
+        knowledge.mkdir()
+        copies += [(args.knowledge_root / name, knowledge / name) for name in ("sources.sqlite3", "theories.sqlite3")]
     for original, target in copies:
         with closing(sqlite3.connect(original.resolve().as_uri() + "?mode=ro", uri=True)) as source:
             with closing(sqlite3.connect(target)) as dest:
@@ -261,11 +294,17 @@ def controller(args):
     with closing(sqlite3.connect(database)) as conn:
         before = raw_identity(conn)
     result = {"fixture": fixture, "source": str(args.synthetic), "workspace": str(workspace),
+              "original_database_bytes": args.synthetic.stat().st_size,
+              "backup_database_bytes_before": database.stat().st_size,
               "data": "synthetic_only", "before_raw_tables": before, "phases": [],
               "platform": platform.platform(), "cpu_count": os.cpu_count(),
               "memory": Path("/proc/meminfo").read_text().splitlines()[0],
               "concurrent_load": args.concurrent_load, "os_cache_cleared": False,
               "remote_model": "not configured in isolated benchmark", "physical_device": "shared host"}
+    if args.shared_knowledge_root:
+        result["shared_knowledge_root"] = str(knowledge)
+        result["shared_knowledge_authority_before"] = shared_knowledge(knowledge, prepare=True)
+        result["shared_knowledge_preparation"] = "public schema/revision tracking prepared once before timed phases; only sequential use permitted"
     write(args.output / "receipt.json", result)
     for phase in ("generation", "read", "audit"):
         command = [sys.executable, str(Path(__file__).resolve()), "--worker-phase", phase,
@@ -289,9 +328,14 @@ def controller(args):
                   "peak_tree_rss_kib": max((row["rss_kib"] for row in samples), default=0), "samples": samples}
         write(args.output / f"{phase}-resources.json", record)
         result["phases"].append({k: v for k, v in record.items() if k != "samples"})
+        if args.shared_knowledge_root:
+            result["shared_knowledge_authority_after"] = shared_knowledge(knowledge)
+            result["shared_knowledge_authority_unchanged"] = result["shared_knowledge_authority_before"] == result["shared_knowledge_authority_after"]
         write(args.output / "receipt.json", result)
         if process.returncode:
             raise RuntimeError(f"{phase} failed; preserve {args.output / (phase + '-command.txt')}")
+        if args.shared_knowledge_root:
+            assert result["shared_knowledge_authority_unchanged"], "shared public authority changed during measurement"
     with closing(sqlite3.connect(database)) as conn:
         after = raw_identity(conn)
     assert before == after, "raw source tables changed"
@@ -307,7 +351,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--synthetic", type=Path)
     parser.add_argument("--database", type=Path)
-    parser.add_argument("--knowledge-root", type=Path, required=True)
+    parser.add_argument("--knowledge-root", type=Path)
+    parser.add_argument("--shared-knowledge-root", type=Path,
+                        help="reuse one dedicated /tmp public copy sequentially; record unchanged source/review authority")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cutoff", default="2026-11-22T00:00:00+08:00")
     parser.add_argument("--period", choices=("week", "month"), default="week")
@@ -315,4 +361,6 @@ if __name__ == "__main__":
     parser.add_argument("--concurrent-load", required=True)
     parser.add_argument("--worker-phase", choices=("generation", "read", "audit"))
     arguments = parser.parse_args()
+    if not (arguments.knowledge_root or arguments.shared_knowledge_root):
+        parser.error("provide --knowledge-root or --shared-knowledge-root")
     worker(arguments) if arguments.worker_phase else controller(arguments)

@@ -49,6 +49,40 @@ TOPICS.update(W1='strength', W2='hrv', W3='fitness', W4='comparison', W5='body',
 PURPOSES = ['measurement', 'comparison', 'mechanism_or_exception', 'action_or_reassessment']
 VERSION = 'review-question-use-2026-11-22.1'
 
+# Substantive public answer targets, separate from the immutable metric-use
+# profile. A purpose tag alone does not establish that this question is answered.
+ANSWER_NEEDS_VERSION = 'public-topic-answer-needs-1'
+ANSWER_NEEDS = {
+    'hrv_direction_and_training_response': {
+        'topics': ['BODY-OBS-hrv_sdnn_ms', 'W2', 'W6'],
+        'purposes': ['mechanism_or_exception', 'action_or_reassessment'],
+        'question': 'HRV的升降能否单独判定训练反应，复评还需要核对什么？',
+        'query': 'heart rate variability direction overreaching performance fatigue training response interpretation',
+        'target_claim': {'proposition': 'HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。',
+                         'scope': {'use': 'training_response_interpretation_limits',
+                                   'metric': 'HRV_not_interchangeable_SDNN_RMSSD',
+                                   'individual_threshold': 'not_established'}},
+    },
+    'wearable_hrv_protocol_transfer': {
+        'topics': ['BODY-OBS-hrv_sdnn_ms'],
+        'purposes': ['measurement', 'comparison'],
+        'question': '某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？',
+        'query': 'PPG ECG wearable nocturnal RMSSD SDNN short term free living accuracy comparability',
+        'target_claim': {'proposition': '特定PPG设备夜间RMSSD或心率的一致性不能直接验证短时段或自由活动SDNN。',
+                         'scope': {'use': 'measurement_validation_transfer_limits',
+                                   'metric': 'SDNN_separate_from_RMSSD_and_heart_rate',
+                                   'current_device_accuracy': 'not_established'}},
+    },
+}
+
+
+def answer_targets(bindings, context=None):
+    from .applicability import context_match
+    from .support import target_key
+    return {target_key(binding['target_claim']) for binding in bindings
+            if binding.get('answer_complete') is True and binding.get('target_coverage_complete') is True
+            and context_match(binding.get('required_context', {}), context or {})[0]}
+
 
 def profile(topic):
     group = GROUPS[TOPICS[topic]]
@@ -103,19 +137,30 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
     initial_audit = evidence['retrieval_audit']
     available = {p for g in initial_audit.get('metric_candidate_scope', {}).get('complete_group_refs', [])
                  for p in g.get('evidence_types', [])}
+    from .support import target_key
+    requested_answers = {key: target_key(spec['target_claim']) for key, spec in ANSWER_NEEDS.items()
+                         if topic in spec['topics'] and set(needs) & set(spec['purposes'])}
+    answered = {target for claim in evidence['matched_claims'] if not claim_conflicts(claim, evidence['conflicts'])
+                for target in answer_targets(claim.get('answer_bindings', []), context)}
+    available_answers = {target for group in initial_audit.get('metric_candidate_scope', {}).get('complete_group_refs', [])
+                         for target in answer_targets(group.get('answer_bindings', []), context)}
+    missing_answers = [key for key, target in requested_answers.items() if target not in answered]
+    supplemental_answers = [key for key in missing_answers if requested_answers[key] in available_answers]
     supplemental_needs = sorted(set(missing) & available)
     supplemental_audit = None
-    if supplemental_needs:
+    if supplemental_needs or supplemental_answers:
         # One bounded local pass for missing uses; never raise the global top-k,
         # split complete groups or spend additional remote model calls.
         supplement = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
-            mode='lexical', k=min(k, 6), candidate_scope='reviewed_metric', purpose_needs=supplemental_needs)
+            mode='lexical', k=min(k, 6), candidate_scope='reviewed_metric', purpose_needs=supplemental_needs or None,
+            answer_needs=supplemental_answers or None)
         supplemental_audit = supplement['retrieval_audit']
         spans = {s['span_id']: s for s in evidence['evidence_spans']}
         claims = {(c['claim_id'], c['claim_version'], c['metric_relation']): c
                   for c in evidence['matched_claims']}
         for claim in supplement['matched_claims']:
-            if set(claim['evidence_types']) & set(missing):
+            if (set(claim['evidence_types']) & set(missing) or answer_targets(claim.get('answer_bindings', []), context)
+                    & {requested_answers[key] for key in supplemental_answers}):
                 claims[(claim['claim_id'], claim['claim_version'], claim['metric_relation'])] = claim
                 spans.update({s['span_id']: s for s in supplement['evidence_spans']
                               if s['span_id'] in claim['evidence_span_ids']})
@@ -146,6 +191,7 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
                 'statement': ' '.join(claim['statements']), 'limitations': claim['limitations'],
                 'scope': claim['scope'], 'reviewer_kind': claim.get('reviewer_kind'),
                 'required_claim_refs': claim.get('required_claim_refs', []),
+                'answer_bindings': claim.get('answer_bindings', []),
                 'purposes': claim['evidence_types'], 'citations': citations}
         if conflicts:
             item.update(reason='conflicting_claim_or_required_premise', conflicts=conflicts,
@@ -154,8 +200,15 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
         else:
             items.append(item)
     covered = {p for c in items for p in c['purposes']}
-    audit = {**initial_audit, 'question_selection_version': 'bounded-topic-use-1',
+    answered = {target for item in items for target in answer_targets(item.get('answer_bindings', []), context)}
+    disputed_answers = {target for item in restricted for target in answer_targets(item.get('answer_bindings', []), context)}
+    audit = {**initial_audit, 'question_selection_version': 'bounded-topic-use-2',
              'required_purposes': needs, 'initial_missing_purposes': missing,
+             'answer_needs_version': ANSWER_NEEDS_VERSION, 'initial_missing_answers': missing_answers,
+             'answer_status': {key: {'question': ANSWER_NEEDS[key]['question'],
+                 'status': ('available' if target in answered else 'locally_conflicted' if target in disputed_answers
+                            else 'complete_group_budget_or_rank' if target in available_answers else 'no_current_applicable_reviewed_answer')}
+                 for key, target in requested_answers.items()},
              'supplemental_pass': supplemental_audit, 'supplemental_remote_calls': 0,
              'maximum_unique_spans': k + min(k, 6), 'selected_unique_spans': len(spans),
              'purpose_status': {p: ('available' if p in covered else

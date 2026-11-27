@@ -16,10 +16,10 @@ from zoneinfo import ZoneInfo
 
 from healthzip.advice import build_advice_context
 from healthzip.analytics.v13 import snapshot
-from healthzip.science import evaluate
 from healthzip.science.contracts import canonical_hash, instant
+from healthzip.science.engine import evaluate_subset
 from healthzip.training.semantics import numeric
-from healthzip.training.service import TrainingService
+from healthzip.training.service import TrainingError, TrainingService
 from healthzip.workflows import WorkflowRequest, run_workflow
 from healthzip.workflows.dependencies import input_version
 
@@ -355,13 +355,21 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
     """
     svc = TrainingService(repo)
     revision = input_version(repo, None)
-    instance = svc.get_session_exercise(instance_id)
-    session = svc.get_session(instance["session_id"])
     if cutoff_time:
-        session = svc.session_as_of(instance["session_id"], cutoff_time=cutoff_time, include_deleted=True)
+        # Only use today's scoped parent key to locate the immutable replay.
+        # Current sets/catalog/conditions are not inputs to a historical view.
+        parent = repo.conn.execute(
+            "SELECT session_id FROM training_session_exercise WHERE id=? AND user_id=?",
+            (instance_id, svc.user_id)).fetchone()
+        if parent is None:
+            raise TrainingError("找不到此训练动作")
+        session = svc.session_as_of(parent[0], cutoff_time=cutoff_time, include_deleted=True)
         instance = next((i for i in session["exercises"] if i["id"] == instance_id), None)
         if instance is None:
             raise ValueError("training_instance_not_visible_at_report_cutoff")
+    else:
+        instance = svc.get_session_exercise(instance_id)
+        session = svc.get_session(instance["session_id"])
     versions = [json.loads(r[0]) for r in repo.conn.execute(
         "SELECT payload_json FROM current_training_advice WHERE user_id='local' AND session_exercise_id=? ORDER BY created_at,advice_id",
         (instance_id,))]
@@ -408,10 +416,12 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
     source, inherited = snapshot(repo, cut, window_start=start, window_end=cut, include_sources=False,
                                  training_session_ids=(instance["session_id"],))
     actuals = [r for r in source if r.get("session_exercise_id") == instance_id]
+    actual_by_uuid = {r["set_uuid"]: r for r in reversed(actuals)}
+    version_by_id = {v["advice_id"]: v for v in reversed(versions)}
     for row in result["rows"]:
-        chosen = next((v for v in versions if v["advice_id"] == row["advice_id"]), {})
+        chosen = version_by_id.get(row["advice_id"], {})
         reference = chosen.get("reference_record")
-        actual = next((r for r in actuals if r["set_uuid"] == row["set_uuid"]), None)
+        actual = actual_by_uuid.get(row["set_uuid"])
         row["reference_comparison"] = {}
         row["daily_comparisons"] = []
         if chosen.get("daily_history") and actual and row["status"] == "linked_objectively":
@@ -429,23 +439,22 @@ def objective_comparison(repo, instance_id, *, cutoff_time=None):
                         "id": "strength_set:" + recorded["set_uuid"],
                         "event_end": recorded.get("ended_at"), "event_start": recorded.get("started_at")}
                     pair = [historical, actual]
-                    metrics = {mid: evaluate(mid, pair, cutoff_time=cut,
+                    metrics = evaluate_subset(("STR-12", "STR-13", "STR-14"), pair, cutoff_time=cut,
                         window_start=min(start, recorded["ended_at"], key=instant), window_end=cut,
-                        context={"comparison_pair": pair}) for mid in ("STR-12", "STR-13", "STR-14")}
+                        context={"comparison_pair": pair})
                 row["daily_comparisons"].append({"source_set_id": recorded["set_uuid"],
                     "observation": observation(recorded), "actual_set_uuid": row["set_uuid"],
                     "comparability": comparison, "metrics": metrics, "limitations": limits})
         if reference and actual and row["status"] == "linked_objectively":
             pair_start = min(start, reference["ended_at"], key=instant)
             pair = [reference, actual]
-            row["reference_comparison"] = {mid: evaluate(mid, pair, cutoff_time=cut,
-                window_start=pair_start, window_end=cut, context={"comparison_pair": pair})
-                for mid in ("STR-12", "STR-13", "STR-14")}
+            row["reference_comparison"] = evaluate_subset(("STR-12", "STR-13", "STR-14"), pair,
+                cutoff_time=cut, window_start=pair_start, window_end=cut, context={"comparison_pair": pair})
     ids = {r.get("set_uuid") for r in actuals}
     context = {**inherited, "plan_snapshot": {"sets": [s for p in inherited.get("session_plans", [])
                 for s in p["sets"] if s["id"] in ids]}}
-    result["metrics"] = {mid: evaluate(mid, actuals, cutoff_time=cut, window_start=start, window_end=cut, context=context)
-                         for mid in ("STR-01", "STR-02", "STR-03", "STR-09", "STR-10")}
+    result["metrics"] = evaluate_subset(("STR-01", "STR-02", "STR-03", "STR-09", "STR-10"), actuals,
+        cutoff_time=cut, window_start=start, window_end=cut, context=context)
     repo.conn.execute("BEGIN IMMEDIATE")
     try:
         current_ids = [r[0] for r in repo.conn.execute("SELECT advice_id,created_at FROM current_training_advice "

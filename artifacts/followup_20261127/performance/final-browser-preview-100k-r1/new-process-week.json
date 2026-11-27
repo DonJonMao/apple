@@ -1,0 +1,105 @@
+{
+  "health_sample_count": 100001,
+  "training_set_count": 10000,
+  "full_report_count_before": 0,
+  "mode": "new-process",
+  "period": "week",
+  "bootstrap": "import runpy,importlib\nimport streamlit as st\nfrom datetime import datetime\nclass RequestClock(datetime):\n @classmethod\n def now(cls,tz=None):\n  value=datetime.fromisoformat('2026-11-22T00:00:00+08:00')\n  return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor module in ('healthzip.analytics.workspaces','healthzip.analytics.workspace_summary'):\n importlib.import_module(module).datetime=RequestClock\nif not st.session_state.get('_followup_clock_initialized'):\n st.session_state['body_period']='本周'\n st.session_state['review_period']='本周'\n st.session_state['body_section']='心率'\n st.session_state['_followup_clock_initialized']=True\nrunpy.run_path('/tmp/healthzip-followup-final-browser-source-r3-driver3/app.py',run_name='__main__')\n",
+  "warm_samples": [],
+  "original_database_bytes": 381632512,
+  "backup_database_bytes_before": 381632512,
+  "service_ready_ms": 2283.9668914675713,
+  "browser": "158.0.8127.18",
+  "cold": {
+    "first_fact_ms": 6315.378710627556,
+    "facts_and_trend_ms": 7659.328080713749,
+    "interactive_ms": 7664.111249148846,
+    "automation_to_settled_ms": 7725.316070020199,
+    "snapshot": {
+      "hzRender": "efbd1275-784a-44bb-96c7-8745dd6116a3",
+      "workspace": "review",
+      "serverMs": "5539.569"
+    },
+    "selected_period": "week",
+    "facts": [
+      {
+        "label": "完成训练",
+        "value": "100 次"
+      },
+      {
+        "label": "有效工作组",
+        "value": "10,000 组"
+      },
+      {
+        "label": "睡眠中位数",
+        "value": "1.5 小时"
+      },
+      {
+        "label": "静息心率",
+        "value": "62.5 bpm"
+      },
+      {
+        "label": "体重",
+        "value": "72.0 kg"
+      }
+    ],
+    "plots": [
+      [
+        {
+          "name": null,
+          "x": [
+            "2026-11-20"
+          ],
+          "y": [
+            10000
+          ]
+        }
+      ]
+    ]
+  },
+  "rendered_facts_and_trends_verified": true,
+  "verified_plot_scope": "selected-period actual strength trend",
+  "full_reports_generated": 0,
+  "expected_normal_service": {
+    "cards": [
+      {
+        "label": "完成训练",
+        "value": "100 次"
+      },
+      {
+        "label": "有效工作组",
+        "value": "10,000 组"
+      },
+      {
+        "label": "睡眠中位数",
+        "value": "1.5 小时"
+      },
+      {
+        "label": "静息心率",
+        "value": "62.5 bpm"
+      },
+      {
+        "label": "体重",
+        "value": "72.0 kg"
+      }
+    ],
+    "window": {
+      "start": "2026-11-15T16:00:00+00:00",
+      "end": "2026-11-21T16:00:00+00:00",
+      "closure": "[start,end)",
+      "partial": true
+    },
+    "conclusions": [
+      "Synthetic Watch（来源 2）：2 个有效日期的静息心率日值，中位数 62.5 bpm，范围 60–65 bpm。",
+      "Synthetic Watch（来源 1）：1 个有效日期的静息心率日值，中位数 61 bpm，范围 61–61 bpm。",
+      "Synthetic Watch（来源 2）：1 个有效日期的HRV（SDNN）日值，中位数 38 ms，范围 38–38 ms。"
+    ],
+    "trend": [
+      [
+        "2026-11-20",
+        10000
+      ]
+    ]
+  },
+  "complete": true
+}

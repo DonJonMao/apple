@@ -1,0 +1,153 @@
+{
+  "diagnostic_only": true,
+  "instrumentation": "cProfile enabled; no P95 claim",
+  "source_root": "/tmp/healthzip-followup-performance/f863-100k/source",
+  "source_manifest": "generation-source-manifest.json",
+  "profiler_sha256": "50759ee3f96f3dff8784ce7c386c0b104f08d34d34d3cbac96622a65d42796cb",
+  "archive_identity": {
+    "commit": "f863e2e80af5da41bd1e211a91ca9d788e44a38f",
+    "purpose": "isolated cProfile diagnostic only"
+  },
+  "synthetic_fixture": "synthetic-100000",
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "phase": "generation",
+  "concurrent_load": "shared host; concurrent public knowledge work and personal-page diagnostic; cProfile only",
+  "audit_serialization": "string",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "logical_cpu": 192,
+  "memory": "MemTotal:       2109313276 kB",
+  "python": "3.11.7",
+  "initial_host_load": [
+    17.671875,
+    16.95068359375,
+    18.419921875
+  ],
+  "os_file_cache": "retained",
+  "remote_model": "not used",
+  "runs": [
+    {
+      "label": "cold-generation",
+      "seconds": 210.34469533711672,
+      "stages": [
+        {
+          "stage": "读取本期事实",
+          "elapsed_s": 0.044590890407562256
+        },
+        {
+          "stage": "分析本期实际问题与行动",
+          "elapsed_s": 52.3658040240407
+        },
+        {
+          "stage": "核对本期训练与知识依据",
+          "elapsed_s": 82.8846680149436
+        },
+        {
+          "stage": "比较前两个完整周期",
+          "elapsed_s": 144.8838957324624
+        },
+        {
+          "stage": "整理可追溯报告",
+          "elapsed_s": 165.52331044524908
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 210.33974780142307
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 1,
+        "json_bytes": 276107,
+        "tables": {
+          "report_content_object": 276107
+        }
+      },
+      "process_peak_rss_kib": 2073884,
+      "report_id": "04dc00b2d7c8e2039661131d678d1837a84f79011fbf9bce69c0ea65cc59e1ee",
+      "markdown_utf8_bytes": 21054,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "current_claim_refs",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "period",
+        "period_identity",
+        "questions",
+        "reading_view",
+        "version",
+        "workflow_run_ids",
+        "created_at",
+        "content_signature",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ]
+    },
+    {
+      "label": "hot-generation",
+      "seconds": 0.023166440427303314,
+      "stages": [
+        {
+          "stage": "复用已核对的报告内容",
+          "elapsed_s": 0.014007292687892914
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 0.018523462116718292
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 1,
+        "json_bytes": 276107,
+        "tables": {
+          "report_content_object": 276107
+        }
+      },
+      "process_peak_rss_kib": 2073884,
+      "report_id": "11d2585758dcdce27409d81db76e027392a0e5250126f44bb4b8da57de9a0513",
+      "markdown_utf8_bytes": 21054,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "current_claim_refs",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "period",
+        "period_identity",
+        "questions",
+        "reading_view",
+        "version",
+        "workflow_run_ids",
+        "created_at",
+        "content_signature",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ]
+    }
+  ],
+  "sizes": {
+    "health_sample": 100001,
+    "source_revision": 100001,
+    "strength_session": 100,
+    "strength_set": 10000,
+    "training_event": 10300
+  },
+  "distinct_explicit_report_ids": [
+    "04dc00b2d7c8e2039661131d678d1837a84f79011fbf9bce69c0ea65cc59e1ee",
+    "11d2585758dcdce27409d81db76e027392a0e5250126f44bb4b8da57de9a0513"
+  ],
+  "complete": true,
+  "final_host_load": [
+    24.3681640625,
+    20.048828125,
+    19.3193359375
+  ],
+  "source_changes_during_run": []
+}

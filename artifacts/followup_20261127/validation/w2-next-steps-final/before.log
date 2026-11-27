@@ -1,0 +1,338 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-None] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi0')
+training = True, sleep = True, fatigue = None
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+>           assert "训练历史" in steps and "实际负荷" in steps
+E           AssertionError: assert ('训练历史' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:274: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-0] __
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi1')
+training = True, sleep = True, fatigue = 0
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+>       assert ("已填写的疲劳" in steps) is (fatigue == 0)
+E       AssertionError: assert ('已填写的疲劳' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。') is (0 == 0)
+
+tests/science/test_question_context.py:272: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-False-None] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi2')
+training = True, sleep = False, fatigue = None
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+>           assert "训练历史" in steps and "实际负荷" in steps
+E           AssertionError: assert ('训练历史' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:274: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[False-True-None] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi3')
+training = False, sleep = True, fatigue = None
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+            assert "训练历史" in steps and "实际负荷" in steps
+        else:
+>           assert "记录实际训练场次" in steps and "下次相同动作" not in steps
+E           AssertionError: assert ('记录实际训练场次' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:276: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-future] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi4')
+training = True, sleep = True, fatigue = 'future'
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+>           assert "训练历史" in steps and "实际负荷" in steps
+E           AssertionError: assert ('训练历史' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:274: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-outside_window] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi5')
+training = True, sleep = True, fatigue = 'outside_window'
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+>           assert "训练历史" in steps and "实际负荷" in steps
+E           AssertionError: assert ('训练历史' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:274: AssertionError
+_ test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-late_visible] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_next_step_uses_only_vi6')
+training = True, sleep = True, fatigue = 'late_visible'
+
+    @pytest.mark.parametrize("training,sleep,fatigue", [
+        (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+        (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+    ])
+    def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+        repo = Repository(tmp_path / "w2-records.sqlite")
+        if training:
+            add_training(repo)
+        if sleep:
+            ended = "2026-11-21T05:00:00+08:00"
+            row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+                   "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+                   "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+                   "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+                   "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+            repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                              "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+            repo.conn.commit()
+        if fatigue is not None:
+            at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+                fatigue, "2026-11-20T20:00:00+08:00")
+            add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+            if fatigue == "late_visible":
+                repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                                  "WHERE table_name='subjective_log'")
+                repo.conn.commit()
+        source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+        result = ask(repo, "W2")
+        assert result["topic_status"]["has_training"] is training
+        assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+        subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+        assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+        steps = " ".join(result["steps"])
+        assert ("已填写的疲劳" in steps) is (fatigue == 0)
+        if training:
+>           assert "训练历史" in steps and "实际负荷" in steps
+E           AssertionError: assert ('训练历史' in '下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。')
+
+tests/science/test_question_context.py:274: AssertionError
+__________ test_w2_note_only_does_not_call_the_note_a_fatigue_record ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1069/test_w2_note_only_does_not_cal0')
+
+    def test_w2_note_only_does_not_call_the_note_a_fatigue_record(tmp_path):
+        repo = Repository(tmp_path / "w2-note.sqlite")
+        add_record(repo, "subjective_log", 1, "2026-11-20T20:00:00+08:00", notes="合成本人备注")
+        result = ask(repo, "W2")
+        assert result["topic_status"]["state"] == "context_only"
+        assert "合成本人备注" in result["observation"]
+>       assert "疲劳" not in " ".join(result["steps"])
+E       AssertionError: assert '疲劳' not in '在身体入口核对同期心率...已有疲劳和备注继续保留。'
+E         
+E         '疲劳' is contained here:
+E           在身体入口核对同期心率或睡眠是否已经导入；已有疲劳和备注继续保留。
+E         ?                        ++
+
+tests/science/test_question_context.py:293: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-None]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-0]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-False-None]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[False-True-None]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-future]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-outside_window]
+FAILED tests/science/test_question_context.py::test_w2_next_step_uses_only_visible_training_sleep_and_fatigue[True-True-late_visible]
+FAILED tests/science/test_question_context.py::test_w2_note_only_does_not_call_the_note_a_fatigue_record
+8 failed, 9 deselected in 1.47s

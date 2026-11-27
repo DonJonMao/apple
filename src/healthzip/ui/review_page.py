@@ -97,6 +97,21 @@ def render_legacy_review(repo, *, timezone_name="Asia/Shanghai", section="问题
         _history(repo)
 
 
+def report_history_labels(rows, timezone_name):
+    """Keep same-minute report versions individually selectable in the UI."""
+    from healthzip.analytics.display_format import local_timestamp
+    identities = [row["report_id"] for row in rows]
+    labels = {}
+    for row in rows:
+        identity = row["report_id"]
+        width = min(8, len(identity))
+        while any(other != identity and other[:width] == identity[:width] for other in identities):
+            width += 1
+        period = "周" if row["period"] == "week" else "月"
+        labels[identity] = f"{local_timestamp(row['created_at'], timezone_name)} · {period}复盘 · 版本 {identity[:width]}"
+    return labels
+
+
 def _history(repo):
     state_key = "opened_report:" + str(repo.path.resolve())
     with st.expander("已保存的复盘"):
@@ -106,9 +121,8 @@ def _history(repo):
         if not rows:
             st.caption("尚无已保存的联合复盘。生成后可在这里重新打开。")
             return
-        from healthzip.analytics.display_format import local_timestamp
         zone = st.session_state.get("analysis_timezone", "Asia/Shanghai")
-        labels = {row["report_id"]: f"{local_timestamp(row['created_at'], zone)} · {'周' if row['period'] == 'week' else '月'}复盘" for row in rows}
+        labels = report_history_labels(rows, zone)
         selected = st.selectbox("历史复盘", list(labels), format_func=labels.get)
         if st.button("打开这份复盘"):
             st.session_state[state_key] = selected
@@ -116,8 +130,7 @@ def _history(repo):
     if st.session_state.get(state_key):
         from healthzip.workflows.period_report import load_report
         report = load_report(repo, st.session_state[state_key])
-        current_sources = _render_report_source_status(report, repo=repo)
-        _render_readable_report(report, "history:" + report["report_id"])
+        current_sources = _render_readable_report(report, "history:" + report["report_id"], repo=repo)
         _render_frozen_details(repo, report, "history:" + report["report_id"], current_sources=current_sources)
         st.download_button("下载这份复盘", report["markdown"], file_name="healthzip-review.md")
 
@@ -220,8 +233,7 @@ def _render_report_progress(slot, database, context_id):
     from healthzip.ui.health_explanation import knowledge_clock
     if job.get("knowledge") != knowledge_clock(".local/knowledge"):
         st.caption("资料或用途审核已有更新。以下内容保留为历史复盘，新解释请重新生成并核对当前依据。")
-    current_sources = _render_report_source_status(report)
-    _render_readable_report(report, "completed:" + report["report_id"])
+    current_sources = _render_readable_report(report, "completed:" + report["report_id"])
     st.caption(f"完整本地复盘已保存，用时 {report['job_elapsed_seconds']:.2f} 秒。")
     from contextlib import closing
     with closing(Repository(database)) as details_repo:
@@ -256,14 +268,15 @@ def _render_full_text(markdown, key):
     st.markdown(sections[selected][1])
 
 
-def _render_readable_report(report, key):
+def _render_readable_report(report, key, *, repo=None):
     """One reading path: main findings, frozen chart, then explanation/actions."""
     reading = report.get("reading_view")
     st.markdown('<span data-hz-report-id="' + report["report_id"] + '" data-reading-view="'
                 + (reading or {}).get("version", "legacy") + '" style="display:none"></span>', unsafe_allow_html=True)
     if not reading:
+        current_sources = _render_report_source_status(report, repo=repo)
         _render_full_text(report["markdown"], key)
-        return
+        return current_sources
     sections = report_sections(report["markdown"])
     opening = next((body for title, body in sections if title == "报告开头"), "")
     # The complete frozen opening remains available below. Keep its title and
@@ -281,11 +294,16 @@ def _render_readable_report(report, key):
             format_func=lambda i: choices[i][0]["title"] + " · " + _stream_name(choices[i][1]), key="report_chart:" + key)
         chart, stream = choices[index]
         _chart(stream, chart["title"], chart["unit"], chart["scale"], "report_plot:" + key)
+    # Keep actual frozen observations first. Current evidence restrictions still
+    # precede every historical explanation/action, with precise claim details
+    # retained below; repeated warnings must not push the first fact off mobile.
+    current_sources = _render_report_source_status(report, repo=repo)
     for title, body in sections:
         if title not in {"报告开头", "本期主要变化", "已填写的状态与备注"}:
             st.markdown(body)
     with st.expander("报告范围与阅读口径"):
         st.markdown(opening)
+    return current_sources
 
 
 def _render_report_source_status(report, *, repo=None):
@@ -296,8 +314,11 @@ def _render_report_source_status(report, *, repo=None):
         st.caption(current["label"])
     elif restricted:
         st.warning(f"这份历史报告有 {len(restricted)} 个主张或依赖来源当前不可直接用于新建议；冻结正文未改写。")
+        labels = {}
         for item in restricted:
-            st.caption(item["label"])
+            labels[item["label"]] = labels.get(item["label"], 0) + 1
+        for label, count in labels.items():
+            st.caption(label + (f"（{count} 项）" if count > 1 else ""))
     return {(i["claim_id"], i["version"]): i for i in current["items"]}
 
 

@@ -12,7 +12,7 @@ from pathlib import Path
 from healthzip.knowledge import KnowledgeWorkbench, domains, vector_index
 from healthzip.knowledge.core import _claim
 from healthzip.knowledge.revisions import knowledge_authority_clock, prepare_retrieval_revisions
-from healthzip.knowledge.topics import question_sources
+from healthzip.knowledge.topics import ANSWER_NEEDS, question_sources
 
 VERSION = "followup-2026-11-27.1"
 REVIEW = {"reviewer": "Codex original-passage check, 2026-11-27", "reviewer_kind": "ai_assisted",
@@ -21,6 +21,11 @@ REVIEW = {"reviewer": "Codex original-passage check, 2026-11-27", "reviewer_kind
     "rationale": "Read the identified original methods and limitations; narrow measurement/record-review use only. No individual threshold or device-validation transfer."}
 
 READINGS = {
+    "carter": {"source": "HC-CARTER-HRV-2026", "hash": "810d757557b4bc75c8a2", "paragraphs": [10,11,12,13,15,49,50,51,52,53,54,55],
+        "population": "Human cardiovascular research methods guideline; heterogeneous laboratory and wearable studies, not a new validation cohort",
+        "protocol": "ECG versus PPG; nocturnal/resting versus free-living measurements; whole-night RMSSD versus SDNN or shorter segments",
+        "conclusion": "设备/指标/时段的一致性不能跨协议转移；可连续测量并不等于已验证恢复或训练用途。",
+        "limits": "不将Oura/WHOOP特定夜间协议结果移植到当前Apple后台SDNN；不采用文中记录时长、采样率或呼吸频率作为产品强制门槛。"},
     "quer": {"source": "V15-QUER-RHR-2020", "hash": "9bfc6c8aa5bf6fdc4c60", "paragraphs": [10,14,37,39],
         "population": "92,457 adults in a retrospective sustained-wear Fitbit cohort; selected users, not a representative clinical sample",
         "protocol": "Fitbit Charge HR 1–3/Blaze/Alta HR/Ionic/Surge/Versa; proprietary daily PPG RHR; daily observation",
@@ -54,9 +59,16 @@ CLAIMS = [
      "statement": "比较静息心率变化前，先核对同一来源、算法和睡眠期间佩戴记录。Fitbit纵向研究中的日静息心率算法会随是否睡眠佩戴而变化；日期上的差值不能单独区分身体变化与记录条件变化。",
      "limits": ["该结论来自Fitbit成年用户研究，不验证Apple或其他设备算法。", "研究的佩戴时长筛选不作为个人合格线；不据此设置恢复、疾病或行动成功阈值。", "佩戴或算法信息缺失时保留实际值，条件一致性保持未知。"]},
     {"id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT", "reading": "hrv", "spans": [9,13,32],
+     "answer_need": "hrv_direction_and_training_response",
      "topics": ["BODY-OBS-hrv_sdnn_ms", "W2", "W6"], "purposes": ["mechanism_or_exception", "action_or_reassessment"],
      "statement": "HRV变化应与同日期的实际训练表现、疲劳和睡眠记录一起核对。综述中的过量训练研究既有HRV不变，也有HRV升高的结果，因此升高或降低本身不能判定恢复改善或恶化；下一次复评保留相同指标及测量条件。",
      "limits": ["HRV研究的人群、指标和协议差异较大，不将RMSSD结果替代SDNN。", "力量训练及普通使用者的用途证据仍不足；不把未知年龄当成人，也不据此给训练剂量或阈值。", "只核对已记录的背景；没有记录不能推断没有疲劳或睡眠问题。"]},
+    {"id": "FOLLOWUP-SDNN-VALIDATION-TRANSFER", "reading": "carter", "spans": [10,53,55],
+     "answer_need": "wearable_hrv_protocol_transfer",
+     "answer_rationale": "Carter guideline paragraphs 10, 53 and 55 distinguish signal acquisition, device/metric/recording protocol validation and intended-use evidence; no device-independent accuracy bound is supported.",
+     "topics": ["BODY-OBS-hrv_sdnn_ms"], "purposes": ["measurement", "comparison"],
+     "statement": "核对SDNN时，先确认来源使用的信号、指标和记录时段。特定设备整夜RMSSD或心率与ECG较一致，并不能证明短时段、自由活动下的SDNN同样准确；更换设备或采样协议后，应分别查看实际轨迹与缺失条件。",
+     "limits": ["原文综述的可穿戴一致性研究多在静息或睡眠条件下，具体Oura/WHOOP协议不验证当前Apple或其他设备的后台SDNN。", "PPG、ECG、RMSSD和SDNN的测量含义不互换；这里不给个人误差界限、恢复分数或训练成功阈值。", "信号类型、算法或采样时长未提供时保持未知；已有数值继续显示，不反推用户的测量协议。"]},
     {"id": "FOLLOWUP-SLEEP-EPISODE-COMPARABILITY", "reading": "sleep", "spans": [6,10,31],
      "topics": ["BODY-OBS-sleep_stage", "W6"], "purposes": ["comparison", "action_or_reassessment"],
      "statement": "复评睡眠时长或分期变化前，核对设备版本、所选睡眠时段和实际记录覆盖。单夜PSG对照研究中，正确佩戴的设备也可能遗漏部分时段；缺少记录不能当作清醒或没有睡眠。",
@@ -98,6 +110,17 @@ def apply(w):
                 span_ids=spans, applicability={}, actor=REVIEW["reviewer"],
                 rationale="Only record-comparison methods and stated limitations; no personal effect or numerical prescription.",
                 evidence_types=spec["purposes"], review=REVIEW))
+            if spec.get('answer_need'):
+                need = ANSWER_NEEDS[spec['answer_need']]
+                binding = {key: need[key] for key in ('question', 'target_claim')}
+                binding.update(relation='supports', answer_complete=True, target_coverage_complete=True,
+                    rationale=spec.get('answer_rationale', 'R3b paragraphs 9, 13 and 32 directly address HRV direction, performance context and heterogeneous protocols; no individual cutoff is licensed.'))
+                edges.append(domains.link(w, origin={"type": "claim", "id": spec["id"], "version": VERSION},
+                    relation="applies_to", target={"type": "metric", "id": topic, "version": domains.profile_version(topic)},
+                    span_ids=spans, applicability={}, actor=REVIEW["reviewer"],
+                    rationale=("Explicitly checked answer to the HRV direction/performance question; existing claim and application review retained."
+                               if spec['answer_need'] == 'hrv_direction_and_training_response' else "Explicitly checked measurement-validation transfer limits; no current-device accuracy is granted."),
+                    evidence_types=spec["purposes"], review=REVIEW, answer_bindings=[binding]))
         results.append({"claim": result, "edges": edges})
     prepare_retrieval_revisions(w)
     return results

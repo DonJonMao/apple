@@ -1,0 +1,305 @@
+{
+  "version": "report-browser-boundary-review-r5",
+  "reviewed_at_utc": "2026-11-27T05:10:44.168325+00:00",
+  "review_mode": "Read-only review of retained synthetic validation evidence; writes this receipt only. No application, benchmark, tests, source edits or database scan in this receipt-writing step.",
+  "scope": [
+    "personal r3 generation and separate successful history phase",
+    "100k independent r3 generation timeout",
+    "1m independent r3 generation timeout"
+  ],
+  "personal": {
+    "generation_artifact": {
+      "path": "artifacts/followup_20261127/performance/final-browser-report-personal-r2/generation.json",
+      "sha256": "9a5a106ab1a62f0b2efe17ca05fa131f1e86974ed19e0b6a2cde0e594ed41a64",
+      "bytes": 130941
+    },
+    "history_artifact": {
+      "path": "artifacts/followup_20261127/performance/final-browser-history-personal-r1/reopen.json",
+      "sha256": "39930822664ada21c0cea1b643cebb7d2e52cd2ff382563a2cae4de34f2b8bae",
+      "bytes": 1664991
+    },
+    "generation_summary": {
+      "path": "artifacts/followup_20261127/performance/final-browser-report-personal-r2/summary.json",
+      "sha256": "a713f7734efc09a496acf2d9fbd9c08ec540a3da6ec7cf3883b97d44e8533944",
+      "bytes": 149107
+    },
+    "history_context": {
+      "path": "artifacts/followup_20261127/performance/final-browser-history-personal-r1/context.json",
+      "sha256": "602c27a2bcf0cf9cc56e57f3acdbe5ab71a9ad783ef225fb49e4049c3181f5d2",
+      "bytes": 98124
+    },
+    "original_synthetic_fixture": "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+    "fixture_command_evidence": {
+      "path": "artifacts/followup_20261127/performance/final-browser-run-context-r2.json",
+      "sha256": "1211467dae596edc5e0701f279d0a655f4575b18abd42d32aef80c00c1f47ab3",
+      "bytes": 67337
+    },
+    "fixture_command_field": "$.runs[0].command --database",
+    "counts": {
+      "health_sample_count": 11680,
+      "training_set_count": 1672,
+      "full_report_count_before": 0
+    },
+    "counts_field": "generation summary $.counts",
+    "retained_synthetic_workspace": "/home/sn_maozhifang/healthzip-followup-validation-tmp/followup-report-browser-hf2ydpae",
+    "history_same_workspace": true,
+    "generation_samples": 31,
+    "unique_new_report_ids": 31,
+    "history_samples": 31,
+    "history_unique_opened_report_ids": [
+      "ac1271de6d36fbfc5f24ef547e7ac55c1318aba8d671fd8ad8b297e4b1e0389e",
+      "bdb9c4fa6cb48b98ec98612dd320a652958da4970074a64ac7209a119c337366"
+    ],
+    "history_requested_ids_match_opened": true,
+    "history_no_reports_generated": true,
+    "shared_identity_values": {
+      "content_ref": [
+        "26ed07082e2d4c48548e770c2c91ed566d1a1f40469b0c6d67e2eeab2170d1fd"
+      ],
+      "reading_ref": [
+        "17fd982b7c90aa358d52a87c5e906ffec609527efd722c5422dabf99dde8a7b6"
+      ],
+      "markdown_sha256": [
+        "f9fb66bf0a22cf09dd48d62fd4284ff902e680c3ddd70d5b399f07354b232d7f"
+      ],
+      "selected_period": [
+        "week"
+      ]
+    },
+    "cutoff_review": {
+      "requested_service_clock": "2026-11-22T00:00:00+08:00",
+      "requested_evidence_fields": [
+        "generation.json $.service_clock",
+        "reopen.json $.service_clock"
+      ],
+      "actual_frozen_cutoff_utc": "2026-11-21T16:00:00+00:00",
+      "same_instant_after_offset_normalization": true,
+      "verification_provenance": "Earlier same-session read-only indexed SELECT of the 31 known report IDs in the retained synthetic personal workspace; one shared reading object by its object_id. No source health/training table scan, no private database, no pressure database. Values recorded from that completed inspection; no repeat query here.",
+      "synthetic_database_relative_to_workspace": ".local/healthzip.sqlite3",
+      "reference_lookup": "joint_period_report.payload_json $.reading_ref -> report_content_object.object_id -> report_content_object.payload_json",
+      "reference_record_has_cutoff_time": false,
+      "actual_cutoff_jsonpaths": [
+        "$.cutoff_time",
+        "$.reading_view.window.cutoff_time"
+      ],
+      "period_identity": "current_partial_local_calendar_period",
+      "nominal_calendar_window": {
+        "jsonpath": "$.reading_view.window",
+        "start": "2026-11-16T00:00:00+08:00",
+        "end": "2026-11-23T00:00:00+08:00",
+        "timezone": "Asia/Shanghai",
+        "cutoff_time": "2026-11-21T16:00:00+00:00"
+      },
+      "actual_chart_observed_window": {
+        "jsonpath": "$.reading_view.charts[0].comparison.streams[0].current.observed_window",
+        "start": "2026-11-16T00:00:00+08:00",
+        "end": "2026-11-21T16:00:00+00:00",
+        "closure": "[start,end)",
+        "timezone": "Asia/Shanghai"
+      },
+      "complete_daily_window_end": {
+        "jsonpath": "$.reading_view.charts[0].comparison.streams[0].current.complete_window.end",
+        "value": "2026-11-22T00:00:00+08:00"
+      },
+      "actual_current_dates": [
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20",
+        "2026-11-21"
+      ],
+      "interpretation": "The nominal full-calendar week end is not the observed-data cutoff. The chart contains six observed dates before the actual cutoff."
+    },
+    "download_review": {
+      "scope": "One final report download per successful phase, after its 31-sample loop; not a download of all 31 reports.",
+      "generation_last_report_id": "ac1271de6d36fbfc5f24ef547e7ac55c1318aba8d671fd8ad8b297e4b1e0389e",
+      "history_last_report_id": "ac1271de6d36fbfc5f24ef547e7ac55c1318aba8d671fd8ad8b297e4b1e0389e",
+      "generation_last_markdown_sha256": "f9fb66bf0a22cf09dd48d62fd4284ff902e680c3ddd70d5b399f07354b232d7f",
+      "history_last_markdown_sha256": "f9fb66bf0a22cf09dd48d62fd4284ff902e680c3ddd70d5b399f07354b232d7f",
+      "generation_exact": true,
+      "history_exact": true,
+      "driver_evidence": [
+        {
+          "artifact": {
+            "path": "artifacts/followup_20261127/performance/final-browser-report-personal-r2/driver-source.py",
+            "sha256": "fd06eca7b8e9209a676564ac952d4858a3c0ac847e2c447679e7ba26bbe4c48f",
+            "bytes": 23669
+          },
+          "line_start": 184,
+          "line_end": 189
+        },
+        {
+          "artifact": {
+            "path": "artifacts/followup_20261127/performance/final-browser-history-personal-r1/driver-source.py",
+            "sha256": "61564899b61c76f66f1fabd494e2f6744fa4cf912dcaa3b7dbb46716e926df6b",
+            "bytes": 27400
+          },
+          "line_start": 228,
+          "line_end": 233
+        }
+      ],
+      "json_fields": [
+        "$.download_frozen_markdown_exact",
+        "$.samples[-1].report_id",
+        "$.samples[-1].markdown_sha256"
+      ]
+    },
+    "phase_limits": [
+      "The original personal generation runner later failed its old reopen attempt; that original summary is not a wholly successful runner. The generation phase completed, and the separate history phase completed.",
+      "History Open-click timings exclude selection preparation; repeated selection attempts remain in history_selections[].preparation.",
+      "Retained database lookup is a manually reviewed observation in this receipt; the database itself is excluded from publication."
+    ]
+  },
+  "pressure_generation": [
+    {
+      "tier": "100k",
+      "generation_artifact": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-100k-r2/generation.json",
+        "sha256": "0ca302002dc2de5d5918ca5a174f3c35442be798f32990c78170e6e45f43d969",
+        "bytes": 201
+      },
+      "summary_artifact": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-100k-r2/summary.json",
+        "sha256": "1f67d655df5b3fccbafaa04cb2c83b25a40e332b6832548a56b6fcaa6542339d",
+        "bytes": 66731
+      },
+      "failure_html": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-100k-r2/generation-failure.html",
+        "sha256": "fe4b3358e2f3efb9c2cfbf7fb1c3d3e3527f3e4ab4ff200f4ceabc09b7d198f7",
+        "bytes": 141773
+      },
+      "failure_screenshot": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-100k-r2/generation-failure.png",
+        "sha256": "83f643e109497d6cf077f5413e828b1ec8349d4642171c929774f45bbdede442",
+        "bytes": 100448
+      },
+      "screenshot_visually_reviewed": true,
+      "started_utc": "2026-11-27T04:47:53.271629+00:00",
+      "finished_utc": "2026-11-27T04:58:12.871118+00:00",
+      "failure": "Page.wait_for_function: Timeout 600000ms exceeded.",
+      "failure_classification": "Natural 600000 ms browser wait timeout waiting for a new frozen report DOM identity; not the prior external interruption.",
+      "browser_wait_limit_ms": 600000,
+      "service_ready_ms": 2360.543467104435,
+      "service_ready_is_separate_from_click_wait": true,
+      "successful_samples": 0,
+      "saved_report_ids_before": [],
+      "saved_report_ids_after": [],
+      "counts": {
+        "health_sample_count": 100001,
+        "training_set_count": 10000,
+        "full_report_count_before": 0
+      },
+      "original_synthetic_fixture": "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+      "source_changed": false,
+      "knowledge_authority_unchanged": true,
+      "requested_cutoff": "2026-11-22T00:00:00+08:00",
+      "last_ui_period": "2026-11-16 — 2026-11-22 00:00 · Asia/Shanghai",
+      "requested_cutoff_vs_rendered_preview_matches": true,
+      "actual_frozen_report_cutoff": null,
+      "actual_frozen_cutoff_status": "No completed report or frozen report ID exists in this phase; requested/service clock and visible preview period do not prove a completed report cutoff.",
+      "last_ui_stage_text": "分析本期实际问题与行动 · 已用 413 秒。可以切页，返回后继续查看。",
+      "last_ui_stage_elapsed_seconds": 413,
+      "stage_elapsed_is_total_wait": false,
+      "elapsed_interpretation": "The 413/528-second text is the displayed stage elapsed value at the failure capture, not total generation or browser wait duration.",
+      "visible_preview_cards": {
+        "completed_training": "100 次",
+        "work_sets": "10,000 组",
+        "sleep_median": "1.5 小时",
+        "resting_heart_rate": "62.5 bpm",
+        "body_mass": "72.0 kg"
+      },
+      "visible_preview_trend": {
+        "label": "本期已完成工作组",
+        "date_tick": "11/20",
+        "work_sets": 10000,
+        "is_generated_report_chart": false
+      },
+      "visible_saved_report_empty_state": "尚无已保存的联合复盘。生成后可在这里重新打开。",
+      "rendered_report_dom_ids": [],
+      "completed_report_downloads": 0,
+      "warm_generation_p95_ms": null,
+      "cold_report_complete_ms": null,
+      "generation_budget_status": "failed_or_incomplete: no completed cold report; warm/report-layout/download/history phases cannot be counted as passed",
+      "visual_scope": "1440×1000 failure screenshot at a scrolled preview position; visible facts/trend/progress retained, no complete report rendering or mobile validation."
+    },
+    {
+      "tier": "1m",
+      "generation_artifact": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-1m-r1/generation.json",
+        "sha256": "f49c28eb48646c148d53d5758fe7f47d7b0c7ed5e3ed3d8f14a4b35959ab976d",
+        "bytes": 202
+      },
+      "summary_artifact": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-1m-r1/summary.json",
+        "sha256": "5410556d3492d0d51d2f98b031b9bb858ebeab76b8f55148ac55292347f7805d",
+        "bytes": 66746
+      },
+      "failure_html": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-1m-r1/generation-failure.html",
+        "sha256": "85a7349b8ce16ce840d04242d44fcadcac64e1c8bb0c94a8de815e5cced080da",
+        "bytes": 141766
+      },
+      "failure_screenshot": {
+        "path": "artifacts/followup_20261127/performance/final-browser-generation-1m-r1/generation-failure.png",
+        "sha256": "ccb4de4fe2e19716196de4cd2cfbfadaa57725a5dcc9d0c71a40f28f1e301e64",
+        "bytes": 100898
+      },
+      "screenshot_visually_reviewed": true,
+      "started_utc": "2026-11-27T04:58:31.982001+00:00",
+      "finished_utc": "2026-11-27T05:08:57.814901+00:00",
+      "failure": "Page.wait_for_function: Timeout 600000ms exceeded.",
+      "failure_classification": "Natural 600000 ms browser wait timeout waiting for a new frozen report DOM identity; not the prior external interruption.",
+      "browser_wait_limit_ms": 600000,
+      "service_ready_ms": 2358.4710508584976,
+      "service_ready_is_separate_from_click_wait": true,
+      "successful_samples": 0,
+      "saved_report_ids_before": [],
+      "saved_report_ids_after": [],
+      "counts": {
+        "health_sample_count": 1000001,
+        "training_set_count": 10000,
+        "full_report_count_before": 0
+      },
+      "original_synthetic_fixture": "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+      "source_changed": false,
+      "knowledge_authority_unchanged": true,
+      "requested_cutoff": "2026-11-22T00:00:00+08:00",
+      "last_ui_period": "2026-11-16 — 2026-11-22 00:00 · Asia/Shanghai",
+      "requested_cutoff_vs_rendered_preview_matches": true,
+      "actual_frozen_report_cutoff": null,
+      "actual_frozen_cutoff_status": "No completed report or frozen report ID exists in this phase; requested/service clock and visible preview period do not prove a completed report cutoff.",
+      "last_ui_stage_text": "分析本期实际问题与行动 · 已用 528 秒。可以切页，返回后继续查看。",
+      "last_ui_stage_elapsed_seconds": 528,
+      "stage_elapsed_is_total_wait": false,
+      "elapsed_interpretation": "The 413/528-second text is the displayed stage elapsed value at the failure capture, not total generation or browser wait duration.",
+      "visible_preview_cards": {
+        "completed_training": "100 次",
+        "work_sets": "10,000 组",
+        "sleep_median": "8.0 小时",
+        "resting_heart_rate": "63.0 bpm",
+        "body_mass": "72.5 kg"
+      },
+      "visible_preview_trend": {
+        "label": "本期已完成工作组",
+        "date_tick": "11/20",
+        "work_sets": 10000,
+        "is_generated_report_chart": false
+      },
+      "visible_saved_report_empty_state": "尚无已保存的联合复盘。生成后可在这里重新打开。",
+      "rendered_report_dom_ids": [],
+      "completed_report_downloads": 0,
+      "warm_generation_p95_ms": null,
+      "cold_report_complete_ms": null,
+      "generation_budget_status": "failed_or_incomplete: no completed cold report; warm/report-layout/download/history phases cannot be counted as passed",
+      "visual_scope": "1440×1000 failure screenshot at a scrolled preview position; visible facts/trend/progress retained, no complete report rendering or mobile validation."
+    }
+  ],
+  "retained_failure_scope": "The prior final-browser-report-100k-r1 batch was externally interrupted by SIGTERM and must not be described as this natural 600-second timeout.",
+  "limitations": [
+    "This is an evidence-boundary review, not another performance run or a scientific validity claim.",
+    "Screenshot preview facts remain available during failed generation; they are not generated report facts.",
+    "No pressure-generation warm 30, report download, frozen cutoff, report layout or browser reopen result can be inferred from these timeouts.",
+    "Existing artifact bytes were hashed for references; retained databases and original PDFs are not embedded."
+  ]
+}

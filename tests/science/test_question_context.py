@@ -134,12 +134,16 @@ def test_w4_empty_repo_and_profile_action_feedback_cache_asof(tmp_path, monkeypa
     repo.conn.execute("UPDATE advice_profile_revision SET recorded_at=?", (START,))
     repo.conn.commit()
     baseline = ask(repo, "W4", window_end=SELECTED, cutoff_time=SELECTED)
+    # An already saved action can predate the independent guidance identity.
+    baseline.pop("guidance_version")
     identity = select_action(repo, baseline, baseline["steps"][0], "2026-11-30T00:00:00+08:00", selected_at=SELECTED)
     monkeypatch.setattr("healthzip.workflows.actions.followup", lambda *_a, **_k: pytest.fail("recursive followup"))
     frozen_json = repo.one("SELECT baseline_json FROM review_action WHERE action_id=?", (identity,))[0]
     first = ask(repo, "W4", timezone_name="UTC")
     review = first["action_reviews"][0]
     assert first["goal_context"]["goal"] == "strength"
+    assert first["analysis_version"] == baseline["analysis_version"] == "body-questions-1.5"
+    assert first["guidance_version"] == "question-guidance-1.2"
     assert review["execution_status"] == "unreported" and review["method_matches"]
     assert not review["view_timezone_matches"]
     assert review["followup_window"]["timezone"] == "Asia/Shanghai"
@@ -164,6 +168,131 @@ def test_w4_empty_repo_and_profile_action_feedback_cache_asof(tmp_path, monkeypa
     repo.conn.commit()
     assert ask(repo, "W4")["goal_context"]["goal"] == "hypertrophy"
     assert repo.one("SELECT baseline_json FROM review_action WHERE action_id=?", (identity,))[0] == frozen_json
+    repo.close()
+
+
+def test_w4_training_without_body_metrics_or_goal_points_to_actual_training(tmp_path, monkeypatch):
+    repo = Repository(tmp_path / "training-only.sqlite")
+    sessions = add_training(repo)
+    result = ask(repo, "W4")
+    assert result["topic_status"]["has_training"]
+    assert not result["topic_status"]["primary_metrics"]
+    assert not result["topic_status"]["has_goal"] and not result["action_reviews"]
+    points = [point for group in result["ordinary_training"]["series"] for point in group["points"]]
+    assert {point["session_id"] for point in points} == set(sessions)
+    assert [(point["load"], point["reps"], point["rir"]) for point in points] == [(40, 8, 2), (40, 10, 2)]
+    steps = " ".join(result["steps"])
+    assert "训练历史" in steps and "组位" in steps and "已填 RIR" in steps
+    assert "指标明细" not in steps and "先前选择" not in steps
+    monkeypatch.setattr("healthzip.analytics.body_questions.GUIDANCE_VERSION", "synthetic-next-guidance")
+    changed = ask(repo, "W4")
+    assert changed["guidance_version"] == "synthetic-next-guidance"
+    assert changed["fact_id"] != result["fact_id"]
+    assert {k: v for k, v in changed.items() if k not in {"guidance_version", "fact_id"}} == {
+        k: v for k, v in result.items() if k not in {"guidance_version", "fact_id"}}
+    repo.close()
+
+
+@pytest.mark.parametrize("legacy", ["definition_missing", "observation_unit"])
+def test_w4_legacy_action_next_step_keeps_original_definition_and_feedback(tmp_path, legacy):
+    repo = Repository(tmp_path / f"old-action-{legacy}.sqlite")
+    add_record(repo, "health_sample", 1, "2026-11-10T08:00:00+08:00",
+               canonical_type="six_minute_walk_m", normalized_value=420, normalized_unit="m",
+               raw_value="420", raw_unit="m")
+    baseline = ask(repo, "W3", window_end=SELECTED, cutoff_time=SELECTED)
+    identity = select_action(repo, baseline, baseline["steps"][0], "2026-11-30T00:00:00+08:00",
+                             selected_at=SELECTED, primary={"kind": "metric", "metric": "six_minute_walk_m"})
+    definition = json.loads(repo.one("SELECT definition_json FROM review_action WHERE action_id=?", (identity,))[0])
+    if legacy == "definition_missing":
+        saved_definition = None
+    else:
+        definition["version"] = "action-outcomes-2.0"
+        definition["statistic"] = "complete_local_day_median"
+        definition["primary"].pop("observation_kind")
+        saved_definition = json.dumps(definition)
+    repo.conn.execute("UPDATE review_action SET definition_json=? WHERE action_id=?", (saved_definition, identity))
+    repo.conn.commit()
+    frozen_result = {"action_id": identity, "baseline": baseline, "cutoff_time": SELECTED,
+                     "review": {"summary": "合成旧冻结复评保持原文"}}
+    save_feedback(repo, identity, "partial", "合成旧反馈", frozen_result, event_id="old-feedback", recorded_at=SELECTED)
+    old_action = tuple(repo.one("SELECT * FROM review_action WHERE action_id=?", (identity,)))
+    old_feedback = tuple(repo.one("SELECT * FROM review_action_event WHERE event_id='old-feedback'"))
+    result = ask(repo, "W4")
+    review = result["action_reviews"][0]
+    assert review["status"] == "legacy_" + legacy
+    assert review["primary_observations"] == []
+    assert review["saved_feedback_result"] == frozen_result
+    assert "按已选行动冻结的主要观察" not in " ".join(result["steps"])
+    assert any("新行动定义" in step and "原" in step for step in result["steps"])
+    if legacy == "definition_missing":
+        assert review["definition"] is None and review["followup_window"] is None
+        assert any("未预先记录主要结果" in step for step in result["steps"])
+    else:
+        assert review["definition"] == definition
+        assert review["followup_window"] == definition["followup_window"]
+        assert any("观察单位" in step and "关联" in step for step in result["steps"])
+    assert tuple(repo.one("SELECT * FROM review_action WHERE action_id=?", (identity,))) == old_action
+    assert tuple(repo.one("SELECT * FROM review_action_event WHERE event_id='old-feedback'")) == old_feedback
+    repo.close()
+
+
+@pytest.mark.parametrize("training,sleep,fatigue", [
+    (True, True, None), (True, True, 0), (True, False, None), (False, True, None),
+    (True, True, "future"), (True, True, "outside_window"), (True, True, "late_visible"),
+])
+def test_w2_next_step_uses_only_visible_training_sleep_and_fatigue(tmp_path, training, sleep, fatigue):
+    repo = Repository(tmp_path / "w2-records.sqlite")
+    if training:
+        add_training(repo)
+    if sleep:
+        ended = "2026-11-21T05:00:00+08:00"
+        row = {"id": 2, "canonical_type": "sleep_stage", "record_status": "active",
+               "start_utc": "2026-11-20T22:00:00+08:00", "end_utc": ended,
+               "source_name": "合成睡眠设备", "device": "synthetic-sleep", "source_version": "1",
+               "raw_type": "HKCategoryTypeIdentifierSleepAnalysis",
+               "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified", "metadata_json": "{}"}
+        repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) "
+                          "VALUES('health_sample',2,?,?,'synthetic_acceptance')", (ended, json.dumps(row)))
+        repo.conn.commit()
+    if fatigue is not None:
+        at = {"future": "2026-11-23T20:00:00+08:00", "outside_window": "2026-10-31T20:00:00+08:00"}.get(
+            fatigue, "2026-11-20T20:00:00+08:00")
+        add_record(repo, "subjective_log", 1, at, fatigue=0 if fatigue == 0 else 7)
+        if fatigue == "late_visible":
+            repo.conn.execute("UPDATE source_revision SET available_at='2026-11-23T20:00:00+08:00' "
+                              "WHERE table_name='subjective_log'")
+            repo.conn.commit()
+    source_before = [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")]
+    result = ask(repo, "W2")
+    assert result["topic_status"]["has_training"] is training
+    assert ("sleep_stage" in result["topic_status"]["primary_metrics"]) is sleep
+    subjective = [row for row in result["rows"] if row["type"] == "subjective"]
+    assert [row["fatigue"] for row in subjective] == ([0] if fatigue == 0 else [])
+    steps = " ".join(result["steps"])
+    claims_recorded_fatigue = any(text in steps for text in ("已填写的疲劳", "已经填写的疲劳"))
+    assert claims_recorded_fatigue is (fatigue == 0)
+    if training:
+        assert "训练历史" in steps and "实际负荷" in steps
+    else:
+        assert "记录实际训练场次" in steps and "下次相同动作" not in steps
+    if sleep:
+        assert "已记录" in steps and "睡眠" in steps
+        sleep_row = next(row for row in result["rows"] if row.get("metric") == "sleep_stage")
+        assert sleep_row["value"] == 420
+    else:
+        assert "已记录睡眠" not in steps and "记录实际睡眠" in steps
+    assert [tuple(row) for row in repo.rows("SELECT * FROM source_revision ORDER BY revision_id")] == source_before
+    repo.close()
+
+
+def test_w2_note_only_does_not_call_the_note_a_fatigue_record(tmp_path):
+    repo = Repository(tmp_path / "w2-note.sqlite")
+    add_record(repo, "subjective_log", 1, "2026-11-20T20:00:00+08:00", notes="合成本人备注")
+    result = ask(repo, "W2")
+    assert result["topic_status"]["state"] == "context_only"
+    assert "合成本人备注" in result["observation"]
+    assert "疲劳" not in " ".join(result["steps"])
+    assert "主观状态" in " ".join(result["steps"])
     repo.close()
 
 

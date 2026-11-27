@@ -1,0 +1,105 @@
+{
+  "strategy": "complete isolated snapshot regression plus affected final path verification; overlapping totals are not added",
+  "full_result": "completion-full/results.json",
+  "full_counts": {
+    "passed": 2441,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "full_status_note": "needs_review retained for a changed browser benchmark driver; product and tests were stable during full snapshot",
+  "changes_after_full": {
+    "src/healthzip/analytics/body_questions.py": {
+      "full_snapshot": "5ce37b6f0a2fb2d8db67c380ff24e2480b52e9970904f64b33acc18d600b68ce",
+      "final": "6bbb2236d26692f6afa0673c16c4d001b7f9ad9d658cefbfa8e02aaacfbb0645"
+    },
+    "src/healthzip/ui/review_page.py": {
+      "full_snapshot": "c3d652a85d60727f623def2d82fe5c75af7fe37dd0f9d856d4a53e0abc91660e",
+      "final": "069777b9b31d9ead551e106fe5f9ef25040b4020de8a16cc38029e005b69952a"
+    },
+    "src/healthzip/workflows/period_report.py": {
+      "full_snapshot": "f3360129cabd588070fe88676fba4681f868588b4e6e4e0f9796173323857a68",
+      "final": "3d7111ab95f42a7a8a15df9ee8a670bb877118c112b52a876a2fc2a39ac0353c"
+    },
+    "tests/integration/test_followup_report_reading.py": {
+      "full_snapshot": "8b0f814f302c27e938ba4374e805154ce81251295b443f46efd0b62783881d48",
+      "final": "4926dfa586bbed7ebf211034370fb04d12e547e6495db6742ca64f2f5f6c501b"
+    },
+    "tests/integration/test_followup_topic_applicability.py": {
+      "full_snapshot": "b3f693cd472d2f193fdbbd6439845744460be0903f9e08b9aa47c560537df6d4",
+      "final": "7f3f61679ed8db762df0cab243942377ecfe1ad1c7a47aab3c62e9e267d71f4e"
+    },
+    "tests/science/test_question_context.py": {
+      "full_snapshot": "565797e878ba0ee3c90bab7de4e8d7ef22be47819f6b6412d238d7f5ff236a44",
+      "final": "303ab7fef2395b57a2ead4d541e9653d0d8ca605f9cdc5cb64ff7d562d6b68c9"
+    }
+  },
+  "affected_retests": [
+    {
+      "artifact": "artifacts/followup_20261127/validation/w4-next-steps-final/final.xml",
+      "tests": 67,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bceff83a074a75a05728b319fe99c6abd647b1f1dacb8280a1a532c1db3ed451"
+    },
+    {
+      "artifact": "artifacts/followup_20261127/workflow-compute/report-presentation-version-final.xml",
+      "tests": 43,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "88337d457c65d802e6298c757d6684c4ba175c2808901d1f9e3000e2c2c8d276"
+    },
+    {
+      "artifact": "artifacts/followup_20261127/validation/w2-next-steps-final/final.xml",
+      "tests": 77,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "4f60b1426f005a9df7663c311d5a1c653a7f19713000720c7de98f97b06cc911"
+    },
+    {
+      "artifact": "artifacts/followup_20261127/validation/w2-next-steps-final/cache-final.xml",
+      "tests": 2,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ea7b6b5f73c771f8cec934f999fcf573d1b288ea6f1972e605d8035cb65afb57"
+    }
+  ],
+  "final_source": "completion-source-r3.json",
+  "product_matches_frozen": true,
+  "not_claimed": "No second full suite run on every final byte; full isolated regression plus affected retests. Backend r2 predates W2/cache guidance fix, and final browser evidence is separate.",
+  "changes_since_r2": {
+    "src/healthzip/analytics/body_questions.py": {
+      "r2": "a64bc505f826d1ca93da69a6aba541cf37718385a8500f2c32e1041abe6f9436",
+      "r3": "6bbb2236d26692f6afa0673c16c4d001b7f9ad9d658cefbfa8e02aaacfbb0645"
+    },
+    "src/healthzip/workflows/period_report.py": {
+      "r2": "e39748fe69fc35a7c247ca974c0ca4440f98979c2825fc34e0c0627929fa07c9",
+      "r3": "3d7111ab95f42a7a8a15df9ee8a670bb877118c112b52a876a2fc2a39ac0353c"
+    },
+    "tests/integration/test_followup_report_reading.py": {
+      "r2": "f9b88dd955e5d224a1613e280cdcf1bfb450a7dc25d6095aa7fe73f522b985ef",
+      "r3": "4926dfa586bbed7ebf211034370fb04d12e547e6495db6742ca64f2f5f6c501b"
+    },
+    "tests/science/test_question_context.py": {
+      "r2": "0c89cfcb8d2341beaf23e6bfd35a95b224ad41858ef2ac6e0fa24206a2bc53ee",
+      "r3": "303ab7fef2395b57a2ead4d541e9653d0d8ca605f9cdc5cb64ff7d562d6b68c9"
+    },
+    "tools/followup_report_browser_benchmark.py": {
+      "r2": "abc862cd5c9832dd4267a4f077f4d64c32f444a53eba6dd03fb7fc442963011e",
+      "r3": "fd06eca7b8e9209a676564ac952d4858a3c0ac847e2c447679e7ba26bbe4c48f"
+    }
+  },
+  "generated_metadata_excluded_from_r3": [
+    "src/health_zip_workbench.egg-info/PKG-INFO",
+    "src/health_zip_workbench.egg-info/SOURCES.txt",
+    "src/health_zip_workbench.egg-info/dependency_links.txt",
+    "src/health_zip_workbench.egg-info/entry_points.txt",
+    "src/health_zip_workbench.egg-info/requires.txt",
+    "src/health_zip_workbench.egg-info/top_level.txt"
+  ],
+  "latest_scope": "R3 W2 visible-record guidance, question/report guidance cache invalidation, unchanged old frozen reports; 77 tests overlap the earlier 67, and the two final import-format cases are also a subset."
+}

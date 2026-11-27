@@ -1,0 +1,21 @@
+I001 [*] Import block is un-sorted or un-formatted
+   --> src/healthzip/workflows/period_report.py:109:5
+    |
+107 |     fields = {field: analysis.get(field) for field in ("cutoff_time", "timezone", "selection_context", "source_filter",
+108 |               "retrospective", "algorithm_version")}
+109 |     from healthzip.analytics.body_questions import GUIDANCE_VERSION, VERSION as QUESTION_VERSION
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+110 |     key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
+111 |            "knowledge": knowledge_before, "cycle_enabled": cycle_enabled,
+    |
+help: Organize imports
+    |
+108 |               "retrospective", "algorithm_version")}
+    -     from healthzip.analytics.body_questions import GUIDANCE_VERSION, VERSION as QUESTION_VERSION
+109 +     from healthzip.analytics.body_questions import GUIDANCE_VERSION
+110 +     from healthzip.analytics.body_questions import VERSION as QUESTION_VERSION
+111 |     key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
+    |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.

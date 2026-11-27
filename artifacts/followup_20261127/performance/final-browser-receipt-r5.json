@@ -1,0 +1,698 @@
+{
+  "scope": "browser delivery receipt; passing validation, failed budgets and missing report paths distinguished",
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "equivalent_utc_cutoff": "2026-11-21T16:00:00+00:00",
+  "fixtures": {
+    "personal": "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+    "100k": "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+    "1m": "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3"
+  },
+  "preservation": "read-only original SQLite backup to isolated synthetic folders; originals/failed attempts retained",
+  "product_source": "../validation/completion-source-r3.json",
+  "product_sha256": "dac0824f11c63c9dffa01806ead55c70b92d092ce22b86e8c589bf100436c529",
+  "personal_page_scope": "r2 source; later body_questions/period_report edits do not affect these page branches; not byte-exact r3",
+  "final_driver_snapshot": "/tmp/healthzip-followup-final-browser-source-r3-driver4",
+  "environment": "final-runtime-environment.json",
+  "separate_filesystems": "browser /home scratch, backend /tmp scratch; no direct timing ratio",
+  "ordinary_device_tested": false,
+  "physical_safari_tested": false,
+  "external_model": "not configured/no call",
+  "pages": {
+    "scope": "all three scales detail/preview final accepted paths; personal r2 unaffected branch, pressure r3; original failures retained",
+    "cold_samples_each": 1,
+    "warm_samples_each": 30,
+    "physical_device": "shared host Chromium, no ordinary device/Safari",
+    "rows": [
+      {
+        "tier": "personal",
+        "mode": "detail",
+        "evidence": "final-browser-detail-personal-r1/summary.json",
+        "source_snapshot": "r2",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "facts_and_trend_ms",
+          "running_week_le_3s": false,
+          "running_month_le_3s": false,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1308216.0,
+        "tree_wall_seconds": 53.858117289841175,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 3779.813028872013,
+              "facts_and_trend_ms": 3854.3345034122467,
+              "interactive_ms": 3861.8381544947624
+            },
+            "server_page_ms": 1382.132,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 3043.599998474121,
+              "facts_and_trend_ms": 3068,
+              "interactive_ms": 3121.699996948242
+            },
+            "server_page_ms": 1249.468,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 3175.300003051758,
+              "facts_and_trend_ms": 3201.400001525879,
+              "interactive_ms": 3257.7000045776367
+            },
+            "server_page_ms": 1313.82,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 597.5999984741211,
+                "p95": 638.5
+              },
+              "facts_and_trend_ms": {
+                "p50": 601.1999969482422,
+                "p95": 644
+              },
+              "interactive_ms": {
+                "p50": 605.6999969482422,
+                "p95": 649.7999954223633
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tier": "personal",
+        "mode": "preview",
+        "evidence": "final-browser-preview-personal-r1/summary.json",
+        "source_snapshot": "r2",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "first_fact_ms",
+          "running_week_le_3s": true,
+          "running_month_le_3s": true,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1055956.0,
+        "tree_wall_seconds": 38.22161629796028,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 1054.067425429821,
+              "facts_and_trend_ms": 2406.0528203845024,
+              "interactive_ms": 2413.3375659585
+            },
+            "server_page_ms": 168.41,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 328.6999969482422,
+              "facts_and_trend_ms": 1730.099998474121,
+              "interactive_ms": 1737.3000030517578
+            },
+            "server_page_ms": 133.231,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 476.4000015258789,
+              "facts_and_trend_ms": 1883.8000030517578,
+              "interactive_ms": 1889.599998474121
+            },
+            "server_page_ms": 302.194,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 273.6999969482422,
+                "p95": 316.7000045776367
+              },
+              "facts_and_trend_ms": {
+                "p50": 276.7999954223633,
+                "p95": 320.4000015258789
+              },
+              "interactive_ms": {
+                "p50": 280,
+                "p95": 324
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tier": "100k",
+        "mode": "detail",
+        "evidence": "final-browser-detail-100k-r2/summary.json",
+        "source_snapshot": "r3",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "facts_and_trend_ms",
+          "running_week_le_3s": false,
+          "running_month_le_3s": false,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1339224.0,
+        "tree_wall_seconds": 63.33703502267599,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 4227.737843990326,
+              "facts_and_trend_ms": 4302.148424088955,
+              "interactive_ms": 4336.656861007214
+            },
+            "server_page_ms": 1527.689,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 3145.400001525879,
+              "facts_and_trend_ms": 3170.900001525879,
+              "interactive_ms": 3184.599998474121
+            },
+            "server_page_ms": 1289.799,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 3355.3999938964844,
+              "facts_and_trend_ms": 3380.5,
+              "interactive_ms": 3394.3999938964844
+            },
+            "server_page_ms": 1446.845,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 750.5,
+                "p95": 779.9000015258789
+              },
+              "facts_and_trend_ms": {
+                "p50": 754.4000015258789,
+                "p95": 783.7000045776367
+              },
+              "interactive_ms": {
+                "p50": 758.6000061035156,
+                "p95": 788.7000045776367
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tier": "100k",
+        "mode": "preview",
+        "evidence": "final-browser-preview-100k-r2/summary.json",
+        "source_snapshot": "r3",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "first_fact_ms",
+          "running_week_le_3s": false,
+          "running_month_le_3s": false,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1784220.0,
+        "tree_wall_seconds": 65.22308656573296,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 5295.471489429474,
+              "facts_and_trend_ms": 6611.027546226978,
+              "interactive_ms": 6616.104356944561
+            },
+            "server_page_ms": 4518.536,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 4516.900001525879,
+              "facts_and_trend_ms": 5890.300003051758,
+              "interactive_ms": 5896.599998474121
+            },
+            "server_page_ms": 4384.789,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 4928.699996948242,
+              "facts_and_trend_ms": 6321,
+              "interactive_ms": 6327.599998474121
+            },
+            "server_page_ms": 4759.337,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 261,
+                "p95": 283.6000061035156
+              },
+              "facts_and_trend_ms": {
+                "p50": 263.9000015258789,
+                "p95": 287.4000015258789
+              },
+              "interactive_ms": {
+                "p50": 267,
+                "p95": 290.7000045776367
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tier": "1m",
+        "mode": "detail",
+        "evidence": "final-browser-detail-1m-r2/summary.json",
+        "source_snapshot": "r3",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "facts_and_trend_ms",
+          "running_week_le_3s": false,
+          "running_month_le_3s": false,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1473396.0,
+        "tree_wall_seconds": 84.85659183561802,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 4431.440383195877,
+              "facts_and_trend_ms": 4536.812737584114,
+              "interactive_ms": 4557.554170489311
+            },
+            "server_page_ms": 2100.253,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 3767,
+              "facts_and_trend_ms": 3771.900001525879,
+              "interactive_ms": 3779.400001525879
+            },
+            "server_page_ms": 1942.774,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 5226.699996948242,
+              "facts_and_trend_ms": 5253.799995422363,
+              "interactive_ms": 5271.400001525879
+            },
+            "server_page_ms": 3438.084,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 822.5999984741211,
+                "p95": 891.1000061035156
+              },
+              "facts_and_trend_ms": {
+                "p50": 826,
+                "p95": 907.6000061035156
+              },
+              "interactive_ms": {
+                "p50": 830.5,
+                "p95": 919.2999954223633
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tier": "1m",
+        "mode": "preview",
+        "evidence": "final-browser-preview-1m-r2/summary.json",
+        "source_snapshot": "r3",
+        "complete": true,
+        "source_changed": false,
+        "budgets": {
+          "cold_completion_boundary": "first_fact_ms",
+          "running_week_le_3s": false,
+          "running_month_le_3s": false,
+          "warm_30_fact_trend_p95_le_1s": true
+        },
+        "peak_tree_rss_kib": 1801376.0,
+        "tree_wall_seconds": 87.33142597228289,
+        "phases": [
+          {
+            "mode": "new-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 6078.605890274048,
+              "facts_and_trend_ms": 7500.479906797409,
+              "interactive_ms": 7505.335599184036
+            },
+            "server_page_ms": 5222.681,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "week",
+            "cold_ms": {
+              "first_fact_ms": 5119.600006103516,
+              "facts_and_trend_ms": 6522.100006103516,
+              "interactive_ms": 6551.100006103516
+            },
+            "server_page_ms": 4942.837,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true
+          },
+          {
+            "mode": "running-process",
+            "period": "month",
+            "cold_ms": {
+              "first_fact_ms": 5837.599998474121,
+              "facts_and_trend_ms": 7251.300003051758,
+              "interactive_ms": 7257.800003051758
+            },
+            "server_page_ms": 5683.814,
+            "full_reports_generated": 0,
+            "actual_facts_and_trends_verified": true,
+            "warm": {
+              "n": 30,
+              "first_fact_ms": {
+                "p50": 398.9000015258789,
+                "p95": 418.5
+              },
+              "facts_and_trend_ms": {
+                "p50": 401.9000015258789,
+                "p95": 422.1999969482422
+              },
+              "interactive_ms": {
+                "p50": 404.8000030517578,
+                "p95": 425.9000015258789
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "reports": [
+    {
+      "tier": "personal",
+      "generation": {
+        "evidence": "final-browser-report-personal-r2/generation.json",
+        "complete": true,
+        "failure": null,
+        "completed_samples": 31,
+        "cold_samples": 1,
+        "hot_samples": 30,
+        "distinct_report_ids": 31,
+        "distinct_render_ids": 31,
+        "service_clock": "2026-11-22T00:00:00+08:00",
+        "layout_dom_pass": true,
+        "reading_captures_dom_pass": true,
+        "last_report_download_exact": true,
+        "download_scope": "only last report in each completed phase; not each of31",
+        "budgets": {
+          "cold_interactive_within_budget": true,
+          "warm_30_p95_within_budget": true,
+          "cold_limit_ms": 15000,
+          "warm_limit_ms": 3000
+        },
+        "cold_ms": {
+          "first_fact_ms": 13369.800003051758,
+          "facts_and_trend_ms": 14261.200004577637,
+          "interactive_ms": 14516.400001525879
+        },
+        "last_report_id": "ac1271de6d36fbfc5f24ef547e7ac55c1318aba8d671fd8ad8b297e4b1e0389e",
+        "last_markdown_sha256": "f9fb66bf0a22cf09dd48d62fd4284ff902e680c3ddd70d5b399f07354b232d7f",
+        "hot": {
+          "n": 30,
+          "first_fact_ms": {
+            "p50": 1525.5,
+            "p95": 1578.1000061035156
+          },
+          "facts_and_trend_ms": {
+            "p50": 1529,
+            "p95": 1581.5
+          },
+          "interactive_ms": {
+            "p50": 1534.6999969482422,
+            "p95": 1591.900001525879
+          }
+        },
+        "resource_whole_original_runner": {
+          "started_at": "2026-11-27T04:13:39.821642+00:00",
+          "exit_code": 1,
+          "wall_seconds": 112.84669481217861,
+          "peak_tree_rss_kib": 1237204.0,
+          "maximum_live_cpu_seconds": 86.39
+        },
+        "original_runner_overall_complete": false,
+        "original_runner_limitation": "generation phase31 complete, later reopen driver failure retained",
+        "original_path_started_utc": "2026-11-27T04:13:39.744153+00:00",
+        "original_path_finished_utc": "2026-11-27T04:15:32.707584+00:00",
+        "original_path_exit_code": 1
+      },
+      "reopen": {
+        "evidence": "final-browser-history-personal-r1/reopen.json",
+        "complete": true,
+        "failure": null,
+        "completed_samples": 31,
+        "cold_samples": 1,
+        "hot_samples": 30,
+        "distinct_report_ids": 2,
+        "distinct_render_ids": 31,
+        "service_clock": "2026-11-22T00:00:00+08:00",
+        "layout_dom_pass": true,
+        "reading_captures_dom_pass": true,
+        "last_report_download_exact": true,
+        "download_scope": "only last report in each completed phase; not each of31",
+        "budgets": {
+          "cold_interactive_within_budget": true,
+          "warm_30_p95_within_budget": true,
+          "cold_limit_ms": 3000,
+          "warm_limit_ms": 1000
+        },
+        "cold_ms": {
+          "first_fact_ms": 280.8000030517578,
+          "facts_and_trend_ms": 1266.6999969482422,
+          "interactive_ms": 1477.3000030517578
+        },
+        "last_report_id": "ac1271de6d36fbfc5f24ef547e7ac55c1318aba8d671fd8ad8b297e4b1e0389e",
+        "last_markdown_sha256": "f9fb66bf0a22cf09dd48d62fd4284ff902e680c3ddd70d5b399f07354b232d7f",
+        "hot": {
+          "n": 30,
+          "first_fact_ms": {
+            "p50": 465.3000030517578,
+            "p95": 586.8999938964844
+          },
+          "facts_and_trend_ms": {
+            "p50": 468.4000015258789,
+            "p95": 601.1999969482422
+          },
+          "interactive_ms": {
+            "p50": 480.5,
+            "p95": 607.1999969482422
+          }
+        },
+        "history_selection": {
+          "requested_ids_match_all_completed": true,
+          "preparation_cold_ms": 376.54146552085876,
+          "preparation_hot_n": 30,
+          "preparation_hot_p50_ms": 2549.6615692973137,
+          "preparation_hot_p95_ms": 2646.4975103735924,
+          "attempt_counts": {
+            "1": 1,
+            "2": 30
+          },
+          "failed_attempts_preserved": 30,
+          "selection_preparation_excluded_from_open_clock": true,
+          "no_end_to_end_subsecond_claim": true
+        },
+        "resources": {
+          "started_at": "2026-11-27T04:32:19.584260+00:00",
+          "exit_code": 0,
+          "wall_seconds": 137.074761942029,
+          "peak_tree_rss_kib": 1275044.0,
+          "maximum_live_cpu_seconds": 135.03
+        },
+        "context": "final-browser-history-personal-r1/context.json",
+        "original_path_started_utc": "2026-11-27T04:32:19.515015+00:00",
+        "original_path_finished_utc": "2026-11-27T04:34:36.704096+00:00",
+        "original_path_exit_code": 0
+      }
+    },
+    {
+      "tier": "100k",
+      "generation": {
+        "evidence": "final-browser-generation-100k-r2/generation.json",
+        "complete": false,
+        "failure": "Page.wait_for_function: Timeout 600000ms exceeded.",
+        "completed_samples": 0,
+        "cold_samples": 0,
+        "hot_samples": 0,
+        "distinct_report_ids": 0,
+        "distinct_render_ids": 0,
+        "service_clock": "2026-11-22T00:00:00+08:00",
+        "layout_dom_pass": null,
+        "reading_captures_dom_pass": null,
+        "last_report_download_exact": false,
+        "download_scope": "only last report in each completed phase; not each of31",
+        "budgets": null,
+        "launch": "final-browser-generation-100k-r2-launch.json",
+        "started_utc": "2026-11-27T04:47:52.902471+00:00",
+        "finished_utc": "2026-11-27T04:58:12.871118+00:00",
+        "resources": {
+          "started_at": "2026-11-27T04:47:52.972460+00:00",
+          "exit_code": 1,
+          "wall_seconds": 620.0161430463195,
+          "peak_tree_rss_kib": 2265832.0,
+          "maximum_live_cpu_seconds": 665.0799999999999
+        },
+        "status": "failed_or_incomplete",
+        "source_changed": false,
+        "measured_source_changed": false,
+        "authority_unchanged": true,
+        "reports_before": 0,
+        "reports_after": 0,
+        "wait_limit_ms": 600000,
+        "fixed_fixture_counts": {
+          "health_sample_count": 100001,
+          "training_set_count": 10000,
+          "full_report_count_before": 0
+        },
+        "frozen_report_cutoff_available": false
+      },
+      "reopen": {
+        "status": "not_run_generation_incomplete",
+        "completed_samples": 0,
+        "cold_samples": 0,
+        "hot_samples": 0,
+        "complete": false
+      }
+    },
+    {
+      "tier": "1m",
+      "generation": {
+        "evidence": "final-browser-generation-1m-r1/generation.json",
+        "complete": false,
+        "failure": "Page.wait_for_function: Timeout 600000ms exceeded.",
+        "completed_samples": 0,
+        "cold_samples": 0,
+        "hot_samples": 0,
+        "distinct_report_ids": 0,
+        "distinct_render_ids": 0,
+        "service_clock": "2026-11-22T00:00:00+08:00",
+        "layout_dom_pass": null,
+        "reading_captures_dom_pass": null,
+        "last_report_download_exact": false,
+        "download_scope": "only last report in each completed phase; not each of31",
+        "budgets": null,
+        "launch": "final-browser-generation-1m-r1-launch.json",
+        "started_utc": "2026-11-27T04:58:31.621545+00:00",
+        "finished_utc": "2026-11-27T05:08:57.814901+00:00",
+        "resources": {
+          "started_at": "2026-11-27T04:58:31.689222+00:00",
+          "exit_code": 1,
+          "wall_seconds": 626.2735248357058,
+          "peak_tree_rss_kib": 2586752.0,
+          "maximum_live_cpu_seconds": 667.42
+        },
+        "status": "failed_or_incomplete",
+        "source_changed": false,
+        "measured_source_changed": false,
+        "authority_unchanged": true,
+        "reports_before": 0,
+        "reports_after": 0,
+        "wait_limit_ms": 600000,
+        "fixed_fixture_counts": {
+          "health_sample_count": 1000001,
+          "training_set_count": 10000,
+          "full_report_count_before": 0
+        },
+        "frozen_report_cutoff_available": false
+      },
+      "reopen": {
+        "status": "not_run_generation_incomplete",
+        "completed_samples": 0,
+        "cold_samples": 0,
+        "hot_samples": 0,
+        "complete": false
+      }
+    }
+  ],
+  "external_interruption": {
+    "observed_utc": "2026-11-27T04:43:30.058528+00:00",
+    "orchestrator_session": 42858,
+    "exit_code": 143,
+    "signal": "SIGTERM",
+    "sent_by_team": false,
+    "reason": "unknown external termination; whole orchestration was about10minutes, lifecycle cap suspected but unconfirmed",
+    "completed_paths": [
+      "final-browser-history-personal-r1",
+      "final-browser-detail-100k-r2",
+      "final-browser-preview-100k-r2"
+    ],
+    "interrupted_path": "final-browser-report-100k-r1",
+    "interrupted_phase": "generation",
+    "completed_generation_samples": 0,
+    "last_observed_path_elapsed_seconds": 307.1,
+    "last_observed_streamlit_cpu_percent": 100,
+    "all_measured_processes_exited": true,
+    "resource_sampler_final_file_missing": true,
+    "product_timeout": false,
+    "original_fixture_unchanged": "run only used retained synthetic SQLite backup",
+    "retained_workspace": "/home/sn_maozhifang/healthzip-followup-validation-tmp/followup-report-browser-aqonafrc"
+  },
+  "visual_review": "../validation/visual-review-r3.json",
+  "cutoff_and_download_scope_review": "../validation/report-browser-boundary-review-r5.json",
+  "remaining_visual_interaction_limit": "desktop1440 expanded menu screenshot not proven; warm history selections required retries, preparation separately timed; no more optional menu app retries",
+  "all_report_paths_validated": false,
+  "all_page_paths_validated": true,
+  "all_performance_budgets_pass": false,
+  "receipt_runner_sha256": "81fa76ac8a9a68e16d3227d4d3bf3c1ff047a204b529145fbe3b3e84528e4753"
+}

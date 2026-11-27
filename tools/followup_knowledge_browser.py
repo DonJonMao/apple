@@ -108,8 +108,20 @@ def run(output, knowledge, *, report_only=False):
                         page.get_by_role("button", name="切换主题或指标", exact=True).click()
                         check.select("查看指标", "心率变异性 SDNN")
                         page.keyboard.press("Escape")
-                        sources()
+                        sources("HRV变化应与同日期的实际训练表现、疲劳和睡眠记录一起核对")
+                        protocol = page.get_by_text("核对SDNN时，先确认来源使用的信号、指标和记录时段", exact=False).first
+                        protocol.wait_for(timeout=45000)
+                        assert "不把未知年龄当成人" in check.text()
                         capture("sdnn", ("ms", "SDNN") if scenario == "data" else ("SDNN", "记录"))
+                        if scenario == "data":
+                            for label, statement in (("hrv-response", "HRV变化应与同日期的实际训练表现"),
+                                                     ("hrv-protocol", "核对SDNN时，先确认来源使用的信号")):
+                                target = page.get_by_text(statement, exact=False).first
+                                page.set_viewport_size({"width": 390, "height": 844})
+                                target.scroll_into_view_if_needed()
+                                settle(page)
+                                page.screenshot(path=str(output / (label + "-390.png")))
+                            page.set_viewport_size({"width": 1440, "height": 1000})
                         open_route("sleep")
                         page.get_by_role("button", name="切换主题或指标", exact=True).click()
                         check.select("查看指标", "睡眠事件、时长与分期")
@@ -120,6 +132,7 @@ def run(output, knowledge, *, report_only=False):
                         check.radio("问题分析")
                         select_question("W6")
                         sources("复评睡眠时长或分期变化前，核对设备版本")
+                        page.get_by_text("HRV变化应与同日期的实际训练表现、疲劳和睡眠记录一起核对", exact=False).first.wait_for(timeout=45000)
                         capture("joint", ("睡眠与 SDNN", "下一步"))
                         # A new real page request starts the default W1 view. The
                         # joint-page selection above remains a separate click test.

@@ -1,0 +1,365 @@
+{
+  "scope": "backend service calls; no browser or physical-device timing",
+  "timing": "perf_counter; no cProfile; OS cache retained",
+  "warm_samples": 30,
+  "p95_method": "nearest-rank",
+  "tiers": [
+    {
+      "tier": "personal",
+      "artifact_directory": "artifacts/followup_20261127/performance/final-backend-personal-r1",
+      "fixture": "synthetic-personal-two-years-27112026",
+      "original_database_bytes": 77053952,
+      "cold_generation_seconds": 10.36256442964077,
+      "warm_generation": {
+        "n": 30,
+        "p50_s": 0.02048712968826294,
+        "p95_s": 0.021295256912708282,
+        "method": "nearest-rank"
+      },
+      "generation_budgets": {
+        "cold_le_15s": true,
+        "warm_30_p95_le_3s": true
+      },
+      "cold_read_seconds": 0.0049168020486831665,
+      "warm_read": {
+        "n": 30,
+        "p50_s": 0.0023732706904411316,
+        "p95_s": 0.002662748098373413,
+        "method": "nearest-rank"
+      },
+      "read_budgets": {
+        "cold_le_3s": true,
+        "warm_30_p95_le_1s": true
+      },
+      "markdown_utf8_bytes": 18037,
+      "reading_payload_utf8_bytes": 311608,
+      "report_manifest_utf8_bytes": 670,
+      "unique_frozen_content_bytes": {
+        "content": 864559,
+        "workflow": 1339264,
+        "analysis": 2310375,
+        "total": 4514198
+      },
+      "audit_export_seconds": 0.21364252269268036,
+      "audit_export_bytes": 4538045,
+      "offline_reconstruction_seconds": 0.1073818951845169,
+      "offline_reconstruction_exact": true,
+      "integrity": {
+        "global_metrics": 77,
+        "task_count": 8,
+        "all_period_source_groups_preserved": 16,
+        "unknown_condition_records_kept_separate": 0,
+        "source_group_ids_sha256": "99387949324db8f927ebf9441a057e9da99deb0fc8c860ec6bddbe8e8838ae91",
+        "all_raw_tables_after": {
+          "health_sample": {
+            "rows": 11680,
+            "sha256": "94b0b422d006fb32d768679d75e054f08bfc909f5aa8442a6f808793d752fd34"
+          },
+          "source_revision": {
+            "rows": 11680,
+            "sha256": "5ff5b3ddec948029f9001b7a41633c6c9eb24900a1d3066b0733ddfbbc7200e5"
+          },
+          "strength_session": {
+            "rows": 209,
+            "sha256": "e5ae62cb10ddcfb4db05a14118b7cc050fcf296bfb27e64e28f55be60d3cab70"
+          },
+          "strength_set": {
+            "rows": 1672,
+            "sha256": "4dc2aa3136b9fc929497384873915ead1cf6245f96724291f910c49c1dda50dd"
+          },
+          "training_event": {
+            "rows": 2509,
+            "sha256": "983d9e9a8fd5d61d10da07765886dfc1e8a336f214a2903748bf2df05f668b53"
+          },
+          "training_session_exercise": {
+            "rows": 418,
+            "sha256": "794d27a0b193a2b0a8f2b9a0cb25644d93dd31851777fa9c4cdacc17c21c4c79"
+          },
+          "subjective_log": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "body_measurement": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "raw_source_tables_unchanged": true,
+      "all_31_report_ids_unique": true,
+      "ordinary_read_never_loaded_full_analysis_or_workflow": true,
+      "shared_knowledge_authority_unchanged": true,
+      "resources": [
+        {
+          "phase": "generation",
+          "exit_code": 0,
+          "wall_seconds": 25.29099226742983,
+          "peak_tree_rss_kib": 420600.0
+        },
+        {
+          "phase": "read",
+          "exit_code": 0,
+          "wall_seconds": 0.502585880458355,
+          "peak_tree_rss_kib": 39716.0
+        },
+        {
+          "phase": "audit",
+          "exit_code": 0,
+          "wall_seconds": 1.7066665962338448,
+          "peak_tree_rss_kib": 76508.0
+        }
+      ],
+      "source_manifest_sha256": "f5afbcdcdeecf4cddbc4196fc764f1916f6d5d31f0a155682f47f9621c663170",
+      "concurrent_load": "Sequential final acceptance; no other agent heavy jobs; external shared-host load uncontrolled",
+      "generation_initial_host_load": [
+        17.24169921875,
+        18.67529296875,
+        20.13671875
+      ],
+      "generation_final_host_load": [
+        18.72998046875,
+        18.96142578125,
+        20.19580078125
+      ]
+    },
+    {
+      "tier": "100k",
+      "artifact_directory": "artifacts/followup_20261127/performance/final-backend-100k-r1",
+      "fixture": "synthetic-100000",
+      "original_database_bytes": 381632512,
+      "cold_generation_seconds": 115.89556900411844,
+      "warm_generation": {
+        "n": 30,
+        "p50_s": 0.019372127950191498,
+        "p95_s": 0.020542800426483154,
+        "method": "nearest-rank"
+      },
+      "generation_budgets": {
+        "cold_le_15s": false,
+        "warm_30_p95_le_3s": true
+      },
+      "cold_read_seconds": 0.005716316401958466,
+      "warm_read": {
+        "n": 30,
+        "p50_s": 0.0025466158986091614,
+        "p95_s": 0.003018312156200409,
+        "method": "nearest-rank"
+      },
+      "read_budgets": {
+        "cold_le_3s": true,
+        "warm_30_p95_le_1s": true
+      },
+      "markdown_utf8_bytes": 24140,
+      "reading_payload_utf8_bytes": 371476,
+      "report_manifest_utf8_bytes": 670,
+      "unique_frozen_content_bytes": {
+        "content": 84335267,
+        "workflow": 121225327,
+        "analysis": 107104951,
+        "total": 312665545
+      },
+      "audit_export_seconds": 15.731478787958622,
+      "audit_export_bytes": 313396455,
+      "offline_reconstruction_seconds": 9.727494865655899,
+      "offline_reconstruction_exact": true,
+      "integrity": {
+        "global_metrics": 77,
+        "task_count": 10000,
+        "all_period_source_groups_preserved": 10000,
+        "unknown_condition_records_kept_separate": 10000,
+        "source_group_ids_sha256": "b41afa1a2e6ed7c18ac81e997aeb2fd01e46997c09908b55e786af17bbe88956",
+        "all_raw_tables_after": {
+          "health_sample": {
+            "rows": 100001,
+            "sha256": "93a1014acf734ba627334897867e5a89c312f0b0f749cf129d7e5d207d6be095"
+          },
+          "source_revision": {
+            "rows": 100001,
+            "sha256": "67d3ae15eb82a0d95805d419f4fc8c6e0adb9ab44d0351345123915976d3c72e"
+          },
+          "strength_session": {
+            "rows": 100,
+            "sha256": "e17e150a3ee9bb5d78b29e942c685a5e1469475531a7fdfd9b3cc6857c649ef6"
+          },
+          "strength_set": {
+            "rows": 10000,
+            "sha256": "71be01ed0a781d7ba5b39c772ec925e9fb294736490f5a05d887a6f0a4b52f80"
+          },
+          "training_event": {
+            "rows": 10300,
+            "sha256": "de3a27351381a63f1ab438272044de8e280d2dae4fa3724672fe93d11f1e97ed"
+          },
+          "training_session_exercise": {
+            "rows": 100,
+            "sha256": "d4320c90ff207711d692a5adbb4facad7fdcf4a94ae9e64ce4834b6c63d8f8a2"
+          },
+          "subjective_log": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "body_measurement": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "raw_source_tables_unchanged": true,
+      "all_31_report_ids_unique": true,
+      "ordinary_read_never_loaded_full_analysis_or_workflow": true,
+      "shared_knowledge_authority_unchanged": true,
+      "resources": [
+        {
+          "phase": "generation",
+          "exit_code": 0,
+          "wall_seconds": 123.30370645225048,
+          "peak_tree_rss_kib": 2015984.0
+        },
+        {
+          "phase": "read",
+          "exit_code": 0,
+          "wall_seconds": 0.5026893690228462,
+          "peak_tree_rss_kib": 40188.0
+        },
+        {
+          "phase": "audit",
+          "exit_code": 0,
+          "wall_seconds": 41.84752245247364,
+          "peak_tree_rss_kib": 2010464.0
+        }
+      ],
+      "source_manifest_sha256": "f5afbcdcdeecf4cddbc4196fc764f1916f6d5d31f0a155682f47f9621c663170",
+      "concurrent_load": "Sequential final acceptance; no other agent heavy jobs; external shared-host load uncontrolled",
+      "generation_initial_host_load": [
+        17.916015625,
+        18.78076171875,
+        20.12353515625
+      ],
+      "generation_final_host_load": [
+        17.67919921875,
+        18.2255859375,
+        19.73876953125
+      ]
+    },
+    {
+      "tier": "1m",
+      "artifact_directory": "artifacts/followup_20261127/performance/final-backend-1m-r1",
+      "fixture": "synthetic-1000000",
+      "original_database_bytes": 1889054720,
+      "cold_generation_seconds": 169.03713066875935,
+      "warm_generation": {
+        "n": 30,
+        "p50_s": 0.020421884953975677,
+        "p95_s": 0.022979959845542908,
+        "method": "nearest-rank"
+      },
+      "generation_budgets": {
+        "cold_le_15s": false,
+        "warm_30_p95_le_3s": true
+      },
+      "cold_read_seconds": 0.006777629256248474,
+      "warm_read": {
+        "n": 30,
+        "p50_s": 0.0031695961952209473,
+        "p95_s": 0.003736928105354309,
+        "method": "nearest-rank"
+      },
+      "read_budgets": {
+        "cold_le_3s": true,
+        "warm_30_p95_le_1s": true
+      },
+      "markdown_utf8_bytes": 25084,
+      "reading_payload_utf8_bytes": 467805,
+      "report_manifest_utf8_bytes": 670,
+      "unique_frozen_content_bytes": {
+        "content": 86465005,
+        "workflow": 121823988,
+        "analysis": 135130535,
+        "total": 343419528
+      },
+      "audit_export_seconds": 16.80589221417904,
+      "audit_export_bytes": 344151390,
+      "offline_reconstruction_seconds": 11.585946328938007,
+      "offline_reconstruction_exact": true,
+      "integrity": {
+        "global_metrics": 77,
+        "task_count": 10000,
+        "all_period_source_groups_preserved": 10000,
+        "unknown_condition_records_kept_separate": 10000,
+        "source_group_ids_sha256": "4d87e3ac66a830e41d3bf0e98b5ad9dfdcea783409c3a258ad872c811e945d88",
+        "all_raw_tables_after": {
+          "health_sample": {
+            "rows": 1000001,
+            "sha256": "82a15f05f13101ef15cf93f68a009a9d412f5e008f07323310b9563fa3c4e1c6"
+          },
+          "source_revision": {
+            "rows": 1000001,
+            "sha256": "59f35f77e9a7b23f476c116481a32700f58616a52266172932cd6389b75dd603"
+          },
+          "strength_session": {
+            "rows": 100,
+            "sha256": "671368564dddcbb4c4c0e13997fb6d53c014094c22f54b41c8f7500280b3afce"
+          },
+          "strength_set": {
+            "rows": 10000,
+            "sha256": "3c657e9a6ac18a3ba1d34eb4cd33d7f82a2e6c93b40c30249ca29f67dbc3d3e5"
+          },
+          "training_event": {
+            "rows": 10300,
+            "sha256": "22d779195b1d5c47da70bdffbaa2db98f71f154439ddfbf84ac704852c445ba0"
+          },
+          "training_session_exercise": {
+            "rows": 100,
+            "sha256": "88e59bf017f7bb89df9f629e5937921c112dfb23bf711654aed5b623266301b4"
+          },
+          "subjective_log": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "body_measurement": {
+            "rows": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      },
+      "raw_source_tables_unchanged": true,
+      "all_31_report_ids_unique": true,
+      "ordinary_read_never_loaded_full_analysis_or_workflow": true,
+      "shared_knowledge_authority_unchanged": true,
+      "resources": [
+        {
+          "phase": "generation",
+          "exit_code": 0,
+          "wall_seconds": 184.98845626413822,
+          "peak_tree_rss_kib": 2478908.0
+        },
+        {
+          "phase": "read",
+          "exit_code": 0,
+          "wall_seconds": 0.5027039051055908,
+          "peak_tree_rss_kib": 42476.0
+        },
+        {
+          "phase": "audit",
+          "exit_code": 0,
+          "wall_seconds": 75.46916139125824,
+          "peak_tree_rss_kib": 2302656.0
+        }
+      ],
+      "source_manifest_sha256": "f5afbcdcdeecf4cddbc4196fc764f1916f6d5d31f0a155682f47f9621c663170",
+      "concurrent_load": "Sequential final acceptance; no other agent heavy jobs; external shared-host load uncontrolled",
+      "generation_initial_host_load": [
+        18.18896484375,
+        18.29443359375,
+        19.62353515625
+      ],
+      "generation_final_host_load": [
+        18.21337890625,
+        18.31689453125,
+        19.3828125
+      ]
+    }
+  ],
+  "source_identical_across_all_tiers": true,
+  "all_generation_budgets_met": false,
+  "all_read_budgets_met": true
+}

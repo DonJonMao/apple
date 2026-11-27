@@ -179,9 +179,11 @@ def report_metric(metric_id: str, rows: list[dict], window: Window, context: dic
                      "extrapolated_period_total": None}, "incompatible" if len(summaries) > 1 else None,
                     evidence_status="descriptive")
     if metric_id == "REPORT-RECOMMENDATION-FOLLOWUP":
-        execution = strength_metric("STR-27", rows, window, context)
+        from .strength import prepare_strength
+        prepared = prepare_strength(rows, context)
+        execution = strength_metric("STR-27", rows, window, context, _prepared=prepared)
         return emit({"execution": execution,
-                     "summary": strength_metric("STR-28", rows, window, context),
+                     "summary": strength_metric("STR-28", rows, window, context, _prepared=prepared),
                      "followup_windows": [item["followup"] for item in execution["value"] or [] if item.get("followup")],
                      "causal_effect": None}, evidence_status="descriptive")
     raise ValueError("unknown_report_metric")

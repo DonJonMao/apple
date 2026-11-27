@@ -1,4 +1,5 @@
 """Deterministic local workflow runs over repository-owned analysis snapshots."""
+import hashlib
 import json
 import sqlite3
 from dataclasses import replace
@@ -10,7 +11,7 @@ from healthzip.science.contracts import canonical_hash, instant, task_metric_res
 from healthzip.training.service import TrainingService
 
 from . import evidence
-from .contracts import FUNCTION_NAMES, VERSION, WORKFLOWS, WorkflowRequest, scientific_identity
+from .contracts import FUNCTION_NAMES, VERSION, WORKFLOWS, WorkflowRequest, workflow_input_hash
 from .dependencies import input_version
 from .dependencies import inputs as dependency_inputs
 from .facts import (
@@ -356,12 +357,13 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
     stable_knowledge = evidence.identity(knowledge)
     dependencies = dependency_inputs(repo, declared_request, analysis, selected_task=selected_task,
         visible_at=datetime.now(timezone.utc).isoformat() if request.mode == "retrospective" else None)
-    input_hash = canonical_hash({"request": declared_request, "version": VERSION,
-        "snapshot": scientific_identity(snapshot), "knowledge": stable_knowledge, "declaration": declaration,
-        "dependencies": dependencies, "supplements": scientific_identity(supplements), "candidate_bases": linked_candidate_bases})
+    input_hash = workflow_input_hash({"request": declared_request, "version": VERSION,
+        "snapshot": snapshot, "knowledge": stable_knowledge, "declaration": declaration,
+        "dependencies": dependencies, "supplements": supplements, "candidate_bases": linked_candidate_bases})
     run_id = canonical_hash({"workflow": request.workflow_id, "scope": "local", "input_hash": input_hash})
     analysis_payload = json.dumps(snapshot, ensure_ascii=False, sort_keys=True, allow_nan=False)
-    analysis_id = canonical_hash(snapshot)
+    # Exactly canonical_hash's JSON options; reuse the bytes already frozen.
+    analysis_id = hashlib.sha256(analysis_payload.encode()).hexdigest()
     now = datetime.now(timezone.utc).isoformat()
     result = {"run_id": run_id, "parent_run_id": parent_run_id, "workflow_id": request.workflow_id,
         "workflow_version": VERSION, "title": FUNCTION_NAMES[WORKFLOWS[request.workflow_id]["task"]],

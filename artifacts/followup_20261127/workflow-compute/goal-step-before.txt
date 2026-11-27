@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_existing_body_facts_do_not_invent_a_previously_selected_goal _______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1061/test_existing_body_facts_do_no0')
+
+    def test_existing_body_facts_do_not_invent_a_previously_selected_goal(tmp_path):
+        with closing(Repository(tmp_path / 'synthetic.sqlite3')) as repo:
+            record(repo, 'body_mass_kg', 72, unit='kg')
+            record(repo, 'high_hr_event', 1, identity=2)
+            view = questions(repo)['W4']
+            assert view['topic_status']['has_primary_records']
+            assert not view['topic_status']['has_goal']
+            assert not view['action_reviews']
+>           assert '先前选择' not in ' '.join(view['steps'])
+E           AssertionError: assert '先前选择' not in '用先前选择的动作和目标...械与组位核对下一次记录。'
+E             
+E             '先前选择' is contained here:
+E               用先前选择的动作和目标尺度复评，按相同来源、器械与组位核对下一次记录。
+E             ?  ++++
+
+tests/integration/test_followup_topic_applicability.py:106: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_topic_applicability.py::test_existing_body_facts_do_not_invent_a_previously_selected_goal
+1 failed, 4 deselected in 0.59s

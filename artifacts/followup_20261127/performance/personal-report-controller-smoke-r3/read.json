@@ -1,0 +1,79 @@
+{
+  "phase": "read",
+  "synthetic_fixture": "synthetic-personal-two-years-27112026",
+  "source_manifest": "read-source.json",
+  "samples": [
+    {
+      "label": "cold",
+      "seconds": 0.0040394216775894165,
+      "process_peak_rss_kib": 37148,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "warm-01",
+      "seconds": 0.0020193085074424744,
+      "process_peak_rss_kib": 38516,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "warm-02",
+      "seconds": 0.0018500536680221558,
+      "process_peak_rss_kib": 38516,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "one-question-W6",
+      "seconds": 0.0009213760495185852,
+      "process_peak_rss_kib": 38516,
+      "question_id": "W6",
+      "fact_id": "question:de5b6e9cd48ae2d3d02536fde7b76bbe7bada0199855c5c9a3d3b42210cfa1ea",
+      "queries": [
+        "SELECT payload_json FROM report_content_object WHERE object_id='cc6ebe046ab94a392e5f187790eecc400f5f369a81df4141af6829ffae2c8b09' AND user_id='local'"
+      ]
+    }
+  ],
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "period": "week",
+  "timezone": "Asia/Shanghai",
+  "interface": "backend complete service call; browser timings are separate",
+  "initial_host_load": [
+    21.21044921875,
+    21.32568359375,
+    20.1435546875
+  ],
+  "concurrent_load": "diagnostic tool smoke only, not 30-sample acceptance; concurrent source optimization and RAG/actions work on shared host",
+  "instrumentation": "perf_counter only; no cProfile",
+  "os_cache": "retained",
+  "report_id": "464ddaffad988348f672540855ae3fdd492a34f5cdaf29fe5adbf7dcf590c5d1",
+  "cold_queries": [
+    "SELECT payload_json,markdown FROM joint_period_report WHERE report_id='464ddaffad988348f672540855ae3fdd492a34f5cdaf29fe5adbf7dcf590c5d1' AND user_id='local'",
+    "SELECT payload_json FROM report_content_object WHERE object_id='4705c2184ede8462485de7da0740a2b3d05c9e6705acceb25089fc59c2279789' AND user_id='local'"
+  ],
+  "reading_payload_utf8_bytes": 240443,
+  "warm": {
+    "n": 2,
+    "p50_s": 0.0018500536680221558,
+    "p95_s": 0.0020193085074424744,
+    "method": "nearest-rank"
+  },
+  "budgets": {
+    "cold_le_3s": true,
+    "warm_30_p95_le_1s": false
+  },
+  "complete": true,
+  "final_host_load": [
+    21.21044921875,
+    21.32568359375,
+    20.1435546875
+  ],
+  "source_changed": false
+}

@@ -6,6 +6,7 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
 try:
     import orjson
@@ -34,7 +35,7 @@ BODY = ("STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SL
         "ENERGY-RECORD-COVERAGE", "ENERGY-IDENTIFIABILITY")
 
 
-REPORT_VERSION = "joint-period-report-3.0.0"
+REPORT_VERSION = "joint-period-report-3.0.1"
 
 
 def _fast_json_compatible(value):
@@ -105,8 +106,11 @@ def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", 
     notify = progress or (lambda stage: None)
     fields = {field: analysis.get(field) for field in ("cutoff_time", "timezone", "selection_context", "source_filter",
               "retrospective", "algorithm_version")}
+    from healthzip.analytics.body_questions import GUIDANCE_VERSION
+    from healthzip.analytics.body_questions import VERSION as QUESTION_VERSION
     key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
-           "knowledge": knowledge_before, "cycle_enabled": cycle_enabled}
+           "knowledge": knowledge_before, "cycle_enabled": cycle_enabled,
+           "question_algorithm": QUESTION_VERSION, "question_guidance": GUIDANCE_VERSION}
     built = False
 
     def assemble():
@@ -138,7 +142,8 @@ def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", 
     from .report_objects import read_content, read_reading
     payload = (read_content if include_details else read_reading)(repo, manifest)
     metadata = {"created_at": datetime.now(timezone.utc).isoformat(), "content_signature": content_signature,
-                "report_id_signature_algorithm": "json-markdown-sha256-plus-created-at-1"}
+                "freeze_request_id": uuid4().hex,
+                "report_id_signature_algorithm": "json-markdown-sha256-plus-freeze-request-2"}
     metadata["report_id"] = canonical_hash({"version": REPORT_VERSION, **metadata})
     # The verified content JSON is immutable. Appending only new freeze metadata
     # preserves every content field without serializing tens of MB a second time.
@@ -483,7 +488,7 @@ def render_report(repo, report, *, runs=None):
     lines += ["", "## 下一步", ""]
     # Prioritize the selected goal/action, then real events and recent relevant
     # observations. Topic numbering is not a recommendation ranking.
-    preferred = [q for q in questions if q.get("action_reviews") or q.get("goal_context")]
+    preferred = [q for q in questions if q.get("action_reviews") or (q.get("goal_context") or {}).get("goal")]
     if goal and goal.get("goal") in {"strength", "hypertrophy"}:
         preferred += [q for q in questions if q["id"] == "W1"]
     preferred += [q for q in questions if q["id"] == "E"]

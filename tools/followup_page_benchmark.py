@@ -7,6 +7,7 @@ import json
 import math
 import os
 import platform
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -93,6 +94,8 @@ def run_process(args, folder, *, mode, period, warm_count):
     label = f"{mode}-{period}"
     phase_path = args.output / f"{label}.json"
     result = {**counts, "mode": mode, "period": period, "bootstrap": bootstrap, "warm_samples": []}
+    result["original_database_bytes"] = args.database.stat().st_size
+    result["backup_database_bytes_before"] = target.stat().st_size
     write(phase_path, result)
     page_type = args.page
     workspace, destination = ("review", "复盘") if page_type == "preview" else ("heart", "身体")
@@ -110,6 +113,17 @@ def run_process(args, folder, *, mode, period, warm_count):
         def arm():
             page.evaluate("()=>{window.__followupArmed=true;window.__followupClick=null}")
 
+        def settings_ready():
+            # Settings is outside app.py's measured analysis branch and has no
+            # render marker. Require its real control and removal of old output.
+            page.get_by_role("button", name="保存基础资料与目标", exact=True).wait_for(timeout=60000)
+            page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
+            page.locator("[data-hz-render]").wait_for(state="detached", timeout=30000)
+            assert not page.locator(".js-plotly-plot").count(), "previous chart must be removed before the next timed click"
+            page.wait_for_function("()=>!(window.__previousFactNodes??[]).some(e=>e.node.isConnected&&e.node.innerText===e.text)", timeout=30000)
+            result.setdefault("settings_transitions", []).append({"prior_fact_output_removed_or_replaced": True,
+                "remaining_settings_metrics": page.get_by_test_id("stMetric").all_text_contents()})
+
         def elapsed(started):
             value = page.evaluate("()=>window.__followupClick==null?null:performance.now()-window.__followupClick")
             return value if value is not None else (time.perf_counter() - started) * 1000
@@ -118,6 +132,7 @@ def run_process(args, folder, *, mode, period, warm_count):
             page.wait_for_function("s=>{const e=document.querySelector('[data-hz-render]');return e&&e.dataset.workspace===s.workspace&&!s.seen.includes(e.dataset.hzRender)}",
                                    arg={"workspace": workspace, "seen": list(seen)}, timeout=90000)
             page.get_by_test_id("stMetric").first.wait_for(timeout=30000)
+            page.wait_for_function("()=>[...document.querySelectorAll('[data-testid=stMetric]')].some(e=>e.querySelector('[data-testid=stMetricLabel]')?.innerText.trim()&&e.querySelector('[data-testid=stMetricValue]')?.innerText.trim())", timeout=30000)
             first = elapsed(started)
             page.wait_for_function("()=>[...document.querySelectorAll('.js-plotly-plot')].some(p=>p.data?.some(t=>t.x?.length&&t.y?.length))", timeout=30000)
             trend = elapsed(started)
@@ -140,9 +155,7 @@ def run_process(args, folder, *, mode, period, warm_count):
                 page.goto(base + "/?workspace=" + workspace)
             else:
                 page.goto(base + "/?workspace=settings")
-                page.get_by_role("button", name="保存基础资料与目标", exact=True).wait_for(timeout=60000)
-                page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
-                assert not page.get_by_test_id("stPlotlyChart").count()
+                settings_ready()
                 arm()
                 started = time.perf_counter()
                 page.get_by_role("radio", name=destination, exact=True).locator("xpath=ancestor::label[1]").click()
@@ -150,9 +163,9 @@ def run_process(args, folder, *, mode, period, warm_count):
             write(phase_path, result)
             page.screenshot(path=str(args.output / f"{label}-cold.png"))
             for _ in range(warm_count):
+                page.evaluate("()=>{window.__previousFactNodes=[...document.querySelectorAll('[data-testid=stMetric]')].map(node=>({node,text:node.innerText}))}")
                 page.get_by_role("radio", name="设置", exact=True).locator("xpath=ancestor::label[1]").click()
-                page.get_by_role("button", name="保存基础资料与目标", exact=True).wait_for(timeout=30000)
-                page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
+                settings_ready()
                 arm()
                 started = time.perf_counter()
                 page.get_by_role("radio", name=destination, exact=True).locator("xpath=ancestor::label[1]").click()
@@ -162,6 +175,7 @@ def run_process(args, folder, *, mode, period, warm_count):
             result["failure"] = str(exc)
             write(phase_path, result)
             page.screenshot(path=str(args.output / f"{label}-failure.png"), full_page=True)
+            (args.output / f"{label}-failure.html").write_text(page.content())
             raise
         finally:
             browser.close()
@@ -176,6 +190,7 @@ def run_process(args, folder, *, mode, period, warm_count):
             assert actual == reference["cards"], (actual, reference["cards"])
             assert sample["plots"][:len(reference["plots"])] == reference["plots"]
     result["rendered_facts_and_trends_verified"] = True
+    result["verified_plot_scope"] = "RHR and SDNN current/previous actual points" if page_type == "detail" else "selected-period actual strength trend"
     with closing(sqlite3.connect(target)) as connection:
         table = connection.execute("SELECT 1 FROM sqlite_master WHERE name='joint_period_report'").fetchone()
         after = connection.execute("SELECT count(*) FROM joint_period_report").fetchone()[0] if table else 0
@@ -212,14 +227,29 @@ def main():
               "cold_design": "each mode/range uses separate service process and original synthetic SQLite backup",
               "phases": []}
     write(args.output / "summary.json", report)
-    with tempfile.TemporaryDirectory(prefix="followup-pages-") as temp:
+    temp = tempfile.mkdtemp(prefix="followup-pages-")
+    report["retained_synthetic_workspace"] = temp
+    write(args.output / "summary.json", report)
+    try:
         for mode, period, count in (("new-process", "week", 0), ("running-process", "week", 0),
                                     ("running-process", "month", args.warm)):
-            phase = run_process(args, Path(temp) / f"{mode}-{period}", mode=mode, period=period, warm_count=count)
+            folder = Path(temp) / f"{mode}-{period}"
+            try:
+                phase = run_process(args, folder, mode=mode, period=period, warm_count=count)
+            finally:
+                log = folder / "synthetic-streamlit.log"
+                if log.exists():
+                    shutil.copyfile(log, args.output / f"{mode}-{period}-streamlit.txt")
             report["phases"].append(phase)
             write(args.output / "summary.json", report)
-    report["budgets"] = {"running_week_first_fact_le_3s": report["phases"][1]["cold"]["first_fact_ms"] <= 3000,
-                         "running_month_first_fact_le_3s": report["phases"][2]["cold"]["first_fact_ms"] <= 3000,
+    except Exception as exc:
+        report["failure"] = repr(exc)
+        write(args.output / "summary.json", report)
+        raise
+    cold_boundary = "facts_and_trend_ms" if args.page == "detail" else "first_fact_ms"
+    report["budgets"] = {"cold_completion_boundary": cold_boundary,
+                         "running_week_le_3s": report["phases"][1]["cold"][cold_boundary] <= 3000,
+                         "running_month_le_3s": report["phases"][2]["cold"][cold_boundary] <= 3000,
                          "warm_30_fact_trend_p95_le_1s": args.warm >= 30 and report["phases"][2]["warm"]["facts_and_trend_ms"]["p95"] <= 1000}
     report["final_host_load"] = os.getloadavg()
     report["source_changed"] = any(hashlib.sha256((ROOT / path).read_bytes()).hexdigest() != digest for path, digest in source.items())

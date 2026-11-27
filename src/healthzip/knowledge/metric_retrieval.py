@@ -445,11 +445,22 @@ def _metric_claims(w, metric_id, claims, selected, context, allowed_edges=None):
                     "required_claims": prerequisites,
                     "metric_relation": row["relation"], "reviewer_kind": candidate["review"].get("reviewer_kind"),
                     "evidence_types": payload["evidence_types"],
+                    "answer_bindings": payload.get("answer_bindings", []),
                     "scope": candidate['scope'], "limitations": list(dict.fromkeys([
                         *candidate['limitations'], *(limit for dep in prerequisites for limit in dep['limitations'])])),
                     "domains": sorted({d for sid in required_ids for d in selected[sid]["domains"]}),
                     "application_edge": payload})
-    return matches, conflicts
+    # New application reviews can add a question to one exact claim without
+    # duplicating its complete evidence group or rewriting the earlier edge.
+    merged = {}
+    for match in matches:
+        key = (match['claim_id'], match['claim_version'], match['metric_relation'])
+        previous = merged.setdefault(key, match)
+        if previous is match:
+            continue
+        for field in ('evidence_types', 'answer_bindings'):
+            previous[field] = list({dumps(value): value for value in [*previous[field], *match[field]]}.values())
+    return list(merged.values()), conflicts
 
 
 def claim_conflicts(claim, conflicts):
@@ -476,10 +487,16 @@ def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, 
     groups = [g for g in groups if set(g["direct_evidence_span_ids"]) & ranks.keys()]
     chosen, allocations, rejected = [], [], []
     required_types = set(profile["required_evidence_types"])
+    required_answers = set(profile.get('required_answer_targets', []))
     required_domains = set(profile.get("required_domains", profile["primary_domains"]))
-    types, covered_domains = set(), set()
+    types, covered_domains, covered_answers = set(), set(), set()
+    from .topics import answer_targets
+    if profile.get('bounded_missing_uses'):
+        groups = [g for g in groups if set(g['evidence_types']) & required_types
+                  or answer_targets(g.get('answer_bindings', []), context) & required_answers]
     while groups:
         groups.sort(key=lambda g: (
+            not bool(answer_targets(g.get('answer_bindings', []), context) & (required_answers - covered_answers)),
             not (set(g["evidence_types"]) & (required_types - types)
                  or set(g["domains"]) & (required_domains - covered_domains)),
             min(ranks[s] for s in g["direct_evidence_span_ids"] if s in ranks),
@@ -496,6 +513,7 @@ def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, 
         chosen.extend(missing)
         types.update(group["evidence_types"])
         covered_domains.update(group["domains"])
+        covered_answers.update(answer_targets(group.get('answer_bindings', []), context))
         allocations.append({key: group[key] for key in ("claim_id", "claim_version", "evidence_span_ids", "required_claim_refs")})
     for identity in ranking:
         if len(chosen) >= k:
@@ -529,7 +547,7 @@ def _still_current(w, candidate, context):
 
 def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                         mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all",
-                        purpose_needs=None):
+                        purpose_needs=None, answer_needs=None):
     from healthzip.science.contracts import validate_result
 
     from .topics import TOPICS
@@ -549,12 +567,21 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
     if not isinstance(candidate_scope, str) or candidate_scope not in CANDIDATE_SCOPES:
         raise ValueError("unknown_metric_candidate_scope")
     profile = config["profiles"][metric_id]
+    from .topics import ANSWER_NEEDS, ANSWER_NEEDS_VERSION
+    if answer_needs is not None:
+        if (not question_only or not answer_needs or any(key not in ANSWER_NEEDS
+                or metric_id not in ANSWER_NEEDS[key]['topics'] for key in answer_needs)):
+            raise ValueError('invalid_public_topic_answer_needs')
+        from .support import target_key
+        profile = {**profile, 'bounded_missing_uses': True,
+                   'required_evidence_types': list(purpose_needs or []),
+                   'required_answer_targets': [target_key(ANSWER_NEEDS[key]['target_claim']) for key in answer_needs]}
     if purpose_needs is not None:
         if (not question_only or not purpose_needs
-                or not set(purpose_needs) <= set(profile['required_evidence_types'])):
+                or not set(purpose_needs) <= set(topic_profile(metric_id)['required_evidence_types'])):
             raise ValueError('invalid_public_question_purpose_needs')
         # This is a display need, not a change to the frozen reviewed-use profile.
-        profile = {**profile, 'required_evidence_types': list(purpose_needs)}
+        profile = {**profile, 'required_evidence_types': list(purpose_needs), 'bounded_missing_uses': True}
     profile_version = domains.profile_version(metric_id)
     if analysis_task != "explain_metric" and analysis_task not in profile["analysis_functions"]:
         raise ValueError("metric_not_declared_for_analysis_function")
@@ -563,6 +590,8 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         'direct_rir_only': _direct_rir_only(metric_id, (metric_result or {}).get('value'))}
     requested = list(dict.fromkeys(profile["primary_domains"] + profile["secondary_domains"]))
     query, query_identity = query_forms.select(metric_id, analysis_task, config, form=query_form)
+    if answer_needs:
+        query += ' ' + ' '.join(ANSWER_NEEDS[key]['query'] for key in sorted(answer_needs))
     from .health_facts import public_method_needs
     needs = public_method_needs(metric_result) if metric_result and release_id is None else []
     if needs:
@@ -576,6 +605,8 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         query_key.append({'candidate_scope': candidate_scope, 'version': CANDIDATE_SCOPE_VERSION})
     if purpose_needs is not None:
         query_key.append({'purpose_needs': sorted(purpose_needs), 'version': 'bounded-topic-use-1'})
+    if answer_needs:
+        query_key.append({'answer_needs': sorted(answer_needs), 'version': ANSWER_NEEDS_VERSION})
     result = {"query_id": digest(dumps(query_key).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
@@ -590,6 +621,10 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
+    if answer_needs:
+        audit['answer_needs'] = {'version': ANSWER_NEEDS_VERSION,
+            'reason': 'missing_reviewed_answer_target', 'questions': [ANSWER_NEEDS[key]['question'] for key in answer_needs],
+            'ids': list(answer_needs), 'query_sha256': digest(query.encode())}
     if profile["retrieval_profile"] == "deterministic_no_rag":
         result["status"] = "not_required_deterministic_computation"
         return _record_audit(w, result)
@@ -617,7 +652,7 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
             'eligible_domain_candidates': len(candidates),
             'background_candidates_excluded': sum(c['span_id'] not in scoped_ids for c in candidates),
             'complete_group_refs': [{key: group[key] for key in
-                ('claim_id', 'claim_version', 'evidence_span_ids', 'required_claim_refs', 'evidence_types')} for group in groups]}
+                ('claim_id', 'claim_version', 'evidence_span_ids', 'required_claim_refs', 'evidence_types', 'answer_bindings')} for group in groups]}
         candidates = [c for c in candidates if c['span_id'] in scoped_ids]
         result['conflicts'] = scope_conflicts
     audit.update(excluded=excluded, release=release, eligible_candidate_count=len(candidates))
@@ -663,11 +698,13 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
     by_id = {c["candidate_id"]: c for c in candidates}
     budget = config["fusion"]["candidate_budget"]
     final = fused[:budget]
-    if question_only and purpose_needs:
+    if question_only and (purpose_needs or answer_needs):
         # Explicit reviewed topic bindings are a separate bounded recall path.
         # Do not let missing query words hide an already reviewed action group.
         groups, _ = _metric_claims(w, metric_id, claims, by_id, context, release.get('edge_ids'))
-        relevant = [g for g in groups if set(g['evidence_types']) & set(purpose_needs)]
+        from .topics import answer_targets
+        relevant = [g for g in groups if set(g['evidence_types']) & set(purpose_needs or [])
+                    or answer_targets(g.get('answer_bindings', []), context) & set(profile.get('required_answer_targets', []))]
         added = []
         for group in sorted(relevant, key=lambda g: (g['claim_id'], g['claim_version'])):
             if set(group['direct_evidence_span_ids']) & set(final):
@@ -678,7 +715,7 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
             final.append(anchor)
             added.append(anchor)
         audit['purpose_recall'] = {'reason': 'missing_requested_public_question_use',
-            'requested_purposes': sorted(purpose_needs), 'extra_anchor_budget': k,
+            'requested_purposes': sorted(purpose_needs or []), 'requested_answer_needs': sorted(answer_needs or []), 'extra_anchor_budget': k,
             'added_anchor_ids': added, 'authority': 'exact_current_reviewed_topic_binding'}
     reranked_ids = []
     if mode == "hybrid_rerank" and final:

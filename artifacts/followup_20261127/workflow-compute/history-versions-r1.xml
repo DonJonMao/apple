@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="28" time="13.894" timestamp="2026-11-27T11:31:41.419973+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_report_reading" name="test_reading_and_single_question_load_only_requested_frozen_objects" time="1.088" /><testcase classname="tests.integration.test_followup_report_reading" name="test_hot_generation_keeps_independent_version_without_full_restore" time="0.273" /><testcase classname="tests.integration.test_followup_report_reading" name="test_same_timestamp_history_versions_open_the_selected_frozen_id" time="0.268"><failure message="sqlite3.IntegrityError: UNIQUE constraint failed: joint_period_report.report_id">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1063/test_same_timestamp_history_ve0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffd9e92bc90&gt;
+
+    def test_same_timestamp_history_versions_open_the_selected_frozen_id(tmp_path, monkeypatch):
+        from datetime import datetime, timezone
+    
+        from streamlit.testing.v1 import AppTest
+    
+        from healthzip.workflows import period_report
+    
+        class FixedCreationClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return cls(2026, 11, 27, 1, 2, 3, tzinfo=timezone.utc)
+    
+        monkeypatch.setattr(period_report, 'datetime', FixedCreationClock)
+        monkeypatch.chdir(tmp_path)
+        with closing(Repository(tmp_path / 'synthetic.sqlite3')) as repo:
+            independent_records(repo)
+            args = {'cutoff_time': CUTOFF, 'timezone': 'Asia/Shanghai'}
+&gt;           reports = [create_report(repo, args, period='week', knowledge_root=tmp_path / 'missing') for _ in range(2)]
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/home/sn_maozhifang/apple/tests/integration/test_followup_report_reading.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_followup_report_reading.py:76: in &lt;listcomp&gt;
+    reports = [create_report(repo, args, period='week', knowledge_root=tmp_path / 'missing') for _ in range(2)]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = &lt;healthzip.db.repository.Repository object at 0xfffd9e9283d0&gt;
+analysis = {'cutoff_time': '2024-09-12T00:00:00+08:00', 'timezone': 'Asia/Shanghai'}
+period = 'week'
+knowledge_root = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1063/test_same_timestamp_history_ve0/missing')
+progress = None, include_details = False
+
+    def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", progress=None, include_details=False):
+        """Freeze a fresh version per explicit request; share its verified content."""
+        if period not in {"week", "month"}:
+            raise ValueError("calendar_week_or_month_required")
+        TrainingService(repo)
+        # Finish lazy schemas before taking the authority token. Missing stores
+        # remain missing; an unavailable store is handled locally by retrieval.
+        if all((Path(knowledge_root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
+            from healthzip.knowledge import KnowledgeWorkbench
+            from healthzip.knowledge.revisions import prepare_retrieval_revisions
+            try:
+                with closing(KnowledgeWorkbench(knowledge_root)) as workbench:
+                    prepare_retrieval_revisions(workbench)
+            except (OSError, sqlite3.Error):
+                pass
+        context_id = (analysis.get("selection_context") or {}).get("workflow_context_id")
+        before = input_version(repo, context_id)
+        knowledge_before = _knowledge_identity(knowledge_root)
+        from healthzip.ui.preferences import load_preferences
+        cycle_enabled = bool(load_preferences(repo.path).get("cycle_enabled"))
+        notify = progress or (lambda stage: None)
+        fields = {field: analysis.get(field) for field in ("cutoff_time", "timezone", "selection_context", "source_filter",
+                  "retrospective", "algorithm_version")}
+        key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
+               "knowledge": knowledge_before, "cycle_enabled": cycle_enabled}
+        built = False
+    
+        def assemble():
+            nonlocal built
+            built = True
+            with shared_report_inputs(repo), report_evidence(knowledge_root):
+                payload, text, temporarily_unavailable = _assemble(
+                    repo, analysis, period, knowledge_root, before, knowledge_before, notify, cycle_enabled)
+            from .report_objects import save_content
+            payload_json = json.dumps(save_content(repo, payload), ensure_ascii=False)
+            digest = hashlib.sha256(payload_json.encode())
+            digest.update(b"\x00")
+            digest.update(text.encode())
+            result = payload_json, text, digest.hexdigest(), True  # The manifest only contains strings.
+            if temporarily_unavailable:
+                raise _UncachedReport(result)
+            return result
+    
+        try:
+            payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+                                        knowledge_root=knowledge_root)
+        except _UncachedReport as unavailable:
+            payload_json, text, content_signature, fast_compatible = unavailable.content
+        if not built:
+            notify("复用已核对的报告内容")
+        # Only decode this application's validated, newly serialized report content.
+        # Historical/imported JSON retains the standard parser in load_report.
+        manifest = _decode_content(payload_json, fast_compatible)
+        from .report_objects import read_content, read_reading
+        payload = (read_content if include_details else read_reading)(repo, manifest)
+        metadata = {"created_at": datetime.now(timezone.utc).isoformat(), "content_signature": content_signature,
+                    "report_id_signature_algorithm": "json-markdown-sha256-plus-created-at-1"}
+        metadata["report_id"] = canonical_hash({"version": REPORT_VERSION, **metadata})
+        # The verified content JSON is immutable. Appending only new freeze metadata
+        # preserves every content field without serializing tens of MB a second time.
+        saved_json = payload_json[:-1] + ", " + json.dumps(metadata, ensure_ascii=False)[1:]
+        payload.update(metadata)
+        notify("保存冻结版本")
+        repo.conn.execute("BEGIN IMMEDIATE")
+        try:
+            if (input_version(repo, context_id) != before or _knowledge_identity(knowledge_root) != knowledge_before
+                    or bool(load_preferences(repo.path).get("cycle_enabled")) != cycle_enabled):
+                raise ValueError("concurrent_joint_report_inputs_changed_retry_required")
+&gt;           repo.conn.execute("INSERT INTO joint_period_report VALUES(?,?,?,?,?)", (payload["report_id"], "local",
+                payload["created_at"], saved_json, text))
+E               sqlite3.IntegrityError: UNIQUE constraint failed: joint_period_report.report_id
+
+/home/sn_maozhifang/apple/src/healthzip/workflows/period_report.py:153: IntegrityError</failure></testcase><testcase classname="tests.integration.test_followup_report_reading" name="test_history_versions_disambiguate_colliding_short_identifiers" time="0.001" /><testcase classname="tests.integration.test_repair_report_review" name="test_initializing_empty_training_clock_does_not_mark_a_fresh_report_stale" time="0.189" /><testcase classname="tests.integration.test_repair_report_review" name="test_none_selection_context_retains_normal_empty_context_contract" time="0.183" /><testcase classname="tests.integration.test_repair_report_review" name="test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere" time="0.336" /><testcase classname="tests.integration.test_repair_report_review" name="test_first_report_initializes_existing_knowledge_before_freezing_its_clock" time="0.289" /><testcase classname="tests.integration.test_repair_report_review" name="test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export" time="0.574" /><testcase classname="tests.integration.test_repair_report_review" name="test_question_evidence_store_open_failure_preserves_available_local_facts" time="0.295" /><testcase classname="tests.integration.test_repair_report_review" name="test_retrospective_snapshot_and_asof_question_explicitly_keep_different_visibility" time="0.205" /><testcase classname="tests.integration.test_repair_report_review" name="test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_identity" time="0.278" /><testcase classname="tests.integration.test_repair_report_review" name="test_history_page_marks_current_revocation_without_rewriting_old_text" time="1.406" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-current]" time="0.121" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-content]" time="0.121" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-ordinary]" time="0.122" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-evidence]" time="0.126" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-current]" time="0.118" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-content]" time="0.124" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-ordinary]" time="0.118" /><testcase classname="tests.integration.test_repair_report_review" name="test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-evidence]" time="0.122" /><testcase classname="tests.integration.test_repair_report_review" name="test_safe_referenced_decoder_covers_all_objects_and_keeps_hint_internal" time="0.122" /><testcase classname="tests.integration.test_repair_report_review" name="test_cycle_preference_changes_empty_report_without_changing_records_or_history" time="0.260" /><testcase classname="tests.integration.test_repair_report_review" name="test_cycle_preference_change_during_freeze_rejects_stale_report_and_retry_updates" time="0.374" /><testcase classname="tests.integration.test_repair_report_review" name="test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_report" time="0.412" /><testcase classname="tests.integration.test_current_window_report_ui" name="test_current_window_markdown_uses_new_facts_range_and_declaration[False]" time="1.822" /><testcase classname="tests.integration.test_current_window_report_ui" name="test_current_window_markdown_uses_new_facts_range_and_declaration[True]" time="1.902" /><testcase classname="tests.integration.test_current_window_report_ui" name="test_current_window_report_preserves_explicit_historical_cutoff" time="1.606" /></testsuite></testsuites>

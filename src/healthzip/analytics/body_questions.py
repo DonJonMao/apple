@@ -30,6 +30,7 @@ from .question_context import (
 )
 
 VERSION = "body-questions-1.5"
+GUIDANCE_VERSION = "question-guidance-1.2"
 
 QUESTIONS = {
     "W1": ("同动作的完成表现怎样变化？", ("body_mass_kg", "sleep_stage")),
@@ -643,7 +644,7 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
         if topic["state"] == "context_only":
             latest = max(contexts, key=lambda r: instant(r["date"]))
             observation = f"{local_day(latest['date'])} 已记录{describe_subjective(latest)}；尚无同期训练、睡眠或心率记录可作对照。"
-            steps = ["在身体入口核对同期心率或睡眠是否已经导入；已有疲劳和备注继续保留。"]
+            steps = ["在身体入口核对同期心率或睡眠是否已经导入；已记录的主观状态继续保留。"]
         return {"id": qid, "title": title, "topic_status": topic,
                 "report_status": "not_requested" if topic["state"] == "disabled" else "background_only" if background else "no_records",
                 "observation": observation, "rows": background, "steps": steps,
@@ -714,9 +715,25 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
                 f"{local_day(p['started_at'])}训练{'结束后' if qid == 'W2' else '开始前'}记录了 {e['value'] / 60:.1f} 小时睡眠"
             )
         if qid == "W2":
-            next_step.append(
-                "下次相同动作沿用可比较的组位和休息，回看随后一夜睡眠及已经填写的疲劳。"
-            )
+            checks = []
+            if topic["has_training"]:
+                checks.append("在训练历史中核对同动作、器械与组位的实际负荷和次数")
+            if "sleep_stage" in topic["primary_metrics"]:
+                checks.append("在睡眠明细核对已记录睡眠的日期、时长和来源")
+            elif matched:
+                checks.append("按已匹配的训练后睡眠记录核对实际日期、时长和来源")
+            elif topic["has_training"]:
+                checks.append("如需对照训练后的睡眠，可记录实际睡眠或核对是否已经导入")
+            else:
+                names = "、".join(METRIC_CATALOG[field]["title"] for field in topic["primary_metrics"])
+                checks.append(f"在身体明细核对已记录的{names}来源和测量时段")
+            if any(row.get("fatigue") is not None for row in contexts):
+                checks.append("按实际日期对照已填写的疲劳，不将同期记录自动当作训练后的反应")
+            else:
+                checks.append("如需观察本人疲劳，可填写主观感受与实际时间")
+            if not topic["has_training"]:
+                checks.append("如需形成训练后对照，先记录实际训练场次")
+            next_step.append("；".join(checks) + "。")
     if qid == "W6":
         association = sleep_sdnn_associations(
             episodes, series.get("hrv_sdnn_ms", {}), timezone_name=window.timezone
@@ -878,14 +895,30 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
         )
     if qid == "W4":
         facts.extend(_describe_metric(r) for r in rows if r["type"] == "metric")
-        if goal_context:
+        if goal_context and goal_context.get("goal"):
             facts.insert(0, f"本次截止时可见目标：{goal_context['title']}；未设独立数值目标时只能复查同口径轨迹")
         if action_reviews:
             last = max(action_reviews, key=lambda r: instant(r["selected_at"]))
             text = last.get("summary") or f"已选行动“{last['action_text']}”：{last['execution_label']}；结果定义未预先记录，保留原观察"
             facts.insert(1, text)
             caveats.append("执行状态来自本人反馈；冻结行动基线与后续记录的差值不能归因为该行动。")
-        next_step.append("用先前选择的动作和目标尺度复评，按相同来源、器械与组位核对下一次记录。")
+        if action_reviews:
+            definitions = {review.get("definition_status") for review in action_reviews}
+            if "not_prespecified" in definitions:
+                next_step.append("未预先记录主要结果的旧行动，先核对实际执行与原反馈；如需新的复评，先明确主要观察和时间窗，另存新行动定义。")
+            if "historical_observation_unit" in definitions:
+                next_step.append("观察单位尚未区分的旧行动，保留原基线和已保存复评；先创建关联的新行动定义，再按该指标的观察单位复评。")
+            if "prespecified" in definitions:
+                next_step.append("对已有预设结果定义的行动，沿用冻结的主要观察和时间窗复评，同时核对实际执行记录；未反馈保持未知。")
+        elif goal_context and goal_context.get("goal"):
+            next_step.append(f"围绕已选目标“{goal_context['title']}”复查相关记录，沿用相同来源和比较尺度；训练记录还需核对器械与组位。")
+        else:
+            names = list(dict.fromkeys(r["title"] for r in rows if r["type"] == "metric" and r.get("value") is not None))
+            if not names and topic["has_training"]:
+                next_step.append("在训练历史中核对已记录场次和完成组，按同动作、器械与组位分别查看负荷、次数和已填 RIR；缺失条件保持未知。如需行动复评，先明确要观察的结果与时间窗。")
+            else:
+                observed = "、".join(names) or "已有指标"
+                next_step.append(f"在{observed}明细中核对本期与前期的来源、日期覆盖和测量条件；如需行动复评，先明确要观察的结果与时间窗。")
     if qid == "W1":
         next_step.append(
             "维持已能完成的同条件负荷，或按本人目标选择下一次次数，并复查同组位的实际完成量。"
@@ -1087,6 +1120,7 @@ def question_views(
         ]
         for v in views:
             v["analysis_version"] = VERSION
+            v["guidance_version"] = GUIDANCE_VERSION
             v["source_filter"] = list(sources)
             v["comparison_bounds"] = bounds
             v["period"] = period
@@ -1100,6 +1134,7 @@ def question_views(
         repo,
         VERSION,
         {"ids": ids, "window": window.as_dict(), "sources": sources, "cutoff": cutoff.isoformat(),
+         "guidance_version": GUIDANCE_VERSION,
          "visible_goal_actions": action_signature, "comparison_bounds": bounds, "period": period,
          "cycle_enabled": bool(cycle_enabled)},
         compute,

@@ -6,6 +6,7 @@
 
 - **Q**：Quer 等，2020，[原文 DOI](https://doi.org/10.1371/journal.pone.0227709)，本地版本 `9bfc6c8aa5bf6fdc4c60:jats-owned-text-1.4.1`。92,457 名成年 Fitbit 持续佩戴者；本文为回顾观察研究。
 - **H**：2024，[Heart Rate Variability Applications in Strength and Conditioning](https://doi.org/10.3390/jfmk9020093)，版本 `680f5e25713c14b2c0f0:jats-owned-text-1.4.1`。异质成人运动研究的叙述综述，力量训练用途证据有限。
+- **C**：Jason R. Carter、Nathaniel D. M. Jenkins、Jeremy A. Bigalke 等，2026，[Guidelines for Rigor and Reproducibility of Heart Rate Variability within Human Cardiovascular Research](https://doi.org/10.1152/ajpheart.00041.2026)，版本 `810d757557b4bc75c8a2:jats-owned-text-1.4.1`。人类心血管研究方法指南，汇总异质实验/可穿戴研究，不是新的设备验证队列。本轮补读段 10–13、15、49–55 的信号、采样、呼吸及可穿戴用途内容。
 - **S**：Robbins 等，2024，[Accuracy of Three Commercial Wearable Devices for Sleep Tracking in Healthy Adults](https://doi.org/10.3390/s24206532)，版本 `1fe5fc9ed1a05b873d6e:jats-owned-text-1.4.1`。35 名健康成人、20–50 岁、一次安排的实验室夜间睡眠；Apple Watch Series 8、Fitbit Sense 2、Oura Gen3 算法 2.0 对照 PSG。
 - **T**：2022，[Progressive overload without progressing load?](https://doi.org/10.7717/peerj.14142)，来源 S5，版本 `7252e04f7b2bfea33ef5:jats-owned-text-1.4.1`。43 名年轻有抗阻训练经验者、八周下肢训练；具体条件见实际方法段。
 - **A**：ACSM，2026，[Resistance Training Prescription…Overview of Reviews](https://doi.org/10.1249/MSS.0000000000003897)，版本 `6e002198c43cecbb3a9b:jats-owned-text-1.4.1`。面向健康成人；CC-BY-NC-ND，本地使用许可不变。
@@ -22,10 +23,10 @@
 | RHR | 能做什么 | 在身体详情检查同一来源、日期覆盖和实际背景；若更换设备或睡眠佩戴方式，分别看轨迹并记录变化时点，再按原窗口复评。 | 新主张 `FOLLOWUP-RHR-WEAR-COMPARABILITY`；属于核对记录，不是治疗建议。 |
 | RHR | 适用于谁 | 一般记录核对不要求假定年龄；定量研究结论只覆盖其持续佩戴的成年 Fitbit 用户。 | Q 段 10、39。未知年龄、Apple 或其他算法都没有被该研究验证。 |
 | SDNN | 是什么 | SDNN 是正常搏间期的标准差，单位 ms；它与相邻间期差的 RMSSD 不是同一指标。 | H 段 4。不能交换指标名或阈值。 |
-| SDNN | 怎样测 | 保存实际片段、采样模式、时间、姿势/呼吸等已知条件；片段长度影响 SDNN，不能把同一时间桶当作条件完全相同。 | H 段 4。时间桶是产品分组，不是生理等价证据。 |
-| SDNN | 怎样比较 | 同一指标、来源/设备和可比采样条件分别看轨迹；稀疏或条件不明时给实际值和缺项，不能用记录多的一天增加独立日权重。 | H 段 4；日等权中位数为本产品描述口径，不照搬 RMSSD 研究窗口。 |
+| SDNN | 怎样测 | 保存实际片段、采样模式、时间、姿势/呼吸及来源信号；PPG 脉搏与 ECG 电信号的采集特点不同，片段长度影响 SDNN，不能把同一时间桶当作条件完全相同。 | H 段 4；C 段 10、12、13。时间桶是产品分组，不是生理等价证据；不把实验时长或采样率推荐改成导入合格线。 |
+| SDNN | 怎样比较 | 同一指标、来源/设备和可比采样条件分别看轨迹；特定设备整夜 RMSSD/心率与 ECG 的一致性不能证明短片段或自由活动 SDNN 同样准确。稀疏或条件不明时给实际值和缺项。 | H 段 4；C 段 53、55；新增 `FOLLOWUP-SDNN-VALIDATION-TRANSFER`。日等权中位数为产品描述口径；不移用 Oura/WHOOP 的数值误差到当前 Apple 或其他设备。 |
 | SDNN | 为什么变化 | HRV 与训练适应的关系并非单调：研究中有过量训练后不变或升高，故升降本身不能判定恢复好坏。 | H 段 9、13、32。不是 Apple 后台短片段 SDNN 的因果验证。 |
-| SDNN | 能做什么 | 先核对记录条件，再查看同日期实际训练表现、疲劳和睡眠；复评继续使用原指标和分组，不把最大的背景变化替换主要结果。 | 新主张 `FOLLOWUP-SDNN-PERFORMANCE-CONTEXT`；不生成训练强度/剂量。 |
+| SDNN | 能做什么 | 先核对记录条件，再查看同日期实际训练表现、疲劳和睡眠；复评继续使用原指标和分组，不把最大的背景变化替换主要结果。设备或协议变更后分别查看轨迹，未提供的信息不猜测。 | `FOLLOWUP-SDNN-PERFORMANCE-CONTEXT` 和 `FOLLOWUP-SDNN-VALIDATION-TRANSFER` 已进入实际资料库与默认有界检索；不生成训练强度/剂量。 |
 | SDNN | 适用于谁 | 综述主要涉及成人运动者，小样本和协议异质性较大；普通使用者、力量训练和青年用途仍有缺口。 | H 段 30、32。未知年龄保持未知，不移用成人数值建议。 |
 | 睡眠 | 是什么 | 已记录睡眠时长是所选时段内睡眠片段的时长；分期时长、在床时间、清醒时间和质量不等同。 | S 段 8、9。产品还按既有规则去除重叠片段，不把阶段子片段再次相加。 |
 | 睡眠 | 怎样测 | 所测设备用算法标记片段，与 PSG 进行 epoch 和整夜时长两类比较；两种一致性指标不能互换。 | S 段 6、8、9。不是直接的脑电测量，也不说明任何未来设备版本准确。 |

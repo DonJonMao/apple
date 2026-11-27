@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 from healthzip.analysis_settings import DEFAULT_BASELINE_DAYS, DEFAULT_TIMEZONE, DEFAULT_WINDOW_DAYS
-from healthzip.science.contracts import instant
+from healthzip.science.contracts import canonical_hash, instant
 
 VERSION = "analysis-workflows-1.7.0"
 FUNCTION_NAMES = {
@@ -108,3 +108,30 @@ def scientific_identity(value):
     if isinstance(value, list):
         return [scientific_identity(item) for item in value]
     return value
+
+
+def workflow_input_hash(payload):
+    """Hash the existing identity with request-local sharing of repeated facts.
+
+    Only snapshot/supplements ignore transport fields, as in the original
+    workflow contract. Shared prepared containers never escape this function;
+    public scientific_identity results retain independent mutable copies.
+    """
+    prepared = {}
+
+    def identity(value):
+        if not isinstance(value, (dict, list)):
+            return value
+        key = id(value)
+        if key in prepared:
+            return prepared[key]
+        if isinstance(value, dict):
+            result = {name: identity(item) for name, item in value.items()
+                      if name not in {"computed_at", "data_snapshot_hash"}}
+        else:
+            result = [identity(item) for item in value]
+        prepared[key] = result
+        return result
+
+    return canonical_hash({**payload, "snapshot": identity(payload["snapshot"]),
+                           "supplements": identity(payload["supplements"])})

@@ -1,0 +1,79 @@
+{
+  "phase": "read",
+  "synthetic_fixture": "synthetic-100000",
+  "source_manifest": "read-source.json",
+  "samples": [
+    {
+      "label": "cold",
+      "seconds": 0.004882417619228363,
+      "process_peak_rss_kib": 37684,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "warm-01",
+      "seconds": 0.002644084393978119,
+      "process_peak_rss_kib": 39120,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "warm-02",
+      "seconds": 0.002217128872871399,
+      "process_peak_rss_kib": 39120,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "one-question-W6",
+      "seconds": 0.0014749392867088318,
+      "process_peak_rss_kib": 39120,
+      "question_id": "W6",
+      "fact_id": "question:4d4956184d3e7ce9aa0f60e7a6707f4d24d805385d13d9c11f2287c86f58e6ce",
+      "queries": [
+        "SELECT payload_json FROM report_content_object WHERE object_id='3e2b9f56fb1831dc04f9d369201915ddd16a1a4c8236db37ae45d69c9f75912f' AND user_id='local'"
+      ]
+    }
+  ],
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "period": "week",
+  "timezone": "Asia/Shanghai",
+  "interface": "backend complete service call; browser timings are separate",
+  "initial_host_load": [
+    23.947265625,
+    22.29296875,
+    20.8046875
+  ],
+  "concurrent_load": "shared host; concurrent public-knowledge regression and browser diagnostic; unprofiled diagnostic, not final 30 samples",
+  "instrumentation": "perf_counter only; no cProfile",
+  "os_cache": "retained",
+  "report_id": "6a111928b0b58db4657e205b73123b12d1ea69f7bfe2ea3f97fda6f690e28228",
+  "cold_queries": [
+    "SELECT payload_json,markdown FROM joint_period_report WHERE report_id='6a111928b0b58db4657e205b73123b12d1ea69f7bfe2ea3f97fda6f690e28228' AND user_id='local'",
+    "SELECT payload_json FROM report_content_object WHERE object_id='dfaf892a99a9461265baf419a95cd43667741b818fe5482e5bc2abaa2cd974b8' AND user_id='local'"
+  ],
+  "reading_payload_utf8_bytes": 305951,
+  "warm": {
+    "n": 2,
+    "p50_s": 0.002217128872871399,
+    "p95_s": 0.002644084393978119,
+    "method": "nearest-rank"
+  },
+  "budgets": {
+    "cold_le_3s": true,
+    "warm_30_p95_le_1s": false
+  },
+  "complete": true,
+  "final_host_load": [
+    23.947265625,
+    22.29296875,
+    20.8046875
+  ],
+  "source_changed": false
+}

@@ -1,0 +1,48 @@
+{
+  "data": "synthetic_only",
+  "before": {
+    "failed": 10,
+    "deselected": 13,
+    "seconds": 3.39,
+    "evidence": [
+      "before-complete.log",
+      "before-complete.xml"
+    ]
+  },
+  "after": {
+    "passed": 77,
+    "seconds": 19.12,
+    "evidence": [
+      "final.log",
+      "final.xml"
+    ]
+  },
+  "post_import_format_verification": [
+    "cache-final.log",
+    "cache-final.xml"
+  ],
+  "ruff": "passed",
+  "scientific_version": "body-questions-1.5 unchanged",
+  "guidance_version": "question-guidance-1.2",
+  "changes": [
+    "W2 guidance uses only actual visible training, sleep and fatigue; zero fatigue remains a record",
+    "Missing/future/out-of-window/late-visible fatigue is never described as already recorded",
+    "Sleep-only cases request actual training conditionally; note-only cases do not invent fatigue",
+    "Question and full-report cache identities both include guidance; full-report also tracks the question algorithm version",
+    "Fresh reports rebuild after either question version changes; old frozen reports and questions remain identical",
+    "Source rows and old action definitions/feedback remain unchanged"
+  ],
+  "source_sha256": {
+    "src/healthzip/analytics/body_questions.py": "6bbb2236d26692f6afa0673c16c4d001b7f9ad9d658cefbfa8e02aaacfbb0645",
+    "src/healthzip/workflows/period_report.py": "3d7111ab95f42a7a8a15df9ee8a670bb877118c112b52a876a2fc2a39ac0353c",
+    "tests/science/test_question_context.py": "303ab7fef2395b57a2ead4d541e9653d0d8ca605f9cdc5cb64ff7d562d6b68c9",
+    "tests/integration/test_followup_report_reading.py": "4926dfa586bbed7ebf211034370fb04d12e547e6495db6742ca64f2f5f6c501b"
+  },
+  "commands": {
+    "working_directory": "/home/sn_maozhifang/apple",
+    "before_complete": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/science/test_question_context.py tests/integration/test_followup_report_reading.py -k 'w2_next_step or w2_note_only or cache_tracks_question_versions' --junitxml=artifacts/followup_20261127/validation/w2-next-steps-final/before-complete.xml > artifacts/followup_20261127/validation/w2-next-steps-final/before-complete.log 2>&1",
+    "affected_regression": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/science/test_question_context.py tests/integration/test_followup_topic_applicability.py tests/integration/test_action_outcome_repairs.py tests/integration/test_followup_action_observation_units.py tests/integration/test_followup_report_reading.py tests/integration/test_repair_report_review.py --junitxml=artifacts/followup_20261127/validation/w2-next-steps-final/final.xml > artifacts/followup_20261127/validation/w2-next-steps-final/final.log 2>&1",
+    "after_import_format": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/integration/test_followup_report_reading.py -k cache_tracks_question_versions --junitxml=artifacts/followup_20261127/validation/w2-next-steps-final/cache-final.xml > artifacts/followup_20261127/validation/w2-next-steps-final/cache-final.log 2>&1",
+    "ruff": ".venv/bin/python -m ruff check src/healthzip/analytics/body_questions.py src/healthzip/workflows/period_report.py tests/science/test_question_context.py tests/integration/test_followup_report_reading.py > artifacts/followup_20261127/validation/w2-next-steps-final/ruff.log 2>&1"
+  }
+}

@@ -328,8 +328,17 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     from healthzip.science.contracts import Window, select_as_of
     plans, _ = select_as_of(inherited["session_plans"], Window(start.isoformat(), end.isoformat(), cutoff.isoformat(), timezone_name))
     merged = {**inherited, "plan_snapshot": {"sets": [s for p in plans for s in p["sets"]]} if plans else None, **(context or {})}
+    from healthzip.science.semantics import _analysis_task, flatten_record
+    # snapshot has already normalized these exact strength rows, in record
+    # order, for reference eligibility. Reuse only that request-local inventory;
+    # an explicitly supplied reference context remains a separate declaration.
+    normalized_strength = inherited["reference_inventory"]
+    strength_inputs = iter(normalized_strength)
+    normalized = [next(strength_inputs) if r.get("record_kind") == "strength_set" else flatten_record(r)
+                  for r in records]
     metrics = evaluate_all(records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
-                           window_end=end.isoformat(), context={**merged, "timezone": timezone_name})
+                           window_end=end.isoformat(), context={**merged, "timezone": timezone_name},
+                           _normalized=normalized)
     from healthzip.analytics.reference_selection import (
         reference_options,
         selected_reference_metrics,
@@ -361,14 +370,12 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     requested_task_metrics = TASK_METRICS if ordinary_task_metrics is None else set(ordinary_task_metrics)
     if not requested_task_metrics <= TASK_METRICS:
         raise ValueError("unknown_ordinary_task_metric")
-    from healthzip.science.semantics import analysis_task, flatten_record
-    visible, _ = select_as_of([flatten_record(r) for r in records if r.get("record_kind") == "strength_set"],
-                              window, retrospective=retrospective)
+    visible, _ = select_as_of(normalized_strength, window, retrospective=retrospective)
     observed_tasks = {}
     for row in visible:
         if row.get("status") not in {"completed", "aborted", "in_progress"}:
             continue
-        task = analysis_task(row)
+        task = _analysis_task(row)
         observed_tasks.setdefault(task["task_id"], {"task": task, "rows": []})["rows"].append(row)
     ordinary_bound = None
     ordinary_templates = {}
@@ -383,7 +390,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             ordinary_bound = _bounded_context({**merged, "timezone": timezone_name}, window)
         task_bound = ({**ordinary_bound[0], "task_id": identity,
                        "data_snapshot_hash": task_context["data_snapshot_hash"]}, ordinary_bound[1])
-        normalized_task = [flatten_record(row) for row in rows]
+        normalized_task = rows
         selections = {}
         strength_tasks[identity] = {**item["task"], "inventory_identity": "actual_records_no_reference_inferred",
             "data_snapshot_hash": task_context["data_snapshot_hash"], "input_data_hash": canonical_hash(rows),

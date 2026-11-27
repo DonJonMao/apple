@@ -108,7 +108,7 @@ def assign(w, *, object_type, object_id, object_version, domains, status, actor,
 
 
 def link(w, *, origin, relation, target, span_ids, applicability, actor, rationale,
-         evidence_types=None, review=None):
+         evidence_types=None, review=None, answer_bindings=None):
     ensure_schema(w)
     if relation not in RELATIONS or not actor or not rationale or not isinstance(applicability, dict) or not span_ids:
         raise ValueError("traceable_evidence_edge_required")
@@ -136,6 +136,11 @@ def link(w, *, origin, relation, target, span_ids, applicability, actor, rationa
         allowed = metric_profile(target["id"])["required_evidence_types"]
         if not evidence_types or not set(evidence_types) <= set(allowed):
             raise ValueError("explicit_profile_evidence_types_required")
+    if answer_bindings is not None:
+        from .support import validate_bindings
+        if target["type"] != "metric" or not isinstance(answer_bindings, list) or not answer_bindings:
+            raise ValueError("reviewed_metric_answer_bindings_required")
+        validate_bindings({"answer_bindings": answer_bindings})
     evidence = []
     for sid in span_ids:
         span = w.lib.span(sid, include_metadata=False)
@@ -146,6 +151,8 @@ def link(w, *, origin, relation, target, span_ids, applicability, actor, rationa
                "applicability": applicability, "actor": actor, "rationale": rationale,
                "evidence_types": sorted(set(evidence_types or [])), "application_review": review,
                "grants_capability": False}
+    if answer_bindings is not None:
+        payload["answer_bindings"] = answer_bindings
     identity = digest(dumps(payload).encode())
     with atomic(w.lib.theories):
         w.lib.theories.execute("INSERT OR IGNORE INTO knowledge_evidence_edge VALUES(?,?,?,?,?,?,?,?,?,?)",
