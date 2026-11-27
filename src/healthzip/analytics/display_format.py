@@ -2,6 +2,17 @@
 from __future__ import annotations
 
 
+def local_timestamp(value, timezone_name, *, date_only=False):
+    """Display one instant in the analysis zone; the original value stays frozen."""
+    from zoneinfo import ZoneInfo
+
+    from healthzip.science.contracts import instant
+    if not value:
+        return "未记录"
+    at = instant(value).astimezone(ZoneInfo(timezone_name))
+    return at.strftime("%Y-%m-%d" if date_only else "%Y-%m-%d %H:%M")
+
+
 def display_unit(unit, kind=None):
     if unit == "min" and (kind == "sleep_stage" or str(kind).startswith("STATE-SLEEP")):
         return "小时"

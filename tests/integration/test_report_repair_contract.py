@@ -55,7 +55,7 @@ def test_t05_t19_same_period_values_across_overview_detail_question_report(tmp_p
         fields = {"window_start": START, "window_end": CUTOFF, "cutoff_time": CUTOFF, "period": "week"}
         direct = {q["id"]: q for q in analyze_questions(repo, **fields)}
         report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"},
-                               period="week", knowledge_root=tmp_path / "missing")
+                               period="week", knowledge_root=tmp_path / "missing", include_details=True)
         for q in report["questions"]:
             assert q["fact_id"] == direct[q["id"]]["fact_id"]
             assert q["rows"] == direct[q["id"]]["rows"]
@@ -79,7 +79,7 @@ def test_t05_source_selection_changes_all_report_consumers(tmp_path):
     with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
         independent_records(repo)
         selected = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai", "source_filter": ["独立合成乙"]},
-                                 period="week", knowledge_root=tmp_path / "missing")
+                                 period="week", knowledge_root=tmp_path / "missing", include_details=True)
         points = [p for group in selected["current"]["metrics"]["STATE-RHR"]["value"].values() for p in group]
         assert [p["value"] for p in points] == [80]
         for q in selected["questions"]:
@@ -93,14 +93,14 @@ def test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads(t
         independent_records(repo)
         fields = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
         kwargs = {"period": "week", "knowledge_root": tmp_path / "missing"}
-        first, second = create_report(repo, fields, **kwargs), create_report(repo, fields, **kwargs)
+        first, second = create_report(repo, fields, **kwargs, include_details=True), create_report(repo, fields, **kwargs, include_details=True)
         assert first["report_id"] != second["report_id"]
-        assert repo.one("SELECT COUNT(*) FROM report_content_object WHERE kind='frozen-report-references-1'")[0] == 1
+        assert repo.one("SELECT COUNT(*) FROM report_content_object WHERE kind='frozen-report-references-2'")[0] == 1
         frozen = repo.rows("SELECT * FROM report_content_object ORDER BY object_id")
         clear()
         repo.conn.execute("DELETE FROM source_revision")
         repo.conn.commit()
-        assert load_report(repo, first["report_id"]) == first
+        assert load_report(repo, first["report_id"], include_details=True) == first
         assert repo.rows("SELECT * FROM report_content_object ORDER BY object_id") == frozen
         bundle = audit_bundle(repo, first["report_id"])
         # Export resolves entirely without current records, this database, or a
@@ -110,7 +110,7 @@ def test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads(t
         legacy = {"report_id": "old-inline", "version": "joint-period-report-1.3.1", "current": {"frozen": 123}}
         repo.conn.execute("INSERT INTO joint_period_report VALUES(?,?,?,?,?)", ("old-inline", "local", CUTOFF, json.dumps(legacy), "old original"))
         repo.conn.commit()
-        assert load_report(repo, "old-inline") == {**legacy, "markdown": "old original"}
+        assert load_report(repo, "old-inline", include_details=True) == {**legacy, "markdown": "old original"}
 
 
 def test_preview_projection_matches_full_replay_and_only_requested_period(tmp_path):

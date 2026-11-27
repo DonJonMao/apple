@@ -29,7 +29,7 @@ from .question_context import (
     visible_goal_actions,
 )
 
-VERSION = "body-questions-1.4"
+VERSION = "body-questions-1.5"
 
 QUESTIONS = {
     "W1": ("同动作的完成表现怎样变化？", ("body_mass_kg", "sleep_stage")),
@@ -433,8 +433,10 @@ def _metric_rows(series, fields, *, window=None, comparison_series=None, bounds=
                     **({
                         "estimate_support": b.get("estimate_support"),
                         "first_estimate_support": a.get("estimate_support"),
-                        "estimate_observations": [{k: p.get(k) for k in ("date", "observed_at", "value", "source_record_ids", "estimate_support")} for p in ordered],
-                        "publication_count": len(ordered),
+                        "estimate_observations": [{**p, "published_at": p["observations"][0].get("published_at")} for p in ordered],
+                        "observation_count": len(ordered),
+                        "publication_count": sum(p["observations"][0].get("published_at") is not None for p in ordered),
+                        "independent_measurement_count": None,
                         "support_limitation": "这是来源发布的估计点；支持窗口重叠或重复发布不能视为独立测试，达到版本报告上限不能据此判定能力停滞。",
                     } if any(p.get("estimate_support") for p in ordered) else {}),
                 }
@@ -449,16 +451,23 @@ def _metric_rows(series, fields, *, window=None, comparison_series=None, bounds=
                             trajectory_difference=b["value"] - a["value"] if a["date"] != b["date"] else None,
                             trajectory_first_date=a["date"], trajectory_last_date=b["date"],
                             date=current["dates"][-1] if current["dates"] else None,
-                            first_date=previous["dates"][0] if previous["dates"] else None,
+                            first_date=(previous["dates"][-1] if METRIC_CATALOG[field]["kind"] == "estimate" else previous["dates"][0]) if previous["dates"] else None,
                             current_period={"start": current["window"]["start"], "end": current["window"]["end"]},
                             previous_period={"start": previous["window"]["start"], "end": previous["window"]["end"]},
                             value=current["value"], first_value=previous["value"],
                             difference=current["value"] - previous["value"] if current["value"] is not None and previous["value"] is not None else None,
-                            statistic_kind="median_of_daily_representatives", comparison=periods,
+                            statistic_kind="source_estimate_points" if METRIC_CATALOG[field]["kind"] == "estimate" else "median_of_daily_representatives", comparison=periods,
                             days=current["recorded_days"],
                             source_record_ids=current["source_record_ids"],
                             previous_source_record_ids=previous["source_record_ids"],
                             comparison_identity="body-comparison:" + canonical_hash([field, list(key), unit]))
+                if METRIC_CATALOG[field]["kind"] == "estimate":
+                    old = previous["estimate_observations"]
+                    item.update(estimate_observations=current["estimate_observations"],
+                                previous_estimate_observations=old,
+                                observation_count=current["record_count"], publication_count=current["publication_count"],
+                                first_estimate_support=old[-1]["estimate_support"] if old else None,
+                                estimate_support=current["estimate_observations"][-1]["estimate_support"] if current["estimate_observations"] else None)
                 item["fact_id"] = "period-observation:" + canonical_hash(item)
             rows.append(item)
     return rows
@@ -470,11 +479,17 @@ def _describe_metric(row):
         def display_number(value, *, signed=False):
             return format_measurement(value, row["unit"], kind=row["metric"], signed=signed)
         value = row["value"]
-        text = f"{row['title']}本期完整记录日中位数 " + (display_number(value) if value is not None else "尚无")
+        statistic = "本期末次来源估计 " if row.get("statistic_kind") == "source_estimate_points" else "本期完整记录日中位数 "
+        identity = " / ".join(str(row.get(k) or "未记录") for k in ("source", "device"))
+        text = f"{row['title']}（{identity}）{statistic}" + (display_number(value) if value is not None else "尚无")
         if row["difference"] is not None:
             text += "，较前期 " + display_number(row["difference"], signed=True)
         elif row.get("trajectory_difference") is not None:
             text += f"；实际记录轨迹 {row['trajectory_first_date']} {display_number(row['trajectory_first_value'])} → {row['trajectory_last_date']} {display_number(row['trajectory_last_value'])}"
+        elif value is None and row.get("trajectory_last_value") is not None:
+            text += f"；{row['trajectory_last_date']} 已记录日内代表值 {display_number(row['trajectory_last_value'])}（该日范围不完整，不计入完整日比较）"
+        if row.get("statistic_kind") == "source_estimate_points":
+            text += f"；{row['observation_count']} 条来源记录，{row['publication_count']} 条明确提供发布时间；支持窗口不作为独立每日测量"
         return text
     return (
         f"{row['title']}，{row['first_date']} 至 {row['date']}从 {row['first_value']:g} 到 {row['value']:g} {row['unit']}"
@@ -554,13 +569,88 @@ def workout_performance(workouts, hr_series):
     return output
 
 
+def _topic_status(qid, series, sessions, sets, contexts, workouts, goal, actions, cycle_enabled):
+    """Eligibility belongs to the question, before background is attached.
+
+    These are product content requirements, not scientific sample thresholds.
+    A partial topic can describe its available dimensions without inventing the
+    missing ones. Subjective logs have their own summary in W2.
+    """
+    present = {field for field in QUESTIONS[qid][1]
+               if any(points for points in series.get(field, {}).values())}
+    primary = set(present)
+    if qid == "W1":
+        primary.clear()  # Weight and sleep are context for actual work sets.
+    elif qid == "W3":
+        primary -= {"resting_heart_rate_bpm", "hrv_sdnn_ms", "heart_rate_bpm"}
+    elif qid == "W6":
+        primary -= {"daylight_minutes", "environmental_audio_dba", "headphone_audio_dba"}
+    training = bool(sets or sessions) if qid in {"W1", "W2", "W4"} else bool(workouts) if qid == "W3" else False
+    has_primary = bool(primary or training)
+    has_goal = bool(goal and goal.get("goal"))
+    state = "descriptive" if has_primary else "no_records"
+    missing = []
+    if qid == "W8" and not has_primary and not cycle_enabled:
+        state = "disabled"
+    elif qid == "W2":
+        if not has_primary and contexts:
+            state = "context_only"
+        if not training:
+            missing.append("同期实际训练")
+        missing += [METRIC_CATALOG[k]["title"] for k in ("sleep_stage", "resting_heart_rate_bpm", "hrv_sdnn_ms") if k not in primary]
+    elif qid == "W4" and (has_goal or actions):
+        state = "descriptive" if has_primary else "partial"
+    elif qid == "W6":
+        missing += [METRIC_CATALOG[k]["title"] for k in ("sleep_stage", "hrv_sdnn_ms") if k not in primary]
+    elif qid == "W7":
+        missing += [METRIC_CATALOG[k]["title"] for k in ("steps", "walking_speed_m_s") if k not in primary]
+    if has_primary and missing:
+        state = "partial"
+    refs = {str(identity) for field in primary for points in series.get(field, {}).values()
+            for point in points for identity in point.get("source_record_ids", [])}
+    return {"state": state, "has_primary_records": has_primary,
+            "primary_metrics": sorted(primary), "primary_source_record_ids": sorted(refs),
+            "has_training": training, "has_goal": has_goal if qid == "W4" else False,
+            "action_count": len(actions or []) if qid == "W4" else 0,
+            "background_record_count": len(contexts), "missing_dimensions": missing}
+
+
 def _render_question(qid, series, sessions, sets, subjective, episodes, workouts, window,
                      *, event_sessions=None, event_sets=None, goal_context=None, action_reviews=None,
-                     ordinary_training=None, comparison_series=None, comparison_bounds=None, strength_rows=None):
+                     ordinary_training=None, comparison_series=None, comparison_bounds=None, strength_rows=None,
+                     cycle_enabled=False):
     def local_day(at):
         return instant(at).astimezone(ZoneInfo(window.timezone)).date().isoformat()
 
     title, fields = QUESTIONS[qid]
+    contexts = subjective_rows(subjective)
+    topic = _topic_status(qid, series, sessions, sets, contexts, workouts, goal_context, action_reviews, cycle_enabled)
+    if topic["state"] in {"disabled", "no_records", "context_only"}:
+        empty = {
+            "W1": "所选期间尚无可见的实际训练记录，可在训练入口记录动作与完成组。",
+            "W2": "所选期间尚无训练、睡眠、心率或主观状态记录。",
+            "W3": "所选期间尚无相关运动或心肺观测，一般心率背景不能代替运动表现。",
+            "W4": "所选期间尚无目标、行动或相关表现记录。",
+            "W5": "所选期间尚无体重、体组成或相关能量记录。",
+            "W6": "所选期间尚无相关睡眠或生理记录，不能建立睡眠与 SDNN 对照。",
+            "W7": "所选期间尚无活动量或步态记录，不能判断步数或步速的变化。",
+            "W8": "周期功能已开启，所选期间尚无相关周期记录。" if cycle_enabled else "周期功能未开启，所选期间也没有相关周期记录。",
+            "E": "当前导入数据在所选期间未提供相关设备事件；这不表示没有发生事件。",
+        }
+        observation = empty[qid]
+        background = contexts if qid == "W2" else []
+        steps = []
+        if topic["state"] == "context_only":
+            latest = max(contexts, key=lambda r: instant(r["date"]))
+            observation = f"{local_day(latest['date'])} 已记录{describe_subjective(latest)}；尚无同期训练、睡眠或心率记录可作对照。"
+            steps = ["在身体入口核对同期心率或睡眠是否已经导入；已有疲劳和备注继续保留。"]
+        return {"id": qid, "title": title, "topic_status": topic,
+                "report_status": "not_requested" if topic["state"] == "disabled" else "background_only" if background else "no_records",
+                "observation": observation, "rows": background, "steps": steps,
+                "support": [], "counterevidence": [], "support_count": 0, "counterevidence_count": 0,
+                "association": None, "limitations": [], "training_pairs": None,
+                **({"goal_context": goal_context, "action_reviews": action_reviews or []} if qid == "W4" else {}),
+                "source_workflow": qid, "window": window.as_dict()}
     rows = _metric_rows(series, fields, window=window if comparison_bounds else None,
                         comparison_series=comparison_series, bounds=comparison_bounds)
     facts = []
@@ -573,7 +663,6 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
     if ordinary_training is None and qid in {"W1", "W2", "W4", "W5"}:
         from healthzip.workflows.longitudinal import ordinary_review
         ordinary_training = ordinary_review(sets, window.as_dict())
-    contexts = subjective_rows(subjective)
     if qid in {"W1", "W2"}:
         instances = defaultdict(lambda: defaultdict(list))
         for s in sets:
@@ -680,9 +769,12 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
                         counter.append(
                             f"相同两天记录步速从 {speeds[first]:g} 到 {speeds[last]:g} m/s，未随步数降低。"
                         )
-        next_step.append(
-            "下次相同路线、携带位置与近似速度下，核对步态记录，并单独复查当天的活动量。"
-        )
+        if "walking_speed_m_s" in topic["primary_metrics"]:
+            next_step.append("下次相同路线、携带位置与近似速度下，核对步态记录，并单独复查当天的活动量。")
+        elif any(METRIC_CATALOG[k]["kind"] == "estimate" for k in topic["primary_metrics"]):
+            next_step.append("核对已记录来源估计的方法版本、支持窗口和重复发布；如需观察行动后的变化，区分实际记录时点与支持区间。")
+        else:
+            next_step.append("先核对已有活动量记录的携带方式与覆盖；如需比较步速，可在相同路线另行记录速度。")
         caveats.append(
             "记录量随活动机会改变。舒适步速属于另一项观察；没有速度分层时只描述各自轨迹。"
         )
@@ -731,6 +823,9 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
                             "title": METRIC_CATALOG[field]["title"],
                             "date": observation["event_end"],
                             "source": key[0],
+                            "device": key[1],
+                            "protocol": key[2],
+                            "source_version": key[3],
                             "category": observation["category"],
                             "event_start": observation["event_start"],
                             "event_end": observation["event_end"],
@@ -770,11 +865,12 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
                 support.append(description)
                 if not any("同条件次数" in f for f in facts):
                     facts.append(description)
-        next_step.append(
-            "核对原通知、发生时刻及设备说明。如有持续不适，可联系医疗专业人员。"
-            if qid == "E"
-            else "回顾已记录症状当天的训练表现，自主决定是否调整舒适度和安排。"
-        )
+        if qid == "E":
+            for event in rows:
+                if event.get("type") == "event":
+                    next_step.append(f"核对 {local_day(event['date'])} {event['source'] or '来源未记'} 的{event['title']}原记录及对应设备说明（记录 {'、'.join(map(str, event['source_record_ids']))}）。")
+        else:
+            next_step.append("回顾已记录周期事件当天的训练与症状，自主决定是否调整舒适度和安排。")
         caveats.append(
             "没有可见通知时，设备功能、开启状态及风险仍可能未知。"
             if qid == "E"
@@ -818,9 +914,15 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
         state = describe_subjective(context)
         if state:
             facts.insert(1, f"{local_day(context['date'])} 已记录{state}")
+    if topic["missing_dimensions"]:
+        caveats.append("当前缺少" + "、".join(topic["missing_dimensions"]) + "，仅描述已有维度，不将缺项当作未发生或数值下降。")
+    if association and any(g.get("status") == "estimated" for g in association.get("groups", [])):
+        topic["state"] = "conditional_association"
     return {
         "id": qid,
         "title": title,
+        "topic_status": topic,
+        "report_status": "available",
         "observation": "。".join(facts[:4]) + "。"
         if facts
         else "所选期间尚无足以形成该项对照的可见记录。",
@@ -842,8 +944,11 @@ def _render_question(qid, series, sessions, sets, subjective, episodes, workouts
 
 def question_views(
     repo, *, window_start, window_end, cutoff_time, timezone_name, source_filter, question_ids,
-    period=None, previous=None,
+    period=None, previous=None, cycle_enabled=None,
 ):
+    if cycle_enabled is None:
+        from healthzip.ui.preferences import load_preferences
+        cycle_enabled = bool(load_preferences(repo.path).get("cycle_enabled"))
     ids = tuple(QUESTIONS if question_ids is None else question_ids)
     fields = sorted({f for q in ids for f in QUESTIONS[q][1]})
     start, end, cutoff = (
@@ -976,7 +1081,8 @@ def question_views(
             _render_question(q, series, sessions, sets, subjective, episodes, workouts, window,
                 event_sessions=event_sessions, event_sets=event_sets, goal_context=goal_context,
                 action_reviews=action_reviews, ordinary_training=ordinary_training,
-                comparison_series=comparison_series, comparison_bounds=bounds, strength_rows=strength_rows)
+                comparison_series=comparison_series, comparison_bounds=bounds, strength_rows=strength_rows,
+                cycle_enabled=cycle_enabled)
             for q in ids
         ]
         for v in views:
@@ -994,7 +1100,8 @@ def question_views(
         repo,
         VERSION,
         {"ids": ids, "window": window.as_dict(), "sources": sources, "cutoff": cutoff.isoformat(),
-         "visible_goal_actions": action_signature, "comparison_bounds": bounds, "period": period},
+         "visible_goal_actions": action_signature, "comparison_bounds": bounds, "period": period,
+         "cycle_enabled": bool(cycle_enabled)},
         compute,
         dependencies=deps,
     )

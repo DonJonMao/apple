@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.549" timestamp="2026-11-27T10:14:37.520807+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_action_observation_units" name="test_estimate_definition_and_same_day_support_are_not_daily_measurements" time="0.152"><failure message="AssertionError: assert 'complete_local_day_median' == 'source_estimate_points'&#10;  &#10;  - source_estimate_points&#10;  + complete_local_day_median">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1009/test_estimate_definition_and_s0')
+
+    def test_estimate_definition_and_same_day_support_are_not_daily_measurements(tmp_path):
+        with closing(Repository(tmp_path / "support.sqlite")) as repo:
+            estimate(repo, 1, "2026-09-06T09:00:00Z", 420,
+                     support=("2026-08-09T00:00:00Z", "2026-09-06T00:00:00Z"))
+            identity, question = choose(repo)
+            definition = proposed_definition(question, question["steps"][0], STOP, selected_at=SELECTED,
+                primary={"kind": "metric", "metric": "six_minute_walk_m"})
+&gt;           assert definition["statistic"] == "source_estimate_points"
+E           AssertionError: assert 'complete_local_day_median' == 'source_estimate_points'
+E             
+E             - source_estimate_points
+E             + complete_local_day_median
+
+tests/integration/test_followup_action_observation_units.py:48: AssertionError</failure></testcase><testcase classname="tests.integration.test_followup_action_observation_units" name="test_repeat_unknown_version_and_late_visibility_preserve_records" time="0.112"><failure message="KeyError: 'estimate_observations'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1009/test_repeat_unknown_version_an0')
+
+    def test_repeat_unknown_version_and_late_visibility_preserve_records(tmp_path):
+        with closing(Repository(tmp_path / "repeats.sqlite")) as repo:
+            support = ("2026-08-09T00:00:00Z", "2026-09-06T00:00:00Z")
+            estimate(repo, 1, "2026-09-06T09:00:00Z", 420, support=support)
+            identity, _ = choose(repo)
+            estimate(repo, 2, "2026-09-11T09:00:00Z", 420, support=support)
+            estimate(repo, 3, "2026-09-12T09:00:00Z", 420, support=support)
+            estimate(repo, 4, "2026-09-13T09:00:00Z", 480, algorithm="fixture-method-2")
+            estimate(repo, 5, "2026-09-14T09:00:00Z", 499, available="2026-09-18T00:00:00Z")
+            review = followup(repo, identity, cutoff_time=STOP)["review"]
+            row = review["primary_observations"][0]
+            assert row["source_record_ids"] == ["health_sample:2", "health_sample:3"]
+&gt;           points = row["current"]["estimate_observations"]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'estimate_observations'
+
+tests/integration/test_followup_action_observation_units.py:77: KeyError</failure></testcase><testcase classname="tests.integration.test_followup_action_observation_units" name="test_nonoverlapping_support_is_description_not_independent_effect" time="0.109"><failure message="KeyError: 'estimate_observations'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1009/test_nonoverlapping_support_is0')
+
+    def test_nonoverlapping_support_is_description_not_independent_effect(tmp_path):
+        with closing(Repository(tmp_path / "nonoverlap.sqlite")) as repo:
+            estimate(repo, 1, "2026-09-06T09:00:00Z", 420,
+                     support=("2026-09-01T00:00:00Z", "2026-09-06T00:00:00Z"))
+            identity, _ = choose(repo)
+            estimate(repo, 2, "2026-09-16T09:00:00Z", 440,
+                     support=("2026-09-10T00:00:00Z", "2026-09-16T00:00:00Z"))
+            row = followup(repo, identity, cutoff_time=STOP)["review"]["primary_observations"][0]
+&gt;           point = row["current"]["estimate_observations"][0]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'estimate_observations'
+
+tests/integration/test_followup_action_observation_units.py:97: KeyError</failure></testcase></testsuite></testsuites>

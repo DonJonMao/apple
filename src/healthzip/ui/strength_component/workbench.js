@@ -55,7 +55,7 @@
   };
   function attribution(item){const media=(item.media||[]).find(m=>m.media_type==='image'&&m.available);if(!media)return '';const license=typeof media.license==='object'?(media.license?.short_name||media.license?.full_name||'许可详见来源'):(media.license||'许可详见来源');return `<span class="source-note">图：${esc(media.author||'来源未署名')} · ${esc(license)} · 已缩放</span>`;}
   const button = (action,text,cls='secondary',attrs='')=>`<button type="button" class="${cls}" data-action="${action}" ${attrs}>${text}</button>`;
-  const back = (action='back')=>button(action,I('back'),'icon','aria-label="返回"');
+  const back = (action='back')=>button(action,I('back'),'icon','data-control="back" aria-label="返回"');
   function activeSession(s){return s&&!s.deleted_at&&['draft','in_progress','paused'].includes(s.session_status);}
   function date(value,withTime=false){if(!value)return '时间未知';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:snap.timezone_name||snap.timezone||'Asia/Shanghai',year:'numeric',month:'numeric',day:'numeric',...(withTime?{hour:'2-digit',minute:'2-digit'}:{})}).format(new Date(value));}catch(_){return '时间未知';}}
   function elapsed(start,end){if(!start)return '时长未知';const n=(end?new Date(end).getTime():Date.now()+clockOffset)-new Date(start).getTime();if(!Number.isFinite(n)||n<0)return '时长未知';const s=Math.floor(n/1000);return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
@@ -211,7 +211,16 @@
   }
   function menu(action,title,description){return button(action,`<span><strong>${title}</strong><p>${description}</p></span>${I('next')}`,'');}
   function restTime(timer){if(!timer)return '尚未开始';if(timer.clock_anomaly||timer.elapsed_seconds==null)return '时间异常，请重新确认计时起点';let elapsedSec=Number(timer.elapsed_seconds||0);if(timer.state==='running'&&snap.now)elapsedSec+=Math.max(0,(Date.now()+clockOffset-new Date(snap.now).getTime())/1000);const target=timer.target_seconds;if(target!=null)elapsedSec=Math.max(0,Number(target)-elapsedSec);const sec=Math.floor(elapsedSec);return `${target!=null?'剩余 ':''}${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}${timer.state==='paused'?' · 已暂停':timer.state==='skipped'?' · 已结束':''}`;}
-  function nodeKey(node){if(node.nodeType!==1)return null;return node.id||node.getAttribute('data-testid')||(node.dataset.set?`field:${node.dataset.set}:${node.dataset.field}`:node.dataset.action?`action:${node.dataset.action}:${node.dataset.id||''}`:null);}
+  function nodeKey(node){
+    if(node.nodeType!==1)return null;
+    if(node.id)return `id:${node.id}`;
+    if(node.hasAttribute('data-testid'))return `test:${node.getAttribute('data-testid')}`;
+    if(node.dataset.set)return `field:${node.dataset.set}:${node.dataset.field}`;
+    // Calendar dates and alternate controls for one action have their own
+    // semantic identities. Neither the day position nor mutable text is a key.
+    if(node.dataset.action)return `action:${JSON.stringify([node.dataset.action,node.dataset.id??null,node.dataset.date??null,node.dataset.control??null])}`;
+    return null;
+  }
   function patchNode(old,next){
     if(old.nodeType!==next.nodeType||old.nodeName!==next.nodeName){old.replaceWith(next);return next;}
     if(old.nodeType===3){if(old.nodeValue!==next.nodeValue)old.nodeValue=next.nodeValue;return old;}
@@ -219,7 +228,7 @@
     for(const attr of [...next.attributes])if(old.getAttribute(attr.name)!==attr.value)old.setAttribute(attr.name,attr.value);
     const previous=[...old.childNodes],keyed=new Map(previous.map(n=>[nodeKey(n),n]).filter(([key])=>key));let cursor=old.firstChild;
     for(const child of [...next.childNodes]){const key=nodeKey(child);let match=key?keyed.get(key):cursor&&!nodeKey(cursor)&&cursor.nodeName===child.nodeName?cursor:null;
-      if(match){if(match!==cursor)old.insertBefore(match,cursor);patchNode(match,child);cursor=match.nextSibling;}else{old.insertBefore(child,cursor);}
+      if(match){if(key)keyed.delete(key);if(match!==cursor)old.insertBefore(match,cursor);match=patchNode(match,child);cursor=match.nextSibling;}else{old.insertBefore(child,cursor);}
     }
     while(cursor){const after=cursor.nextSibling;cursor.remove();cursor=after;}
     if(['INPUT','TEXTAREA','SELECT'].includes(old.nodeName)&&document.activeElement!==old&&old.value!==next.value)old.value=next.value;

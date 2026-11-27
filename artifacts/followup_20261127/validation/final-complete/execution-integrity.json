@@ -1,0 +1,33 @@
+{
+  "discovered_case_count": 2421,
+  "executed_case_count": 2421,
+  "exact_case_identity_match": true,
+  "duplicate_executed_cases": [],
+  "missing_cases": [],
+  "unexpected_cases": [],
+  "assigned_file_count": 173,
+  "unique_assigned_file_count": 173,
+  "each_file_exactly_once": true,
+  "failed_cases": [
+    {
+      "shard_xml": "shard-2.xml",
+      "identity": [
+        "tests.integration.test_period_training_facts_ui",
+        "test_period_execution_uses_calendar_counts_and_preserves_mixed_loads[week-\\u672c\\u5468-8-2-2-4-3]"
+      ],
+      "kind": "failure",
+      "message": "assert False\n +  where False = any(<generator object test_period_execution_uses_calendar_counts_and_preserves_mixed_loads.<locals>.<genexpr> at 0xfffdaca0cc80>)",
+      "traceback": "tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1037/test_period_execution_uses_cal0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdac6af250>\nperiod = 'week', label = '本周', planned = 8, done = 2, skipped = 2, unknown = 4\nwork = 3\n\n    @pytest.mark.parametrize(\"period,label,planned,done,skipped,unknown,work\", [\n        (\"week\", \"本周\", 8, 2, 2, 4, 3), (\"month\", \"本月\", 12, 3, 3, 6, 4)])\n    def test_period_execution_uses_calendar_counts_and_preserves_mixed_loads(tmp_path, monkeypatch, period, label, planned, done, skipped, unknown, work):\n        monkeypatch.chdir(tmp_path)\n        path = tmp_path / \"synthetic-period-facts.sqlite3\"\n        with closing(Repository(path)) as repo:\n            for index, day in enumerate((\"2026-10-31\", \"2026-11-01\", \"2026-11-09\", \"2026-11-10\")):\n                record_session(repo, day, load=30 if index % 2 == 0 else 32.5, extra=index == 3)\n            computed = analyze(repo, cutoff_time=CUTOFF, timezone_name=\"UTC\", period=period)\n            rolling = analyze(repo, cutoff_time=CUTOFF, timezone_name=\"UTC\", window_days=30)\n            assert rolling[\"metrics\"][\"STR-09\"][\"value\"][\"planned\"] == 16\n        section = render(path, label)\n        shown = table(section, \"已完成计划组\").iloc[0]\n        assert [shown[k] for k in (\"原计划组数\", \"已完成计划组\", \"已跳过计划组\", \"尚未确认完成的计划组\", \"额外完成组\")] == [planned, done, skipped, unknown, 1]\n        assert shown[\"已完成占原计划\"] == done / planned\n        assert table(section, \"已记录完成工作组\").iloc[0][\"已记录完成工作组\"] == work\n        endpoints = table(section, \"目标项\").set_index(\"目标项\")\n        assert endpoints.loc[\"负荷\", \"有明确目标组数\"] == planned\n        assert endpoints.loc[\"负荷\", \"已满足\"] == done\n        assert endpoints.loc[\"负荷\", \"未满足\"] == skipped\n        assert endpoints.loc[\"负荷\", \"尚不能判断\"] == unknown\n>       assert any(computed[\"window_start\"] in x.value for x in section.caption)\nE       assert False\nE        +  where False = any(<generator object test_period_execution_uses_calendar_counts_and_preserves_mixed_loads.<locals>.<genexpr> at 0xfffdaca0cc80>)\n\n/tmp/hz-master-regression-uao_gvww/shard-2/tests/integration/test_period_training_facts_ui.py:78: AssertionError"
+    },
+    {
+      "shard_xml": "shard-2.xml",
+      "identity": [
+        "tests.integration.test_period_training_facts_ui",
+        "test_period_execution_uses_calendar_counts_and_preserves_mixed_loads[month-\\u672c\\u6708-12-3-3-6-4]"
+      ],
+      "kind": "failure",
+      "message": "assert False\n +  where False = any(<generator object test_period_execution_uses_calendar_counts_and_preserves_mixed_loads.<locals>.<genexpr> at 0xfffdaca0f760>)",
+      "traceback": "tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1037/test_period_execution_uses_cal1')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdc66c9b90>\nperiod = 'month', label = '本月', planned = 12, done = 3, skipped = 3, unknown = 6\nwork = 4\n\n    @pytest.mark.parametrize(\"period,label,planned,done,skipped,unknown,work\", [\n        (\"week\", \"本周\", 8, 2, 2, 4, 3), (\"month\", \"本月\", 12, 3, 3, 6, 4)])\n    def test_period_execution_uses_calendar_counts_and_preserves_mixed_loads(tmp_path, monkeypatch, period, label, planned, done, skipped, unknown, work):\n        monkeypatch.chdir(tmp_path)\n        path = tmp_path / \"synthetic-period-facts.sqlite3\"\n        with closing(Repository(path)) as repo:\n            for index, day in enumerate((\"2026-10-31\", \"2026-11-01\", \"2026-11-09\", \"2026-11-10\")):\n                record_session(repo, day, load=30 if index % 2 == 0 else 32.5, extra=index == 3)\n            computed = analyze(repo, cutoff_time=CUTOFF, timezone_name=\"UTC\", period=period)\n            rolling = analyze(repo, cutoff_time=CUTOFF, timezone_name=\"UTC\", window_days=30)\n            assert rolling[\"metrics\"][\"STR-09\"][\"value\"][\"planned\"] == 16\n        section = render(path, label)\n        shown = table(section, \"已完成计划组\").iloc[0]\n        assert [shown[k] for k in (\"原计划组数\", \"已完成计划组\", \"已跳过计划组\", \"尚未确认完成的计划组\", \"额外完成组\")] == [planned, done, skipped, unknown, 1]\n        assert shown[\"已完成占原计划\"] == done / planned\n        assert table(section, \"已记录完成工作组\").iloc[0][\"已记录完成工作组\"] == work\n        endpoints = table(section, \"目标项\").set_index(\"目标项\")\n        assert endpoints.loc[\"负荷\", \"有明确目标组数\"] == planned\n        assert endpoints.loc[\"负荷\", \"已满足\"] == done\n        assert endpoints.loc[\"负荷\", \"未满足\"] == skipped\n        assert endpoints.loc[\"负荷\", \"尚不能判断\"] == unknown\n>       assert any(computed[\"window_start\"] in x.value for x in section.caption)\nE       assert False\nE        +  where False = any(<generator object test_period_execution_uses_calendar_counts_and_preserves_mixed_loads.<locals>.<genexpr> at 0xfffdaca0f760>)\n\n/tmp/hz-master-regression-uao_gvww/shard-2/tests/integration/test_period_training_facts_ui.py:78: AssertionError"
+    }
+  ]
+}

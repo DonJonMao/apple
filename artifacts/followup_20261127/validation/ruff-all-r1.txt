@@ -1,0 +1,519 @@
+E401 [*] Multiple imports on one line
+ --> Apple_v1.4_Codex_Execution_Pack/evidence/benchmark_history.py:1:1
+  |
+1 | import json, resource, tempfile, time
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2 | from datetime import datetime, timedelta, timezone
+3 | from pathlib import Path
+  |
+help: Split imports
+  |
+  - import json, resource, tempfile, time
+1 + import json
+2 + import resource
+3 + import tempfile
+4 + import time
+5 | from datetime import datetime, timedelta, timezone
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> Apple_v1.4_Codex_Execution_Pack/evidence/benchmark_history.py:1:1
+  |
+1 | / import json, resource, tempfile, time
+2 | | from datetime import datetime, timedelta, timezone
+3 | | from pathlib import Path
+4 | | from zipfile import ZipFile, ZIP_DEFLATED
+5 | | from healthzip.db.repository import Repository
+6 | | from healthzip.importers.apple_xml import import_apple_zip
+7 | | from healthzip.analytics.v13 import analyze
+  | |___________________________________________^
+8 |
+9 |   results=[]
+  |
+help: Organize imports
+   |
+   - import json, resource, tempfile, time
+1  + import json
+2  + import resource
+3  + import tempfile
+4  + import time
+5  | from datetime import datetime, timedelta, timezone
+6  | from pathlib import Path
+   - from zipfile import ZipFile, ZIP_DEFLATED
+7  + from zipfile import ZIP_DEFLATED, ZipFile
+8  +
+9  + from healthzip.analytics.v13 import analyze
+10 | from healthzip.db.repository import Repository
+11 | from healthzip.importers.apple_xml import import_apple_zip
+   - from healthzip.analytics.v13 import analyze
+12 |
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:38:34
+   |
+36 | def conflict_truncation():
+37 |     with TemporaryDirectory(dir=OUT) as t:
+38 |         w = KnowledgeWorkbench(t); w.seed()
+   |                                  ^
+39 |         approve(w, 'TC-progression-load-repetition-options')
+40 |         approve(w, 'TC-measurement-load-comparability', 'refutes')
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:50:34
+   |
+48 |         w.close()
+49 |     with TemporaryDirectory(dir=OUT) as t:
+50 |         w = KnowledgeWorkbench(t); w.seed()
+   |                                  ^
+51 |         cards = [{'theory_id': 'SYNTHETIC-' + str(i), 'version': '0.1.0',
+52 |                   'title': QUESTION if i < 6 else 'Synthetic contrary evidence', 'domains': ['progression']}
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:76:34
+   |
+74 |     metadata, spans, rights = parse_jats(raw)
+75 |     with TemporaryDirectory(dir=OUT) as t:
+76 |         w = KnowledgeWorkbench(t); w.seed()
+   |                                  ^
+77 |         v = w.lib.record_version('S5', raw, 'fulltext', {}, metadata, rights, 'matched', spans, 'jats-scoped-1.4.0')
+78 |         result = [{'xpath': s['locator']['xpath'], 'text': s['text'],
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:89:34
+   |
+87 | def repeated_correction():
+88 |     with TemporaryDirectory(dir=OUT) as t:
+89 |         w = KnowledgeWorkbench(t); w.seed()
+   |                                  ^
+90 |         v, sid, _ = approve(w, 'TC-progression-load-repetition-options')
+91 |         source = w.lib.source('S5')['manifest']
+   |
+
+E702 Multiple statements on one line (semicolon)
+   --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:134:34
+    |
+132 |     out = {}
+133 |     with TemporaryDirectory(dir=OUT) as t:
+134 |         w = KnowledgeWorkbench(t); w.seed()
+    |                                  ^
+135 |         _, _, request = approve(w, 'TC-progression-load-repetition-options')
+136 |         old_release = w.release('synthetic-original')
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> Apple_v1.4_Codex_Execution_Pack/evidence/knowledge/reproduce.py:144:34
+    |
+142 |         w.close()
+143 |     with TemporaryDirectory(dir=OUT) as t:
+144 |         w = KnowledgeWorkbench(t); w.seed()
+    |                                  ^
+145 |         approve(w, 'TC-progression-load-repetition-options')
+146 |         w.revise_theory('TC-progression-load-repetition-options', '0.1.0', '0.2.0', reviewer='synthetic', rationale='Replacement test…
+    |
+
+E401 [*] Multiple imports on one line
+ --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:1:1
+  |
+1 | import json, traceback
+  | ^^^^^^^^^^^^^^^^^^^^^^
+2 | from pathlib import Path
+3 | from datetime import datetime, timedelta, timezone
+  |
+help: Split imports
+  |
+  - import json, traceback
+1 + import json
+2 + import traceback
+3 | from pathlib import Path
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:1:1
+   |
+ 1 | / import json, traceback
+ 2 | | from pathlib import Path
+ 3 | | from datetime import datetime, timedelta, timezone
+ 4 | | from zipfile import ZipFile
+ 5 | | from xml.sax.saxutils import quoteattr
+ 6 | | from healthzip.db.repository import Repository
+ 7 | | from healthzip.importers.apple_xml import import_apple_zip
+ 8 | | from healthzip.analytics.v13 import analyze
+   | |___________________________________________^
+ 9 |   BASE=Path('/workspace/scratch/a74a838d7f65/review912/state')
+10 |   now=datetime.now(timezone.utc)
+   |
+help: Organize imports
+   |
+   - import json, traceback
+1  + import json
+2  + import traceback
+3  + from datetime import datetime, timedelta, timezone
+4  | from pathlib import Path
+   - from datetime import datetime, timedelta, timezone
+   - from zipfile import ZipFile
+5  | from xml.sax.saxutils import quoteattr
+6  + from zipfile import ZipFile
+7  +
+8  + from healthzip.analytics.v13 import analyze
+9  | from healthzip.db.repository import Repository
+10 | from healthzip.importers.apple_xml import import_apple_zip
+   - from healthzip.analytics.v13 import analyze
+11 +
+12 | BASE=Path('/workspace/scratch/a74a838d7f65/review912/state')
+   |
+
+E701 Multiple statements on one line (colon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:14:21
+   |
+12 | def record(kind,value,start,end,source='Watch',unit=None,child=''):
+13 |  attrs={'type':kind,'value':str(value),'sourceName':source,'sourceVersion':'1','startDate':stamp(start),'endDate':stamp(end)}
+14 |  if unit is not None:attrs['unit']=unit
+   |                     ^
+15 |  return '<Record '+ ' '.join(k+'='+quoteattr(v) for k,v in attrs.items())+'>'+child+'</Record>'
+16 | def imported(name,records):
+   |
+
+E701 Multiple statements on one line (colon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:18:15
+   |
+16 | def imported(name,records):
+17 |  p=BASE/(name+'.sqlite')
+18 |  if p.exists():p.unlink()
+   |               ^
+19 |  r=Repository(p)
+20 |  z=BASE/(name+'.zip')
+   |
+
+E701 Multiple statements on one line (colon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:21:26
+   |
+19 |  r=Repository(p)
+20 |  z=BASE/(name+'.zip')
+21 |  with ZipFile(z,'w') as f:f.writestr('apple_health_export/export.xml','<HealthData>'+''.join(records)+'</HealthData>')
+   |                          ^
+22 |  imp=import_apple_zip(z,r)
+23 |  assert imp.status=='completed',imp.as_dict()
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:28:74
+   |
+26 | results={}
+27 | # Valid alternate physical units; no malformed values.
+28 | a=(now-timedelta(days=2)).replace(hour=0,minute=0,second=0,microsecond=0);b=a+timedelta(days=1)
+   |                                                                          ^
+29 | r,imp=imported('units',[record('HKQuantityTypeIdentifierBasalEnergyBurned',6694.4,a,b,unit='kJ'),record('HKQuantityTypeIdentifierActiv…
+30 | v=analyze(r,timezone_name='UTC')
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:34:25
+   |
+32 | r.close()
+33 | # Common mixed source: inBed phone records cannot supply asleep duration.
+34 | a=now-timedelta(hours=8);b=now-timedelta(hours=1)
+   |                         ^
+35 | r,imp=imported('phone_inbed_watch_asleep',[record('HKCategoryTypeIdentifierSleepAnalysis','HKCategoryValueSleepAnalysisInBed',a-timede…
+36 | v=analyze(r,timezone_name='UTC')
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:40:74
+   |
+38 | r.close()
+39 | # Declared historical day boundary; imported facts are known before future synthetic cutoff.
+40 | a=(now+timedelta(days=1)).replace(hour=0,minute=0,second=0,microsecond=0);cutoff=a+timedelta(days=1)
+   |                                                                          ^
+41 | r,imp=imported('sleep_midnight_boundary',[record('HKCategoryTypeIdentifierSleepAnalysis','HKCategoryValueSleepAnalysisAsleep',a+timede…
+42 | try:
+   |
+
+E701 Multiple statements on one line (colon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/state/reproduce.py:53:27
+   |
+51 | r.close()
+52 | (BASE/'results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
+53 | for k,v in results.items(): print(k,json.dumps(v,ensure_ascii=False))
+   |                           ^
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/strength/repro_remaining.py:2:1
+   |
+ 1 |   """Synthetic, read-only engine audit for HEAD 912aefc; not efficacy evidence."""
+ 2 | / from datetime import datetime, timedelta, timezone
+ 3 | | from pathlib import Path
+ 4 | | import json
+ 5 | |
+ 6 | | from healthzip.science import evaluate, evaluate_all
+ 7 | | from healthzip.science.registry import calibration_matches
+ 8 | | from healthzip.science.semantics import analysis_task
+   | |_____________________________________________________^
+ 9 |
+10 |   START = "2026-09-01T00:00:00+00:00"
+   |
+help: Organize imports
+  |
+1 | """Synthetic, read-only engine audit for HEAD 912aefc; not efficacy evidence."""
+2 + import json
+3 | from datetime import datetime, timedelta, timezone
+4 | from pathlib import Path
+  - import json
+5 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> Apple_v1.4_Codex_Execution_Pack/evidence/training/active_session_counterexample.py:1:1
+  |
+1 | / from pathlib import Path
+2 | | from tempfile import TemporaryDirectory
+3 | | import json
+4 | | import os
+5 | | from streamlit.testing.v1 import AppTest
+6 | | from healthzip.db.repository import Repository
+7 | | from healthzip.training.service import TrainingService
+  | |______________________________________________________^
+8 |
+9 |   with TemporaryDirectory(prefix='active-session-review-') as temp:
+  |
+help: Organize imports
+  |
+1 + import json
+2 + import os
+3 | from pathlib import Path
+4 | from tempfile import TemporaryDirectory
+  - import json
+  - import os
+5 +
+6 | from streamlit.testing.v1 import AppTest
+7 +
+8 | from healthzip.db.repository import Repository
+  |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/active_session_counterexample.py:10:19
+   |
+ 9 | with TemporaryDirectory(prefix='active-session-review-') as temp:
+10 |     os.chdir(temp);path=Path(temp)/'db.sqlite3'
+   |                   ^
+11 |     app=AppTest.from_string('from healthzip.db.repository import Repository\nfrom healthzip.ui.training_page import render_training\n'
+12 |         f'repo=Repository({str(path)!r})\nrender_training(repo)\nrepo.close()').run(timeout=30)
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/active_session_counterexample.py:19:26
+   |
+17 |     app.button(key='training_start').click().run(timeout=30)
+18 |     selected=app.selectbox(key='resume_training').value
+19 |     repo=Repository(path);svc=TrainingService(repo);sessions=svc.list_sessions()
+   |                          ^
+20 |     latest=sessions[0]
+21 |     print(json.dumps({'first_id':first,'new_id':latest['id'],'new_name':latest['name'],
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/active_session_counterexample.py:19:52
+   |
+17 |     app.button(key='training_start').click().run(timeout=30)
+18 |     selected=app.selectbox(key='resume_training').value
+19 |     repo=Repository(path);svc=TrainingService(repo);sessions=svc.list_sessions()
+   |                                                    ^
+20 |     latest=sessions[0]
+21 |     print(json.dumps({'first_id':first,'new_id':latest['id'],'new_name':latest['name'],
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:2:1
+   |
+ 1 |   """Synthetic real UI/Repository counterexamples; no project file mutations."""
+ 2 | / from pathlib import Path
+ 3 | | from tempfile import TemporaryDirectory
+ 4 | | from datetime import datetime, timezone
+ 5 | | import importlib.util
+ 6 | | import json
+ 7 | | import os
+ 8 | |
+ 9 | | from healthzip.db.repository import Repository
+10 | | from healthzip.training.service import TrainingService
+   | |______________________________________________________^
+11 |
+12 |   ROOT = Path('/workspace/scratch/a74a838d7f65/apple_review_912aefc')
+   |
+help: Organize imports
+  |
+1 | """Synthetic real UI/Repository counterexamples; no project file mutations."""
+  - from pathlib import Path
+  - from tempfile import TemporaryDirectory
+  - from datetime import datetime, timezone
+2 | import importlib.util
+3 | import json
+4 | import os
+5 + from datetime import datetime, timezone
+6 + from pathlib import Path
+7 + from tempfile import TemporaryDirectory
+8 |
+  |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:14:46
+   |
+12 | ROOT = Path('/workspace/scratch/a74a838d7f65/apple_review_912aefc')
+13 | spec=importlib.util.spec_from_file_location('candidate_test_helpers', ROOT/'tests/integration/test_review_candidate_flow.py')
+14 | helpers=importlib.util.module_from_spec(spec); spec.loader.exec_module(helpers)
+   |                                              ^
+15 | def now(): return datetime.now(timezone.utc).isoformat()
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:32:23
+   |
+30 | def candidate_case(case):
+31 |     with TemporaryDirectory(prefix='candidate-review-') as temp:
+32 |         os.chdir(temp); path=Path(temp)/'db.sqlite3'
+   |                       ^
+33 |         helpers.synthetic_authority(Path(temp)/'.local/knowledge','external_total_kg')
+34 |         repo=Repository(path);svc=TrainingService(repo);condition=cond(svc)
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:34:30
+   |
+32 |         os.chdir(temp); path=Path(temp)/'db.sqlite3'
+33 |         helpers.synthetic_authority(Path(temp)/'.local/knowledge','external_total_kg')
+34 |         repo=Repository(path);svc=TrainingService(repo);condition=cond(svc)
+   |                              ^
+35 |         prior=svc.start_session('prior'); pi=svc.add_exercise(prior['id'],'psa.ex.barbell_bench_press',condition)
+36 |         prior_bad=case=='pain_reference'
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:34:56
+   |
+32 |         os.chdir(temp); path=Path(temp)/'db.sqlite3'
+33 |         helpers.synthetic_authority(Path(temp)/'.local/knowledge','external_total_kg')
+34 |         repo=Repository(path);svc=TrainingService(repo);condition=cond(svc)
+   |                                                        ^
+35 |         prior=svc.start_session('prior'); pi=svc.add_exercise(prior['id'],'psa.ex.barbell_bench_press',condition)
+36 |         prior_bad=case=='pain_reference'
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:35:41
+   |
+33 |         helpers.synthetic_authority(Path(temp)/'.local/knowledge','external_total_kg')
+34 |         repo=Repository(path);svc=TrainingService(repo);condition=cond(svc)
+35 |         prior=svc.start_session('prior'); pi=svc.add_exercise(prior['id'],'psa.ex.barbell_bench_press',condition)
+   |                                         ^
+36 |         prior_bad=case=='pain_reference'
+37 |         record=complete_ref(svc,pi,reps=12,pain=prior_bad,quality='technique_limited' if prior_bad else 'acceptable')
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:39:45
+   |
+37 |         record=complete_ref(svc,pi,reps=12,pain=prior_bad,quality='technique_limited' if prior_bad else 'acceptable')
+38 |         svc.end_session(prior['id'])
+39 |         current=svc.start_session('current'); ci=svc.add_exercise(current['id'],'psa.ex.barbell_bench_press',condition)
+   |                                             ^
+40 |         if case=='current_pain':
+41 |             complete_ref(svc,ci,reps=4,pain=True,quality='technique_limited')
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:50:30
+   |
+48 |         app.button(key='candidate_'+ci['id']).click().run(timeout=30)
+49 |         assert not app.exception and not app.error, ([x.value for x in app.exception],[x.value for x in app.error])
+50 |         repo=Repository(path);svc=TrainingService(repo);c=svc.list_recommendations()[0]
+   |                              ^
+51 |         print(json.dumps({'case':case,'prior_quality':record['quality_status'],'prior_pain':bool(record['pain_flag']),
+52 |             'action':c['candidate']['action_kind'],'load':c['candidate']['proposed_change']['load'],
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:50:56
+   |
+48 |         app.button(key='candidate_'+ci['id']).click().run(timeout=30)
+49 |         assert not app.exception and not app.error, ([x.value for x in app.exception],[x.value for x in app.error])
+50 |         repo=Repository(path);svc=TrainingService(repo);c=svc.list_recommendations()[0]
+   |                                                        ^
+51 |         print(json.dumps({'case':case,'prior_quality':record['quality_status'],'prior_pain':bool(record['pain_flag']),
+52 |             'action':c['candidate']['action_kind'],'load':c['candidate']['proposed_change']['load'],
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:61:19
+   |
+60 | with TemporaryDirectory(prefix='custom-template-review-') as temp:
+61 |     os.chdir(temp);repo=Repository(Path(temp)/'db.sqlite3');svc=TrainingService(repo)
+   |                   ^
+62 |     custom=svc.create_exercise('Synthetic custom','repetitions','other','unknown')
+63 |     s=svc.start_session('original');i=svc.add_exercise(s['id'],custom['exercise_id'],{})
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:61:60
+   |
+60 | with TemporaryDirectory(prefix='custom-template-review-') as temp:
+61 |     os.chdir(temp);repo=Repository(Path(temp)/'db.sqlite3');svc=TrainingService(repo)
+   |                                                            ^
+62 |     custom=svc.create_exercise('Synthetic custom','repetitions','other','unknown')
+63 |     s=svc.start_session('original');i=svc.add_exercise(s['id'],custom['exercise_id'],{})
+   |
+
+E702 Multiple statements on one line (semicolon)
+  --> Apple_v1.4_Codex_Execution_Pack/evidence/training/candidate_counterexamples.py:63:36
+   |
+61 |     os.chdir(temp);repo=Repository(Path(temp)/'db.sqlite3');svc=TrainingService(repo)
+62 |     custom=svc.create_exercise('Synthetic custom','repetitions','other','unknown')
+63 |     s=svc.start_session('original');i=svc.add_exercise(s['id'],custom['exercise_id'],{})
+   |                                    ^
+64 |     svc.add_set(i['id'],planned={'reps_min':6,'reps_max':8,'rir':2})
+65 |     updated=svc.update_exercise(custom['exercise_id'],{'recording_mode':'duration'},base_revision=custom['revision'])
+   |
+
+F821 Undefined name `render_legacy_report`
+ --> artifacts/repair_actions/report-render-summary-change/before-render-function.py:4:16
+  |
+2 |     """Readable questions and actions; complete frozen details stay addressable."""
+3 |     if "questions" not in report:
+4 |         return render_legacy_report(repo, report)
+  |                ^^^^^^^^^^^^^^^^^^^^
+5 |     from collections import Counter
+  |
+
+F821 Undefined name `load_run`
+  --> artifacts/repair_actions/report-render-summary-change/before-render-function.py:34:17
+   |
+32 |         lines.append(f"有 {sum(unknown.values())} 项条件缺口待核对；具体缺项与原记录身份在冻结明细中逐条保留。")
+33 |     if runs is None:
+34 |         runs = [load_run(repo, key) for key in report.get("workflow_run_ids", [])]
+   |                 ^^^^^^^^
+35 |     sessions = {str(ctx["session_id"]): ctx for run in runs
+36 |                 for ctx in run.get("supplements", {}).get("training_session_contexts", [])}
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> specs/v1.3/Codex_Execution_Pack_v1.3/validate_spec.py:2:1
+  |
+1 |   """Validate this delivery's specification links; this does not test the product."""
+2 | / from pathlib import Path
+3 | | import json
+  | |___________^
+4 |
+5 |   ROOT = Path(__file__).resolve().parent
+  |
+help: Organize imports
+  |
+1 | """Validate this delivery's specification links; this does not test the product."""
+2 + import json
+3 | from pathlib import Path
+  - import json
+4 |
+  |
+
+Found 37 errors.
+[*] 8 fixable with `--fix`.

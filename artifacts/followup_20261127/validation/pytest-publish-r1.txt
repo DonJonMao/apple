@@ -1,0 +1,2702 @@
+........................................................................ [  2%]
+....F.....................FFFF....F.F................
+=================================== FAILURES ===================================
+____ test_real_template_region_free_record_next_training_and_joint_reports _____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_real_template_region_free0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffee86f9810>
+
+    def test_real_template_region_free_record_next_training_and_joint_reports(tmp_path, monkeypatch):
+        import streamlit as st
+    
+        repo, svc, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch)
+        body(repo)
+        template = plan(svc, instance)
+        # No selected action exists yet: viewing a region cannot invent a plan/load.
+        svc.end_session(instance["session_id"])
+        downloads = {}
+        original_download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            downloads[label] = data
+            return original_download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        UI["install"](monkeypatch)
+        app = HELP["open_app"](repo.path)
+        go(app, "力量")
+        UI["send"](app, "catalog", {"regions": ["chest"]})
+        assert not app.exception
+        assert repo.one("SELECT count(*) FROM current_training_advice")[0] == 0
+        assert template["id"] in {item["id"] for item in UI["snapshot"](app)["templates"]}
+        started = UI["send"](app, "start_session", {"template_id": template["id"], "name": "Synthetic current chest"})
+        assert started["status"] == "saved"
+        assert not app.exception and not app.error
+        session = svc.get_session(started["data"]["id"])
+        selected = session["exercises"][0]
+        assert UI["send"](app, "advice", {"instance_id": selected["id"]})["status"] == "saved"
+        before = newest_advice(repo, selected["id"])
+        option = next(o for o in before["groups"][0]["options"] if o["strategy"] == "heavier_lower_reps")
+        assert (option["load"], option["reps"], option["rir"]) == (34, 7, 2)
+        assert before["body"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        for mid, value in (("STATE-RHR", 61), ("STATE-SDNN", 41), ("BODY-MASS-DAILY", 81)):
+            assert {p["value"] for points in before["body"]["metrics"][mid]["value"].values() for p in points} == {value}
+        frozen_target = svc.get_set(selected["sets"][0]["id"])["planned"]
+        UI["legacy"](app, "set_details", set_id=selected["sets"][0]["set_uuid"])
+        HELP["HELP"]["W1"]["TRAINING"]["finish_reference"](app, repo.path, selected, 30, 11, reference=False)
+        assert not app.exception and not app.error
+        actual = svc.get_set(selected["sets"][0]["id"])
+        assert actual["planned"] == frozen_target and actual["rir"] == 2
+        compared = objective_comparison(repo, selected["id"])
+        # Body windows move with their actual cutoff. Repeated page renders can
+        # legitimately freeze a newer pre-start suggestion with the same records.
+        # Objective linkage must select that exact latest applicable version.
+        candidates = [json.loads(row[0]) for row in repo.conn.execute(
+            "SELECT payload_json FROM current_training_advice WHERE session_exercise_id=?",
+            (selected["id"],))]
+        candidates = [version for version in candidates
+            if datetime.fromisoformat(version["created_at"]) <= datetime.fromisoformat(actual["started_at"])
+            and any(group["set_uuid"] == actual["set_uuid"] for group in version["groups"])]
+        latest_cutoff = max(datetime.fromisoformat(version["created_at"]) for version in candidates)
+        prestart = [version for version in candidates if datetime.fromisoformat(version["created_at"]) == latest_cutoff]
+        assert len(prestart) == 1
+        frozen = prestart[0]
+        assert compared["rows"][0]["advice_id"] == frozen["advice_id"]
+        assert compared["rows"][0]["frozen_group"]["original_target"] == before["groups"][0]["original_target"]
+        frozen_option = next(option for option in frozen["groups"][0]["options"]
+                             if option["strategy"] == "heavier_lower_reps")
+        assert (frozen_option["load"], frozen_option["reps"], frozen_option["rir"]) == (34, 7, 2)
+        assert frozen["body"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        assert [row["set_uuid"] for row in frozen["daily_history"]["records"]] == [
+            row["set_uuid"] for row in before["daily_history"]["records"]]
+        assert json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE advice_id=?",
+                                  (before["advice_id"],))[0]) == before
+        assert compared["rows"][0]["actual"]["reps"] == 11
+        current_session = svc.get_session(session["id"])
+        assert UI["send"](app, "end_session", {"session_id": current_session["id"], "base_revision": current_session["revision"]})["status"] == "saved"
+        following_start = UI["send"](app, "start_session", {"template_id": template["id"]})
+        assert following_start["status"] == "saved"
+        next_session = svc.get_session(following_start["data"]["id"])
+        assert UI["send"](app, "advice", {"instance_id": next_session["exercises"][0]["id"]})["status"] == "saved"
+        next_advice = newest_advice(repo, next_session["exercises"][0]["id"])
+        assert next_advice["advice_id"] != before["advice_id"]
+        next_run = load_run(repo, next_advice["review_run_id"])
+        # Ordinary actuals remain un-nominated; numeric-update coverage is shared
+        # with test_current_training_three_repairs.
+        rir = load_analysis(repo, next_run["run_id"])["metrics"]["STR-10"]
+        assert "strength_set:"+actual["set_uuid"] in rir["source_record_ids"]
+        go(app, "复盘")
+        legacy_analysis(app, "问题分析")
+        app.button(key="review_compute").click().run()
+        for period, label in (("week", "本周"), ("month", "本月")):
+            next(s for s in app.selectbox if s.label == "复盘周期").select(label)
+            for selector in app.selectbox:
+                try:
+                    selector.index
+                except ValueError as exc:
+                    pytest.fail(f"stale selector {selector.key} / {selector.label}: {selector.value}; {selector.options}; {exc}")
+            next(b for b in app.button if b.label == "生成当前周期复盘").click().run()
+>           assert not app.exception and not app.error
+E           assert (not ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])]))
+E            +  where ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={$$ID-80bde5f...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_acceptance.py:148: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:130 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m127 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m129 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m130 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m131 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m132 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m133 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:232 in           [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0m[94melse[0m:                                                      [31m [0m
+[31m [0m   [2m230 [0m[2m│   │   │   │   [0mperiod_result = frozen_report[[33m"[0m[33mcurrent[0m[33m"[0m]               [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   │   │   [0mst.caption(local_window_label(period_result[[33m"[0m[33mwindow_st[0m [31m [0m
+[31m [0m [31m❱ [0m232 [2m│   │   │   [0m[1;4mrender_joint_health[0m(period_result, key=[33m"[0m[33mperiod_joint[0m[33m"[0m)     [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   [0m_render_period_training(period_result[[33m"[0m[33mmetrics[0m[33m"[0m])          [31m [0m
+[31m [0m   [2m234 [0m[2m│   │   │   [0mperiod_layers = []                                         [31m [0m
+[31m [0m   [2m235 [0m[2m│   │   │   [0m[94mfor[0m task [95min[0m period_result.get([33m"[0m[33mstrength_tasks[0m[33m"[0m, []):       [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mUnboundLocalError: [0mcannot access local variable [32m'period_result'[0m where it is not 
+associated with a value
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 10:39:01.172 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:02.556 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.631 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.650 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.726 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.738 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.818 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:02.828 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.551 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.577 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.580 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.594 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.612 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.622 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.633 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.645 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.656 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.692 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:03.774 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:03.838 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:03.917 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:04.010 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:04.136 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:04.283 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:04.558 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:04.985 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:05.139 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:05.276 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:05.346 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:05.515 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.316 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.388 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.467 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.569 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.732 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:06.984 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:07.163 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:07.307 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:07.440 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:07.578 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:39:07.739 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.756 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.829 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.840 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.912 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.925 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.972 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:07.998 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.001 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.015 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.032 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.042 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.053 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.065 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.075 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.110 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.194 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.207 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.964 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.991 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:08.995 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.010 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.028 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.037 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.048 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.060 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.070 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.105 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.196 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.207 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.257 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.284 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.287 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.303 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.321 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.331 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.342 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.355 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:39:09.365 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+_ test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-week] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_frozen_joint_report_has_c0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffd9575e910>
+period = 'week', training = True
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+>       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:39（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError
+_ test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-month] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_frozen_joint_report_has_c1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffd94ff63d0>
+period = 'month', training = True
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+>       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:39（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError
+_ test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-week] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_frozen_joint_report_has_c2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffd97668a50>
+period = 'week', training = False
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+>       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:39（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError
+_ test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-month] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_frozen_joint_report_has_c3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffd9529a1d0>
+period = 'month', training = False
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+>       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:39（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError
+______ test_real_report_buttons_after_retirement[withdrawn-\u5206\u6790] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_real_report_buttons_after0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffee877fb50>
+entry = '分析', retirement = 'withdrawn'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+        assert not app.exception
+        selected = app.session_state["analysis_contexts"][str(repo.path.resolve())]
+        before = repo.rows("SELECT run_id,result_json FROM workflow_run")
+        if retirement == "withdrawn":
+            withdraw_context(repo, selected)
+        else:
+            save_context(repo, {"population": "trained_adults"}, replaces_context_id=selected)
+        go(app, "复盘")
+        legacy_analysis(app, "问题分析" if entry == "分析" else "报告")
+        label = "生成当前周期复盘" if entry == "分析" else "生成 Markdown 报告"
+        next(b for b in app.button if b.label == label).click().run()
+>       assert not app.exception, [e.message for e in app.exception]
+E       AssertionError: ["cannot access local variable 'period_result' where it is not associated with a value"]
+E       assert not ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])])
+E        +  where ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={$$ID-80bde5f...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:172: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:130 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m127 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m129 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m130 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m131 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m132 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m133 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:232 in           [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0m[94melse[0m:                                                      [31m [0m
+[31m [0m   [2m230 [0m[2m│   │   │   │   [0mperiod_result = frozen_report[[33m"[0m[33mcurrent[0m[33m"[0m]               [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   │   │   [0mst.caption(local_window_label(period_result[[33m"[0m[33mwindow_st[0m [31m [0m
+[31m [0m [31m❱ [0m232 [2m│   │   │   [0m[1;4mrender_joint_health[0m(period_result, key=[33m"[0m[33mperiod_joint[0m[33m"[0m)     [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   [0m_render_period_training(period_result[[33m"[0m[33mmetrics[0m[33m"[0m])          [31m [0m
+[31m [0m   [2m234 [0m[2m│   │   │   [0mperiod_layers = []                                         [31m [0m
+[31m [0m   [2m235 [0m[2m│   │   │   [0m[94mfor[0m task [95min[0m period_result.get([33m"[0m[33mstrength_tasks[0m[33m"[0m, []):       [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mUnboundLocalError: [0mcannot access local variable [32m'period_result'[0m where it is not 
+associated with a value
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 10:40:06.404 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:40:07.842 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:07.859 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:07.924 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:07.941 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.013 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.024 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.653 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.675 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.678 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.690 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.707 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.715 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.724 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.733 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.742 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.852 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.866 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:08.901 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.307 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.320 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.483 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.486 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.501 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.521 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.531 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.541 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.552 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.562 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.683 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.694 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.730 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.770 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.783 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.944 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.948 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.963 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.982 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:09.992 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.002 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.012 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.022 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.142 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.155 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.191 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.230 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.243 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.408 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.412 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.427 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.447 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.457 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.466 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.477 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.487 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.609 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.620 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:10.657 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.006 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.021 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.186 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.190 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.207 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.227 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.237 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.247 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.258 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.268 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.388 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.398 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.435 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.475 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.487 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.652 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.656 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.672 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.693 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.704 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.714 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.725 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:11.734 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+______ test_real_report_buttons_after_retirement[superseded-\u5206\u6790] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1029/test_real_report_buttons_after2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffee86164d0>
+entry = '分析', retirement = 'superseded'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        app = HELP["open_app"](repo.path)
+        app.selectbox(key="workflow_population").select("adults")
+        app.button(key="workflow_run").click().run()
+        assert not app.exception
+        selected = app.session_state["analysis_contexts"][str(repo.path.resolve())]
+        before = repo.rows("SELECT run_id,result_json FROM workflow_run")
+        if retirement == "withdrawn":
+            withdraw_context(repo, selected)
+        else:
+            save_context(repo, {"population": "trained_adults"}, replaces_context_id=selected)
+        go(app, "复盘")
+        legacy_analysis(app, "问题分析" if entry == "分析" else "报告")
+        label = "生成当前周期复盘" if entry == "分析" else "生成 Markdown 报告"
+        next(b for b in app.button if b.label == label).click().run()
+>       assert not app.exception, [e.message for e in app.exception]
+E       AssertionError: ["cannot access local variable 'period_result' where it is not associated with a value"]
+E       assert not ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])])
+E        +  where ElementList(_list=[Exception(message="cannot access local variable 'period_result' where it is not associated with a v... line 232, in render_analysis\n    render_joint_health(period_result, key="period_joint")\n    ^^^^^^^^^^^^^^^^^^^'])]) = AppTest(\n    _script_path='/home/sn_maozhifang/apple/app.py',\n    default_timeout=60,\n    _session_state={$$ID-80bde5f...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:172: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[31m──[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m──[0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mexec_code.py[0m:136 in exec_func_with_error_handling            [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runti[0m [31m [0m
+[31m [0m [2mme/scriptrunner/[0m[1mscript_runner.py[0m:936 in code_to_exec                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/[0m[1mapp.py[0m:59 in <module>                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m56 [0m[2m│   │   │   │   │   │   │   │   [0mwindow_start=scope[[33m"[0m[33mwindow_start[0m[33m"[0m], cut [31m [0m
+[31m [0m   [2m57 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m复盘[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m58 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mreview_page[0m [94mimport[0m render_review          [31m [0m
+[31m [0m [31m❱ [0m59 [2m│   │   │   [0mrender_review(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m60 [0m[2m│   │   [0m[94melif[0m page == [33m"[0m[33m身体[0m[33m"[0m:                                            [31m [0m
+[31m [0m   [2m61 [0m[2m│   │   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mbody_workspace[0m [94mimport[0m render_body         [31m [0m
+[31m [0m   [2m62 [0m[2m│   │   │   [0mrender_body(repo, timezone_name=timezone_name)              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:130 in             [31m [0m
+[31m [0m render_review                                                                [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m127 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_questions        [31m [0m
+[31m [0m   [2m128 [0m[2m│   │   [0mrender_questions(repo, timezone_name=timezone_name)            [31m [0m
+[31m [0m   [2m129 [0m[2m│   │   [0m[94mif[0m st.toggle([33m"[0m[33m打开专项分析与已有训练建议[0m[33m"[0m, key=[33m"[0m[33mreview_advance[0m [31m [0m
+[31m [0m [31m❱ [0m130 [2m│   │   │   [0m[1;4mrender_legacy_review(repo, timezone_name=timezone_name)[0m    [31m [0m
+[31m [0m   [2m131 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m132 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m行动复评[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m133 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96mquestion_page[0m [94mimport[0m render_actions          [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1mreview_page.py[0m:44 in              [31m [0m
+[31m [0m render_legacy_review                                                         [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m 41 [0m[2m│   │   [0mst.warning([33m"[0m[33m当前选择的适用声明已撤回或被替换，依赖该声明的解释[0m [31m [0m
+[31m [0m   [2m 42 [0m[2m│   [0m[94mif[0m section == [33m"[0m[33m问题分析[0m[33m"[0m:                                          [31m [0m
+[31m [0m   [2m 43 [0m[2m│   │   [0m[94mfrom[0m [4;96mhealthzip[0m[4;96m.[0m[4;96mui[0m[4;96m.[0m[4;96manalysis_page[0m [94mimport[0m render_analysis         [31m [0m
+[31m [0m [31m❱ [0m 44 [2m│   │   [0m[1;4mrender_analysis(repo, value)[0m                                   [31m [0m
+[31m [0m   [2m 45 [0m[2m│   │   [0m[94mreturn[0m                                                         [31m [0m
+[31m [0m   [2m 46 [0m[2m│   [0mchoices = [[33m"[0m[33m本周[0m[33m"[0m, [33m"[0m[33m本月[0m[33m"[0m] + ([[33m"[0m[33m当前分析窗口[0m[33m"[0m] [94mif[0m section == [33m"[0m[33m报告[0m [31m [0m
+[31m [0m   [2m 47 [0m[2m│   [0mlabel = st.selectbox([33m"[0m[33m报告范围[0m[33m"[0m, choices, key=[33m"[0m[33mreview_report_perio[0m [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m [2m/home/sn_maozhifang/apple/src/healthzip/ui/[0m[1manalysis_page.py[0m:232 in           [31m [0m
+[31m [0m render_analysis                                                              [31m [0m
+[31m [0m                                                                              [31m [0m
+[31m [0m   [2m229 [0m[2m│   │   │   [0m[94melse[0m:                                                      [31m [0m
+[31m [0m   [2m230 [0m[2m│   │   │   │   [0mperiod_result = frozen_report[[33m"[0m[33mcurrent[0m[33m"[0m]               [31m [0m
+[31m [0m   [2m231 [0m[2m│   │   │   │   [0mst.caption(local_window_label(period_result[[33m"[0m[33mwindow_st[0m [31m [0m
+[31m [0m [31m❱ [0m232 [2m│   │   │   [0m[1;4mrender_joint_health[0m(period_result, key=[33m"[0m[33mperiod_joint[0m[33m"[0m)     [31m [0m
+[31m [0m   [2m233 [0m[2m│   │   │   [0m_render_period_training(period_result[[33m"[0m[33mmetrics[0m[33m"[0m])          [31m [0m
+[31m [0m   [2m234 [0m[2m│   │   │   [0mperiod_layers = []                                         [31m [0m
+[31m [0m   [2m235 [0m[2m│   │   │   [0m[94mfor[0m task [95min[0m period_result.get([33m"[0m[33mstrength_tasks[0m[33m"[0m, []):       [31m [0m
+[31m────────────────────────────────────────────────────────────────────────────────[0m
+[1;91mUnboundLocalError: [0mcannot access local variable [32m'period_result'[0m where it is not 
+associated with a value
+----------------------------- Captured stderr call -----------------------------
+2026-11-27 10:40:18.139 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-27 10:40:19.553 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:19.568 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:19.637 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:19.654 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:19.729 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:19.745 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.359 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.382 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.385 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.399 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.416 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.426 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.435 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.445 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.454 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.561 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.578 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:20.612 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.010 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.024 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.183 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.186 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.201 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.220 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.230 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.240 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.251 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.260 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.380 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.394 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.429 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.469 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.482 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.641 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.644 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.659 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.678 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.687 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.697 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.708 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.718 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.835 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.851 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.886 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.924 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:21.937 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.096 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.100 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.114 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.133 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.143 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.153 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.163 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.173 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.291 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.307 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.342 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.676 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.690 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.851 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.855 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.870 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.890 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.899 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.909 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.920 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:22.930 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.049 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.063 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.099 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.136 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.149 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.308 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.311 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.326 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.345 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.355 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.364 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.375 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:40:23.385 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+------------------------------ Captured log call -------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:522 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+WARNING  streamlit.deprecation_util:deprecation_util.py:81 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+=========================== short test summary info ============================
+FAILED tests/integration/test_current_training_acceptance.py::test_real_template_region_free_record_next_training_and_joint_reports
+FAILED tests/integration/test_current_training_reports.py::test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-week]
+FAILED tests/integration/test_current_training_reports.py::test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-month]
+FAILED tests/integration/test_current_training_reports.py::test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-week]
+FAILED tests/integration/test_current_training_reports.py::test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-month]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[withdrawn-\u5206\u6790]
+FAILED tests/integration/test_current_training_reports.py::test_real_report_buttons_after_retirement[superseded-\u5206\u6790]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py:128: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+7 failed, 118 passed in 166.28s (0:02:46)

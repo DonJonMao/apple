@@ -1,0 +1,624 @@
+FF....FFF....FFF..FF................FF                                   [100%]
+=================================== FAILURES ===================================
+_____ test_reading_and_single_question_load_only_requested_frozen_objects ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_reading_and_single_questi0')
+
+    def test_reading_and_single_question_load_only_requested_frozen_objects(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+>           report = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_reading.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2024-09-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+______ test_hot_generation_keeps_independent_version_without_full_restore ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_hot_generation_keeps_inde0')
+
+    def test_hot_generation_keeps_independent_version_without_full_restore(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+>           first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_reading.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2024-09-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+____ test_t05_t19_same_period_values_across_overview_detail_question_report ____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_t05_t19_same_period_value0')
+
+    def test_t05_t19_same_period_values_across_overview_detail_question_report(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            summary = workspace_summary(repo, "总览", cutoff_time=CUTOFF, period="week")["periods"][0]
+            sleep = next(f for f in summary["facts"] if f["label"] == "已观察睡眠")
+            assert sleep["value"] == 6 and sleep["statistics"]["mean"] == 7
+            assert "睡眠中位数" in dict(_select_cards(summary["facts"]))
+            heart = next(f for f in summary["facts"] if f["label"] == "静息心率" and f["source_identity"][0] == "独立合成甲")
+            assert heart["value"] == 62.3333 and heart["statistics"]["mean"] != heart["value"]
+            fields = {"window_start": START, "window_end": CUTOFF, "cutoff_time": CUTOFF, "period": "week"}
+            direct = {q["id"]: q for q in analyze_questions(repo, **fields)}
+>           report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"},
+                                   period="week", knowledge_root=tmp_path / "missing", include_details=True)
+
+tests/integration/test_report_repair_contract.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2024-09-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+____________ test_t05_source_selection_changes_all_report_consumers ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_t05_source_selection_chan0')
+
+    def test_t05_source_selection_changes_all_report_consumers(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+>           selected = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai", "source_filter": ["独立合成乙"]},
+                                     period="week", knowledge_root=tmp_path / "missing", include_details=True)
+
+tests/integration/test_report_repair_contract.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2024-09-09'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+__ test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads __
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_t12_frozen_content_dedupl0')
+
+    def test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            independent_records(repo)
+            fields = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            kwargs = {"period": "week", "knowledge_root": tmp_path / "missing"}
+>           first, second = create_report(repo, fields, **kwargs, include_details=True), create_report(repo, fields, **kwargs, include_details=True)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_report_repair_contract.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2024-09-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+_ test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere __
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_explicit_empty_source_fil0')
+
+    def test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere(tmp_path):
+        repo = Repository(tmp_path / "sources.sqlite")
+        sample(repo, 1, 11, 60, source="A")
+        sample(repo, 2, 11, 90, source="B")
+>       selected = make_report(repo, tmp_path, source_filter=["A"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_repair_report_review.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_repair_report_review.py:23: in make_report
+    return create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC", **fields},
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-08-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+__ test_first_report_initializes_existing_knowledge_before_freezing_its_clock __
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_first_report_initializes_0')
+
+    def test_first_report_initializes_existing_knowledge_before_freezing_its_clock(tmp_path):
+        repo = Repository(tmp_path / "first-use.sqlite")
+        sample(repo, 1, 11, 60)
+        KnowledgeWorkbench(tmp_path / "kb", environment_kind="synthetic_test").close()
+>       report = make_report(repo, tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_repair_report_review.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_repair_report_review.py:23: in make_report
+    return create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC", **fields},
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-08-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+___ test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export ___
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_revocation_updates_new_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff97d54490>
+
+    def test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export(tmp_path, monkeypatch):
+        original_factory = KnowledgeWorkbench
+        monkeypatch.setattr("healthzip.knowledge.KnowledgeWorkbench", lambda *args, **kwargs:
+            original_factory(*args, **{**kwargs, "environment_kind": "synthetic_test"}))
+        repo = Repository(tmp_path / "revocation.sqlite")
+        sample(repo, 1, 11, 60)
+        kb, identity, sid = _reviewed_method(tmp_path / "kb")
+>       original = make_report(repo, tmp_path)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_repair_report_review.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_repair_report_review.py:23: in make_report
+    return create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC", **fields},
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-08-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+_ test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_identity _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_declared_sleep_keeps_300_0')
+
+    def test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_identity(tmp_path):
+        from healthzip.analytics.sleep_selection import declare_episode
+        repo = Repository(tmp_path / "declared-sleep.sqlite")
+        raw = [("A", "2026-08-10 22:00:00 +0000", "2026-08-11 03:00:00 +0000"),
+               ("A", "2026-08-11 22:00:00 +0000", "2026-08-12 08:00:00 +0000"),
+               ("B", "2026-08-11 22:00:00 +0000", "2026-08-12 05:00:00 +0000")]
+        _import_xml(repo, tmp_path, [f'<Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleepCore" '
+            f'sourceName="{source}" device="synthetic" sourceVersion="1" startDate="{start}" endDate="{end}">'
+            '<MetadataEntry key="protocol_id" value="fixed"/></Record>' for source, start, end in raw])
+        repo.conn.execute("UPDATE source_revision SET available_at='2026-08-12T09:00:00Z'")
+        repo.conn.commit()
+        original = analyze(repo, cutoff_time=CUTOFF, timezone_name="UTC", period="week")
+        options = original["sleep_options"]
+        source = next(s for s in options["streams"] if s["source_name"] == "A")
+        episode = declare_episode(options, source["stream_id"], start="2026-08-10T22:00:00Z", end="2026-08-11T03:00:00Z",
+            attribution_date="2026-08-11", declared_at="2026-08-12T10:00:00Z")
+        selection = {"stream_id": source["stream_id"], "episodes": [episode], "main_episode_id": episode["id"]}
+        frozen_selection = deepcopy(selection)
+>       report = make_report(repo, tmp_path, selection_context={"sleep_selection": selection})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_repair_report_review.py:202: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_repair_report_review.py:23: in make_report
+    return create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC", **fields},
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-08-12'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+____ test_history_page_marks_current_revocation_without_rewriting_old_text _____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_history_page_marks_curren0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb4d2c750>
+
+    def test_history_page_marks_current_revocation_without_rewriting_old_text(tmp_path, monkeypatch):
+        from streamlit.testing.v1 import AppTest
+        root = tmp_path / ".local/knowledge"
+        repo = Repository(tmp_path / "history.sqlite")
+        sample(repo, 1, 11, 60)
+        kb, identity, _ = _reviewed_method(root)
+        original_factory = KnowledgeWorkbench
+        monkeypatch.setattr("healthzip.knowledge.KnowledgeWorkbench", lambda *args, **kwargs:
+            original_factory(*args, **{**kwargs, "environment_kind": "synthetic_test"}))
+>       report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC"}, period="week", knowledge_root=root, include_details=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_repair_report_review.py:226: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-08-11'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+_____ test_report_batch_preserves_all_global_metrics_and_each_actual_task ______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_report_batch_preserves_al0')
+
+    def test_report_batch_preserves_all_global_metrics_and_each_actual_task(tmp_path):
+        path = tmp_path / "synthetic.sqlite3"
+        create_health_change_fixture(path)
+        clear()
+        with closing(Repository(path)) as repo:
+            expected = analyze(repo, cutoff_time=CUTOFF, period="week", use_cache=False)
+>           report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"},
+                                   period="week", knowledge_root=tmp_path / "empty-knowledge", include_details=True)
+
+tests/integration/test_master_report_performance_contract.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-11-21'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+___ test_hot_report_is_new_freeze_and_source_correction_invalidates_content ____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1019/test_hot_report_is_new_freeze_0')
+
+    def test_hot_report_is_new_freeze_and_source_correction_invalidates_content(tmp_path):
+        path = tmp_path / "synthetic.sqlite3"
+        create_health_change_fixture(path)
+        clear()
+        with closing(Repository(path)) as repo:
+            fields = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            kwargs = {"period": "week", "knowledge_root": tmp_path / "empty-knowledge"}
+>           first = create_report(repo, fields, **kwargs, include_details=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_master_report_performance_contract.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:127: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:114: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:205: in _assemble
+    return payload, render_report(repo, payload, runs=runs), temporary_failures
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:479: in render_report
+    preferred += sorted(questions, key=latest, reverse=True)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/workflows/period_report.py:477: in latest
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+src/healthzip/workflows/period_report.py:477: in <genexpr>
+    return max((instant(r["date"]) for r in question.get("rows", []) if r.get("date")),
+                ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = '2026-11-21'
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise ValueError("timestamp_required")
+        if parsed.tzinfo is None:
+>           raise ValueError("timezone_required")
+E           ValueError: timezone_required
+
+src/healthzip/science/contracts.py:67: ValueError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_report_reading.py::test_reading_and_single_question_load_only_requested_frozen_objects
+FAILED tests/integration/test_followup_report_reading.py::test_hot_generation_keeps_independent_version_without_full_restore
+FAILED tests/integration/test_report_repair_contract.py::test_t05_t19_same_period_values_across_overview_detail_question_report
+FAILED tests/integration/test_report_repair_contract.py::test_t05_source_selection_changes_all_report_consumers
+FAILED tests/integration/test_report_repair_contract.py::test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads
+FAILED tests/integration/test_repair_report_review.py::test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere
+FAILED tests/integration/test_repair_report_review.py::test_first_report_initializes_existing_knowledge_before_freezing_its_clock
+FAILED tests/integration/test_repair_report_review.py::test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export
+FAILED tests/integration/test_repair_report_review.py::test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_identity
+FAILED tests/integration/test_repair_report_review.py::test_history_page_marks_current_revocation_without_rewriting_old_text
+FAILED tests/integration/test_master_report_performance_contract.py::test_report_batch_preserves_all_global_metrics_and_each_actual_task
+FAILED tests/integration/test_master_report_performance_contract.py::test_hot_report_is_new_freeze_and_source_correction_invalidates_content
+12 failed, 26 passed in 15.08s

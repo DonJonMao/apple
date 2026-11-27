@@ -1,0 +1,19 @@
+......................................F................................. [ 53%]
+...............................................................          [100%]
+=================================== FAILURES ===================================
+__________ test_w4_empty_repo_and_profile_action_feedback_cache_asof ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1041/test_w4_empty_repo_and_profile0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdcadde2d0>
+
+    def test_w4_empty_repo_and_profile_action_feedback_cache_asof(tmp_path, monkeypatch):
+        repo = Repository(tmp_path / "actions.sqlite")
+        empty = ask(repo, "W4")
+>       assert empty["goal_context"]["title"] == "尚未选择目标" and not empty["action_reviews"]
+               ^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'goal_context'
+
+tests/science/test_question_context.py:131: KeyError
+=========================== short test summary info ============================
+FAILED tests/science/test_question_context.py::test_w4_empty_repo_and_profile_action_feedback_cache_asof
+1 failed, 134 passed in 20.78s

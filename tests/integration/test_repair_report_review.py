@@ -21,7 +21,7 @@ CUTOFF = "2026-08-14T00:00:00Z"
 
 def make_report(repo, tmp_path, **fields):
     return create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC", **fields},
-                         period="week", knowledge_root=tmp_path / "kb")
+                         period="week", knowledge_root=tmp_path / "kb", include_details=True)
 
 
 def test_initializing_empty_training_clock_does_not_mark_a_fresh_report_stale(tmp_path):
@@ -53,7 +53,7 @@ def test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere(
         assert {r["source"] for r in w4["rows"] if r.get("metric") == "resting_heart_rate_bpm"} == expected
     assert all_sources["current"]["selection_context"].get("source_filter", []) == []
     assert all_sources["content_signature"] != selected["content_signature"]
-    assert load_report(repo, selected["report_id"]) == selected
+    assert load_report(repo, selected["report_id"], include_details=True) == selected
     repo.close()
 
 
@@ -62,7 +62,7 @@ def test_first_report_initializes_existing_knowledge_before_freezing_its_clock(t
     sample(repo, 1, 11, 60)
     KnowledgeWorkbench(tmp_path / "kb", environment_kind="synthetic_test").close()
     report = make_report(repo, tmp_path)
-    assert load_report(repo, report["report_id"]) == report
+    assert load_report(repo, report["report_id"], include_details=True) == report
     repo.close()
 
 
@@ -115,14 +115,14 @@ def test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export(tmp
     assert not any(i["claim_id"] == identity for i in current["evidence"]["items"])
     assert updated["content_signature"] != original["content_signature"]
     clear()
-    assert load_report(repo, original["report_id"]) == frozen
+    assert load_report(repo, original["report_id"], include_details=True) == frozen
     exported = audit_bundle(repo, original["report_id"])
     assert reconstruct_report(exported) == frozen
     assert sid in json.dumps(exported)
     assert "compare the same observed measurement protocol" in json.dumps(exported)
     other = Repository(tmp_path / "other.sqlite")
     with pytest.raises(ValueError, match="not_found"):
-        load_report(other, original["report_id"])
+        load_report(other, original["report_id"], include_details=True)
     other.close()
     kb.close()
     repo.close()
@@ -177,7 +177,7 @@ def test_retrospective_snapshot_and_asof_question_explicitly_keep_different_visi
     assert all(text in report["markdown"] for text in
                ("当前修订回看历史", "截止后才导入", "不作为同一可见性口径比较"))
     clear()
-    assert load_report(repo, report["report_id"]) == report
+    assert load_report(repo, report["report_id"], include_details=True) == report
     repo.close()
 
 
@@ -210,7 +210,7 @@ def test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_i
     assert "睡眠口径区别" in report["markdown"] and "人工声明" in report["markdown"]
     assert selection == frozen_selection  # Never redefine the user's main episode.
     clear()
-    assert load_report(repo, report["report_id"]) == report
+    assert load_report(repo, report["report_id"], include_details=True) == report
     repo.close()
 
 
@@ -223,7 +223,7 @@ def test_history_page_marks_current_revocation_without_rewriting_old_text(tmp_pa
     original_factory = KnowledgeWorkbench
     monkeypatch.setattr("healthzip.knowledge.KnowledgeWorkbench", lambda *args, **kwargs:
         original_factory(*args, **{**kwargs, "environment_kind": "synthetic_test"}))
-    report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC"}, period="week", knowledge_root=root)
+    report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC"}, period="week", knowledge_root=root, include_details=True)
     before = json.dumps(report, sort_keys=True)
     kb.core_state("claim", identity, "1", "revoked", actor="Synthetic", rationale="Known withdrawal")
     monkeypatch.chdir(tmp_path)
@@ -232,7 +232,7 @@ def test_history_page_marks_current_revocation_without_rewriting_old_text(tmp_pa
         "from healthzip.workflows.period_report import load_report\n"
         "from healthzip.ui.review_page import _render_report_source_status, _render_frozen_details\n"
         f"repo = Repository({str(repo.path)!r})\n"
-        f"report = load_report(repo, {report['report_id']!r})\n"
+        f"report = load_report(repo, {report['report_id']!r}, include_details=True)\n"
         "status = _render_report_source_status(report, repo=repo)\n"
         "_render_frozen_details(repo, report, 'review-test', current_sources=status)\n"
         "repo.close()\n").run(timeout=30)
@@ -240,7 +240,7 @@ def test_history_page_marks_current_revocation_without_rewriting_old_text(tmp_pa
     assert any("当前不可直接用于新建议" in warning.value and "冻结正文未改写" in warning.value
                for warning in app.warning)
     assert any("已撤销" in caption.value for caption in app.caption)
-    assert json.dumps(load_report(repo, report["report_id"]), sort_keys=True) == before
+    assert json.dumps(load_report(repo, report["report_id"], include_details=True), sort_keys=True) == before
     kb.close()
     repo.close()
 
@@ -285,7 +285,7 @@ def test_referenced_decoder_preserves_stdlib_edges_in_each_object(tmp_path, monk
 
     monkeypatch.setattr(period_report, "_decode_content", decode)
     actual = read_content(repo, manifest)
-    assert len(calls) == 4 and calls == [False] * 4
+    assert len(calls) == 5 and calls == [False] * 5
     assert json.dumps(actual, sort_keys=True) == json.dumps(payload, sort_keys=True)
     targets = {"current": actual["current"], "content": actual["unknown_metadata"],
                "ordinary": actual["questions"][0]["ordinary_training"],
@@ -301,7 +301,7 @@ def test_referenced_decoder_preserves_stdlib_edges_in_each_object(tmp_path, monk
     legacy = {key: value for key, value in manifest.items() if key != "content_decoder"}
     calls.clear()
     assert json.dumps(read_content(repo, legacy), sort_keys=True) == json.dumps(payload, sort_keys=True)
-    assert calls == [False] * 4
+    assert calls == [False] * 5
     repo.close()
 
 
@@ -321,7 +321,7 @@ def test_safe_referenced_decoder_covers_all_objects_and_keeps_hint_internal(tmp_
 
     monkeypatch.setattr(period_report, "_decode_content", decode)
     actual = read_content(repo, manifest)
-    assert calls == [True] * 4
+    assert calls == [True] * 5
     assert actual == payload
     assert math.copysign(1, actual["current"]["boundary"]["values"][4]) == -1
     actual["current"]["boundary"]["values"].clear()
@@ -331,7 +331,7 @@ def test_safe_referenced_decoder_covers_all_objects_and_keeps_hint_internal(tmp_
                       ("decoder-report", "local", CUTOFF, json.dumps(saved), "Synthetic frozen report"))
     repo.conn.commit()
     expected = {**payload, "report_id": "decoder-report", "markdown": "Synthetic frozen report"}
-    assert load_report(repo, "decoder-report") == expected
+    assert load_report(repo, "decoder-report", include_details=True) == expected
     assert reconstruct_report(json.loads(json.dumps(audit_bundle(repo, "decoder-report")))) == expected
     assert "content_decoder" not in expected
     monkeypatch.setattr(period_report, "orjson", None)
@@ -355,7 +355,7 @@ def test_cycle_preference_changes_empty_report_without_changing_records_or_histo
     w8 = next(q for q in enabled["questions"] if q["id"] == "W8")
     assert w8["report_status"] == "no_records" and not w8["rows"]
     assert enabled["content_signature"] != original["content_signature"]
-    assert json.dumps(load_report(repo, original["report_id"]), sort_keys=True) == before
+    assert json.dumps(load_report(repo, original["report_id"], include_details=True), sort_keys=True) == before
     assert not repo.one("SELECT 1 FROM cycle_event LIMIT 1")
     repo.close()
 
@@ -376,11 +376,11 @@ def test_cycle_preference_change_during_freeze_rejects_stale_report_and_retry_up
 
     with pytest.raises(ValueError, match="concurrent_joint_report_inputs_changed_retry_required"):
         create_report(repo, {"cutoff_time": CUTOFF, "timezone": "UTC"}, period="week",
-                      knowledge_root=tmp_path / "kb", progress=change_before_freeze)
+                      knowledge_root=tmp_path / "kb", progress=change_before_freeze, include_details=True)
     assert "复用已核对的报告内容" in stages and "保存冻结版本" in stages
     assert not repo.conn.in_transaction
     assert repo.one("SELECT COUNT(*) FROM joint_period_report")[0] == count
-    assert load_report(repo, original["report_id"]) == original
+    assert load_report(repo, original["report_id"], include_details=True) == original
     retried = make_report(repo, tmp_path)
     assert next(q for q in retried["questions"] if q["id"] == "W8")["report_status"] == "no_records"
     assert retried["content_signature"] != original["content_signature"]
@@ -408,7 +408,7 @@ def test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_re
     # Frozen JSON naturally represents internal identity tuples as arrays.
     expected = json.loads(json.dumps(direct, ensure_ascii=False))
     report = create_report(repo, {"cutoff_time": cutoff, "timezone": "Asia/Shanghai"},
-                           period="month", knowledge_root=tmp_path / "missing")
+                           period="month", knowledge_root=tmp_path / "missing", include_details=True)
     frozen = next(q for q in report["questions"] if q["id"] == "W8")
     assert frozen["report_status"] == "available"
     assert frozen["fact_id"] == expected["fact_id"]
@@ -432,6 +432,6 @@ def test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_re
     assert any(pair["event_title"] == "已记录的主观状态" for pair in pairs)
     assert all("phase" not in row for row in frozen["rows"])
     clear()
-    assert load_report(repo, report["report_id"]) == report
+    assert load_report(repo, report["report_id"], include_details=True) == report
     assert reconstruct_report(audit_bundle(repo, report["report_id"])) == report
     repo.close()

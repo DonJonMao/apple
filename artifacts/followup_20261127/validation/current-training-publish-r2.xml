@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="28" time="36.736" timestamp="2026-11-27T10:43:25.660287" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_current_training_acceptance" name="test_real_template_region_free_record_next_training_and_joint_reports" time="0.450"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_real_template_region_free0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff036d9050&gt;
+
+    def test_real_template_region_free_record_next_training_and_joint_reports(tmp_path, monkeypatch):
+        import streamlit as st
+    
+        repo, svc, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch)
+        body(repo)
+        template = plan(svc, instance)
+        # No selected action exists yet: viewing a region cannot invent a plan/load.
+        svc.end_session(instance["session_id"])
+        downloads = {}
+        original_download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            downloads[label] = data
+            return original_download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+        UI["install"](monkeypatch)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_acceptance.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_acceptance" name="test_old_report_link_keeps_current_actuals_out_of_old_snapshot[week-8]" time="3.099" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_old_report_link_keeps_current_actuals_out_of_old_snapshot[month-35]" time="2.320" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_recent_joint_review_uses_rir_and_body_despite_year_improvement" time="1.020" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_late_body_changes_new_report_without_entering_original_advice" time="2.652" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_interleaved_inputs_refuse_stale_advice_and_actual_save_still_works[training]" time="0.785" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_interleaved_inputs_refuse_stale_advice_and_actual_save_still_works[body]" time="0.904" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_interleaved_inputs_refuse_stale_advice_and_actual_save_still_works[settings]" time="0.779" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_multiple_actions_missing_record_and_replacement_keep_identity" time="2.418" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_tied_advice_versions_keep_ambiguity_and_do_not_choose_closest_load" time="1.099" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_cached_advice_rechecks_equipment_changed_during_signature_read" time="1.560" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_missing_time_rir_and_duplicate_event_preserve_unknowns" time="0.789" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_joint_report_body_values_sources_complete_days_and_new_task_page[week]" time="1.386"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_joint_report_body_values_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba8a5150&gt;
+period = 'week'
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_path, monkeypatch, period):
+        observations = runpy.run_path(str(Path(__file__).with_name("test_analysis_observation_flows.py")))
+        repo, svc, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch, approved=False)
+        measured = body(repo)
+        # Preserve coverage of ordinary, unplanned records after automatic sampling
+        # was introduced for explicit planned work sets.
+        session = svc.start_session("Synthetic unplanned squat")
+        current = svc.add_exercise(session["id"], "psa.ex.smith_squat", instance["condition"])
+        svc.add_set(current["id"])
+        actual = FLOW["finish"](svc, svc.get_session_exercise(current["id"])["sets"][0], load=38, reps=9)
+        # Advance only this synthetic report's event clock within its calendar
+        # period. Four complete input days stay four; no missing-day imputation.
+        bounds = analyze(repo, period=period, timezone_name="UTC")
+        start = datetime.fromisoformat(bounds["window_start"])
+        cutoff = datetime.fromisoformat(bounds["window_end"])-timedelta(seconds=1)
+        batch = observations["batch"](repo)
+        for offset in (0, 2, 4, 5):
+            day = start+timedelta(days=offset)
+            for kind, amount in (("basal", 1500), ("active", 500)):
+                observations["sample"](repo, batch, f"{kind}-{offset}", kind+"_energy_kcal", amount,
+                    day.isoformat(), (day+timedelta(days=1)).isoformat())
+        repo.conn.commit()
+        report = create_report(repo, analyze(repo, cutoff_time=cutoff.isoformat(), timezone_name="UTC"), period=period, include_details=True)
+        metrics = report["current"]["metrics"]
+        energy = metrics["ENERGY-DEVICE-TOTAL"]["value"][0]
+        assert (energy["complete_days"], energy["device_total_kcal"], energy["valid_day_mean_kcal_day"]) == (4, 8000, 2000)
+        energy_run = next(load_run(repo, identity) for identity in report["workflow_run_ids"] if load_run(repo, identity)["workflow_id"] == "W5")
+        coverage = energy_run["supplements"]["energy_coverage"][0]
+        assert coverage["complete_days"] == 4 and coverage["mean_kcal_per_complete_day"] == 2000
+        assert coverage["window_days"] == (7 if period == "week" else (datetime.fromisoformat(bounds["window_end"])-start).days)
+        assert metrics["ENERGY-IDENTIFIABILITY"]["data_status"] == "not_identifiable"
+        for mid, number in (("STATE-RHR", 61), ("STATE-SDNN", 41), ("BODY-MASS-DAILY", 81)):
+            points = [p for rows in metrics[mid]["value"].values() for p in rows]
+            assert [p["value"] for p in points] == [number]
+            assert points[0]["date"] == measured[:10]
+            assert metrics[mid]["source_record_ids"]
+        vo2 = report["current"]["observations"]["OBS-VO2-REPORTED"]
+        assert vo2["value"]["streams"][0]["observations"][0]["value"] == 42
+        task = next(t for t in report["current"]["strength_tasks"] if t["exercise_id"] == current["catalog_id"])
+        assert task["input_data_hash"] and task["inventory_identity"] == "actual_records_no_reference_inferred"
+        assert task["metrics"]["STR-11"]["value"] is None
+        joins = [c for identity in report["workflow_run_ids"] for c in load_run(repo, identity)["supplements"].get("training_session_contexts", [])]
+        join = next(c for c in joins if c["session_id"] == current["session_id"])
+        assert join["actual_records"][0]["set_uuid"] == actual["set_uuid"]
+        assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        assert join["metrics"]["STATE-SLEEP-COVERAGE"]["value"] is not None
+        for text in ("Synthetic watch", "Synthetic source", "完整日平均 2,000.0 kcal/日", "缺日不填零",
+                     "42.0 mL/(kg·min)", "下一步", "期间日代表值中位数", "完整能量日覆盖 4/" + str(coverage["window_days"])):
+            assert text in report["markdown"]
+        energy_question = next(q for q in report["questions"] if q["id"] == "W5")
+        for kind, expected in (("active_energy_kcal", 500), ("basal_energy_kcal", 1500)):
+            row = next(row for row in energy_question["rows"] if row.get("metric") == kind)
+            assert row["value"] == row["comparison"]["current"]["value"] == expected
+            assert row["comparison"]["current"]["recorded_days"] == 4
+            assert len(row["source_record_ids"]) == 4
+            line = next(line for line in report["markdown"].splitlines() if line.startswith("- " + row["title"] + "："))
+            assert "期间日代表值中位数" in line and "4/" in line
+        # Scientific supplements and every actual source remain exact in the audit;
+        # the short reading body no longer repeats all support/counterexample JSON.
+        exported = audit_bundle(repo, report["report_id"])
+        assert reconstruct_report(exported) == report
+        assert exported["analysis_objects"][report["analysis_run_id"]] == report["current"]
+        for identity in report["workflow_run_ids"]:
+            assert exported["workflow_runs"][identity] == load_run(repo, identity)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_acceptance.py:441: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_acceptance" name="test_joint_report_body_values_sources_complete_days_and_new_task_page[month]" time="1.668"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_joint_report_body_values_1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba7c5950&gt;
+period = 'month'
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_path, monkeypatch, period):
+        observations = runpy.run_path(str(Path(__file__).with_name("test_analysis_observation_flows.py")))
+        repo, svc, instance, _, _ = FLOW["fixture"](tmp_path, monkeypatch, approved=False)
+        measured = body(repo)
+        # Preserve coverage of ordinary, unplanned records after automatic sampling
+        # was introduced for explicit planned work sets.
+        session = svc.start_session("Synthetic unplanned squat")
+        current = svc.add_exercise(session["id"], "psa.ex.smith_squat", instance["condition"])
+        svc.add_set(current["id"])
+        actual = FLOW["finish"](svc, svc.get_session_exercise(current["id"])["sets"][0], load=38, reps=9)
+        # Advance only this synthetic report's event clock within its calendar
+        # period. Four complete input days stay four; no missing-day imputation.
+        bounds = analyze(repo, period=period, timezone_name="UTC")
+        start = datetime.fromisoformat(bounds["window_start"])
+        cutoff = datetime.fromisoformat(bounds["window_end"])-timedelta(seconds=1)
+        batch = observations["batch"](repo)
+        for offset in (0, 2, 4, 5):
+            day = start+timedelta(days=offset)
+            for kind, amount in (("basal", 1500), ("active", 500)):
+                observations["sample"](repo, batch, f"{kind}-{offset}", kind+"_energy_kcal", amount,
+                    day.isoformat(), (day+timedelta(days=1)).isoformat())
+        repo.conn.commit()
+        report = create_report(repo, analyze(repo, cutoff_time=cutoff.isoformat(), timezone_name="UTC"), period=period, include_details=True)
+        metrics = report["current"]["metrics"]
+        energy = metrics["ENERGY-DEVICE-TOTAL"]["value"][0]
+        assert (energy["complete_days"], energy["device_total_kcal"], energy["valid_day_mean_kcal_day"]) == (4, 8000, 2000)
+        energy_run = next(load_run(repo, identity) for identity in report["workflow_run_ids"] if load_run(repo, identity)["workflow_id"] == "W5")
+        coverage = energy_run["supplements"]["energy_coverage"][0]
+        assert coverage["complete_days"] == 4 and coverage["mean_kcal_per_complete_day"] == 2000
+        assert coverage["window_days"] == (7 if period == "week" else (datetime.fromisoformat(bounds["window_end"])-start).days)
+        assert metrics["ENERGY-IDENTIFIABILITY"]["data_status"] == "not_identifiable"
+        for mid, number in (("STATE-RHR", 61), ("STATE-SDNN", 41), ("BODY-MASS-DAILY", 81)):
+            points = [p for rows in metrics[mid]["value"].values() for p in rows]
+            assert [p["value"] for p in points] == [number]
+            assert points[0]["date"] == measured[:10]
+            assert metrics[mid]["source_record_ids"]
+        vo2 = report["current"]["observations"]["OBS-VO2-REPORTED"]
+        assert vo2["value"]["streams"][0]["observations"][0]["value"] == 42
+        task = next(t for t in report["current"]["strength_tasks"] if t["exercise_id"] == current["catalog_id"])
+        assert task["input_data_hash"] and task["inventory_identity"] == "actual_records_no_reference_inferred"
+        assert task["metrics"]["STR-11"]["value"] is None
+        joins = [c for identity in report["workflow_run_ids"] for c in load_run(repo, identity)["supplements"].get("training_session_contexts", [])]
+        join = next(c for c in joins if c["session_id"] == current["session_id"])
+        assert join["actual_records"][0]["set_uuid"] == actual["set_uuid"]
+        assert join["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420
+        assert join["metrics"]["STATE-SLEEP-COVERAGE"]["value"] is not None
+        for text in ("Synthetic watch", "Synthetic source", "完整日平均 2,000.0 kcal/日", "缺日不填零",
+                     "42.0 mL/(kg·min)", "下一步", "期间日代表值中位数", "完整能量日覆盖 4/" + str(coverage["window_days"])):
+            assert text in report["markdown"]
+        energy_question = next(q for q in report["questions"] if q["id"] == "W5")
+        for kind, expected in (("active_energy_kcal", 500), ("basal_energy_kcal", 1500)):
+            row = next(row for row in energy_question["rows"] if row.get("metric") == kind)
+            assert row["value"] == row["comparison"]["current"]["value"] == expected
+            assert row["comparison"]["current"]["recorded_days"] == 4
+            assert len(row["source_record_ids"]) == 4
+            line = next(line for line in report["markdown"].splitlines() if line.startswith("- " + row["title"] + "："))
+            assert "期间日代表值中位数" in line and "4/" in line
+        # Scientific supplements and every actual source remain exact in the audit;
+        # the short reading body no longer repeats all support/counterexample JSON.
+        exported = audit_bundle(repo, report["report_id"])
+        assert reconstruct_report(exported) == report
+        assert exported["analysis_objects"][report["analysis_run_id"]] == report["current"]
+        for identity in report["workflow_run_ids"]:
+            assert exported["workflow_runs"][identity] == load_run(repo, identity)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_acceptance.py:441: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_acceptance" name="test_joint_report_without_current_actuals_keeps_manual_feedback_separate[week]" time="1.353" /><testcase classname="tests.integration.test_current_training_acceptance" name="test_joint_report_without_current_actuals_keeps_manual_feedback_separate[month]" time="1.079" /><testcase classname="tests.integration.test_current_training_reports" name="test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-week]" time="1.210"><failure message="AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_frozen_joint_report_has_c0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdb94ccf50&gt;
+period = 'week', training = True
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+&gt;       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[True-month]" time="1.052"><failure message="AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_frozen_joint_report_has_c1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba5ef410&gt;
+period = 'month', training = True
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+&gt;       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-week]" time="0.448"><failure message="AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_frozen_joint_report_has_c2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba26f810&gt;
+period = 'week', training = False
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+&gt;       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合周报\n\n本期 2026-11-23 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_frozen_joint_report_has_current_body_and_training_not_only_old_periods[False-month]" time="0.430"><failure message="AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_frozen_joint_report_has_c3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba852350&gt;
+period = 'month', training = False
+
+    @pytest.mark.parametrize("period", ["week", "month"])
+    @pytest.mark.parametrize("training", [True, False])
+    def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(tmp_path, monkeypatch, period, training):
+        from healthzip.workflows.period_report import create_report, load_report
+    
+        repo, svc, instance, _, ids = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        measured = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        HELP["mass_sample"](repo, measured, 81)
+        if not training:
+            for identity in ids:
+                row = svc.get_set(identity)
+                svc.delete_set(row["id"], base_revision=row["revision"])
+        else:
+            # Body input is imported before this real session starts.
+            session = svc.start_session("Synthetic report current")
+            new = svc.add_exercise(session["id"], instance["catalog_id"], instance["condition"])
+            target = svc.add_set(new["id"], planned={"reps_min": 7, "reps_max": 13, "rir": 2})
+            FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
+            FLOW["finish"](svc, target, load=34, reps=9)
+            svc.end_session(session["id"])
+        report = create_report(repo, analyze(repo), period=period, include_details=True)
+        masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
+        assert {p["value"] for values in masses["value"].values() for p in values} == {81}
+&gt;       assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
+E       AssertionError: assert ('81' in '# 身体与力量联合月报\n\n本期 2026-11-01 00:00 至 2026-11-27 10:43（结束时刻不含，Asia/Shanghai）。\n这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。\n\n## 本期...分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。\n相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。\n历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。')
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:41: AssertionError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_normal_draft_reads_body_without_long_review_or_fake_records[improving]" time="1.181" /><testcase classname="tests.integration.test_current_training_reports" name="test_normal_draft_reads_body_without_long_review_or_fake_records[none]" time="0.631" /><testcase classname="tests.integration.test_current_training_reports" name="test_report_retired_context_preserves_facts_and_identity[withdrawn]" time="2.198" /><testcase classname="tests.integration.test_current_training_reports" name="test_report_retired_context_preserves_facts_and_identity[superseded]" time="2.207" /><testcase classname="tests.integration.test_current_training_reports" name="test_real_report_buttons_after_retirement[withdrawn-\u5206\u6790]" time="0.260"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_real_report_buttons_after0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba3c3610&gt;
+entry = '分析', retirement = 'withdrawn'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_real_report_buttons_after_retirement[withdrawn-\u62a5\u544a]" time="0.253"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_real_report_buttons_after1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdbaa62250&gt;
+entry = '报告', retirement = 'withdrawn'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_real_report_buttons_after_retirement[superseded-\u5206\u6790]" time="0.466"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_real_report_buttons_after2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdb9dcc490&gt;
+entry = '分析', retirement = 'superseded'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase><testcase classname="tests.integration.test_current_training_reports" name="test_real_report_buttons_after_retirement[superseded-\u62a5\u544a]" time="0.251"><failure message="KeyError: 'main_workspace'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1031/test_real_report_buttons_after3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffdba27b210&gt;
+entry = '报告', retirement = 'superseded'
+
+    @pytest.mark.parametrize("entry", ["分析", "报告"])
+    @pytest.mark.parametrize("retirement", ["withdrawn", "superseded"])
+    def test_real_report_buttons_after_retirement(tmp_path, monkeypatch, entry, retirement):
+        import streamlit as st
+    
+        repo, _, _, _, _ = HELP["HELP"]["W1"]["history"](tmp_path, monkeypatch, approved=False)
+        captured = {}
+        download = st.download_button
+    
+        def capture(label, data, **kwargs):
+            captured[label] = data
+            return download(label, data, **kwargs)
+    
+        monkeypatch.setattr(st, "download_button", capture)
+&gt;       app = HELP["open_app"](repo.path)
+
+/home/sn_maozhifang/apple/tests/integration/test_current_training_reports.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/sn_maozhifang/apple/tests/integration/test_workflow_four_repairs.py:30: in open_app
+    go(app, "设置")
+/home/sn_maozhifang/apple/tests/app_navigation.py:12: in go
+    app.radio(key="main_workspace").set_value(main).run(**arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = WidgetList(), key = 'main_workspace'
+
+    def __call__(self, key: str) -&gt; W:
+        for e in self._list:
+            if e.key == key:
+                return e
+    
+&gt;       raise KeyError(key)
+E       KeyError: 'main_workspace'
+
+/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/streamlit/testing/v1/element_tree.py:258: KeyError</failure></testcase></testsuite></testsuites>

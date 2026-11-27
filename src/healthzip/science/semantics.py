@@ -74,7 +74,10 @@ def load_basis(record: dict) -> str:
 
 
 def condition_key(record: dict) -> Optional[str]:
-    row = flatten_record(record)
+    return _condition_key(flatten_record(record))
+
+
+def _condition_key(row: dict) -> Optional[str]:
     if not row.get("exercise_id") or not row.get("definition_version") or not row.get("user_id"):
         return None
     try:
@@ -86,8 +89,11 @@ def condition_key(record: dict) -> Optional[str]:
 
 
 def comparable(first: dict, second: dict, *, protocol: bool = False) -> tuple[bool, list[str]]:
-    first, second = flatten_record(first), flatten_record(second)
-    a, b = condition_key(first), condition_key(second)
+    return _comparable(flatten_record(first), flatten_record(second), protocol=protocol)
+
+
+def _comparable(first: dict, second: dict, *, protocol: bool = False) -> tuple[bool, list[str]]:
+    a, b = _condition_key(first), _condition_key(second)
     if a is None or b is None:
         return False, ["comparability_unknown"]
     if a != b:
@@ -106,8 +112,11 @@ PROTOCOL_FIELDS = ("reference_protocol_id", "reference_protocol_version", "refer
 
 
 def analysis_task(record: dict) -> dict:
-    row = flatten_record(record)
-    physical = condition_key(row)
+    return _analysis_task(flatten_record(record))
+
+
+def _analysis_task(row: dict) -> dict:
+    physical = _condition_key(row)
     protocol = {key: row.get(key) for key in PROTOCOL_FIELDS}
     identity = {"user_id": row.get("user_id"), "exercise_id": row.get("exercise_id"),
                 "condition_key": physical, "protocol": protocol}
@@ -121,8 +130,8 @@ def analysis_task(record: dict) -> dict:
 def outcome_series(record: dict) -> dict:
     """Fixed-load repetition endpoint identity within an unchanged physical task."""
     row = flatten_record(record)
-    task = analysis_task(row)
-    components = load_components(row)
+    task = _analysis_task(row)
+    components = _load_components(row)
     reasons = []
     if not task["condition_key"] or not task["protocol_complete"]:
         reasons.append("outcome_series_condition_or_protocol_unknown")
@@ -144,7 +153,10 @@ def outcome_series(record: dict) -> dict:
 
 
 def load_components(record: dict) -> dict:
-    row = flatten_record(record)
+    return _load_components(flatten_record(record))
+
+
+def _load_components(row: dict) -> dict:
     basis = row["load_basis"]
     out = {"entered_load": row["load_value"], "entered_unit": row["load_unit"], "load_basis": basis,
            "normalized_kg": None, "plate_total_kg": None, "total_load_kg": None,
@@ -176,7 +188,7 @@ def load_components(record: dict) -> dict:
 
 def load_change(first: dict, second: dict) -> dict:
     old, new = flatten_record(first), flatten_record(second)
-    ok, reasons = comparable(old, new)
+    ok, reasons = _comparable(old, new)
     if not ok:
         return {"reason_codes": reasons, "entered_change": None, "plate_total_change_kg": None,
                 "total_load_change_kg": None, "total_load_change_percent": None, "direction": None}

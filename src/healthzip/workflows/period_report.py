@@ -34,18 +34,20 @@ BODY = ("STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SL
         "ENERGY-RECORD-COVERAGE", "ENERGY-IDENTIFIABILITY")
 
 
-REPORT_VERSION = "joint-period-report-2.0.0"
+REPORT_VERSION = "joint-period-report-3.0.0"
 
 
 def _fast_json_compatible(value):
     """Reject parser edge cases once per content build, preserving stdlib types."""
     pending = [value]
+    seen = set()
     while pending:
         item = pending.pop()
-        if isinstance(item, dict):
-            pending.extend(item.values())
-        elif isinstance(item, (list, tuple)):
-            pending.extend(item)
+        if isinstance(item, (dict, list, tuple)):
+            if id(item) in seen:
+                continue
+            seen.add(id(item))
+            pending.extend(item.values() if isinstance(item, dict) else item)
         elif isinstance(item, int) and not -(2**63) <= item <= 2**64-1:
             return False
         elif isinstance(item, float) and not math.isfinite(item):
@@ -80,7 +82,7 @@ class _UncachedReport(Exception):
         self.content = content
 
 
-def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", progress=None):
+def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", progress=None, include_details=False):
     """Freeze a fresh version per explicit request; share its verified content."""
     if period not in {"week", "month"}:
         raise ValueError("calendar_week_or_month_required")
@@ -133,8 +135,8 @@ def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", 
     # Only decode this application's validated, newly serialized report content.
     # Historical/imported JSON retains the standard parser in load_report.
     manifest = _decode_content(payload_json, fast_compatible)
-    from .report_objects import read_content
-    payload = read_content(repo, manifest)
+    from .report_objects import read_content, read_reading
+    payload = (read_content if include_details else read_reading)(repo, manifest)
     metadata = {"created_at": datetime.now(timezone.utc).isoformat(), "content_signature": content_signature,
                 "report_id_signature_algorithm": "json-markdown-sha256-plus-created-at-1"}
     metadata["report_id"] = canonical_hash({"version": REPORT_VERSION, **metadata})
@@ -168,12 +170,14 @@ def _assemble(repo, analysis, period, knowledge_root, before, knowledge_before, 
     declaration = report_context(repo, context_id, current["cutoff_time"], "retrospective" if current["retrospective"] else "prospective")
     # Explicit current bounds: W4's two earlier complete periods are a separate
     # comparison below and cannot replace current training or body facts.
-    notify("核对本期训练与知识依据")
-    runs = review_analysis(repo, current, include_background=True, knowledge_root=knowledge_root, include_session_background=True)
     notify("分析本期实际问题与行动")
     sources = selected_context.get("source_filter") or ()
     questions = period_questions(repo, current, period=period, knowledge_root=knowledge_root, source_filter=sources,
                                  cycle_enabled=cycle_enabled)
+    notify("核对本期训练与知识依据")
+    applicable = [q["id"] for q in questions if q["id"] in {"W2", "W3", "W5"} and q["report_status"] == "available"]
+    runs = review_analysis(repo, current, include_background=True, knowledge_root=knowledge_root,
+                          include_session_background=True, background_workflows=applicable)
     notify("比较前两个完整周期")
     historical = review_analysis(repo, current, period=period, knowledge_root=knowledge_root)
     # Keep the canonical period snapshot addressable by existing analysis
@@ -197,21 +201,23 @@ def _assemble(repo, analysis, period, knowledge_root, before, knowledge_before, 
         "historical_run_ids": [r["run_id"] for r in historical], "objective_comparisons": comparisons,
         "period_identity": "current_partial_local_calendar_period", "input_revision": before,
         "knowledge_signature": knowledge_before[0], "knowledge_signature_algorithm": knowledge_before[1]}
+    from healthzip.knowledge.claim_status import frozen_claim_references
+    payload["current_claim_refs"] = frozen_claim_references(questions=questions, runs=(*runs, *historical))
     temporary_failures = any(run.get("knowledge", {}).get("status") == "service_failure"
                              for run in (*runs, *historical))
     temporary_failures |= any(q.get("evidence", {}).get("status") == "service_failure" for q in questions)
     return payload, render_report(repo, payload, runs=runs), temporary_failures
 
 
-def load_report(repo, report_id):
+def load_report(repo, report_id, *, include_details=False):
     row = repo.conn.execute("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=? AND user_id='local'", (report_id,)).fetchone()
     if row is None:
         raise ValueError("joint_report_not_found")
     saved = json.loads(row[0])
-    if saved.get("storage_format") == "frozen-report-references-1":
-        from .report_objects import read_content
-        content = read_content(repo, saved)
-        metadata = {key: value for key, value in saved.items() if key not in {"storage_format", "content_ref", "content_decoder"}}
+    if saved.get("storage_format") in {"frozen-report-references-1", "frozen-report-references-2"}:
+        from .report_objects import read_content, read_reading
+        content = (read_content if include_details else read_reading)(repo, saved)
+        metadata = {key: value for key, value in saved.items() if key not in {"storage_format", "content_ref", "reading_ref", "content_decoder"}}
         return {**content, **metadata, "markdown": row[1]}
     return {**saved, "markdown": row[1]}
 
@@ -311,23 +317,32 @@ def render_report(repo, report, *, runs=None):
         return render_legacy_report(repo, report)
     from collections import Counter
 
-    from healthzip.analytics.display_format import format_measurement
-    from healthzip.analytics.health_context import coverage_label, joint_observations
+    from healthzip.analytics.display_format import format_measurement, local_timestamp
+    from healthzip.analytics.health_context import coverage_label
+    from healthzip.knowledge.topics import answer_evidence
+    from healthzip.workflows.report_objects import report_findings
 
     current = report["current"]
     questions = [q for q in report["questions"] if q["report_status"] == "available"]
     lines = ["# 身体与力量联合" + ("周报" if report["period"] == "week" else "月报"), "",
-             f"本期 {current['window_start']} 至 {current['cutoff_time']}（观察截止，{current['timezone']}）。",
+             f"本期 {local_timestamp(current['window_start'], current['timezone'])} 至 {local_timestamp(current['cutoff_time'], current['timezone'])}（结束时刻不含，{current['timezone']}）。",
              "这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。"]
     if current.get("retrospective"):
         lines += ["口径区别：本期专项快照采用当前修订回看历史，可能包含截止后才导入或更正的记录。下方实际问题与行动沿用问题页的截止时可见记录；晚到记录不计入该结果，两者不作为同一可见性口径比较。"]
     if (current.get("selection_context") or {}).get("sleep_selection"):
         lines += ["睡眠口径区别：人工声明的睡眠片段保留在专项冻结结果；下方实际问题按记录睡眠事件的结束日期归属，计算完整日代表值的期间中位数。片段时长与期间统计是不同观察，不能互相替换。"]
     lines += ["", "## 本期主要变化", ""]
-    statements = joint_observations(current).get("statements", []) if current.get("joint_health_context") else []
+    statements = report_findings(report)
     lines += ["- " + text for text in statements]
     if not statements:
         lines.append("本期尚无可对齐的完整日身体比较；以下保留已记录事实与局部结果。")
+    background = [q for q in report["questions"] if q.get("report_status") == "background_only"]
+    additional_background = [q for q in background if q["observation"] not in statements]
+    if additional_background:
+        lines += ["", "## 已填写的状态与备注", ""]
+        for question in additional_background:
+            lines.append(question["observation"])
+            lines.extend("下一步：" + step for step in question["steps"])
     goal = next((q.get("goal_context") for q in questions if q.get("goal_context")), None)
     lines += ["", "## 目标与实际训练", ""]
     lines.append("当前目标：" + goal["title"] if goal else "尚未记录独立目标尺度；可查看同条件实际表现，不自动判定目标达成。")
@@ -343,15 +358,17 @@ def render_report(repo, report, *, runs=None):
                 for ctx in run.get("supplements", {}).get("training_session_contexts", [])}
     if sessions:
         # A date-level reading summary, not a collapse of scientific identities.
-        dates = Counter(ctx["training_started_at"][:10] for ctx in sessions.values())
+        dates = Counter(local_timestamp(ctx["training_started_at"], current["timezone"], date_only=True) for ctx in sessions.values())
         lines.append("实际训练日期：" + "；".join(f"{day}（{n}场）" for day, n in sorted(dates.items())) + "。")
         if len(sessions) == 1:
-            lines.append("训练开始：" + next(iter(sessions.values()))["training_started_at"] + "。")
+            lines.append("训练开始：" + local_timestamp(next(iter(sessions.values()))["training_started_at"], current["timezone"]) + "。")
     else:
         lines.append("本期尚无可建立时间对应的训练记录；已有身体事实仍可查看。")
     declaration = report.get("declaration", {})
     if declaration.get("status"):
         lines += [declaration["limitation"], f"原声明 `{declaration['context_id']}`；受限原因 `{declaration['reason']}`。"]
+    rendered_claims, rendered_citations = {}, {}
+    shown_training = set()
     for question in questions:
         lines += ["", "## " + question["title"], "", question["observation"]]
         comparison_context = question.get("report_comparison_context") or {}
@@ -379,19 +396,50 @@ def render_report(repo, report, *, runs=None):
         unpaired = [group for group in ordinary_groups if not group.get("comparisons")]
         comparable = [group for group in ordinary_groups if group.get("comparisons")]
         for group in comparable:
+            if group["series_id"] in shown_training:
+                continue
             lines.append("- " + group["summary"])
-        if unpaired:
+            shown_training.add(group["series_id"])
+        unseen = [group for group in unpaired if group["series_id"] not in shown_training]
+        if unseen:
+            unpaired = unseen
+            shown_training.update(group["series_id"] for group in unpaired)
             missing_conditions = Counter(reason for group in unpaired for reason in group.get("limitations", []))
             lines.append(f"另有 {len(unpaired)} 条独立轨迹（{sum(g['record_count'] for g in unpaired)} 条实际记录）尚无可唯一配对的比较。完整轨迹按动作查看。")
-            labels = {"equipment_instance_unknown": "器械未记录", "settings_unknown": "器械设置未记录",
-                      "rir_missing_effort_unknown": "RIR缺失，努力程度未知", "set_position_unknown": "组位未记录"}
-            lines.append("；".join(f"{labels.get(reason, '相关测量条件尚待核对')}：{count}条轨迹" for reason, count in sorted(missing_conditions.items())))
+            from healthzip.workflows.presentation import condition_label
+            lines.append("；".join(f"{condition_label(reason)}：{count}条轨迹" for reason, count in sorted(missing_conditions.items())))
         evidence = question.get("evidence", {})
-        for item in evidence.get("items", [])[:2]:
-            lines.append("适用说明：" + item["statement"])
+        for item in answer_evidence(question):
+            identity = (item["claim_id"], item["version"])
+            lines.append("")
+            if identity in rendered_claims:
+                lines.append(f"适用依据：见前文说明〔{rendered_claims[identity]}〕及其适用限制。")
+                continue
+            number = rendered_claims.setdefault(identity, len(rendered_claims) + 1)
+            label = "行动依据" if "action_or_reassessment" in item.get("purposes", []) else "适用说明"
+            lines.append(f"{label}〔{number}〕：" + item["statement"])
             lines.extend("- " + limit for limit in item.get("limitations", []))
+            originals = {}
             for citation in item.get("citations", []):
-                lines.append(f"来源：[{citation['title']}]({citation['url']}) · {citation.get('locator') or citation.get('section') or '定位见审计包'}")
+                key = (citation.get("source_id"), citation.get("version"))
+                original = originals.setdefault(key, {"citation": citation, "locations": []})
+                locator = citation.get("locator") or {}
+                location = citation.get("section") or "定位见冻结明细"
+                if isinstance(locator, dict) and locator.get("page") is not None:
+                    location += f" · 第{locator['page']}页"
+                elif isinstance(locator, dict) and locator.get("paragraph_id") is not None:
+                    location += f" · 段落{locator['paragraph_id']}"
+                if location not in original["locations"]:
+                    original["locations"].append(location)
+            for key, original in originals.items():
+                location = "；".join(original["locations"])
+                if key in rendered_citations:
+                    lines.append(f"- 原文：见来源〔{rendered_citations[key]}〕 · {location}")
+                    continue
+                reference = rendered_citations.setdefault(key, len(rendered_citations) + 1)
+                citation = original["citation"]
+                lines.append(f"- 来源〔{reference}〕：[{citation['title']}]({citation['url']}) · {location}")
+        lines.append("")
         if evidence.get("restricted_items"):
             lines.append("部分主张或其必要前提存在分歧，仅限制相关解释和建议；独立资料仍保留。")
         if evidence.get("status") in {"not_configured", "service_failure", "no_applicable_sources"}:
@@ -405,8 +453,13 @@ def render_report(repo, report, *, runs=None):
                 delta = ("；较前期 " + format_measurement(row["difference"], row.get("unit"), kind=row.get("metric"), signed=True)
                          if row.get("difference") is not None else "；前期比较不足")
                 summary = (row.get("comparison") or {}).get("current")
-                statistic = (f"；期间日代表值中位数；{coverage_label(summary)}" if summary else "")
-                lines.append(f"- {row.get('title', row.get('metric'))}：{value}{delta}{statistic}；来源 {row.get('source') or '未注明'}。")
+                if summary and summary.get("statistic_kind") == "source_estimate_points":
+                    statistic = (f"；窗口内末次来源估计；{summary.get('record_count', 0)}条记录，"
+                                 f"发布日期已知{summary.get('publication_count', 0)}条；独立测量次数未知")
+                else:
+                    statistic = (f"；期间日代表值中位数；{coverage_label(summary)}" if summary else "")
+                identity = " / ".join(str(row.get(k) or "未记录") for k in ("source", "device"))
+                lines.append(f"- {row.get('title', row.get('metric'))}：{value}{delta}{statistic}；来源/设备 {identity}。")
         if question["id"] == "W5":
             energy = [coverage for run in runs if run["workflow_id"] == "W5"
                       for coverage in run.get("supplements", {}).get("energy_coverage", [])]
@@ -426,9 +479,21 @@ def render_report(repo, report, *, runs=None):
         lines.append("- " + str(action.get("summary") or action.get("action_text", "已选行动")))
         lines.append("执行：" + str(action.get("execution_label") or action.get("status", "未知")) + "。")
         if action.get("review_due"):
-            lines.append("计划复评：" + action["review_due"] + "。")
+            lines.append("计划复评：" + local_timestamp(action["review_due"], current["timezone"]) + "。")
     lines += ["", "## 下一步", ""]
-    steps = list(dict.fromkeys(step for q in questions for step in q.get("steps", [])))
+    # Prioritize the selected goal/action, then real events and recent relevant
+    # observations. Topic numbering is not a recommendation ranking.
+    preferred = [q for q in questions if q.get("action_reviews") or q.get("goal_context")]
+    if goal and goal.get("goal") in {"strength", "hypertrophy"}:
+        preferred += [q for q in questions if q["id"] == "W1"]
+    preferred += [q for q in questions if q["id"] == "E"]
+    def latest(question):
+        return max((r["date"] if len(r["date"]) == 10 else local_timestamp(r["date"], current["timezone"], date_only=True)
+                    for r in question.get("rows", []) if r.get("date")),
+                   default=local_timestamp(current["window_start"], current["timezone"], date_only=True))
+    preferred += sorted(questions, key=latest, reverse=True)
+    preferred += background
+    steps = list(dict.fromkeys(step for q in preferred for step in q.get("steps", [])))
     lines += ["- " + step for step in steps[:3]] or ["继续记录实际值与测量条件，之后按相同口径复评。"]
     lines += ["", "## 冻结依据与明细", "",
               f"报告格式 `{report['version']}`；事实快照 `{report['analysis_run_id']}`。",

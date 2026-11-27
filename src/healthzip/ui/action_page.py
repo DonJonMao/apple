@@ -16,6 +16,7 @@ from healthzip.workflows.actions import (
     list_actions,
     outcome_options,
     proposed_definition,
+    requires_updated_definition,
     save_feedback,
     select_action,
 )
@@ -38,7 +39,7 @@ def render_definition(definition):
     st.caption("计划开始与实际开始分别保存；未反馈时实际执行保持未知。")
 
 
-def select_action_ui(repo, question, sources):
+def select_action_ui(repo, question, sources, *, supersedes_action_id=None):
     steps = question.get("steps") or []
     if not steps:
         return
@@ -61,16 +62,50 @@ def select_action_ui(repo, question, sources):
         render_definition(definition)
         if st.button("保存这项行动", key="review_action_save:" + question["id"]):
             select_action(repo, question, action, due_at.isoformat(), selected_at=now.isoformat(),
-                planned_start=planned.isoformat(), primary=options[primary_index], source_filter=sources)
+                planned_start=planned.isoformat(), primary=options[primary_index], source_filter=sources,
+                supersedes_action_id=supersedes_action_id)
             st.success("已保存行动和主要观察定义，可在“行动复评”记录实际执行并查看后续观察。")
 
 
-def _observations(rows):
+_SUPPORT_RELATION = {"unknown": "未知", "before_start": "全部位于开始前", "crosses_start": "跨越开始时点",
+                     "within_window": "全部位于该窗口内", "after_window": "全部位于窗口结束后",
+                     "extends_after_window": "延伸至窗口结束后", "after_start_end_unknown": "开始后，结束时点未知"}
+
+
+def _local_time(value, timezone_name):
+    if not value:
+        return "未知"
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(ZoneInfo(timezone_name)).strftime("%Y-%m-%d %H:%M")
+    except (ValueError, TypeError, AttributeError):
+        return "来源时间格式待核对"
+
+
+def _estimate_details(value, timezone_name):
+    return [{"来源观测时间": _local_time(p["observed_at"], timezone_name),
+             "明确发布时间": _local_time(p.get("published_at"), timezone_name),
+             "来源估计值": p["value"],
+             "支持起点": _local_time((p.get("estimate_support") or {}).get("start"), timezone_name),
+             "支持终点": _local_time((p.get("estimate_support") or {}).get("end"), timezone_name),
+             "相对计划范围": _SUPPORT_RELATION.get(p.get("planned_support_relation"), "基线来源窗口"),
+             "相对实际执行": _SUPPORT_RELATION.get(p.get("execution_support_relation"), "未知"),
+             "与基线支持重叠": p.get("overlaps_baseline_support"),
+             "重复发布同一估计": p.get("repeated_publication", (p.get("estimate_support") or {}).get("repeated_publication")),
+             "方法版本": (p.get("estimate_support") or {}).get("algorithm_version"),
+             "来源报告上限": (p.get("estimate_support") or {}).get("upper_limit_m"),
+             "处于报告上限": (p.get("estimate_support") or {}).get("at_reportable_limit"),
+             "来源记录": ", ".join(p["source_record_ids"])}
+            for p in value.get("estimate_observations", [])]
+
+
+def _observations(rows, timezone_name="UTC"):
     if not rows:
         st.caption("当前没有该主要观察的可用记录。")
         return
     for row in rows:
         st.write(row["title"] + (" · " + str(row["source"]) if row.get("source") else ""))
+        if row.get("observation_kind") == "estimate":
+            st.caption("设备：" + str(row.get("device") or "未知") + "；来源方法版本：" + str(row.get("source_algorithm_version") or "未知"))
         if row["type"] == "measurement_conditions":
             for key, label in (("baseline", "选择时"), ("current", "后续")):
                 value = row.get(key)
@@ -79,14 +114,29 @@ def _observations(rows):
                                f"{value['posture_known_count']} 条有姿势；实际时刻 " + "、".join(value["local_times"]))
                     if value["postures"]:
                         st.caption("已记录姿势：" + "、".join(value["postures"]))
+        elif row.get("observation_kind") == "estimate":
+            st.write("窗口内末次来源估计：" + format_outcome_value(row, row.get("first_value")) + " → " + format_outcome_value(row, row.get("value")))
+            if row.get("difference") is not None:
+                st.caption("同来源估计值变化 " + format_outcome_value(row, row["difference"], signed=True) + "；不代表独立行动后测量或因果效果。")
+            for key, label in (("baseline", "基线"), ("current", "后续")):
+                value = row.get(key)
+                if value:
+                    st.caption(f"{label} {value['record_count']} 条记录、{value['recorded_days']} 个记录日期；"
+                               f"{value['publication_count']} 条明确提供发布时间；独立测量次数未知。")
+            if row.get("current"):
+                relations = dict.fromkeys(_SUPPORT_RELATION[p["planned_support_relation"]] for p in row["current"]["estimate_observations"])
+                st.caption("后续支持窗口相对计划范围：" + "、".join(relations))
         else:
             before, after = row.get("first_value"), row.get("value")
-            st.write(f"期间中位数：{format_outcome_value(row, before)} → {format_outcome_value(row, after)}")
+            label = "实际事件记录数" if row.get("observation_kind") == "event" else "期间中位数"
+            st.write(f"{label}：{format_outcome_value(row, before)} → {format_outcome_value(row, after)}")
             if row.get("difference") is not None:
                 st.caption("同口径差值 " + format_outcome_value(row, row["difference"], signed=True))
             for key, label in (("baseline", "基线"), ("current", "后续")):
                 value = row.get(key)
-                if value and "recorded_days" in value:
+                if value and row.get("observation_kind") == "event":
+                    st.caption(f"{label} {value['record_count']} 条事件记录、{value['recorded_days']} 个记录日期；缺记录不等于未发生。")
+                elif value and "recorded_days" in value:
                     st.caption(f"{label}完整日记录 {value['recorded_days']}/{value['window_days']} 天；不完整日期单独保留。")
                 elif value and "record_count" in value:
                     st.caption(f"{label} {value['record_count']} 个实际组、{value['session_count']} 场；RIR 未填与 0 分开保存。")
@@ -96,10 +146,14 @@ def _observations(rows):
             for key, title in (("baseline", "基线"), ("current", "后续")):
                 value = row.get(key)
                 if value:
-                    records = value.get("records") or value.get("daily_points") or []
+                    records = (_estimate_details(value, timezone_name) if row.get("observation_kind") == "estimate"
+                               else value.get("records") or value.get("daily_points") or [])
                     if records:
                         st.write(title)
                         st.dataframe(records, hide_index=True)
+                    if row.get("observation_kind") == "estimate":
+                        st.caption(title + "原始来源时间与方法身份")
+                        st.json(value.get("estimate_observations", []), expanded=False)
                     if value.get("partial_daily_points"):
                         st.write(title + "未完整日期的实际记录（不混入期间统计）")
                         st.dataframe(value["partial_daily_points"], hide_index=True)
@@ -139,12 +193,16 @@ def render_actions(repo):
     st.write("实际执行：" + EXECUTION.get(action.get("status"), EXECUTION["unreported"]))
     execution = json.loads(action["execution_json"]) if action.get("execution_json") else {}
     if execution.get("started_at"):
-        st.caption("实际开始：" + execution["started_at"] + "；实际结束：" + str(execution.get("ended_at") or "未记录"))
+        st.caption("实际开始：" + _local_time(execution["started_at"], str(zone)) + "；实际结束：" + _local_time(execution.get("ended_at"), str(zone)))
     if action.get("notes"):
         st.write(action["notes"])
     with st.expander("计划、比较口径与选择时的观察"):
         render_definition(definition)
         st.write(baseline["observation"])
+    if requires_updated_definition(definition):
+        st.info("这项历史行动未区分来源估计等观察单位。原定义与已保存复评保持；可以沿用原基线创建关联的新行动，重新安排固定后续窗口。")
+        select_action_ui(repo, {**baseline, "steps": [action["action_text"]]},
+                         json.loads(action["source_filter_json"]), supersedes_action_id=identity)
     state_key = "action_followup:" + str(repo.path.resolve()) + ":" + identity
     if st.button("查看后续同口径观察"):
         st.session_state[state_key] = followup(repo, identity)
@@ -152,6 +210,13 @@ def render_actions(repo):
     if result:
         review = result["review"]
         st.write("现在观察到的主要结果")
+        if review["status"] == "legacy_observation_unit":
+            st.write(review["summary"])
+        if review.get("saved_feedback_result"):
+            with st.expander("历史保存的复评（原口径，未重算）"):
+                old_review = review["saved_feedback_result"].get("review", {})
+                st.write(old_review.get("summary") or "原复评内容保留，可展开原始冻结记录核对。")
+                st.json(review["saved_feedback_result"], expanded=False)
         if review["status"] == "partial_window":
             st.caption("观察窗口尚未完整，当前为阶段观察。")
         elif review["status"] == "awaiting_observations":
@@ -161,10 +226,10 @@ def render_actions(repo):
         if definition and definition["primary"]["kind"] == "check":
             st.write(review["execution_label"] + "；以核对任务的真实反馈为准。")
         else:
-            _observations(review.get("primary_observations", []))
+            _observations(review.get("primary_observations", []), str(zone))
         if review.get("secondary_observations"):
             with st.expander("次要观察与背景（不替代主要结果）"):
-                _observations(review["secondary_observations"])
+                _observations(review["secondary_observations"], str(zone))
         if review.get("recorded_context"):
             with st.expander("已记录的疲劳、疼痛与其他背景"):
                 from healthzip.analytics.question_context import describe_subjective

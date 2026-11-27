@@ -1,0 +1,162 @@
+{
+  "diagnostic_only": true,
+  "instrumentation": "cProfile enabled; no P95 claim",
+  "source_root": "/tmp/healthzip-followup-baseline",
+  "source_manifest": "generation-source-manifest.json",
+  "profiler_sha256": "4f6d1b1ab80f862fcb9e238e84a4a98a6363c5b1cb098c55d97f61394c1cd11f",
+  "archive_identity": {
+    "commit": "00a35d23c3468ff1b48304d044bcdfe0b5ce5173",
+    "verified": {
+      "src/healthzip/workflows/period_report.py": "1f9e7cff6ad8fa4b8311b200c836b61dadbeff9d9a2bf24252867d3930890cc6",
+      "src/healthzip/workflows/report_objects.py": "05c5d8eb6df4e70089320439d665218be6f5217a5283190a1a5b99686d71eeef",
+      "src/healthzip/workflows/reports.py": "49171b383df749af72f6d0ec4180a610a801cd3d3fcf41f7e2df0323d9f2011e"
+    }
+  },
+  "synthetic_fixture": "synthetic-100000",
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "phase": "generation",
+  "concurrent_load": "Diagnostic with cProfile; concurrent root/RAG/actions development and training-browser regression on shared host; not final acceptance",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "logical_cpu": 192,
+  "memory": "MemTotal:       2109313276 kB",
+  "python": "3.11.7",
+  "initial_host_load": [
+    16.34619140625,
+    18.66552734375,
+    18.6396484375
+  ],
+  "os_file_cache": "retained",
+  "remote_model": "not used",
+  "runs": [
+    {
+      "label": "cold-generation",
+      "seconds": 234.58139123022556,
+      "stages": [
+        {
+          "stage": "读取本期事实",
+          "elapsed_s": 0.042092494666576385
+        },
+        {
+          "stage": "核对本期训练与知识依据",
+          "elapsed_s": 52.96966367959976
+        },
+        {
+          "stage": "分析本期实际问题与行动",
+          "elapsed_s": 127.33428791165352
+        },
+        {
+          "stage": "比较前两个完整周期",
+          "elapsed_s": 156.1475963294506
+        },
+        {
+          "stage": "整理可追溯报告",
+          "elapsed_s": 178.78627291321754
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 234.5753831267357
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 43,
+        "json_bytes": 144185950,
+        "tables": {
+          "report_content_object": 79463472,
+          "analysis_run": 64722478
+        }
+      },
+      "process_peak_rss_kib": 2129656,
+      "report_id": "7076d23ae43c1113e2fa5d3d04006dabdd6cb459c25b3d539f33bc2a1e025af6",
+      "markdown_utf8_bytes": 26641,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "objective_comparisons",
+        "period",
+        "period_identity",
+        "questions",
+        "version",
+        "workflow_run_ids",
+        "current",
+        "created_at",
+        "content_signature",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ],
+      "task_count": 10000,
+      "task_source_ids": 10000
+    },
+    {
+      "label": "hot-generation",
+      "seconds": 4.535782650113106,
+      "stages": [
+        {
+          "stage": "复用已核对的报告内容",
+          "elapsed_s": 0.015110522508621216
+        },
+        {
+          "stage": "保存冻结版本",
+          "elapsed_s": 4.528948470950127
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 43,
+        "json_bytes": 144185950,
+        "tables": {
+          "report_content_object": 79463472,
+          "analysis_run": 64722478
+        }
+      },
+      "process_peak_rss_kib": 2129656,
+      "report_id": "f2a6a0f00ce36b06c8ebb0e4fdd91c6d5639bc84c3fa29e0b57453217f1462bb",
+      "markdown_utf8_bytes": 26641,
+      "public_top_level_keys": [
+        "analysis_run_id",
+        "cutoff_time",
+        "declaration",
+        "historical_run_ids",
+        "input_revision",
+        "knowledge_signature",
+        "knowledge_signature_algorithm",
+        "objective_comparisons",
+        "period",
+        "period_identity",
+        "questions",
+        "version",
+        "workflow_run_ids",
+        "current",
+        "created_at",
+        "content_signature",
+        "report_id_signature_algorithm",
+        "report_id",
+        "markdown"
+      ],
+      "task_count": 10000,
+      "task_source_ids": 10000
+    }
+  ],
+  "sizes": {
+    "health_sample": 100001,
+    "source_revision": 100001,
+    "strength_session": 100,
+    "strength_set": 10000,
+    "training_event": 10300
+  },
+  "distinct_explicit_report_ids": [
+    "7076d23ae43c1113e2fa5d3d04006dabdd6cb459c25b3d539f33bc2a1e025af6",
+    "f2a6a0f00ce36b06c8ebb0e4fdd91c6d5639bc84c3fa29e0b57453217f1462bb"
+  ],
+  "complete": true,
+  "final_host_load": [
+    23.4169921875,
+    21.748046875,
+    19.95556640625
+  ],
+  "source_changes_during_run": []
+}

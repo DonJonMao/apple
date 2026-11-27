@@ -114,10 +114,11 @@ def test_w3_w7_keep_estimate_support_and_version_ceiling(tmp_path):
     for qid in ("W3", "W7"):
         result = ask(repo, qid, window_start=RANGE_START)
         row = next(r for r in result["rows"] if r.get("metric") == "six_minute_walk_m")
-        assert row["publication_count"] == 2
+        assert row["observation_count"] == 2
+        assert row["publication_count"] == 0  # observation timestamps are not publication timestamps
         assert row["estimate_support"]["overlaps_prior_window"]
-        assert row["estimate_support"]["upper_limit_m"] == 500
-        assert row["estimate_support"]["at_reportable_limit"]
+        assert row["estimate_support"]["upper_limit_m"] is None
+        assert row["estimate_support"]["at_reportable_limit"] is None
         assert len(row["estimate_observations"]) == 2
         assert "独立测试" in row["support_limitation"]
         assert any("重叠窗口" in text for text in result["limitations"])

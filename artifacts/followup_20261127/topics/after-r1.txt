@@ -1,0 +1,37 @@
+.FF.                                                                     [100%]
+=================================== FAILURES ===================================
+__________ test_steps_alone_describes_amount_and_names_missing_speed ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1010/test_steps_alone_describes_amo0')
+
+    def test_steps_alone_describes_amount_and_names_missing_speed(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            record(repo, "steps", 2310)
+            view = questions(repo)["W7"]
+            assert view["topic_status"]["state"] == "partial"
+            assert view["topic_status"]["primary_metrics"] == ["steps"]
+>           assert "2310" in view["observation"]
+E           AssertionError: assert '2310' in '步数本期完整记录日中位数 2,310 次。'
+
+tests/integration/test_followup_topic_applicability.py:62: AssertionError
+_______ test_actual_device_event_is_independent_and_has_record_identity ________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1010/test_actual_device_event_is_in0')
+
+    def test_actual_device_event_is_independent_and_has_record_identity(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            record(repo, "high_hr_event", None)
+            view = questions(repo)["E"]
+            assert view["topic_status"]["state"] == "descriptive"
+            event = next(r for r in view["rows"] if r["type"] == "event")
+>           assert event["source_record_ids"] == [1]
+E           AssertionError: assert ['health_sample:1'] == [1]
+E             
+E             At index 0 diff: 'health_sample:1' != 1
+E             Use -v to get more diff
+
+tests/integration/test_followup_topic_applicability.py:73: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_topic_applicability.py::test_steps_alone_describes_amount_and_names_missing_speed
+FAILED tests/integration/test_followup_topic_applicability.py::test_actual_device_event_is_independent_and_has_record_identity
+2 failed, 2 passed in 0.97s

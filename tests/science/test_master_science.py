@@ -69,8 +69,10 @@ def test_acoustic_energy_standing_units_and_low_frequency_support(observed):
     assert read("physical_effort_met")["current"]["value"] == 3.2
     six = read("six_minute_walk_m")["points"]
     assert len(six) == 2 and six[1]["estimate_support"]["overlaps_prior_window"]
-    assert six[1]["estimate_support"]["upper_limit_m"] == 500
-    assert six[1]["estimate_support"]["at_reportable_limit"] is True
+    # A synthetic source with an algorithm label alone is not an identified
+    # Apple device/system protocol. Explicit source windows remain available.
+    assert six[1]["estimate_support"]["upper_limit_m"] is None
+    assert six[1]["estimate_support"]["at_reportable_limit"] is None
     assert read("heart_rate_recovery_1m")["current"]["unit"] == "count"
     assert (
         normalize_value("HKQuantityTypeIdentifierHeartRateRecoveryOneMinute", 19, "count/min")[0]

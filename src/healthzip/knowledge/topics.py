@@ -169,6 +169,34 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
             'field_definitions': _definition_links(w, topic) if release_id is None else [],
             'retrieval': audit, 'scientific_authority': 'general_source_context'}
     if include_evidence:
+        # Local frozen applicability only; never added to public retrieval queries.
+        result['applicability_context'] = json.loads(json.dumps(context or {}))
         result['evidence_spans'] = list(spans.values())
         result['claim_reviews'] = list(reviews.values())
     return result
+
+
+def answer_evidence(question):
+    """Select complete, applicable explanations for this answer, without a rank cut.
+
+    Retrieval has already checked authority and scope. This chooses its requested
+    uses and removes duplicate exact claims; it does not grant any new authority.
+    The stable ordering keeps an action from disappearing when retrieval order changes.
+    """
+    evidence = question.get('evidence') or {}
+    needs = set(evidence.get('retrieval', {}).get('required_purposes') or PURPOSES)
+    if question.get('steps') or question.get('action_reviews'):
+        needs.add('action_or_reassessment')
+    selected = {}
+    for item in evidence.get('items', []):
+        if (not item.get('statement') or not item.get('citations')
+                or item.get('recommendation_allowed') is False):
+            continue
+        purposes = set(item.get('purposes', []))
+        if purposes and not purposes & needs:
+            continue
+        selected[(item['claim_id'], item['version'])] = item
+    order = {purpose: index for index, purpose in enumerate(PURPOSES)}
+    return sorted(selected.values(), key=lambda item: (
+        min((order[purpose] for purpose in item.get('purposes', []) if purpose in order), default=len(order)),
+        item['claim_id'], item['version']))

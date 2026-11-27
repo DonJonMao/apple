@@ -227,14 +227,14 @@ def test_joint_report_retirement_blocks_dependent_claim_but_keeps_independent_ac
     monkeypatch.setattr(healthzip.knowledge, "KnowledgeWorkbench", lambda root: KnowledgeWorkbench(root, environment_kind="synthetic_test"))
     selected = save_context(repo, {"population": "adults"})
     snapshot = analyze(repo, context={"workflow_context_id": selected})
-    before = create_report(repo, snapshot, period="month")
+    before = create_report(repo, snapshot, period="month", include_details=True)
     before_queries = [q for identity in before["workflow_run_ids"] for q in load_run(repo, identity)["knowledge"]["queries"]]
     assert any(q["metric_id"] == "STR-10" and q.get("permissions", {}).get("source_explanation") for q in before_queries)
     if retirement == "withdrawn":
         withdraw_context(repo, selected)
     else:
         save_context(repo, {"population": "trained_adults"}, replaces_context_id=selected)
-    current = create_report(repo, snapshot, period="month")
+    current = create_report(repo, snapshot, period="month", include_details=True)
     queries = [q for identity in current["workflow_run_ids"] for q in load_run(repo, identity)["knowledge"]["queries"]]
     assert all(not q.get("permissions", {}).get("source_explanation") for q in queries if q["metric_id"] == "STR-10")
     independent = next(q for q in queries if q["metric_id"] == "STATE-RHR")
@@ -248,6 +248,6 @@ def test_joint_report_retirement_blocks_dependent_claim_but_keeps_independent_ac
     assert any(o["load"] == 34 for g in automatic["groups"] for o in g["options"])
     assert current["declaration"]["context_id"] == selected and current["declaration"]["status"] == "restricted_requires_reconfirmation"
     assert "依赖该声明的解释需重新确认" in current["markdown"] and "61" in current["markdown"]
-    assert load_report(repo, before["report_id"]) == before
+    assert load_report(repo, before["report_id"], include_details=True) == before
     assert not svc.list_recommendations()
     repo.close()

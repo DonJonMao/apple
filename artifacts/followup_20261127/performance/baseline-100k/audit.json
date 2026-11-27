@@ -1,0 +1,100 @@
+{
+  "diagnostic_only": true,
+  "instrumentation": "cProfile enabled; no P95 claim",
+  "source_root": "/tmp/healthzip-followup-baseline",
+  "source_manifest": "audit-source-manifest.json",
+  "profiler_sha256": "4f6d1b1ab80f862fcb9e238e84a4a98a6363c5b1cb098c55d97f61394c1cd11f",
+  "archive_identity": {
+    "commit": "00a35d23c3468ff1b48304d044bcdfe0b5ce5173",
+    "verified": {
+      "src/healthzip/workflows/period_report.py": "1f9e7cff6ad8fa4b8311b200c836b61dadbeff9d9a2bf24252867d3930890cc6",
+      "src/healthzip/workflows/report_objects.py": "05c5d8eb6df4e70089320439d665218be6f5217a5283190a1a5b99686d71eeef",
+      "src/healthzip/workflows/reports.py": "49171b383df749af72f6d0ec4180a610a801cd3d3fcf41f7e2df0323d9f2011e"
+    }
+  },
+  "synthetic_fixture": "synthetic-100000",
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "phase": "audit",
+  "concurrent_load": "Diagnostic with cProfile; concurrent root/RAG/actions development on shared host; not final acceptance",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "logical_cpu": 192,
+  "memory": "MemTotal:       2109313276 kB",
+  "python": "3.11.7",
+  "initial_host_load": [
+    19.849609375,
+    21.1279296875,
+    19.9716796875
+  ],
+  "os_file_cache": "retained",
+  "remote_model": "not used",
+  "runs": [
+    {
+      "label": "audit-export",
+      "seconds": 142.90911273658276,
+      "stages": [
+        {
+          "stage": "读取冻结对象",
+          "elapsed_s": 2.25752592086792e-05
+        },
+        {
+          "stage": "序列化并写入离线包",
+          "elapsed_s": 18.17404406517744
+        }
+      ],
+      "repo_one_json_reads": {
+        "queries": 54,
+        "json_bytes": 307820547,
+        "tables": {
+          "joint_period_report": 27167,
+          "report_content_object": 79463472,
+          "analysis_run": 228329908,
+          "workflow_run": 0
+        }
+      },
+      "process_peak_rss_kib": 918328
+    },
+    {
+      "label": "audit-offline-reconstruction",
+      "seconds": 6.324926346540451,
+      "stages": [],
+      "repo_one_json_reads": {
+        "queries": 0,
+        "json_bytes": 0,
+        "tables": {
+          "report_content_object": 79463472,
+          "analysis_run": 64722478
+        }
+      },
+      "process_peak_rss_kib": 980464
+    }
+  ],
+  "sizes": {
+    "health_sample": 100001,
+    "source_revision": 100001,
+    "strength_session": 100,
+    "strength_set": 10000,
+    "training_event": 10300
+  },
+  "report_id": "f2a6a0f00ce36b06c8ebb0e4fdd91c6d5639bc84c3fa29e0b57453217f1462bb",
+  "audit_utf8_bytes": 307824326,
+  "unique_objects": {
+    "content_objects": 42,
+    "workflow_runs": 5,
+    "analysis_objects": 6
+  },
+  "unique_frozen_bytes": {
+    "content_objects": 79463472,
+    "workflow_objects": 121224637,
+    "analysis_objects": 107104951,
+    "total": 307793060
+  },
+  "offline_reconstruction_matches_frozen_report": true,
+  "audit_file": "/tmp/healthzip-followup-performance/baseline-100k-audit.json",
+  "complete": true,
+  "final_host_load": [
+    20.51953125,
+    21.27783203125,
+    20.22802734375
+  ],
+  "source_changes_during_run": []
+}

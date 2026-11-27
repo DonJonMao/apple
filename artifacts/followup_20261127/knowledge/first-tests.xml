@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="10" time="1.082" timestamp="2026-11-27T10:21:19.801149+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_report_evidence" name="test_real_retrieval_third_action_and_all_orderings_reach_readable_body" time="0.096"><failure message="KeyError: 'version'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8ec5a210&gt;
+
+    def test_real_retrieval_third_action_and_all_orderings_reach_readable_body(library):
+        claim(library, "method", ["measurement"])
+        claim(library, "compare", ["comparison", "mechanism_or_exception"])
+        action_span = claim(library, "action", ["action_or_reassessment"])
+        q = question(library)
+        assert {i["claim_id"] for i in q["evidence"]["items"]} == {"method", "compare", "action"}
+        original = deepcopy(q)
+        from itertools import permutations
+        bodies = []
+        for order in permutations(q["evidence"]["items"]):
+            candidate = deepcopy(q)
+            candidate["evidence"]["items"] = list(order)
+&gt;           body = render_report(None, historical(candidate), runs=[])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_evidence.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = None
+report = {'period': 'week', 'questions': [{'id': 'W4', 'title': 'Synthetic actual followup', 'report_status': 'available', 'obs...window_start': '2026-09-07T00:00:00Z', 'cutoff_time': '2026-09-14T00:00:00Z', 'timezone': 'UTC', 'strength_tasks': []}}
+runs = []
+
+    def render_report(repo, report, *, runs=None):
+        """Readable questions and actions; complete frozen details stay addressable."""
+        if "questions" not in report:
+            return render_legacy_report(repo, report)
+        from collections import Counter
+    
+        from healthzip.analytics.display_format import format_measurement
+        from healthzip.analytics.health_context import coverage_label, joint_observations
+        from healthzip.knowledge.topics import answer_evidence
+    
+        current = report["current"]
+        questions = [q for q in report["questions"] if q["report_status"] == "available"]
+        lines = ["# 身体与力量联合" + ("周报" if report["period"] == "week" else "月报"), "",
+                 f"本期 {current['window_start']} 至 {current['cutoff_time']}（观察截止，{current['timezone']}）。",
+                 "这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。"]
+        if current.get("retrospective"):
+            lines += ["口径区别：本期专项快照采用当前修订回看历史，可能包含截止后才导入或更正的记录。下方实际问题与行动沿用问题页的截止时可见记录；晚到记录不计入该结果，两者不作为同一可见性口径比较。"]
+        if (current.get("selection_context") or {}).get("sleep_selection"):
+            lines += ["睡眠口径区别：人工声明的睡眠片段保留在专项冻结结果；下方实际问题按记录睡眠事件的结束日期归属，计算完整日代表值的期间中位数。片段时长与期间统计是不同观察，不能互相替换。"]
+        lines += ["", "## 本期主要变化", ""]
+        statements = joint_observations(current).get("statements", []) if current.get("joint_health_context") else []
+        lines += ["- " + text for text in statements]
+        if not statements:
+            lines.append("本期尚无可对齐的完整日身体比较；以下保留已记录事实与局部结果。")
+        background = [q for q in report["questions"] if q.get("report_status") == "background_only"]
+        if background:
+            lines += ["", "## 已填写的状态与备注", ""]
+            for question in background:
+                lines.append(question["observation"])
+                lines.extend("下一步：" + step for step in question["steps"])
+        goal = next((q.get("goal_context") for q in questions if q.get("goal_context")), None)
+        lines += ["", "## 目标与实际训练", ""]
+        lines.append("当前目标：" + goal["title"] if goal else "尚未记录独立目标尺度；可查看同条件实际表现，不自动判定目标达成。")
+        tasks = current.get("strength_tasks", [])
+        source_ids = {source for task in tasks for source in task.get("source_record_ids", [])}
+        unknown = Counter(reason for task in tasks for reason in task.get("reason_codes", []))
+        lines.append(f"本期保留 {len(tasks)} 个独立训练任务、{len(source_ids)} 个原始组引用。未知条件逐条保留，未合并成可比组。")
+        if unknown:
+            lines.append(f"有 {sum(unknown.values())} 项条件缺口待核对；具体缺项与原记录身份在冻结明细中逐条保留。")
+        if runs is None:
+            runs = [load_run(repo, key) for key in report.get("workflow_run_ids", [])]
+        sessions = {str(ctx["session_id"]): ctx for run in runs
+                    for ctx in run.get("supplements", {}).get("training_session_contexts", [])}
+        if sessions:
+            # A date-level reading summary, not a collapse of scientific identities.
+            dates = Counter(ctx["training_started_at"][:10] for ctx in sessions.values())
+            lines.append("实际训练日期：" + "；".join(f"{day}（{n}场）" for day, n in sorted(dates.items())) + "。")
+            if len(sessions) == 1:
+                lines.append("训练开始：" + next(iter(sessions.values()))["training_started_at"] + "。")
+        else:
+            lines.append("本期尚无可建立时间对应的训练记录；已有身体事实仍可查看。")
+        declaration = report.get("declaration", {})
+        if declaration.get("status"):
+            lines += [declaration["limitation"], f"原声明 `{declaration['context_id']}`；受限原因 `{declaration['reason']}`。"]
+        rendered_claims, rendered_citations = {}, {}
+        for question in questions:
+            lines += ["", "## " + question["title"], "", question["observation"]]
+            comparison_context = question.get("report_comparison_context") or {}
+            if comparison_context.get("difference_is_explicit"):
+                lines.append("本题使用截止时已可见的记录；睡眠按记录事件结束日期归属，显示完整日的期间统计。与上列不同可见性或人工片段口径分别阅读。")
+            for note in dict.fromkeys(question.get("limitations", [])):
+                lines.append("- " + note)
+            association = question.get("association") or {}
+            for group in association.get("groups", []):
+                identity = group.get("identity") or {}
+                label = " / ".join(str(identity.get(k) or "未记录") for k in ("source", "device"))
+                times = "–".join(identity.get("actual_local_time_range", []))
+                dates = " 至 ".join(identity.get("date_range", []))
+                lines.append(f"分组：{label}；实际采样 {times or '未记录'}；{dates}；配对 {identity.get('paired_dates', 0)} 天。")
+                if group.get("status") == "estimated":
+                    interval = group.get("interval", [])
+                    estimate = f"观察性条件关联 {group['coefficient']:+.2f} ms/小时"
+                    if len(interval) == 2:
+                        estimate += f"，区间 [{interval[0]:.2f}, {interval[1]:.2f}]"
+                    lines.append(estimate + "；不是因果效果，同批相邻变化不作为独立支持投票。")
+                else:
+                    lines.append("本组不可估计：" + str(group.get("reason") or "现有记录尚不满足模型条件") + "。")
+            ordinary = question.get("ordinary_training") or {}
+            ordinary_groups = ordinary.get("series", [])
+            unpaired = [group for group in ordinary_groups if not group.get("comparisons")]
+            comparable = [group for group in ordinary_groups if group.get("comparisons")]
+            for group in comparable:
+                lines.append("- " + group["summary"])
+            if unpaired:
+                missing_conditions = Counter(reason for group in unpaired for reason in group.get("limitations", []))
+                lines.append(f"另有 {len(unpaired)} 条独立轨迹（{sum(g['record_count'] for g in unpaired)} 条实际记录）尚无可唯一配对的比较。完整轨迹按动作查看。")
+                labels = {"equipment_instance_unknown": "器械未记录", "settings_unknown": "器械设置未记录",
+                          "rir_missing_effort_unknown": "RIR缺失，努力程度未知", "set_position_unknown": "组位未记录"}
+                lines.append("；".join(f"{labels.get(reason, '相关测量条件尚待核对')}：{count}条轨迹" for reason, count in sorted(missing_conditions.items())))
+            evidence = question.get("evidence", {})
+            for item in answer_evidence(question):
+                identity = (item["claim_id"], item["version"])
+                if identity in rendered_claims:
+                    lines.append(f"适用依据：见前文说明〔{rendered_claims[identity]}〕及其适用限制。")
+                    continue
+                number = rendered_claims.setdefault(identity, len(rendered_claims) + 1)
+                label = "行动依据" if "action_or_reassessment" in item.get("purposes", []) else "适用说明"
+                lines.append(f"{label}〔{number}〕：" + item["statement"])
+                lines.extend("- " + limit for limit in item.get("limitations", []))
+                for citation in item.get("citations", []):
+                    key = (citation.get("source_id"), citation.get("version"), citation.get("span_id"))
+                    if key in rendered_citations:
+                        lines.append(f"原文：见来源〔{rendered_citations[key]}〕。")
+                        continue
+                    reference = rendered_citations.setdefault(key, len(rendered_citations) + 1)
+                    locator = citation.get("locator") or {}
+                    location = citation.get("section") or "定位见冻结明细"
+                    if isinstance(locator, dict) and locator.get("page") is not None:
+                        location += f" · 第{locator['page']}页"
+                    elif isinstance(locator, dict) and locator.get("paragraph_id") is not None:
+                        location += f" · 段落{locator['paragraph_id']}"
+                    lines.append(f"来源〔{reference}〕：[{citation['title']}]({citation['url']}) · {location}")
+            if evidence.get("restricted_items"):
+                lines.append("部分主张或其必要前提存在分歧，仅限制相关解释和建议；独立资料仍保留。")
+            if evidence.get("status") in {"not_configured", "service_failure", "no_applicable_sources"}:
+                lines.append({"not_configured": "资料库尚未配置；以下为记录与测量核对入口。",
+                              "service_failure": "本题资料服务未完成，事实与图表保留。",
+                              "no_applicable_sources": "未取得本题适用的已审核说明；不据此补造原因或阈值。"}[evidence["status"]])
+            # The selected numerical row retains its identity and standardized units.
+            for row in question.get("rows", []):
+                if row.get("type") == "metric" and row.get("value") is not None:
+                    value = format_measurement(row["value"], row.get("unit"), kind=row.get("metric"))
+                    delta = ("；较前期 " + format_measurement(row["difference"], row.get("unit"), kind=row.get("metric"), signed=True)
+                             if row.get("difference") is not None else "；前期比较不足")
+                    summary = (row.get("comparison") or {}).get("current")
+                    statistic = (f"；期间日代表值中位数；{coverage_label(summary)}" if summary else "")
+                    lines.append(f"- {row.get('title', row.get('metric'))}：{value}{delta}{statistic}；来源 {row.get('source') or '未注明'}。")
+            if question["id"] == "W5":
+                energy = [coverage for run in runs if run["workflow_id"] == "W5"
+                          for coverage in run.get("supplements", {}).get("energy_coverage", [])]
+                for coverage in energy:
+                    mean = format_measurement(coverage["mean_kcal_per_complete_day"], "kcal/日")
+                    source = " / ".join(str(value or "未注明") for value in coverage["stream"])
+                    lines.append(f"设备配对能量专项：完整能量日覆盖 {coverage['complete_days']}/{coverage['window_days']}；"
+                                 f"已记录完整日平均 {mean}；来源/设备/协议/版本 {source}。")
+                if energy:
+                    lines.append("缺日不填零，不外推完整周期总量；设备能量为基础与活动分量的既有配对结果，不另加运动摘要或 TEF。")
+            lines.extend("下一步：" + step for step in question.get("steps", []))
+        lines += ["", "## 上次行动观察", ""]
+        actions = [a for q in questions for a in q.get("action_reviews", [])]
+        if not actions:
+            lines.append("本期没有截止时点可见的已选行动；不把未反馈推断为已执行。")
+        for action in actions:
+            lines.append("- " + str(action.get("summary") or action.get("action_text", "已选行动")))
+            lines.append("执行：" + str(action.get("execution_label") or action.get("status", "未知")) + "。")
+            if action.get("review_due"):
+                lines.append("计划复评：" + action["review_due"] + "。")
+        lines += ["", "## 下一步", ""]
+        steps = list(dict.fromkeys(step for q in questions for step in q.get("steps", [])))
+        lines += ["- " + step for step in steps[:3]] or ["继续记录实际值与测量条件，之后按相同口径复评。"]
+        lines += ["", "## 冻结依据与明细", "",
+&gt;                 f"报告格式 `{report['version']}`；事实快照 `{report['analysis_run_id']}`。",
+                           ^^^^^^^^^^^^^^^^^
+                  "每题的完整观测、来源记录、日期、分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。",
+                  "相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。",
+                  "历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。"]
+E       KeyError: 'version'
+
+src/healthzip/workflows/period_report.py:459: KeyError</failure></testcase><testcase classname="tests.integration.test_followup_report_evidence" name="test_repeated_claim_and_original_are_printed_once_without_discarding_other_actions" time="0.081"><failure message="KeyError: 'version'">library = &lt;healthzip.knowledge.workbench.KnowledgeWorkbench object at 0xffff8ec75650&gt;
+
+    def test_repeated_claim_and_original_are_printed_once_without_discarding_other_actions(library):
+        claim(library, "method", ["measurement", "comparison"])
+        claim(library, "first-action", ["action_or_reassessment"])
+        claim(library, "different-action", ["action_or_reassessment"])
+        q = question(library)
+        report = historical(q)
+        report["questions"].append({**deepcopy(q), "id": "W2", "title": "Second answer using the same method"})
+&gt;       body = render_report(None, report, runs=[])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_evidence.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = None
+report = {'period': 'week', 'questions': [{'id': 'W4', 'title': 'Synthetic actual followup', 'report_status': 'available', 'obs...window_start': '2026-09-07T00:00:00Z', 'cutoff_time': '2026-09-14T00:00:00Z', 'timezone': 'UTC', 'strength_tasks': []}}
+runs = []
+
+    def render_report(repo, report, *, runs=None):
+        """Readable questions and actions; complete frozen details stay addressable."""
+        if "questions" not in report:
+            return render_legacy_report(repo, report)
+        from collections import Counter
+    
+        from healthzip.analytics.display_format import format_measurement
+        from healthzip.analytics.health_context import coverage_label, joint_observations
+        from healthzip.knowledge.topics import answer_evidence
+    
+        current = report["current"]
+        questions = [q for q in report["questions"] if q["report_status"] == "available"]
+        lines = ["# 身体与力量联合" + ("周报" if report["period"] == "week" else "月报"), "",
+                 f"本期 {current['window_start']} 至 {current['cutoff_time']}（观察截止，{current['timezone']}）。",
+                 "这是截至所列时点的周期观察；前后变化不自动归因于训练或行动。"]
+        if current.get("retrospective"):
+            lines += ["口径区别：本期专项快照采用当前修订回看历史，可能包含截止后才导入或更正的记录。下方实际问题与行动沿用问题页的截止时可见记录；晚到记录不计入该结果，两者不作为同一可见性口径比较。"]
+        if (current.get("selection_context") or {}).get("sleep_selection"):
+            lines += ["睡眠口径区别：人工声明的睡眠片段保留在专项冻结结果；下方实际问题按记录睡眠事件的结束日期归属，计算完整日代表值的期间中位数。片段时长与期间统计是不同观察，不能互相替换。"]
+        lines += ["", "## 本期主要变化", ""]
+        statements = joint_observations(current).get("statements", []) if current.get("joint_health_context") else []
+        lines += ["- " + text for text in statements]
+        if not statements:
+            lines.append("本期尚无可对齐的完整日身体比较；以下保留已记录事实与局部结果。")
+        background = [q for q in report["questions"] if q.get("report_status") == "background_only"]
+        if background:
+            lines += ["", "## 已填写的状态与备注", ""]
+            for question in background:
+                lines.append(question["observation"])
+                lines.extend("下一步：" + step for step in question["steps"])
+        goal = next((q.get("goal_context") for q in questions if q.get("goal_context")), None)
+        lines += ["", "## 目标与实际训练", ""]
+        lines.append("当前目标：" + goal["title"] if goal else "尚未记录独立目标尺度；可查看同条件实际表现，不自动判定目标达成。")
+        tasks = current.get("strength_tasks", [])
+        source_ids = {source for task in tasks for source in task.get("source_record_ids", [])}
+        unknown = Counter(reason for task in tasks for reason in task.get("reason_codes", []))
+        lines.append(f"本期保留 {len(tasks)} 个独立训练任务、{len(source_ids)} 个原始组引用。未知条件逐条保留，未合并成可比组。")
+        if unknown:
+            lines.append(f"有 {sum(unknown.values())} 项条件缺口待核对；具体缺项与原记录身份在冻结明细中逐条保留。")
+        if runs is None:
+            runs = [load_run(repo, key) for key in report.get("workflow_run_ids", [])]
+        sessions = {str(ctx["session_id"]): ctx for run in runs
+                    for ctx in run.get("supplements", {}).get("training_session_contexts", [])}
+        if sessions:
+            # A date-level reading summary, not a collapse of scientific identities.
+            dates = Counter(ctx["training_started_at"][:10] for ctx in sessions.values())
+            lines.append("实际训练日期：" + "；".join(f"{day}（{n}场）" for day, n in sorted(dates.items())) + "。")
+            if len(sessions) == 1:
+                lines.append("训练开始：" + next(iter(sessions.values()))["training_started_at"] + "。")
+        else:
+            lines.append("本期尚无可建立时间对应的训练记录；已有身体事实仍可查看。")
+        declaration = report.get("declaration", {})
+        if declaration.get("status"):
+            lines += [declaration["limitation"], f"原声明 `{declaration['context_id']}`；受限原因 `{declaration['reason']}`。"]
+        rendered_claims, rendered_citations = {}, {}
+        for question in questions:
+            lines += ["", "## " + question["title"], "", question["observation"]]
+            comparison_context = question.get("report_comparison_context") or {}
+            if comparison_context.get("difference_is_explicit"):
+                lines.append("本题使用截止时已可见的记录；睡眠按记录事件结束日期归属，显示完整日的期间统计。与上列不同可见性或人工片段口径分别阅读。")
+            for note in dict.fromkeys(question.get("limitations", [])):
+                lines.append("- " + note)
+            association = question.get("association") or {}
+            for group in association.get("groups", []):
+                identity = group.get("identity") or {}
+                label = " / ".join(str(identity.get(k) or "未记录") for k in ("source", "device"))
+                times = "–".join(identity.get("actual_local_time_range", []))
+                dates = " 至 ".join(identity.get("date_range", []))
+                lines.append(f"分组：{label}；实际采样 {times or '未记录'}；{dates}；配对 {identity.get('paired_dates', 0)} 天。")
+                if group.get("status") == "estimated":
+                    interval = group.get("interval", [])
+                    estimate = f"观察性条件关联 {group['coefficient']:+.2f} ms/小时"
+                    if len(interval) == 2:
+                        estimate += f"，区间 [{interval[0]:.2f}, {interval[1]:.2f}]"
+                    lines.append(estimate + "；不是因果效果，同批相邻变化不作为独立支持投票。")
+                else:
+                    lines.append("本组不可估计：" + str(group.get("reason") or "现有记录尚不满足模型条件") + "。")
+            ordinary = question.get("ordinary_training") or {}
+            ordinary_groups = ordinary.get("series", [])
+            unpaired = [group for group in ordinary_groups if not group.get("comparisons")]
+            comparable = [group for group in ordinary_groups if group.get("comparisons")]
+            for group in comparable:
+                lines.append("- " + group["summary"])
+            if unpaired:
+                missing_conditions = Counter(reason for group in unpaired for reason in group.get("limitations", []))
+                lines.append(f"另有 {len(unpaired)} 条独立轨迹（{sum(g['record_count'] for g in unpaired)} 条实际记录）尚无可唯一配对的比较。完整轨迹按动作查看。")
+                labels = {"equipment_instance_unknown": "器械未记录", "settings_unknown": "器械设置未记录",
+                          "rir_missing_effort_unknown": "RIR缺失，努力程度未知", "set_position_unknown": "组位未记录"}
+                lines.append("；".join(f"{labels.get(reason, '相关测量条件尚待核对')}：{count}条轨迹" for reason, count in sorted(missing_conditions.items())))
+            evidence = question.get("evidence", {})
+            for item in answer_evidence(question):
+                identity = (item["claim_id"], item["version"])
+                if identity in rendered_claims:
+                    lines.append(f"适用依据：见前文说明〔{rendered_claims[identity]}〕及其适用限制。")
+                    continue
+                number = rendered_claims.setdefault(identity, len(rendered_claims) + 1)
+                label = "行动依据" if "action_or_reassessment" in item.get("purposes", []) else "适用说明"
+                lines.append(f"{label}〔{number}〕：" + item["statement"])
+                lines.extend("- " + limit for limit in item.get("limitations", []))
+                for citation in item.get("citations", []):
+                    key = (citation.get("source_id"), citation.get("version"), citation.get("span_id"))
+                    if key in rendered_citations:
+                        lines.append(f"原文：见来源〔{rendered_citations[key]}〕。")
+                        continue
+                    reference = rendered_citations.setdefault(key, len(rendered_citations) + 1)
+                    locator = citation.get("locator") or {}
+                    location = citation.get("section") or "定位见冻结明细"
+                    if isinstance(locator, dict) and locator.get("page") is not None:
+                        location += f" · 第{locator['page']}页"
+                    elif isinstance(locator, dict) and locator.get("paragraph_id") is not None:
+                        location += f" · 段落{locator['paragraph_id']}"
+                    lines.append(f"来源〔{reference}〕：[{citation['title']}]({citation['url']}) · {location}")
+            if evidence.get("restricted_items"):
+                lines.append("部分主张或其必要前提存在分歧，仅限制相关解释和建议；独立资料仍保留。")
+            if evidence.get("status") in {"not_configured", "service_failure", "no_applicable_sources"}:
+                lines.append({"not_configured": "资料库尚未配置；以下为记录与测量核对入口。",
+                              "service_failure": "本题资料服务未完成，事实与图表保留。",
+                              "no_applicable_sources": "未取得本题适用的已审核说明；不据此补造原因或阈值。"}[evidence["status"]])
+            # The selected numerical row retains its identity and standardized units.
+            for row in question.get("rows", []):
+                if row.get("type") == "metric" and row.get("value") is not None:
+                    value = format_measurement(row["value"], row.get("unit"), kind=row.get("metric"))
+                    delta = ("；较前期 " + format_measurement(row["difference"], row.get("unit"), kind=row.get("metric"), signed=True)
+                             if row.get("difference") is not None else "；前期比较不足")
+                    summary = (row.get("comparison") or {}).get("current")
+                    statistic = (f"；期间日代表值中位数；{coverage_label(summary)}" if summary else "")
+                    lines.append(f"- {row.get('title', row.get('metric'))}：{value}{delta}{statistic}；来源 {row.get('source') or '未注明'}。")
+            if question["id"] == "W5":
+                energy = [coverage for run in runs if run["workflow_id"] == "W5"
+                          for coverage in run.get("supplements", {}).get("energy_coverage", [])]
+                for coverage in energy:
+                    mean = format_measurement(coverage["mean_kcal_per_complete_day"], "kcal/日")
+                    source = " / ".join(str(value or "未注明") for value in coverage["stream"])
+                    lines.append(f"设备配对能量专项：完整能量日覆盖 {coverage['complete_days']}/{coverage['window_days']}；"
+                                 f"已记录完整日平均 {mean}；来源/设备/协议/版本 {source}。")
+                if energy:
+                    lines.append("缺日不填零，不外推完整周期总量；设备能量为基础与活动分量的既有配对结果，不另加运动摘要或 TEF。")
+            lines.extend("下一步：" + step for step in question.get("steps", []))
+        lines += ["", "## 上次行动观察", ""]
+        actions = [a for q in questions for a in q.get("action_reviews", [])]
+        if not actions:
+            lines.append("本期没有截止时点可见的已选行动；不把未反馈推断为已执行。")
+        for action in actions:
+            lines.append("- " + str(action.get("summary") or action.get("action_text", "已选行动")))
+            lines.append("执行：" + str(action.get("execution_label") or action.get("status", "未知")) + "。")
+            if action.get("review_due"):
+                lines.append("计划复评：" + action["review_due"] + "。")
+        lines += ["", "## 下一步", ""]
+        steps = list(dict.fromkeys(step for q in questions for step in q.get("steps", [])))
+        lines += ["- " + step for step in steps[:3]] or ["继续记录实际值与测量条件，之后按相同口径复评。"]
+        lines += ["", "## 冻结依据与明细", "",
+&gt;                 f"报告格式 `{report['version']}`；事实快照 `{report['analysis_run_id']}`。",
+                           ^^^^^^^^^^^^^^^^^
+                  "每题的完整观测、来源记录、日期、分组、行动定义与已选资料保存在冻结结果，可按问题浏览或另行下载完整审计包。",
+                  "相同内容对象由报告引用复用；再次生成是新的报告版本。后续修订、删除或撤销不会改写此历史正文。",
+                  "历史说明不代表当前有效建议；当前建议需重新核对资料与适用条件。"]
+E       KeyError: 'version'
+
+src/healthzip/workflows/period_report.py:459: KeyError</failure></testcase><testcase classname="tests.integration.test_followup_report_evidence" name="test_new_exact_conflict_restricts_only_affected_frozen_claim_and_keeps_bytes" time="0.092" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_new_conflict_on_required_premise_blocks_action_not_independent_method" time="0.099" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context0-conflicted]" time="0.068" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context1-verified]" time="0.067" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context2-scope_unverified]" time="0.068" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_conflict_on_another_version_does_not_restrict_the_frozen_version" time="0.072" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_unreachable_acquisition_is_not_withdrawal_but_missing_version_is_unknown" time="0.063" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_unavailable_service_does_not_claim_current_or_withdrawn" time="0.055" /></testsuite></testsuites>

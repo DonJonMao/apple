@@ -230,7 +230,7 @@ def test_action_w4_frozen_report_exact_result_identity_and_revision(tmp_path):
         timezone_name="UTC", question_ids=["W4"], period="week")
     assert questions[0]["action_reviews"] == [direct]
     first = create_report(repo, {"cutoff_time": STOP, "timezone": "UTC"},
-        period="week", knowledge_root=tmp_path / "no-private-knowledge")
+        period="week", knowledge_root=tmp_path / "no-private-knowledge", include_details=True)
     frozen = next(q for q in first["questions"] if q["id"] == "W4")["action_reviews"]
     assert frozen == [direct]
     assert direct["summary"] in first["markdown"]
@@ -239,20 +239,20 @@ def test_action_w4_frozen_report_exact_result_identity_and_revision(tmp_path):
     save_feedback(repo, identity, "executed", "仅执行反馈改变，健康数据未修改", None,
                   event_id="feedback-only", recorded_at="2026-08-13T09:00:00Z")
     feedback_report = create_report(repo, {"cutoff_time": STOP, "timezone": "UTC"},
-        period="week", knowledge_root=tmp_path / "no-private-knowledge")
+        period="week", knowledge_root=tmp_path / "no-private-knowledge", include_details=True)
     feedback_review = next(q for q in feedback_report["questions"] if q["id"] == "W4")["action_reviews"][0]
     assert feedback_review["execution_status"] == "executed"
     assert feedback_review["evaluation_id"] != direct["evaluation_id"]
     assert feedback_report["content_signature"] != first["content_signature"]
-    assert load_report(repo, first["report_id"]) == first
+    assert load_report(repo, first["report_id"], include_details=True) == first
     sample(repo, 4, 10, 190, available="2026-08-13T10:00:00Z")
     clear()
     changed = create_report(repo, {"cutoff_time": STOP, "timezone": "UTC"},
-        period="week", knowledge_root=tmp_path / "no-private-knowledge")
+        period="week", knowledge_root=tmp_path / "no-private-knowledge", include_details=True)
     current = next(q for q in changed["questions"] if q["id"] == "W4")["action_reviews"][0]
     assert current["primary_observations"][0]["value"] == 66
     assert current["evaluation_id"] != direct["evaluation_id"]
-    assert load_report(repo, first["report_id"]) == first
+    assert load_report(repo, first["report_id"], include_details=True) == first
     assert repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (first["report_id"],))[0] == saved_json
     repo.close()
 
@@ -281,6 +281,16 @@ def test_migration_preserves_legacy_action_and_feedback_bytes(tmp_path):
 
 def test_first_primary_measurement_invalidates_w4_even_if_baseline_had_none(tmp_path):
     repo = Repository(tmp_path / "first-measurement.sqlite")
+    # A real sleep observation makes this a relevant W6 context while the
+    # action's primary SDNN measurement still has no baseline observations.
+    sleep = {"id": 10, "canonical_type": "sleep_stage", "source_name": "Synthetic A",
+             "device": "synthetic-device", "source_version": "1", "record_status": "active",
+             "start_utc": "2026-08-01T22:00:00Z", "end_utc": "2026-08-02T06:00:00Z",
+             "category_value": "HKCategoryValueSleepAnalysisAsleepUnspecified",
+             "metadata_json": json.dumps({"protocol_id": "declared-protocol"})}
+    repo.conn.execute("INSERT INTO source_revision(table_name,record_id,available_at,payload_json,temporal_provenance) VALUES('health_sample',10,?,?,'synthetic')",
+                      (sleep["end_utc"], json.dumps(sleep)))
+    repo.conn.commit()
     q = baseline(repo, qid="W6")
     identity = choose(repo, q)
     kwargs = dict(window_start=SELECTED, window_end=STOP, cutoff_time=STOP,

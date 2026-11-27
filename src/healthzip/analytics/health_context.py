@@ -134,6 +134,11 @@ def comparison_statements(metric, title, unit, *, scale=1):
         if value is None:
             continue
         text = f"{period_label(current)}，{title}日代表值的中位数为 {value / scale:.1f} {unit}"
+        protocol = stream.get("protocol")
+        if isinstance(protocol, (list, tuple)):
+            identity = " / ".join(str(v) for v in protocol[:2] if v)
+            if identity:
+                text += f"（{identity}）"
         for key, label in (("previous", "前期"), ("reference", "个人参考")):
             other = stream.get(key, {})
             delta = stream.get(key + "_change", {}).get("absolute")

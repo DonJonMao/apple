@@ -1,0 +1,55 @@
+2026-11-27 10:46:08.188 Uvicorn server started on 127.0.0.1:40191
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:40191
+
+2026-11-27 10:46:11.940 The widget with key "body_custom_dates" was created with a default value but also had its value set via the Session State API.
+Stack (most recent call last):
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 443, in _run_script_thread
+    self._run_script(request.rerun_data)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 961, in _run_script
+    ) = exec_func_with_error_handling(code_to_exec, ctx)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 136, in exec_func_with_error_handling
+    result = func()
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 936, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "/tmp/hz-followup-actions-cidyggk3/wrapper/app.py", line 19, in <module>
+    runpy.run_path('/home/sn_maozhifang/apple/app.py', run_name="__main__")
+  File "<frozen runpy>", line 291, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/app.py", line 59, in <module>
+    render_review(repo, timezone_name=timezone_name)
+  File "/tmp/hz-followup-actions-cidyggk3/wrapper/src/healthzip/ui/review_page.py", line 130, in render_review
+    render_questions(repo, timezone_name=timezone_name)
+  File "/tmp/hz-followup-actions-cidyggk3/wrapper/src/healthzip/ui/question_page.py", line 17, in render_questions
+    scope = range_controls(timezone_name)
+  File "/tmp/hz-followup-actions-cidyggk3/wrapper/src/healthzip/ui/body_workspace.py", line 46, in range_controls
+    dates = st.date_input("自定义日期范围", value=(now.astimezone(zone).date()-timedelta(days=days-1), now.astimezone(zone).date()),
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/runtime/metrics_util.py", line 732, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/elements/widgets/time_widgets.py", line 2146, in date_input
+    return self._date_input(
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/elements/widgets/time_widgets.py", line 2193, in _date_input
+    check_widget_policies(
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/elements/lib/policies.py", line 146, in check_widget_policies
+    check_session_state_rules(
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/elements/lib/policies.py", line 90, in check_session_state_rules
+    _LOGGER.warning(
+2026-11-27 10:46:11.951 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-11-27 10:46:14.449 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.

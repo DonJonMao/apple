@@ -1,0 +1,68 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+____________ test_fatigue_keeps_background_without_inventing_topics ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1008/test_fatigue_keeps_background_0')
+
+    def test_fatigue_keeps_background_without_inventing_topics(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            record(repo, "fatigue", 7, table="subjective_log")
+            views = questions(repo)
+>           assert views["W2"]["topic_status"]["state"] == "context_only"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'topic_status'
+
+tests/integration/test_followup_topic_applicability.py:39: KeyError
+__________ test_steps_alone_describes_amount_and_names_missing_speed ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1008/test_steps_alone_describes_amo0')
+
+    def test_steps_alone_describes_amount_and_names_missing_speed(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            record(repo, "steps", 2310)
+            view = questions(repo)["W7"]
+>           assert view["topic_status"]["state"] == "partial"
+                   ^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'topic_status'
+
+tests/integration/test_followup_topic_applicability.py:60: KeyError
+_______ test_actual_device_event_is_independent_and_has_record_identity ________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1008/test_actual_device_event_is_in0')
+
+    def test_actual_device_event_is_independent_and_has_record_identity(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+            record(repo, "high_hr_event", None)
+            view = questions(repo)["E"]
+>           assert view["topic_status"]["state"] == "descriptive"
+                   ^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'topic_status'
+
+tests/integration/test_followup_topic_applicability.py:71: KeyError
+_____________ test_cycle_disabled_enabled_empty_and_actual_record ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1008/test_cycle_disabled_enabled_em0')
+
+    def test_cycle_disabled_enabled_empty_and_actual_record(tmp_path):
+        with closing(Repository(tmp_path / "synthetic.sqlite3")) as repo:
+>           assert questions(repo, cycle_enabled=False)["W8"]["topic_status"]["state"] == "disabled"
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_topic_applicability.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = <healthzip.db.repository.Repository object at 0xffff856233d0>
+extra = {'cycle_enabled': False}
+
+    def questions(repo, **extra):
+>       return {q["id"]: q for q in analyze_questions(repo, window_start=START, window_end=END,
+            cutoff_time=END, period="week", **extra)}
+E       TypeError: analyze_questions() got an unexpected keyword argument 'cycle_enabled'
+
+tests/integration/test_followup_topic_applicability.py:31: TypeError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_topic_applicability.py::test_fatigue_keeps_background_without_inventing_topics
+FAILED tests/integration/test_followup_topic_applicability.py::test_steps_alone_describes_amount_and_names_missing_speed
+FAILED tests/integration/test_followup_topic_applicability.py::test_actual_device_event_is_independent_and_has_record_identity
+FAILED tests/integration/test_followup_topic_applicability.py::test_cycle_disabled_enabled_empty_and_actual_record
+4 failed in 0.86s

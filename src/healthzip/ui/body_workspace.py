@@ -209,7 +209,11 @@ def render_metric(repo, kind, scope, timezone_name, *, selected_source=None, mod
                 latest = stream["points"][-1]
                 st.metric("最近实际观察", format_measurement(latest["value"], unit, kind=kind))
                 st.caption(f"观察于 {latest.get('observed_at') or latest['date']}，当前日期尚未完整。")
-            st.caption(f"完整日记录 {current.get('recorded_days', 0)}/{current.get('window_days', 0)} 天 · 日代表值中位数 · 原始样本数 {current.get('raw_record_count', 0)}")
+            if spec["kind"] == "estimate":
+                st.caption(f"窗口内末次来源估计 · {current.get('record_count', 0)} 条记录、{current.get('recorded_days', 0)} 个记录日期 · "
+                           f"{current.get('publication_count', 0)} 条明确提供发布时间；独立测量次数未知。")
+            else:
+                st.caption(f"完整日记录 {current.get('recorded_days', 0)}/{current.get('window_days', 0)} 天 · 日代表值中位数 · 原始样本数 {current.get('raw_record_count', 0)}")
             if current.get("recorded_total") is not None:
                 st.write("本期完整日期的已记录合计 " + format_measurement(current["recorded_total"], unit, kind=kind) + "。")
             if current.get("partial_daily_points"):
@@ -222,7 +226,7 @@ def render_metric(repo, kind, scope, timezone_name, *, selected_source=None, mod
         if not model_only:
             with st.expander("相关记录与比较条件", expanded=False):
                 st.caption(local_window_label(arguments["window_start"], arguments["window_end"], timezone_name))
-                st.write("前期中位数：" + format_measurement(previous.get("value"), unit, kind=kind))
+                st.write(("前期末次来源估计：" if spec["kind"] == "estimate" else "前期中位数：") + format_measurement(previous.get("value"), unit, kind=kind))
                 points = stream.get("points", [])
                 page = st.number_input("明细页", min_value=1, max_value=max(1, (len(points)+49)//50), value=1, key=f"detail_page:{kind}:{index}")
                 shown = points[(page-1)*50:page*50]
@@ -230,7 +234,7 @@ def render_metric(repo, kind, scope, timezone_name, *, selected_source=None, mod
                                "样本数": p.get("sample_count"), "情境": p.get("context", stream.get("protocol"))} for p in shown], hide_index=True)
                 st.caption(f"本页最多 50 条，共 {len(points)} 个观察点。计算使用全部适用记录。")
                 st.write(spec.get("note", ""))
-                _observation_details(stream, unit)
+                _observation_details(stream, unit, timezone_name)
                 if stream.get("sensitivity"):
                     sensitivity = stream["sensitivity"]
                     st.write(sensitivity.get("scope", ""))
@@ -253,12 +257,16 @@ def _open_question(question_id):
     open_workspace("复盘")
 
 
-def _observation_details(stream, unit):
+def _observation_details(stream, unit, timezone_name="Asia/Shanghai"):
+    from healthzip.analytics.display_format import local_timestamp
     estimates, events = [], []
     for point in stream.get("points", []):
         support = point.get("estimate_support")
         if support:
-            estimates.append({"发布日期": point.get("observed_at"), "支持起点": support.get("start"), "支持终点": support.get("end"),
+            observation = point["observations"][0]
+            estimates.append({"来源观测时间": local_timestamp(point.get("observed_at"), timezone_name),
+                              "明确发布时间": local_timestamp(observation.get("published_at"), timezone_name),
+                              "支持起点": local_timestamp(support.get("start"), timezone_name), "支持终点": local_timestamp(support.get("end"), timezone_name),
                               "与前次窗口重叠": support.get("overlaps_prior_window"), "算法报告上限（米）": support.get("upper_limit_m"),
                               "位于报告上限": support.get("at_reportable_limit"), "方法": support.get("method"), "算法版本": support.get("algorithm_version")})
         for observation in point.get("observations", []):
@@ -266,6 +274,7 @@ def _observation_details(stream, unit):
                 events.append({"实际时间": _point_time(point) if observation.get("event_time_precision") == "calendar_day" else observation.get("event_start"), "来源报告类别": observation["category"]})
     if estimates:
         st.write("估计支持窗口与发布身份")
+        st.caption("发布时间未知不以导入时间代替；重复发布或重叠窗口不增加独立测量。原始时刻与方法身份保留在来源记录。")
         st.dataframe(estimates, hide_index=True)
     if events:
         st.dataframe(events, hide_index=True)

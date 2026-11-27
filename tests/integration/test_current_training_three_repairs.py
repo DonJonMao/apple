@@ -271,7 +271,7 @@ def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch
     assert advice["daily_history"]["records"][0]["set_uuid"] == actual["set_uuid"]
     record_property("ordinary_record_evidence", json.dumps({"source_set_id": actual["set_uuid"],
         "observation": option["basis"]["source_observation"], "next_option": {k: option[k] for k in ("load", "reps", "rir")}}, ensure_ascii=False))
-    previous_reports = [create_report(repo, analyze(repo), period=p) for p in ("week", "month")]
+    previous_reports = [create_report(repo, analyze(repo), period=p, include_details=True) for p in ("week", "month")]
     old_comparison = objective_comparison(repo, selected["id"])
     session = svc.get_session(session["id"])
     svc.delete_session(session["id"], base_revision=session["revision"])
@@ -282,8 +282,8 @@ def test_real_app_ordinary_plan_update_and_deleted_history(tmp_path, monkeypatch
     assert any("所属训练已删除" in w.value for w in app.warning)
     assert objective_comparison(repo, selected["id"])["comparison_id"] != old_comparison["comparison_id"]
     for frozen in previous_reports:
-        assert load_report(repo, frozen["report_id"]) == frozen
-        new = create_report(repo, analyze(repo), period=frozen["period"])
+        assert load_report(repo, frozen["report_id"], include_details=True) == frozen
+        new = create_report(repo, analyze(repo), period=frozen["period"], include_details=True)
         assert all(r["set_uuid"] != actual["set_uuid"] for c in new["objective_comparisons"] for r in c["rows"])
     assert repo.one("SELECT count(*) FROM training_recommendation_feedback")[0] == 0
     repo.close()

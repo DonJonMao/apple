@@ -54,6 +54,7 @@ def ensure_schema(w):
           relation TEXT NOT NULL,to_type TEXT NOT NULL,to_id TEXT NOT NULL,to_version TEXT NOT NULL,
           payload_json TEXT NOT NULL,created_at TEXT NOT NULL)""",
         "CREATE INDEX IF NOT EXISTS knowledge_edge_target ON knowledge_evidence_edge(to_type,to_id,to_version)",
+        "CREATE INDEX IF NOT EXISTS knowledge_edge_origin ON knowledge_evidence_edge(from_type,from_id,from_version)",
     ]
     # No executescript: it would commit an existing caller transaction.
     conn = w.lib.theories

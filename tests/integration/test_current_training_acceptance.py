@@ -163,7 +163,7 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         assert reconstruct_report(exported) == report
         for identity in report["workflow_run_ids"]:
             assert exported["workflow_runs"][identity] == load_run(repo, identity)
-        assert load_report(repo, report["report_id"])["markdown"] == report["markdown"]
+        assert load_report(repo, report["report_id"], include_details=True)["markdown"] == report["markdown"]
     go(app, "复盘")
     legacy_analysis(app, "报告")
     app.button(key="review_compute").click().run()
@@ -198,7 +198,7 @@ def test_old_report_link_keeps_current_actuals_out_of_old_snapshot(tmp_path, mon
     assert review["window_end"] == advice["created_at"]
     actual = FLOW["finish"](svc, svc.get_session_exercise(selected["id"])["sets"][0])
     assert objective_comparison(repo, selected["id"])["rows"][0]["advice_id"] == advice["advice_id"]
-    report = create_report(repo, analyze(repo), period=period)
+    report = create_report(repo, analyze(repo), period=period, include_details=True)
     assert any(r["set_uuid"] == actual["set_uuid"] for c in report["objective_comparisons"] for r in c["rows"])
     assert "\n".join(markdown([old], repo=repo)) == old_text and load_run(repo, old["run_id"]) == old
     repo.close()
@@ -226,14 +226,14 @@ def test_late_body_changes_new_report_without_entering_original_advice(tmp_path,
     repo, svc, instance, target, _ = FLOW["fixture"](tmp_path, monkeypatch)
     before = current_advice(repo, instance["id"])
     FLOW["finish"](svc, target)
-    before_report = create_report(repo, analyze(repo), period="week")
+    before_report = create_report(repo, analyze(repo), period="week", include_details=True)
     body(repo, late=True)
-    after_report = create_report(repo, analyze(repo), period="week")
+    after_report = create_report(repo, analyze(repo), period="week", include_details=True)
     assert before_report["current"]["metrics"]["STATE-SDNN"]["value"] is None
     assert after_report["current"]["metrics"]["STATE-SDNN"]["value"]
     joins = [c for identity in after_report["workflow_run_ids"] for c in load_run(repo, identity)["supplements"].get("training_session_contexts", [])]
     assert next(c for c in joins if c["session_id"] == instance["session_id"])["metrics"]["STATE-SDNN"]["value"] is None
-    assert load_report(repo, before_report["report_id"]) == before_report
+    assert load_report(repo, before_report["report_id"], include_details=True) == before_report
     assert json.loads(repo.one("SELECT payload_json FROM current_training_advice WHERE advice_id=?", (before["advice_id"],))[0]) == before
     repo.close()
 
@@ -396,7 +396,7 @@ def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_pa
             observations["sample"](repo, batch, f"{kind}-{offset}", kind+"_energy_kcal", amount,
                 day.isoformat(), (day+timedelta(days=1)).isoformat())
     repo.conn.commit()
-    report = create_report(repo, analyze(repo, cutoff_time=cutoff.isoformat(), timezone_name="UTC"), period=period)
+    report = create_report(repo, analyze(repo, cutoff_time=cutoff.isoformat(), timezone_name="UTC"), period=period, include_details=True)
     metrics = report["current"]["metrics"]
     energy = metrics["ENERGY-DEVICE-TOTAL"]["value"][0]
     assert (energy["complete_days"], energy["device_total_kcal"], energy["valid_day_mean_kcal_day"]) == (4, 8000, 2000)
@@ -458,7 +458,7 @@ def test_joint_report_without_current_actuals_keeps_manual_feedback_separate(tmp
     svc.recommendation_feedback(old_candidate["candidate_id"], user_choice="declined", execution_state="not_executed", nonexecution_reason="user_choice")
     saved_feedback = [dict(r) for r in repo.rows("SELECT * FROM training_recommendation_feedback")]
     body(repo)
-    report = create_report(repo, analyze(repo, timezone_name="UTC"), period=period)
+    report = create_report(repo, analyze(repo, timezone_name="UTC"), period=period, include_details=True)
     assert not report["objective_comparisons"]
     assert "本期尚无可建立时间对应的训练记录" in report["markdown"]
     historical = [load_run(repo, identity) for identity in report["historical_run_ids"]]

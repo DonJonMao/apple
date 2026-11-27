@@ -6,6 +6,15 @@ from .report_inputs import report_value, source_snapshot
 
 
 def strength_inputs(repo, request, analysis, task):
+    selection = {k: task.get(k) for k in ("task_id", "inventory_task_ids")} if task else None
+    key = [request["cutoff_time"], request["mode"], request["timezone"],
+           analysis["window_start"], analysis["window_end"], selection]
+    rows, context = report_value(repo, "workflow_strength_inputs", key,
+        lambda: _strength_inputs(repo, request, analysis, task))
+    return rows, dict(context)
+
+
+def _strength_inputs(repo, request, analysis, task):
     records, context = source_snapshot(repo, request["cutoff_time"], retrospective=request["mode"] == "retrospective",
         window_start=analysis["window_start"], window_end=analysis["window_end"], include_sources=False)
     rows = [r for r in records if r.get("record_kind") == "strength_set"]
@@ -57,13 +66,11 @@ def scoped_metrics(repo, request, analysis, task, metrics):
 def ordinary_strength_review(repo, request, analysis, task):
     """Reuse the visible training snapshot without granting reference eligibility."""
     from .longitudinal import ordinary_review
-    def compute():
-        rows, _ = strength_inputs(repo, request, analysis, task)
-        return ordinary_review(rows, {"start": analysis["window_start"], "end": analysis["window_end"],
-                                      "cutoff_time": request["cutoff_time"], "timezone": request["timezone"]})
-    task_selection = {key: task.get(key) for key in ("task_id", "inventory_task_ids")} if task else None
+    rows, _ = strength_inputs(repo, request, analysis, task)
     return report_value(repo, "ordinary_training", [request["cutoff_time"], request["mode"], request["timezone"],
-        analysis["window_start"], analysis["window_end"], task_selection], compute)
+        analysis["window_start"], analysis["window_end"], [row["id"] for row in rows]],
+        lambda: ordinary_review(rows, {"start": analysis["window_start"], "end": analysis["window_end"],
+            "cutoff_time": request["cutoff_time"], "timezone": request["timezone"]}))
 
 
 def session_backgrounds(repo, request, analysis, task, selection):

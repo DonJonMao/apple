@@ -357,7 +357,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
     # and inference metrics still require genuinely designated references.
     from healthzip.science import evaluate
     from healthzip.science.contracts import canonical_hash
-    from healthzip.science.engine import TASK_METRICS, _bounded_context
+    from healthzip.science.engine import TASK_METRICS, _bounded_context, _ordinary_reference_result
     requested_task_metrics = TASK_METRICS if ordinary_task_metrics is None else set(ordinary_task_metrics)
     if not requested_task_metrics <= TASK_METRICS:
         raise ValueError("unknown_ordinary_task_metric")
@@ -371,6 +371,7 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
         task = analysis_task(row)
         observed_tasks.setdefault(task["task_id"], {"task": task, "rows": []})["rows"].append(row)
     ordinary_bound = None
+    ordinary_templates = {}
     for identity, item in observed_tasks.items():
         if identity in strength_tasks:
             continue
@@ -389,7 +390,8 @@ def _analyze_uncached(repo, window_days=30, *, cutoff_time=None, timezone_name="
             "source_record_ids": [row["_source_id"] for row in rows],
             "task_metrics_scope": "complete" if ordinary_task_metrics is None else "requested_only",
             "metrics": {
-                mid: evaluate(mid, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+                mid: _ordinary_reference_result(normalized_task, window, task_context, task_bound, ordinary_templates)
+                if mid == "STR-11" else evaluate(mid, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
                               window_end=end.isoformat(), context=task_context, _normalized=normalized_task,
                               _context_bound=task_bound, _selection_cache=selections) for mid in requested_task_metrics}}
     if selection_audit and selection_audit.get("reference"):

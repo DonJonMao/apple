@@ -1,0 +1,116 @@
+.........F..F.F...................................F                      [100%]
+=================================== FAILURES ===================================
+_______ test_e_reads_actual_symptoms_timing_training_and_excludes_future _______
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1011/test_e_reads_actual_symptoms_t0')
+
+    def test_e_reads_actual_symptoms_timing_training_and_excludes_future(tmp_path):
+        repo = Repository(tmp_path / "events.sqlite")
+        sessions = add_training(repo)
+        add_record(repo, "health_sample", 1, "2026-11-20T16:30:00+08:00",
+                   canonical_type="high_hr_event", category_value="reported")
+        add_record(repo, "subjective_log", 1, "2026-11-20T18:00:00+08:00", symptoms="本人记录头晕", pain_level=2)
+        add_record(repo, "subjective_log", 2, "2026-11-23T18:00:00+08:00", symptoms="未来症状")
+        result = ask(repo, "E")
+>       assert "本人记录头晕" in result["observation"] and "未来症状" not in str(result)
+E       AssertionError: assert ('本人记录头晕' in '本期已记录 1 条，最近一次是 2026-11-20 的高心率通知。2026-11-20高心率通知与2026-11-20实际训练相邻：记录结束在训练开始之前；训练保留 1 个已完成组。')
+
+tests/science/test_question_context.py:70: AssertionError
+_____________ test_w3_w7_keep_estimate_support_and_version_ceiling _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1011/test_w3_w7_keep_estimate_suppo0')
+
+    def test_w3_w7_keep_estimate_support_and_version_ceiling(tmp_path):
+        path = tmp_path / "master.sqlite"
+        create_master_science_fixture(path)
+        repo = Repository(path)
+        for qid in ("W3", "W7"):
+            result = ask(repo, qid, window_start=RANGE_START)
+            row = next(r for r in result["rows"] if r.get("metric") == "six_minute_walk_m")
+            assert row["publication_count"] == 2
+            assert row["estimate_support"]["overlaps_prior_window"]
+>           assert row["estimate_support"]["upper_limit_m"] == 500
+E           assert None == 500
+
+tests/science/test_question_context.py:119: AssertionError
+__________ test_action_dynamic_metric_dependency_and_source_identity ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1011/test_action_dynamic_metric_dep0')
+
+    def test_action_dynamic_metric_dependency_and_source_identity(tmp_path):
+        repo = Repository(tmp_path / "dynamic.sqlite")
+        add_training(repo)
+        def oxygen(i, at, value, version="1"):
+            add_record(repo, "health_sample", i, at, canonical_type="oxygen_saturation_fraction",
+                       normalized_value=value, normalized_unit="fraction", raw_unit="fraction", raw_value=str(value))
+            if version != "1":
+                payload = json.loads(repo.one("SELECT payload_json FROM source_revision WHERE table_name='health_sample' AND record_id=?", (i,))[0])
+                payload["source_version"] = version
+                repo.conn.execute("UPDATE source_revision SET payload_json=? WHERE table_name='health_sample' AND record_id=?", (json.dumps(payload),i))
+                repo.conn.commit()
+        oxygen(1, "2026-11-10T08:00:00+08:00", 0.97)
+        baseline = ask(repo, "W6", window_end=SELECTED, cutoff_time=SELECTED, source_filter=["合成测试设备"])
+        assert any(r.get("metric") == "oxygen_saturation_fraction" for r in baseline["rows"])
+        select_action(repo, baseline, baseline["steps"][0], "2026-11-30T00:00:00+08:00", selected_at=SELECTED)
+        prior = ask(repo, "W4")
+        oxygen(2, "2026-11-20T08:00:00+08:00", 0.98)
+        current = ask(repo, "W4")
+        assert prior["fact_id"] != current["fact_id"]
+        observed = next(o for o in current["action_reviews"][0]["observations"] if o.get("metric") == "oxygen_saturation_fraction")
+>       assert observed["difference"] == pytest.approx(0.01)
+E       assert None == 0.01 ± 1.0e-08
+E         
+E         comparison failed
+E         Obtained: None
+E         Expected: 0.01 ± 1.0e-08
+
+tests/science/test_question_context.py:189: AssertionError
+_ test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_report _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1011/test_t05_actual_cycle_symptoms0')
+
+    def test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_report(tmp_path):
+        from healthzip.analytics.body_metrics import analyze_questions
+        from healthzip.ui.preferences import save_preferences
+        from tests.science.test_question_context import add_record, add_training
+    
+        repo = Repository(tmp_path / "actual-cycle-report.sqlite")
+        sessions = add_training(repo)
+        for identity, day, pain in ((701, 10, 2), (702, 20, 3)):
+            add_record(repo, "health_sample", identity, f"2026-11-{day}T16:00:00+08:00",
+                       canonical_type="menstrual_flow", category_value="light")
+            add_record(repo, "subjective_log", identity, f"2026-11-{day}T16:10:00+08:00",
+                       symptoms="本人记录腹部不适", pain_level=pain)
+        # Real records make W8 applicable even when its empty-state preference is off.
+        save_preferences(repo.path, cycle_enabled=False)
+        cutoff = "2026-11-22T00:00:00+08:00"
+        direct = analyze_questions(repo, question_ids=["W8"], period="month",
+            window_start="2026-11-01T00:00:00+08:00", window_end=cutoff,
+            cutoff_time=cutoff, timezone_name="Asia/Shanghai")[0]
+        # Frozen JSON naturally represents internal identity tuples as arrays.
+        expected = json.loads(json.dumps(direct, ensure_ascii=False))
+        report = create_report(repo, {"cutoff_time": cutoff, "timezone": "Asia/Shanghai"},
+                               period="month", knowledge_root=tmp_path / "missing")
+        frozen = next(q for q in report["questions"] if q["id"] == "W8")
+        assert frozen["report_status"] == "available"
+        assert frozen["fact_id"] == expected["fact_id"]
+        assert frozen["rows"] == expected["rows"]
+        for field in ("source_filter", "period", "comparison_bounds", "analysis_version", "observation", "limitations"):
+            assert frozen[field] == expected[field]
+        sources = {identity for row in frozen["rows"] for key in ("source_record_ids", "event_source_record_ids")
+                   for identity in row.get(key, [])}
+>       assert sources == {"health_sample:701", "health_sample:702", "subjective_log:701", "subjective_log:702"}
+E       AssertionError: assert {'health_samp...h_sample:702'} == {'health_samp...tive_log:702'}
+E         
+E         Extra items in the right set:
+E         'subjective_log:701'
+E         'subjective_log:702'
+E         Use -v to get more diff
+
+tests/integration/test_repair_report_review.py:420: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_question_context.py::test_e_reads_actual_symptoms_timing_training_and_excludes_future
+FAILED tests/science/test_question_context.py::test_w3_w7_keep_estimate_support_and_version_ceiling
+FAILED tests/science/test_question_context.py::test_action_dynamic_metric_dependency_and_source_identity
+FAILED tests/integration/test_repair_report_review.py::test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_report
+4 failed, 47 passed in 12.63s

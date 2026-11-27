@@ -27,7 +27,7 @@ from healthzip.science.state import (
 from .alternate_observations import alternate_dependencies, alternate_rows
 from .cache import cached
 
-VERSION = "typed-body-facts-1.2"
+VERSION = "typed-body-facts-1.3"
 
 
 def _rows(repo, table, types, start, end, cutoff, sources):
@@ -97,7 +97,8 @@ def _observation(row, value, metadata, unit):
         "raw_value": row.get("raw_value"),
         "raw_unit": row.get("raw_unit"),
         "raw_type": row.get("raw_type"),
-        "original_timestamps": metadata.get("original_timestamps"),
+        "original_timestamps": metadata.get("original_timestamps") or {
+            "start": row.get("start_original"), "end": row.get("end_original")},
         "utc_offset_minutes": row.get("utc_offset_minutes"),
         "category": row.get("category_value"),
         "aggregation": metadata.get("aggregation"),
@@ -105,6 +106,10 @@ def _observation(row, value, metadata, unit):
         "support_end": metadata.get("support_end"),
         "calibration": metadata.get("calibration"),
         "algorithm_version": metadata.get("algorithm_version"),
+        "published_at": metadata.get("published_at"),
+        "estimate_at": metadata.get("estimate_at"),
+        "timestamp_meaning": metadata.get("timestamp_meaning", "source_observation_time"),
+        "estimate_definition": metadata.get("estimate_definition"),
         "method": metadata.get("method"),
         "measurement_context": metadata.get("measurement_context"),
         "workout_ids": row.get("workout_ids"),
@@ -282,6 +287,7 @@ def _points(key, rows, window, excluded, episodes):
             for k in (
                 "method",
                 "algorithm_version",
+                "estimate_definition",
                 "temperature_identity",
                 "carrying_position",
                 "speed_stratum",
@@ -383,14 +389,29 @@ def _points(key, rows, window, excluded, episodes):
             for point in points:
                 obs = point["observations"][0]
                 a, b = obs["support_start"], obs["support_end"]
+                definition = obs.get("estimate_definition") or {}
+                if not isinstance(definition, dict):
+                    definition = {}
                 known_apple_method = (
                     key == "six_minute_walk_m"
                     and obs["algorithm_version"] == "Apple-6MWD-2021"
                     and obs["method"] == "passive_estimate"
+                    and definition.get("document_url") == "https://images.apple.com/healthcare/docs/site/Using_Apple_Watch_to_Estimate_Six_Minute_Walk_Distance.pdf"
+                    and definition.get("document_version") == "2021-05"
+                    and definition.get("device_family") == "Apple Watch"
+                    and definition.get("device_generation") in {"Series 3", "Series 4", "Series 5", "Series 6", "SE (1st generation)"}
+                    and str(definition.get("os_major")) == "7"
                 )
-                if known_apple_method and not a and not b:
-                    a = (instant(obs["event_end"]) - timedelta(days=28)).isoformat()
-                    b = obs["event_end"]
+                basis = "explicit_source_window" if a and b else "unknown"
+                # The source's estimate time is not the import/availability time,
+                # and an algorithm label alone does not identify a device protocol.
+                if known_apple_method and obs.get("estimate_at") and not a and not b:
+                    try:
+                        a = (instant(obs["estimate_at"]) - timedelta(days=28)).isoformat()
+                        b = obs["estimate_at"]
+                        basis = "official_definition_derived_from_source_estimate_time"
+                    except (ValueError, TypeError):
+                        pass
                 try:
                     support = (
                         (instant(a), instant(b)) if a and b and instant(a) < instant(b) else None
@@ -405,6 +426,7 @@ def _points(key, rows, window, excluded, episodes):
                 point["estimate_support"] = {
                     "start": a,
                     "end": b,
+                    "basis": basis,
                     "repeated_publication": bool(support and identity in seen),
                     "overlaps_prior_window": overlap if support else None,
                     "method": obs["method"],
@@ -412,6 +434,7 @@ def _points(key, rows, window, excluded, episodes):
                     "upper_limit_m": 500 if known_apple_method else None,
                     "at_reportable_limit": obs["value"] == 500 if known_apple_method else None,
                     "calibration": obs["calibration"],
+                    "definition": definition or None,
                 }
                 if support:
                     seen.add(identity)
@@ -429,7 +452,51 @@ def _points(key, rows, window, excluded, episodes):
     return output
 
 
+def estimate_support_interval(point):
+    support = point.get("estimate_support") or {}
+    try:
+        start, end = instant(support["start"]), instant(support["end"])
+        return (start, end) if start < end else None
+    except (KeyError, ValueError, TypeError):
+        return None
+
+
+def estimate_period_summary(points, bounds, cutoff, unit):
+    """Source estimates remain points, including today's already visible record.
+
+    The last source observation is a compact display choice, not a daily
+    aggregate or an independent intervention outcome. All points remain frozen.
+    """
+    from healthzip.science.state import local_date_domain
+
+    start, stop = instant(bounds["start"]), min(instant(bounds["end"]), instant(cutoff))
+    selected = sorted((p for p in points if start <= instant(p["observed_at"]) < stop),
+                      key=lambda p: (instant(p["observed_at"]), p["source_record_ids"]))
+    observations = [{**p, "published_at": p["observations"][0].get("published_at"),
+                     "timestamp_meaning": p["observations"][0].get("timestamp_meaning", "source_observation_time")}
+                    for p in selected]
+    dates = sorted({p["date"] for p in selected})
+    count = sum(p["n"] for p in selected)
+    domain = local_date_domain(start, stop, bounds["timezone"])
+    return {"window": bounds, "observed_window": {**bounds, "end": stop.isoformat()},
+            "value": selected[-1]["value"] if selected else None, "unit": unit,
+            "statistic_kind": "source_estimate_points", "value_selection": "last_source_observation_in_fixed_window",
+            "estimate_observations": observations, "records": observations,
+            "record_count": count, "raw_record_count": count, "sample_count": count,
+            "publication_count": sum(p["published_at"] is not None for p in observations),
+            "recorded_days": len(dates), "recorded_dates": dates, "dates": dates,
+            "window_days": len(domain), "observed_window_days": len(domain),
+            "source_record_ids": [rid for p in selected for rid in p["source_record_ids"]],
+            "distinct_known_support_windows": len({estimate_support_interval(p) for p in selected if estimate_support_interval(p)}),
+            "independent_measurement_count": None, "calendar_coverage_proves_measurement_coverage": False,
+            "quartiles": None, "weekday_counts": {}, "daily_points": [], "partial_daily_points": [],
+            "partial_dates": [], "complete_window": None, "current_date_complete": None,
+            "missing_dates": []}
+
+
 def _daily_summary(points, bounds, cutoff, unit, kind):
+    if kind == "estimate":
+        return estimate_period_summary(points, bounds, cutoff, unit)
     # Date-equal period comparisons; within-date raw observations remain viewable.
     grouped = defaultdict(list)
     for p in points:
@@ -781,6 +848,7 @@ def analyze_questions(
     question_ids=None,
     period=None,
     previous=None,
+    cycle_enabled=None,
 ):
     from .body_questions import question_views
 
@@ -794,4 +862,5 @@ def analyze_questions(
         question_ids=question_ids,
         period=period,
         previous=previous,
+        cycle_enabled=cycle_enabled,
     )

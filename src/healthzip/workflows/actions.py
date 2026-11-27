@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 from healthzip.science.body_catalog import METRIC_CATALOG
 from healthzip.science.contracts import canonical_hash, instant
 
-VERSION = "action-outcomes-2.0"
+VERSION = "action-outcomes-3.0"
 EXECUTION = {"executed": "已执行", "partial": "部分执行", "not_executed": "未执行",
              "stopped": "已停止", "unknown": "执行情况未知", "unreported": "尚未填写执行情况"}
 STREAM_FIELDS = ("source", "device", "protocol", "source_version")
@@ -27,6 +27,28 @@ def _json(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, allow_nan=False)
 
 
+def metric_outcome(metric):
+    """Adapt the existing observation catalog, without a parallel metric registry."""
+    spec = METRIC_CATALOG[metric]
+    kind = spec["kind"]
+    if kind == "estimate":
+        statistic, label = "source_estimate_points", "来源估计点与支持窗口（不作为独立每日测量）"
+    elif kind == "event":
+        statistic, label = "recorded_event_count", "窗口内实际事件记录与数量（缺记录不代表未发生）"
+    elif kind in {"sum", "intake", "stand"}:
+        statistic, label = "complete_local_daily_total_median", "完整日已记录累计量的期间中位数"
+    elif kind in {"daily", "sleep"}:
+        statistic, label = "complete_local_day_median", "完整日代表值中位数"
+    elif kind == "samples":
+        statistic, label = "complete_local_day_sample_median", "已记录样本的日代表值中位数（不代表未测量时段）"
+    elif kind == "sound":
+        statistic, label = "complete_local_day_leq_median", "已覆盖时段日等效声级的期间中位数"
+    else:
+        statistic, label = "unsupported_action_statistic", "保留来源观察；暂不提供该观察类型的行动前后统计"
+    return {"kind": "metric", "metric": metric, "observation_kind": kind,
+            "statistic": statistic, "label": spec["title"] + "：" + label}
+
+
 def outcome_options(question, action_text):
     """Product defaults are explicit choices, never evidence of expected benefit."""
     options = []
@@ -38,12 +60,11 @@ def outcome_options(question, action_text):
     if any(r.get("type") == "strength" for r in question.get("rows", [])):
         options.append({"kind": "training", "label": "已记录执行与同动作、同条件、同组位的完成次数"})
     if "睡眠" in action_text and "姿势" not in action_text:
-        options.insert(0, {"kind": "metric", "metric": "sleep_stage", "label": "已记录睡眠时长：完整日代表值中位数"})
+        options.insert(0, metric_outcome("sleep_stage"))
     if question.get("id") in {"E", "W8"} or any(word in action_text for word in ("打开", "核对原通知")):
         options.insert(0, {"kind": "check", "label": "核对任务的实际完成情况"})
     for metric in fields:
-        options.append({"kind": "metric", "metric": metric,
-                        "label": METRIC_CATALOG[metric]["title"] + "：完整日代表值中位数"})
+        options.append(metric_outcome(metric))
     options.append({"kind": "check", "label": "核对任务的实际完成情况"})
     return list({(item["kind"], item.get("metric")): item for item in options}.values())
 
@@ -62,7 +83,7 @@ def proposed_definition(question, action_text, review_due, *, selected_at=None, 
         raise ValueError("请选择本次行动提供的主要观察。")
     chosen = next(o for o in options if chosen.get("kind") == o["kind"] and chosen.get("metric") == o.get("metric"))
     due, end = instant(review_due), start + duration
-    return {"version": VERSION, "primary": chosen, "question_id": question["id"],
+    return {"version": VERSION, "statistic_version": VERSION, "primary": chosen, "question_id": question["id"],
             "question_result_id": question.get("fact_id"), "question_algorithm": question.get("analysis_version"),
             "evidence": question.get("evidence", question.get("knowledge", [])),
             "baseline_window": question["window"],
@@ -70,7 +91,7 @@ def proposed_definition(question, action_text, review_due, *, selected_at=None, 
                                 "timezone": question["window"]["timezone"]},
             "review_due": due.isoformat(), "early_review": due < end,
             "source_filter": sorted(question.get("source_filter", source_filter) or []),
-            "statistic": "complete_local_day_median" if chosen["kind"] == "metric" else
+            "statistic": chosen["statistic"] if chosen["kind"] == "metric" else
                          "median_of_all_comparable_recorded_sets" if chosen["kind"] == "training" else
                          "recorded_conditions_and_coverage" if chosen["kind"] == "measurement_conditions" else "reported_task_completion",
             "expectation": "仅观察，不预设改善方向或成功阈值；前后变化不自动归因于行动。",
@@ -79,23 +100,128 @@ def proposed_definition(question, action_text, review_due, *, selected_at=None, 
 
 def _metric_observations(repo, metric, window, cutoff, sources):
     from healthzip.analytics.body_metrics import VERSION as metric_version
-    from healthzip.analytics.body_metrics import analyze_body_metric
+    from healthzip.analytics.body_metrics import analyze_body_metric, estimate_period_summary
     result = analyze_body_metric(repo, metric, window_start=window["start"], window_end=window["end"],
         cutoff_time=cutoff, timezone_name=window["timezone"], source_filter=sources, with_model=False)
     entries = []
+    contract = metric_outcome(metric)
     for stream in result["value"]["streams"]:
         current = stream["current"]
-        entries.append({"type": "metric", "metric": metric, "title": METRIC_CATALOG[metric]["title"],
+        entry = {"type": "metric", "metric": metric, "title": METRIC_CATALOG[metric]["title"],
             **{k: stream[k] for k in STREAM_FIELDS}, "unit": result["unit"],
-            "value": current["value"], "statistic": "complete_local_day_median",
+            "value": current["value"], "statistic": contract["statistic"],
+            "observation_kind": contract["observation_kind"],
             "recorded_days": current["recorded_days"], "window_days": current["window_days"],
             "partial_dates": current["partial_dates"], "partial_daily_points": current["partial_daily_points"],
             "source_record_ids": current["source_record_ids"], "daily_points": current["daily_points"],
             "fact_id": stream["fact_id"], "algorithm": metric_version,
-            "condition_known": bool(stream["device"] and stream["protocol"] and not str(stream["protocol"]).startswith("context:")),
+            "condition_known": bool(stream["device"] and _known_protocol(stream["protocol"])),
             "reason": None if stream["device"] and stream["protocol"] else
-                      "设备或协议未明确，保留期间统计，不能据此认定测量条件一致。"})
+                      "设备或协议未明确，保留期间统计，不能据此认定测量条件一致。"}
+        if contract["observation_kind"] in {"estimate", "event"} or contract["statistic"] == "unsupported_action_statistic":
+            points = sorted(stream["points"], key=lambda p: (instant(p["observed_at"]), p["source_record_ids"]))
+            observations = [{**p, "published_at": p["observations"][0].get("published_at"),
+                             "timestamp_meaning": p["observations"][0].get("timestamp_meaning", "source_observation_time")}
+                            for p in points]
+            entry.update(record_count=sum(p["n"] for p in points),
+                         source_record_ids=[rid for p in points for rid in p["source_record_ids"]],
+                         recorded_dates=sorted({p["date"] for p in points}), records=observations,
+                         recorded_days=len({p["date"] for p in points}),
+                         independent_measurement_count=None, daily_points=[],
+                         partial_daily_points=[], partial_dates=[])
+            if contract["observation_kind"] == "estimate":
+                entry.update(estimate_period_summary(points, window, cutoff, result["unit"]))
+                entry.update(value=points[-1]["value"] if points else None,
+                             source_method=(points[-1]["estimate_support"].get("method") if points else None),
+                             source_algorithm_version=(points[-1]["estimate_support"].get("algorithm_version") if points else None),
+                             condition_known=entry["condition_known"] and all(
+                                 p["estimate_support"].get("method") and p["estimate_support"].get("algorithm_version") for p in points),
+                             estimate_observations=observations,
+                             publication_count=sum(p["published_at"] is not None for p in observations),
+                             value_selection="last_source_observation_in_fixed_window",
+                             distinct_known_support_windows=len({(p["estimate_support"]["start"], p["estimate_support"]["end"])
+                                 for p in points if _support_interval(p)}),
+                             reason="来源估计按实际观测时点逐点保留；记录天数与独立测量次数不同，重复或重叠支持窗口不能证明独立测量。")
+            elif contract["observation_kind"] == "event":
+                entry.update(value=len(points), reason="仅计当前窗口内已记录的事件；无记录不表示没有发生，事件数量不作为行动效果。")
+            else:
+                entry.update(value=None, condition_known=False,
+                             reason="该来源观察类型尚未提供适用的行动统计；保留原始记录并核对执行，不套用日中位数。")
+        entries.append(entry)
     return entries
+
+
+def _known_protocol(protocol):
+    if isinstance(protocol, str) and protocol.startswith("["):
+        try:
+            protocol = json.loads(protocol)[0]
+        except (ValueError, IndexError, TypeError):
+            return False
+    return bool(protocol and not str(protocol).startswith("context:"))
+
+
+def _support_interval(point):
+    from healthzip.analytics.body_metrics import estimate_support_interval
+    return estimate_support_interval(point)
+
+
+def _support_relation(point, start, end):
+    support = _support_interval(point)
+    if not support or not start:
+        return "unknown"
+    a, b = support
+    start = instant(start)
+    end = instant(end) if end else None
+    if b <= start:
+        return "before_start"
+    if a < start < b:
+        return "crosses_start"
+    if end and start <= a and b <= end:
+        return "within_window"
+    if end and a >= end:
+        return "after_window"
+    return "extends_after_window" if end else "after_start_end_unknown"
+
+
+def _estimate_relations(rows, planned, execution):
+    """Annotate copies; frozen baseline definitions and past reviews stay untouched."""
+    for row in rows:
+        if row.get("observation_kind") != "estimate" or not row.get("current"):
+            continue
+        old_points = (row.get("baseline") or {}).get("estimate_observations", [])
+        prior = list(old_points)
+        current = {**row["current"]}
+        points = []
+        for point in current["estimate_observations"]:
+            support = _support_interval(point)
+            baseline_support = [_support_interval(p) for p in old_points]
+            known_prior = [p for p in baseline_support if p]
+            overlap = None
+            if support and known_prior:
+                if any(max(support[0], p[0]) < min(support[1], p[1]) for p in known_prior):
+                    overlap = True
+                elif len(known_prior) == len(baseline_support):
+                    overlap = False
+            repeated = (bool(point["estimate_support"].get("repeated_publication")) or any(_support_interval(p) == support and p["value"] == point["value"] for p in prior)
+                        if support else None)
+            points.append({**point, "planned_support_relation": _support_relation(point, planned["start"], planned["end"]),
+                "execution_support_relation": _support_relation(point, execution.get("started_at"), execution.get("ended_at")),
+                "overlaps_baseline_support": overlap, "repeated_publication": repeated})
+            prior.append(point)
+        current.update(estimate_observations=points, records=points,
+                       repeated_publication_count=sum(p["repeated_publication"] is True for p in points))
+        row.update(current=current, estimate_observations=points)
+        if any(p["planned_support_relation"] in {"before_start", "crosses_start"} for p in points):
+            row["support_limitation"] = "后续来源估计的支持窗口包含计划开始前的记录，不能据此判断这次行动的效果。"
+        elif any(p["planned_support_relation"] == "unknown" for p in points):
+            row["support_limitation"] = "来源未给出可核验的支持窗口，不能把行动后出现的估计视为完整新增测量。"
+        else:
+            row["support_limitation"] = "支持窗口关系按来源实际记录描述；窗口不重叠也不证明误差独立，变化不等于行动效果。"
+        if current["repeated_publication_count"]:
+            row["support_limitation"] += f"其中 {current['repeated_publication_count']} 条重复发布同一支持窗口的同一估计，不增加独立测量。"
+        if any((p.get("estimate_support") or {}).get("at_reportable_limit") for p in points + old_points):
+            row["support_limitation"] += "数值达到该已匹配版本的报告上限，上限值相同不能判断能力没有变化。"
+        row["reason"] = "；".join(filter(None, (row.get("reason"), row["support_limitation"])))
 
 
 def _training_observations(repo, window, cutoff):
@@ -176,7 +302,7 @@ def _collect(repo, primary, window, cutoff, sources):
 
 
 def select_action(repo, question, action_text, review_due, *, source_filter=(), selected_at=None,
-                  planned_start=None, primary=None):
+                  planned_start=None, primary=None, supersedes_action_id=None):
     if action_text not in question.get("steps", []):
         raise ValueError("请选择本次问题分析中给出的行动。")
     if "source_filter" in question:
@@ -191,6 +317,11 @@ def select_action(repo, question, action_text, review_due, *, source_filter=(), 
         raise ValueError("行动依据不能含尚未发生的记录。")
     definition = proposed_definition(question, action_text, review_due, selected_at=now.isoformat(),
         planned_start=planned_start, primary=primary, source_filter=source_filter)
+    if supersedes_action_id:
+        original = repo.one("SELECT question_id FROM review_action WHERE action_id=? AND user_id='local'", (supersedes_action_id,))
+        if not original or original[0] != question["id"]:
+            raise ValueError("关联的原行动须属于当前工作区和同一问题。")
+        definition["supersedes_action_id"] = supersedes_action_id
     definition["workspace"] = canonical_hash(str(repo.path.resolve()))
     baseline_cutoff = question["window"].get("cutoff_time", question["window"]["end"])
     definition["baseline_primary"] = _collect(repo, definition["primary"], question["window"], baseline_cutoff, source_filter)
@@ -205,7 +336,8 @@ def select_action(repo, question, action_text, review_due, *, source_filter=(), 
     # part of the choice; the automatic wall-clock start is not a retry nonce.
     identity = canonical_hash({"workspace": definition["workspace"], "question": question,
         "text": action_text, "due": instant(review_due).isoformat(), "source_filter": sorted(source_filter),
-        "primary": definition["primary"], "planned_start": planned_start, "version": VERSION})
+        "primary": definition["primary"], "planned_start": planned_start,
+        "supersedes_action_id": supersedes_action_id, "version": VERSION})
     with repo.transaction():
         repo.conn.execute("INSERT OR IGNORE INTO review_action(action_id,user_id,question_id,selected_at,review_due,action_text,baseline_json,source_filter_json,definition_json) VALUES(?,?,?,?,?,?,?,?,?)",
             (identity, "local", question["id"], now.isoformat(), instant(review_due).isoformat(),
@@ -233,7 +365,7 @@ def _compare(baseline, current, *, role):
     for old in baseline:
         new = index.pop(_identity(old), None)
         known = old.get("condition_known") and new and new.get("condition_known")
-        method = bool(new and old.get("algorithm") == new.get("algorithm"))
+        method = bool(new and old.get("algorithm") == new.get("algorithm") and old.get("statistic") == new.get("statistic"))
         first, value = old.get("value"), new.get("value") if new else None
         difference = value - first if known and method and isinstance(first, (int, float)) and isinstance(value, (int, float)) else None
         observations.append({**old, "role": role, "first_value": first, "value": value, "difference": difference,
@@ -243,9 +375,23 @@ def _compare(baseline, current, *, role):
                 "统计方法版本不同，保留两期结果，不给同方法差值。" if not method else
                 old.get("reason") or new.get("reason") if not known else new.get("reason")})
     for new in index.values():
+        changed_estimate_method = new.get("observation_kind") == "estimate" and any(
+            old.get("metric") == new.get("metric") and old.get("source") == new.get("source")
+            and old.get("device") == new.get("device")
+            and (old.get("source_method"), old.get("source_algorithm_version")) != (new.get("source_method"), new.get("source_algorithm_version"))
+            for old in baseline)
         observations.append({**new, "role": role, "first_value": None, "difference": None,
-            "baseline": None, "current": new, "reason": "后续出现新的来源、条件或动作组；未与旧基线混算。"})
+            "baseline": None, "current": new, "reason": "来源算法或方法版本改变，已有数值保留，不与旧定义混算。" if changed_estimate_method else
+            "后续出现新的来源、条件或动作组；未与旧基线混算。"})
     return observations
+
+
+def requires_updated_definition(definition):
+    if not definition:
+        return False
+    primary = definition["primary"]
+    return (primary["kind"] == "metric" and not primary.get("observation_kind")
+            and METRIC_CATALOG[primary["metric"]]["kind"] not in {"daily", "sleep"})
 
 
 def evaluate_action(repo, action, *, end, cutoff, timezone_name=None, version=None):
@@ -274,6 +420,14 @@ def evaluate_action(repo, action, *, end, cutoff, timezone_name=None, version=No
         return base
     if definition.get("workspace") != canonical_hash(str(repo.path.resolve())):
         raise ValueError("行动结果定义不属于当前工作区。")
+    if requires_updated_definition(definition):
+        base.update(definition_status="historical_observation_unit", status="legacy_observation_unit",
+            followup_window=definition["followup_window"],
+            summary=f"已选行动“{action['action_text']}”：{base['execution_label']}；历史定义未区分该指标的观察单位，原基线和已保存复评保留；请创建关联的新行动定义后按来源观察复评。")
+        if feedback.get("result_json"):
+            base["saved_feedback_result"] = json.loads(feedback["result_json"])
+        base["evaluation_id"] = "action-review:" + canonical_hash(base)
+        return base
     planned = definition["followup_window"]
     stop = min(instant(planned["end"]), instant(end), instant(cutoff))
     start = instant(planned["start"])
@@ -288,6 +442,8 @@ def evaluate_action(repo, action, *, end, cutoff, timezone_name=None, version=No
     secondary_fields = sorted({r["metric"] for r in definition["baseline_secondary"]})
     secondary = [r for m in secondary_fields for r in _metric_observations(repo, m, window, instant(cutoff).isoformat(), sources)] if stop > start else []
     secondary = _compare(definition["baseline_secondary"], secondary, role="secondary")
+    _estimate_relations(primary, planned, execution)
+    _estimate_relations(secondary, planned, execution)
     base.update(primary_observations=primary, secondary_observations=secondary, observations=primary + secondary)
     if stop > start:
         from healthzip.analytics.body_metrics import _rows
@@ -304,12 +460,24 @@ def evaluate_action(repo, action, *, end, cutoff, timezone_name=None, version=No
         n = sum(r.get("current", {}).get("record_count", 0) for r in primary if r.get("current"))
         known = sum(r["current"].get("posture_known_count", 0) for r in primary if r.get("current"))
         text += f"；后续 {n} 条测量，{known} 条明确记录姿势；未记录的条件仍未知"
+    elif definition["primary"].get("observation_kind") == "estimate":
+        observed = [r for r in primary if r.get("current") and r["current"].get("estimate_observations")]
+        if observed:
+            text += "；" + "；".join(
+                f"{r['title']}（{r.get('source') or '来源未知'}）窗口内末次来源估计 "
+                f"{format_outcome_value(r, r.get('first_value'))} → {format_outcome_value(r, r.get('value'))}"
+                for r in observed)
+            text += "；" + "；".join(dict.fromkeys(r["support_limitation"] for r in observed))
+        else:
+            text += "；固定后续窗口尚无已可见的来源估计，不以导入时间冒充发布时间"
+    elif definition["primary"].get("statistic") == "unsupported_action_statistic":
+        text += "；该观察类型尚无适用的行动前后统计，保留来源记录与真实执行反馈"
     else:
         compared = [r for r in primary if r["difference"] is not None]
         if compared:
             # Every prescribed group is reported; no first-row or largest-change selection.
             if len(compared) <= 3:
-                text += "；" + "；".join(f"{r['title']}（{r.get('source') or '同条件组位 ' + str(r.get('position'))}）期间中位数 {format_outcome_value(r, r['first_value'])} → {format_outcome_value(r, r['value'])}" for r in compared)
+                text += "；" + "；".join(f"{r['title']}（{r.get('source') or '同条件组位 ' + str(r.get('position'))}）{'实际事件记录数' if r.get('observation_kind') == 'event' else '期间中位数'} {format_outcome_value(r, r['first_value'])} → {format_outcome_value(r, r['value'])}" for r in compared)
             else:
                 text += f"；{len(compared)} 个预设分组已有同口径前后记录，各组数值与限制见主要观察明细"
         else:

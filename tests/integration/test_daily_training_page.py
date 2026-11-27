@@ -141,7 +141,7 @@ def test_real_app_ordinary_all_groups_free_record_next_training_and_reports(tmp_
         assert "Synthetic watch" in exported and "7.0 小时睡眠" in exported
         assert "## 下一步" in exported
         saved = json.loads(repo.one("SELECT payload_json FROM joint_period_report ORDER BY created_at DESC LIMIT 1")[0])
-        frozen = load_report(repo, saved["report_id"])
+        frozen = load_report(repo, saved["report_id"], include_details=True)
         assert frozen["markdown"] == exported
         # Readable hours do not replace the frozen original minutes or source.
         assert frozen["current"]["metrics"]["STATE-SLEEP-24H"]["value"]["observed_minutes"] == 420

@@ -209,7 +209,10 @@ def render_analysis(repo, value):
             except (ValueError, OSError, RuntimeError) as exc:
                 st.error(f"本次报告尚未冻结，请重新生成：{exc}")
         if st.session_state.get(report_key):
-            frozen_report = load_report(repo, st.session_state[report_key])
+            # This explicit advanced view displays and exports the full frozen
+            # metric snapshot. The default report reader uses the small view.
+            frozen_report = load_report(repo, st.session_state[report_key], include_details=True)
+            period_result = frozen_report["current"]
             period_reviews = [load_run(repo, identity) for identity in frozen_report["workflow_run_ids"]]
             report_text = frozen_report["markdown"]
             with st.expander("周期分析、建议依据与后续结果"):
@@ -222,8 +225,12 @@ def render_analysis(repo, value):
                     with st.expander("长期复核的比较记录与因素详情"):
                         st.json(descriptive)
                         st.json(review["hypotheses"])
-            period_result = frozen_report["current"]
-            st.caption(f"{period_result['window_start']} 至 {period_result['window_end']}；只统计截止时刻已经发生且可知的资料。")
+            from healthzip.ui.body_workspace import local_window_label
+            window = frozen_report.get("reading_view", {}).get("window")
+            if window:
+                st.caption(local_window_label(window["start"], window["end"], window["timezone"]))
+            else:
+                st.caption(local_window_label(period_result["window_start"], period_result["window_end"], period_result["timezone"]))
             render_joint_health(period_result, key="period_joint")
             _render_period_training(period_result["metrics"])
             period_layers = []

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="0.166" timestamp="2026-11-27T10:34:26.568464+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.science.test_followup_semantic_preparation" name="test_one_record_is_normalized_once_per_semantic_operation[analysis_task]" time="0.002"><failure message="AssertionError: assert 2 == 1&#10; +  where 2 = &lt;MagicMock name='flatten_record' id='281473767708560'&gt;.call_count">operation = 'analysis_task'
+
+    @pytest.mark.parametrize("operation", ["analysis_task", "outcome_series", "load_components", "condition_key"])
+    def test_one_record_is_normalized_once_per_semantic_operation(operation):
+        record = row()
+        with patch.object(semantics, "flatten_record", wraps=semantics.flatten_record) as prepare:
+            value = getattr(semantics, operation)(record)
+        assert value
+&gt;       assert prepare.call_count == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = &lt;MagicMock name='flatten_record' id='281473767708560'&gt;.call_count
+
+tests/science/test_followup_semantic_preparation.py:18: AssertionError</failure></testcase><testcase classname="tests.science.test_followup_semantic_preparation" name="test_one_record_is_normalized_once_per_semantic_operation[outcome_series]" time="0.002"><failure message="AssertionError: assert 4 == 1&#10; +  where 4 = &lt;MagicMock name='flatten_record' id='281473763266512'&gt;.call_count">operation = 'outcome_series'
+
+    @pytest.mark.parametrize("operation", ["analysis_task", "outcome_series", "load_components", "condition_key"])
+    def test_one_record_is_normalized_once_per_semantic_operation(operation):
+        record = row()
+        with patch.object(semantics, "flatten_record", wraps=semantics.flatten_record) as prepare:
+            value = getattr(semantics, operation)(record)
+        assert value
+&gt;       assert prepare.call_count == 1
+E       AssertionError: assert 4 == 1
+E        +  where 4 = &lt;MagicMock name='flatten_record' id='281473763266512'&gt;.call_count
+
+tests/science/test_followup_semantic_preparation.py:18: AssertionError</failure></testcase><testcase classname="tests.science.test_followup_semantic_preparation" name="test_one_record_is_normalized_once_per_semantic_operation[load_components]" time="0.001" /><testcase classname="tests.science.test_followup_semantic_preparation" name="test_one_record_is_normalized_once_per_semantic_operation[condition_key]" time="0.001" /><testcase classname="tests.science.test_followup_semantic_preparation" name="test_comparison_prepares_each_record_once[comparable]" time="0.001"><failure message="AssertionError: assert 4 == 2&#10; +  where 4 = &lt;MagicMock name='flatten_record' id='281473763453200'&gt;.call_count">operation = 'comparable'
+
+    @pytest.mark.parametrize("operation", ["comparable", "load_change"])
+    def test_comparison_prepares_each_record_once(operation):
+        old, new = row(load_value=60), row(2, load_value=65)
+        with patch.object(semantics, "flatten_record", wraps=semantics.flatten_record) as prepare:
+            value = getattr(semantics, operation)(old, new)
+        assert value
+&gt;       assert prepare.call_count == 2
+E       AssertionError: assert 4 == 2
+E        +  where 4 = &lt;MagicMock name='flatten_record' id='281473763453200'&gt;.call_count
+
+tests/science/test_followup_semantic_preparation.py:27: AssertionError</failure></testcase><testcase classname="tests.science.test_followup_semantic_preparation" name="test_comparison_prepares_each_record_once[load_change]" time="0.001"><failure message="AssertionError: assert 6 == 2&#10; +  where 6 = &lt;MagicMock name='flatten_record' id='281473761513808'&gt;.call_count">operation = 'load_change'
+
+    @pytest.mark.parametrize("operation", ["comparable", "load_change"])
+    def test_comparison_prepares_each_record_once(operation):
+        old, new = row(load_value=60), row(2, load_value=65)
+        with patch.object(semantics, "flatten_record", wraps=semantics.flatten_record) as prepare:
+            value = getattr(semantics, operation)(old, new)
+        assert value
+&gt;       assert prepare.call_count == 2
+E       AssertionError: assert 6 == 2
+E        +  where 6 = &lt;MagicMock name='flatten_record' id='281473761513808'&gt;.call_count
+
+tests/science/test_followup_semantic_preparation.py:27: AssertionError</failure></testcase><testcase classname="tests.science.test_followup_semantic_preparation" name="test_nested_json_normalization_keeps_rir_zero_ranges_and_load_direction" time="0.001" /><testcase classname="tests.science.test_followup_semantic_preparation" name="test_unknown_conditions_keep_distinct_record_identity_and_output_isolation" time="0.001" /></testsuite></testsuites>

@@ -1,6 +1,22 @@
 """Readable rendering of frozen MetricResults; no repository queries or formulas."""
 from healthzip.science.contracts import metric_definition, task_metric_results
 
+
+def condition_label(reason):
+    labels = {
+        "equipment_instance_unknown": "器械未记录", "settings_unknown": "器械设置未记录",
+        "daily_physical_identity_unknown": "动作或器械的条件身份未确认",
+        "daily_missing_equipment_instance_id": "器械实例未记录",
+        "daily_missing_side": "侧别未记录", "daily_missing_repetition_semantics": "次数口径未记录",
+        "daily_missing_rom_protocol": "动作范围未记录", "daily_missing_load_basis": "负荷口径未确认",
+        "daily_missing_mechanically_relevant_settings": "器械设置未确认",
+        "rir_missing_effort_unknown": "RIR缺失，努力程度未知", "set_position_unknown": "组位未记录",
+        "set_type_unknown": "工作组或热身组类型未记录", "training_instance_unknown": "训练或动作实例身份未记录",
+        "duplicate_same_condition_position_in_session_no_unique_pair": "同场相同组位有重复实例，未自动选配",
+    }
+    return labels.get(reason, "尚未定义的条件项（" + str(reason) + "）")
+
+
 LABELS = {
     "completed_work_parent_sets": "完成工作组", "segments": "工作组片段", "unknown_work_sets": "资料不足的完成组",
     "completed": "已完成", "skipped": "已跳过", "unknown": "未确认", "planned": "原计划组",

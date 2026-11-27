@@ -61,7 +61,7 @@ def render_legacy_review(repo, *, timezone_name="Asia/Shanghai", section="问题
                               context=selected_context or None,
                               retrospective=value["v13"].get("retrospective", False), use_cache=False)
             if period:
-                report = create_report(repo, current, period=period)
+                report = create_report(repo, current, period=period, include_details=True)
             else:
                 from healthzip.analytics import all_analysis
                 from healthzip.quality.coverage import inventory
@@ -98,6 +98,7 @@ def render_legacy_review(repo, *, timezone_name="Asia/Shanghai", section="问题
 
 
 def _history(repo):
+    state_key = "opened_report:" + str(repo.path.resolve())
     with st.expander("已保存的复盘"):
         exists = repo.one("SELECT 1 FROM sqlite_master WHERE type='table' AND name='joint_period_report'")
         rows = repo.rows("SELECT report_id,created_at,json_extract(payload_json,'$.period') AS period "
@@ -105,18 +106,20 @@ def _history(repo):
         if not rows:
             st.caption("尚无已保存的联合复盘。生成后可在这里重新打开。")
             return
-        labels = {row["report_id"]: f"{row['created_at']} · {'周' if row['period'] == 'week' else '月'}复盘" for row in rows}
+        from healthzip.analytics.display_format import local_timestamp
+        zone = st.session_state.get("analysis_timezone", "Asia/Shanghai")
+        labels = {row["report_id"]: f"{local_timestamp(row['created_at'], zone)} · {'周' if row['period'] == 'week' else '月'}复盘" for row in rows}
         selected = st.selectbox("历史复盘", list(labels), format_func=labels.get)
-        state_key = "opened_report:" + str(repo.path.resolve())
         if st.button("打开这份复盘"):
             st.session_state[state_key] = selected
-        if st.session_state.get(state_key):
-            from healthzip.workflows.period_report import load_report
-            report = load_report(repo, st.session_state[state_key])
-            current_sources = _render_report_source_status(report, repo=repo)
-            _render_full_text(report["markdown"], "history:" + report["report_id"])
-            _render_frozen_details(repo, report, "history:" + report["report_id"], current_sources=current_sources)
-            st.download_button("下载这份复盘", report["markdown"], file_name="healthzip-review.md")
+            st.rerun()
+    if st.session_state.get(state_key):
+        from healthzip.workflows.period_report import load_report
+        report = load_report(repo, st.session_state[state_key])
+        current_sources = _render_report_source_status(report, repo=repo)
+        _render_readable_report(report, "history:" + report["report_id"])
+        _render_frozen_details(repo, report, "history:" + report["report_id"], current_sources=current_sources)
+        st.download_button("下载这份复盘", report["markdown"], file_name="healthzip-review.md")
 
 
 def render_review(repo, *, timezone_name="Asia/Shanghai"):
@@ -132,6 +135,13 @@ def render_review(repo, *, timezone_name="Asia/Shanghai"):
         from healthzip.ui.question_page import render_actions
         render_actions(repo)
         return
+    opened_key = "opened_report:" + str(repo.path.resolve())
+    if st.session_state.get(opened_key):
+        if st.button("返回当前周期复盘", key="close_saved_report"):
+            st.session_state.pop(opened_key, None)
+            st.rerun()
+        _history(repo)
+        return
     _render_period_preview(repo, timezone_name, section)
     if section == "报告" and st.toggle("导出自定义分析窗口", key="review_custom_export"):
         render_legacy_review(repo, timezone_name=timezone_name, section="报告", show_history=False)
@@ -145,30 +155,33 @@ def _render_period_preview(repo, timezone_name, section):
     from healthzip.workflows.dependencies import input_version
     label = st.radio("复盘范围", ["本周", "本月"], horizontal=True, key="review_period")
     period = "week" if label == "本周" else "month"
+    slot = "period_report_job:" + str(repo.path.resolve()) + ":" + timezone_name + ":" + period
+    job = st.session_state.get(slot)
+    status = poll_report(job["key"]) if job else None
+    completed = status and status["status"] == "ready"
     summary = workspace_summary(repo, "总览", timezone_name=timezone_name, period=period)
     item = next(row for row in summary["periods"] if row["period"] == period)
     first = datetime.fromisoformat(item["window"]["start"]).astimezone(ZoneInfo(timezone_name))
     end = datetime.fromisoformat(item["window"]["end"]).astimezone(ZoneInfo(timezone_name))
-    st.caption(f"{first:%Y-%m-%d} — {end:%Y-%m-%d %H:%M} · {timezone_name}")
+    if not completed:
+        st.caption(f"{first:%Y-%m-%d} — {end:%Y-%m-%d %H:%M} · {timezone_name}")
     cards = _select_cards(item["facts"])
-    if cards:
+    if cards and not completed:
+        for observation in item.get("conclusions", [])[:3]:
+            st.write(observation)
         for column, (title, fact) in zip(st.columns(len(cards)), cards):
             number = f"{fact['value']:,.0f}" if fact.get("unit") in {"次", "场", "组"} else f"{fact['value']:,.1f}"
             column.metric(title, f"{number} {fact.get('unit', '')}")
         _trend(item)
-        for observation in item.get("conclusions", [])[:3]:
-            st.write(observation)
-    else:
+    elif not cards and not completed:
         st.info("本期还没有可用于复盘的记录。可以直接记录训练或导入健康数据。")
-    st.caption("上方为本地事实预览。生成完整复盘会进一步核对训练背景、前期比较与本地资料依据。")
-    slot = "period_report_job:" + str(repo.path.resolve()) + ":" + timezone_name + ":" + period
-    job = st.session_state.get(slot)
-    status = poll_report(job["key"]) if job else None
+    if not completed:
+        st.caption("生成复盘后，这份阅读内容会补充训练背景、解释、行动与冻结依据。")
     pending = status and status["status"] == "pending"
     context_id = st.session_state.get("analysis_contexts", {}).get(str(repo.path.resolve()))
     if st.button("生成当前周期复盘", type="primary", disabled=bool(pending), key="generate_period_report"):
         revision = input_version(repo, context_id)
-        attempt = job.get("attempt", 0)+1 if status and status["status"] in {"failed", "expired"} else 0
+        attempt = job.get("attempt", 0)+1 if job else 0
         key = submit_report(str(repo.path.resolve()), cutoff_time=item["window"]["end"], timezone_name=timezone_name,
                             period=period, context_id=context_id, revision=revision, attempt=attempt)
         from healthzip.ui.health_explanation import knowledge_clock
@@ -207,11 +220,9 @@ def _render_report_progress(slot, database, context_id):
     from healthzip.ui.health_explanation import knowledge_clock
     if job.get("knowledge") != knowledge_clock(".local/knowledge"):
         st.caption("资料或用途审核已有更新。以下内容保留为历史复盘，新解释请重新生成并核对当前依据。")
-    st.success(f"完整本地复盘已保存，用时 {report['job_elapsed_seconds']:.2f} 秒。")
     current_sources = _render_report_source_status(report)
-    from healthzip.ui.joint_health import render_joint_health
-    render_joint_health(report["current"], key="review_completed_joint", charts=True)
-    _render_full_text(report["markdown"], "completed:" + report["report_id"])
+    _render_readable_report(report, "completed:" + report["report_id"])
+    st.caption(f"完整本地复盘已保存，用时 {report['job_elapsed_seconds']:.2f} 秒。")
     from contextlib import closing
     with closing(Repository(database)) as details_repo:
         _render_frozen_details(details_repo, report, "completed:" + report["report_id"], current_sources=current_sources)
@@ -245,6 +256,38 @@ def _render_full_text(markdown, key):
     st.markdown(sections[selected][1])
 
 
+def _render_readable_report(report, key):
+    """One reading path: main findings, frozen chart, then explanation/actions."""
+    reading = report.get("reading_view")
+    st.markdown('<span data-hz-report-id="' + report["report_id"] + '" data-reading-view="'
+                + (reading or {}).get("version", "legacy") + '" style="display:none"></span>', unsafe_allow_html=True)
+    if not reading:
+        _render_full_text(report["markdown"], key)
+        return
+    sections = report_sections(report["markdown"])
+    opening = next((body for title, body in sections if title == "报告开头"), "")
+    # The complete frozen opening remains available below. Keep its title and
+    # interval compact so mobile readers reach an actual finding in one screen.
+    header = [line for line in opening.splitlines() if line.strip()]
+    st.caption(" · ".join(line.lstrip("# ") for line in header[:2]))
+    for title, body in sections:
+        if title in {"本期主要变化", "已填写的状态与备注"}:
+            st.markdown(body.replace("## " + title, "### " + title, 1))
+    charts = reading.get("charts", [])
+    if charts:
+        from healthzip.ui.health_comparison import _chart, _stream_name
+        choices = [(chart, stream) for chart in charts for stream in chart["comparison"]["streams"]]
+        index = st.selectbox("查看本期趋势", range(len(choices)),
+            format_func=lambda i: choices[i][0]["title"] + " · " + _stream_name(choices[i][1]), key="report_chart:" + key)
+        chart, stream = choices[index]
+        _chart(stream, chart["title"], chart["unit"], chart["scale"], "report_plot:" + key)
+    for title, body in sections:
+        if title not in {"报告开头", "本期主要变化", "已填写的状态与备注"}:
+            st.markdown(body)
+    with st.expander("报告范围与阅读口径"):
+        st.markdown(opening)
+
+
 def _render_report_source_status(report, *, repo=None):
     from healthzip.workflows.reports import current_report_source_status
     current = current_report_source_status(report, repo=repo)
@@ -266,31 +309,52 @@ def _render_frozen_details(repo, report, key, *, current_sources=None):
         with st.expander("按问题查看冻结记录与依据"):
             selected = st.selectbox("冻结问题", range(len(questions)),
                 format_func=lambda i: questions[i]["title"], key="frozen_question:" + key)
-            question = questions[selected]
-            st.caption("以下保留生成时的记录与来源版本。当前建议需重新核对，不以历史解释替代。")
-            rows = question.get("rows", [])
-            if rows:
-                page = st.number_input("记录页", min_value=1, max_value=max(1, (len(rows)+49)//50),
-                                       key="frozen_records:" + key)
-                labels = {"date": "日期", "first_date": "比较日期", "title": "项目", "source": "来源",
-                          "value": "本期值", "first_value": "前期值", "unit": "单位", "difference": "差值",
-                          "exercise": "动作", "reps": "次数", "load": "负荷", "position": "组位"}
-                st.dataframe([{labels[k]: v for k, v in row.items() if k in labels}
-                              for row in rows[(page-1)*50:page*50]], hide_index=True, use_container_width=True)
-            ordinary = question.get("ordinary_training", {}).get("series", [])
-            if ordinary:
-                index = st.selectbox("动作与条件轨迹", range(len(ordinary)),
-                    format_func=lambda i: ordinary[i]["summary"], key="frozen_training:" + key)
-                st.dataframe(ordinary[index]["points"], hide_index=True, use_container_width=True)
-            for item in question.get("evidence", {}).get("items", []):
-                status = current_sources.get((item["claim_id"], item["version"]))
-                if status and status["status"] != "verified":
-                    st.warning(status["label"])
-                st.write(item["statement"])
-                st.caption("；".join(item.get("limitations", [])))
-                for source in item.get("citations", []):
-                    st.markdown(f"[{source['title']}]({source['url']})")
-            st.caption("事实身份：" + question.get("fact_id", "旧版本未单列"))
+            preview = questions[selected]
+            # Streamlit executes collapsed expanders too. A deliberate request
+            # gates object loading instead of merely putting work in an expander.
+            requested_key = "requested_question:" + key
+            if st.button("读取这个问题的冻结明细", key="read_question:" + key):
+                st.session_state[requested_key] = preview["id"]
+            if st.session_state.get(requested_key) != preview["id"]:
+                st.caption(preview.get("observation", "选择问题后读取其冻结记录。"))
+            else:
+                from healthzip.workflows.report_objects import read_object, read_question
+                question = read_question(repo, preview)
+                st.caption("以下保留生成时的记录与来源版本。当前建议需重新核对，不以历史解释替代。")
+                rows = question.get("rows", [])
+                if rows:
+                    page = st.number_input("记录页", min_value=1, max_value=max(1, (len(rows)+49)//50),
+                                           key="frozen_records:" + key)
+                    labels = {"date": "日期", "first_date": "比较日期", "title": "项目", "source": "来源",
+                              "value": "本期值", "first_value": "前期值", "unit": "单位", "difference": "差值",
+                              "exercise": "动作", "reps": "次数", "load": "负荷", "position": "组位"}
+                    st.dataframe([{labels[k]: v for k, v in row.items() if k in labels}
+                                  for row in rows[(page-1)*50:page*50]], hide_index=True, use_container_width=True)
+                training = question.get("ordinary_training", {})
+                ordinary = training.get("series", [])
+                if training.get("index_ref"):
+                    if st.button("读取动作轨迹目录", key="read_training_index:" + key):
+                        st.session_state["training_index:" + key] = training["index_ref"]
+                    if st.session_state.get("training_index:" + key) == training["index_ref"]:
+                        ordinary = read_object(repo, training["index_ref"])
+                if ordinary:
+                    index = st.selectbox("动作与条件轨迹", range(len(ordinary)),
+                        format_func=lambda i: ordinary[i]["summary"], key="frozen_training:" + key)
+                    group = read_object(repo, ordinary[index]["reference"]) if "reference" in ordinary[index] else ordinary[index]
+                    st.dataframe(group["points"], hide_index=True, use_container_width=True)
+                for item in question.get("evidence", {}).get("items", []):
+                    status = current_sources.get((item["claim_id"], item["version"]))
+                    if status and status["status"] != "verified":
+                        st.warning(status["label"])
+                    st.write(item["statement"])
+                    st.caption("；".join(item.get("limitations", [])))
+                    for source in item.get("citations", []):
+                        st.markdown(f"[{source['title']}]({source['url']})")
+                st.caption("事实身份：" + question.get("fact_id", "旧版本未单列"))
+    _audit_download(repo, report, key)
+
+
+def _audit_download(repo, report, key):
     if st.button("准备完整审计包", key="prepare_audit:" + key):
         from healthzip.workflows.report_objects import audit_bundle
         st.session_state["audit:" + key] = json.dumps(audit_bundle(repo, report["report_id"]), ensure_ascii=False)

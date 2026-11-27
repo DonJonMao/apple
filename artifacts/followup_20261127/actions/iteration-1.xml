@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="20" time="3.377" timestamp="2026-11-27T10:17:10.312552+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_action_observation_units" name="test_estimate_definition_and_same_day_support_are_not_daily_measurements" time="0.152"><failure message="AssertionError: assert '不能据此判断这次行动的效果' in '已选行动“先核对已有活动量记录的携带方式与覆盖；如需比较步速，可在相同路线另行记录速度。”：尚未填写执行情况；主要观察：六分钟步行距离：来源估计点与支持窗口（不作为独立每日测量）；六分钟步行距离（Synthetic handset）期间中位数 420.0 m → 445.0 m；观察窗口尚未完整，目前为阶段观察。'">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1012/test_estimate_definition_and_s0')
+
+    def test_estimate_definition_and_same_day_support_are_not_daily_measurements(tmp_path):
+        with closing(Repository(tmp_path / "support.sqlite")) as repo:
+            estimate(repo, 1, "2026-09-06T09:00:00Z", 420,
+                     support=("2026-08-09T00:00:00Z", "2026-09-06T00:00:00Z"))
+            identity, question = choose(repo)
+            definition = proposed_definition(question, question["steps"][0], STOP, selected_at=SELECTED,
+                primary={"kind": "metric", "metric": "six_minute_walk_m"})
+            assert definition["statistic"] == "source_estimate_points"
+            estimate(repo, 2, "2026-09-16T09:00:00Z", 445,
+                     support=("2026-08-20T00:00:00Z", "2026-09-16T00:00:00Z"),
+                     published="2026-09-16T09:00:00Z")
+            review = followup(repo, identity, cutoff_time=STOP)["review"]
+            row = review["primary_observations"][0]
+            assert (row["first_value"], row["value"]) == (420, 445)
+            point = row["current"]["estimate_observations"][0]
+            assert point["estimate_support"]["start"] == "2026-08-20T00:00:00Z"
+            assert point["planned_support_relation"] == "crosses_start"
+            assert point["overlaps_baseline_support"] is True
+            assert point["published_at"] == "2026-09-16T09:00:00Z"
+            assert row["current"]["independent_measurement_count"] is None
+&gt;           assert "不能据此判断这次行动的效果" in review["summary"]
+E           AssertionError: assert '不能据此判断这次行动的效果' in '已选行动“先核对已有活动量记录的携带方式与覆盖；如需比较步速，可在相同路线另行记录速度。”：尚未填写执行情况；主要观察：六分钟步行距离：来源估计点与支持窗口（不作为独立每日测量）；六分钟步行距离（Synthetic handset）期间中位数 420.0 m → 445.0 m；观察窗口尚未完整，目前为阶段观察。'
+
+tests/integration/test_followup_action_observation_units.py:61: AssertionError</failure></testcase><testcase classname="tests.integration.test_followup_action_observation_units" name="test_repeat_unknown_version_and_late_visibility_preserve_records" time="0.113" /><testcase classname="tests.integration.test_followup_action_observation_units" name="test_nonoverlapping_support_is_description_not_independent_effect" time="0.110" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_primary_fixed_order_invariant_and_period_median_not_last_record" time="0.127" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_execution_does_not_imply_full_window_or_causal_success[unknown]" time="0.115" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_execution_does_not_imply_full_window_or_causal_success[not_executed]" time="0.116" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_execution_does_not_imply_full_window_or_causal_success[partial]" time="0.115" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_execution_does_not_imply_full_window_or_causal_success[executed]" time="0.114" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_execution_does_not_imply_full_window_or_causal_success[stopped]" time="0.114" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_late_start_early_stop_preserves_original_planned_window" time="0.115" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_measurement_action_primary_is_actual_conditions_unknown_stays_unknown" time="0.110" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_old_action_and_saved_feedback_are_not_rewritten_or_given_a_definition" time="0.099" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_correction_new_review_preserves_old_freeze_and_historical_cutoff" time="0.128" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_method_change_and_cross_workspace_cannot_be_comparable" time="0.212" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_training_baseline_and_followup_use_all_fixed_comparable_groups" time="0.196" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_action_w4_frozen_report_exact_result_identity_and_revision" time="0.692" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_migration_preserves_legacy_action_and_feedback_bytes" time="0.131" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_first_primary_measurement_invalidates_w4_even_if_baseline_had_none" time="0.096"><failure message="IndexError: list index out of range">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1012/test_first_primary_measurement0')
+
+    def test_first_primary_measurement_invalidates_w4_even_if_baseline_had_none(tmp_path):
+        repo = Repository(tmp_path / "first-measurement.sqlite")
+        q = baseline(repo, qid="W6")
+&gt;       identity = choose(repo, q)
+                   ^^^^^^^^^^^^^^^
+
+tests/integration/test_action_outcome_repairs.py:285: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo = &lt;healthzip.db.repository.Repository object at 0xffff95b9d710&gt;
+question = {'id': 'W6', 'title': '睡眠时长与随后同条件 SDNN 有怎样的关系？', 'topic_status': {'state': 'no_records', 'has_primary_records': False, 'primary_metrics': [], 'primary_source_record_ids': [], ...}, 'report_status': 'no_records', ...}
+primary = None, due = '2026-08-12T12:00:00Z'
+
+    def choose(repo, question, *, primary=None, due="2026-08-12T12:00:00Z"):
+&gt;       return select_action(repo, question, question["steps"][0], due,
+                                             ^^^^^^^^^^^^^^^^^^^^
+            selected_at=SELECTED, planned_start=SELECTED, primary=primary)
+E       IndexError: list index out of range
+
+tests/integration/test_action_outcome_repairs.py:49: IndexError</failure></testcase><testcase classname="tests.integration.test_action_outcome_repairs" name="test_unknown_training_records_are_all_retained_without_false_pairing" time="0.161" /><testcase classname="tests.integration.test_action_outcome_repairs" name="test_latest_feedback_is_ordered_by_visibility_time_not_append_order" time="0.119" /></testsuite></testsuites>

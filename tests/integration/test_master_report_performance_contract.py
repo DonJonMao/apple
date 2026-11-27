@@ -91,7 +91,7 @@ def test_report_batch_preserves_all_global_metrics_and_each_actual_task(tmp_path
     with closing(Repository(path)) as repo:
         expected = analyze(repo, cutoff_time=CUTOFF, period="week", use_cache=False)
         report = create_report(repo, {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"},
-                               period="week", knowledge_root=tmp_path / "empty-knowledge")
+                               period="week", knowledge_root=tmp_path / "empty-knowledge", include_details=True)
         assert len(report["current"]["metrics"]) == 77
         assert scientific_identity(report["current"]["metrics"]) == scientific_identity(expected["metrics"])
         expected_tasks = {task["task_id"]: task for task in expected["strength_tasks"]}
@@ -119,16 +119,16 @@ def test_hot_report_is_new_freeze_and_source_correction_invalidates_content(tmp_
     with closing(Repository(path)) as repo:
         fields = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
         kwargs = {"period": "week", "knowledge_root": tmp_path / "empty-knowledge"}
-        first = create_report(repo, fields, **kwargs)
+        first = create_report(repo, fields, **kwargs, include_details=True)
         progress = []
-        second = create_report(repo, fields, progress=progress.append, **kwargs)
+        second = create_report(repo, fields, progress=progress.append, **kwargs, include_details=True)
         assert first["report_id"] != second["report_id"]
         assert first["markdown"] == second["markdown"]
         assert first["content_signature"] == second["content_signature"]
         stored = json.loads(repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (second["report_id"],))[0])
-        assert stored["storage_format"] == "frozen-report-references-1"
+        assert stored["storage_format"] == "frozen-report-references-2"
         assert "current" not in stored  # Permanent reference, not another full copy.
-        assert load_report(repo, second["report_id"]) == second
+        assert load_report(repo, second["report_id"], include_details=True) == second
         first_manifest = json.loads(repo.one("SELECT payload_json FROM joint_period_report WHERE report_id=?", (first["report_id"],))[0])
         assert stored["content_ref"] == first_manifest["content_ref"]
         assert "复用已核对的报告内容" in progress
@@ -139,7 +139,7 @@ def test_hot_report_is_new_freeze_and_source_correction_invalidates_content(tmp_
                           "VALUES('health_sample',1,?,?,'synthetic_correction')", (CUTOFF, json.dumps(corrected)))
         repo.conn.commit()
         progress = []
-        third = create_report(repo, fields, progress=progress.append, **kwargs)
+        third = create_report(repo, fields, progress=progress.append, **kwargs, include_details=True)
         assert "复用已核对的报告内容" not in progress
         assert third["current"]["data_hash"] != first["current"]["data_hash"]
-        assert load_report(repo, first["report_id"]) == first
+        assert load_report(repo, first["report_id"], include_details=True) == first

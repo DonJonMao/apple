@@ -35,7 +35,7 @@ def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(
         FLOW = runpy.run_path(str(Path(__file__).with_name("test_current_training_flow.py")))
         FLOW["finish"](svc, target, load=34, reps=9)
         svc.end_session(session["id"])
-    report = create_report(repo, analyze(repo), period=period)
+    report = create_report(repo, analyze(repo), period=period, include_details=True)
     masses = report["current"]["metrics"]["BODY-MASS-DAILY"]
     assert {p["value"] for values in masses["value"].values() for p in values} == {81}
     assert "81" in report["markdown"] and "kg" in report["markdown"] and "Synthetic scale" in report["markdown"]
@@ -57,8 +57,8 @@ def test_frozen_joint_report_has_current_body_and_training_not_only_old_periods(
         assert not joins
         assert "本期尚无可建立时间对应的训练记录" in report["markdown"]
     HELP["mass_sample"](repo, measured, 82)
-    assert load_report(repo, report["report_id"]) == report
-    later = create_report(repo, analyze(repo), period=period)
+    assert load_report(repo, report["report_id"], include_details=True) == report
+    later = create_report(repo, analyze(repo), period=period, include_details=True)
     assert later["report_id"] != report["report_id"]
     assert {p["value"] for values in later["current"]["metrics"]["BODY-MASS-DAILY"]["value"].values() for p in values} == {82}
     assert repo.one("SELECT count(*) FROM training_recommendation_feedback")[0] == 0

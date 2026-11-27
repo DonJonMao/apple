@@ -15,7 +15,8 @@ from healthzip.ui.preferences import load_preferences
 
 def render_questions(repo, *, timezone_name):
     scope = range_controls(timezone_name)
-    include_cycle = load_preferences(repo.path).get("cycle_enabled") or repo.one("SELECT 1 FROM cycle_event LIMIT 1")
+    enabled = bool(load_preferences(repo.path).get("cycle_enabled"))
+    include_cycle = enabled or _visible_cycle_records(repo, scope, timezone_name)
     ids = [qid for qid in QUESTIONS if qid != "W8" or include_cycle]
     if st.session_state.get("review_question") not in ids:
         st.session_state["review_question"] = ids[0]
@@ -45,7 +46,8 @@ def render_questions(repo, *, timezone_name):
         lambda: (scope["actual_start"], scope["actual_end"]), max_age_seconds=WORKSPACE_CACHE_SECONDS,
         dependencies=alternate + [("health_sample", kind) for kind in fields] + [("subjective_log", None), ("training", None), ("workout", None), ("body_measurement", None)])
     args = {"window_start": clock[0], "window_end": clock[1], "cutoff_time": clock[1],
-            "timezone_name": timezone_name, "question_ids": [question_id], "period": scope.get("period")}
+            "timezone_name": timezone_name, "question_ids": [question_id], "period": scope.get("period"),
+            "cycle_enabled": enabled}
     question = analyze_questions(repo, **args)[0]
     sources = {row["source"] for row in question["rows"] if row.get("source")}
     with st.popover("记录来源", use_container_width=True):
@@ -56,6 +58,18 @@ def render_questions(repo, *, timezone_name):
     _select_action(repo, question, [source] if source else [])
     from healthzip.ui.topic_sources import render_topic_sources
     render_topic_sources(question_id)
+
+
+def _visible_cycle_records(repo, scope, timezone_name):
+    """Use visible primary cycle records, including imported sample representation."""
+    from healthzip.analytics.alternate_observations import alternate_rows
+    from healthzip.analytics.body_metrics import _rows
+    from healthzip.science.contracts import instant
+    start, end = instant(scope["actual_start"]), instant(scope["actual_end"])
+    fields = QUESTIONS["W8"][1]
+    if _rows(repo, "health_sample", fields, start, end, end.isoformat(), ()):
+        return True
+    return any(alternate_rows(repo, field, start, end, end.isoformat(), timezone_name) for field in fields)
 
 
 def render_question(question, *, repo):
@@ -99,12 +113,13 @@ def render_question(question, *, repo):
             display = [{labels[k]: subjective_display_value(k, v) for k, v in row.items() if k in labels} for row in rows]
             for source_row, shown in zip(rows, display):
                 if source_row.get("comparison"):
-                    shown["统计口径"] = "完整记录日代表值的期间中位数"
+                    shown["统计口径"] = ("窗口内末次来源估计；非独立每日测量" if source_row.get("statistic_kind") == "source_estimate_points"
+                                       else "完整记录日代表值的期间中位数")
                     for key, label in (("current", "本期范围"), ("previous", "前期范围")):
                         period = source_row["comparison"][key]["window"]
                         shown[label] = local_window_label(period["start"], period["end"], period["timezone"])
             st.dataframe([row for row in display if row], hide_index=True, use_container_width=True)
-            _render_estimate_support(rows)
+            _render_estimate_support(rows, window["timezone"])
             _render_event_performance(rows)
             sessions = sorted({str(row["session_id"]) for row in rows if row.get("session_id")}
                               | {str(row["first_session_id"]) for row in rows if row.get("first_session_id")}
@@ -281,22 +296,25 @@ def render_actions(repo):
     render(repo)
 
 
-def _render_estimate_support(rows):
+def _render_estimate_support(rows, timezone_name="Asia/Shanghai"):
+    from healthzip.analytics.display_format import local_timestamp
     display = []
     for row in rows:
         if row.get("support_limitation"):
             st.caption(row["support_limitation"])
         for point in row.get("estimate_observations", []):
             support = point.get("estimate_support") or {}
-            display.append({"项目": row.get("title"), "观察日期": point.get("date"),
-                            "发布日期": point.get("observed_at"), "实际发布值": point.get("value"),
-                            "支持起点": support.get("start"), "支持终点": support.get("end"),
+            display.append({"项目": row.get("title"), "来源": row.get("source"),
+                            "来源观测时间": local_timestamp(point.get("observed_at"), timezone_name),
+                            "明确发布时间": local_timestamp(point.get("published_at"), timezone_name), "来源估计值": point.get("value"),
+                            "支持起点": local_timestamp(support.get("start"), timezone_name), "支持终点": local_timestamp(support.get("end"), timezone_name),
                             "与前次支持重叠": support.get("overlaps_prior_window"),
                             "同支持窗口重复发布": support.get("repeated_publication"),
                             "来源报告上限": support.get("upper_limit_m"), "位于报告上限": support.get("at_reportable_limit"),
                             "方法": support.get("method"), "版本": support.get("algorithm_version")})
     if display:
-        st.write("低频估计的实际发布与支持窗口")
+        st.write("低频估计的来源观测、发布时间与支持窗口")
+        st.caption("导入时间不作为发布时间；发布时间未提供时保持未知，记录天数不代表独立测量次数。")
         st.dataframe(display, hide_index=True)
 
 

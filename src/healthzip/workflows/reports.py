@@ -5,7 +5,8 @@ from .report_inputs import period_facts
 from .service import run_workflow
 
 
-def review_analysis(repo, analysis, *, period=None, include_background=False, knowledge_root=".local/knowledge", include_session_background=False):
+def review_analysis(repo, analysis, *, period=None, include_background=False, knowledge_root=".local/knowledge", include_session_background=False,
+                    background_workflows=None):
     cutoff, zone = analysis["cutoff_time"], analysis["timezone"]
     context_id = analysis.get("selection_context", {}).get("workflow_context_id")
     selection_id = None
@@ -43,7 +44,7 @@ def review_analysis(repo, analysis, *, period=None, include_background=False, kn
             include_session_background=include_session_background, **bounds_args),
             knowledge_root=knowledge_root))
     if include_background:
-        for wid in ("W2", "W3", "W5"):
+        for wid in ("W2", "W3", "W5") if background_workflows is None else background_workflows:
             runs.append(run_workflow(repo, WorkflowRequest(wid, cutoff_time=cutoff, timezone=zone,
                 window_days=analysis.get("window_days", 30), period=period,
                 mode="retrospective" if analysis.get("retrospective") else "prospective", context_id=context_id,
@@ -135,7 +136,7 @@ def period_questions(repo, current, *, period, knowledge_root, source_filter=(),
     # results retain a distinct status but do not occupy the readable body.
     questions = analyze_questions(repo, window_start=current["window_start"], window_end=current["window_end"],
         cutoff_time=current["cutoff_time"], timezone_name=current["timezone"], source_filter=source_filter,
-        question_ids=list(QUESTIONS), period=period)
+        question_ids=list(QUESTIONS), period=period, cycle_enabled=enabled)
     w, opening_failure = None, None
     try:
         if all((Path(knowledge_root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
@@ -152,10 +153,7 @@ def period_questions(repo, current, *, period, knowledge_root, source_filter=(),
                 "difference_is_explicit": bool(current.get("retrospective") or current.get("selection_context", {}).get("sleep_selection"))}
             question.setdefault("analysis_identity", {}).update(visibility_mode="as_of",
                 sleep_definition="recorded_episode_end_date_complete_daily_period_median")
-            has_records = bool(question.get("rows") or question.get("action_reviews") or question.get("goal_context"))
-            question["report_status"] = ("not_requested" if question["id"] == "W8" and not enabled and not has_records
-                                          else "available" if has_records else "no_records")
-            if question["report_status"] in {"not_requested", "no_records"}:
+            if question["report_status"] != "available":
                 question["evidence"] = {"status": "not_requested", "items": []}
                 continue
             if w is None:
@@ -174,56 +172,82 @@ def period_questions(repo, current, *, period, knowledge_root, source_filter=(),
 
 def current_report_source_status(report, *, repo=None, knowledge_root=".local/knowledge"):
     """Current annotations only; frozen report bytes and historical uses stay intact."""
+    import json
     import sqlite3
+    from copy import deepcopy
     from pathlib import Path
 
     from healthzip.knowledge import KnowledgeWorkbench
-    from healthzip.knowledge.core import _claim
+    from healthzip.knowledge.claim_status import current_claim_status
+    from healthzip.knowledge.domains import ensure_schema
 
-    identities = set()
-    if repo is not None and not report.get("questions"):
-        import json
+    uses = {}
+
+    def remember(identity, version, context, question_id=None, required=()):
+        if not identity or not version:
+            return
+        key = (identity, version, json.dumps(context, sort_keys=True))
+        use = uses.setdefault(key, {"context": context, "question_ids": set(), "required": set()})
+        if question_id:
+            use["question_ids"].add(question_id)
+        use["required"].update((ref["claim_id"], ref.get("claim_version") or ref.get("version"))
+                               for ref in required)
+
+    for ref in report.get("current_claim_refs", []):
+        context = ref.get("applicability_context") or {}
+        for question_id in ref.get("question_ids") or [None]:
+            remember(ref.get("claim_id"), ref.get("version") or ref.get("claim_version"),
+                     context, question_id, ref.get("required_claim_refs", []))
+    if repo is not None and not report.get("questions") and "current_claim_refs" not in report:
         run_ids = report.get("workflow_run_ids", []) + report.get("historical_run_ids", [])
         rows = repo.rows("SELECT json_extract(result_json,'$.knowledge.queries') FROM workflow_run "
             "WHERE user_id='local' AND run_id IN (SELECT value FROM json_each(?))", (json.dumps(run_ids),))
         for row in rows:
             for query in json.loads(row[0] or "[]"):
                 for claim in query.get("claims", []):
-                    identities.add((claim["claim_id"], claim.get("claim_version") or claim.get("version")))
+                    remember(claim["claim_id"], claim.get("claim_version") or claim.get("version"), {})
     for question in report.get("questions", []):
         evidence = question.get("evidence") or {}
+        context = evidence.get("applicability_context") or {}
         for item in [*evidence.get("items", []), *evidence.get("restricted_items", []),
                      *evidence.get("claim_reviews", [])]:
             version = item.get("version") or item.get("claim_version")
-            if item.get("claim_id") and version:
-                identities.add((item["claim_id"], version))
+            remember(item.get("claim_id"), version, context, question.get("id"),
+                     item.get("required_claim_refs", []))
             for required in item.get("required_claim_refs", []):
-                identities.add((required["claim_id"], required.get("claim_version") or required.get("version")))
-    if not identities:
+                remember(required["claim_id"], required.get("claim_version") or required.get("version"),
+                         context, question.get("id"))
+    if not uses:
         return {"status": "no_frozen_claims", "items": []}
     if not all((Path(knowledge_root) / name).is_file() for name in ("sources.sqlite3", "theories.sqlite3")):
         return {"status": "unavailable", "items": [], "label": "当前资料库不可用；无法核对历史主张的当前状态，冻结原文仍保留。"}
     w = None
     try:
         w = KnowledgeWorkbench(knowledge_root)
-        items = []
-        for identity, version in sorted(identities):
-            row = w.lib.theories.execute("SELECT status FROM source_claim WHERE claim_id=? AND version=?", (identity, version)).fetchone()
-            state, reason = (row["status"] if row else "missing"), None
-            if state == "verified":
-                try:
-                    _claim(w, {"claim_id": identity, "version": version})
-                except ValueError as exc:
-                    reason = str(exc)
-                    state = "source_withdrawn" if reason == "withdrawn" else "needs_review"
+        ensure_schema(w)
+        items, scopes = [], {}
+        for (identity, version, scope), use in sorted(uses.items()):
+            memo = scopes.setdefault(scope, {})
+            item = deepcopy(current_claim_status(w, (identity, version), context=use["context"], memo=memo))
+            known = {(ref["claim_id"], ref["version"]) for ref in item["dependencies"]}
+            for reference in sorted(use["required"] - known):
+                item["dependencies"].append(deepcopy(current_claim_status(w, reference,
+                    context=use["context"], memo=memo)))
+            if item["status"] == "verified" and any(ref["status"] != "verified" for ref in item["dependencies"]):
+                item.update(status="dependent_restriction", reason="frozen_required_claim_not_current")
+            state = item["status"]
             labels = {"verified": "该版本当前仍可用于其原有审核范围；不自动成为个人建议。",
                 "revoked": "该主张已撤销，不能支持当前新建议；原文仅保留为历史。",
                 "disabled": "该主张当前已停用，不能支持新建议。",
                 "source_withdrawn": "该主张的来源已撤回，不能支持当前新建议；原文仅保留为历史。",
                 "needs_review": "该主张或来源当前需要重新审核，不能直接作为新建议。",
+                "conflicted": "该版本目前有适用范围内的资料分歧；相关解释和建议受限，原冻结正文保留。",
+                "dependent_restriction": "该主张的必要前提现已受限；仅限制依赖它的解释和建议，独立内容保留。",
+                "scope_unverified": "当前资料或冲突关系所需的适用条件尚无法核对；不认定已撤销，也不认定已验证适用于本次记录。",
                 "missing": "当前库未找到该历史版本，无法核对当前适用状态。"}
-            items.append({"claim_id": identity, "version": version, "status": state,
-                          "label": labels.get(state, labels["needs_review"]), "reason": reason})
+            item.update(label=labels.get(state, labels["needs_review"]),
+                        question_ids=sorted(use["question_ids"]), applicability_context=use["context"])
+            items.append(item)
         return {"status": "current" if all(i["status"] == "verified" for i in items) else "restricted", "items": items}
     except (OSError, sqlite3.Error, ValueError) as exc:
         return {"status": "unavailable", "items": [], "reason": type(exc).__name__,

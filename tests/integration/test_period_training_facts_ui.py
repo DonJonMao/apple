@@ -75,7 +75,9 @@ def test_period_execution_uses_calendar_counts_and_preserves_mixed_loads(tmp_pat
     assert endpoints.loc["负荷", "已满足"] == done
     assert endpoints.loc["负荷", "未满足"] == skipped
     assert endpoints.loc["负荷", "尚不能判断"] == unknown
-    assert any(computed["window_start"] in x.value for x in section.caption)
+    first = "2026-11-09 00:00" if period == "week" else "2026-11-01 00:00"
+    last = datetime.fromisoformat(computed["window_end"]).strftime("%Y-%m-%d %H:%M")
+    assert any(x.value == f"{first} — {last} · UTC（不含结束时刻）" for x in section.caption)
     assert any("不同负荷" in x.value and "能力" in x.value for x in section.caption)
 
 

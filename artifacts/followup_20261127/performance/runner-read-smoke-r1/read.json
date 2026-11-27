@@ -1,0 +1,70 @@
+{
+  "phase": "read",
+  "synthetic_fixture": "synthetic-100000",
+  "source_manifest": "read-source.json",
+  "samples": [
+    {
+      "label": "cold",
+      "seconds": 0.004004627466201782,
+      "process_peak_rss_kib": 37864,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "warm-01",
+      "seconds": 0.0024150609970092773,
+      "process_peak_rss_kib": 39004,
+      "reading_view_version": "report-reading-view-1",
+      "full_analysis_returned": false,
+      "query_count": 2,
+      "full_analysis_read": false
+    },
+    {
+      "label": "one-question-W6",
+      "seconds": 0.0015275105834007263,
+      "process_peak_rss_kib": 39004,
+      "question_id": "W6",
+      "fact_id": "question:b2e034886d738d6f62f53af239685cc924ac58f1c24cf0a3493daadb0f986e4e",
+      "queries": [
+        "SELECT payload_json FROM report_content_object WHERE object_id='fc80aa1f2a74fef8aafc72863447220f876afd313250105340279945b250ca75' AND user_id='local'"
+      ]
+    }
+  ],
+  "cutoff": "2026-11-22T00:00:00+08:00",
+  "period": "week",
+  "timezone": "Asia/Shanghai",
+  "interface": "backend complete service call; browser timings are separate",
+  "initial_host_load": [
+    22.4814453125,
+    21.10302734375,
+    20.2822265625
+  ],
+  "concurrent_load": "Two-read tool smoke and one W6 detail only; concurrent implementation; not final latency acceptance",
+  "instrumentation": "perf_counter only; no cProfile",
+  "os_cache": "retained",
+  "report_id": "55b17ae44a8264f080549d6db8ef30502cf3eac527acefaede524e43b9943692",
+  "cold_queries": [
+    "SELECT payload_json,markdown FROM joint_period_report WHERE report_id='55b17ae44a8264f080549d6db8ef30502cf3eac527acefaede524e43b9943692' AND user_id='local'",
+    "SELECT payload_json FROM report_content_object WHERE object_id='e5acfe8873922689848a4b3cd7e3d6347a2126a7b6a3468fe737ee7291174101' AND user_id='local'"
+  ],
+  "reading_payload_utf8_bytes": 301622,
+  "warm": {
+    "n": 1,
+    "p50_s": 0.0024150609970092773,
+    "p95_s": 0.0024150609970092773,
+    "method": "nearest-rank"
+  },
+  "budgets": {
+    "cold_le_3s": true,
+    "warm_30_p95_le_1s": false
+  },
+  "complete": true,
+  "final_host_load": [
+    22.4814453125,
+    21.10302734375,
+    20.2822265625
+  ],
+  "source_changed": false
+}
