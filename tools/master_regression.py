@@ -17,11 +17,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def source_files():
-    paths = [ROOT / "app.py", ROOT / "pyproject.toml", ROOT / ".streamlit/config.toml"]
-    for folder in ("src", "tests", "tools"):
-        paths.extend(p for p in (ROOT / folder).rglob("*") if p.is_file()
-                     and "__pycache__" not in p.parts and p.suffix not in {".pyc", ".pyo"})
-    return sorted(set(paths))
+    names = subprocess.check_output(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z",
+         "app.py", "pyproject.toml", "uv.lock", ".streamlit/config.toml", "src", "tests", "tools"],
+        cwd=ROOT).decode().split("\0")
+    # Include new implementation/tests while excluding ignored build metadata
+    # and bytecode, which are neither product source nor validation inputs.
+    return sorted({ROOT / name for name in names if name and (ROOT / name).is_file()})
 
 
 def digest(paths):

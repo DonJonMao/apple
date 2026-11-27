@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="32" time="11.634" timestamp="2026-11-27T14:05:01.128959+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.integration.test_followup_report_reading" name="test_reading_and_single_question_load_only_requested_frozen_objects" time="1.105" /><testcase classname="tests.integration.test_followup_report_reading" name="test_hot_generation_keeps_independent_version_without_full_restore" time="0.274" /><testcase classname="tests.integration.test_followup_report_reading" name="test_report_cache_tracks_question_versions_without_rewriting_old_freeze[GUIDANCE_VERSION-guidance_version]" time="0.413" /><testcase classname="tests.integration.test_followup_report_reading" name="test_report_cache_tracks_question_versions_without_rewriting_old_freeze[VERSION-analysis_version]" time="0.402" /><testcase classname="tests.integration.test_followup_report_reading" name="test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.metric_retrieval-RETRIEVAL_VERSION]" time="0.399"><failure message="AssertionError: assert {'charts': [{...cc58e62', ...} == {'charts': [{...8d10b52', ...}&#10;  &#10;  Omitting 6 identical items, use -vv to show&#10;  Differing items:&#10;  {'joint_fact_id': 'joint:0b08a5c67cb659e0fe33d2b1aa2a83ce2739be3eafad05ec4dff615f9cc58e62'} != {'joint_fact_id': 'joint:e4b5c35df6482309ab69c8b46b6219d0fa37dcf28ac0b35b833fd74cb8d10b52'}&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1091/test_report_rechecks_evidence_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffac1fb5d0&gt;
+module_name = 'healthzip.knowledge.metric_retrieval'
+version_field = 'RETRIEVAL_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+            before = tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],)))
+            stages = []
+            repeated = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "复用已核对的报告内容" in stages
+            assert repeated["content_signature"] == first["content_signature"]
+            module = importlib.import_module(module_name)
+            monkeypatch.setattr(module, version_field, "synthetic-new-evidence-method")
+            stages.clear()
+            revised = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "分析本期实际问题与行动" in stages
+            assert "复用已核对的报告内容" not in stages
+            assert revised["report_id"] not in {first["report_id"], repeated["report_id"]}
+&gt;           assert revised["reading_view"] == first["reading_view"]
+E           AssertionError: assert {'charts': [{...cc58e62', ...} == {'charts': [{...8d10b52', ...}
+E             
+E             Omitting 6 identical items, use -vv to show
+E             Differing items:
+E             {'joint_fact_id': 'joint:0b08a5c67cb659e0fe33d2b1aa2a83ce2739be3eafad05ec4dff615f9cc58e62'} != {'joint_fact_id': 'joint:e4b5c35df6482309ab69c8b46b6219d0fa37dcf28ac0b35b833fd74cb8d10b52'}
+E             Use -v to get more diff
+
+tests/integration/test_followup_report_reading.py:109: AssertionError</failure></testcase><testcase classname="tests.integration.test_followup_report_reading" name="test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.topics-ANSWER_NEEDS_VERSION]" time="0.395"><failure message="AssertionError: assert {'charts': [{...5099a32', ...} == {'charts': [{...062937c', ...}&#10;  &#10;  Omitting 6 identical items, use -vv to show&#10;  Differing items:&#10;  {'joint_fact_id': 'joint:2a9f2d199237e118eb286b47961e7bf5ca753f93643d94bb506b329905099a32'} != {'joint_fact_id': 'joint:0cc340074d6d9b8ac317074fcbfb09eb24a2cd79a7591a4e48c154d48062937c'}&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1091/test_report_rechecks_evidence_1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffac388190&gt;
+module_name = 'healthzip.knowledge.topics'
+version_field = 'ANSWER_NEEDS_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+            before = tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],)))
+            stages = []
+            repeated = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "复用已核对的报告内容" in stages
+            assert repeated["content_signature"] == first["content_signature"]
+            module = importlib.import_module(module_name)
+            monkeypatch.setattr(module, version_field, "synthetic-new-evidence-method")
+            stages.clear()
+            revised = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "分析本期实际问题与行动" in stages
+            assert "复用已核对的报告内容" not in stages
+            assert revised["report_id"] not in {first["report_id"], repeated["report_id"]}
+&gt;           assert revised["reading_view"] == first["reading_view"]
+E           AssertionError: assert {'charts': [{...5099a32', ...} == {'charts': [{...062937c', ...}
+E             
+E             Omitting 6 identical items, use -vv to show
+E             Differing items:
+E             {'joint_fact_id': 'joint:2a9f2d199237e118eb286b47961e7bf5ca753f93643d94bb506b329905099a32'} != {'joint_fact_id': 'joint:0cc340074d6d9b8ac317074fcbfb09eb24a2cd79a7591a4e48c154d48062937c'}
+E             Use -v to get more diff
+
+tests/integration/test_followup_report_reading.py:109: AssertionError</failure></testcase><testcase classname="tests.integration.test_followup_report_reading" name="test_same_timestamp_history_versions_open_the_selected_frozen_id" time="2.562" /><testcase classname="tests.integration.test_followup_report_reading" name="test_history_versions_disambiguate_colliding_short_identifiers" time="0.001" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_real_retrieval_third_action_and_all_orderings_reach_readable_body" time="0.106" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_repeated_claim_and_original_are_printed_once_without_discarding_other_actions" time="0.096" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_different_reviewed_uses_of_one_original_keep_statements_and_one_source_link" time="0.073" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_new_exact_conflict_restricts_only_affected_frozen_claim_and_keeps_bytes" time="0.105" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_new_conflict_on_required_premise_blocks_action_not_independent_method" time="0.115" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context0-conflicted]" time="0.081" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context1-verified]" time="0.081" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_conflict_scope_uses_frozen_context_not_assumed_population[context2-scope_unverified]" time="0.081" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_conflict_on_another_version_does_not_restrict_the_frozen_version" time="0.085" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_unreachable_acquisition_is_not_withdrawal_but_missing_version_is_unknown" time="0.075" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_unavailable_service_does_not_claim_current_or_withdrawn" time="0.066" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_real_create_retrieve_freeze_reopen_audit_and_current_annotation" time="0.493" /><testcase classname="tests.integration.test_followup_report_evidence" name="test_current_status_retains_usage_rights_gate" time="0.071" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflows_share_frozen_training_but_return_complete_independent_values" time="0.658" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflow_failure_rolls_back_new_training_objects_and_can_retry" time="0.540" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_concurrent_identical_workflows_commit_one_complete_shared_snapshot" time="0.429" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_legacy_inline_run_and_old_bytes_survive_new_results_and_source_revision" time="0.493" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_audit_actual_file_restores_each_workflow_without_database_or_current_records" time="0.571" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_frozen_workflow_backup_is_portable_but_other_workspace_cannot_resolve_refs" time="0.419" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflow_training_roundtrip_keeps_precision_empty_fields_and_group_order" time="0.115" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_offline_workflow_repeated_references_restore_independent_values" time="0.001" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflow_storage_keeps_strict_finite_json_boundary[nan]" time="0.115" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflow_storage_keeps_strict_finite_json_boundary[inf]" time="0.112" /><testcase classname="tests.integration.test_workflow_frozen_training" name="test_workflow_storage_keeps_strict_finite_json_boundary[-inf]" time="0.115" /></testsuite></testsuites>

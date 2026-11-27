@@ -1,0 +1,1860 @@
+{
+  "health_sample_count": 11680,
+  "training_set_count": 1672,
+  "full_report_count_before": 0,
+  "mode": "running-process",
+  "period": "month",
+  "bootstrap": "import runpy,importlib\nimport streamlit as st\nfrom datetime import datetime\nclass RequestClock(datetime):\n @classmethod\n def now(cls,tz=None):\n  value=datetime.fromisoformat('2026-11-21T16:00:00+00:00')\n  return value.astimezone(tz) if tz else value.replace(tzinfo=None)\nfor module in ('healthzip.analytics.workspaces','healthzip.analytics.workspace_summary'):\n importlib.import_module(module).datetime=RequestClock\nif not st.session_state.get('_followup_clock_initialized'):\n st.session_state['body_period']='本月'\n st.session_state['review_period']='本月'\n st.session_state['body_section']='心率'\n st.session_state['_followup_clock_initialized']=True\nrunpy.run_path('/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/app.py',run_name='__main__')\n",
+  "original_database_bytes": 77053952,
+  "backup_database_bytes_before": 77053952,
+  "service_ready_ms": 2301.1943101882935,
+  "browser": "158.0.8127.18",
+  "settings_transitions": [
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    },
+    {
+      "prior_fact_output_removed_or_replaced": true,
+      "remaining_settings_metrics": []
+    }
+  ],
+  "cold": {
+    "first_fact_ms": 538.7999954223633,
+    "facts_and_trend_ms": 1927.6999969482422,
+    "interactive_ms": 1933.6999969482422,
+    "automation_to_settled_ms": 2144.6976736187935,
+    "snapshot": {
+      "hzRender": "0797c035-fc4a-4d87-a8fb-2f124e20e04c",
+      "workspace": "review",
+      "serverMs": "400.785"
+    },
+    "selected_period": "month",
+    "facts": [
+      {
+        "label": "完成训练",
+        "value": "6 次"
+      },
+      {
+        "label": "有效工作组",
+        "value": "48 组"
+      },
+      {
+        "label": "睡眠中位数",
+        "value": "7.1 小时"
+      },
+      {
+        "label": "静息心率",
+        "value": "62.0 bpm"
+      }
+    ],
+    "plots": [
+      [
+        {
+          "name": null,
+          "x": [
+            "2026-11-03",
+            "2026-11-06",
+            "2026-11-10",
+            "2026-11-13",
+            "2026-11-17",
+            "2026-11-20"
+          ],
+          "y": [
+            8,
+            8,
+            8,
+            8,
+            8,
+            8
+          ]
+        }
+      ]
+    ]
+  },
+  "rendered_facts_and_trends_verified": true,
+  "verified_plot_scope": "selected-period actual strength trend",
+  "full_reports_generated": 0,
+  "expected_normal_service": {
+    "cards": [
+      {
+        "label": "完成训练",
+        "value": "6 次"
+      },
+      {
+        "label": "有效工作组",
+        "value": "48 组"
+      },
+      {
+        "label": "睡眠中位数",
+        "value": "7.1 小时"
+      },
+      {
+        "label": "静息心率",
+        "value": "62.0 bpm"
+      }
+    ],
+    "window": {
+      "start": "2026-10-31T16:00:00+00:00",
+      "end": "2026-11-21T16:00:00+00:00",
+      "closure": "[start,end)",
+      "partial": true
+    },
+    "conclusions": [
+      "Synthetic personal Watch：21 个有效日期的静息心率日值，中位数 62 bpm，范围 60.1–66 bpm。",
+      "Synthetic personal Watch：21 个有效日期的HRV（SDNN）日值，中位数 44.4 ms，范围 34.6–49.8 ms。",
+      "Synthetic personal Watch：21 个有效结束日期的已观察睡眠，中位数 7.1 小时，范围 6.2–7.7 小时；仅统计正时长记录。"
+    ],
+    "trend": [
+      [
+        "2026-11-03",
+        8
+      ],
+      [
+        "2026-11-06",
+        8
+      ],
+      [
+        "2026-11-10",
+        8
+      ],
+      [
+        "2026-11-13",
+        8
+      ],
+      [
+        "2026-11-17",
+        8
+      ],
+      [
+        "2026-11-20",
+        8
+      ]
+    ]
+  },
+  "warm": {
+    "n": 30,
+    "samples": [
+      {
+        "first_fact_ms": 240.60000610351562,
+        "facts_and_trend_ms": 244.3000030517578,
+        "interactive_ms": 247.5,
+        "automation_to_settled_ms": 293.00838708877563,
+        "snapshot": {
+          "hzRender": "f4c748d1-2ee0-430a-9c00-89dea1cba342",
+          "workspace": "review",
+          "serverMs": "75.317"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 229.70000457763672,
+        "facts_and_trend_ms": 233.4000015258789,
+        "interactive_ms": 237.3000030517578,
+        "automation_to_settled_ms": 277.51655131578445,
+        "snapshot": {
+          "hzRender": "d70d375d-c8c9-4e81-bbb9-c2355d3ae4aa",
+          "workspace": "review",
+          "serverMs": "66.032"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 224.5999984741211,
+        "facts_and_trend_ms": 228.20000457763672,
+        "interactive_ms": 231.5999984741211,
+        "automation_to_settled_ms": 287.8938242793083,
+        "snapshot": {
+          "hzRender": "097f6f7a-f5f3-4291-8b06-38ffff699375",
+          "workspace": "review",
+          "serverMs": "72.265"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 224.89999389648438,
+        "facts_and_trend_ms": 228.1999969482422,
+        "interactive_ms": 231.5999984741211,
+        "automation_to_settled_ms": 278.08114141225815,
+        "snapshot": {
+          "hzRender": "467c45e3-7d31-4d9f-9f66-03e42c69029e",
+          "workspace": "review",
+          "serverMs": "67.560"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 220,
+        "facts_and_trend_ms": 223.5999984741211,
+        "interactive_ms": 226.8000030517578,
+        "automation_to_settled_ms": 278.89450639486313,
+        "snapshot": {
+          "hzRender": "2c1250cf-7e68-4829-a7f2-f1ae9676ed71",
+          "workspace": "review",
+          "serverMs": "70.321"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 215.1999969482422,
+        "facts_and_trend_ms": 218.5,
+        "interactive_ms": 221.79999542236328,
+        "automation_to_settled_ms": 268.7421888113022,
+        "snapshot": {
+          "hzRender": "c9539cb4-b85c-40f9-ac1f-01a86bfad562",
+          "workspace": "review",
+          "serverMs": "66.743"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 219.1999969482422,
+        "facts_and_trend_ms": 223.0999984741211,
+        "interactive_ms": 226.6999969482422,
+        "automation_to_settled_ms": 276.2903869152069,
+        "snapshot": {
+          "hzRender": "eacdd687-002d-46b3-9326-f5b09eec417b",
+          "workspace": "review",
+          "serverMs": "70.965"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 213.3000030517578,
+        "facts_and_trend_ms": 216.5999984741211,
+        "interactive_ms": 220,
+        "automation_to_settled_ms": 266.9230103492737,
+        "snapshot": {
+          "hzRender": "d84ff3c9-7444-4677-ae5e-1af2a72af694",
+          "workspace": "review",
+          "serverMs": "69.549"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 289.9000015258789,
+        "facts_and_trend_ms": 293.5,
+        "interactive_ms": 296.8000030517578,
+        "automation_to_settled_ms": 357.3893755674362,
+        "snapshot": {
+          "hzRender": "2219b261-efc8-47bc-80ac-c4eaaa348b91",
+          "workspace": "review",
+          "serverMs": "69.075"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 206.4000015258789,
+        "facts_and_trend_ms": 209.6999969482422,
+        "interactive_ms": 213,
+        "automation_to_settled_ms": 278.7739932537079,
+        "snapshot": {
+          "hzRender": "b6b6e19e-94b8-4c3e-b023-81c93b6d9e2a",
+          "workspace": "review",
+          "serverMs": "69.914"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 216.5,
+        "facts_and_trend_ms": 220.1999969482422,
+        "interactive_ms": 223.5,
+        "automation_to_settled_ms": 282.93298184871674,
+        "snapshot": {
+          "hzRender": "22285195-02bd-4f3a-8a1c-8a6604bfc4a0",
+          "workspace": "review",
+          "serverMs": "69.907"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 217,
+        "facts_and_trend_ms": 220.3000030517578,
+        "interactive_ms": 223.5,
+        "automation_to_settled_ms": 268.6281278729439,
+        "snapshot": {
+          "hzRender": "e8520d96-9f85-4481-8bb4-806496757ee5",
+          "workspace": "review",
+          "serverMs": "69.691"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 210.6999969482422,
+        "facts_and_trend_ms": 214.4000015258789,
+        "interactive_ms": 217.79999542236328,
+        "automation_to_settled_ms": 262.12865859270096,
+        "snapshot": {
+          "hzRender": "f9c36d46-98c1-408b-a8fc-fb8e7959da10",
+          "workspace": "review",
+          "serverMs": "68.852"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 214.20000457763672,
+        "facts_and_trend_ms": 218.20000457763672,
+        "interactive_ms": 222.20000457763672,
+        "automation_to_settled_ms": 392.188124358654,
+        "snapshot": {
+          "hzRender": "4c69d452-d718-416a-84cc-09472542a742",
+          "workspace": "review",
+          "serverMs": "69.928"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 222.3000030517578,
+        "facts_and_trend_ms": 226,
+        "interactive_ms": 229.5999984741211,
+        "automation_to_settled_ms": 278.03876250982285,
+        "snapshot": {
+          "hzRender": "345b596c-a668-40db-a4da-e0fd5f3fcda4",
+          "workspace": "review",
+          "serverMs": "70.025"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 210.89999389648438,
+        "facts_and_trend_ms": 214.89999389648438,
+        "interactive_ms": 218.39999389648438,
+        "automation_to_settled_ms": 262.9021480679512,
+        "snapshot": {
+          "hzRender": "3b1e00c0-b522-4adf-b6fd-db3c128bde9f",
+          "workspace": "review",
+          "serverMs": "69.547"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 215.10000610351562,
+        "facts_and_trend_ms": 218.4000015258789,
+        "interactive_ms": 221.60000610351562,
+        "automation_to_settled_ms": 268.41410994529724,
+        "snapshot": {
+          "hzRender": "ea163235-0135-486c-9b7f-63c5cbd295c3",
+          "workspace": "review",
+          "serverMs": "68.277"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 209.5999984741211,
+        "facts_and_trend_ms": 212.8000030517578,
+        "interactive_ms": 216,
+        "automation_to_settled_ms": 263.61507177352905,
+        "snapshot": {
+          "hzRender": "3314a083-de97-4494-877d-6f873147c9db",
+          "workspace": "review",
+          "serverMs": "69.788"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 293.2000045776367,
+        "facts_and_trend_ms": 296.4000015258789,
+        "interactive_ms": 300.4000015258789,
+        "automation_to_settled_ms": 357.1200221776962,
+        "snapshot": {
+          "hzRender": "06399b57-9de0-46a2-8fff-ad27caa4d7de",
+          "workspace": "review",
+          "serverMs": "159.080"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 212.20000457763672,
+        "facts_and_trend_ms": 215.5,
+        "interactive_ms": 219.20000457763672,
+        "automation_to_settled_ms": 276.14613622426987,
+        "snapshot": {
+          "hzRender": "9994f30f-3fb8-4033-a970-88fdf86e3ac8",
+          "workspace": "review",
+          "serverMs": "68.874"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 206.4000015258789,
+        "facts_and_trend_ms": 209.5,
+        "interactive_ms": 212.79999542236328,
+        "automation_to_settled_ms": 272.3989933729172,
+        "snapshot": {
+          "hzRender": "3f8ffd16-d257-44ee-9df9-119aa5cea746",
+          "workspace": "review",
+          "serverMs": "74.839"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 213.60000610351562,
+        "facts_and_trend_ms": 217.4000015258789,
+        "interactive_ms": 220.70000457763672,
+        "automation_to_settled_ms": 280.7929217815399,
+        "snapshot": {
+          "hzRender": "8422b5ee-1029-4880-939b-7339d35e0ccf",
+          "workspace": "review",
+          "serverMs": "70.060"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 207.9000015258789,
+        "facts_and_trend_ms": 211.70000457763672,
+        "interactive_ms": 215.4000015258789,
+        "automation_to_settled_ms": 314.74749743938446,
+        "snapshot": {
+          "hzRender": "ae647ed7-353e-4213-a435-fd1d5091db3b",
+          "workspace": "review",
+          "serverMs": "70.388"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 218.29999542236328,
+        "facts_and_trend_ms": 222.1999969482422,
+        "interactive_ms": 225.39999389648438,
+        "automation_to_settled_ms": 285.1107344031334,
+        "snapshot": {
+          "hzRender": "a783d853-1c16-422f-9629-a4f1c13160d1",
+          "workspace": "review",
+          "serverMs": "68.367"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 213.20000457763672,
+        "facts_and_trend_ms": 216.4000015258789,
+        "interactive_ms": 219.3000030517578,
+        "automation_to_settled_ms": 277.5384411215782,
+        "snapshot": {
+          "hzRender": "76028f7f-beab-4f15-90bd-a01e2121d950",
+          "workspace": "review",
+          "serverMs": "69.438"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 204.39999389648438,
+        "facts_and_trend_ms": 207.6999969482422,
+        "interactive_ms": 210.89999389648438,
+        "automation_to_settled_ms": 269.97579634189606,
+        "snapshot": {
+          "hzRender": "71f33bb5-6efb-4867-ac53-6caf1af0d6ac",
+          "workspace": "review",
+          "serverMs": "66.677"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 208.5999984741211,
+        "facts_and_trend_ms": 211.89999389648438,
+        "interactive_ms": 215.89999389648438,
+        "automation_to_settled_ms": 261.37883961200714,
+        "snapshot": {
+          "hzRender": "a666fb6c-f3c2-48d9-a32b-bcb207c86237",
+          "workspace": "review",
+          "serverMs": "72.784"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 209.70000457763672,
+        "facts_and_trend_ms": 213,
+        "interactive_ms": 216.20000457763672,
+        "automation_to_settled_ms": 270.8369642496109,
+        "snapshot": {
+          "hzRender": "80e8a85e-90a1-447b-b140-4cf0efe8af6f",
+          "workspace": "review",
+          "serverMs": "69.085"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 296.5,
+        "facts_and_trend_ms": 299.7999954223633,
+        "interactive_ms": 303,
+        "automation_to_settled_ms": 364.0843704342842,
+        "snapshot": {
+          "hzRender": "11fe17c5-b552-4b24-ab62-d199fc24ba52",
+          "workspace": "review",
+          "serverMs": "159.327"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      },
+      {
+        "first_fact_ms": 217.4000015258789,
+        "facts_and_trend_ms": 220.6999969482422,
+        "interactive_ms": 223.6999969482422,
+        "automation_to_settled_ms": 287.7081036567688,
+        "snapshot": {
+          "hzRender": "31be288c-cac0-42d0-bb78-b23eb970b84a",
+          "workspace": "review",
+          "serverMs": "74.190"
+        },
+        "selected_period": "month",
+        "facts": [
+          {
+            "label": "完成训练",
+            "value": "6 次"
+          },
+          {
+            "label": "有效工作组",
+            "value": "48 组"
+          },
+          {
+            "label": "睡眠中位数",
+            "value": "7.1 小时"
+          },
+          {
+            "label": "静息心率",
+            "value": "62.0 bpm"
+          }
+        ],
+        "plots": [
+          [
+            {
+              "name": null,
+              "x": [
+                "2026-11-03",
+                "2026-11-06",
+                "2026-11-10",
+                "2026-11-13",
+                "2026-11-17",
+                "2026-11-20"
+              ],
+              "y": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                8
+              ]
+            }
+          ]
+        ]
+      }
+    ],
+    "quantile_method": "nearest-rank",
+    "first_fact_ms": {
+      "p50": 215.10000610351562,
+      "p95": 293.2000045776367
+    },
+    "facts_and_trend_ms": {
+      "p50": 218.4000015258789,
+      "p95": 296.4000015258789
+    },
+    "interactive_ms": {
+      "p50": 221.79999542236328,
+      "p95": 300.4000015258789
+    }
+  },
+  "complete": true
+}

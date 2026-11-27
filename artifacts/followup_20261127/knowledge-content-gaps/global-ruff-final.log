@@ -1,0 +1,24 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/healthzip/workflows/report_objects.py:33:5
+   |
+31 | def reading_view(payload):
+32 |     """Explicit small frozen reading projection, not a recomputed analysis."""
+33 |     from healthzip.analytics.health_context import joint_observations, sleep_comparison_metric, stream_labels
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+34 |     current = payload["current"]
+35 |     if not all(k in current for k in ("window_start", "window_end", "cutoff_time", "timezone")):
+   |
+help: Organize imports
+   |
+32 |     """Explicit small frozen reading projection, not a recomputed analysis."""
+   -     from healthzip.analytics.health_context import joint_observations, sleep_comparison_metric, stream_labels
+33 +     from healthzip.analytics.health_context import (
+34 +         joint_observations,
+35 +         sleep_comparison_metric,
+36 +         stream_labels,
+37 +     )
+38 |     current = payload["current"]
+   |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.

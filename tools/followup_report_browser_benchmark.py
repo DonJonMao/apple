@@ -22,6 +22,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests/training"))
+from followup_history_interaction import PAINTED, prepare, report_rows  # noqa: E402
 from followup_page_benchmark import summarize  # noqa: E402
 from followup_report_benchmark import manifest, shared_knowledge, validate_synthetic  # noqa: E402
 from repair_preview_benchmark import fixture_copy  # noqa: E402
@@ -42,44 +43,39 @@ def frozen(database, report_id):
 
 
 def history_input(page, selector, query, *, expected_label=None):
-    """Prepare a real history selection, outside the timed Open interaction."""
+    """One real selection after ancestor motion settles; Open is timed separately."""
     started = time.perf_counter()
-    page.evaluate("""()=>{window.__historyEvents=[];let previous='';
-      window.__historyTrack=event=>{const e=document.querySelector('input[role=combobox][aria-label=历史复盘]');
-        const main=document.querySelector('[data-testid=stMain]');const b=e?.getBoundingClientRect();
-        const state={type:event?.type??'mutation',at:performance.now(),expanded:e?.getAttribute('aria-expanded'),
-          value:e?.value,options:document.querySelectorAll('[role=option]').length,scrollTop:main?.scrollTop,
-          box:b?{x:b.x,y:b.y,width:b.width,height:b.height}:null,focus:document.activeElement?.getAttribute('role'),
+    page.evaluate("""e=>{window.__historyEvents=[];let previous='';
+      window.__historyTrack=event=>{
+        const main=document.querySelector('[data-testid=stMain]');const b=e.getBoundingClientRect();
+        const state={type:event?.type??'mutation',at:performance.now(),expanded:e.getAttribute('aria-expanded'),
+          connected:e.isConnected,value:e.value,options:document.querySelectorAll('[role=option]').length,scrollTop:main?.scrollTop,
+          box:{x:b.x,y:b.y,width:b.width,height:b.height},focus:document.activeElement?.getAttribute('role'),
           target:event?.target?.getAttribute?.('data-testid'),render:document.querySelector('[data-hz-render]')?.dataset.hzRender};
         const key=JSON.stringify({...state,at:0});if(key!==previous){window.__historyEvents.push(state);previous=key;}};
       for(const type of ['scroll','focusin','focusout','click','input'])document.addEventListener(type,window.__historyTrack,true);
       window.__historyObserver=new MutationObserver(()=>window.__historyTrack());
-      window.__historyObserver.observe(document.body,{subtree:true,attributes:true,childList:true});window.__historyTrack();}""")
-    attempts = []
+      window.__historyObserver.observe(document.body,{subtree:true,attributes:true,childList:true});window.__historyTrack();}""",
+      selector.element_handle())
+    readiness = []
     try:
-        for attempt in range(1, 4):
-            try:
-                selector.click()
-                selector.press("Control+a")
-                selector.press_sequentially(query)
-                if expected_label is not None:
-                    page.get_by_role("option", name=expected_label, exact=True).click(timeout=2000)
-                else:
-                    page.get_by_role("option").first.wait_for(state="visible", timeout=2000)
-                    # Check actual painted menu stability, not an arbitrary delay.
-                    page.evaluate("""()=>new Promise((resolve,reject)=>{let frames=0;function frame(){
-                      const e=document.querySelector('input[role=combobox][aria-label=历史复盘]');
-                      if(e?.getAttribute('aria-expanded')!=='true'||!document.querySelector('[role=option]'))
-                        return reject(new Error('history popup closed while positioning'));
-                      if(++frames===6)return resolve();requestAnimationFrame(frame);}requestAnimationFrame(frame);})""")
-                attempts.append({"attempt": attempt, "complete": True})
-                return {"attempts": attempts, "preparation_ms": (time.perf_counter() - started) * 1000,
-                        "events": page.evaluate("window.__historyEvents")}
-            except Exception as exc:
-                attempts.append({"attempt": attempt, "complete": False, "failure": str(exc)})
-                if attempt == 3:
-                    raise RuntimeError({"history_input_attempts": attempts,
-                        "events": page.evaluate("window.__historyEvents")}) from exc
+        # scrollIntoView during Streamlit's height animation can scroll its
+        # overflow:hidden <details>; React Aria then closes on ancestor scroll.
+        readiness = prepare(selector, synchronized=True)
+        selector.click()
+        selector.press("Control+a")
+        selector.press_sequentially(query)
+        page.wait_for_function(PAINTED, arg=selector.element_handle(), timeout=2000)
+        if expected_label is not None:
+            page.get_by_role("option", name=expected_label, exact=True).click(timeout=2000)
+        return {"attempts": [{"attempt": 1, "complete": True}],
+                "preparation_ms": (time.perf_counter() - started) * 1000,
+                "readiness": readiness, "painted_menu_verified": True,
+                "events": page.evaluate("window.__historyEvents")}
+    except Exception as exc:
+        raise RuntimeError({"history_input_attempts": [{"attempt": 1, "complete": False, "failure": str(exc)}],
+            "preparation_ms": (time.perf_counter() - started) * 1000, "readiness": readiness,
+            "events": page.evaluate("window.__historyEvents")}) from exc
     finally:
         page.evaluate("""()=>{window.__historyObserver.disconnect();for(const type of ['scroll','focusin','focusout','click','input'])
           document.removeEventListener(type,window.__historyTrack,true);}""")
@@ -137,19 +133,6 @@ def phase(args, folder, database, phase_name):
             page.wait_for_function("s=>document.querySelector('[data-hz-report-id]')?.dataset.hzReportId===s.id&&document.querySelector('[data-testid=stMain]')?.innerText.includes(s.finding)",
                                    arg={"id": report_id, "finding": findings[0].replace("**", "")}, timeout=30000)
             first = elapsed()
-            page.wait_for_function("()=>[...document.querySelectorAll('.js-plotly-plot')].some(e=>!window.__oldReportPlots.has(e)&&e.data?.some(t=>t.x?.length&&t.y?.length))", timeout=30000)
-            trend = elapsed()
-            page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
-            page.wait_for_function("()=>{const e=document.querySelector('[data-hz-render]');return e&&e.dataset.workspace==='review'&&e.dataset.hzRender!==window.__oldReportRender}", timeout=30000)
-            interactive = elapsed()
-            assert page.locator("[data-hz-report-id]").get_attribute("data-reading-view") == reading["version"]
-            assert not page.get_by_test_id("stException").count()
-            body = page.get_by_test_id("stMain").inner_text()
-            assert findings and findings[0].replace("**", "") in body
-            assert page.get_by_role("heading", name="本期主要变化", exact=True).count() == 1
-            assert not page.get_by_text("生成复盘后，这份阅读内容会补充", exact=False).count()
-            plots = page.locator(".js-plotly-plot").evaluate_all("es=>es.map(e=>e.data.map(t=>({name:t.name,x:Array.from(t.x??[]),y:Array.from(t.y??[])})))")
-            assert len(plots) == 1, "generated/history reader must show one selected frozen chart"
             chart = reading["charts"][0]
             stream = chart["comparison"]["streams"][0]
             expected = []
@@ -159,6 +142,27 @@ def phase(args, folder, database, phase_name):
                 if points:
                     expected.append({"name": name, "x": [p["date"] for p in points],
                                      "y": [p["value"] / chart["scale"] for p in points]})
+            # Progress fragments can remount the preview chart and change the
+            # render ID before the final report rerun finishes. Require the
+            # frozen chart itself, then let React remove every stale element.
+            page.wait_for_function("expected=>{const es=[...document.querySelectorAll('.js-plotly-plot')];"
+                "return es.length===1&&!window.__oldReportPlots.has(es[0])&&!es[0].closest('[data-stale=true]')&&"
+                "JSON.stringify(es[0].data.map(t=>({name:t.name,x:Array.from(t.x??[]),y:Array.from(t.y??[])})))===JSON.stringify(expected)}",
+                arg=expected, timeout=30000)
+            trend = elapsed()
+            page.get_by_test_id("stStatusWidget").wait_for(state="hidden", timeout=30000)
+            page.wait_for_function("()=>{const main=document.querySelector('[data-testid=stMain]');"
+                "const e=main?.querySelector('[data-hz-render]');return e&&e.dataset.workspace==='review'&&"
+                "e.dataset.hzRender!==window.__oldReportRender&&!main.querySelector('[data-stale=true]')}", timeout=30000)
+            interactive = elapsed()
+            assert page.locator("[data-hz-report-id]").get_attribute("data-reading-view") == reading["version"]
+            assert not page.get_by_test_id("stException").count()
+            body = page.get_by_test_id("stMain").inner_text()
+            assert findings and findings[0].replace("**", "") in body
+            assert page.get_by_role("heading", name="本期主要变化", exact=True).count() == 1
+            assert not page.get_by_text("生成复盘后，这份阅读内容会补充", exact=False).count()
+            plots = page.locator(".js-plotly-plot").evaluate_all("es=>es.map(e=>e.data.map(t=>({name:t.name,x:Array.from(t.x??[]),y:Array.from(t.y??[])})))")
+            assert len(plots) == 1, "generated/history reader must show one selected frozen chart"
             assert plots[0] == expected, (plots, expected)
             sample = {"report_id": report_id, "first_fact_ms": first, "facts_and_trend_ms": trend,
                       "interactive_ms": interactive, "first_finding": findings[0], "actual_plots": plots,
@@ -166,6 +170,7 @@ def phase(args, folder, database, phase_name):
                       "reading_ref": stored["reading_ref"], "markdown_sha256": hashlib.sha256(markdown.encode()).hexdigest(),
                       "render_identity": page.locator("[data-hz-render]").get_attribute("data-hz-render"),
                       "new_plot_dom_verified": True,
+                      "final_rerun_stale_nodes_removed": True,
                       "one_reading_path": True, "selected_period": stored["period"]}
             result["samples"].append(sample)
             write(output, result)
@@ -196,7 +201,6 @@ def phase(args, folder, database, phase_name):
                     if not page.get_by_role("button", name="打开这份复盘", exact=True).is_visible():
                         expander.click()
                     chooser = page.get_by_role("combobox", name="历史复盘", exact=True)
-                    chooser.evaluate("e=>e.scrollIntoView({block:'center',behavior:'instant'})")
                     from healthzip.ui.review_page import report_history_labels
                     with closing(sqlite3.connect(database)) as connection:
                         connection.row_factory = sqlite3.Row
@@ -277,7 +281,6 @@ def phase(args, folder, database, phase_name):
                 selector = page.get_by_role("combobox", name="历史复盘", exact=True)
                 if not selector.is_visible():
                     page.get_by_text("已保存的复盘", exact=True).click()
-                selector.evaluate("e=>e.scrollIntoView({block:'center',behavior:'instant'})")
                 try:
                     selected_label = selector.input_value()
                     preparation = history_input(page, selector, "周复盘")
@@ -285,7 +288,7 @@ def phase(args, folder, database, phase_name):
                     labels = page.get_by_role("option").all_text_contents()
                     assert len(labels) == len(set(labels)), "visible frozen-version labels must be distinct"
                     capture("history-versions", page.get_by_role("listbox"))
-                    assert selector.get_attribute("aria-expanded") == "true", "history popup closed during screenshot"
+                    assert selector.evaluate(PAINTED), "history popup not painted/hit-testable during screenshot"
                     result["reading_captures"][-1].update(selected_label=selected_label, query_text=selector.input_value(), option_labels=labels, preparation=preparation)
                     selector.press("Escape")
                 except Exception as exc:
@@ -328,11 +331,15 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cutoff", default="2026-11-22T00:00:00+08:00")
     parser.add_argument("--warm", type=int, default=30)
+    parser.add_argument("--history-only", action="store_true", help="Reopen existing frozen reports without generating new versions")
     parser.add_argument("--concurrent-load", required=True)
     args = parser.parse_args()
     if not (args.knowledge_root or args.shared_knowledge_root):
         parser.error("provide --knowledge-root or --shared-knowledge-root")
     validate_synthetic(args.database)
+    original_reports = report_rows(args.database.resolve())
+    if args.history_only and len(original_reports) < 2:
+        parser.error("history-only requires at least two saved synthetic reports")
     args.output.mkdir(parents=True, exist_ok=False)
     source = manifest()
     write(args.output / "source-manifest.json", source)
@@ -364,7 +371,7 @@ def main():
                     with closing(sqlite3.connect(knowledge / name)) as copied:
                         original.backup(copied)
         write(args.output / "summary.json", result)
-        for phase_name in ("generation", "reopen"):
+        for phase_name in (("reopen",) if args.history_only else ("generation", "reopen")):
             try:
                 result["phases"].append(phase(args, folder, database, phase_name))
             finally:
@@ -383,6 +390,11 @@ def main():
             write(args.output / "summary.json", result)
     if args.shared_knowledge_root:
         assert result["shared_knowledge_authority_unchanged"], "shared public authority changed during measurement"
+    result["original_reports_unchanged"] = report_rows(args.database.resolve()) == original_reports
+    assert result["original_reports_unchanged"]
+    if args.history_only:
+        result["copied_reports_unchanged"] = report_rows(database) == original_reports
+        assert result["copied_reports_unchanged"]
     result["source_changed"] = source != manifest()
     result["measured_source_changed"] = any(hashlib.sha256((args.source_root / name).read_bytes()).hexdigest() != digest
                                            for name, digest in measured.items())

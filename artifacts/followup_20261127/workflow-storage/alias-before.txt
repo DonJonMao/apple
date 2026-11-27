@@ -1,0 +1,30 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_offline_workflow_repeated_references_restore_independent_values _____
+
+    def test_offline_workflow_repeated_references_restore_independent_values():
+        from healthzip.workflows.report_objects import reconstruct_workflow
+    
+        bundle = {
+            "format": "healthzip-frozen-audit-3",
+            "workflow_runs": {"synthetic-run": {"run_id": "synthetic-run", "storage_format": "workflow-training-references-1",
+                "supplements": {"ordinary_training": {"$frozen_object": "root"}}}},
+            "content_objects": {
+                "root": {"series": [{"$frozen_object": "group"}, {"$frozen_object": "group"}]},
+                "group": {"series_id": "preserved-repeat", "points": [{"record_id": "synthetic-record", "rir": None}],
+                          "notes": [{"$frozen_object": "note"}, {"$frozen_object": "note"}]},
+                "note": {"limitations": ["unknown_condition"]},
+            },
+        }
+        original_bundle = deepcopy(bundle)
+        restored = reconstruct_workflow(bundle, "synthetic-run")
+        original_result = deepcopy(restored)
+        series = restored["supplements"]["ordinary_training"]["series"]
+        assert series[0] == series[1]
+>       assert series[0] is not series[1]
+E       AssertionError: assert {'series_id': 'preserved-repeat', 'points': [{'record_id': 'synthetic-record', 'rir': None}], 'notes': [{'limitations': ['unknown_condition']}, {'limitations': ['unknown_condition']}]} is not {'series_id': 'preserved-repeat', 'points': [{'record_id': 'synthetic-record', 'rir': None}], 'notes': [{'limitations': ['unknown_condition']}, {'limitations': ['unknown_condition']}]}
+
+tests/integration/test_workflow_frozen_training.py:266: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_workflow_frozen_training.py::test_offline_workflow_repeated_references_restore_independent_values
+1 failed in 0.25s

@@ -1,57 +1,71 @@
-# 00a35d2 后续修复交付
+# 附件 R01–R07 修复交付
 
-本轮基于 `feat/healthzip-product-redesign` 的实际进度继续修改，没有回退审查提交。第一批已按用户要求发布为 `f863e2e80af5da41bd1e211a91ca9d788e44a38f`；本文件继续记录其后的资料接入、冷计算及页面补修。**软件通过、内容核验、页面行为与性能预算分别判定。**
+从 `feat/healthzip-product-redesign` 的实际代码继续，未回退 `00a35d2`。上一批提交为 `6f7d9c3`；其完整交付及失败记录保留在[历史交付](followup_delivery_through_6f7d9c3.md)。本页对应后续附件；前一附件 F01–F09 的行为与证据见[前轮交付](repair_delivery.md)。
 
-前一附件 F01–F09 与 T01–T24 的既有修复和验收保留于[前轮逐项交付](repair_delivery.md)。下文对应后续附件 R01–R07 与 T01–T23，继续检查这些分析主路径；旧轮次的性能和测试计数不冒充本轮结果。
+原始健康数据、历史行动/报告、用户修改和五份未跟踪 PDF 保留。健康验证只用隔离合成库，未调用外部模型。公共资料先独立备份再追加；原有 28 表、920,396 行逐行核对不变，权限和原审核保留。数据库、备份、私人记录及受限文献原件不进入 GitHub。
 
-原始健康库、冻结历史、已有失败工件和五份原有未跟踪 PDF 保留。健康验证只用隔离合成库；公共资料先备份核验，再追加到实际资料库，28 表、920,291 条原有内容行逐行哈希不变。无私人记录外发或外部模型调用。公开提交不包含数据库、用户 PDF 或受限文献原件。
+## 逐项结果
 
-## 逐项状态
-
-| 项目 | 状态 | 实际变化与证据 |
+| 项目 | 状态 | 用户可见行为与核验证据 |
 |---|---|---|
-| R01 日历 | 已修复 | 日期使用实际日期身份，其他重复控件有实体/角色身份，旧节点只消费一次。真实 28/29/30/31 天、多月、三个不同日期的训练 ID/名称/组 UUID、刷新/返回/焦点及完整训练操作通过；[日历交付](followup_calendar.md) |
-| R02 主题成立 | 已修复 | 只有疲劳时保留疲劳事实，不生成步态/周期/通知任务；仅步数可描述活动量；真实通知保留日期/设备/来源记录；周期三状态独立。问题、行动候选、报告及导出消费同一主题状态。当天已有体重保留日内记录，未塞入完整日期间中位数；[专项](../tests/integration/test_followup_topic_applicability.py)、[页面](../artifacts/followup_20261127/pages/topics-final/browser.json) |
-| R03 行动观察单位 | 已修复 | 低频估计保留支持窗口、重复发布、版本/上限与实际执行关系；当日可见估计不被排除；420→445 m 不再冒称独立行动后测量。旧冻结定义不改写；[行动交付](followup_actions.md)、[最终页面](../artifacts/followup_20261127/actions/browser-final/browser.json) |
-| R04 证据与当前状态 | 已修复 | 排第三的适用行动进入正文并带限制/引用；同原文链接去重而保留定位。新增冲突、前提冲突、撤销、缺版本及服务故障分别处理，旧正文不变；[知识交付](followup_knowledge.md)、[最终真实报告](../artifacts/followup_20261127/knowledge/browser-publish-final/browser.json) |
-| R05 六问资料 | 部分完成（六核心主题已接入） | 六核心主题有 36 条实际答案、直接出处与限制；五条窄主张已追加实际公共库，HRV 两个具体问题进入默认有界检索，原行动依据保留。六主题有数据/缺失共 12 个页面与报告流程通过。设备特异、人群/个人误差、部分全文与独立专家范围仍受限；[实际安装及页面](followup_knowledge_completion.md)、[六问与剩余缺口](followup_knowledge_six_questions.md) |
-| R06 报告性能 | 部分完成 | 新报告普通读取只加载小型冻结阅读对象，单题/轨迹按需读取，完整审计可离线重建，每次明确生成有独立 ID。最终 r3 浏览器个人生成/重开已验；10 万与 100 万规模完整生成各等待 600 秒仍未完成，相关热生成和历史重开未验收。此前 r2 后端压力冷生成 103.15/174.88 秒也未达 15 秒，三档后端热生成和读取达标；两种时钟与源码范围分别保留，全部原组/未知条件身份核对见后端证据；[后端证据](../artifacts/followup_20261127/performance/final-backend-summary-r2.md)、[页面及瓶颈](followup_performance.md) |
-| R07 阅读与页面 | 部分完成 | 默认报告生成后只有一条阅读路径、一张所选冻结趋势；两来源与分析时区明确，下载正文逐字相等。补修当前来源提示挤出手机首发现，以及空目标元信息错误优先“先前目标”步骤；来源限制仍在解释/行动之前，旧冻结不变。历史版本选择的首次菜单操作仍可能关闭，正式热样本需第二次操作；该准备过程与打开后读取分开计时。实体手机/Safari/软键盘和所有设备组合未验证；[页面证据](../artifacts/followup_20261127/pages/topics-final/browser.json)、[后续真实诊断](followup_performance.md) |
+| R01 日历 | 已修复 | 每个日期有独立稳定身份，三个实际训练日期能打开对应训练。28/29/30/31 天、跨月、返回、刷新和完整训练输入通过；RIR=0 保留。[日历证据](followup_calendar.md) |
+| R02 主题判定 | 已修复 | 只有疲劳保留主观摘要，不再虚构步态、周期和通知任务；仅步数仍可描述活动量；真实通知与周期三状态分别处理。问题、行动、报告、导出共享判定。[真实场景](../artifacts/followup_20261127/pages/topics-final/browser.json)、[空目标补验](../artifacts/followup_20261127/pages/topics-empty-goal-final/browser.json) |
+| R03 行动观察单位 | 已修复 | 低频估计保留发布点、支持窗、重叠、重复、版本/上限与实际执行关系；当天已可见值仍展示，不冒称独立的行动后测量。旧定义和固定随访窗口不改写。[行动证据](followup_actions.md) |
+| R04 行动依据及当前状态 | 已修复 | 第三位行动依据进入正文；冲突、前提冲突、撤销及服务故障分别处理。新增饱和冲突反例修复，争议组不再挤掉完整独立说明；旧报告正文保持不变。[既有端到端](followup_knowledge.md)、[新增冲突回归](../artifacts/followup_20261127/knowledge-conflict-budget-review/receipt.json) |
+| R05 六问内容 | 部分完成 | 核心六问与原行动继续可用；补通 HRV 片段缺口、力量群体模型与个人换算区别，以及血氧/步数/呼吸率/腕温的精确研究范围。实际公共库已追加，14 主题有/无数据页面及报告通过，另实际点击历史打开/下载/返回；仍有设备/个体效度与具体协议缺口。[六问](followup_knowledge_six_questions.md)、[本轮内容与剩余缺口](followup_knowledge_content_gaps.md) |
+| R06 报告性能 | 部分完成 | 普通打开只读取小型冻结阅读对象；单题/轨迹按需恢复，审计另行导出。新工作流共享不可变训练对象，旧内联格式仍可读；同条件重生成保留独立报告 ID。已修复页面进度刷新反复强制 GC 导致的额外停滞。最终三档测量见下文；15 秒冷生成不能由热读或后台启动代替。[GC 对照](followup_report_gc.md)、[存储与离线还原](followup_workflow_storage_plan.md) |
+| R07 阅读与页面 | 部分完成 | 生成后只有一条报告阅读路径；同来源/设备的不同协议在摘要与趋势菜单中可辨认，未知条件保留。W5/W6 缺记录时显示具体核对步骤。手机有完整主要发现，下载对应所选冻结正文；真实旧报告导航可区分协议，旧行及 36 个对象字节不变。六种宽度已检查，实体手机、Safari 与软键盘未验证。[协议与实页证据](followup_stream_labels.md)、[历史交互](followup_history_interaction.md) |
 
-## 行为与读取证据
+## 最终验证身份与性能
 
-`topics-final` 以真实 Streamlit/Chromium 完成只有疲劳、只有步数、真实事件、周期三状态及双来源 RHR 七个独立合成场景。每次等待新的事实/渲染/报告身份，核对实际文字与数值；320/375/390/430/768/1440 检查主页面溢出，390/1440 还核对第一条完整发现的屏幕边界。第二次明确生成得到不同报告 ID；打开历史不再叠加当期预览；下载与对应冻结 Markdown 逐字比较。
+全量回归与完整性能测量使用 [source-r5](../artifacts/followup_20261127/validation/completion-source-r5.json)，基于 `6f7d9c3` 的 539 个 Git 选择文件。忽略的构建元数据与用户 PDF 不作为产品源码。报告缓存现同时依赖检索算法和回答要求版本；[26 项专项](../artifacts/followup_20261127/validation/evidence-method-cache/receipt.json)证明版本改变重算、相同版本复用、旧原始冻结字节不变。全量与各后续工具验证分开记载，不累加重叠专项。
 
-最后补正 W4 的空目标身份：`goal_context` 存在但 `goal` 为空不代表用户选了目标；只有疲劳时也不再生成“按先前目标复评”的空任务。保留原空目标元信息供旧消费者读取。七场景重跑见 `topics-goal-final`；补齐空目标元信息后的疲劳/未开启周期/双来源及历史流程见 [topics-empty-goal-final](../artifacts/followup_20261127/pages/topics-empty-goal-final/browser.json)。主代理已目视检查手机新报告、重开、估计结果及带行动依据正文。
+[最终全量回归](../artifacts/followup_20261127/validation/completion-full-r5/results.json)：2,506/2,506 项、181 文件通过，零失败、错误或跳过。产品、测试、入口、配置和依赖文件开始/结束均与 r5 相同，见[来源核对](../artifacts/followup_20261127/validation/completion-full-r5/r5-provenance.json)。运行期间仅知识浏览器驱动继续修正，原工具汇总因此为 `needs_review`/exit 1，未改写为全源稳定；该驱动另以真实页面验收。既有 `record_property` 与 JUnit xunit2 提示保留。
 
-`tests/integration/test_followup_report_reading.py` 通过 SQL 追踪证明普通读取仅一个 reading 对象、单题仅其冻结问题，未读取 analysis_run/workflow_run；源修订删除后旧结果不变，审计离线重建与显式完整读取相等。旧格式保持读取兼容，没有后台重写历史。高级科学分析是明确的完整详情消费者，继续显式加载完整结果。
+[知识真实页面](../artifacts/followup_20261127/knowledge-content-gaps/live-browser-r6/browser.json)完成 14 主题×有/无数据与报告检查，零页面错误；随后 [r7 补验](../artifacts/followup_20261127/knowledge-content-gaps/live-history-r7/browser.json)实际点击历史打开、下载及返回，不能与此前 Repository 重开混称。驱动修前失败均保留；该轮产品/tests/config 与 r5 相等，驱动单独保存 hash。
 
-r2 后端在同一固定源码、原三档夹具上顺序执行，每档冷调用与 30 次热调用分别记录；没有剖析器、没有团队并发重任务，OS 缓存保留，共享宿主外部负载不受控。个人/10 万/100 万冷生成分别 10.51/103.15/174.88 秒，热生成 P95 分别 0.0208/0.0204/0.0236 秒；普通读取只查询一个阅读对象，热读取 P95 均低于 0.005 秒。压力档仍保留全部 77 指标、1 万原组和 1 万独立未知条件任务；八张原始表前后逐行哈希相同。完整审计仍约 313/344 MB，导出约 15.61/17.37 秒，真实文件离线重建与完整读取精确相等。**读取达标不代表冷生成达标**；真实页面时钟与服务时钟另列，均不代表普通硬件。
+后续空状态与协议显示补修的[末次影响范围](../artifacts/followup_20261127/knowledge-content-gaps/empty-state-and-stream-after-r4.json)为 75 项通过；[全局 Ruff](../artifacts/followup_20261127/knowledge-content-gaps/global-ruff-final-r3.json)通过。实页 [r9](../artifacts/followup_20261127/knowledge-content-gaps/live-empty-r9/browser.json)核对 W5/W6 说明及下一步；[r11](../artifacts/followup_20261127/knowledge-content-gaps/stream-labels-r11/browser.json)覆盖 320/375/390/430/768/1440、实际切换图值及新旧冻结下载；[r12](../artifacts/followup_20261127/knowledge-content-gaps/stream-legacy-menu-r12/browser.json)补齐实际展开的旧报告菜单。截图经 AI 直接目视，390 页顶与滚动到首条发现的视口分别留图，未把滚动截图冒充页顶。最终源码清单另见 [publication-r7](../artifacts/followup_20261127/validation/completion-source-publication-r7.json)，r6 保留为中间身份。
 
-最终 r3 个人报告已完成真实冷生成与 30 次热生成，以及[独立进程冷重开和 30 次热重开](../artifacts/followup_20261127/performance/final-browser-history-personal-r1/reopen.json)。31 次重开逐次核对完整报告 ID 与实际图点，末份下载正文与所选冻结版本逐字相等；原有 31 份报告没有新增或改写。点击“打开”后的冷可交互 1.477 秒、热 P95 0.607 秒达读取目标；但选择准备的热 P95 为 2.647 秒，30 个热样本都曾首次菜单操作失败、第二次恢复。**这不等于整个历史选择流程在 1 秒内完成**，首次展开稳定性仍待解决；所有准备失败、重试与耗时保留。手机/桌面[人工看图回执](../artifacts/followup_20261127/validation/visual-review-r3.json)区分实际可见内容和仅有 DOM 状态的截图。
+三档完整测量已结束，见[原始样本与阶段汇总](../artifacts/followup_20261127/performance/completion-performance-r5.md)。三档报告浏览器均使用修正后的完成判定：新冻结身份、真实图点、旧渲染节点清除且可交互；保留首次压力页面驱动失败及个人旧判定样本。
 
-最终 r3 的[10 万](../artifacts/followup_20261127/performance/final-browser-generation-100k-r2/summary.json)与[100 万浏览器报告生成](../artifacts/followup_20261127/performance/final-browser-generation-1m-r1/summary.json)分别等待 600 秒后超时，完整样本和保存报告均为 0；失败截图仍显示正确预览，任务停在“分析本期实际问题与行动”。两条路径均未取得热生成与历史重开样本，不能用 r2 后端结果替代；最终 UI 额外延迟尚未定位。更早批处理收到未知来源 SIGTERM 的中断另存，与这两次真实等待超时区分。三档详情/预览的[独立冷与 30 次热返回汇总](../artifacts/followup_20261127/performance/final-browser-page-summary-r5.json)完整：热事实与趋势均达标，冷详情及两压力档冷预览仍超预算。
+| 原夹具 | 后端冷生成 | 页面冷生成 / 30 热 P95 | 页面冷重开 / 30 热 P95 |
+|---|---:|---:|---:|
+| 两年个人 | 10.37 s | 12.51 / 1.58 s | 1.43 / 0.49 s |
+| 10 万＋1 万训练组 | 119.11 s | 126.36 / 1.45 s | 1.40 / 0.46 s |
+| 100 万＋1 万训练组 | 172.93 s | 181.35 / 1.58 s | 1.40 / 0.56 s |
 
-T01–T03 对应日历及完整训练回执；T04–T07 对应主题与原联合分析回归；T08–T12 对应行动专项/真实页面与冻结兼容；T13–T16 对应知识专项/真实语料端到端；T17–T19 对应双来源页面、时区专项与手机截图；T20 对应按需读取/离线重建；T21 对应缓存、权限、源与知识修订、撤销及并发清空。T23 对应 [W6 中性方向、来源/协议分组和无参考普通训练](../tests/science/test_repair_association_training.py)及[实际背景与事实绑定](../tests/science/test_question_context.py)回归。**T22 两压力档冷生成未达标**；最终浏览器回执单列，其余软件/页面证据不替代人体有效性或专家审定。
+压力冷报告仍远超 15 秒。三档运行中冷详情为 3.09–5.05 秒，压力冷预览首事实为 4.52–6.50 秒，均未达 3 秒；各档热详情/预览 P95 达标。菜单准备另计，各档 31 次首试选择成功，不能把点击“打开”后的耗时称为整个导航时间。
 
-## 提交前验证与失败保留
+两压力档审计为 264/295 MB，导出 13.52/13.78 秒；全部 77 指标、1 万原组与独立未知任务保留，八张原始表哈希不变。实际导出文件逐报告、逐工作流重建均相等。训练工作流共享后的 UTF-8 冻结负载净减少各 50.08 MB（已扣唯一引用对象）；生成峰值约 2.0/2.4 GiB。正文、审计、内存与存储净节省分别计量，不互相替代。
 
-首批发布源码文件哈希见 [source-publish.json](../artifacts/followup_20261127/validation/source-publish.json)，本轮最终快照见 [completion-source-r3.json](../artifacts/followup_20261127/validation/completion-source-r3.json)。测试和页面各自保存开始/结束源码身份；较早阶段回执不冒充最后源码验证。全量回归与末次影响范围分别记录，不将有重叠的专项数相加。
+后续问题空状态与协议碰撞显示补修使用新报告呈现版本 3.0.2，科学计算不变；它们的末次影响范围与实际页面验收单列，不能把 r5 的精确计时改称 3.0.2 样本。此前 600 秒失败和所有旧成绩保留。
 
-四个隔离进程完整执行发现的 **2421 项 / 173 文件**，快照结果为 **2419 通过、2 失败**，零错误/跳过；原回执保留于 [final-complete](../artifacts/followup_20261127/validation/final-complete/results.json)。两项失败均为原测试要求 caption 含原始 ISO，与本轮自然日期/当前时区展示要求冲突；保留全部训练计划分母、完成/跳过/未知和来源断言，改为核对精确日历起点、结束时刻、UTC 与半开边界，相关整文件及夏令时专项 [8 项通过](../artifacts/followup_20261127/validation/period-ui-final.txt)。最后 W4 判定修正发生在全量快照之后，其问题、行动、冻结读取与报告影响范围 [135 项通过](../artifacts/followup_20261127/validation/topic-goal-final-r2.txt)。这是“完整快照回归＋末次影响范围补验”，没有把旧快照说成所有最终文件从头重跑通过。
+共享宿主为 aarch64 Kunpeng；重性能任务顺序运行，外部宿主负载不受控，OS 缓存保留。服务启动、首次页面、运行中冷范围、完整冷/热生成、冻结重开和审计各自计时；无目标远程模型或普通设备结论。
 
-产品范围 [Ruff](../artifacts/followup_20261127/validation/ruff-publish-final.txt)、[Node 日历结构检查](../artifacts/followup_20261127/validation/calendar-node-final.txt) 和源码差异空白检查通过。原始失败日志/XML的尾随空白保持原字节，不为 `git diff --check` 改写历史证据。
+## T01–T23 对照
 
-第一次全量发现 7 项失败后中断排查：高级页完整报告变量/读取契约错误，以及当天体重只剩“完整日暂无”。已修实现并保留原数值、来源、训练和历史断言；两文件专项 28 项重新通过。误用系统旧 Streamlit 的中间复跑单独保留，不算产品回归结论。页面早期等待旧 DOM、周期否定句断言和历史折叠问题的失败截图/日志全部保留。
+| 场景 | 实际证据 |
+|---|---|
+| T01–T03 月份、实际日期、完整训练 | [日历及训练完整流程](followup_calendar.md) |
+| T04–T07 疲劳、部分主题、事件/周期、共同日期 | [真实主题页面](../artifacts/followup_20261127/pages/topics-final/browser.json)、[主题专项](../tests/integration/test_followup_topic_applicability.py) |
+| T08–T12 支持窗、重复/上限、执行、旧行动和冻结 | [行动专项与实际页面](followup_actions.md) |
+| T13–T16 排位、局部冲突、当前状态及缺证据 | [端到端知识证据](followup_knowledge.md)、[饱和冲突补验](../artifacts/followup_20261127/knowledge-conflict-budget-review/receipt.json)、[六问内容](followup_knowledge_content_gaps.md) |
+| T17–T19 来源、时区、手机阅读 | [双来源页面](../artifacts/followup_20261127/pages/topics-final/browser.json)、[同来源协议区分及六宽度实页](followup_stream_labels.md)、[时区/偏移专项](../tests/unit/test_report_timestamp.py)、[历史选择](followup_history_interaction.md) |
+| T20 小型读取、单题、离线审计 | [冻结读取专项](../tests/integration/test_followup_report_reading.py)、[工作流存储与实际文件重建](followup_workflow_storage_plan.md) |
+| T21 修订、权限、关系和并发失效 | [既有缓存/撤销证据](followup_delivery_through_6f7d9c3.md)、[算法版本失效补验](../artifacts/followup_20261127/validation/evidence-method-cache/receipt.json) |
+| T22 三档性能 | 部分未达标；最终原始样本、内存、体积和完整性另列，保留失败。 |
+| T23 既有分析主路径 | [W6 中性关联/来源分组/普通训练](../tests/science/test_repair_association_training.py)、[实际背景与事实绑定](../tests/science/test_question_context.py)、本轮全量回归。 |
 
-Ruff 产品范围为 `src tests tools app.py`；首批发布时根目录 `ruff check .` 另报 37 个旧执行包/历史证据片段问题，其原始日志保留，未修改历史快照来美化结果。
+## 未完成范围
 
-后续完整快照回归见 [completion-full](../artifacts/followup_20261127/validation/completion-full/results.json)：2441 项/177 文件全部通过，零失败、错误、跳过，逐例身份无缺漏/重复。产品与测试源码稳定；期间仅浏览器性能工具修改，原汇总如实保留 `needs_review`，工具需另行真实验证。随后发现的空目标下一步问题有[修前失败](../artifacts/followup_20261127/workflow-compute/goal-step-before.txt)，末次影响范围与页面补验单列，不用完整快照替代后改文件验证。
+- 压力完整冷报告仍需 119/173 秒后端、126/181 秒页面，未达 15 秒；冷详情与压力冷预览亦未达 3 秒。阶段回执显示本期事实、训练/知识工作流、历史周期和冻结整理仍有显著冷计算成本；现有共享与 GC 修复未使其达到预算。3.0.2 后续显示补修的精确压力计时未重新测量。
+- 呼吸率、腕温、部分通知的目标设备/算法协议与个人变化效度尚未补齐；力量个人 e1RM 误差和 W1 直接 RIR 上下文未接通。已有事实和有依据的局部说明继续可用，具体替代内容见 R05。
+- 未做独立专家审定、人体行动有效性、实体 iPhone/Safari/软键盘、普通硬件或目标远程模型验收。AI 辅助内容核对、模拟与软件通过不替代这些结论。
 
-末次报告补修：无实际目标/行动时，W4 指向已有体重/RHR 的来源、日期与条件核对，报告优先真实设备事件；[71 项影响范围](../artifacts/followup_20261127/workflow-compute/goal-step-after-r2.txt)及[真实报告补验](../artifacts/followup_20261127/pages/no-goal-report-final/browser.json)通过，下载/冻结/审计一致。同一分钟生成的历史报告原来显示相同标签，真实点击曾打开错误版本；现在加入可区分的稳定版本标识，短标识冲突会延长。固定创建时钟的测试又发现重复生成 ID 冲突，现每次明确生成保存独立请求身份，新签名有版本，旧报告不改写。[末次 58 项报告/行动/界面专项](../artifacts/followup_20261127/workflow-compute/history-versions-r2.txt)通过，含同一时刻生成、逐份实际选择及冻结 ID 核对；原失败保留，不与其他专项相加。
+现有 8501 服务（11 月 21 日启动、关闭文件监听）未被本轮重启。真实页面验证使用隔离实例；现有服务需要正常重启后才会加载新代码与 `postScriptGC=false`，本轮不把隔离验收称为线上部署。
 
-最终再收窄 W4 两个边界：只有训练时明确指向训练历史；旧行动缺结果定义或观察单位未区分时，分别保留旧反馈并指向新的明确行动，不再假定已有冻结标准。[67 项影响范围](../artifacts/followup_20261127/validation/w4-next-steps-final/receipt.json)及[报告版本/读取 43 项](../artifacts/followup_20261127/workflow-compute/report-presentation-version-final.txt)通过，均不与上述重叠结果相加。独立 `question-guidance-1.1` 区分步骤版本和缓存，科学 `body-questions-1.5` 不变，已有定义行动仍保持方法相符；新报告标为 `joint-period-report-3.0.1`，历史不迁写。最终受验源文件见 [completion-source-r2](../artifacts/followup_20261127/validation/completion-source-r2.json)。
+全部修前失败、测试夹具/驱动失败及重跑证据保留，原始日志/XML不因空白检查被改写。
 
-真实个人报告截图最后还发现 W2 无条件声称存在“已经填写的疲劳”，但该合成库没有主观记录。现按实际可见的训练、睡眠、疲劳分别生成下一步，缺失时使用可选记录/导入核对；已有疲劳（包括 0）不会再次被当成缺失，未来、窗外或截止后才可见的记录不冒充已填写。指导身份升为 `question-guidance-1.2`，科学身份不变；完整报告缓存也跟随问题算法和指导身份失效，旧冻结正文不改。[10 项修前失败及 77 项修后影响范围](../artifacts/followup_20261127/validation/w2-next-steps-final/receipt.json)保留；77 项包含此前 67 项，不累加。最后仅调整导入格式后再核对两个报告缓存用例；[合并验证范围说明](../artifacts/followup_20261127/validation/completion-regression-receipt-r3.json)与[最终 Ruff](../artifacts/followup_20261127/validation/ruff-publication-r3.txt)分别记录。[发布前源码核对](../artifacts/followup_20261127/validation/publication-source-and-lint-r3.json)确认产品、测试及配置与 r3 冻结快照一致，只有两个浏览器驱动按真实失败修正；其实际成功/失败路径另有回执。r2 后端时钟早于这次补修，最终页面时钟另列。
+[知识发布扫描](../artifacts/followup_20261127/knowledge-content-gaps/publication-scan-final.json)覆盖该范围的 433 文件（含被 Git 忽略的日志），未发现受限 E7 原文段落前缀或非空原始证据载荷；PNG 另依赖合成夹具来源和直接目视。此扫描范围不包含原 PDF、数据库、备份或完整原文审计包，不将零命中解释成所有知识内容均可公开。
 
-尚待完成的工作：继续降低压力档必要冷计算成本与重复工作流存储；解决历史菜单首次展开/选择的稳定性；扩展设备特异内容与独立专业审核。实体手机、Safari、软键盘、普通硬件、人体行动效果及目标远程模型没有本轮验证结论。实际公共库安装和 HRV 默认漏召回已解决，不再列为待办。
+[其余新增工件扫描](../artifacts/followup_20261127/validation/publication-other-artifacts-r7.json)另核对 432 件：277 件文本同样零命中，155 件合成截图/性能剖析二进制只核对哈希和来源。三份名为 `audit.json` 的工件仅为导出时间、大小及还原结果回执，不含完整审计内容。

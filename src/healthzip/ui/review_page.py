@@ -288,12 +288,27 @@ def _render_readable_report(report, key, *, repo=None):
             st.markdown(body.replace("## " + title, "### " + title, 1))
     charts = reading.get("charts", [])
     if charts:
-        from healthzip.ui.health_comparison import _chart, _stream_name
-        choices = [(chart, stream) for chart in charts for stream in chart["comparison"]["streams"]]
+        from healthzip.analytics.health_context import stream_labels, stream_navigation_labels
+        from healthzip.ui.health_comparison import _chart
+        choices = [(chart, stream, stream.get("display_label") or label, navigation) for chart in charts
+                   for stream, label, navigation in zip(chart["comparison"]["streams"],
+                       stream_labels(chart["comparison"]["streams"]), stream_navigation_labels(chart["comparison"]["streams"]))]
         index = st.selectbox("查看本期趋势", range(len(choices)),
-            format_func=lambda i: choices[i][0]["title"] + " · " + _stream_name(choices[i][1]), key="report_chart:" + key)
-        chart, stream = choices[index]
+            format_func=lambda i: (choices[i][0]["title"] + " · " + choices[i][2] if choices[i][2] == choices[i][3]
+                                   else choices[i][3] + " · " + choices[i][0]["title"]),
+            key="report_chart:" + key)
+        chart, stream, label, _ = choices[index]
+        st.markdown('<span data-hz-report-chart="' + stream.get("fact_id", "") + '" style="display:none"></span>',
+                    unsafe_allow_html=True)
+        if not stream.get("display_label"):
+            st.caption("当前查看的冻结记录条件：" + label + "。历史正文保持生成时的原文。")
+        else:
+            st.caption("当前查看：" + label)
         _chart(stream, chart["title"], chart["unit"], chart["scale"], "report_plot:" + key)
+        with st.expander("本组冻结身份与条件"):
+            st.caption("名称来自本报告的冻结记录；独立记录组别名只用于区分原身份，不证明测量条件相同。")
+            st.write({"来源、设备、协议、来源版本": stream.get("protocol"),
+                      "原分组身份": stream.get("stream_id"), "事实身份": stream.get("fact_id")})
     # Keep actual frozen observations first. Current evidence restrictions still
     # precede every historical explanation/action, with precise claim details
     # retained below; repeated warnings must not push the first fact off mobile.

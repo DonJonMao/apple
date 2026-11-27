@@ -12,7 +12,11 @@ from healthzip.training.current import current_advice, objective_comparison, sav
 from healthzip.training.service import TrainingService
 from healthzip.workflows import WorkflowRequest, load_analysis, load_run, run_workflow
 from healthzip.workflows.period_report import create_report, load_report
-from healthzip.workflows.report_objects import audit_bundle, reconstruct_report
+from healthzip.workflows.report_objects import (
+    audit_bundle,
+    reconstruct_report,
+    reconstruct_workflow,
+)
 from healthzip.workflows.reports import markdown
 from tests.app_navigation import go, legacy_analysis
 
@@ -162,7 +166,7 @@ def test_real_template_region_free_record_next_training_and_joint_reports(tmp_pa
         exported = audit_bundle(repo, report["report_id"])
         assert reconstruct_report(exported) == report
         for identity in report["workflow_run_ids"]:
-            assert exported["workflow_runs"][identity] == load_run(repo, identity)
+            assert reconstruct_workflow(exported, identity) == load_run(repo, identity)
         assert load_report(repo, report["report_id"], include_details=True)["markdown"] == report["markdown"]
     go(app, "复盘")
     legacy_analysis(app, "报告")
@@ -437,7 +441,7 @@ def test_joint_report_body_values_sources_complete_days_and_new_task_page(tmp_pa
     assert reconstruct_report(exported) == report
     assert exported["analysis_objects"][report["analysis_run_id"]] == report["current"]
     for identity in report["workflow_run_ids"]:
-        assert exported["workflow_runs"][identity] == load_run(repo, identity)
+        assert reconstruct_workflow(exported, identity) == load_run(repo, identity)
     app = HELP["open_app"](repo.path)
     assert not app.exception
     assert any(current["exercise"]["name"] in option for s in app.selectbox if s.label == "测量任务" for option in s.options)

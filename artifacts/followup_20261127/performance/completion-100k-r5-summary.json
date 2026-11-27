@@ -1,0 +1,443 @@
+{
+  "fixture": "synthetic-100000",
+  "raw_table_counts": {
+    "health_sample": 100001,
+    "source_revision": 100001,
+    "strength_session": 100,
+    "strength_set": 10000,
+    "training_event": 10300,
+    "training_session_exercise": 100,
+    "subjective_log": 0,
+    "body_measurement": 0
+  },
+  "original_database_bytes": 381632512,
+  "backend": {
+    "evidence": "artifacts/followup_20261127/performance/completion-backend-100k-r5",
+    "complete": true,
+    "cold_generation_s": 119.11427191644907,
+    "generation_warm": {
+      "n": 30,
+      "p50_s": 0.020870640873908997,
+      "p95_s": 0.021907135844230652,
+      "method": "nearest-rank"
+    },
+    "generation_budgets": {
+      "cold_le_15s": false,
+      "warm_30_p95_le_3s": true
+    },
+    "cold_read_s": 0.005158387124538422,
+    "read_warm": {
+      "n": 30,
+      "p50_s": 0.0028393492102622986,
+      "p95_s": 0.003416873514652252,
+      "method": "nearest-rank"
+    },
+    "read_budgets": {
+      "cold_le_3s": true,
+      "warm_30_p95_le_1s": true
+    },
+    "markdown_utf8_bytes": 25885,
+    "reading_payload_utf8_bytes": 398939,
+    "phase_rss_and_wall": [
+      {
+        "phase": "generation",
+        "exit_code": 0,
+        "wall_seconds": 126.97802503407001,
+        "peak_tree_rss_kib": 2111604.0
+      },
+      {
+        "phase": "read",
+        "exit_code": 0,
+        "wall_seconds": 0.5036159157752991,
+        "peak_tree_rss_kib": 40632.0
+      },
+      {
+        "phase": "audit",
+        "exit_code": 0,
+        "wall_seconds": 58.74658106267452,
+        "peak_tree_rss_kib": 2098596.0
+      }
+    ],
+    "audit_samples": [
+      {
+        "label": "export",
+        "seconds": 13.523066073656082,
+        "process_peak_rss_kib": 1787264,
+        "stages": [
+          {
+            "stage": "assemble_frozen_objects",
+            "elapsed_s": 2.168118953704834e-06
+          },
+          {
+            "stage": "serialize_and_write",
+            "elapsed_s": 8.919890403747559
+          }
+        ],
+        "export_bytes": 264094247,
+        "object_counts": {
+          "content_objects": 20078,
+          "workflow_runs": 5,
+          "analysis_objects": 6
+        }
+      },
+      {
+        "label": "offline_reconstruction",
+        "seconds": 11.470870777964592,
+        "process_peak_rss_kib": 1787264
+      },
+      {
+        "label": "offline_workflow_verification",
+        "seconds": 19.215230338275433,
+        "process_peak_rss_kib": 2143476
+      }
+    ],
+    "audit_report_exact": true,
+    "audit_workflows_exact": true,
+    "audit_workflow_count": 5,
+    "integrity": {
+      "global_metrics": 77,
+      "task_count": 10000,
+      "all_period_source_groups_preserved": 10000,
+      "unknown_condition_records_kept_separate": 10000,
+      "source_group_ids_sha256": "b41afa1a2e6ed7c18ac81e997aeb2fd01e46997c09908b55e786af17bbe88956",
+      "all_raw_tables_after": {
+        "health_sample": {
+          "rows": 100001,
+          "sha256": "93a1014acf734ba627334897867e5a89c312f0b0f749cf129d7e5d207d6be095"
+        },
+        "source_revision": {
+          "rows": 100001,
+          "sha256": "67d3ae15eb82a0d95805d419f4fc8c6e0adb9ab44d0351345123915976d3c72e"
+        },
+        "strength_session": {
+          "rows": 100,
+          "sha256": "e17e150a3ee9bb5d78b29e942c685a5e1469475531a7fdfd9b3cc6857c649ef6"
+        },
+        "strength_set": {
+          "rows": 10000,
+          "sha256": "71be01ed0a781d7ba5b39c772ec925e9fb294736490f5a05d887a6f0a4b52f80"
+        },
+        "training_event": {
+          "rows": 10300,
+          "sha256": "de3a27351381a63f1ab438272044de8e280d2dae4fa3724672fe93d11f1e97ed"
+        },
+        "training_session_exercise": {
+          "rows": 100,
+          "sha256": "d4320c90ff207711d692a5adbb4facad7fdcf4a94ae9e64ce4834b6c63d8f8a2"
+        },
+        "subjective_log": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "body_measurement": {
+          "rows": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "raw_source_tables_unchanged": true,
+    "source_unchanged_across_all_phases": true,
+    "knowledge_unchanged": true,
+    "knowledge_identity": [
+      "knowledge-authority-revision-1",
+      "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+      [
+        "sources",
+        [
+          66306,
+          800532360
+        ],
+        [
+          "12a653badbd04d1eb5d9b7e20e03f281",
+          2614,
+          "knowledge-authority-revision-1",
+          "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00"
+        ],
+        "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00",
+        "9c3642db419fdeef20c43e876432bd93ce1cb54828a7775ee4bafd91933f6e80"
+      ],
+      [
+        "theories",
+        [
+          66306,
+          800532361
+        ],
+        [
+          "c7d18e340bc34863b5cf66803b27ace4",
+          426,
+          "knowledge-authority-revision-1",
+          "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7"
+        ],
+        "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7",
+        "b8a66399afbb7aa3d11cea225541548c148b537b2b57cc5a7fb9c0592519b4e1"
+      ]
+    ],
+    "host": {
+      "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+      "cpu_count": 192,
+      "memory": "MemTotal:       2109313276 kB",
+      "concurrent_load": "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded"
+    }
+  },
+  "browser_report": {
+    "evidence": "artifacts/followup_20261127/performance/completion-browser-report-100k-r5-driver2",
+    "complete": true,
+    "driver_workspace_changed": true,
+    "measured_source_changed": false,
+    "original_reports_unchanged": true,
+    "knowledge_unchanged": true,
+    "host_load": {
+      "initial_host_load": [
+        21.88232421875,
+        20.91796875,
+        21.5791015625
+      ],
+      "final_host_load": [
+        18.94580078125,
+        20.689453125,
+        21.39208984375
+      ]
+    },
+    "phases": {
+      "generation": {
+        "cold": {
+          "first_fact_ms": 125298.90000152588,
+          "facts_and_trend_ms": 126332.30000305176,
+          "interactive_ms": 126361
+        },
+        "warm": {
+          "n": 30,
+          "quantile_method": "nearest-rank",
+          "first_fact_ms": {
+            "p50": 1398,
+            "p95": 1435.7000045776367
+          },
+          "facts_and_trend_ms": {
+            "p50": 1402,
+            "p95": 1439.7000045776367
+          },
+          "interactive_ms": {
+            "p50": 1407.900001525879,
+            "p95": 1452.1000061035156
+          }
+        },
+        "sample_count": 31,
+        "service_ready_ms": 2304.6227172017097,
+        "complete": true,
+        "budgets": {
+          "cold_interactive_within_budget": false,
+          "warm_30_p95_within_budget": true,
+          "cold_limit_ms": 15000,
+          "warm_limit_ms": 3000
+        },
+        "layout_pass": true,
+        "reading_captures_pass": true,
+        "download_frozen_markdown_exact": true
+      },
+      "reopen": {
+        "cold": {
+          "first_fact_ms": 244.4000015258789,
+          "facts_and_trend_ms": 1390.3000030517578,
+          "interactive_ms": 1402.6000061035156
+        },
+        "warm": {
+          "n": 30,
+          "quantile_method": "nearest-rank",
+          "first_fact_ms": {
+            "p50": 393.5999984741211,
+            "p95": 452.2000045776367
+          },
+          "facts_and_trend_ms": {
+            "p50": 397.3000030517578,
+            "p95": 455.9000015258789
+          },
+          "interactive_ms": {
+            "p50": 402.5,
+            "p95": 461.5999984741211
+          }
+        },
+        "sample_count": 31,
+        "service_ready_ms": 2295.708417892456,
+        "complete": true,
+        "budgets": {
+          "cold_interactive_within_budget": true,
+          "warm_30_p95_within_budget": true,
+          "cold_limit_ms": 3000,
+          "warm_limit_ms": 1000
+        },
+        "layout_pass": true,
+        "reading_captures_pass": true,
+        "download_frozen_markdown_exact": true
+      }
+    }
+  },
+  "pages": {
+    "detail": {
+      "evidence": "artifacts/followup_20261127/performance/completion-browser-detail-100k-r5",
+      "complete": true,
+      "source_changed": false,
+      "budgets": {
+        "cold_completion_boundary": "facts_and_trend_ms",
+        "running_week_le_3s": false,
+        "running_month_le_3s": false,
+        "warm_30_fact_trend_p95_le_1s": true
+      },
+      "host_load": {
+        "initial_host_load": [
+          19.0078125,
+          20.595703125,
+          21.3486328125
+        ],
+        "final_host_load": [
+          20.38818359375,
+          20.92529296875,
+          21.42919921875
+        ]
+      },
+      "phases": {
+        "new-process-week": {
+          "cold": {
+            "first_fact_ms": 4095.082253217697,
+            "facts_and_trend_ms": 4124.932460486889,
+            "interactive_ms": 4144.498437643051,
+            "automation_to_settled_ms": 4334.085576236248
+          },
+          "warm": {},
+          "service_ready_ms": 2331.922233104706,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        },
+        "running-process-week": {
+          "cold": {
+            "first_fact_ms": 3359.7000045776367,
+            "facts_and_trend_ms": 3386,
+            "interactive_ms": 3399.900001525879,
+            "automation_to_settled_ms": 3659.0609923005104
+          },
+          "warm": {},
+          "service_ready_ms": 2427.170008420944,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        },
+        "running-process-month": {
+          "cold": {
+            "first_fact_ms": 3440.599998474121,
+            "facts_and_trend_ms": 3548.800003051758,
+            "interactive_ms": 3568,
+            "automation_to_settled_ms": 3853.654310107231
+          },
+          "warm": {
+            "n": 30,
+            "quantile_method": "nearest-rank",
+            "first_fact_ms": {
+              "p50": 713.1999969482422,
+              "p95": 784.5999984741211
+            },
+            "facts_and_trend_ms": {
+              "p50": 718.1999969482422,
+              "p95": 788.1999969482422
+            },
+            "interactive_ms": {
+              "p50": 723.3000030517578,
+              "p95": 798.6999969482422
+            }
+          },
+          "service_ready_ms": 2331.938773393631,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        }
+      }
+    },
+    "preview": {
+      "evidence": "artifacts/followup_20261127/performance/completion-browser-preview-100k-r5",
+      "complete": true,
+      "source_changed": false,
+      "budgets": {
+        "cold_completion_boundary": "first_fact_ms",
+        "running_week_le_3s": false,
+        "running_month_le_3s": false,
+        "warm_30_fact_trend_p95_le_1s": true
+      },
+      "host_load": {
+        "initial_host_load": [
+          24.10986328125,
+          21.75341796875,
+          21.6923828125
+        ],
+        "final_host_load": [
+          25.75,
+          22.4736328125,
+          21.93359375
+        ]
+      },
+      "phases": {
+        "new-process-week": {
+          "cold": {
+            "first_fact_ms": 5289.515286684036,
+            "facts_and_trend_ms": 6637.97802478075,
+            "interactive_ms": 6644.473172724247,
+            "automation_to_settled_ms": 6685.534261167049
+          },
+          "warm": {},
+          "service_ready_ms": 2290.772184729576,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        },
+        "running-process-week": {
+          "cold": {
+            "first_fact_ms": 4517.5,
+            "facts_and_trend_ms": 5984.300003051758,
+            "interactive_ms": 5990.200004577637,
+            "automation_to_settled_ms": 6175.667501986027
+          },
+          "warm": {},
+          "service_ready_ms": 2319.551281630993,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        },
+        "running-process-month": {
+          "cold": {
+            "first_fact_ms": 4745.600006103516,
+            "facts_and_trend_ms": 6130.900001525879,
+            "interactive_ms": 6156.800003051758,
+            "automation_to_settled_ms": 6248.10016900301
+          },
+          "warm": {
+            "n": 30,
+            "quantile_method": "nearest-rank",
+            "first_fact_ms": {
+              "p50": 204.1999969482422,
+              "p95": 229.70000457763672
+            },
+            "facts_and_trend_ms": {
+              "p50": 207.29999542236328,
+              "p95": 232.60000610351562
+            },
+            "interactive_ms": {
+              "p50": 210.5999984741211,
+              "p95": 236.10000610351562
+            }
+          },
+          "service_ready_ms": 2356.587454676628,
+          "complete": true,
+          "rendered_facts_and_trends_verified": true,
+          "full_reports_generated": 0
+        }
+      }
+    }
+  },
+  "budget_failures": [
+    "backend.generation_budgets.cold_le_15s",
+    "browser_report.phases.generation.budgets.cold_interactive_within_budget",
+    "pages.detail.budgets.running_week_le_3s",
+    "pages.detail.budgets.running_month_le_3s",
+    "pages.preview.budgets.running_week_le_3s",
+    "pages.preview.budgets.running_month_le_3s"
+  ],
+  "verification_failures": []
+}

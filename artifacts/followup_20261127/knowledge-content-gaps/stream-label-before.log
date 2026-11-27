@@ -1,0 +1,117 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_same_day_groups_share_readable_identity_without_pooling_or_mutation ___
+
+    def test_same_day_groups_share_readable_identity_without_pooling_or_mutation():
+        rows = _records()
+        rows_before = deepcopy(rows)
+        metric = _metric(rows)
+        before = deepcopy(metric)
+        streams = metric["comparison"]["streams"]
+        assert len(streams) == 6
+        assert {stream["current"]["value"] for stream in streams} == {65}
+        assert {
+            frozenset(str(record_id) for record_id in stream["current"]["source_record_ids"])
+            for stream in streams
+        } == {frozenset((str(group * 10 + 3), str(group * 10 + 4))) for group in range(6)}
+    
+>       labels = health_context.stream_labels(streams)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'healthzip.analytics.health_context' has no attribute 'stream_labels'
+
+tests/integration/test_followup_stream_labels.py:69: AttributeError
+_ test_single_stream_avoids_repeating_protocol_and_version_on_the_first_screen _
+
+    def test_single_stream_avoids_repeating_protocol_and_version_on_the_first_screen():
+        metric = _metric(_records()[:2])
+        before = deepcopy(metric)
+        stream = metric["comparison"]["streams"][0]
+>       labels = health_context.stream_labels([stream])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'healthzip.analytics.health_context' has no attribute 'stream_labels'
+
+tests/integration/test_followup_stream_labels.py:100: AttributeError
+_ test_opaque_protocol_aliases_are_unique_stable_and_keep_full_identity_in_details _
+
+    def test_opaque_protocol_aliases_are_unique_stable_and_keep_full_identity_in_details():
+        protocols = [
+            "a8d11b07c4034e0db4af1af6ac574820",
+            "a8d11b07c4034e0db4af1af6ac574821",
+        ]
+        rows = []
+        for group, protocol in enumerate(protocols):
+            for original in _records()[:2]:
+                row = deepcopy(original)
+                row["id"] += group * 10
+                row["protocol_id"] = protocol
+                row["metadata_json"] = json.dumps({"protocol_id": protocol})
+                rows.append(row)
+        metric = _metric(rows)
+        before = deepcopy(metric)
+        streams = metric["comparison"]["streams"]
+        assert len(streams) == 2
+        assert {stream["current"]["value"] for stream in streams} == {65}
+>       labels = health_context.stream_labels(streams)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'healthzip.analytics.health_context' has no attribute 'stream_labels'
+
+tests/integration/test_followup_stream_labels.py:130: AttributeError
+____ test_unmapped_frozen_conditions_do_not_silently_collapse_to_one_label _____
+
+    def test_unmapped_frozen_conditions_do_not_silently_collapse_to_one_label():
+        original = _metric(_records()[:2])["comparison"]["streams"][0]
+        streams = []
+        for setting in ("synthetic-setting-A", "synthetic-setting-B"):
+            stream = deepcopy(original)
+            # An earlier/imported frozen contract can carry an explicitly recorded
+            # condition outside the current six condition fields used for grouping.
+            stream["protocol"] = list(stream["protocol"])
+            stream["protocol"][2] = "context:" + json.dumps({"unmapped_setting": setting})
+            stream["stream_id"] = str(tuple(stream["protocol"]))
+            stream["fact_id"] = "synthetic-frozen-condition:" + setting
+            streams.append(stream)
+        before = deepcopy(streams)
+>       labels = health_context.stream_labels(streams)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'healthzip.analytics.health_context' has no attribute 'stream_labels'
+
+tests/integration/test_followup_stream_labels.py:157: AttributeError
+_ test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff94de54d0>
+
+    def test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot(monkeypatch):
+        metric = _metric(_records())
+        payload = {"current": {
+            "metrics": {"STATE-RHR": metric}, "window_start": START, "window_end": END,
+            "cutoff_time": END, "timezone": "Asia/Shanghai",
+        }, "questions": []}
+        before = deepcopy(payload)
+        reading = report_objects.reading_view(payload)
+        assert payload == before
+        streams = reading["charts"][0]["comparison"]["streams"]
+>       expected_labels = health_context.stream_labels(metric["comparison"]["streams"])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'healthzip.analytics.health_context' has no attribute 'stream_labels'
+
+tests/integration/test_followup_stream_labels.py:202: AttributeError
+_____ test_report_version_invalidates_old_cache_and_preserves_frozen_bytes _____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1097/test_report_version_invalidate0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff90790cd0>
+
+    def test_report_version_invalidates_old_cache_and_preserves_frozen_bytes(tmp_path, monkeypatch):
+        current_version = period_report.REPORT_VERSION
+        old_version = "joint-period-report-3.0.1"
+>       assert current_version != old_version
+E       AssertionError: assert 'joint-period-report-3.0.1' != 'joint-period-report-3.0.1'
+
+tests/integration/test_followup_stream_labels.py:247: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_stream_labels.py::test_same_day_groups_share_readable_identity_without_pooling_or_mutation
+FAILED tests/integration/test_followup_stream_labels.py::test_single_stream_avoids_repeating_protocol_and_version_on_the_first_screen
+FAILED tests/integration/test_followup_stream_labels.py::test_opaque_protocol_aliases_are_unique_stable_and_keep_full_identity_in_details
+FAILED tests/integration/test_followup_stream_labels.py::test_unmapped_frozen_conditions_do_not_silently_collapse_to_one_label
+FAILED tests/integration/test_followup_stream_labels.py::test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot
+FAILED tests/integration/test_followup_stream_labels.py::test_report_version_invalidates_old_cache_and_preserves_frozen_bytes
+6 failed in 1.05s

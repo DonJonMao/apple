@@ -5,3 +5,9 @@ backgroundColor = "#0B0F14"
 secondaryBackgroundColor = "#141A22"
 textColor = "#F1F5F9"
 font = "sans serif"
+
+[runner]
+# Progress fragments refresh while background reports hold large live graphs.
+# A forced full collection after every refresh stalls the worker; Python's
+# normal automatic cyclic collection and reference counting remain enabled.
+postScriptGC = false

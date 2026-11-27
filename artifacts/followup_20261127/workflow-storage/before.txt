@@ -1,0 +1,24 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_workflows_share_frozen_training_but_return_complete_independent_values __
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1073/test_workflows_share_frozen_tr0')
+
+    def test_workflows_share_frozen_training_but_return_complete_independent_values(tmp_path):
+        path = tmp_path / "sharing.sqlite3"
+        identities = records(path)
+        with closing(Repository(path)) as repo:
+            before = input_version(repo, None)
+            runs = [run_workflow(repo, request(wid), knowledge_root=tmp_path / "missing") for wid in ("W4", "W2", "W5")]
+            ordinary = runs[0]["supplements"]["ordinary_training"]
+            assert ordinary["record_count"] == 5
+            assert all(r["supplements"]["ordinary_training"] == ordinary for r in runs)
+            manifests = [stored(repo, r["run_id"]) for r in runs]
+>           assert all(m.get("storage_format") == "workflow-training-references-1" for m in manifests)
+E           assert False
+E            +  where False = all(<generator object test_workflows_share_frozen_training_but_return_complete_independent_values.<locals>.<genexpr> at 0xffffa47d4f20>)
+
+tests/integration/test_workflow_frozen_training.py:75: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_workflow_frozen_training.py::test_workflows_share_frozen_training_but_return_complete_independent_values
+1 failed in 0.71s

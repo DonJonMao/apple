@@ -1,0 +1,898 @@
+{
+  "kind": "complete_reviewed_candidate_projection",
+  "all_claim_versions_and_edges": true,
+  "all_claim_linked_spans": 272,
+  "no_vectors_or_previous_audits": true,
+  "tables": [
+    {
+      "table": "source",
+      "copied_rows": 158,
+      "selection": "all"
+    },
+    {
+      "table": "alias",
+      "copied_rows": 181,
+      "selection": "all"
+    },
+    {
+      "table": "span",
+      "copied_rows": 272,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "acquisition_log",
+      "copied_rows": 323,
+      "selection": "all"
+    },
+    {
+      "table": "source_review",
+      "copied_rows": 9,
+      "selection": "all"
+    },
+    {
+      "table": "index_release",
+      "copied_rows": 10,
+      "selection": "all"
+    },
+    {
+      "table": "version",
+      "copied_rows": 405,
+      "selection": "all"
+    },
+    {
+      "table": "source_version_clearance",
+      "copied_rows": 0,
+      "selection": "all"
+    },
+    {
+      "table": "scientific_notice",
+      "copied_rows": 0,
+      "selection": "all"
+    },
+    {
+      "table": "chapter_coverage",
+      "copied_rows": 30,
+      "selection": "all"
+    },
+    {
+      "table": "parse_supersession",
+      "copied_rows": 52,
+      "selection": "all"
+    },
+    {
+      "table": "retrieval_parent_section",
+      "copied_rows": 102,
+      "selection": " WHERE parent_id IN (SELECT parent_id FROM retrieval_unit WHERE span_id IN (SELECT value FROM json_each(?)))"
+    },
+    {
+      "table": "retrieval_unit",
+      "copied_rows": 272,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "retrieval_vector",
+      "copied_rows": 0,
+      "selection": " WHERE 0"
+    },
+    {
+      "table": "retrieval_model_dimension",
+      "copied_rows": 1,
+      "selection": "all"
+    },
+    {
+      "table": "retrieval_unit_domain_review",
+      "copied_rows": 131,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "metric_retrieval_audit",
+      "copied_rows": 0,
+      "selection": " WHERE 0"
+    },
+    {
+      "table": "retrieval_projection_set",
+      "copied_rows": 0,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "knowledge_authority_revision",
+      "copied_rows": 1,
+      "selection": "all"
+    }
+  ],
+  "idempotent_reapply": true,
+  "projected_old_rows": [
+    {
+      "database": "sources.sqlite3",
+      "table": "acquisition_log",
+      "before_rows": 323,
+      "after_rows": 323,
+      "before_rows_sha256": "96378afd6cfa09e1a25bf3356e5c8ee5b4fa1f9f077b1a6c43f6136acb592a3c",
+      "retained_rows_sha256": "96378afd6cfa09e1a25bf3356e5c8ee5b4fa1f9f077b1a6c43f6136acb592a3c",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "alias",
+      "before_rows": 181,
+      "after_rows": 181,
+      "before_rows_sha256": "9d8ce5b3343cacfe00ef03715ecc6d7010d2adabd2de8afac7012071bd1586e4",
+      "retained_rows_sha256": "9d8ce5b3343cacfe00ef03715ecc6d7010d2adabd2de8afac7012071bd1586e4",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "chapter_coverage",
+      "before_rows": 30,
+      "after_rows": 30,
+      "before_rows_sha256": "a1c4fbdcea3a345a09c3610f75d80aa9fe440b2cbfc081f5df68ab19d1db3723",
+      "retained_rows_sha256": "a1c4fbdcea3a345a09c3610f75d80aa9fe440b2cbfc081f5df68ab19d1db3723",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "index_release",
+      "before_rows": 10,
+      "after_rows": 10,
+      "before_rows_sha256": "3637c45a13df928f125ef00e677c75e626395819a4f3711f3a28b5e75174831f",
+      "retained_rows_sha256": "3637c45a13df928f125ef00e677c75e626395819a4f3711f3a28b5e75174831f",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "knowledge_authority_revision",
+      "before_rows": 1,
+      "after_rows": 1,
+      "before_rows_sha256": "3b0a670db0f73ac467cde90de2b727c2809c65f3da5da8d8275272f8210995ce",
+      "retained_rows_sha256": "147b5f7a6e3e61df99cc4d06ba1c6d6d895aa72b2e89938ab289cc285b9a7afb",
+      "all_old_rows_identical": false,
+      "protected_content": false,
+      "differences": [
+        {
+          "rowid": 1,
+          "change": "modified",
+          "before": {
+            "singleton": 1,
+            "database_id": "12a653badbd04d1eb5d9b7e20e03f281",
+            "revision": 2609,
+            "tracking_version": "knowledge-authority-revision-1",
+            "schema_fingerprint": "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00"
+          },
+          "after": {
+            "singleton": 1,
+            "database_id": "12a653badbd04d1eb5d9b7e20e03f281",
+            "revision": 2614,
+            "tracking_version": "knowledge-authority-revision-1",
+            "schema_fingerprint": "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00"
+          }
+        }
+      ]
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "metric_retrieval_audit",
+      "before_rows": 0,
+      "after_rows": 30,
+      "before_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "parse_supersession",
+      "before_rows": 52,
+      "after_rows": 52,
+      "before_rows_sha256": "e52a617b74d3273ee057735100b133607af4c88a5b3ff098120fbe11a3a4115b",
+      "retained_rows_sha256": "e52a617b74d3273ee057735100b133607af4c88a5b3ff098120fbe11a3a4115b",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_model_dimension",
+      "before_rows": 1,
+      "after_rows": 1,
+      "before_rows_sha256": "bc29cae5919b5dc9fa18cdfab92e15654c8c7db400e2cf4940899f4d7fc3f1ca",
+      "retained_rows_sha256": "bc29cae5919b5dc9fa18cdfab92e15654c8c7db400e2cf4940899f4d7fc3f1ca",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_parent_section",
+      "before_rows": 102,
+      "after_rows": 102,
+      "before_rows_sha256": "a941c150a85f1ca8fb406085a883168a92a1b30edfb5eb8acaa0ebf5d0bce80f",
+      "retained_rows_sha256": "a941c150a85f1ca8fb406085a883168a92a1b30edfb5eb8acaa0ebf5d0bce80f",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_projection_set",
+      "before_rows": 0,
+      "after_rows": 0,
+      "before_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_unit",
+      "before_rows": 272,
+      "after_rows": 272,
+      "before_rows_sha256": "7dbec19ec3cd092309e3d28bf8f4f5bdce789d85cf771f74affdb3cab067f76d",
+      "retained_rows_sha256": "7dbec19ec3cd092309e3d28bf8f4f5bdce789d85cf771f74affdb3cab067f76d",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_unit_domain_review",
+      "before_rows": 131,
+      "after_rows": 136,
+      "before_rows_sha256": "0713cd63f188a3674d1aff963a9e8836f6e91649c31ede0a75ed3cc4b5fa41dd",
+      "retained_rows_sha256": "0713cd63f188a3674d1aff963a9e8836f6e91649c31ede0a75ed3cc4b5fa41dd",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "retrieval_vector",
+      "before_rows": 0,
+      "after_rows": 0,
+      "before_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "scientific_notice",
+      "before_rows": 0,
+      "after_rows": 0,
+      "before_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "source",
+      "before_rows": 158,
+      "after_rows": 158,
+      "before_rows_sha256": "99fd7c46f4cfa9dcebd6c84a6710b84d752aaed5917e2def7fa9e1d2d9831c14",
+      "retained_rows_sha256": "99fd7c46f4cfa9dcebd6c84a6710b84d752aaed5917e2def7fa9e1d2d9831c14",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "source_review",
+      "before_rows": 9,
+      "after_rows": 9,
+      "before_rows_sha256": "64d405ee648cc330947a051d2d882d06bc8ab6ebd8c2af5eef629c5f1a818e38",
+      "retained_rows_sha256": "64d405ee648cc330947a051d2d882d06bc8ab6ebd8c2af5eef629c5f1a818e38",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "source_version_clearance",
+      "before_rows": 0,
+      "after_rows": 0,
+      "before_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "span",
+      "before_rows": 272,
+      "after_rows": 272,
+      "before_rows_sha256": "9b7e706187ea93825b1bc042f5b5a331102efe955542501120724739a57cf303",
+      "retained_rows_sha256": "9b7e706187ea93825b1bc042f5b5a331102efe955542501120724739a57cf303",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "sources.sqlite3",
+      "table": "version",
+      "before_rows": 405,
+      "after_rows": 405,
+      "before_rows_sha256": "d9bbcd6d06284327bc0389ca9e7710576ffa34509ac3f4f50cd7fb3a6360aac1",
+      "retained_rows_sha256": "d9bbcd6d06284327bc0389ca9e7710576ffa34509ac3f4f50cd7fb3a6360aac1",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "application_rule",
+      "before_rows": 97,
+      "after_rows": 97,
+      "before_rows_sha256": "4ac69f5547cb9db0f43e7437ab2ef963664d40a37c69145fd61c3b84ffb347bb",
+      "retained_rows_sha256": "4ac69f5547cb9db0f43e7437ab2ef963664d40a37c69145fd61c3b84ffb347bb",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "core_lifecycle",
+      "before_rows": 40,
+      "after_rows": 40,
+      "before_rows_sha256": "84cc5ec5e25bcb8e9439e07a059585f64db9ec72e3ceaa8790b811a738f8d70f",
+      "retained_rows_sha256": "84cc5ec5e25bcb8e9439e07a059585f64db9ec72e3ceaa8790b811a738f8d70f",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "core_release",
+      "before_rows": 15,
+      "after_rows": 15,
+      "before_rows_sha256": "2df3610c60120acdd82e0eecc04700ec1c9ae43a149c6742c826d18a29265c3e",
+      "retained_rows_sha256": "2df3610c60120acdd82e0eecc04700ec1c9ae43a149c6742c826d18a29265c3e",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "knowledge_authority_revision",
+      "before_rows": 1,
+      "after_rows": 1,
+      "before_rows_sha256": "a1d821efa553163596b544397eacf66bf5928a8a49ebf7cf0a86a631bfafe4c1",
+      "retained_rows_sha256": "c5c77230fa030d28c1efd0378c5c24e9039d43761c404bb0b860d2a739353e99",
+      "all_old_rows_identical": false,
+      "protected_content": false,
+      "differences": [
+        {
+          "rowid": 1,
+          "change": "modified",
+          "before": {
+            "singleton": 1,
+            "database_id": "c7d18e340bc34863b5cf66803b27ace4",
+            "revision": 412,
+            "tracking_version": "knowledge-authority-revision-1",
+            "schema_fingerprint": "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7"
+          },
+          "after": {
+            "singleton": 1,
+            "database_id": "c7d18e340bc34863b5cf66803b27ace4",
+            "revision": 426,
+            "tracking_version": "knowledge-authority-revision-1",
+            "schema_fingerprint": "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7"
+          }
+        }
+      ]
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "knowledge_domain_assignment",
+      "before_rows": 505,
+      "after_rows": 505,
+      "before_rows_sha256": "b4bffbff7a976bac4191638a78dcffa2c07fee7d7a52c3a88ebcead3e762fa70",
+      "retained_rows_sha256": "b4bffbff7a976bac4191638a78dcffa2c07fee7d7a52c3a88ebcead3e762fa70",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "knowledge_evidence_edge",
+      "before_rows": 457,
+      "after_rows": 468,
+      "before_rows_sha256": "5a251b6adbaad11be2e9b9efba953359a6a2f842e619889d3b3e5e199bc815ef",
+      "retained_rows_sha256": "5a251b6adbaad11be2e9b9efba953359a6a2f842e619889d3b3e5e199bc815ef",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "source_claim",
+      "before_rows": 124,
+      "after_rows": 127,
+      "before_rows_sha256": "e25557b903dd14d5f39d48750465502f068bb28186328d8cca11cfba8291e483",
+      "retained_rows_sha256": "e25557b903dd14d5f39d48750465502f068bb28186328d8cca11cfba8291e483",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "theory",
+      "before_rows": 20,
+      "after_rows": 20,
+      "before_rows_sha256": "b88cadb15d27da98997f18abee00081f78514342e5acd3fc148aab33683e6648",
+      "retained_rows_sha256": "b88cadb15d27da98997f18abee00081f78514342e5acd3fc148aab33683e6648",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "theory_lifecycle",
+      "before_rows": 11,
+      "after_rows": 11,
+      "before_rows_sha256": "f52f2ac98629e430c1cd5cd09156090db6b7d5b465ac93dfa4ccf72b8cb67a12",
+      "retained_rows_sha256": "f52f2ac98629e430c1cd5cd09156090db6b7d5b465ac93dfa4ccf72b8cb67a12",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "theory_release",
+      "before_rows": 2,
+      "after_rows": 2,
+      "before_rows_sha256": "1bfab98cfa02e125073f313ed81de2d37bc6140045d12b413b0d9b380e46d9ac",
+      "retained_rows_sha256": "1bfab98cfa02e125073f313ed81de2d37bc6140045d12b413b0d9b380e46d9ac",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    },
+    {
+      "database": "theories.sqlite3",
+      "table": "theory_review",
+      "before_rows": 11,
+      "after_rows": 11,
+      "before_rows_sha256": "bdd950e1872e043ba894152a2c764fe969e4b4196d4a7ed8c350b334191f3df5",
+      "retained_rows_sha256": "bdd950e1872e043ba894152a2c764fe969e4b4196d4a7ed8c350b334191f3df5",
+      "all_old_rows_identical": true,
+      "protected_content": true,
+      "differences": []
+    }
+  ],
+  "original_authority_unchanged": true,
+  "original_authority": [
+    "knowledge-authority-revision-1",
+    "/home/sn_maozhifang/apple/.local/knowledge",
+    [
+      "sources",
+      [
+        66306,
+        1173221187
+      ],
+      [
+        "12a653badbd04d1eb5d9b7e20e03f281",
+        2609,
+        "knowledge-authority-revision-1",
+        "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00"
+      ],
+      "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00",
+      "9c3642db419fdeef20c43e876432bd93ce1cb54828a7775ee4bafd91933f6e80"
+    ],
+    [
+      "theories",
+      [
+        66306,
+        1173221191
+      ],
+      [
+        "c7d18e340bc34863b5cf66803b27ace4",
+        412,
+        "knowledge-authority-revision-1",
+        "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7"
+      ],
+      "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7",
+      "b8a66399afbb7aa3d11cea225541548c148b537b2b57cc5a7fb9c0592519b4e1"
+    ]
+  ],
+  "body_checks": [
+    {
+      "topic": "BODY-OBS-hrv_sdnn_ms",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "hrv_metric_and_recording_identity": {
+          "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+          "status": "available"
+        },
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "wearable_hrv_protocol_transfer": {
+          "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "MASTER-HRV-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-DAVIS-IBI-GAPS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-VALIDATION-TRANSFER",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-oxygen_saturation_fraction",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_oxygen_agreement_scope": {
+          "question": "Apple Watch血氧研究的平均偏差小，是否代表本人每次读数准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 6,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-WATCH-OXYGEN-AGREEMENT-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-OXYGEN-FOLLOWUP",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-respiratory_rate_bpm",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_night_vital_validation_scope": {
+          "question": "已有Apple Watch其他指标的验证，是否已证明呼吸率和腕温的变化准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 5,
+      "items": [
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-WATCH-NIGHT-VITAL-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DEVICE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-sleeping_wrist_temperature_c",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_night_vital_validation_scope": {
+          "question": "已有Apple Watch其他指标的验证，是否已证明呼吸率和腕温的变化准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 5,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-WATCH-NIGHT-VITAL-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DEVICE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-steps",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_steps_validation_scope": {
+          "question": "早期Apple Watch步数验证，是否已覆盖当前型号和坐着活动手臂等场景？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 9,
+      "items": [
+        {
+          "claim_id": "MASTER-ACTIVITY-OPPORTUNITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-ACTIVITY-GRADUAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-WATCH-STEPS-VALIDATION-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W1",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "repetition_load_population_transfer": {
+          "question": "群体次数与最大负荷百分比的关系，能否确定本人或另一动作的负荷换算？",
+          "status": "available"
+        },
+        "measured_estimated_1rm_reliability": {
+          "question": "直接测试1RM的重测可靠性，是否也验证了由普通训练推算的e1RM？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "V15-CLAIM-LOAD-REPETITION-COMPARISON-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SETS-NOT-STIMULUS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-PROGRESSION-GOAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-SLEEP-ORDER",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W2",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "training_state_measurement_context": {
+          "question": "核对训练后心率和HRV时，测量情境未知应先补记什么？",
+          "status": "available"
+        },
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "HC-DAVIS-IBI-GAPS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-CARTER-HRV-USE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-HR-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-SLEEP-DIARY-FOLLOWUP",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W3",
+      "frozen_unchanged": true,
+      "answer_status": {},
+      "unique_spans": 11,
+      "items": [
+        {
+          "claim_id": "MASTER-ACTIVITY-OPPORTUNITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-VO2-MEASUREMENT-LIMITS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-ACTIVITY-GRADUAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-HR-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W4",
+      "frozen_unchanged": true,
+      "answer_status": {},
+      "unique_spans": 10,
+      "items": [
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-LOAD-REPETITION-COMPARISON-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-PROGRESSION-GOAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-RHR-WEAR-COMPARABILITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W6",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-SLEEP-EPISODE-COMPARABILITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-ROBBINS-SLEEP-COVERAGE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-SLEEP-DIARY-FOLLOWUP",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-DAVIS-IBI-GAPS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    }
+  ],
+  "private_health_opened": false,
+  "external_calls": 0,
+  "browser_validation": false,
+  "full_report_generation": false,
+  "all_projected_old_content_unchanged": true
+}

@@ -1,0 +1,292 @@
+{
+  "status": "prepared_not_started_waiting_root_release",
+  "environment": {
+    "TMPDIR": "/home/sn_maozhifang/healthzip-followup-validation-tmp",
+    "PYTHONPATH": "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/src:/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5",
+    "PLAYWRIGHT_BROWSERS_PATH": "/tmp/healthzip-browser-bin",
+    "LD_LIBRARY_PATH": "/tmp/healthzip-browser-libs/extracted/usr/lib/aarch64-linux-gnu"
+  },
+  "cutoff": "2026-11-21T16:00:00+00:00 (= 2026-11-22T00:00:00+08:00)",
+  "source_manifest": "artifacts/followup_20261127/validation/completion-source-r5.json",
+  "scheduling": "strictly sequential steps; no parallel browser or heavy jobs",
+  "protected_user_process": 431790,
+  "steps": [
+    {
+      "id": "full-regression",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "tools/master_regression.py",
+        "--output",
+        "artifacts/followup_20261127/validation/completion-full-r5",
+        "--shards",
+        "4"
+      ],
+      "note": "Tool freezes current Git-selected public files; all 539 currently equal completion-source-r5 manifest."
+    },
+    {
+      "id": "backend-personal",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_benchmark.py",
+        "--synthetic",
+        "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-backend-personal-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--period",
+        "week"
+      ],
+      "postprocess": "Read-only storage byte accounting from retained synthetic workspace; audit.json stays private temporary"
+    },
+    {
+      "id": "browser-report-personal",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_browser_benchmark.py",
+        "--database",
+        "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-report-personal-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--source-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-detail-personal",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-detail-personal-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "detail"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-preview-personal",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-repair-personal/synthetic-two-year.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-preview-personal-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "preview"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "backend-100k",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_benchmark.py",
+        "--synthetic",
+        "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-backend-100k-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--period",
+        "week"
+      ],
+      "postprocess": "Read-only storage byte accounting from retained synthetic workspace; audit.json stays private temporary"
+    },
+    {
+      "id": "browser-report-100k",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_browser_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-report-100k-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--source-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-detail-100k",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-detail-100k-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "detail"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-preview-100k",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-100000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-preview-100k-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "preview"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "backend-1m",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_benchmark.py",
+        "--synthetic",
+        "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-backend-1m-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--period",
+        "week"
+      ],
+      "postprocess": "Read-only storage byte accounting from retained synthetic workspace; audit.json stays private temporary"
+    },
+    {
+      "id": "browser-report-1m",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_report_browser_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-report-1m-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--shared-knowledge-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/knowledge-r4",
+        "--source-root",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-detail-1m",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-detail-1m-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "detail"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    },
+    {
+      "id": "browser-preview-1m",
+      "cwd": "/home/sn_maozhifang/apple",
+      "command": [
+        "/home/sn_maozhifang/apple/.venv/bin/python",
+        "/home/sn_maozhifang/healthzip-followup-validation-tmp/source-r5/tools/followup_page_benchmark.py",
+        "--database",
+        "/tmp/healthzip-product-benchmark/synthetic-1000000.sqlite3",
+        "--output",
+        "/home/sn_maozhifang/apple/artifacts/followup_20261127/performance/completion-browser-preview-1m-r5",
+        "--warm",
+        "30",
+        "--cutoff",
+        "2026-11-21T16:00:00+00:00",
+        "--concurrent-load",
+        "Sequential Codex validation after RAG browser; user Streamlit PID 431790 preserved; other shared-host activity uncontrolled and recorded",
+        "--page",
+        "preview"
+      ],
+      "postprocess": "Preserve all raw samples, failure screenshots/logs and retained synthetic workspace"
+    }
+  ]
+}

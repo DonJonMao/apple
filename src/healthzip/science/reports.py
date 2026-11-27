@@ -83,11 +83,26 @@ def report_comparison(rows, window, *, previous=None, baseline_days=28, retrospe
     bounds = comparison_windows(window, previous=previous, baseline_days=baseline_days)
     groups, units = defaultdict(dict), {}
     sleep = visible_sleep_history(rows, window, retrospective=retrospective)
+    periods = []
     for name, interval in bounds.items():
-        if instant(interval["start"]) >= instant(interval["end"]):
+        start, end = instant(interval["start"]), instant(interval["end"])
+        if start >= end:
             continue
         period = Window(interval["start"], interval["end"], window.cutoff_time, window.timezone)
-        selected, _ = select_as_of(rows, period, retrospective=retrospective, overlap=True)
+        periods.append((name, period, start, end))
+    timed = []
+    if periods:
+        support = Window(min(item[2] for item in periods).isoformat(), max(item[3] for item in periods).isoformat(),
+                         window.cutoff_time, window.timezone)
+        # Resolve every original row at this shared cutoff before any window or
+        # type narrowing. Corrections to another type or a future event must
+        # still invalidate their predecessors, and missing IDs keep their
+        # original position. The selected ordering and source IDs remain intact.
+        visible, _ = select_as_of(rows, support, retrospective=retrospective, overlap=True)
+        timed = [(row, instant(row["_event_end"]), instant(row.get("event_start") or row.get("start_at_utc")
+                  or row.get("start_utc") or row["_event_end"])) for row in visible]
+    for name, period, start, end in periods:
+        selected = [row for row, event_end, event_start in timed if event_end > start and event_start < end]
         facts = derive_report_context(selected, period, sleep_rows=sleep)["daily_metric_facts"]
         for fact in facts:
             if fact.get("metric_id") not in {"STATE-RHR", "STATE-SDNN", "sleep_observed_minutes_by_wake_date"}:

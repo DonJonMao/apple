@@ -1,0 +1,29 @@
+{
+  "synthetic_only": true,
+  "change": "Offline workflow reconstruction restores repeated frozen references as independent mutable values; report reconstruction keeps its existing shared-reference default",
+  "source_hashes": {
+    "src/healthzip/workflows/report_objects.py": "fdc1f27916ffdc6eb0ae873bc1ec44c33c2c92044c7ef0d1ff40e61357822a24",
+    "tests/integration/test_workflow_frozen_training.py": "8dd5395d0ce8c3db9095f5cb97ce19fce83a6b1d6435cc107381962662ca3923"
+  },
+  "regression_command": ".venv/bin/python -m pytest tests/integration/test_workflow_frozen_training.py tests/integration/test_analysis_workflow_runs.py tests/integration/test_report_repair_contract.py tests/integration/test_repair_report_review.py tests/integration/test_followup_workflow_identity.py -q",
+  "before": {
+    "failed": 1,
+    "reason": "Repeated frozen group resolves to the same mutable object"
+  },
+  "after": {
+    "passed": 51,
+    "failed": 0,
+    "elapsed_s": 16.21
+  },
+  "ruff": "passed",
+  "diff_check": "passed",
+  "new_regression": "Repeated groups and nested references are independent; mutating one leaves siblings, bundle input and subsequent reconstruction unchanged",
+  "performance": "No heavy benchmark rerun; additional deepcopy only on a repeated object reference in reconstruct_workflow",
+  "artifact_hashes": {
+    "alias-before.txt": "e805c8812b2e381e359f005b79b7273afcff276fc3d57a6c8909dfb0ca9fd172",
+    "alias-before.xml": "9d78c793c38bd03927d21e22fe5e0e06210d0c6721d5121a15c0bec02c6f0b7d",
+    "alias-regression-r1.txt": "0643a50b2fed876a16edb57ff50dfbfa370c4183ee209fd11907322273154de2",
+    "alias-regression-r1.xml": "91d148ea4ee54c580132ea0b949456233e6fd65eba4095f1f6bb5062461db51d",
+    "alias-ruff-r1.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+}

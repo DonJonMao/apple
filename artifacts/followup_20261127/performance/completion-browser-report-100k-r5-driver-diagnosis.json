@@ -1,0 +1,47 @@
+{
+  "failure_evidence": "artifacts/followup_20261127/performance/completion-browser-report-100k-r5",
+  "original_result": "exit 1; no completed browser timing sample",
+  "diagnosis": "New report facts were present while preview/chart/render nodes were still marked stale; progress-fragment identity was not a final rerun completion boundary.",
+  "captured_nodes": [
+    {
+      "attrs": {
+        "data-hz-report-id": "8152b6c4d679e67ba130908e1cbf4ff01ebc2c2e676a7bb7ebcbbe69d1ba7c66",
+        "data-reading-view": "report-reading-view-1",
+        "style": "display: none;"
+      },
+      "stale_ancestor": false
+    },
+    {
+      "text": "生成复盘后，这份阅读内容会补充训练背景、解释、行动与冻结依据。",
+      "stale_ancestor": true
+    },
+    {
+      "attrs": {
+        "hidden": "",
+        "data-hz-render": "095b3431-2a32-4bd4-abe6-3bae9ba8de2b",
+        "data-workspace": "review",
+        "data-server-ms": "163.015"
+      },
+      "stale_ancestor": true
+    }
+  ],
+  "synthetic_reports": [
+    [
+      "8152b6c4d679e67ba130908e1cbf4ff01ebc2c2e676a7bb7ebcbbe69d1ba7c66",
+      "2026-11-27T06:40:02.696222+00:00",
+      25885
+    ]
+  ],
+  "measured_product_source_unchanged": true,
+  "evidence_sha256": {
+    "generation-failure.html": "8eae569832ba9ff50b806d6f6e8354af5c558e5289d1cca1dc498a1460112799",
+    "generation-failure.png": "1075945520b85669c24257e205e61ad943ea31c3cf27c8c5e96712440a4be90b",
+    "generation.json": "8001b7eb286a6a5681a5f9ad003db24b1d4c2bb14864bcd29ef21cb288aa9b94",
+    "summary.json": "252d6ab01e29b896ccf25ab68c65f6f17744f0b00ad692b5aeb2f6429afa89f0"
+  },
+  "driver_path": "tools/followup_report_browser_benchmark.py",
+  "driver_sha256": "cf2cc007f3b5b187bd4dda0e07153fdd0a4bfb78c6234da8e373adb699b546a7",
+  "change": "Wait for exact frozen new chart, no stale main elements, and final non-stale render before measuring interactive completion. Existing facts/plots/download/layout assertions retained.",
+  "retry_output": "artifacts/followup_20261127/performance/completion-browser-report-100k-r5-driver2",
+  "no_timing_reconstructed_from_failed_attempt": true
+}

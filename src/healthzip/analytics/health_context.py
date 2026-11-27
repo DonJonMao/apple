@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
+import ast
+from collections import Counter, defaultdict
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
@@ -125,20 +126,116 @@ def coverage_label(summary):
     return f"记录 {summary.get('recorded_days', 0)}/{summary.get('window_days', 0)} 天"
 
 
+def _stream_base(stream):
+    protocol = stream.get("protocol")
+    if not isinstance(protocol, (list, tuple)):
+        protocol = stream.get("stream_id")
+        if isinstance(protocol, str):
+            try:
+                protocol = ast.literal_eval(protocol)
+            except (ValueError, SyntaxError):
+                protocol = None
+        if not isinstance(protocol, (list, tuple)):
+            return "来源未注明", []
+    source = str(protocol[0] or "来源未注明") if protocol else "来源未注明"
+    if source.startswith(("unknown_source:", "health_sample:", "body_measurement:")):
+        source = "来源未注明"
+    device = protocol[1] if len(protocol) > 1 else None
+    return source + (" / " + str(device) if device else " / 设备未记录"), protocol
+
+
+def _stream_conditions(stream):
+    labels = {"sampling_mode": "采样", "measurement_context": "情境", "breathing_context": "呼吸情境",
+              "posture": "姿势", "respiration": "呼吸", "activity_context": "活动",
+              "recording_duration_seconds": "采样秒数", "os_version": "系统版本", "algorithm_version": "算法版本"}
+    translations = {"background": "后台", "active": "主动", "seated": "坐姿", "standing": "站姿",
+                    "supine": "仰卧", "rest": "静息", "unknown": "未知"}
+    values = defaultdict(set)
+    for period in ("current", "previous", "reference"):
+        summary = stream.get(period, {})
+        for field in ("daily_points", "partial_daily_points"):
+            for point in summary.get(field, []):
+                for key, value in (point.get("conditions") or {}).items():
+                    if isinstance(value, dict):
+                        value = value.get("value")
+                    if key in labels and value is not None:
+                        values[key].add(translations.get(str(value), str(value)))
+    return [label + "：" + "、".join(sorted(values[key])) for key, label in labels.items() if values[key]]
+
+
+def stream_labels(streams):
+    """Disambiguate display collisions using frozen identities, without pooling facts."""
+    bases = [_stream_base(stream) for stream in streams]
+    counts = Counter(base for base, _ in bases)
+    labels = []
+    for stream, (base, protocol) in zip(streams, bases):
+        if counts[base] == 1:
+            labels.append(base)
+            continue
+        declared = protocol[2] if len(protocol) > 2 else None
+        declared = str(declared).split(";{", 1)[0] if declared else None
+        if declared and declared.startswith("context:"):
+            declared = None
+        # An opaque generated identity stays in frozen details, not the title.
+        opaque = str(declared).rsplit(":", 1)[-1]
+        if declared and len(opaque) >= 16 and all(c in "0123456789abcdefABCDEF" for c in opaque):
+            protocol_label = "协议已记录（标识见详情）"
+        else:
+            protocol_label = "协议：" + declared if declared else "协议未记录"
+        version = protocol[3] if len(protocol) > 3 else None
+        details = [protocol_label, "来源版本：" + str(version) if version else "来源版本未记录"]
+        details.extend(_stream_conditions(stream) or ["测量情境未记录"])
+        labels.append(base + " · " + " · ".join(details))
+    readable = list(labels)
+    collisions = Counter(readable)
+    identities = [canonical_hash({"stream_id": stream.get("stream_id"), "protocol": stream.get("protocol")})
+                  for stream in streams]
+    for index, label in enumerate(readable):
+        if collisions[label] < 2:
+            continue
+        peers = {identity for identity, peer in zip(identities, readable) if peer == label}
+        size = 6
+        while len({identity[:size] for identity in peers}) < len(peers):
+            size += 1
+        labels[index] += " · 独立记录组 " + identities[index][:size] + "（不表示条件已确认相同）"
+    return labels
+
+
+def stream_navigation_labels(streams):
+    """Put a real distinction before shared text in a narrow selection menu."""
+    labels = [stream.get("display_label") or label for stream, label in zip(streams, stream_labels(streams))]
+    bases = [_stream_base(stream)[0] for stream in streams]
+    pieces = [label.removeprefix(base + " · ").split(" · ") for base, label in zip(bases, labels)]
+    identities = [canonical_hash({"stream_id": stream.get("stream_id"), "protocol": stream.get("protocol")})
+                  for stream in streams]
+    result = []
+    for index, (base, label) in enumerate(zip(bases, labels)):
+        peers = [i for i, candidate in enumerate(bases) if candidate == base]
+        if len(peers) == 1:
+            result.append(label)
+            continue
+        different = [part for part in pieces[index] if not all(part in pieces[i] for i in peers)]
+        prefix = " · ".join(different)
+        if not prefix or len(prefix) > 18:
+            size = 6
+            while len({identities[i][:size] for i in peers}) < len({identities[i] for i in peers}):
+                size += 1
+            prefix = "独立记录组 " + identities[index][:size]
+        result.append(prefix + " · " + label)
+    return result
+
+
 def comparison_statements(metric, title, unit, *, scale=1):
     """Personal numbers and dates are bound to the computed snapshot, never LLM text."""
     statements = []
-    for stream in metric.get("comparison", {}).get("streams", []):
+    streams = metric.get("comparison", {}).get("streams", [])
+    for stream, identity in zip(streams, stream_labels(streams)):
         current = stream.get("current", {})
         value = current.get("value")
         if value is None:
             continue
         text = f"{period_label(current)}，{title}日代表值的中位数为 {value / scale:.1f} {unit}"
-        protocol = stream.get("protocol")
-        if isinstance(protocol, (list, tuple)):
-            identity = " / ".join(str(v) for v in protocol[:2] if v)
-            if identity:
-                text += f"（{identity}）"
+        text += f"（{identity}）"
         for key, label in (("previous", "前期"), ("reference", "个人参考")):
             other = stream.get(key, {})
             delta = stream.get(key + "_change", {}).get("absolute")

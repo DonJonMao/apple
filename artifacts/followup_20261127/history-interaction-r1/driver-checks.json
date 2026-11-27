@@ -1,0 +1,60 @@
+{
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "tools/followup_history_interaction.py",
+        "tools/followup_report_browser_benchmark.py",
+        "tools/followup_report_benchmark.py"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "py_compile",
+        "tools/followup_history_interaction.py",
+        "tools/followup_report_browser_benchmark.py",
+        "tools/followup_report_benchmark.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "/tmp/healthzip-history-final-syntax.js"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/integration/test_followup_report_reading.py",
+        "-k",
+        "history_versions or same_timestamp_history",
+        "-q",
+        "--junitxml=artifacts/followup_20261127/history-interaction-r1/history-tests.xml"
+      ],
+      "exit_code": 0,
+      "result": "2 passed, 4 deselected in 4.01s",
+      "scope": "same timestamp/full report ID opening and colliding short identifier disambiguation; final aggregate regression owned by root"
+    }
+  ],
+  "driver_sha256": {
+    "tools/followup_history_interaction.py": "a2ac65911585149b440c0271c1065de129d4621635b9494f488a402bf8c03952",
+    "tools/followup_report_browser_benchmark.py": "65685d95f336c99d2d31d5a9e1e9cb85d9446789f62975d182608bb288081fc9",
+    "tools/followup_report_benchmark.py": "a06c2f9e06a723154c855e6970979ddd092abcc9a01c911a5d7bcf52f5bbbab7"
+  },
+  "browser_acceptance": "formal-receipt.json"
+}

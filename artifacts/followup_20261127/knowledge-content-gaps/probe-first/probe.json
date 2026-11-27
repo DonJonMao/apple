@@ -1,0 +1,518 @@
+{
+  "kind": "complete_reviewed_candidate_projection",
+  "all_claim_versions_and_edges": true,
+  "all_claim_linked_spans": 272,
+  "no_vectors_or_previous_audits": true,
+  "tables": [
+    {
+      "table": "source",
+      "copied_rows": 158,
+      "selection": "all"
+    },
+    {
+      "table": "alias",
+      "copied_rows": 181,
+      "selection": "all"
+    },
+    {
+      "table": "span",
+      "copied_rows": 272,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "acquisition_log",
+      "copied_rows": 323,
+      "selection": "all"
+    },
+    {
+      "table": "source_review",
+      "copied_rows": 9,
+      "selection": "all"
+    },
+    {
+      "table": "index_release",
+      "copied_rows": 10,
+      "selection": "all"
+    },
+    {
+      "table": "version",
+      "copied_rows": 405,
+      "selection": "all"
+    },
+    {
+      "table": "source_version_clearance",
+      "copied_rows": 0,
+      "selection": "all"
+    },
+    {
+      "table": "scientific_notice",
+      "copied_rows": 0,
+      "selection": "all"
+    },
+    {
+      "table": "chapter_coverage",
+      "copied_rows": 30,
+      "selection": "all"
+    },
+    {
+      "table": "parse_supersession",
+      "copied_rows": 52,
+      "selection": "all"
+    },
+    {
+      "table": "retrieval_parent_section",
+      "copied_rows": 102,
+      "selection": " WHERE parent_id IN (SELECT parent_id FROM retrieval_unit WHERE span_id IN (SELECT value FROM json_each(?)))"
+    },
+    {
+      "table": "retrieval_unit",
+      "copied_rows": 272,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "retrieval_vector",
+      "copied_rows": 0,
+      "selection": " WHERE 0"
+    },
+    {
+      "table": "retrieval_model_dimension",
+      "copied_rows": 1,
+      "selection": "all"
+    },
+    {
+      "table": "retrieval_unit_domain_review",
+      "copied_rows": 131,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "metric_retrieval_audit",
+      "copied_rows": 0,
+      "selection": " WHERE 0"
+    },
+    {
+      "table": "retrieval_projection_set",
+      "copied_rows": 0,
+      "selection": " WHERE span_id IN (SELECT value FROM json_each(?))"
+    },
+    {
+      "table": "knowledge_authority_revision",
+      "copied_rows": 1,
+      "selection": "all"
+    }
+  ],
+  "original_authority_unchanged": true,
+  "original_authority": [
+    "knowledge-authority-revision-1",
+    "/home/sn_maozhifang/apple/.local/knowledge",
+    [
+      "sources",
+      [
+        66306,
+        1173221187
+      ],
+      [
+        "12a653badbd04d1eb5d9b7e20e03f281",
+        2609,
+        "knowledge-authority-revision-1",
+        "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00"
+      ],
+      "3c55acdd19225c5976d02f245f353b0a89b7fc5303dd7bf9969f3b896bcfbd00",
+      "9c3642db419fdeef20c43e876432bd93ce1cb54828a7775ee4bafd91933f6e80"
+    ],
+    [
+      "theories",
+      [
+        66306,
+        1173221191
+      ],
+      [
+        "c7d18e340bc34863b5cf66803b27ace4",
+        412,
+        "knowledge-authority-revision-1",
+        "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7"
+      ],
+      "9fd7ef4d304d545004794ac953986953e6907fd0f1bdbe8bb9271475f68132b7",
+      "b8a66399afbb7aa3d11cea225541548c148b537b2b57cc5a7fb9c0592519b4e1"
+    ]
+  ],
+  "body_checks": [
+    {
+      "topic": "BODY-OBS-hrv_sdnn_ms",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "wearable_hrv_protocol_transfer": {
+          "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "complete_group_budget_or_rank"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "HC-SDNN-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-HR-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-HRV-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-VALIDATION-TRANSFER",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-oxygen_saturation_fraction",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_oxygen_agreement_scope": {
+          "question": "Apple Watch血氧研究的平均偏差小，是否代表本人每次读数准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 6,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-WATCH-OXYGEN-AGREEMENT-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-OXYGEN-FOLLOWUP",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-respiratory_rate_bpm",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_night_vital_validation_scope": {
+          "question": "已有Apple Watch其他指标的验证，是否已证明呼吸率和腕温的变化准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 5,
+      "items": [
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-WATCH-NIGHT-VITAL-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DEVICE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-sleeping_wrist_temperature_c",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_night_vital_validation_scope": {
+          "question": "已有Apple Watch其他指标的验证，是否已证明呼吸率和腕温的变化准确？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 5,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-WATCH-NIGHT-VITAL-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-DEVICE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "BODY-OBS-steps",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "watch_steps_validation_scope": {
+          "question": "早期Apple Watch步数验证，是否已覆盖当前型号和坐着活动手臂等场景？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 9,
+      "items": [
+        {
+          "claim_id": "MASTER-ACTIVITY-OPPORTUNITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-ACTIVITY-GRADUAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-WATCH-STEPS-VALIDATION-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W1",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "repetition_load_population_transfer": {
+          "question": "群体次数与最大负荷百分比的关系，能否确定本人或另一动作的负荷换算？",
+          "status": "available"
+        },
+        "measured_estimated_1rm_reliability": {
+          "question": "直接测试1RM的重测可靠性，是否也验证了由普通训练推算的e1RM？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "V15-CLAIM-LOAD-REPETITION-COMPARISON-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SETS-NOT-STIMULUS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-MEASURED-ONE-RM-RELIABILITY-SCOPE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-REPETITIONS-POPULATION-VARIATION",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-PROGRESSION-GOAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-SLEEP-ORDER",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W2",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "HC-SDNN-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-CARTER-HRV-USE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-DAVIS-IBI-GAPS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W3",
+      "frozen_unchanged": true,
+      "answer_status": {},
+      "unique_spans": 11,
+      "items": [
+        {
+          "claim_id": "MASTER-ACTIVITY-OPPORTUNITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-WATCH-VO2-MEASUREMENT-LIMITS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-ACTIVITY-GRADUAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-HR-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W4",
+      "frozen_unchanged": true,
+      "answer_status": {},
+      "unique_spans": 10,
+      "items": [
+        {
+          "claim_id": "MASTER-DE-VET",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "V15-CLAIM-LOAD-REPETITION-COMPARISON-IDENTITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-PROGRESSION-GOAL",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-RHR-WEAR-COMPARABILITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    },
+    {
+      "topic": "W6",
+      "frozen_unchanged": true,
+      "answer_status": {
+        "hrv_direction_and_training_response": {
+          "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+          "status": "available"
+        },
+        "hrv_missing_observation_unit": {
+          "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+          "status": "available"
+        }
+      },
+      "unique_spans": 12,
+      "items": [
+        {
+          "claim_id": "FOLLOWUP-SLEEP-EPISODE-COMPARABILITY",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-ROBBINS-SLEEP-COVERAGE",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "MASTER-SLEEP-DIARY-FOLLOWUP",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "FOLLOWUP-SDNN-PERFORMANCE-CONTEXT",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        },
+        {
+          "claim_id": "HC-DAVIS-IBI-GAPS",
+          "statement_present": true,
+          "all_limits_present": true,
+          "all_urls_present": true
+        }
+      ]
+    }
+  ],
+  "private_health_opened": false,
+  "external_calls": 0,
+  "browser_validation": false,
+  "full_report_generation": false
+}

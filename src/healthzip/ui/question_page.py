@@ -82,12 +82,12 @@ def render_question(question, *, repo):
     zone = ZoneInfo(window["timezone"])
     st.caption(datetime.fromisoformat(window["start"]).astimezone(zone).date().isoformat() + " — "
                + datetime.fromisoformat(window["end"]).astimezone(zone).date().isoformat())
-    if question["id"] != "W6":
+    association = question.get("association")
+    if question["id"] != "W6" or not association:
         st.write(question["observation"])
     if question.get("ordinary_training"):
         render_ordinary_training(question["ordinary_training"], show_summary=False, namespace="question:" + question["id"])
     _render_goal_actions(question)
-    association = question.get("association")
     if association:
         _association(association)
         with st.expander("本次观察与生活记录"):
@@ -152,9 +152,16 @@ def render_question(question, *, repo):
                     st.dataframe(shown, hide_index=True)
     for note in question.get("limitations", []):
         st.caption(note)
-    st.write("下一步")
-    for step in question.get("steps", [])[:3]:
-        st.write(step)
+    steps = list(question.get("steps") or [])
+    if question["id"] == "W6" and not association and not steps:
+        steps = ["核对所选范围、记录来源及睡眠和 SDNN 是否已导入，再查看实际记录日期与共同记录日期。"]
+    if question["id"] == "W5" and question.get("report_status") == "no_records" and not steps:
+        steps = ["核对所选范围和记录来源，在“身体 → 体重”查看已有值与实际日期；"
+                 "如有尚未导入的实际测量，可到“设置 → 导入与同步”导入。"]
+    if steps:
+        st.write("下一步")
+        for step in steps[:3]:
+            st.write(step)
 
 
 def _association(association):

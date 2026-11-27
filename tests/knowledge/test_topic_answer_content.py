@@ -18,15 +18,15 @@ def library(tmp_path):
     kb.close()
 
 
-def bind(kb, identity, sid, *, scope=None, complete=True, need_id=NEED):
+def bind(kb, identity, sid, *, scope=None, complete=True, need_id=NEED, topic=TOPIC):
     need = topics.ANSWER_NEEDS[need_id]
     binding = {key: deepcopy(need[key]) for key in ('question', 'target_claim')}
     binding.update(relation='supports', rationale='Synthetic content check with exact original evidence',
                    answer_complete=complete, target_coverage_complete=True)
     return domains.link(kb, origin={'type': 'claim', 'id': identity, 'version': '1'}, relation='applies_to',
-        target={'type': 'metric', 'id': TOPIC, 'version': domains.profile_version(TOPIC)}, span_ids=[sid],
+        target={'type': 'metric', 'id': topic, 'version': domains.profile_version(topic)}, span_ids=[sid],
         applicability=scope or {}, actor='Synthetic', rationale='Exact question within the already reviewed metric use',
-        evidence_types=['mechanism_or_exception', 'action_or_reassessment'], review=REVIEW, answer_bindings=[binding])
+        evidence_types=need['purposes'], review=REVIEW, answer_bindings=[binding])
 
 
 def fixture_claims(kb, **kwargs):
@@ -96,7 +96,7 @@ def test_unrelated_topic_and_measurement_only_answer_do_not_trigger_the_content_
     result = topics.question_sources(library, TOPIC, k=2, required_purposes=['measurement'])
     assert NEED not in result['retrieval']['answer_status']
     assert result['retrieval']['supplemental_pass'] is None
-    assert topics.question_sources(library, 'W1')['retrieval']['answer_status'] == {}
+    assert topics.question_sources(library, 'W8')['retrieval']['answer_status'] == {}
 
 
 def test_two_substantive_answers_share_one_supplement_budget(library):
@@ -105,10 +105,36 @@ def test_two_substantive_answers_share_one_supplement_budget(library):
     bind(library, 'z-protocol-answer', device, need_id='wearable_hrv_protocol_transfer')
     result = topics.question_sources(library, TOPIC, k=2)
     audit = result['retrieval']
-    assert all(answer['status'] == 'available' for answer in audit['answer_status'].values())
+    expected = {NEED, 'wearable_hrv_protocol_transfer'}
+    assert all(audit['answer_status'][key]['status'] == 'available' for key in expected)
     assert audit['selected_unique_spans'] == audit['maximum_unique_spans'] == 4
     assert audit['supplemental_pass']['requested_k'] == 2
-    assert set(audit['supplemental_pass']['answer_needs']['ids']) == set(topics.ANSWER_NEEDS)
+    assert set(audit['supplemental_pass']['answer_needs']['ids']) == expected
+
+
+@pytest.mark.parametrize('need_id', [
+    'hrv_missing_observation_unit', 'repetition_load_population_transfer',
+    'measured_estimated_1rm_reliability', 'watch_oxygen_agreement_scope',
+    'watch_steps_validation_scope', 'watch_night_vital_validation_scope',
+])
+def test_specific_measurement_answers_do_not_hide_behind_generic_purpose_coverage(library, need_id):
+    need = topics.ANSWER_NEEDS[need_id]
+    topic = need['topics'][0]
+    claim(library, 'a-general-method', topics.PURPOSES, topic=topic)
+    claim(library, 'b-general-method', topics.PURPOSES, topic=topic)
+    sid = claim(library, 'z-source-specific-limit', need['purposes'], topic=topic)
+    bind(library, 'z-source-specific-limit', sid, need_id=need_id, topic=topic)
+    result = topics.question_sources(library, topic, k=2, include_evidence=True)
+    audit = result['retrieval']
+    assert audit['initial_missing_purposes'] == []
+    assert need_id in audit['initial_missing_answers']
+    assert audit['answer_status'][need_id]['status'] == 'available'
+    assert audit['selected_unique_spans'] <= audit['maximum_unique_spans'] == 4
+    assert audit['supplemental_remote_calls'] == 0
+    chosen = next(item for item in result['items'] if item['claim_id'] == 'z-source-specific-limit')
+    assert chosen['citations'][0]['span_id'] == sid
+    assert chosen['limitations'] and chosen['scope']
+    assert topics.question_sources(library, 'W8')['items'] == []
 
 
 def test_complete_required_premises_are_not_cut_to_fit_an_answer(library):
@@ -121,3 +147,53 @@ def test_complete_required_premises_are_not_cut_to_fit_an_answer(library):
     assert result['retrieval']['answer_status'][NEED]['status'] == 'complete_group_budget_or_rank'
     assert all(i['claim_id'] != 'z-specific-answer' for i in result['items'])
     assert result['items']
+
+
+@pytest.mark.parametrize('topic, sizes', [
+    (TOPIC, {'hrv_metric_and_recording_identity': 2, 'hrv_direction_and_training_response': 3,
+             'wearable_hrv_protocol_transfer': 3, 'hrv_missing_observation_unit': 3}),
+    ('W2', {'training_state_measurement_context': 2, 'hrv_direction_and_training_response': 3,
+            'hrv_missing_observation_unit': 3}),
+])
+def test_saturated_groups_preserve_specific_definition_action_and_new_answers_in_body(library, topic, sizes):
+    from healthzip.workflows.period_report import render_report
+    from tests.integration.test_followup_report_evidence import historical
+
+    # Two attractive general groups can otherwise consume all six first-pass
+    # spans, leaving too little room for distinct content and its prerequisites.
+    for identity in ['a-general', 'b-general']:
+        sid = claim(library, identity, topics.PURPOSES, topic=topic)
+        for n in range(2):
+            predecessor = identity + '-premise-' + str(n)
+            p = claim(library, predecessor, [], bind=False, topic=topic)
+            edge(library, predecessor, identity, 'required_by', [p, sid])
+    expected_spans = set()
+    for need, count in sizes.items():
+        identity = 'z-' + need
+        sid = claim(library, identity, topics.ANSWER_NEEDS[need]['purposes'], topic=topic)
+        expected_spans.add(sid)
+        bind(library, identity, sid, need_id=need, topic=topic)
+        for n in range(count - 1):
+            predecessor = identity + '-premise-' + str(n)
+            p = claim(library, predecessor, [], bind=False, topic=topic)
+            expected_spans.add(p)
+            edge(library, predecessor, identity, 'required_by', [p, sid])
+    evidence = topics.question_sources(library, topic, include_evidence=True)
+    audit = evidence['retrieval']
+    assert all(audit['answer_status'][key]['status'] == 'available' for key in sizes)
+    assert audit['requested_k'] == audit['supplemental_pass']['requested_k'] == 6
+    assert audit['selected_unique_spans'] <= audit['maximum_unique_spans'] == 12
+    assert audit['supplemental_remote_calls'] == 0
+    assert expected_spans <= {s['span_id'] for s in evidence['evidence_spans']}
+    report = historical({'id': topic, 'title': 'Synthetic content scenario', 'report_status': 'available',
+                         'observation': 'Synthetic fact: 64 bpm, seven recorded days.',
+                         'rows': [], 'steps': ['Check actual posture.'], 'evidence': evidence})
+    frozen = deepcopy(report)
+    body = render_report(None, report, runs=[])
+    assert report == frozen
+    assert 'Synthetic fact: 64 bpm, seven recorded days.' in body
+    assert 'Check actual posture.' in body
+    for item in evidence['items']:
+        assert item['statement'] in body
+        assert all(limit in body for limit in item['limitations'])
+        assert all(citation['url'] in body for citation in item['citations'])

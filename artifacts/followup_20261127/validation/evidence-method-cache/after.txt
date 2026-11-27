@@ -1,0 +1,86 @@
+....FF..........................                                         [100%]
+=================================== FAILURES ===================================
+_ test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.metric_retrieval-RETRIEVAL_VERSION] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1091/test_report_rechecks_evidence_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffac1fb5d0>
+module_name = 'healthzip.knowledge.metric_retrieval'
+version_field = 'RETRIEVAL_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+            before = tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],)))
+            stages = []
+            repeated = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "复用已核对的报告内容" in stages
+            assert repeated["content_signature"] == first["content_signature"]
+            module = importlib.import_module(module_name)
+            monkeypatch.setattr(module, version_field, "synthetic-new-evidence-method")
+            stages.clear()
+            revised = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "分析本期实际问题与行动" in stages
+            assert "复用已核对的报告内容" not in stages
+            assert revised["report_id"] not in {first["report_id"], repeated["report_id"]}
+>           assert revised["reading_view"] == first["reading_view"]
+E           AssertionError: assert {'charts': [{...cc58e62', ...} == {'charts': [{...8d10b52', ...}
+E             
+E             Omitting 6 identical items, use -vv to show
+E             Differing items:
+E             {'joint_fact_id': 'joint:0b08a5c67cb659e0fe33d2b1aa2a83ce2739be3eafad05ec4dff615f9cc58e62'} != {'joint_fact_id': 'joint:e4b5c35df6482309ab69c8b46b6219d0fa37dcf28ac0b35b833fd74cb8d10b52'}
+E             Use -v to get more diff
+
+tests/integration/test_followup_report_reading.py:109: AssertionError
+_ test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.topics-ANSWER_NEEDS_VERSION] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1091/test_report_rechecks_evidence_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffac388190>
+module_name = 'healthzip.knowledge.topics'
+version_field = 'ANSWER_NEEDS_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+            first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+            before = tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],)))
+            stages = []
+            repeated = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "复用已核对的报告内容" in stages
+            assert repeated["content_signature"] == first["content_signature"]
+            module = importlib.import_module(module_name)
+            monkeypatch.setattr(module, version_field, "synthetic-new-evidence-method")
+            stages.clear()
+            revised = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+            assert "分析本期实际问题与行动" in stages
+            assert "复用已核对的报告内容" not in stages
+            assert revised["report_id"] not in {first["report_id"], repeated["report_id"]}
+>           assert revised["reading_view"] == first["reading_view"]
+E           AssertionError: assert {'charts': [{...5099a32', ...} == {'charts': [{...062937c', ...}
+E             
+E             Omitting 6 identical items, use -vv to show
+E             Differing items:
+E             {'joint_fact_id': 'joint:2a9f2d199237e118eb286b47961e7bf5ca753f93643d94bb506b329905099a32'} != {'joint_fact_id': 'joint:0cc340074d6d9b8ac317074fcbfb09eb24a2cd79a7591a4e48c154d48062937c'}
+E             Use -v to get more diff
+
+tests/integration/test_followup_report_reading.py:109: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_report_reading.py::test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.metric_retrieval-RETRIEVAL_VERSION]
+FAILED tests/integration/test_followup_report_reading.py::test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.topics-ANSWER_NEEDS_VERSION]
+2 failed, 30 passed in 11.66s

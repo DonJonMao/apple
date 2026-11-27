@@ -36,6 +36,7 @@ def manifest():
     paths = [ROOT / "app.py", ROOT / "pyproject.toml", ROOT / "uv.lock", ROOT / ".streamlit/config.toml"]
     paths += [ROOT / path for path in ("tools/followup_report_benchmark.py",
         "tools/followup_page_benchmark.py", "tools/followup_report_browser_benchmark.py",
+        "tools/followup_history_interaction.py",
         "tools/repair_preview_benchmark.py", "tools/repair_measure_run.py",
         "tests/training/strength_workbench_browser_check.py", "tests/training/strength_browser_fixture.py")]
     paths += [p for p in (ROOT / "src").rglob("*") if p.is_file() and "__pycache__" not in p.parts]
@@ -235,6 +236,30 @@ def worker(args):
             frozen = load_report(repo, identity, **details_option)
             assert restored == frozen
             result["offline_reconstruction_exact"] = True
+
+            def offline_workflows(progress):
+                from healthzip.workflows.report_objects import reconstruct_workflow
+                from healthzip.workflows.storage import load_run
+
+                # Independently reread the real file. Keep this extra validation
+                # separate from the existing report-only reconstruction timer.
+                with export_path.open() as exported:
+                    payload = json.load(exported)
+                expected_ids = set(frozen.get("workflow_run_ids", [])) | set(frozen.get("historical_run_ids", []))
+                assert set(payload["workflow_runs"]) == expected_ids, "audit must include every referenced workflow"
+                verified = []
+                for run_id in sorted(expected_ids):
+                    assert reconstruct_workflow(payload, run_id) == load_run(repo, run_id), run_id
+                    verified.append(run_id)
+                return verified
+
+            verified_runs, _ = measure("offline_workflow_verification", offline_workflows)
+            result["offline_workflow_reconstruction_exact"] = True
+            result["offline_workflow_verification"] = {
+                "count": len(verified_runs), "run_ids": verified_runs,
+                "scope": "actual audit file reread, offline reconstruction of every current/historical workflow, "
+                         "and comparison with its frozen public load_run result",
+                "timing": "separate from the original report-only offline_reconstruction sample"}
             current = restored["current"]
             assert len(current["metrics"]) == 77
             actual = {source for task in current["strength_tasks"] for source in task.get("source_record_ids", [])}

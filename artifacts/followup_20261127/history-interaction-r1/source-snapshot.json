@@ -1,0 +1,18 @@
+{
+  "product_git_commit": "6f7d9c3",
+  "source_root": "/home/sn_maozhifang/healthzip-followup-validation-tmp/history-source-6f7d9c3-5khqqjiy",
+  "drivers": {
+    "tools/followup_history_interaction.py": "a2ac65911585149b440c0271c1065de129d4621635b9494f488a402bf8c03952",
+    "tools/followup_report_browser_benchmark.py": "65685d95f336c99d2d31d5a9e1e9cb85d9446789f62975d182608bb288081fc9",
+    "tools/followup_report_benchmark.py": "a06c2f9e06a723154c855e6970979ddd092abcc9a01c911a5d7bcf52f5bbbab7"
+  },
+  "purpose": "R07 history-only acceptance using 6f7d9c3 product source and current runner.postScriptGC=false configuration; existing 31 frozen reports preserved; no report generation",
+  "product_source_unchanged_from_commit": true,
+  "configuration_changes": {
+    ".streamlit/config.toml": {
+      "baseline_sha256": "932a42ea33eaccd68e0d3a7689fcf22336df79f02cc11486652e4cbc7da2360e",
+      "measured_sha256": "a4049f373fb91f9ec623edab42b2723d78162033c5b91deb01ef121f5604853a",
+      "diff": "diff --git a/.streamlit/config.toml b/.streamlit/config.toml\nindex 83a857d..407ec02 100644\n--- a/.streamlit/config.toml\n+++ b/.streamlit/config.toml\n@@ -5,3 +5,9 @@ backgroundColor = \"#0B0F14\"\n secondaryBackgroundColor = \"#141A22\"\n textColor = \"#F1F5F9\"\n font = \"sans serif\"\n+\n+[runner]\n+# Progress fragments refresh while background reports hold large live graphs.\n+# A forced full collection after every refresh stalls the worker; Python's\n+# normal automatic cyclic collection and reference counting remain enabled.\n+postScriptGC = false\n"
+    }
+  }
+}

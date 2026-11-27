@@ -1,0 +1,176 @@
+{
+  "diagnostic_only": true,
+  "performance_acceptance": false,
+  "synthetic_only": true,
+  "source_hashes": {
+    "src/healthzip/science/engine.py": "a20444365030cda0cdc3579783bcddd8553e92f96944eaa0a1b50064ac477958",
+    "tests/science/test_followup_reference_batch.py": "ffb8234ed259b9ecc575df7bb49845f0e7eee169e2c251a673d077859a8c3294",
+    "artifacts/followup_20261127/performance/reference-clone-r2/baseline-engine-excerpt.py": "e4271a1e4593d8c7148b6b694f1b8b8f25c600b30cdd6084394f8fa9c64112d2",
+    "artifacts/followup_20261127/performance/reference-clone-r2/driver-source.py": "94a85c492687e0d6c3208de619509cbbabac0c150fff53b3bacfa1a26f689686"
+  },
+  "python": "3.11.7",
+  "platform": "Linux-5.15.0-25-generic-aarch64-with-glibc2.35",
+  "logical_cpus": 192,
+  "initial_load": [
+    20.5732421875,
+    24.37109375,
+    24.86083984375
+  ],
+  "gc_enabled": true,
+  "gc_thresholds": [
+    700,
+    10,
+    10
+  ],
+  "prototype_field_count": 26,
+  "prototype_types": {
+    "dict": 4,
+    "str": 64,
+    "NoneType": 6,
+    "int": 5,
+    "list": 8
+  },
+  "prototype_sha256": "5e32e4ce04fe466db84818147caa29b97337a6865b50fed03653e463ee5747b8",
+  "context": {
+    "timezone": "UTC",
+    "comparison_pair": [
+      {
+        "id": "set-8",
+        "set_id": "set-8",
+        "session_id": "session-8",
+        "user_id": "synthetic",
+        "exercise_id": "bench",
+        "definition_version": 1,
+        "equipment_instance_id": "bar-1",
+        "load_basis": "external_total_kg",
+        "load_basis_confirmed": true,
+        "load_value": 60,
+        "load_unit": "kg",
+        "measurement_mode": "repetitions",
+        "side": "bilateral",
+        "repetition_semantics": "both_together",
+        "rom_protocol": "full_declared",
+        "settings": {},
+        "settings_confirmed": true,
+        "reference_protocol": {
+          "protocol_id": "first-work",
+          "version": "1",
+          "reference_policy_id": "first-work-v1",
+          "effort_protocol": "target-rir-2",
+          "tempo": "controlled",
+          "rest_protocol": "user-180s"
+        },
+        "reference_policy_id": "first-work-v1",
+        "set_position": 1,
+        "effort_protocol": "target-rir-2",
+        "tempo": "controlled",
+        "rest_protocol": "user-180s",
+        "role": "work",
+        "status": "completed",
+        "reps": 10,
+        "rir": 2,
+        "stop_reason": "target_rir_stop",
+        "is_reference": true,
+        "reference_declared_at": "2026-08-01T00:00:00+00:00",
+        "quality_status": "acceptable",
+        "event_end": "2026-10-17T00:00:00+00:00",
+        "available_at": "2026-12-01T00:00:00Z",
+        "_event_end": "2026-10-17T00:00:00+00:00"
+      }
+    ]
+  },
+  "rounds": 9,
+  "order": "baseline/optimized and optimized/baseline alternate by round",
+  "stages": {
+    "clone": {
+      "calls_per_sample": 5000,
+      "seconds": {
+        "baseline": [
+          0.25155142694711685,
+          0.25183115154504776,
+          0.2512010857462883,
+          0.25113264471292496,
+          0.2523918151855469,
+          0.25220128893852234,
+          0.2524133399128914,
+          0.2523405998945236,
+          0.2527557387948036
+        ],
+        "optimized": [
+          0.11567150801420212,
+          0.11575675755739212,
+          0.1156582236289978,
+          0.11577040702104568,
+          0.11585245281457901,
+          0.11512075364589691,
+          0.11504395306110382,
+          0.11508827656507492,
+          0.1158955916762352
+        ]
+      },
+      "median_seconds": {
+        "baseline": 0.25220128893852234,
+        "optimized": 0.11567150801420212
+      },
+      "median_speedup": 2.1803233420935184
+    },
+    "ordinary_reference_helper": {
+      "calls_per_sample": 2000,
+      "seconds": {
+        "baseline": [
+          0.23577825725078583,
+          0.23505891859531403,
+          0.23496360331773758,
+          0.2348940372467041,
+          0.23477011919021606,
+          0.23461245745420456,
+          0.23453151434659958,
+          0.2351878508925438,
+          0.23517564684152603
+        ],
+        "optimized": [
+          0.17241182178258896,
+          0.1720040664076805,
+          0.17246584594249725,
+          0.17218509316444397,
+          0.17216377705335617,
+          0.17199864238500595,
+          0.17187251895666122,
+          0.17217449843883514,
+          0.1723111867904663
+        ]
+      },
+      "median_seconds": {
+        "baseline": 0.23496360331773758,
+        "optimized": 0.17217449843883514
+      },
+      "median_speedup": 1.3646829550730952
+    }
+  },
+  "profile": {
+    "baseline": [
+      {
+        "name": "<code object deepcopy at 0x10eac0d0, file \"/home/sn_maozhifang/anaconda3/lib/python3.11/copy.py\", line 128>",
+        "calls": 174000,
+        "recursive_calls": 172000,
+        "total_seconds": 0.5494745510000001
+      }
+    ],
+    "optimized": [
+      {
+        "name": "<code object _clone_ordinary_reference_result at 0x10f90520, file \"/home/sn_maozhifang/apple/src/healthzip/science/engine.py\", line 385>",
+        "calls": 24000,
+        "recursive_calls": 22000,
+        "total_seconds": 0.12440163800000001
+      }
+    ]
+  },
+  "prototype_unchanged": true,
+  "source_unchanged": true,
+  "final_load": [
+    19.96630859375,
+    24.18212890625,
+    24.796875
+  ],
+  "gc_enabled_after": true
+}

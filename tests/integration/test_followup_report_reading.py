@@ -82,6 +82,51 @@ def test_report_cache_tracks_question_versions_without_rewriting_old_freeze(tmp_
         assert read_question(repo, next(q for q in first["questions"] if q["id"] == "W2")) == old_question
 
 
+@pytest.mark.parametrize("module_name,version_field", [
+    ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+    ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+])
+def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+        tmp_path, monkeypatch, module_name, version_field):
+    import importlib
+    from datetime import datetime, timezone
+
+    from healthzip.science import contracts
+
+    class MetricClockType(type):
+        def __instancecheck__(cls, instance):
+            return isinstance(instance, datetime)
+
+    class FixedMetricClock(datetime, metaclass=MetricClockType):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 11, 27, 1, 2, 3, tzinfo=timezone.utc)
+
+    # Isolate evidence-method invalidation from the metric computation timestamp
+    # that legitimately contributes to a newly calculated joint fact identity.
+    monkeypatch.setattr(contracts, "datetime", FixedMetricClock)
+
+    with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+        independent_records(repo)
+        args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+        first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+        before = tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],)))
+        stages = []
+        repeated = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+        assert "复用已核对的报告内容" in stages
+        assert repeated["content_signature"] == first["content_signature"]
+        module = importlib.import_module(module_name)
+        monkeypatch.setattr(module, version_field, "synthetic-new-evidence-method")
+        stages.clear()
+        revised = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing", progress=stages.append)
+        assert "分析本期实际问题与行动" in stages
+        assert "复用已核对的报告内容" not in stages
+        assert revised["report_id"] not in {first["report_id"], repeated["report_id"]}
+        assert revised["reading_view"] == first["reading_view"]
+        assert tuple(repo.one("SELECT payload_json,markdown FROM joint_period_report WHERE report_id=?", (first["report_id"],))) == before
+        assert load_report(repo, first["report_id"]) == first
+
+
 def test_same_timestamp_history_versions_open_the_selected_frozen_id(tmp_path, monkeypatch):
     from datetime import datetime, timezone
 

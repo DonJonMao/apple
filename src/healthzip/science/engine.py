@@ -379,6 +379,43 @@ def evaluate_subset(metric_ids_to_compute, records, *, cutoff_time, window_start
         for mid in metric_ids_to_compute}
 
 
+_REFERENCE_ATOMIC_TYPES = frozenset({type(None), bool, int, float, str})
+
+
+def _clone_ordinary_reference_result(value, memo=None):
+    """Clone this validated prototype without dispatching every JSON scalar.
+
+    A per-copy memo preserves aliases while isolating nested mutable values.
+    Only exact built-in dict/list/scalars take the fast path; tuples and any
+    subclasses keep standard deepcopy semantics, including their own metadata.
+    This is private to ordinary STR-11 absence results, not a MetricResult copier.
+    """
+    value_type = type(value)
+    if value_type in _REFERENCE_ATOMIC_TYPES:
+        return value
+    if memo is None:
+        memo = {}
+    identity = id(value)
+    if identity in memo:
+        return memo[identity]
+    if value_type is dict:
+        cloned = {}
+        memo[identity] = cloned
+        for key, item in value.items():
+            copied_key = key if type(key) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(key, memo)
+            cloned[copied_key] = item if type(item) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(item, memo)
+        return cloned
+    if value_type is list:
+        cloned = []
+        memo[identity] = cloned
+        cloned.extend(item if type(item) in _REFERENCE_ATOMIC_TYPES else _clone_ordinary_reference_result(item, memo)
+                      for item in value)
+        return cloned
+    from copy import deepcopy
+
+    return deepcopy(value, memo)
+
+
 def _ordinary_reference_result(rows, window, context, bounded, templates):
     """Reuse the STR-11 absence result for already selected ordinary inventories.
 
@@ -387,8 +424,6 @@ def _ordinary_reference_result(rows, window, context, bounded, templates):
     still runs for every task; nominated or exceptional inputs keep the normal
     executor. Each public result owns its nested values and all source IDs.
     """
-    from copy import deepcopy
-
     def normal():
         return evaluate("STR-11", cutoff_time=window.cutoff_time, window_start=window.start,
                         window_end=window.end, context=context, _normalized=rows,
@@ -412,9 +447,9 @@ def _ordinary_reference_result(rows, window, context, bounded, templates):
                 ["predesignated_reference_missing"],
                 ["predesignated_reference_missing", "retrospective_snapshot_not_prospective"]):
             return prototype
-        templates["no_designated_reference"] = deepcopy(prototype)
+        templates["no_designated_reference"] = _clone_ordinary_reference_result(prototype)
         return prototype
-    value = deepcopy(prototype)
+    value = _clone_ordinary_reference_result(prototype)
     value.update(source_record_ids=sorted({str(row["_source_id"]) for row in rows}),
                  total_n=len(rows), input_snapshot_n=len(rows), input_available_n=len(rows),
                  n_sessions=len({row["session_id"] for row in rows if row.get("session_id") is not None}))

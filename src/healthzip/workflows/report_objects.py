@@ -7,10 +7,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from copy import deepcopy
 from datetime import datetime, timezone
 
 LEGACY_FORMAT = "frozen-report-references-1"
 FORMAT = "frozen-report-references-2"
+WORKFLOW_FORMAT = "workflow-training-references-1"
 
 
 def report_findings(payload):
@@ -28,10 +30,14 @@ def report_findings(payload):
 
 def reading_view(payload):
     """Explicit small frozen reading projection, not a recomputed analysis."""
-    from healthzip.analytics.health_context import joint_observations, sleep_comparison_metric
+    from healthzip.analytics.health_context import (
+        joint_observations,
+        sleep_comparison_metric,
+        stream_labels,
+    )
     current = payload["current"]
     if not all(k in current for k in ("window_start", "window_end", "cutoff_time", "timezone")):
-        return {"version": "report-reading-view-1", "window": {}, "findings": [], "charts": [],
+        return {"version": "report-reading-view-2", "window": {}, "findings": [], "charts": [],
                 "limitation": "此冻结内容未提供标准周期阅读字段，原始内容仍可完整读取。"}
     observations = joint_observations(current)
     charts = []
@@ -41,8 +47,10 @@ def reading_view(payload):
         if mid == "REPORT-STATE-SUMMARY":
             metric = sleep_comparison_metric(metric)
         streams = []
-        for stream in metric.get("comparison", {}).get("streams", []):
+        original_streams = metric.get("comparison", {}).get("streams", [])
+        for stream, label in zip(original_streams, stream_labels(original_streams)):
             compact = {k: v for k, v in stream.items() if k not in {"current", "previous", "reference"}}
+            compact["display_label"] = label
             for name in ("current", "previous", "reference"):
                 period = stream.get(name, {})
                 compact[name] = {k: v for k, v in period.items() if k not in {
@@ -56,7 +64,7 @@ def reading_view(payload):
             charts.append({"metric_id": mid, "title": title, "unit": unit, "scale": scale,
                            "comparison": {"streams": streams}})
     tasks = current.get("strength_tasks", [])
-    return {"version": "report-reading-view-1", "window": {"start": current["window_start"],
+    return {"version": "report-reading-view-2", "window": {"start": current["window_start"],
         "end": current["window_end"], "cutoff_time": current["cutoff_time"], "timezone": current["timezone"]},
         "findings": report_findings(payload), "charts": charts,
         "training": {"task_count": len(tasks),
@@ -65,22 +73,58 @@ def reading_view(payload):
         "joint_fact_id": observations["context"].get("fact_id")}
 
 
-def _save_training(repo, ordinary):
+def _save_training(repo, ordinary, *, include_preview=True, allow_nan=True):
     # Each scientific group retains its own identity. This is storage sharing,
     # not pooling unknown conditions or choosing a best set.
-    groups = [save_object(repo, "ordinary-training-series", group) for group in ordinary.get("series", [])]
+    groups = [save_object(repo, "ordinary-training-series", group, allow_nan=allow_nan)
+              for group in ordinary.get("series", [])]
+    header = {k: v for k, v in ordinary.items() if k != "series"}
+    reference = save_object(repo, "ordinary-training", {**header, **({"series": groups} if "series" in ordinary else {})},
+                            allow_nan=allow_nan)
+    if not include_preview:
+        return reference, None
     index = [{"series_id": group["series_id"], "summary": group["summary"],
               "record_count": group["record_count"], "reference": reference}
              for group, reference in zip(ordinary.get("series", []), groups)]
-    header = {k: v for k, v in ordinary.items() if k != "series"}
-    reference = save_object(repo, "ordinary-training", {**header, **({"series": groups} if "series" in ordinary else {})})
     preview = {k: v for k, v in header.items() if k in {"version", "window", "record_count", "limitations", "identity"}}
     return reference, {**preview, "index_ref": save_object(repo, "ordinary-training-index", index)}
 
 
-def save_object(repo, kind, payload):
+def save_workflow(repo, result):
+    """Freeze a storage copy inside the caller's existing workflow transaction."""
+    ordinary = result.get("supplements", {}).get("ordinary_training")
+    if not ordinary:
+        return result
+    reference, _ = _save_training(repo, ordinary, include_preview=False, allow_nan=False)
+    return {**result, "storage_format": WORKFLOW_FORMAT,
+            "supplements": {**result["supplements"], "ordinary_training": reference}}
+
+
+def read_workflow(repo, stored):
+    """Restore the unchanged public workflow contract, including legacy rows."""
+    if "storage_format" not in stored:
+        return stored
+    if stored["storage_format"] != WORKFLOW_FORMAT:
+        raise ValueError("unsupported_workflow_storage_format")
+    ordinary = read_object(repo, stored["supplements"]["ordinary_training"])
+    if "series" in ordinary:
+        references = ordinary["series"]
+        identities = list(dict.fromkeys(group["$frozen_object"] for group in references))
+        rows = repo.rows("SELECT object_id,payload_json FROM report_content_object WHERE user_id='local' "
+                         "AND object_id IN (SELECT value FROM json_each(?))", (json.dumps(identities),)) if identities else []
+        groups = {row["object_id"]: row["payload_json"] for row in rows}
+        if len(groups) != len(identities):
+            raise ValueError("frozen_report_content_missing")
+        # Restore list order, including repeated references, with independent
+        # mutable values. The parser retains stdlib integer/float semantics.
+        ordinary["series"] = [json.loads(groups[group["$frozen_object"]]) for group in references]
+    return {**{key: value for key, value in stored.items() if key != "storage_format"},
+            "supplements": {**stored["supplements"], "ordinary_training": ordinary}}
+
+
+def save_object(repo, kind, payload, *, allow_nan=True):
     """Append-only immutable content. The caller owns the commit boundary."""
-    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, allow_nan=allow_nan)
     scope = json.dumps([str(repo.path.resolve()), repo.path.stat().st_ino, "local", kind])
     identity = hashlib.sha256((scope + "\0" + encoded).encode()).hexdigest()
     repo.conn.execute("INSERT OR IGNORE INTO report_content_object VALUES(?,?,?,?,?)",
@@ -245,9 +289,43 @@ def audit_bundle(repo, report_id):
             if analysis is None:
                 raise ValueError("frozen_report_workflow_analysis_missing")
             analyses[frozen[1]] = json.loads(analysis[0])
-    return {"format": "healthzip-frozen-audit-2", "report_manifest": manifest,
+    format_name = ("healthzip-frozen-audit-3" if any(run.get("storage_format") == WORKFLOW_FORMAT for run in runs.values())
+                   else "healthzip-frozen-audit-2")
+    return {"format": format_name, "report_manifest": manifest,
             "content_objects": objects, "workflow_runs": runs, "analysis_objects": analyses,
             "scope": "frozen observations, methods and selected evidence; not a fresh recommendation"}
+
+
+def _resolve_bundle_objects(bundle, value, *, share_references=True):
+    resolved = {}
+
+    def resolve(value):
+        if isinstance(value, dict):
+            if set(value) == {"$frozen_object"}:
+                identity = value["$frozen_object"]
+                if identity not in resolved:
+                    resolved[identity] = resolve(bundle["content_objects"][identity])
+                elif not share_references:
+                    # Workflow consumers receive the same independent mutable
+                    # values as load_run, even when a series occurs twice.
+                    return deepcopy(resolved[identity])
+                return resolved[identity]
+            return {key: resolve(child) for key, child in value.items()}
+        if isinstance(value, list):
+            return [resolve(child) for child in value]
+        return value
+    return resolve(value)
+
+
+def reconstruct_workflow(bundle, run_id):
+    """Restore one workflow from either audit format, without current records."""
+    if bundle.get("format") not in {"healthzip-frozen-audit-2", "healthzip-frozen-audit-3"}:
+        raise ValueError("unsupported_frozen_audit_format")
+    result = _resolve_bundle_objects(bundle, bundle["workflow_runs"][run_id], share_references=False)
+    if "storage_format" in result:
+        if result.pop("storage_format") != WORKFLOW_FORMAT:
+            raise ValueError("unsupported_workflow_storage_format")
+    return result
 
 
 def reconstruct_report(bundle):
@@ -255,19 +333,7 @@ def reconstruct_report(bundle):
     manifest = bundle["report_manifest"]
     if manifest.get("storage_format") not in {FORMAT, LEGACY_FORMAT}:
         return dict(manifest)
-    resolved = {}
-    def resolve(value):
-        if isinstance(value, dict):
-            if set(value) == {"$frozen_object"}:
-                identity = value["$frozen_object"]
-                if identity not in resolved:
-                    resolved[identity] = resolve(bundle["content_objects"][identity])
-                return resolved[identity]
-            return {key: resolve(child) for key, child in value.items()}
-        if isinstance(value, list):
-            return [resolve(child) for child in value]
-        return value
-    content = resolve(bundle["content_objects"][manifest["content_ref"]])
+    content = _resolve_bundle_objects(bundle, bundle["content_objects"][manifest["content_ref"]])
     reference = content.pop("current_ref")
     content["current"] = bundle["analysis_objects"][reference["id"]]
     return {**content, **{key: value for key, value in manifest.items()

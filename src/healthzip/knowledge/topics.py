@@ -51,8 +51,26 @@ VERSION = 'review-question-use-2026-11-22.1'
 
 # Substantive public answer targets, separate from the immutable metric-use
 # profile. A purpose tag alone does not establish that this question is answered.
-ANSWER_NEEDS_VERSION = 'public-topic-answer-needs-1'
+ANSWER_NEEDS_VERSION = 'public-topic-answer-needs-2'
 ANSWER_NEEDS = {
+    'hrv_metric_and_recording_identity': {
+        'topics': ['BODY-OBS-hrv_sdnn_ms'],
+        'purposes': ['measurement', 'comparison'],
+        'question': 'SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？',
+        'query': 'SDNN RMSSD definition recording epoch length comparability',
+        'target_claim': {'proposition': 'SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。',
+                         'scope': {'use': 'hrv_definition_and_recording_identity',
+                                   'device_accuracy': 'not_established'}},
+    },
+    'training_state_measurement_context': {
+        'topics': ['W2'],
+        'purposes': ['measurement', 'action_or_reassessment'],
+        'question': '核对训练后心率和HRV时，测量情境未知应先补记什么？',
+        'query': 'heart rate HRV activity posture sleep wake context recording reassessment',
+        'target_claim': {'proposition': '先分开同姿势和低活动等可比片段，情境未知时补记测量时正在做什么。',
+                         'scope': {'use': 'record_actual_measurement_context',
+                                   'unrecorded_fatigue_or_illness': 'not_inferred'}},
+    },
     'hrv_direction_and_training_response': {
         'topics': ['BODY-OBS-hrv_sdnn_ms', 'W2', 'W6'],
         'purposes': ['mechanism_or_exception', 'action_or_reassessment'],
@@ -72,6 +90,62 @@ ANSWER_NEEDS = {
                          'scope': {'use': 'measurement_validation_transfer_limits',
                                    'metric': 'SDNN_separate_from_RMSSD_and_heart_rate',
                                    'current_device_accuracy': 'not_established'}},
+    },
+    'hrv_missing_observation_unit': {
+        'topics': ['BODY-OBS-hrv_sdnn_ms', 'W2', 'W6'],
+        'purposes': ['measurement', 'comparison'],
+        'question': '心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？',
+        'query': 'missing interbeat intervals five minute window absent days HRV observation unit',
+        'target_claim': {'proposition': '心搏片段内的缺口研究不能建立整日HRV缺测的容忍天数。',
+                         'scope': {'use': 'within_window_missingness_not_absent_days',
+                                   'minimum_observation_days': 'not_established'}},
+    },
+    'repetition_load_population_transfer': {
+        'topics': ['W1'],
+        'purposes': ['comparison', 'mechanism_or_exception'],
+        'question': '群体次数与最大负荷百分比的关系，能否确定本人或另一动作的负荷换算？',
+        'query': 'repetitions percentage one repetition maximum individual variation bench press leg press',
+        'target_claim': {'proposition': '次数与最大负荷百分比的群体模型不提供个人或跨动作的确定性换算。',
+                         'scope': {'use': 'population_repetition_load_model_limits',
+                                   'individual_conversion': 'not_established'}},
+    },
+    'measured_estimated_1rm_reliability': {
+        'topics': ['W1'],
+        'purposes': ['measurement', 'comparison'],
+        'question': '直接测试1RM的重测可靠性，是否也验证了由普通训练推算的e1RM？',
+        'query': 'direct one repetition maximum test retest reliability estimated 1RM measurement error',
+        'target_claim': {'proposition': '直接1RM测试的重测可靠性不能直接转移给训练记录推算的e1RM。',
+                         'scope': {'use': 'direct_1rm_reliability_not_e1rm_validation',
+                                   'individual_estimate_error': 'not_established'}},
+    },
+    'watch_oxygen_agreement_scope': {
+        'topics': ['BODY-OBS-oxygen_saturation_fraction'],
+        'purposes': ['measurement', 'comparison', 'mechanism_or_exception'],
+        'question': 'Apple Watch血氧研究的平均偏差小，是否代表本人每次读数准确？',
+        'query': 'Apple Watch Series 6 8 blood oxygen mean bias limits agreement hypoxic measurement conditions',
+        'target_claim': {'proposition': '所研究Apple Watch血氧的平均偏差与单次读数一致性不同，不能由均值认定个人读数准确。',
+                         'scope': {'use': 'reviewed_spo2_agreement_scope',
+                                   'device_scope': 'studied_Series_6_to_8',
+                                   'personal_error_bound': 'not_established'}},
+    },
+    'watch_steps_validation_scope': {
+        'topics': ['BODY-OBS-steps'],
+        'purposes': ['measurement', 'comparison'],
+        'question': '早期Apple Watch步数验证，是否已覆盖当前型号和坐着活动手臂等场景？',
+        'query': 'Apple Watch First Generation Series 1 step count validation seated arm movement',
+        'target_claim': {'proposition': '所汇总早期Apple Watch步数研究未验证全部后续型号或坐着活动手臂等场景。',
+                         'scope': {'use': 'step_count_validation_transfer_limits',
+                                   'device_scope': 'First_Generation_and_Series_1'}},
+    },
+    'watch_night_vital_validation_scope': {
+        'topics': ['BODY-OBS-respiratory_rate_bpm', 'BODY-OBS-sleeping_wrist_temperature_c'],
+        'purposes': ['measurement', 'comparison'],
+        'question': '已有Apple Watch其他指标的验证，是否已证明呼吸率和腕温的变化准确？',
+        'query': 'Apple Watch respiratory rate wrist temperature longitudinal validation evidence gaps',
+        'target_claim': {'proposition': '该Apple Watch综述仍要求验证呼吸率和腕温，其他指标的结果不提供其个人变化精度。',
+                         'scope': {'use': 'review_specific_respiratory_and_wrist_temperature_gap',
+                                   'all_literature_absent': False,
+                                   'individual_change_threshold': 'not_established'}},
     },
 }
 
@@ -128,18 +202,19 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
     needs = list(PURPOSES if required_purposes is None else required_purposes)
     if not set(needs) <= set(PURPOSES):
         raise ValueError('unknown_public_question_purpose')
+    from .support import target_key
+    requested_answers = {key: target_key(spec['target_claim']) for key, spec in ANSWER_NEEDS.items()
+                         if topic in spec['topics'] and set(needs) & set(spec['purposes'])}
     prepare_retrieval_revisions(w)
     evidence = _retrieve_for_metric(w, topic, 'explain_metric', None, context, release_id,
-                                    mode=mode, k=k, candidate_scope='reviewed_metric', services=services)
+                                    mode=mode, k=k, candidate_scope='reviewed_metric', services=services,
+                                    answer_priorities=list(requested_answers) or None)
     covered = {p for c in evidence['matched_claims'] if not claim_conflicts(c, evidence['conflicts'])
                for p in c['evidence_types']}
     missing = sorted(set(needs) - covered)
     initial_audit = evidence['retrieval_audit']
     available = {p for g in initial_audit.get('metric_candidate_scope', {}).get('complete_group_refs', [])
                  for p in g.get('evidence_types', [])}
-    from .support import target_key
-    requested_answers = {key: target_key(spec['target_claim']) for key, spec in ANSWER_NEEDS.items()
-                         if topic in spec['topics'] and set(needs) & set(spec['purposes'])}
     answered = {target for claim in evidence['matched_claims'] if not claim_conflicts(claim, evidence['conflicts'])
                 for target in answer_targets(claim.get('answer_bindings', []), context)}
     available_answers = {target for group in initial_audit.get('metric_candidate_scope', {}).get('complete_group_refs', [])
@@ -202,7 +277,7 @@ def question_sources(w, topic, *, mode='lexical', k=6, context=None, release_id=
     covered = {p for c in items for p in c['purposes']}
     answered = {target for item in items for target in answer_targets(item.get('answer_bindings', []), context)}
     disputed_answers = {target for item in restricted for target in answer_targets(item.get('answer_bindings', []), context)}
-    audit = {**initial_audit, 'question_selection_version': 'bounded-topic-use-2',
+    audit = {**initial_audit, 'question_selection_version': 'bounded-topic-use-3',
              'required_purposes': needs, 'initial_missing_purposes': missing,
              'answer_needs_version': ANSWER_NEEDS_VERSION, 'initial_missing_answers': missing_answers,
              'answer_status': {key: {'question': ANSWER_NEEDS[key]['question'],

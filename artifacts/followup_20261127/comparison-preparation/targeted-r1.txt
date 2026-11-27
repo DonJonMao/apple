@@ -1,0 +1,23 @@
+F..............................................................          [100%]
+=================================== FAILURES ===================================
+_____ test_complete_rows_are_resolved_once_without_losing_support_windows ______
+
+    def test_complete_rows_are_resolved_once_without_losing_support_windows():
+        rows = [sample("earlier", 2, 60), sample("current", 10, 65),
+                sample("other-type", 11, 22, canonical_type="body_mass_kg", unit="kg")]
+        expected = prior_comparison(rows, WINDOW)
+        with patch.object(reports, "select_as_of", wraps=select_as_of) as selected:
+            actual = reports.report_comparison(rows, WINDOW)
+        assert actual == expected
+        complete_calls = [call for call in selected.call_args_list if call.args[0] is rows]
+        assert len(complete_calls) == 1
+        assert complete_calls[0].kwargs == {"retrospective": False, "overlap": True}
+        stream = actual["streams"][0]
+        assert stream["current"]["value"] == 65
+>       assert stream["previous"]["value"] == 60
+E       assert None == 60
+
+tests/science/test_followup_report_comparison_preparation.py:73: AssertionError
+=========================== short test summary info ============================
+FAILED tests/science/test_followup_report_comparison_preparation.py::test_complete_rows_are_resolved_once_without_losing_support_windows
+1 failed, 62 passed in 2.13s

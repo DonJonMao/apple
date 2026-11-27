@@ -396,12 +396,15 @@ def _run_workflow(repo, request: WorkflowRequest, *, knowledge_root, parent_run_
         existing = repo.conn.execute("SELECT result_json FROM workflow_run WHERE run_id=? AND user_id='local'", (run_id,)).fetchone()
         if existing:
             repo.conn.commit()
-            return json.loads(existing[0])
+            from .report_objects import read_workflow
+            return read_workflow(repo, json.loads(existing[0]))
         repo.conn.execute("INSERT OR IGNORE INTO analysis_run(run_id,cutoff_time,computed_at,algorithm_version,data_hash,result_json) VALUES(?,?,?,?,?,?)",
             (analysis_id, declared_request["cutoff_time"], now, analysis["algorithm_version"], input_hash, analysis_payload))
+        from .report_objects import save_workflow
+        stored = save_workflow(repo, result)
         repo.conn.execute("INSERT INTO workflow_run VALUES(?,?,?,?,?,?,?,?,?,?)", (run_id, "local", request.workflow_id,
             VERSION, parent_run_id, analysis_id, json.dumps(declared_request, sort_keys=True), input_hash,
-            json.dumps(result, ensure_ascii=False, sort_keys=True, allow_nan=False), now))
+            json.dumps(stored, ensure_ascii=False, sort_keys=True, allow_nan=False), now))
         repo.conn.commit()
         return result
     except BaseException:

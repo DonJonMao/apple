@@ -35,7 +35,7 @@ BODY = ("STATE-SLEEP-MAIN", "STATE-SLEEP-24H", "STATE-SLEEP-COVERAGE", "STATE-SL
         "ENERGY-RECORD-COVERAGE", "ENERGY-IDENTIFIABILITY")
 
 
-REPORT_VERSION = "joint-period-report-3.0.1"
+REPORT_VERSION = "joint-period-report-3.0.2"
 
 
 def _fast_json_compatible(value):
@@ -108,9 +108,12 @@ def create_report(repo, analysis, *, period, knowledge_root=".local/knowledge", 
               "retrospective", "algorithm_version")}
     from healthzip.analytics.body_questions import GUIDANCE_VERSION
     from healthzip.analytics.body_questions import VERSION as QUESTION_VERSION
+    from healthzip.knowledge.metric_retrieval import RETRIEVAL_VERSION
+    from healthzip.knowledge.topics import ANSWER_NEEDS_VERSION
     key = {"version": REPORT_VERSION, "period": period, "selection": fields, "inputs": before,
            "knowledge": knowledge_before, "cycle_enabled": cycle_enabled,
-           "question_algorithm": QUESTION_VERSION, "question_guidance": GUIDANCE_VERSION}
+           "question_algorithm": QUESTION_VERSION, "question_guidance": GUIDANCE_VERSION,
+           "evidence_retrieval": RETRIEVAL_VERSION, "question_answer_needs": ANSWER_NEEDS_VERSION}
     built = False
 
     def assemble():

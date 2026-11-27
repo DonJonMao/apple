@@ -10,6 +10,7 @@ from healthzip.analytics.health_context import (
 from healthzip.analytics.health_context import (
     coverage_label,
     period_label,
+    stream_labels,
 )
 
 
@@ -35,7 +36,7 @@ def comparison_next_steps(metric, domain):
 
 def _stream_name(stream):
     from healthzip.ui.body_pages import source_name
-    return source_name(stream.get("protocol") or stream.get("stream_id"))
+    return stream.get("display_label") or source_name(stream.get("protocol") or stream.get("stream_id"))
 
 
 def compact_period_label(summary):
@@ -118,7 +119,8 @@ def render_comparison(metric, title, unit, *, scale=1, key="health", chart=True)
     streams = comparison.get("streams", [])
     if not streams:
         return False
-    for index, stream in enumerate(streams):
+    for index, (original, label) in enumerate(zip(streams, stream_labels(streams))):
+        stream = {**original, "display_label": label}
         current = stream.get("current", {})
         if len(streams) > 1:
             st.markdown(f"**{title} · {_stream_name(stream)} · 条件组 {index + 1}**")

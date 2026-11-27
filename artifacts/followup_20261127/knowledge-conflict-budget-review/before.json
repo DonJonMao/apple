@@ -1,0 +1,2337 @@
+{
+  "synthetic_only": true,
+  "original_databases_opened": false,
+  "external_calls": 0,
+  "comparison": "Same current code and synthetic library; disable only the newly added answer_priorities argument",
+  "answer_group_sizes": {
+    "hrv_metric_and_recording_identity": 2,
+    "hrv_direction_and_training_response": 3,
+    "wearable_hrv_protocol_transfer": 3,
+    "hrv_missing_observation_unit": 3
+  },
+  "independent_group_size": 2,
+  "summary": {
+    "current": {
+      "status": "conflicting",
+      "items": [],
+      "restricted": [
+        "z0",
+        "z1"
+      ],
+      "first_groups": [
+        "z0",
+        "z1"
+      ],
+      "supplemental_groups": [
+        "z0",
+        "z1"
+      ],
+      "unique_spans": 6,
+      "maximum_spans": 12
+    },
+    "new_answer_priorities_disabled": {
+      "status": "partial_conflict",
+      "items": [
+        "a"
+      ],
+      "restricted": [
+        "z0",
+        "z1"
+      ],
+      "first_groups": [
+        "a",
+        "z0"
+      ],
+      "supplemental_groups": [
+        "z0",
+        "z1"
+      ],
+      "unique_spans": 7,
+      "maximum_spans": 12
+    }
+  },
+  "source_hashes": {
+    "src/healthzip/knowledge/metric_retrieval.py": "0c0311f940a0edde6d479056ee9bfd34e26f05f6edad0754231ece75dd65dc59",
+    "src/healthzip/knowledge/topics.py": "308f417e5ade5ce9a308e7d0d139d4a8a2fe0cbff02fc8731d4cae3b963d46f7"
+  },
+  "driver_sha256": "94d407db65a27fc7986fcf25ceb4e100fc74f6747d37544b692b6a943ea74777",
+  "full_results": {
+    "current": {
+      "topic": "BODY-OBS-hrv_sdnn_ms",
+      "catalog": "K1",
+      "items": [],
+      "restricted_items": [
+        {
+          "claim_id": "z0",
+          "version": "1",
+          "statement": "Synthetic applicable explanation z0.",
+          "limitations": [
+            "Only this synthetic protocol; not a clinical conclusion."
+          ],
+          "scope": {
+            "explanation_purpose": "measurement_context"
+          },
+          "reviewer_kind": "synthetic_fixture",
+          "required_claim_refs": [
+            {
+              "claim_id": "z0p0",
+              "claim_version": "1"
+            }
+          ],
+          "answer_bindings": [
+            {
+              "answer_complete": true,
+              "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+              "rationale": "Synthetic content check with exact original evidence",
+              "relation": "supports",
+              "target_claim": {
+                "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                "scope": {
+                  "device_accuracy": "not_established",
+                  "use": "hrv_definition_and_recording_identity"
+                }
+              },
+              "target_coverage_complete": true
+            }
+          ],
+          "purposes": [
+            "comparison",
+            "measurement"
+          ],
+          "citations": [
+            {
+              "source_id": "z0",
+              "version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "title": "Synthetic original z0",
+              "url": "https://example.invalid/z0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z0p0",
+              "version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+              "title": "Synthetic original z0p0",
+              "url": "https://example.invalid/z0p0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+            }
+          ],
+          "reason": "conflicting_claim_or_required_premise",
+          "conflicts": [
+            {
+              "actor": "Synthetic",
+              "applicability": {},
+              "application_review": null,
+              "evidence": [
+                {
+                  "source_id": "z0",
+                  "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+                  "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "text_hash": "34bea71b18265d9d1052e7675e99eda83c2d23ff927a7a4f9330c3060bef00bb"
+                },
+                {
+                  "source_id": "rival",
+                  "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+                  "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+                  "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+                }
+              ],
+              "evidence_types": [],
+              "grants_capability": false,
+              "origin": {
+                "id": "z0",
+                "type": "claim",
+                "version": "1"
+              },
+              "rationale": "Independent exact edge scenario",
+              "relation": "conflicts_with",
+              "target": {
+                "id": "rival",
+                "type": "claim",
+                "version": "1"
+              }
+            }
+          ],
+          "recommendation_allowed": false
+        },
+        {
+          "claim_id": "z1",
+          "version": "1",
+          "statement": "Synthetic applicable explanation z1.",
+          "limitations": [
+            "Only this synthetic protocol; not a clinical conclusion."
+          ],
+          "scope": {
+            "explanation_purpose": "measurement_context"
+          },
+          "reviewer_kind": "synthetic_fixture",
+          "required_claim_refs": [
+            {
+              "claim_id": "z1p0",
+              "claim_version": "1"
+            },
+            {
+              "claim_id": "z1p1",
+              "claim_version": "1"
+            }
+          ],
+          "answer_bindings": [
+            {
+              "answer_complete": true,
+              "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+              "rationale": "Synthetic content check with exact original evidence",
+              "relation": "supports",
+              "target_claim": {
+                "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                "scope": {
+                  "individual_threshold": "not_established",
+                  "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                  "use": "training_response_interpretation_limits"
+                }
+              },
+              "target_coverage_complete": true
+            }
+          ],
+          "purposes": [
+            "action_or_reassessment",
+            "mechanism_or_exception"
+          ],
+          "citations": [
+            {
+              "source_id": "z1",
+              "version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "title": "Synthetic original z1",
+              "url": "https://example.invalid/z1",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z1p0",
+              "version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+              "title": "Synthetic original z1p0",
+              "url": "https://example.invalid/z1p0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z1p1",
+              "version": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture",
+              "title": "Synthetic original z1p1",
+              "url": "https://example.invalid/z1p1",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+            }
+          ],
+          "reason": "conflicting_claim_or_required_premise",
+          "conflicts": [
+            {
+              "actor": "Synthetic",
+              "applicability": {},
+              "application_review": null,
+              "evidence": [
+                {
+                  "source_id": "z1",
+                  "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+                  "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "text_hash": "a84d9bddab38ecd277f0a70dd8eb621b583a97eba64e8e2fd1ae2f6788e6861c"
+                },
+                {
+                  "source_id": "rival",
+                  "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+                  "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+                  "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+                }
+              ],
+              "evidence_types": [],
+              "grants_capability": false,
+              "origin": {
+                "id": "z1",
+                "type": "claim",
+                "version": "1"
+              },
+              "rationale": "Independent exact edge scenario",
+              "relation": "conflicts_with",
+              "target": {
+                "id": "rival",
+                "type": "claim",
+                "version": "1"
+              }
+            }
+          ],
+          "recommendation_allowed": false
+        }
+      ],
+      "conflicts": [
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z0",
+              "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+              "text_hash": "34bea71b18265d9d1052e7675e99eda83c2d23ff927a7a4f9330c3060bef00bb"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z0",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z3",
+              "source_version": "z3:fulltext:7553257f57f0c8ef950d:followup-fixture",
+              "span_id": "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+              "text_hash": "7553257f57f0c8ef950d17f6d53152d4ea57f9fee1bcd363a1a5e8914d40ae72"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z3",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z1",
+              "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+              "text_hash": "a84d9bddab38ecd277f0a70dd8eb621b583a97eba64e8e2fd1ae2f6788e6861c"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z1",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z2",
+              "source_version": "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture",
+              "span_id": "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+              "text_hash": "28aeb9f1a26dbd1135457f9bcf301c035b52a9bbe8a6b359acbaddcb2a8112f8"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z2",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        }
+      ],
+      "status": "conflicting",
+      "field_definitions": [],
+      "retrieval": {
+        "version": "metric-hybrid-1.5.8",
+        "profile_version": "review-question-use-2026-11-22.1:ea975569fd6fcaa6",
+        "rights_usage_policy_version": "source-usage-scope-1.5.0",
+        "metric_evidence_context_version": "computed-evidence-context-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "322f9ae46ca77464988a30ea012b300cc112589bd8cef3c2281d2b7d0eabee6c"
+        },
+        "candidate_scope": "reviewed_metric",
+        "candidate_scope_version": "reviewed-metric-candidates-1.5.0",
+        "requested_mode": "lexical",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "answer_allocation": {
+          "version": "reserve-one-local-pass-1",
+          "ids": [
+            "hrv_metric_and_recording_identity",
+            "hrv_direction_and_training_response",
+            "wearable_hrv_protocol_transfer",
+            "hrv_missing_observation_unit"
+          ],
+          "reserved_supplemental_span_budget": 6,
+          "extra_remote_calls": 0
+        },
+        "metric_candidate_scope": {
+          "count_domain": "currently_applicable_claim_spans",
+          "query_plan": "reviewed_claim_prefilter-1.6.0",
+          "eligible_domain_candidates": 14,
+          "background_candidates_excluded": 1,
+          "complete_group_refs": [
+            {
+              "claim_id": "z0",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z0p0",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                    "scope": {
+                      "device_accuracy": "not_established",
+                      "use": "hrv_definition_and_recording_identity"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z1",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z1p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z1p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "action_or_reassessment",
+                "mechanism_or_exception"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                    "scope": {
+                      "individual_threshold": "not_established",
+                      "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                      "use": "training_response_interpretation_limits"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z2",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+                "z2p0:fulltext:9f74f3b7dc8cbfb39917:followup-fixture:s00000",
+                "z2p1:fulltext:a1e6314984eaab056f4b:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z2p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z2p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "特定PPG设备夜间RMSSD或心率的一致性不能直接验证短时段或自由活动SDNN。",
+                    "scope": {
+                      "current_device_accuracy": "not_established",
+                      "metric": "SDNN_separate_from_RMSSD_and_heart_rate",
+                      "use": "measurement_validation_transfer_limits"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z3",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+                "z3p0:fulltext:6192cbdb46c6b38f0d8e:followup-fixture:s00000",
+                "z3p1:fulltext:a4a4c6991dcd32fc18fd:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z3p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z3p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "心搏片段内的缺口研究不能建立整日HRV缺测的容忍天数。",
+                    "scope": {
+                      "minimum_observation_days": "not_established",
+                      "use": "within_window_missingness_not_absent_days"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "a",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+                "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "ap",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "action_or_reassessment",
+                "comparison",
+                "measurement",
+                "mechanism_or_exception"
+              ],
+              "answer_bindings": []
+            }
+          ]
+        },
+        "excluded": [],
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 13,
+        "candidate_ids_sha256": "3c5f896d94c0bf7553d46678a8e3443c9732ce1ecd3bbd9cde633ed1c73a9055",
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [
+            {
+              "claim_id": "z0",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z0p0",
+                  "claim_version": "1"
+                }
+              ]
+            },
+            {
+              "claim_id": "z1",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z1p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z1p1",
+                  "claim_version": "1"
+                }
+              ]
+            }
+          ],
+          "rejected_groups": [
+            {
+              "claim_id": "a",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            },
+            {
+              "claim_id": "z2",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            },
+            {
+              "claim_id": "z3",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            }
+          ],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 13,
+        "dense_candidates": 0,
+        "fusion_candidates": 13,
+        "reranked_candidates": 0,
+        "models": {
+          "embedding": null,
+          "reranker": null
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "db01c64878ba4f80d160e79f94caeea07224887ed5b7723657c4983de10c3afc",
+        "audit_id": "6e5edb1f9fcd47c381b102381051f6ae",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+            "source_id": "z0",
+            "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+            "lexical_rank": 3,
+            "dense_rank": null,
+            "fusion_rank": 3,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000",
+            "source_id": "z0p0",
+            "source_version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+            "lexical_rank": 4,
+            "dense_rank": null,
+            "fusion_rank": 4,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+            "source_id": "z1",
+            "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+            "lexical_rank": 5,
+            "dense_rank": null,
+            "fusion_rank": 5,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+            "source_id": "z1p0",
+            "source_version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+            "lexical_rank": 6,
+            "dense_rank": null,
+            "fusion_rank": 6,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000",
+            "source_id": "z1p1",
+            "source_version": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture",
+            "lexical_rank": 7,
+            "dense_rank": null,
+            "fusion_rank": 7,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+            "source_id": "a",
+            "source_version": "a:fulltext:12c4d60db768afd23b7a:followup-fixture",
+            "lexical_rank": 1,
+            "dense_rank": null,
+            "fusion_rank": 1,
+            "reranker_rank": null
+          }
+        ],
+        "question_selection_version": "bounded-topic-use-3",
+        "required_purposes": [
+          "measurement",
+          "comparison",
+          "mechanism_or_exception",
+          "action_or_reassessment"
+        ],
+        "initial_missing_purposes": [
+          "action_or_reassessment",
+          "comparison",
+          "measurement",
+          "mechanism_or_exception"
+        ],
+        "answer_needs_version": "public-topic-answer-needs-2",
+        "initial_missing_answers": [
+          "hrv_metric_and_recording_identity",
+          "hrv_direction_and_training_response",
+          "wearable_hrv_protocol_transfer",
+          "hrv_missing_observation_unit"
+        ],
+        "answer_status": {
+          "hrv_metric_and_recording_identity": {
+            "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+            "status": "locally_conflicted"
+          },
+          "hrv_direction_and_training_response": {
+            "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+            "status": "locally_conflicted"
+          },
+          "wearable_hrv_protocol_transfer": {
+            "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+            "status": "complete_group_budget_or_rank"
+          },
+          "hrv_missing_observation_unit": {
+            "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+            "status": "complete_group_budget_or_rank"
+          }
+        },
+        "supplemental_pass": {
+          "version": "metric-hybrid-1.5.8",
+          "profile_version": "review-question-use-2026-11-22.1:ea975569fd6fcaa6",
+          "rights_usage_policy_version": "source-usage-scope-1.5.0",
+          "metric_evidence_context_version": "computed-evidence-context-1.5.0",
+          "query_form": {
+            "form_id": "legacy_combined",
+            "language": "mixed",
+            "expression": "combined",
+            "registry_version": null,
+            "registry_sha256": null,
+            "input_sha256": "322f9ae46ca77464988a30ea012b300cc112589bd8cef3c2281d2b7d0eabee6c"
+          },
+          "candidate_scope": "reviewed_metric",
+          "candidate_scope_version": "reviewed-metric-candidates-1.5.0",
+          "requested_mode": "lexical",
+          "requested_k": 6,
+          "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+          "personal_metric_values_sent": false,
+          "private_context_sent": false,
+          "retrieval_degraded": false,
+          "answer_needs": {
+            "version": "public-topic-answer-needs-2",
+            "reason": "missing_reviewed_answer_target",
+            "questions": [
+              "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+              "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+              "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+              "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？"
+            ],
+            "ids": [
+              "hrv_metric_and_recording_identity",
+              "hrv_direction_and_training_response",
+              "wearable_hrv_protocol_transfer",
+              "hrv_missing_observation_unit"
+            ],
+            "query_sha256": "ad0c0a5fa69ab2ef62c4ad0270f62adeba121344ced02821f86062eac4d432e1"
+          },
+          "metric_candidate_scope": {
+            "count_domain": "currently_applicable_claim_spans",
+            "query_plan": "reviewed_claim_prefilter-1.6.0",
+            "eligible_domain_candidates": 14,
+            "background_candidates_excluded": 1,
+            "complete_group_refs": [
+              {
+                "claim_id": "z0",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z0p0",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                      "scope": {
+                        "device_accuracy": "not_established",
+                        "use": "hrv_definition_and_recording_identity"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z1",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                  "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z1p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z1p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "action_or_reassessment",
+                  "mechanism_or_exception"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                      "scope": {
+                        "individual_threshold": "not_established",
+                        "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                        "use": "training_response_interpretation_limits"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z2",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+                  "z2p0:fulltext:9f74f3b7dc8cbfb39917:followup-fixture:s00000",
+                  "z2p1:fulltext:a1e6314984eaab056f4b:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z2p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z2p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "特定PPG设备夜间RMSSD或心率的一致性不能直接验证短时段或自由活动SDNN。",
+                      "scope": {
+                        "current_device_accuracy": "not_established",
+                        "metric": "SDNN_separate_from_RMSSD_and_heart_rate",
+                        "use": "measurement_validation_transfer_limits"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z3",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+                  "z3p0:fulltext:6192cbdb46c6b38f0d8e:followup-fixture:s00000",
+                  "z3p1:fulltext:a4a4c6991dcd32fc18fd:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z3p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z3p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "心搏片段内的缺口研究不能建立整日HRV缺测的容忍天数。",
+                      "scope": {
+                        "minimum_observation_days": "not_established",
+                        "use": "within_window_missingness_not_absent_days"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "a",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+                  "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "ap",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "action_or_reassessment",
+                  "comparison",
+                  "measurement",
+                  "mechanism_or_exception"
+                ],
+                "answer_bindings": []
+              }
+            ]
+          },
+          "excluded": [],
+          "release": {
+            "release_id": null,
+            "membership": "current"
+          },
+          "eligible_candidate_count": 13,
+          "candidate_ids_sha256": "3c5f896d94c0bf7553d46678a8e3443c9732ce1ecd3bbd9cde633ed1c73a9055",
+          "purpose_recall": {
+            "reason": "missing_requested_public_question_use",
+            "requested_purposes": [
+              "action_or_reassessment",
+              "comparison",
+              "measurement",
+              "mechanism_or_exception"
+            ],
+            "requested_answer_needs": [
+              "hrv_direction_and_training_response",
+              "hrv_metric_and_recording_identity",
+              "hrv_missing_observation_unit",
+              "wearable_hrv_protocol_transfer"
+            ],
+            "extra_anchor_budget": 6,
+            "added_anchor_ids": [],
+            "authority": "exact_current_reviewed_topic_binding"
+          },
+          "evidence_selection": {
+            "strategy": "rank_anchored_complete_reviewed_groups",
+            "span_budget": 6,
+            "selected_span_count": 6,
+            "groups": [
+              {
+                "claim_id": "z0",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z0p0",
+                    "claim_version": "1"
+                  }
+                ]
+              },
+              {
+                "claim_id": "z1",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                  "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z1p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z1p1",
+                    "claim_version": "1"
+                  }
+                ]
+              }
+            ],
+            "rejected_groups": [
+              {
+                "claim_id": "z2",
+                "claim_version": "1",
+                "reason": "complete_group_exceeds_remaining_span_budget"
+              },
+              {
+                "claim_id": "z3",
+                "claim_version": "1",
+                "reason": "complete_group_exceeds_remaining_span_budget"
+              },
+              {
+                "claim_id": "a",
+                "claim_version": "1",
+                "reason": "complete_group_exceeds_remaining_span_budget"
+              }
+            ],
+            "dependency_expansion_ids": []
+          },
+          "degradation_reasons": [],
+          "lexical_candidates": 13,
+          "dense_candidates": 0,
+          "fusion_candidates": 13,
+          "reranked_candidates": 0,
+          "models": {
+            "embedding": null,
+            "reranker": null
+          },
+          "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+          "automatic_source_prose_contradiction_detection": false,
+          "ranking_sha256": "db01c64878ba4f80d160e79f94caeea07224887ed5b7723657c4983de10c3afc",
+          "audit_id": "e5466fe943134122ab9f9931841b56eb",
+          "status": "insufficient_evidence",
+          "rankings": [
+            {
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+              "source_id": "z0",
+              "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "lexical_rank": 3,
+              "dense_rank": null,
+              "fusion_rank": 3,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000",
+              "source_id": "z0p0",
+              "source_version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+              "lexical_rank": 4,
+              "dense_rank": null,
+              "fusion_rank": 4,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+              "source_id": "z1",
+              "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "lexical_rank": 5,
+              "dense_rank": null,
+              "fusion_rank": 5,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+              "source_id": "z1p0",
+              "source_version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+              "lexical_rank": 6,
+              "dense_rank": null,
+              "fusion_rank": 6,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000",
+              "source_id": "z1p1",
+              "source_version": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture",
+              "lexical_rank": 7,
+              "dense_rank": null,
+              "fusion_rank": 7,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+              "source_id": "a",
+              "source_version": "a:fulltext:12c4d60db768afd23b7a:followup-fixture",
+              "lexical_rank": 1,
+              "dense_rank": null,
+              "fusion_rank": 1,
+              "reranker_rank": null
+            }
+          ]
+        },
+        "supplemental_remote_calls": 0,
+        "maximum_unique_spans": 12,
+        "selected_unique_spans": 6,
+        "purpose_status": {
+          "measurement": "locally_conflicted",
+          "comparison": "locally_conflicted",
+          "mechanism_or_exception": "locally_conflicted",
+          "action_or_reassessment": "locally_conflicted"
+        }
+      },
+      "scientific_authority": "general_source_context"
+    },
+    "new_answer_priorities_disabled": {
+      "topic": "BODY-OBS-hrv_sdnn_ms",
+      "catalog": "K1",
+      "items": [
+        {
+          "claim_id": "a",
+          "version": "1",
+          "statement": "Synthetic applicable explanation a.",
+          "limitations": [
+            "Only this synthetic protocol; not a clinical conclusion."
+          ],
+          "scope": {
+            "explanation_purpose": "measurement_context"
+          },
+          "reviewer_kind": "synthetic_fixture",
+          "required_claim_refs": [
+            {
+              "claim_id": "ap",
+              "claim_version": "1"
+            }
+          ],
+          "answer_bindings": [],
+          "purposes": [
+            "action_or_reassessment",
+            "comparison",
+            "measurement",
+            "mechanism_or_exception"
+          ],
+          "citations": [
+            {
+              "source_id": "a",
+              "version": "a:fulltext:12c4d60db768afd23b7a:followup-fixture",
+              "title": "Synthetic original a",
+              "url": "https://example.invalid/a",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000"
+            },
+            {
+              "source_id": "ap",
+              "version": "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture",
+              "title": "Synthetic original ap",
+              "url": "https://example.invalid/ap",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+            }
+          ]
+        }
+      ],
+      "restricted_items": [
+        {
+          "claim_id": "z0",
+          "version": "1",
+          "statement": "Synthetic applicable explanation z0.",
+          "limitations": [
+            "Only this synthetic protocol; not a clinical conclusion."
+          ],
+          "scope": {
+            "explanation_purpose": "measurement_context"
+          },
+          "reviewer_kind": "synthetic_fixture",
+          "required_claim_refs": [
+            {
+              "claim_id": "z0p0",
+              "claim_version": "1"
+            }
+          ],
+          "answer_bindings": [
+            {
+              "answer_complete": true,
+              "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+              "rationale": "Synthetic content check with exact original evidence",
+              "relation": "supports",
+              "target_claim": {
+                "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                "scope": {
+                  "device_accuracy": "not_established",
+                  "use": "hrv_definition_and_recording_identity"
+                }
+              },
+              "target_coverage_complete": true
+            }
+          ],
+          "purposes": [
+            "comparison",
+            "measurement"
+          ],
+          "citations": [
+            {
+              "source_id": "z0",
+              "version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "title": "Synthetic original z0",
+              "url": "https://example.invalid/z0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z0p0",
+              "version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+              "title": "Synthetic original z0p0",
+              "url": "https://example.invalid/z0p0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+            }
+          ],
+          "reason": "conflicting_claim_or_required_premise",
+          "conflicts": [
+            {
+              "actor": "Synthetic",
+              "applicability": {},
+              "application_review": null,
+              "evidence": [
+                {
+                  "source_id": "z0",
+                  "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+                  "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "text_hash": "34bea71b18265d9d1052e7675e99eda83c2d23ff927a7a4f9330c3060bef00bb"
+                },
+                {
+                  "source_id": "rival",
+                  "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+                  "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+                  "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+                }
+              ],
+              "evidence_types": [],
+              "grants_capability": false,
+              "origin": {
+                "id": "z0",
+                "type": "claim",
+                "version": "1"
+              },
+              "rationale": "Independent exact edge scenario",
+              "relation": "conflicts_with",
+              "target": {
+                "id": "rival",
+                "type": "claim",
+                "version": "1"
+              }
+            }
+          ],
+          "recommendation_allowed": false
+        },
+        {
+          "claim_id": "z1",
+          "version": "1",
+          "statement": "Synthetic applicable explanation z1.",
+          "limitations": [
+            "Only this synthetic protocol; not a clinical conclusion."
+          ],
+          "scope": {
+            "explanation_purpose": "measurement_context"
+          },
+          "reviewer_kind": "synthetic_fixture",
+          "required_claim_refs": [
+            {
+              "claim_id": "z1p0",
+              "claim_version": "1"
+            },
+            {
+              "claim_id": "z1p1",
+              "claim_version": "1"
+            }
+          ],
+          "answer_bindings": [
+            {
+              "answer_complete": true,
+              "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+              "rationale": "Synthetic content check with exact original evidence",
+              "relation": "supports",
+              "target_claim": {
+                "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                "scope": {
+                  "individual_threshold": "not_established",
+                  "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                  "use": "training_response_interpretation_limits"
+                }
+              },
+              "target_coverage_complete": true
+            }
+          ],
+          "purposes": [
+            "action_or_reassessment",
+            "mechanism_or_exception"
+          ],
+          "citations": [
+            {
+              "source_id": "z1",
+              "version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "title": "Synthetic original z1",
+              "url": "https://example.invalid/z1",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z1p0",
+              "version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+              "title": "Synthetic original z1p0",
+              "url": "https://example.invalid/z1p0",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000"
+            },
+            {
+              "source_id": "z1p1",
+              "version": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture",
+              "title": "Synthetic original z1p1",
+              "url": "https://example.invalid/z1p1",
+              "section": "Independent methods",
+              "locator": {
+                "page": 4
+              },
+              "span_id": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+            }
+          ],
+          "reason": "conflicting_claim_or_required_premise",
+          "conflicts": [
+            {
+              "actor": "Synthetic",
+              "applicability": {},
+              "application_review": null,
+              "evidence": [
+                {
+                  "source_id": "z1",
+                  "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+                  "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "text_hash": "a84d9bddab38ecd277f0a70dd8eb621b583a97eba64e8e2fd1ae2f6788e6861c"
+                },
+                {
+                  "source_id": "rival",
+                  "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+                  "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+                  "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+                }
+              ],
+              "evidence_types": [],
+              "grants_capability": false,
+              "origin": {
+                "id": "z1",
+                "type": "claim",
+                "version": "1"
+              },
+              "rationale": "Independent exact edge scenario",
+              "relation": "conflicts_with",
+              "target": {
+                "id": "rival",
+                "type": "claim",
+                "version": "1"
+              }
+            }
+          ],
+          "recommendation_allowed": false
+        }
+      ],
+      "conflicts": [
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z0",
+              "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+              "text_hash": "34bea71b18265d9d1052e7675e99eda83c2d23ff927a7a4f9330c3060bef00bb"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z0",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z3",
+              "source_version": "z3:fulltext:7553257f57f0c8ef950d:followup-fixture",
+              "span_id": "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+              "text_hash": "7553257f57f0c8ef950d17f6d53152d4ea57f9fee1bcd363a1a5e8914d40ae72"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z3",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z1",
+              "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+              "text_hash": "a84d9bddab38ecd277f0a70dd8eb621b583a97eba64e8e2fd1ae2f6788e6861c"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z1",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        },
+        {
+          "actor": "Synthetic",
+          "applicability": {},
+          "application_review": null,
+          "evidence": [
+            {
+              "source_id": "z2",
+              "source_version": "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture",
+              "span_id": "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+              "text_hash": "28aeb9f1a26dbd1135457f9bcf301c035b52a9bbe8a6b359acbaddcb2a8112f8"
+            },
+            {
+              "source_id": "rival",
+              "source_version": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture",
+              "span_id": "rival:fulltext:177dfe217ac4a2458c3c:followup-fixture:s00000",
+              "text_hash": "177dfe217ac4a2458c3c30f54983b31f19780223a1ebbf29672c01e94e67444d"
+            }
+          ],
+          "evidence_types": [],
+          "grants_capability": false,
+          "origin": {
+            "id": "z2",
+            "type": "claim",
+            "version": "1"
+          },
+          "rationale": "Independent exact edge scenario",
+          "relation": "conflicts_with",
+          "target": {
+            "id": "rival",
+            "type": "claim",
+            "version": "1"
+          }
+        }
+      ],
+      "status": "partial_conflict",
+      "field_definitions": [],
+      "retrieval": {
+        "version": "metric-hybrid-1.5.8",
+        "profile_version": "review-question-use-2026-11-22.1:ea975569fd6fcaa6",
+        "rights_usage_policy_version": "source-usage-scope-1.5.0",
+        "metric_evidence_context_version": "computed-evidence-context-1.5.0",
+        "query_form": {
+          "form_id": "legacy_combined",
+          "language": "mixed",
+          "expression": "combined",
+          "registry_version": null,
+          "registry_sha256": null,
+          "input_sha256": "322f9ae46ca77464988a30ea012b300cc112589bd8cef3c2281d2b7d0eabee6c"
+        },
+        "candidate_scope": "reviewed_metric",
+        "candidate_scope_version": "reviewed-metric-candidates-1.5.0",
+        "requested_mode": "lexical",
+        "requested_k": 6,
+        "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+        "personal_metric_values_sent": false,
+        "private_context_sent": false,
+        "retrieval_degraded": false,
+        "metric_candidate_scope": {
+          "count_domain": "currently_applicable_claim_spans",
+          "query_plan": "reviewed_claim_prefilter-1.6.0",
+          "eligible_domain_candidates": 14,
+          "background_candidates_excluded": 1,
+          "complete_group_refs": [
+            {
+              "claim_id": "z0",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z0p0",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                    "scope": {
+                      "device_accuracy": "not_established",
+                      "use": "hrv_definition_and_recording_identity"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z1",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z1p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z1p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "action_or_reassessment",
+                "mechanism_or_exception"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                    "scope": {
+                      "individual_threshold": "not_established",
+                      "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                      "use": "training_response_interpretation_limits"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z2",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+                "z2p0:fulltext:9f74f3b7dc8cbfb39917:followup-fixture:s00000",
+                "z2p1:fulltext:a1e6314984eaab056f4b:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z2p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z2p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "特定PPG设备夜间RMSSD或心率的一致性不能直接验证短时段或自由活动SDNN。",
+                    "scope": {
+                      "current_device_accuracy": "not_established",
+                      "metric": "SDNN_separate_from_RMSSD_and_heart_rate",
+                      "use": "measurement_validation_transfer_limits"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "z3",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+                "z3p0:fulltext:6192cbdb46c6b38f0d8e:followup-fixture:s00000",
+                "z3p1:fulltext:a4a4c6991dcd32fc18fd:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z3p0",
+                  "claim_version": "1"
+                },
+                {
+                  "claim_id": "z3p1",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "comparison",
+                "measurement"
+              ],
+              "answer_bindings": [
+                {
+                  "answer_complete": true,
+                  "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+                  "rationale": "Synthetic content check with exact original evidence",
+                  "relation": "supports",
+                  "target_claim": {
+                    "proposition": "心搏片段内的缺口研究不能建立整日HRV缺测的容忍天数。",
+                    "scope": {
+                      "minimum_observation_days": "not_established",
+                      "use": "within_window_missingness_not_absent_days"
+                    }
+                  },
+                  "target_coverage_complete": true
+                }
+              ]
+            },
+            {
+              "claim_id": "a",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+                "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "ap",
+                  "claim_version": "1"
+                }
+              ],
+              "evidence_types": [
+                "action_or_reassessment",
+                "comparison",
+                "measurement",
+                "mechanism_or_exception"
+              ],
+              "answer_bindings": []
+            }
+          ]
+        },
+        "excluded": [],
+        "release": {
+          "release_id": null,
+          "membership": "current"
+        },
+        "eligible_candidate_count": 13,
+        "candidate_ids_sha256": "3c5f896d94c0bf7553d46678a8e3443c9732ce1ecd3bbd9cde633ed1c73a9055",
+        "evidence_selection": {
+          "strategy": "rank_anchored_complete_reviewed_groups",
+          "span_budget": 6,
+          "selected_span_count": 6,
+          "groups": [
+            {
+              "claim_id": "a",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+                "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "ap",
+                  "claim_version": "1"
+                }
+              ]
+            },
+            {
+              "claim_id": "z0",
+              "claim_version": "1",
+              "evidence_span_ids": [
+                "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+              ],
+              "required_claim_refs": [
+                {
+                  "claim_id": "z0p0",
+                  "claim_version": "1"
+                }
+              ]
+            }
+          ],
+          "rejected_groups": [
+            {
+              "claim_id": "z1",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            },
+            {
+              "claim_id": "z2",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            },
+            {
+              "claim_id": "z3",
+              "claim_version": "1",
+              "reason": "complete_group_exceeds_remaining_span_budget"
+            }
+          ],
+          "dependency_expansion_ids": []
+        },
+        "degradation_reasons": [],
+        "lexical_candidates": 13,
+        "dense_candidates": 0,
+        "fusion_candidates": 13,
+        "reranked_candidates": 0,
+        "models": {
+          "embedding": null,
+          "reranker": null
+        },
+        "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+        "automatic_source_prose_contradiction_detection": false,
+        "ranking_sha256": "1e671504330dfb3b7dd1ac50d01824f0e7d0088f97c9d6477ad493a9677a4832",
+        "audit_id": "4d13e5e4f6074c259ec5a70a73737fec",
+        "status": "insufficient_evidence",
+        "rankings": [
+          {
+            "span_id": "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+            "source_id": "a",
+            "source_version": "a:fulltext:12c4d60db768afd23b7a:followup-fixture",
+            "lexical_rank": 1,
+            "dense_rank": null,
+            "fusion_rank": 1,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000",
+            "source_id": "ap",
+            "source_version": "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture",
+            "lexical_rank": 2,
+            "dense_rank": null,
+            "fusion_rank": 2,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+            "source_id": "z0",
+            "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+            "lexical_rank": 3,
+            "dense_rank": null,
+            "fusion_rank": 3,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000",
+            "source_id": "z0p0",
+            "source_version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+            "lexical_rank": 4,
+            "dense_rank": null,
+            "fusion_rank": 4,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+            "source_id": "z1",
+            "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+            "lexical_rank": 5,
+            "dense_rank": null,
+            "fusion_rank": 5,
+            "reranker_rank": null
+          },
+          {
+            "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+            "source_id": "z1p0",
+            "source_version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+            "lexical_rank": 6,
+            "dense_rank": null,
+            "fusion_rank": 6,
+            "reranker_rank": null
+          }
+        ],
+        "question_selection_version": "bounded-topic-use-3",
+        "required_purposes": [
+          "measurement",
+          "comparison",
+          "mechanism_or_exception",
+          "action_or_reassessment"
+        ],
+        "initial_missing_purposes": [],
+        "answer_needs_version": "public-topic-answer-needs-2",
+        "initial_missing_answers": [
+          "hrv_metric_and_recording_identity",
+          "hrv_direction_and_training_response",
+          "wearable_hrv_protocol_transfer",
+          "hrv_missing_observation_unit"
+        ],
+        "answer_status": {
+          "hrv_metric_and_recording_identity": {
+            "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+            "status": "locally_conflicted"
+          },
+          "hrv_direction_and_training_response": {
+            "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+            "status": "locally_conflicted"
+          },
+          "wearable_hrv_protocol_transfer": {
+            "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+            "status": "complete_group_budget_or_rank"
+          },
+          "hrv_missing_observation_unit": {
+            "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+            "status": "complete_group_budget_or_rank"
+          }
+        },
+        "supplemental_pass": {
+          "version": "metric-hybrid-1.5.8",
+          "profile_version": "review-question-use-2026-11-22.1:ea975569fd6fcaa6",
+          "rights_usage_policy_version": "source-usage-scope-1.5.0",
+          "metric_evidence_context_version": "computed-evidence-context-1.5.0",
+          "query_form": {
+            "form_id": "legacy_combined",
+            "language": "mixed",
+            "expression": "combined",
+            "registry_version": null,
+            "registry_sha256": null,
+            "input_sha256": "322f9ae46ca77464988a30ea012b300cc112589bd8cef3c2281d2b7d0eabee6c"
+          },
+          "candidate_scope": "reviewed_metric",
+          "candidate_scope_version": "reviewed-metric-candidates-1.5.0",
+          "requested_mode": "lexical",
+          "requested_k": 6,
+          "network_payload": "static_metric_task_and_eligible_public_evidence_only",
+          "personal_metric_values_sent": false,
+          "private_context_sent": false,
+          "retrieval_degraded": false,
+          "answer_needs": {
+            "version": "public-topic-answer-needs-2",
+            "reason": "missing_reviewed_answer_target",
+            "questions": [
+              "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+              "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+              "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+              "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？"
+            ],
+            "ids": [
+              "hrv_metric_and_recording_identity",
+              "hrv_direction_and_training_response",
+              "wearable_hrv_protocol_transfer",
+              "hrv_missing_observation_unit"
+            ],
+            "query_sha256": "ad0c0a5fa69ab2ef62c4ad0270f62adeba121344ced02821f86062eac4d432e1"
+          },
+          "metric_candidate_scope": {
+            "count_domain": "currently_applicable_claim_spans",
+            "query_plan": "reviewed_claim_prefilter-1.6.0",
+            "eligible_domain_candidates": 14,
+            "background_candidates_excluded": 1,
+            "complete_group_refs": [
+              {
+                "claim_id": "z0",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z0p0",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "SDNN与RMSSD是否是同一指标，记录片段长度改变时能否直接比较？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "SDNN与RMSSD定义不同，比较HRV必须保留记录长度和片段构成。",
+                      "scope": {
+                        "device_accuracy": "not_established",
+                        "use": "hrv_definition_and_recording_identity"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z1",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                  "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z1p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z1p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "action_or_reassessment",
+                  "mechanism_or_exception"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "HRV的升降能否单独判定训练反应，复评还需要核对什么？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "HRV变化方向不足以单独判定训练反应，需要结合实际表现与测量条件。",
+                      "scope": {
+                        "individual_threshold": "not_established",
+                        "metric": "HRV_not_interchangeable_SDNN_RMSSD",
+                        "use": "training_response_interpretation_limits"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z2",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z2:fulltext:28aeb9f1a26dbd113545:followup-fixture:s00000",
+                  "z2p0:fulltext:9f74f3b7dc8cbfb39917:followup-fixture:s00000",
+                  "z2p1:fulltext:a1e6314984eaab056f4b:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z2p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z2p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "某设备夜间RMSSD或心率的一致性，能否证明短时段或自由活动SDNN同样准确？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "特定PPG设备夜间RMSSD或心率的一致性不能直接验证短时段或自由活动SDNN。",
+                      "scope": {
+                        "current_device_accuracy": "not_established",
+                        "metric": "SDNN_separate_from_RMSSD_and_heart_rate",
+                        "use": "measurement_validation_transfer_limits"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "z3",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z3:fulltext:7553257f57f0c8ef950d:followup-fixture:s00000",
+                  "z3p0:fulltext:6192cbdb46c6b38f0d8e:followup-fixture:s00000",
+                  "z3p1:fulltext:a4a4c6991dcd32fc18fd:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z3p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z3p1",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "comparison",
+                  "measurement"
+                ],
+                "answer_bindings": [
+                  {
+                    "answer_complete": true,
+                    "question": "心搏片段内缺少数据，与整日没有HRV记录，能否用同一缺失规则处理？",
+                    "rationale": "Synthetic content check with exact original evidence",
+                    "relation": "supports",
+                    "target_claim": {
+                      "proposition": "心搏片段内的缺口研究不能建立整日HRV缺测的容忍天数。",
+                      "scope": {
+                        "minimum_observation_days": "not_established",
+                        "use": "within_window_missingness_not_absent_days"
+                      }
+                    },
+                    "target_coverage_complete": true
+                  }
+                ]
+              },
+              {
+                "claim_id": "a",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+                  "ap:fulltext:52fc2a7922278f41b5b1:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "ap",
+                    "claim_version": "1"
+                  }
+                ],
+                "evidence_types": [
+                  "action_or_reassessment",
+                  "comparison",
+                  "measurement",
+                  "mechanism_or_exception"
+                ],
+                "answer_bindings": []
+              }
+            ]
+          },
+          "excluded": [],
+          "release": {
+            "release_id": null,
+            "membership": "current"
+          },
+          "eligible_candidate_count": 13,
+          "candidate_ids_sha256": "3c5f896d94c0bf7553d46678a8e3443c9732ce1ecd3bbd9cde633ed1c73a9055",
+          "purpose_recall": {
+            "reason": "missing_requested_public_question_use",
+            "requested_purposes": [],
+            "requested_answer_needs": [
+              "hrv_direction_and_training_response",
+              "hrv_metric_and_recording_identity",
+              "hrv_missing_observation_unit",
+              "wearable_hrv_protocol_transfer"
+            ],
+            "extra_anchor_budget": 6,
+            "added_anchor_ids": [],
+            "authority": "exact_current_reviewed_topic_binding"
+          },
+          "evidence_selection": {
+            "strategy": "rank_anchored_complete_reviewed_groups",
+            "span_budget": 6,
+            "selected_span_count": 6,
+            "groups": [
+              {
+                "claim_id": "z0",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+                  "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z0p0",
+                    "claim_version": "1"
+                  }
+                ]
+              },
+              {
+                "claim_id": "z1",
+                "claim_version": "1",
+                "evidence_span_ids": [
+                  "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+                  "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+                  "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000"
+                ],
+                "required_claim_refs": [
+                  {
+                    "claim_id": "z1p0",
+                    "claim_version": "1"
+                  },
+                  {
+                    "claim_id": "z1p1",
+                    "claim_version": "1"
+                  }
+                ]
+              }
+            ],
+            "rejected_groups": [
+              {
+                "claim_id": "z2",
+                "claim_version": "1",
+                "reason": "complete_group_exceeds_remaining_span_budget"
+              },
+              {
+                "claim_id": "z3",
+                "claim_version": "1",
+                "reason": "complete_group_exceeds_remaining_span_budget"
+              }
+            ],
+            "dependency_expansion_ids": []
+          },
+          "degradation_reasons": [],
+          "lexical_candidates": 13,
+          "dense_candidates": 0,
+          "fusion_candidates": 13,
+          "reranked_candidates": 0,
+          "models": {
+            "embedding": null,
+            "reranker": null
+          },
+          "conflict_screen_scope": "explicit_reviewed_edges_across_all_eligible_claims_before_display_budget",
+          "automatic_source_prose_contradiction_detection": false,
+          "ranking_sha256": "db01c64878ba4f80d160e79f94caeea07224887ed5b7723657c4983de10c3afc",
+          "audit_id": "a8655a07fd4c4e75a75c7a8e18ea517f",
+          "status": "insufficient_evidence",
+          "rankings": [
+            {
+              "span_id": "z0:fulltext:34bea71b18265d9d1052:followup-fixture:s00000",
+              "source_id": "z0",
+              "source_version": "z0:fulltext:34bea71b18265d9d1052:followup-fixture",
+              "lexical_rank": 3,
+              "dense_rank": null,
+              "fusion_rank": 3,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture:s00000",
+              "source_id": "z0p0",
+              "source_version": "z0p0:fulltext:6b9458f7d77b86c1aa12:followup-fixture",
+              "lexical_rank": 4,
+              "dense_rank": null,
+              "fusion_rank": 4,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture:s00000",
+              "source_id": "z1",
+              "source_version": "z1:fulltext:a84d9bddab38ecd277f0:followup-fixture",
+              "lexical_rank": 5,
+              "dense_rank": null,
+              "fusion_rank": 5,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture:s00000",
+              "source_id": "z1p0",
+              "source_version": "z1p0:fulltext:fc890fc3ee35cab7fd71:followup-fixture",
+              "lexical_rank": 6,
+              "dense_rank": null,
+              "fusion_rank": 6,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture:s00000",
+              "source_id": "z1p1",
+              "source_version": "z1p1:fulltext:70a67d05bdaa94366bb2:followup-fixture",
+              "lexical_rank": 7,
+              "dense_rank": null,
+              "fusion_rank": 7,
+              "reranker_rank": null
+            },
+            {
+              "span_id": "a:fulltext:12c4d60db768afd23b7a:followup-fixture:s00000",
+              "source_id": "a",
+              "source_version": "a:fulltext:12c4d60db768afd23b7a:followup-fixture",
+              "lexical_rank": 1,
+              "dense_rank": null,
+              "fusion_rank": 1,
+              "reranker_rank": null
+            }
+          ]
+        },
+        "supplemental_remote_calls": 0,
+        "maximum_unique_spans": 12,
+        "selected_unique_spans": 7,
+        "purpose_status": {
+          "measurement": "available",
+          "comparison": "available",
+          "mechanism_or_exception": "available",
+          "action_or_reassessment": "available"
+        }
+      },
+      "scientific_authority": "general_source_context"
+    }
+  }
+}

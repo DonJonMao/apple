@@ -1,0 +1,172 @@
+....FF....................                                               [100%]
+=================================== FAILURES ===================================
+_ test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.metric_retrieval-RETRIEVAL_VERSION] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1092/test_report_rechecks_evidence_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb362c890>
+module_name = 'healthzip.knowledge.metric_retrieval'
+version_field = 'RETRIEVAL_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+        from datetime import datetime, timezone
+    
+        from healthzip.science import contracts
+    
+        class FixedMetricClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return cls(2026, 11, 27, 1, 2, 3, tzinfo=timezone.utc)
+    
+        # Isolate evidence-method invalidation from the metric computation timestamp
+        # that legitimately contributes to a newly calculated joint fact identity.
+        monkeypatch.setattr(contracts, "datetime", FixedMetricClock)
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+>           first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_reading.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:136: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:123: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:183: in _assemble
+    questions = period_questions(repo, current, period=period, knowledge_root=knowledge_root, source_filter=sources,
+src/healthzip/workflows/reports.py:137: in period_questions
+    questions = analyze_questions(repo, window_start=current["window_start"], window_end=current["window_end"],
+src/healthzip/analytics/body_metrics.py:855: in analyze_questions
+    return question_views(
+src/healthzip/analytics/body_questions.py:1133: in question_views
+    return cached(
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/analytics/body_questions.py:1113: in compute
+    views = [
+src/healthzip/analytics/body_questions.py:1114: in <listcomp>
+    _render_question(q, series, sessions, sets, subjective, episodes, workouts, window,
+src/healthzip/analytics/body_questions.py:655: in _render_question
+    rows = _metric_rows(series, fields, window=window if comparison_bounds else None,
+src/healthzip/analytics/body_questions.py:447: in _metric_rows
+    periods = {name: _daily_summary(all_points, limits, window.cutoff_time,
+src/healthzip/analytics/body_questions.py:447: in <dictcomp>
+    periods = {name: _daily_summary(all_points, limits, window.cutoff_time,
+src/healthzip/analytics/body_metrics.py:520: in _daily_summary
+    summary = period_statistics(daily, bounds, cutoff, unit)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/science/state.py:312: in period_statistics
+    if first <= instant(midnight) and instant(midnight + timedelta(days=1)) <= last:
+                ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = datetime.datetime(2024, 9, 11, 0, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+>           raise ValueError("timestamp_required")
+E           ValueError: timestamp_required
+
+src/healthzip/science/contracts.py:65: ValueError
+_ test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.topics-ANSWER_NEEDS_VERSION] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1092/test_report_rechecks_evidence_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffdb37e48d0>
+module_name = 'healthzip.knowledge.topics'
+version_field = 'ANSWER_NEEDS_VERSION'
+
+    @pytest.mark.parametrize("module_name,version_field", [
+        ("healthzip.knowledge.metric_retrieval", "RETRIEVAL_VERSION"),
+        ("healthzip.knowledge.topics", "ANSWER_NEEDS_VERSION"),
+    ])
+    def test_report_rechecks_evidence_after_method_version_change_without_rewriting_history(
+            tmp_path, monkeypatch, module_name, version_field):
+        import importlib
+        from datetime import datetime, timezone
+    
+        from healthzip.science import contracts
+    
+        class FixedMetricClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return cls(2026, 11, 27, 1, 2, 3, tzinfo=timezone.utc)
+    
+        # Isolate evidence-method invalidation from the metric computation timestamp
+        # that legitimately contributes to a newly calculated joint fact identity.
+        monkeypatch.setattr(contracts, "datetime", FixedMetricClock)
+    
+        with closing(Repository(tmp_path / "evidence-methods.sqlite3")) as repo:
+            independent_records(repo)
+            args = {"cutoff_time": CUTOFF, "timezone": "Asia/Shanghai"}
+>           first = create_report(repo, args, period="week", knowledge_root=tmp_path / "missing")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/test_followup_report_reading.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/healthzip/workflows/period_report.py:136: in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/workflows/period_report.py:123: in assemble
+    payload, text, temporarily_unavailable = _assemble(
+src/healthzip/workflows/period_report.py:183: in _assemble
+    questions = period_questions(repo, current, period=period, knowledge_root=knowledge_root, source_filter=sources,
+src/healthzip/workflows/reports.py:137: in period_questions
+    questions = analyze_questions(repo, window_start=current["window_start"], window_end=current["window_end"],
+src/healthzip/analytics/body_metrics.py:855: in analyze_questions
+    return question_views(
+src/healthzip/analytics/body_questions.py:1133: in question_views
+    return cached(
+src/healthzip/analytics/cache.py:79: in cached
+    value = compute()
+            ^^^^^^^^^
+src/healthzip/analytics/body_questions.py:1113: in compute
+    views = [
+src/healthzip/analytics/body_questions.py:1114: in <listcomp>
+    _render_question(q, series, sessions, sets, subjective, episodes, workouts, window,
+src/healthzip/analytics/body_questions.py:655: in _render_question
+    rows = _metric_rows(series, fields, window=window if comparison_bounds else None,
+src/healthzip/analytics/body_questions.py:447: in _metric_rows
+    periods = {name: _daily_summary(all_points, limits, window.cutoff_time,
+src/healthzip/analytics/body_questions.py:447: in <dictcomp>
+    periods = {name: _daily_summary(all_points, limits, window.cutoff_time,
+src/healthzip/analytics/body_metrics.py:520: in _daily_summary
+    summary = period_statistics(daily, bounds, cutoff, unit)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/healthzip/science/state.py:312: in period_statistics
+    if first <= instant(midnight) and instant(midnight + timedelta(days=1)) <= last:
+                ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = datetime.datetime(2024, 9, 11, 0, 0, tzinfo=zoneinfo.ZoneInfo(key='Asia/Shanghai'))
+
+    def instant(value: Any) -> datetime:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+>           raise ValueError("timestamp_required")
+E           ValueError: timestamp_required
+
+src/healthzip/science/contracts.py:65: ValueError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_report_reading.py::test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.metric_retrieval-RETRIEVAL_VERSION]
+FAILED tests/integration/test_followup_report_reading.py::test_report_rechecks_evidence_after_method_version_change_without_rewriting_history[healthzip.knowledge.topics-ANSWER_NEEDS_VERSION]
+2 failed, 24 passed in 9.87s

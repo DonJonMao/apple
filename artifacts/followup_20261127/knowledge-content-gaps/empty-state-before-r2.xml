@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="2.311" timestamp="2026-11-27T15:08:41.157569+08:00" hostname="SNXA-ZS-POD1-3203-0G23-GPU-KunTaiA924-30"><testcase classname="tests.unit.test_question_page_empty_state" name="test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W5]" time="0.144"><failure message="assert []">empty_repo = &lt;healthzip.db.repository.Repository object at 0xfffef2ffd410&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffef305b990&gt;
+question_id = 'W5'
+
+    @pytest.mark.parametrize("question_id", ["W5", "W6"])
+    def test_empty_question_keeps_observation_and_only_shows_useful_next_steps(
+        empty_repo, monkeypatch, question_id
+    ):
+        question = _empty_question(empty_repo, question_id)
+        assert question["report_status"] == "no_records"
+        assert not question["association"] and not question["steps"]
+        before = deepcopy(question)
+        page = _PageOutput()
+        monkeypatch.setattr(question_page, "st", page)
+    
+        question_page.render_question(question, repo=empty_repo)
+    
+        assert question == before
+        assert question["observation"] in page.messages
+        steps = page.messages[page.messages.index("下一步") + 1:]
+&gt;       assert steps
+E       assert []
+
+tests/unit/test_question_page_empty_state.py:60: AssertionError</failure></testcase><testcase classname="tests.unit.test_question_page_empty_state" name="test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W6]" time="0.115"><failure message="assert '所选期间尚无相关睡眠或生理记录，不能建立睡眠与 SDNN 对照。' in ['&lt;span data-hz-question=&quot;question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811&quot; style=&quot;display:none&quot;&gt;&lt;/span&gt;', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步']&#10; +  where ['&lt;span data-hz-question=&quot;question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811&quot; style=&quot;display:none&quot;&gt;&lt;/span&gt;', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步'] = &lt;test_question_page_empty_state._PageOutput object at 0xfffef3059f50&gt;.messages">empty_repo = &lt;healthzip.db.repository.Repository object at 0xfffef3001c50&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xfffef2fdf990&gt;
+question_id = 'W6'
+
+    @pytest.mark.parametrize("question_id", ["W5", "W6"])
+    def test_empty_question_keeps_observation_and_only_shows_useful_next_steps(
+        empty_repo, monkeypatch, question_id
+    ):
+        question = _empty_question(empty_repo, question_id)
+        assert question["report_status"] == "no_records"
+        assert not question["association"] and not question["steps"]
+        before = deepcopy(question)
+        page = _PageOutput()
+        monkeypatch.setattr(question_page, "st", page)
+    
+        question_page.render_question(question, repo=empty_repo)
+    
+        assert question == before
+&gt;       assert question["observation"] in page.messages
+E       assert '所选期间尚无相关睡眠或生理记录，不能建立睡眠与 SDNN 对照。' in ['&lt;span data-hz-question="question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811" style="display:none"&gt;&lt;/span&gt;', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步']
+E        +  where ['&lt;span data-hz-question="question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811" style="display:none"&gt;&lt;/span&gt;', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步'] = &lt;test_question_page_empty_state._PageOutput object at 0xfffef3059f50&gt;.messages
+
+tests/unit/test_question_page_empty_state.py:58: AssertionError</failure></testcase><testcase classname="tests.unit.test_question_page_empty_state" name="test_existing_question_steps_remain_visible_and_unchanged[W5]" time="0.115" /><testcase classname="tests.unit.test_question_page_empty_state" name="test_existing_question_steps_remain_visible_and_unchanged[W6]" time="0.113" /></testsuite></testsuites>

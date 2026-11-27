@@ -3,7 +3,6 @@
 The temporary permission fixture verifies software only; no production claims
 or private records are used. Dates, plan and equipment choices are explicit.
 """
-import json
 import runpy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -61,7 +60,7 @@ def history(tmp_path, monkeypatch, *, exercise="psa.ex.smith_incline_press",
 
 
 def latest_run(repo):
-    return json.loads(repo.one("SELECT result_json FROM workflow_run ORDER BY created_at DESC LIMIT 1")[0])
+    return load_run(repo, repo.one("SELECT run_id FROM workflow_run ORDER BY created_at DESC LIMIT 1")[0])
 
 
 def test_smith_trial_normal_page_choice_execution_and_review(tmp_path, monkeypatch):

@@ -1,0 +1,39 @@
+{
+  "synthetic_only": true,
+  "change": "report_comparison resolves all original rows once at shared cutoff, then preserves per-window overlap selection",
+  "source_hashes": {
+    "src/healthzip/science/reports.py": "8d91102953847ce0438a7987c2e5b3b1827b6196fd308ea7217b7b8385237123",
+    "tests/science/test_followup_report_comparison_preparation.py": "319150e0a8750a457565f7e62ef2a1cc667602cf36f70c7f97d4ce5a32bcb3aa",
+    "docs/followup_period_facts_profile.md": "f4f61e8781f3eca1330f373d47e408e1a0e783b2dd534b29d8485484a6dff853"
+  },
+  "prior_reports_source_sha256": "ba0c36e3a256517f729a0565df19df6e05bcf1105ddd8bfa66e7c79c9efdf76d",
+  "test_command": ".venv/bin/python -m pytest tests/science/test_followup_report_comparison_preparation.py tests/science/test_health_fact_comparisons.py tests/science/test_state_energy_prediction.py tests/science/test_followup_selection_preparation.py tests/science/test_followup_reference_batch.py -q",
+  "tests": {
+    "new_cases": 14,
+    "passed": 63,
+    "elapsed_s": 2.09,
+    "failed": 0
+  },
+  "full_original_row_selections": {
+    "before": 3,
+    "after": 1
+  },
+  "exact_equivalence": "Prior comparison oracle + all 77 metric values except runtime computed_at; original input records unmodified",
+  "preserved_failures": {
+    "before": "Expected prior implementation resolves all original rows three times",
+    "targeted-r1": "Oracle equality passed; independent fixture expectation wrongly placed 11/2 morning before previous partial-window start at 11/2 noon; moved fixture to 11/3 without product rule change"
+  },
+  "ruff": "passed",
+  "performance_after_change": "not measured; preceding 40.943s profile is pre-change and instrumented, not an acceptance result",
+  "full_10000_task_equivalence_after_change": "not run",
+  "artifact_hashes": {
+    "before.txt": "8e5f322312b6463eea630afce27bcadac0cb65ae39222692fc20f88d03085bd2",
+    "before.xml": "f4cc36e0d9a4975a79866773b8b42e3a013f8a62f1ff9f2c51a9ccdb82cf6667",
+    "ruff-r1.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff-r2.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "targeted-r1.txt": "dfc6cd6377724b82ac76938bc0b9067a961cf0e37b932132b22497cd992b69ec",
+    "targeted-r1.xml": "19431db77f260fad6add7d2be6f0c2963cc6a4ba212fb5f203962e9a5bb8006c",
+    "targeted-r2.txt": "3c3542b35890bfac5c3b005e5242615d3325f7914a91b347970f2f4f4bb7ed35",
+    "targeted-r2.xml": "3aa90b59911021706324ef51314d8ccd4cc96e15a22c263f3954cbd8607a6f53"
+  }
+}

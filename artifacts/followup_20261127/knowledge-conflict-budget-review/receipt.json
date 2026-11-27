@@ -1,0 +1,50 @@
+{
+  "synthetic_only": true,
+  "private_health_opened": false,
+  "network_calls": 0,
+  "finding": "New answer priorities allowed known disputed groups to displace an independent complete measurement/action group; supplemental pass repeated disputed groups",
+  "before_probe": {
+    "current_valid_items": [],
+    "new_answer_priorities_disabled_valid_items": [
+      "a"
+    ],
+    "same_inputs_and_current_retrieval_except_priorities": true,
+    "current_unique_spans": 6,
+    "maximum_unique_spans": 12
+  },
+  "fix": "Rank independent current groups before exact locally-conflicted claims or required premises, and exclude disputed answers from reserved/covered answer targets; preserve disputed evidence and conflict audit",
+  "retrieval_version": "metric-hybrid-1.5.9",
+  "permissions_budget_changes": false,
+  "source_hashes": {
+    "src/healthzip/knowledge/metric_retrieval.py": "6e1ccb34dbbf4584cb2b1db975aa566d272f1658ca0ee21b6dd06088fd9941e8",
+    "tests/knowledge/test_followup_conflict_allocation.py": "edc15b683a38c239ad9c2c68f04fccf2d41209b1dde12208259059d9fca954d0"
+  },
+  "before_tests": {
+    "failed": 2,
+    "cases": [
+      "direct_answer_conflict",
+      "required_premise_conflict"
+    ]
+  },
+  "after_tests": {
+    "passed": 89,
+    "failed": 0,
+    "elapsed_s": 10.0
+  },
+  "test_command": ".venv/bin/python -m pytest tests/knowledge/test_followup_conflict_allocation.py tests/knowledge/test_topic_answer_content.py tests/knowledge/test_followup_content_install.py tests/knowledge/test_v15_rir_version_scope.py tests/knowledge/test_v15_rights_usage.py tests/knowledge/test_v15_metric_candidate_scope.py tests/integration/test_followup_report_evidence.py -q",
+  "ruff": "passed",
+  "diff_check": "passed",
+  "preserved_launcher_failure": "before.txt records missing tests import when driver omitted PYTHONPATH=.; before-r2.txt is the real assertion failure after correcting only the launcher",
+  "real_browser_validation": "performed separately by RAG agent; not claimed here",
+  "artifact_hashes": {
+    "before-r2.txt": "64ca779fe36885b1ed7b4645453ad52b790052d4f404d27fa7edbbbd01ca37e5",
+    "before.json": "b0cff8a3d20b37c03f8a3881b7f6a5681ea8652f0a15b740c4a0471680c15cb5",
+    "before.txt": "7620c2769c41bf450320edbba23b03d88762443cc31ac45738dc9508632fd4b2",
+    "driver-source.py": "94d407db65a27fc7986fcf25ceb4e100fc74f6747d37544b692b6a943ea74777",
+    "ruff-r1.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "targeted-r1.txt": "2871b586fa08861b39987fe83987a6119f0c50a19662ac7cff1ed6832d746fa7",
+    "targeted-r1.xml": "51b85637791d757ba72f06860176468b46fbc416416e4683ae4541bc42274ba7",
+    "test-before.txt": "c26f022e71f0f9029f510ac4adb91fa8c44b6dac326da2a9231371f05aca3e0b",
+    "test-before.xml": "5d00f0cf936e1d7d70a518e461b3731e865e26f9f35b43a3c42acf4536215a47"
+  }
+}

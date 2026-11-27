@@ -176,7 +176,8 @@ def load_run(repo, run_id):
     row = repo.conn.execute("SELECT result_json FROM workflow_run WHERE run_id=? AND user_id='local'", (run_id,)).fetchone()
     if row is None:
         raise ValueError("workflow_run_not_found_in_local_scope")
-    return json.loads(row[0])
+    from .report_objects import read_workflow
+    return read_workflow(repo, json.loads(row[0]))
 
 
 def load_analysis(repo, run_id):

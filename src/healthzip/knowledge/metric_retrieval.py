@@ -17,7 +17,7 @@ from .store import digest, dumps, now
 from .transactions import atomic
 
 MODES = {"lexical", "dense", "hybrid", "hybrid_rerank"}
-RETRIEVAL_VERSION = "metric-hybrid-1.5.7"
+RETRIEVAL_VERSION = "metric-hybrid-1.5.9"
 CANDIDATE_SCOPE_VERSION = "reviewed-metric-candidates-1.5.0"
 CANDIDATE_SCOPES = {"all", "reviewed_metric"}
 METRIC_EVIDENCE_CONTEXT_VERSION = "computed-evidence-context-1.5.0"
@@ -474,6 +474,32 @@ def claim_conflicts(claim, conflicts):
         for endpoint in (conflict['origin'], conflict['target']))]
 
 
+def _answers_fit_budget(groups, targets, context, budget):
+    """Can complete reviewed groups answer these targets in the one local pass?
+
+    Search only exact answer bindings and whole evidence groups. This allocates
+    text spans, never statistical samples, medical priorities or source votes.
+    """
+    from .topics import answer_targets
+    options = [(frozenset(g['evidence_span_ids']), answer_targets(g.get('answer_bindings', []), context) & targets)
+               for g in groups]
+    options = [(spans, answers) for spans, answers in options if answers and len(spans) <= budget]
+    visited = set()
+
+    def fits(remaining, selected):
+        if not remaining:
+            return True
+        key = frozenset(remaining), selected
+        if key in visited:
+            return False
+        visited.add(key)
+        target = min(remaining, key=lambda t: sum(t in answers for _, answers in options))
+        return any(fits(remaining - answers, selected | spans) for spans, answers in options
+                   if target in answers and len(selected | spans) <= budget)
+
+    return fits(targets, frozenset())
+
+
 def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, allowed_edges):
     """Allocate the same K spans to complete reviewed metric evidence groups.
 
@@ -482,7 +508,7 @@ def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, 
     Prefer groups filling an unmet contract requirement, then their best rank.
     No relevance scores or physiological weights are combined here.
     """
-    groups, _ = _metric_claims(w, metric_id, claims, by_id, context, allowed_edges)
+    groups, conflicts = _metric_claims(w, metric_id, claims, by_id, context, allowed_edges)
     ranks = {identity: rank for rank, identity in enumerate(ranking)}
     groups = [g for g in groups if set(g["direct_evidence_span_ids"]) & ranks.keys()]
     chosen, allocations, rejected = [], [], []
@@ -491,12 +517,28 @@ def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, 
     required_domains = set(profile.get("required_domains", profile["primary_domains"]))
     types, covered_domains, covered_answers = set(), set(), set()
     from .topics import answer_targets
+    # Keep the ordinary purpose/rank selection until the remaining concrete
+    # answers cannot fit in the fixed supplemental budget. This avoids using
+    # the first six spans entirely on generic purposes when nine are needed
+    # for distinct, already reviewed answers. Unavailable answers cannot crowd
+    # out usable content, and the second pass still has its original K limit.
+    reserved_budget = profile.get('reserved_answer_span_budget')
+    available_answers = {target for g in groups if not claim_conflicts(g, conflicts)
+                         for target in answer_targets(g.get('answer_bindings', []), context)}
     if profile.get('bounded_missing_uses'):
         groups = [g for g in groups if set(g['evidence_types']) & required_types
                   or answer_targets(g.get('answer_bindings', []), context) & required_answers]
     while groups:
+        prioritize_answers = reserved_budget is None or not _answers_fit_budget(
+            [g for g in groups if not claim_conflicts(g, conflicts)],
+            (required_answers & available_answers) - covered_answers, context, reserved_budget)
         groups.sort(key=lambda g: (
-            not bool(answer_targets(g.get('answer_bindings', []), context) & (required_answers - covered_answers)),
+            # An explicit dispute only limits its exact claim or required
+            # premise. Preserve independent usable groups before allocating
+            # space to disputed explanations in either bounded pass.
+            bool(claim_conflicts(g, conflicts)),
+            not bool(prioritize_answers and answer_targets(g.get('answer_bindings', []), context)
+                     & (required_answers - covered_answers)),
             not (set(g["evidence_types"]) & (required_types - types)
                  or set(g["domains"]) & (required_domains - covered_domains)),
             min(ranks[s] for s in g["direct_evidence_span_ids"] if s in ranks),
@@ -513,14 +555,18 @@ def _select_evidence(w, metric_id, profile, claims, by_id, ranking, context, k, 
         chosen.extend(missing)
         types.update(group["evidence_types"])
         covered_domains.update(group["domains"])
-        covered_answers.update(answer_targets(group.get('answer_bindings', []), context))
-        allocations.append({key: group[key] for key in ("claim_id", "claim_version", "evidence_span_ids", "required_claim_refs")})
+        disputed = bool(claim_conflicts(group, conflicts))
+        if not disputed:
+            covered_answers.update(answer_targets(group.get('answer_bindings', []), context))
+        allocations.append({**{key: group[key] for key in ("claim_id", "claim_version", "evidence_span_ids", "required_claim_refs")},
+                            "locally_conflicted": disputed})
     for identity in ranking:
         if len(chosen) >= k:
             break
         if identity not in chosen:
             chosen.append(identity)
     return chosen, {"strategy": "rank_anchored_complete_reviewed_groups", "span_budget": k,
+        "conflict_priority_version": "exact-claim-and-required-premise-1",
         "selected_span_count": len(chosen), "groups": allocations, "rejected_groups": rejected,
         "dependency_expansion_ids": [s for s in chosen if s not in ranks]}
 
@@ -547,7 +593,7 @@ def _still_current(w, candidate, context):
 
 def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=None, release_id=None, *,
                         mode="hybrid_rerank", k=6, services=None, query_form=None, candidate_scope="all",
-                        purpose_needs=None, answer_needs=None):
+                        purpose_needs=None, answer_needs=None, answer_priorities=None):
     from healthzip.science.contracts import validate_result
 
     from .topics import TOPICS
@@ -568,6 +614,14 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         raise ValueError("unknown_metric_candidate_scope")
     profile = config["profiles"][metric_id]
     from .topics import ANSWER_NEEDS, ANSWER_NEEDS_VERSION
+    if answer_priorities is not None:
+        if (not question_only or not answer_priorities or answer_needs is not None
+                or any(key not in ANSWER_NEEDS or metric_id not in ANSWER_NEEDS[key]['topics']
+                       for key in answer_priorities)):
+            raise ValueError('invalid_public_topic_answer_priorities')
+        from .support import target_key
+        profile = {**profile, 'reserved_answer_span_budget': min(k, 6),
+                   'required_answer_targets': [target_key(ANSWER_NEEDS[key]['target_claim']) for key in answer_priorities]}
     if answer_needs is not None:
         if (not question_only or not answer_needs or any(key not in ANSWER_NEEDS
                 or metric_id not in ANSWER_NEEDS[key]['topics'] for key in answer_needs)):
@@ -607,6 +661,9 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
         query_key.append({'purpose_needs': sorted(purpose_needs), 'version': 'bounded-topic-use-1'})
     if answer_needs:
         query_key.append({'answer_needs': sorted(answer_needs), 'version': ANSWER_NEEDS_VERSION})
+    if answer_priorities:
+        query_key.append({'answer_priorities': sorted(answer_priorities), 'version': ANSWER_NEEDS_VERSION,
+                          'allocation_version': 'reserve-one-local-pass-1'})
     result = {"query_id": digest(dumps(query_key).encode()),
         "task_id": analysis_task, "metric_id": metric_id, "requested_domains": requested, "retrieved_domains": [],
         "matched_claims": [], "evidence_spans": [], "applicability": [], "source_metadata": [], "limitations": [],
@@ -621,6 +678,9 @@ def _retrieve_for_metric(w, metric_id, analysis_task, metric_result, context=Non
             "requested_mode": mode, "requested_k": k, "network_payload": "static_metric_task_and_eligible_public_evidence_only",
             "personal_metric_values_sent": False, "private_context_sent": False, "retrieval_degraded": False}}
     audit = result["retrieval_audit"]
+    if answer_priorities:
+        audit['answer_allocation'] = {'version': 'reserve-one-local-pass-1', 'ids': list(answer_priorities),
+                                     'reserved_supplemental_span_budget': min(k, 6), 'extra_remote_calls': 0}
     if answer_needs:
         audit['answer_needs'] = {'version': ANSWER_NEEDS_VERSION,
             'reason': 'missing_reviewed_answer_target', 'questions': [ANSWER_NEEDS[key]['question'] for key in answer_needs],

@@ -1,0 +1,244 @@
+{
+  "version": "workflow-training-storage-1",
+  "recorded_at_utc": "2026-11-27T05:32:56.231486+00:00",
+  "baseline_head": "6f7d9c39a0b9fcd2c251a5edd80d1db67faf7c0d",
+  "scope": "New workflow ordinary_training uses existing permanent report_content_object; public load_run and new/reused run responses remain expanded. Existing inline rows and historic reports are not migrated.",
+  "product_files": [
+    "src/healthzip/workflows/report_objects.py",
+    "src/healthzip/workflows/service.py",
+    "src/healthzip/workflows/storage.py"
+  ],
+  "source_identity_after_checks": [
+    {
+      "path": "src/healthzip/workflows/report_objects.py",
+      "bytes": 18143,
+      "sha256": "71e585d9b8c150d07d69acbd8809818e6d8b3b08001ac67afc20ad130f11a5e0"
+    },
+    {
+      "path": "src/healthzip/workflows/service.py",
+      "bytes": 31566,
+      "sha256": "5c74a587f4f2e768e5abd8d48fc4fe5f98ccb1e256547a7fae60fa79e9f79bc1"
+    },
+    {
+      "path": "src/healthzip/workflows/storage.py",
+      "bytes": 11417,
+      "sha256": "29e048d0a76475a61b7bc1e5efd40d41bfc60743fb77468d149934d212b5074b"
+    },
+    {
+      "path": "tests/integration/test_workflow_frozen_training.py",
+      "bytes": 15615,
+      "sha256": "394c05d6741c06173cfb74120f4bd76da85b47d894b0d6a8549d17ce05cb4941"
+    },
+    {
+      "path": "tests/integration/test_current_training_acceptance.py",
+      "bytes": 29157,
+      "sha256": "31f9a60eb78c8f5b85757c90baa76d480a1b2d0290de7c4c68fce5bd7ef118c6"
+    },
+    {
+      "path": "tests/integration/test_analysis_w1_flow.py",
+      "bytes": 9237,
+      "sha256": "8e1ee15ad01dd02353c50e93389feb36e41d760c1c2f0750ad25e9c631bf34ca"
+    },
+    {
+      "path": "docs/followup_workflow_storage_plan.md",
+      "bytes": 12791,
+      "sha256": "0d4899a4a0cdda2479cbc1ef1c7e457700bf3706dd9a06951c6bc2fcffa2bd1b"
+    }
+  ],
+  "checks": [
+    {
+      "run": "before",
+      "case_count": 1,
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "tests.integration.test_workflow_frozen_training::test_workflows_share_frozen_training_but_return_complete_independent_values"
+      ],
+      "xml": {
+        "path": "artifacts/followup_20261127/workflow-storage/before.xml",
+        "bytes": 1816,
+        "sha256": "02235e05e71576482db2d1b893e0e10e5fd52fb0676937cc08906d0b7a7d01a4"
+      },
+      "log": {
+        "path": "artifacts/followup_20261127/workflow-storage/before.txt",
+        "bytes": 1601,
+        "sha256": "f284f62ef542e34c9bba0a992b3d0c5d87b886ea23a6fe9ae6944212d796f7f6"
+      }
+    },
+    {
+      "run": "targeted-r1",
+      "case_count": 7,
+      "passed": 7,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "tests.integration.test_workflow_frozen_training::test_workflows_share_frozen_training_but_return_complete_independent_values",
+        "tests.integration.test_workflow_frozen_training::test_workflow_failure_rolls_back_new_training_objects_and_can_retry",
+        "tests.integration.test_workflow_frozen_training::test_concurrent_identical_workflows_commit_one_complete_shared_snapshot",
+        "tests.integration.test_workflow_frozen_training::test_legacy_inline_run_and_old_bytes_survive_new_results_and_source_revision",
+        "tests.integration.test_workflow_frozen_training::test_audit_actual_file_restores_each_workflow_without_database_or_current_records",
+        "tests.integration.test_workflow_frozen_training::test_frozen_workflow_backup_is_portable_but_other_workspace_cannot_resolve_refs",
+        "tests.integration.test_workflow_frozen_training::test_workflow_training_roundtrip_keeps_precision_empty_fields_and_group_order"
+      ],
+      "xml": {
+        "path": "artifacts/followup_20261127/workflow-storage/targeted-r1.xml",
+        "bytes": 1453,
+        "sha256": "3c283fd35ffcdfc0735943103a8712c63ce758920eab7c72ed9f02e8335fe05a"
+      },
+      "log": {
+        "path": "artifacts/followup_20261127/workflow-storage/targeted-r1.txt",
+        "bytes": 98,
+        "sha256": "b421b266b4346d1d0cae52bb12daae39d1d968c6540615da19bf52a1ed9d8a58"
+      }
+    },
+    {
+      "run": "core-r2",
+      "case_count": 50,
+      "passed": 50,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "tests.integration.test_workflow_frozen_training::test_workflows_share_frozen_training_but_return_complete_independent_values",
+        "tests.integration.test_workflow_frozen_training::test_workflow_failure_rolls_back_new_training_objects_and_can_retry",
+        "tests.integration.test_workflow_frozen_training::test_concurrent_identical_workflows_commit_one_complete_shared_snapshot",
+        "tests.integration.test_workflow_frozen_training::test_legacy_inline_run_and_old_bytes_survive_new_results_and_source_revision",
+        "tests.integration.test_workflow_frozen_training::test_audit_actual_file_restores_each_workflow_without_database_or_current_records",
+        "tests.integration.test_workflow_frozen_training::test_frozen_workflow_backup_is_portable_but_other_workspace_cannot_resolve_refs",
+        "tests.integration.test_workflow_frozen_training::test_workflow_training_roundtrip_keeps_precision_empty_fields_and_group_order",
+        "tests.integration.test_workflow_frozen_training::test_workflow_storage_keeps_strict_finite_json_boundary[nan]",
+        "tests.integration.test_workflow_frozen_training::test_workflow_storage_keeps_strict_finite_json_boundary[inf]",
+        "tests.integration.test_workflow_frozen_training::test_workflow_storage_keeps_strict_finite_json_boundary[-inf]",
+        "tests.integration.test_analysis_workflow_runs::test_five_repository_workflows_keep_snapshots_and_reuse_identical_run",
+        "tests.integration.test_analysis_workflow_runs::test_forged_results_and_conditions_are_not_workflow_inputs",
+        "tests.integration.test_analysis_workflow_runs::test_declaration_time_and_successor_do_not_rewrite_old_run",
+        "tests.integration.test_analysis_workflow_runs::test_observed_three_hours_remains_a_fact_without_recovery_classification",
+        "tests.integration.test_analysis_workflow_runs::test_srpe_conditions_come_from_saved_session_not_page_claims[Foster_modified_CR10-after-True]",
+        "tests.integration.test_analysis_workflow_runs::test_srpe_conditions_come_from_saved_session_not_page_claims[cr10-after-False]",
+        "tests.integration.test_analysis_workflow_runs::test_srpe_conditions_come_from_saved_session_not_page_claims[Foster_modified_CR10-None-False]",
+        "tests.integration.test_analysis_workflow_runs::test_srpe_conditions_come_from_saved_session_not_page_claims[Foster_modified_CR10-before-False]",
+        "tests.integration.test_analysis_workflow_runs::test_workflow_current_use_tracks_revisions_not_unrelated_training",
+        "tests.integration.test_analysis_workflow_runs::test_borg_session_score_is_preserved_but_not_CR10_load[8]",
+        "tests.integration.test_analysis_workflow_runs::test_borg_session_score_is_preserved_but_not_CR10_load[16]",
+        "tests.integration.test_analysis_workflow_runs::test_workflow_atomic_failure_has_no_orphan_analysis",
+        "tests.integration.test_analysis_workflow_runs::test_concurrent_fixed_request_returns_one_run_and_snapshot",
+        "tests.integration.test_report_repair_contract::test_t05_t19_same_period_values_across_overview_detail_question_report",
+        "tests.integration.test_report_repair_contract::test_t05_source_selection_changes_all_report_consumers",
+        "tests.integration.test_report_repair_contract::test_t12_frozen_content_deduplicated_survives_cache_clear_and_legacy_reads",
+        "tests.integration.test_report_repair_contract::test_preview_projection_matches_full_replay_and_only_requested_period",
+        "tests.integration.test_report_repair_contract::test_semantic_report_chapters_do_not_split_table_or_fence",
+        "tests.integration.test_repair_report_review::test_initializing_empty_training_clock_does_not_mark_a_fresh_report_stale",
+        "tests.integration.test_repair_report_review::test_none_selection_context_retains_normal_empty_context_contract",
+        "tests.integration.test_repair_report_review::test_explicit_empty_source_filter_clears_a_prior_selected_source_everywhere",
+        "tests.integration.test_repair_report_review::test_first_report_initializes_existing_knowledge_before_freezing_its_clock",
+        "tests.integration.test_repair_report_review::test_revocation_updates_new_report_but_keeps_frozen_full_text_and_export",
+        "tests.integration.test_repair_report_review::test_question_evidence_store_open_failure_preserves_available_local_facts",
+        "tests.integration.test_repair_report_review::test_retrospective_snapshot_and_asof_question_explicitly_keep_different_visibility",
+        "tests.integration.test_repair_report_review::test_declared_sleep_keeps_300_minutes_and_period_450_minutes_with_explicit_identity",
+        "tests.integration.test_repair_report_review::test_history_page_marks_current_revocation_without_rewriting_old_text",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-current]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-content]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-ordinary]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[unbounded-integers-evidence]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-current]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-content]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-ordinary]",
+        "tests.integration.test_repair_report_review::test_referenced_decoder_preserves_stdlib_edges_in_each_object[nonfinite-floats-evidence]",
+        "tests.integration.test_repair_report_review::test_safe_referenced_decoder_covers_all_objects_and_keeps_hint_internal",
+        "tests.integration.test_repair_report_review::test_cycle_preference_changes_empty_report_without_changing_records_or_history",
+        "tests.integration.test_repair_report_review::test_cycle_preference_change_during_freeze_rejects_stale_report_and_retry_updates",
+        "tests.integration.test_repair_report_review::test_t05_actual_cycle_symptoms_and_training_are_identical_in_frozen_month_report",
+        "tests.integration.test_followup_workflow_identity::test_shared_workflow_facts_keep_exact_legacy_hash_and_no_persistent_cache"
+      ],
+      "xml": {
+        "path": "artifacts/followup_20261127/workflow-storage/core-r2.xml",
+        "bytes": 8503,
+        "sha256": "dfc959af4e7ddb1f8296784b8e4511d939dba08f2f331f58a1f2b54455068264"
+      },
+      "log": {
+        "path": "artifacts/followup_20261127/workflow-storage/core-r2.txt",
+        "bytes": 100,
+        "sha256": "52e461a6e91eb6f2763de4a1955343a7767b816fe5a3d64fcca32b06df8bdda6"
+      }
+    },
+    {
+      "run": "consumers-r2",
+      "case_count": 4,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "tests.integration.test_analysis_w1_flow::test_smith_trial_normal_page_choice_execution_and_review",
+        "tests.integration.test_current_training_acceptance::test_real_template_region_free_record_next_training_and_joint_reports",
+        "tests.integration.test_current_training_acceptance::test_joint_report_body_values_sources_complete_days_and_new_task_page[week]",
+        "tests.integration.test_current_training_acceptance::test_joint_report_body_values_sources_complete_days_and_new_task_page[month]"
+      ],
+      "xml": {
+        "path": "artifacts/followup_20261127/workflow-storage/consumers-r2.xml",
+        "bytes": 928,
+        "sha256": "ae2676a73a272d8464888891300b78a7f0715d9ff89c329b543f043171558fce"
+      },
+      "log": {
+        "path": "artifacts/followup_20261127/workflow-storage/consumers-r2.txt",
+        "bytes": 99,
+        "sha256": "cac8286c1c8ecdd8383fa1e60755ac118022f70ba16571d6780891f53af79393"
+      }
+    }
+  ],
+  "ruff": {
+    "command": ".venv/bin/ruff check src/healthzip/workflows/report_objects.py src/healthzip/workflows/service.py src/healthzip/workflows/storage.py tests/integration/test_workflow_frozen_training.py tests/integration/test_current_training_acceptance.py tests/integration/test_analysis_w1_flow.py",
+    "result": "passed",
+    "artifact": {
+      "path": "artifacts/followup_20261127/workflow-storage/ruff-r2.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  "diff_check": "Passed on owned tracked product and existing test changes.",
+  "new_storage_format": "workflow-training-references-1",
+  "audit_formats": {
+    "new_referenced_workflows": "healthzip-frozen-audit-3",
+    "prior_inline_workflows": "healthzip-frozen-audit-2",
+    "offline_public_decoder": "healthzip.workflows.report_objects.reconstruct_workflow"
+  },
+  "scientific_identity_unchanged": {
+    "algorithm_version_bumped": false,
+    "canonical_hash_changed": false,
+    "workflow_input_hash_changed": false,
+    "run_id_or_input_hash_calculated_from_storage_references": false,
+    "object_hash": "Existing SHA256(scope + NUL + encoded), same encoded string persisted; valid JSON canonical bytes unchanged.",
+    "strict_boundary": "New workflow objects retain allow_nan=False; existing report object default remains compatible."
+  },
+  "small_fixture_evidence": {
+    "records": 5,
+    "workflows": [
+      "W4",
+      "W2",
+      "W5"
+    ],
+    "shared_root": true,
+    "all_actual_record_ids_preserved": true,
+    "two_unknown_condition_groups_distinct": true,
+    "rir_missing_and_zero_distinct": true,
+    "ordinary_read_queries": "1 root + 1 batch for all series; no one-SELECT-per-series loop",
+    "rollback_and_retry": true,
+    "three_concurrent_identical_requests": true,
+    "legacy_inline_bytes_preserved_after_revision": true,
+    "database_backup_reopen": true,
+    "other_workspace_missing_ref_rejected": true,
+    "actual_audit_file_restores_report_and_each_workflow_after_database_rename": true,
+    "missing_object_does_not_fallback_to_live_data": true
+  },
+  "preserved_failure": "before.txt/xml: original product fails required shared-storage assertion; no failed artifact overwritten.",
+  "limitations": [
+    "No new 10000-set pressure benchmark, cold/warm sample set, peak RSS or real browser run in this workstream.",
+    "Small fixture demonstrates persistence and reconstruction contracts, not performance budgets or resolution of the prior UI 600-second timeout.",
+    "Core and consumer regressions are specific suites, not a new full repository regression.",
+    "Source hashes are post-check receipt identity; a final integrated source freeze and regression receipt is owned by the root agent."
+  ],
+  "documentation": "docs/followup_workflow_storage_plan.md"
+}

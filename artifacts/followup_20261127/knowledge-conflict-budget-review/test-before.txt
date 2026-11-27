@@ -1,0 +1,80 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___ test_saturated_conflicts_preserve_independent_method_and_action[answer] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1087/test_saturated_conflicts_prese0')
+conflict_on = 'answer'
+
+    @pytest.mark.parametrize("conflict_on", ["answer", "required_premise"])
+    def test_saturated_conflicts_preserve_independent_method_and_action(tmp_path, conflict_on):
+        workbench = KnowledgeWorkbench(tmp_path / "synthetic-public", environment_kind="synthetic_test")
+        try:
+            independent = claim(workbench, "a", topics.PURPOSES, topic=TOPIC)
+            premise = claim(workbench, "ap", [], bind=False, topic=TOPIC)
+            edge(workbench, "ap", "a", "required_by", [premise, independent])
+            rival = claim(workbench, "rival", [], bind=False, topic=TOPIC)
+            sizes = {"hrv_metric_and_recording_identity": 2, "hrv_direction_and_training_response": 3,
+                     "wearable_hrv_protocol_transfer": 3, "hrv_missing_observation_unit": 3}
+            for index, (need, count) in enumerate(sizes.items()):
+                identity = "z" + str(index)
+                sid = claim(workbench, identity, topics.ANSWER_NEEDS[need]["purposes"], topic=TOPIC)
+                bind(workbench, identity, sid, need_id=need, topic=TOPIC)
+                for number in range(count - 1):
+                    predecessor = identity + "p" + str(number)
+                    source = claim(workbench, predecessor, [], bind=False, topic=TOPIC)
+                    edge(workbench, predecessor, identity, "required_by", [source, sid])
+                if conflict_on == "answer":
+                    edge(workbench, identity, "rival", "conflicts_with", [sid, rival])
+                else:
+                    edge(workbench, predecessor, "rival", "conflicts_with", [source, rival])
+    
+            answer = topics.question_sources(workbench, TOPIC, k=6, include_evidence=True)
+            audit = answer["retrieval"]
+>           assert [item["claim_id"] for item in answer["items"]] == ["a"]
+E           AssertionError: assert [] == ['a']
+E             
+E             Right contains one more item: 'a'
+E             Use -v to get more diff
+
+tests/knowledge/test_followup_conflict_allocation.py:34: AssertionError
+_ test_saturated_conflicts_preserve_independent_method_and_action[required_premise] _
+
+tmp_path = PosixPath('/tmp/pytest-of-sn_maozhifang/pytest-1087/test_saturated_conflicts_prese1')
+conflict_on = 'required_premise'
+
+    @pytest.mark.parametrize("conflict_on", ["answer", "required_premise"])
+    def test_saturated_conflicts_preserve_independent_method_and_action(tmp_path, conflict_on):
+        workbench = KnowledgeWorkbench(tmp_path / "synthetic-public", environment_kind="synthetic_test")
+        try:
+            independent = claim(workbench, "a", topics.PURPOSES, topic=TOPIC)
+            premise = claim(workbench, "ap", [], bind=False, topic=TOPIC)
+            edge(workbench, "ap", "a", "required_by", [premise, independent])
+            rival = claim(workbench, "rival", [], bind=False, topic=TOPIC)
+            sizes = {"hrv_metric_and_recording_identity": 2, "hrv_direction_and_training_response": 3,
+                     "wearable_hrv_protocol_transfer": 3, "hrv_missing_observation_unit": 3}
+            for index, (need, count) in enumerate(sizes.items()):
+                identity = "z" + str(index)
+                sid = claim(workbench, identity, topics.ANSWER_NEEDS[need]["purposes"], topic=TOPIC)
+                bind(workbench, identity, sid, need_id=need, topic=TOPIC)
+                for number in range(count - 1):
+                    predecessor = identity + "p" + str(number)
+                    source = claim(workbench, predecessor, [], bind=False, topic=TOPIC)
+                    edge(workbench, predecessor, identity, "required_by", [source, sid])
+                if conflict_on == "answer":
+                    edge(workbench, identity, "rival", "conflicts_with", [sid, rival])
+                else:
+                    edge(workbench, predecessor, "rival", "conflicts_with", [source, rival])
+    
+            answer = topics.question_sources(workbench, TOPIC, k=6, include_evidence=True)
+            audit = answer["retrieval"]
+>           assert [item["claim_id"] for item in answer["items"]] == ["a"]
+E           AssertionError: assert [] == ['a']
+E             
+E             Right contains one more item: 'a'
+E             Use -v to get more diff
+
+tests/knowledge/test_followup_conflict_allocation.py:34: AssertionError
+=========================== short test summary info ============================
+FAILED tests/knowledge/test_followup_conflict_allocation.py::test_saturated_conflicts_preserve_independent_method_and_action[answer]
+FAILED tests/knowledge/test_followup_conflict_allocation.py::test_saturated_conflicts_preserve_independent_method_and_action[required_premise]
+2 failed in 0.88s

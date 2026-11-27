@@ -1,0 +1,2254 @@
+Elapsed 20.068s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/ui/report_jobs.py", line 40, in compute
+    result = create_report(repo, analysis, period=period, progress=progress)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 133, in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 120, in assemble
+    payload, text, temporarily_unavailable = _assemble(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 173, in _assemble
+    current = period_facts(repo, cutoff_time=analysis["cutoff_time"], timezone_name=analysis["timezone"],
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 52, in period_facts
+    cache[key] = analyze(repo, *args, **{**kwargs, "use_cache": False})
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/v13.py", line 270, in analyze
+    max_age_seconds=None if cutoff_time else WORKSPACE_CACHE_SECONDS) if use_cache else compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/v13.py", line 262, in compute
+    value = _analyze_uncached(repo, window_days, cutoff_time=cutoff_time or now.isoformat(),
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/v13.py", line 339, in _analyze_uncached
+    metrics = evaluate_all(records, cutoff_time=cutoff.isoformat(), window_start=start.isoformat(),
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/engine.py", line 450, in evaluate_all
+    output = {metric_id: safe_evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/engine.py", line 450, in <dictcomp>
+    output = {metric_id: safe_evaluate(metric_id, cutoff_time=cutoff_time, window_start=window_start,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/engine.py", line 440, in safe_evaluate
+    return evaluate(metric_id, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/engine.py", line 356, in evaluate
+    value["comparison"] = (report_comparison(normalized, window, **options)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/reports.py", line 90, in report_comparison
+    selected, _ = select_as_of(rows, period, retrospective=retrospective, overlap=True)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/contracts.py", line 114, in select_as_of
+    row = dict(original)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1923, in _run_once
+    handle = None  # Needed to break cycles when an exception occurs.
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 481, in select
+    return ready
+Elapsed 41.811s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/ui/report_jobs.py", line 40, in compute
+    result = create_report(repo, analysis, period=period, progress=progress)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 133, in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 120, in assemble
+    payload, text, temporarily_unavailable = _assemble(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 180, in _assemble
+    questions = period_questions(repo, current, period=period, knowledge_root=knowledge_root, source_filter=sources,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/reports.py", line 137, in period_questions
+    questions = analyze_questions(repo, window_start=current["window_start"], window_end=current["window_end"],
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/body_metrics.py", line 855, in analyze_questions
+    return question_views(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/body_questions.py", line 1133, in question_views
+    return cached(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/body_questions.py", line 1128, in compute
+    v["fact_id"] = "question:" + canonical_hash(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/contracts.py", line 82, in canonical_hash
+    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 109, in _check_if_path_changed
+    return
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/util.py", line 158, in path_modification_time
+    return _do_with_retries(
+  File "<frozen genericpath>", line 22, in exists
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 109, in _check_if_path_changed
+    return
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/util.py", line 158, in path_modification_time
+    return _do_with_retries(
+  File "<frozen genericpath>", line 22, in exists
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 64, in run
+    self.future.set_result(result)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 91, in task
+    self._check_if_path_changed()
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1923, in _run_once
+    handle = None  # Needed to break cycles when an exception occurs.
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 481, in select
+    return ready
+Elapsed 61.927s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/ui/report_jobs.py", line 40, in compute
+    result = create_report(repo, analysis, period=period, progress=progress)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 133, in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 120, in assemble
+    payload, text, temporarily_unavailable = _assemble(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 184, in _assemble
+    runs = review_analysis(repo, current, include_background=True, knowledge_root=knowledge_root,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/reports.py", line 32, in review_analysis
+    runs.append(run_workflow(repo, WorkflowRequest("W4", cutoff_time=cutoff, timezone=zone,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/service.py", line 125, in run_workflow
+    return _run_workflow(repo, request, knowledge_root=knowledge_root, parent_run_id=parent_run_id,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/service.py", line 234, in _run_workflow
+    before_dependencies = dependency_inputs(repo, declared_request, dependency_analysis, selected_task=selected_task,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 40, in inputs
+    return deepcopy(report_value(repo, "workflow_dependencies", key,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 107, in report_value
+    values[identity] = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 41, in <lambda>
+    lambda: _inputs(repo, request, analysis, visible_at=visible_at, selected_task=selected_task)))
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 97, in _inputs
+    "session_hashes": {str(s["session_id"]): canonical_hash(s) for s in inherited.get("sessions", [])
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 97, in <dictcomp>
+    "session_hashes": {str(s["session_id"]): canonical_hash(s) for s in inherited.get("sessions", [])
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/science/contracts.py", line 82, in canonical_hash
+    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 81.998s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/ui/report_jobs.py", line 40, in compute
+    result = create_report(repo, analysis, period=period, progress=progress)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 133, in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 120, in assemble
+    payload, text, temporarily_unavailable = _assemble(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 184, in _assemble
+    runs = review_analysis(repo, current, include_background=True, knowledge_root=knowledge_root,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/reports.py", line 48, in review_analysis
+    runs.append(run_workflow(repo, WorkflowRequest(wid, cutoff_time=cutoff, timezone=zone,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/service.py", line 125, in run_workflow
+    return _run_workflow(repo, request, knowledge_root=knowledge_root, parent_run_id=parent_run_id,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/service.py", line 234, in _run_workflow
+    before_dependencies = dependency_inputs(repo, declared_request, dependency_analysis, selected_task=selected_task,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 40, in inputs
+    return deepcopy(report_value(repo, "workflow_dependencies", key,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 107, in report_value
+    values[identity] = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 41, in <lambda>
+    lambda: _inputs(repo, request, analysis, visible_at=visible_at, selected_task=selected_task)))
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/dependencies.py", line 60, in _inputs
+    records, inherited = source_snapshot(repo, cutoff, window_start=start, window_end=end,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 124, in source_snapshot
+    records, context = report_value(repo, "source_snapshot", key,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 107, in report_value
+    values[identity] = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/report_inputs.py", line 125, in <lambda>
+    lambda: snapshot(repo, *args, **kwargs))
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/v13.py", line 121, in snapshot
+    events = service.events_as_of(cutoff_time=datetime.now(timezone.utc).isoformat() if retrospective else cutoff_time,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/training/service.py", line 2381, in events_as_of
+    for candidate in self.conn.execute(" UNION ALL ".join(candidates), candidate_args):
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 102.012s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/ui/report_jobs.py", line 40, in compute
+    result = create_report(repo, analysis, period=period, progress=progress)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 26, in measured
+    return original(*args, **kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 133, in create_report
+    payload_json, text, content_signature, fast_compatible = cached(repo, "full-calendar-report", key, assemble,
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/analytics/cache.py", line 79, in cached
+    value = compute()
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 120, in assemble
+    payload, text, temporarily_unavailable = _assemble(
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/workflows/period_report.py", line 201, in _assemble
+    comparison = objective_comparison(repo, identity, cutoff_time=current["cutoff_time"])
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/src/healthzip/training/current.py", line 458, in objective_comparison
+    repo.conn.execute("BEGIN IMMEDIATE")
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 122.019s
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 142.020s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 162.022s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 182.023s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 202.025s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 222.026s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+Elapsed 242.028s
+Thread 281472844558624
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472853012768
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472870969632
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472887877920
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472879423776
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281467415163168
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281471935836448
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281472313389344
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/healthzip-followup-validation-tmp/matched-browser-gc-r1/bootstrap/diagnostic_instrument.py", line 44, in sample_stacks
+    _stacks.write(f"Thread {identity}\n"+"".join(traceback.format_stack(frame)))
+Thread 281472861466912
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1113, in run
+    item = self.queue.get()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/queue.py", line 171, in get
+    self.not_empty.wait()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 327, in wait
+    waiter.acquire()
+Thread 281472896332064
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473111318816
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473119772960
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 81, in _worker
+    work_item = work_queue.get(block=True)
+Thread 281473128227104
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 83, in _worker
+    work_item.run()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/watcher/polling_path_watcher.py", line 90, in task
+    time.sleep(_POLLING_PERIOD_SECS)
+Thread 281473190029824
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/__main__.py", line 20, in <module>
+    main(prog_name="streamlit")
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1078, in main
+    rv = self.invoke(ctx)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 358, in main_run
+    _main_run(path_str, args, flag_options=kwargs)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/cli.py", line 436, in _main_run
+    bootstrap.run(main_script_path, is_hello, args, flag_options)
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 544, in run
+    _run_server_loop(main())
+  File "/home/sn_maozhifang/apple/.venv/lib/python3.11/site-packages/streamlit/web/bootstrap.py", line 156, in _run_server_loop
+    asyncio.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 640, in run_until_complete
+    self.run_forever()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 607, in run_forever
+    self._run_once()
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/asyncio/base_events.py", line 1884, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/sn_maozhifang/anaconda3/lib/python3.11/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)

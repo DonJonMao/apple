@@ -1,0 +1,27 @@
+........F............................................................... [ 96%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffed11b8410>
+
+    def test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot(monkeypatch):
+        metric = _metric(_records())
+        payload = {"current": {
+            "metrics": {"STATE-RHR": metric}, "window_start": START, "window_end": END,
+            "cutoff_time": END, "timezone": "Asia/Shanghai",
+        }, "questions": []}
+        before = deepcopy(payload)
+        reading = report_objects.reading_view(payload)
+        assert payload == before
+        streams = reading["charts"][0]["comparison"]["streams"]
+        expected_labels = health_context.stream_labels(metric["comparison"]["streams"])
+        assert [stream["display_label"] for stream in streams] == expected_labels
+>       assert all(any(label in finding for finding in reading["findings"]) for label in expected_labels)
+E       assert False
+E        +  where False = all(<generator object test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot.<locals>.<genexpr> at 0xfffece646d40>)
+
+tests/integration/test_followup_stream_labels.py:207: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_followup_stream_labels.py::test_report_chart_selection_uses_frozen_groups_and_preserves_legacy_snapshot
+1 failed, 74 passed in 20.95s

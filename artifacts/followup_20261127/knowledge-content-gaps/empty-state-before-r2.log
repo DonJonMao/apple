@@ -1,0 +1,57 @@
+FF..                                                                     [100%]
+=================================== FAILURES ===================================
+__ test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W5] __
+
+empty_repo = <healthzip.db.repository.Repository object at 0xfffef2ffd410>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffef305b990>
+question_id = 'W5'
+
+    @pytest.mark.parametrize("question_id", ["W5", "W6"])
+    def test_empty_question_keeps_observation_and_only_shows_useful_next_steps(
+        empty_repo, monkeypatch, question_id
+    ):
+        question = _empty_question(empty_repo, question_id)
+        assert question["report_status"] == "no_records"
+        assert not question["association"] and not question["steps"]
+        before = deepcopy(question)
+        page = _PageOutput()
+        monkeypatch.setattr(question_page, "st", page)
+    
+        question_page.render_question(question, repo=empty_repo)
+    
+        assert question == before
+        assert question["observation"] in page.messages
+        steps = page.messages[page.messages.index("下一步") + 1:]
+>       assert steps
+E       assert []
+
+tests/unit/test_question_page_empty_state.py:60: AssertionError
+__ test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W6] __
+
+empty_repo = <healthzip.db.repository.Repository object at 0xfffef3001c50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xfffef2fdf990>
+question_id = 'W6'
+
+    @pytest.mark.parametrize("question_id", ["W5", "W6"])
+    def test_empty_question_keeps_observation_and_only_shows_useful_next_steps(
+        empty_repo, monkeypatch, question_id
+    ):
+        question = _empty_question(empty_repo, question_id)
+        assert question["report_status"] == "no_records"
+        assert not question["association"] and not question["steps"]
+        before = deepcopy(question)
+        page = _PageOutput()
+        monkeypatch.setattr(question_page, "st", page)
+    
+        question_page.render_question(question, repo=empty_repo)
+    
+        assert question == before
+>       assert question["observation"] in page.messages
+E       assert '所选期间尚无相关睡眠或生理记录，不能建立睡眠与 SDNN 对照。' in ['<span data-hz-question="question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811" style="display:none"></span>', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步']
+E        +  where ['<span data-hz-question="question:b3a21cefd9669d0b06b0e64c3b807855c939bda871bf1cd1afdc9563f5098811" style="display:none"></span>', '### 睡眠与 SDNN', '2026-11-03 — 2026-11-10', '下一步'] = <test_question_page_empty_state._PageOutput object at 0xfffef3059f50>.messages
+
+tests/unit/test_question_page_empty_state.py:58: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_question_page_empty_state.py::test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W5]
+FAILED tests/unit/test_question_page_empty_state.py::test_empty_question_keeps_observation_and_only_shows_useful_next_steps[W6]
+2 failed, 2 passed in 2.31s

@@ -72,3 +72,104 @@ def test_thousand_unknown_tasks_keep_ids_without_thousand_metric_executions():
     assert "caller change" not in results[1]["evidence_refs"]
     assert "caller change" not in templates["no_designated_reference"]["reason_codes"]
     assert results[1]["window"]["timezone"] == "UTC"
+
+
+def test_clone_matches_deepcopy_and_isolates_nested_aliases():
+    from copy import deepcopy
+
+    from healthzip.science.contracts import validate_result
+
+    prototype = calculated([row(1, is_reference=False)], {"timezone": "UTC"})
+    shared = [{"values": [1.25, None, False, "measured"]}]
+    prototype["assumptions"] = prototype["uncertainty"]["assumptions"] = shared
+    pair = (shared, ("immutable", 7, None))
+    prototype["copy_contract_probe"] = {"pair": pair, "same_pair": pair}
+    validate_result(prototype)
+    expected = deepcopy(prototype)
+    actual = engine._clone_ordinary_reference_result(prototype)
+    sibling = engine._clone_ordinary_reference_result(prototype)
+    assert actual == expected == sibling == prototype
+    assert type(actual["copy_contract_probe"]["pair"]) is tuple
+    assert actual["copy_contract_probe"]["pair"] is actual["copy_contract_probe"]["same_pair"]
+    assert actual["assumptions"] is actual["uncertainty"]["assumptions"]
+    assert actual["assumptions"] is actual["copy_contract_probe"]["pair"][0]
+    assert actual["assumptions"] is not shared
+    assert actual["copy_contract_probe"]["pair"][1] is pair[1]  # deepcopy reuses this immutable tuple.
+    actual["copy_contract_probe"]["pair"][0][0]["values"].append("only this result")
+    actual["window"]["timezone"] = "caller mutation"
+    assert prototype == expected == sibling
+    assert "only this result" not in shared[0]["values"]
+
+
+@pytest.mark.parametrize("base_type,initial", [(dict, {}), (list, []), (str, "label")])
+@pytest.mark.parametrize("subclass_first", [False, True])
+def test_clone_preserves_subclass_metadata_and_aliases_across_fallback(base_type, initial, subclass_first):
+    from copy import deepcopy
+
+    class Annotated(base_type):
+        pass
+
+    shared = {"notes": ["original"]}
+    annotated = Annotated(initial)
+    annotated.metadata = shared
+    items = [("annotated", annotated), ("shared", shared)]
+    prototype = dict(items if subclass_first else reversed(items))
+    actual = engine._clone_ordinary_reference_result(prototype)
+    expected = deepcopy(prototype)
+    assert actual == expected
+    assert type(actual["annotated"]) is type(expected["annotated"]) is Annotated
+    assert actual["annotated"].metadata == expected["annotated"].metadata
+    assert actual["annotated"].metadata is actual["shared"]
+    assert actual["shared"] is not shared
+    actual["annotated"].metadata["notes"].append("caller change")
+    assert shared == {"notes": ["original"]}
+
+
+def test_reference_reuse_remains_exact_to_normal_evaluation_and_validates_every_copy(monkeypatch):
+    from datetime import datetime, timezone
+
+    from healthzip.science import contracts
+
+    class FixedClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 11, 2, 4, 5, 6, tzinfo=timezone.utc)
+
+    monkeypatch.setattr(contracts, "datetime", FixedClock)
+    context = {"timezone": "UTC", "comparison_pair": [row(8, available_at="2026-12-01T00:00:00Z")]}
+    bounded = engine._bounded_context(context, WINDOW)
+    templates = {}
+    for indexes in ((1,), (2, 3, 4), (5, 6)):
+        records = [row(i, is_reference=False, equipment_instance_id=None, rir=None) for i in indexes]
+        selected, _ = select_as_of([flatten_record(r) for r in records], WINDOW)
+        expected = calculated(records, context)
+        actual = engine._ordinary_reference_result(selected, WINDOW, context, bounded, templates)
+        assert actual == expected  # Includes algorithm/selection versions, source IDs and all fields.
+        actual["uncertainty"]["assumptions"].append("caller mutation")
+        assert templates["no_designated_reference"]["uncertainty"]["assumptions"] == []
+    templates["no_designated_reference"]["valid_n"] = 20
+    with pytest.raises(ValueError, match="invalid_denominator"):
+        engine._ordinary_reference_result(selected, WINDOW, context, bounded, templates)
+
+
+def test_clone_preserves_string_subclass_key_metadata_without_sharing_mutable_values():
+    from copy import deepcopy
+
+    class AnnotatedKey(str):
+        pass
+
+    shared = {"notes": ["recorded condition"]}
+    key = AnnotatedKey("condition")
+    key.metadata = shared
+    prototype = {"before": shared, key: {"same": shared}}
+    actual = engine._clone_ordinary_reference_result(prototype)
+    expected = deepcopy(prototype)
+    assert actual == expected
+    actual_key = next(k for k in actual if type(k) is AnnotatedKey)
+    expected_key = next(k for k in expected if type(k) is AnnotatedKey)
+    assert actual_key is not key
+    assert actual_key.metadata == expected_key.metadata
+    assert actual_key.metadata is actual["before"] is actual[key]["same"]
+    assert actual_key.metadata is not shared
+    actual_key.metadata["notes"].append("only this result")
+    assert key.metadata == {"notes": ["recorded condition"]}
